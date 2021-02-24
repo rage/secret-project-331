@@ -1,0 +1,37 @@
+[package]
+name = "headless-lms-actix"
+version = "0.1.0"
+authors = ["Henrik Nygren <nygrenh@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# To add a new dependency, search for it using `cargo search` and take the latest version of the package
+# and the comment from there.
+
+[dependencies]
+# Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
+actix-web = "4.0.0-beta.3"
+# A `dotenv` implementation for Rust
+dotenv = "0.15.0"
+# A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
+listenfd = "0.3.3"
+# A logging implementation for `log` which is configured via an environment variable.
+env_logger = "0.8.3"
+# A lightweight logging facade for Rust
+log = "0.4.14"
+# Flexible concrete Error type built on std::error::Error
+anyhow = "1.0.38"
+# 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
+sqlx = { version = "0.5.1", features = [ "postgres", "runtime-actix-rustls", "uuid", "chrono" ] }
+# A library to generate and parse UUIDs.
+uuid = { version = "0.8.2", features = ["serde", "v4"] }
+# A generic serialization/deserialization framework
+serde = "1.0.123"
+# Date and time library for Rust
+chrono = { version = "0.4.19", features = ["serde"] }
+# A JSON serialization file format
+serde_json = "1.0.62"
+# Adds #[derive(x)] macros for more traits
+derive_more = "0.99.11"
+# A library to create HTTP error response content for APIs based on RFC 7807
+http-api-problem = "0.21.0"

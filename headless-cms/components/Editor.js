@@ -13,6 +13,8 @@ import {
 	DropZoneProvider,
 } from '@wordpress/components';
 import { registerCoreBlocks } from '@wordpress/block-library';
+import '@wordpress/block-editor/build-style/style.css'
+import '@wordpress/components/build-style/style.css'
 import '@wordpress/format-library';
 
 function Editor() {

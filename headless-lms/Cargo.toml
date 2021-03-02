@@ -11,6 +11,14 @@ edition = "2018"
 [dependencies]
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
 actix-web = "4.0.0-beta.3"
+# Tokio-based single-threaded async runtime for the Actix ecosystem
+actix-rt = "2.1.0"
+# An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
+tokio = { version = "1.2.0", features = ["fs", "io-util"] }
+# Additional utilities for working with Tokio.
+tokio-util = { version = "0.6.3", features = ["io"] }
+# An implementation of futures and streams featuring zero allocations, composability, and itera…
+futures = "0.3.13"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
 # A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
@@ -35,3 +43,11 @@ serde_json = "1.0.62"
 derive_more = "0.99.11"
 # A library to create HTTP error response content for APIs based on RFC 7807
 http-api-problem = "0.21.0"
+# A crate for uploading files to Google cloud storage, and for generating download urls.
+cloud-storage = "0.8.0"
+# A library for managing a temporary directory and deleting all contents when it's dropped.
+tempdir = "0.3.7"
+# Type erasure for async trait methods
+async-trait = "0.1.42"
+# Types and traits for working with bytes
+bytes = "1.0.1"

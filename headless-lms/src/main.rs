@@ -1,5 +1,6 @@
 pub mod controllers;
 pub mod models;
+pub mod utils;
 
 #[macro_use]
 extern crate log;

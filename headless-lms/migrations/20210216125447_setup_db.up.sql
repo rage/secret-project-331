@@ -64,9 +64,10 @@ CREATE TABLE exercises (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT now(),
   updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  content JSONB,
   course_id UUID REFERENCES courses NOT NULL,
-  deleted BOOLEAN NOT NULL DEFAULT FALSE
+  deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  name varchar(255),
+  deadline TIMESTAMP
 );
 
 CREATE TRIGGER set_timestamp
@@ -74,18 +75,24 @@ BEFORE UPDATE ON exercises
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
+COMMENT ON TABLE exercises IS 'Exercise is an collection of exercise items. The exercise itself does not contain any information on what kind of activities it contains -- that information lives inside the items. This enables us for example to combine different exercise types or to provide different assignments to different students.';
 
--- exercise_line_items
-CREATE TABLE exercise_line_items (
+
+-- exercise_items
+CREATE TABLE exercise_items (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT now(),
   updated_at TIMESTAMP NOT NULL DEFAULT now(),
   exercise_id UUID REFERENCES exercises NOT NULL,
-  deleted BOOLEAN NOT NULL DEFAULT FALSE
+  type VARCHAR(255) NOT NULL,
+  assignment JSONB,
+  deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  spec JSONB,
+  spec_file_id UUID
 );
 
 CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON exercise_line_items
+BEFORE UPDATE ON exercise_items
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 

@@ -1,4 +1,6 @@
-use crate::models::courses::Course;
+use std::str::FromStr;
+
+use crate::models::{courses::Course, pages::Page};
 use actix_web::{
     dev::HttpResponseBuilder,
     error,
@@ -10,9 +12,10 @@ use derive_more::Display;
 use http_api_problem::HttpApiProblem;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use uuid::Uuid;
 
 #[derive(Debug, Display, Serialize, Deserialize)]
-enum ApplicationError {
+pub enum ApplicationError {
     #[display(fmt = "Internal server error")]
     InternalServerError(String),
 
@@ -52,4 +55,19 @@ pub async fn get_all_courses(pool: web::Data<PgPool>) -> Result<Json<Vec<Course>
             ApplicationError::InternalServerError(original_error.to_string())
         })?;
     Ok(Json(courses))
+}
+
+pub async fn get_course_pages(
+    request_course_id: web::Path<String>,
+    pool: web::Data<PgPool>,
+) -> Result<Json<Vec<Page>>> {
+    let course_id = Uuid::from_str(&request_course_id)
+        .map_err(|original_error| ApplicationError::BadRequest(original_error.to_string()))?;
+
+    let pages: Vec<Page> = crate::models::pages::course_pages(pool.get_ref(), course_id)
+        .await
+        .map_err(|original_error| {
+            ApplicationError::InternalServerError(original_error.to_string())
+        })?;
+    Ok(Json(pages))
 }

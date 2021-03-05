@@ -30,7 +30,7 @@ log = "0.4.14"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.38"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
-sqlx = { version = "0.5.1", features = [ "postgres", "runtime-actix-rustls", "uuid", "chrono" ] }
+sqlx = { version = "0.5.1", features = [ "postgres", "runtime-actix-rustls", "uuid", "chrono", "json" ] }
 # A library to generate and parse UUIDs.
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
 # A generic serialization/deserialization framework

@@ -50,6 +50,18 @@ async fn main() -> Result<()> {
                 "/api/v0/courses",
                 web::get().to(controllers::courses::get_all_courses),
             )
+            .route(
+                "/api/v0/courses/{course_id}/pages",
+                web::get().to(controllers::courses::get_course_pages),
+            )
+            .route(
+                "/api/v0/pages",
+                web::post().to(controllers::pages::post_new_page),
+            )
+            .route(
+                "/api/v0/pages/{page_id}",
+                web::put().to(controllers::pages::update_page),
+            )
     });
 
     server = match listenfd.take_tcp_listener(0)? {

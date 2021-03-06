@@ -1,3 +1,4 @@
+//! Controllers for requests starting with `/api/v0/pages`.
 use std::str::FromStr;
 
 use crate::models::pages::{NewPage, Page, PageUpdate};
@@ -8,8 +9,11 @@ use actix_web::{
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use super::courses::ApplicationError;
+use super::ApplicationError;
 
+/**
+GET `/api/v0/pages/:page_id` - Get a page by id.
+*/
 pub async fn get_page(
     request_page_id: web::Path<String>,
     pool: web::Data<PgPool>,
@@ -25,6 +29,9 @@ pub async fn get_page(
     Ok(Json(page))
 }
 
+/**
+POST `/api/v0/pages` - Create a new page.
+*/
 pub async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
@@ -38,6 +45,9 @@ pub async fn post_new_page(
     Ok(Json(page))
 }
 
+/**
+PUT `/api/v0/pages/:page_id` - Update a page by id.
+*/
 pub async fn update_page(
     payload: web::Json<PageUpdate>,
     request_page_id: web::Path<String>,

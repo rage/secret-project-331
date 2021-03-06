@@ -1,53 +1,31 @@
-use std::str::FromStr;
-
+//! Controllers for requests starting with `/api/v0/courses`.
+use super::ApplicationError;
 use crate::models::{courses::Course, pages::Page};
 use actix_web::{
-    dev::HttpResponseBuilder,
-    error,
-    http::{header::ContentType, StatusCode},
     web::{self, Json},
-    HttpResponse, Result,
+    Result,
 };
-use derive_more::Display;
-use http_api_problem::HttpApiProblem;
-use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use std::str::FromStr;
 use uuid::Uuid;
 
-#[derive(Debug, Display, Serialize, Deserialize)]
-pub enum ApplicationError {
-    #[display(fmt = "Internal server error")]
-    InternalServerError(String),
+/**
+GET `/api/v0/courses` - Returns a list of all courses.
 
-    #[display(fmt = "Bad request")]
-    BadRequest(String),
-}
-
-impl std::error::Error for ApplicationError {}
-
-impl error::ResponseError for ApplicationError {
-    fn error_response(&self) -> HttpResponse {
-        let status = self.status_code();
-        let mut detail = "Error";
-        if let ApplicationError::InternalServerError(reason) = self {
-            detail = reason;
-        }
-        let problem_description =
-            HttpApiProblem::with_title_and_type_from_status(status).set_detail(detail);
-
-        HttpResponseBuilder::new(status)
-            .append_header(ContentType::json())
-            .body(&problem_description.json_string())
+# Example
+```json
+[
+    {
+        "id": "a90c39f8-5d23-461f-8375-0b05a55d7ac1",
+        "created_at": "2021-03-05T22:26:59.067294",
+        "updated_at": "2021-03-05T22:26:59.067294",
+        "name": "Introduction to Programming",
+        "organization_id": "c6fbb0fe-b418-4156-8319-fc761d482dcb",
+        "deleted": false
     }
-
-    fn status_code(&self) -> StatusCode {
-        match *self {
-            ApplicationError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            ApplicationError::BadRequest(_) => StatusCode::BAD_REQUEST,
-        }
-    }
-}
-
+]
+```
+ */
 pub async fn get_all_courses(pool: web::Data<PgPool>) -> Result<Json<Vec<Course>>> {
     let courses = crate::models::courses::all_courses(pool.get_ref())
         .await
@@ -57,6 +35,28 @@ pub async fn get_all_courses(pool: web::Data<PgPool>) -> Result<Json<Vec<Course>
     Ok(Json(courses))
 }
 
+/**
+GET `/api/v0/courses/:course_id/pages` - Returns a list of pages in a course.
+# Example
+```json
+[
+    {
+        "id": "86ac4f0a-ccca-464e-89f4-ed58969b1103",
+        "created_at": "2021-03-05T22:50:47.920120",
+        "updated_at": "2021-03-05T22:50:47.920120",
+        "course_id": "a90c39f8-5d23-461f-8375-0b05a55d7ac1",
+        "content": [
+            {
+                "id": "55be197d-4145-444a-bc1f-ee1091c47ad9"
+            }
+        ],
+        "url_path": "/part-1/01-loops-and-variables",
+        "title": "Loops and Variables",
+        "deleted": false
+    }
+]
+```
+*/
 pub async fn get_course_pages(
     request_course_id: web::Path<String>,
     pool: web::Data<PgPool>,

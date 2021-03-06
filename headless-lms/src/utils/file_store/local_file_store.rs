@@ -104,7 +104,7 @@ mod tests {
     use std::path::Path;
 
     use super::LocalFileStore;
-    use crate::utils::filestore::FileStore;
+    use crate::utils::file_store::FileStore;
     use tempdir::TempDir;
 
     #[actix_rt::test]

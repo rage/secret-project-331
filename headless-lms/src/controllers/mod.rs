@@ -1,5 +1,5 @@
 /*!
-Api v0 controllers.
+Handlers for HTTP requests to `/api/v0`.
 
 This documents all endpoints. Select a module below for a category.
 
@@ -8,10 +8,24 @@ This documents all endpoints. Select a module below for a category.
 pub mod courses;
 pub mod pages;
 
-use actix_web::{dev::HttpResponseBuilder, error, http::header::ContentType, HttpResponse};
+use actix_web::{
+    dev::HttpResponseBuilder,
+    error,
+    http::header::ContentType,
+    web::{self, ServiceConfig},
+    HttpResponse,
+};
 use derive_more::Display;
 use http_api_problem::{HttpApiProblem, StatusCode};
 use serde::{Deserialize, Serialize};
+
+use self::courses::_add_courses_routes;
+
+/// Add controllers from all the submodules.
+pub fn configure_controllers(cfg: &mut ServiceConfig) {
+    cfg.service(web::scope("/courses").configure(_add_courses_routes))
+        .service(web::scope("/pages").configure(_add_courses_routes));
+}
 
 /**
 Represents error messages that are sent in responses.

@@ -1,6 +1,7 @@
 //! Controllers for requests starting with `/api/v0/courses`.
 use super::ApplicationError;
 use crate::models::{courses::Course, pages::Page};
+use actix_web::web::ServiceConfig;
 use actix_web::{
     web::{self, Json},
     Result,
@@ -26,7 +27,7 @@ GET `/api/v0/courses` - Returns a list of all courses.
 ]
 ```
  */
-pub async fn get_all_courses(pool: web::Data<PgPool>) -> Result<Json<Vec<Course>>> {
+async fn get_all_courses(pool: web::Data<PgPool>) -> Result<Json<Vec<Course>>> {
     let courses = crate::models::courses::all_courses(pool.get_ref())
         .await
         .map_err(|original_error| {
@@ -57,7 +58,7 @@ GET `/api/v0/courses/:course_id/pages` - Returns a list of pages in a course.
 ]
 ```
 */
-pub async fn get_course_pages(
+async fn get_course_pages(
     request_course_id: web::Path<String>,
     pool: web::Data<PgPool>,
 ) -> Result<Json<Vec<Page>>> {
@@ -70,4 +71,17 @@ pub async fn get_course_pages(
             ApplicationError::InternalServerError(original_error.to_string())
         })?;
     Ok(Json(pages))
+}
+
+/**
+Add a route for each controller in this module.
+
+The name starts with an underline in order to appear before other functions in the module documentation.
+
+We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
+*/
+pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
+    cfg.route("/", web::get().to(get_all_courses))
+        .route("/courses", web::get().to(get_all_courses))
+        .route("/{course_id}/pages", web::get().to(get_course_pages));
 }

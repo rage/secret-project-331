@@ -5,27 +5,15 @@ pub mod utils;
 #[macro_use]
 extern crate log;
 
-use actix_web::{get, middleware::Logger, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{middleware::Logger, web, App, HttpServer};
 use anyhow::Result;
+use controllers::configure_controllers;
 use dotenv::dotenv;
 use listenfd::ListenFd;
 use sqlx::PgPool;
 use std::env;
 
-#[get("/")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[post("/echo")]
-async fn echo(req_body: String) -> impl Responder {
-    HttpResponse::Ok().body(req_body)
-}
-
-async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok().body("Hey there!")
-}
-
+/// The entrypoint to the application.
 #[actix_web::main]
 async fn main() -> Result<()> {
     std::env::set_var("RUST_LOG", "info,actix_web=info");
@@ -41,27 +29,11 @@ async fn main() -> Result<()> {
 
     let mut server = HttpServer::new(move || {
         App::new()
-            .wrap(Logger::default())
+            .wrap(Logger::new(
+                "\"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %a %Dms",
+            ))
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
-            .service(hello)
-            .service(echo)
-            .route("/hey", web::get().to(manual_hello))
-            .route(
-                "/api/v0/courses",
-                web::get().to(controllers::courses::get_all_courses),
-            )
-            .route(
-                "/api/v0/courses/{course_id}/pages",
-                web::get().to(controllers::courses::get_course_pages),
-            )
-            .route(
-                "/api/v0/pages",
-                web::post().to(controllers::pages::post_new_page),
-            )
-            .route(
-                "/api/v0/pages/{page_id}",
-                web::put().to(controllers::pages::update_page),
-            )
+            .service(web::scope("/api/v0").configure(configure_controllers))
     });
 
     server = match listenfd.take_tcp_listener(0)? {

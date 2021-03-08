@@ -44,6 +44,23 @@ BEFORE UPDATE ON courses
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
+-- pages
+CREATE TABLE pages (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP NOT NULL DEFAULT now(),
+  course_id UUID REFERENCES courses NOT NULL,
+  content JSONB NOT NULL,
+  url_path VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  UNIQUE(url_path, deleted)
+);
+
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON pages
+FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
 
 -- submissions
 CREATE TABLE submissions (
@@ -66,8 +83,9 @@ CREATE TABLE exercises (
   updated_at TIMESTAMP NOT NULL DEFAULT now(),
   course_id UUID REFERENCES courses NOT NULL,
   deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  name varchar(255),
-  deadline TIMESTAMP
+  name varchar(255) NOT NULL,
+  deadline TIMESTAMP,
+  page_id UUID REFERENCES pages NOT NULL
 );
 
 CREATE TRIGGER set_timestamp
@@ -84,7 +102,7 @@ CREATE TABLE exercise_items (
   created_at TIMESTAMP NOT NULL DEFAULT now(),
   updated_at TIMESTAMP NOT NULL DEFAULT now(),
   exercise_id UUID REFERENCES exercises NOT NULL,
-  type VARCHAR(255) NOT NULL,
+  exercise_type VARCHAR(255) NOT NULL,
   assignment JSONB,
   deleted BOOLEAN NOT NULL DEFAULT FALSE,
   spec JSONB,
@@ -93,24 +111,5 @@ CREATE TABLE exercise_items (
 
 CREATE TRIGGER set_timestamp
 BEFORE UPDATE ON exercise_items
-FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp();
-
-
--- pages
-CREATE TABLE pages (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  course_id UUID REFERENCES courses NOT NULL,
-  content JSONB NOT NULL,
-  url_path VARCHAR(255) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  UNIQUE(url_path, deleted)
-);
-
-CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON pages
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();

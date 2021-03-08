@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/pages`.
 use std::str::FromStr;
 
-use crate::models::pages::{NewPage, Page, PageUpdate};
+use crate::models::pages::{NewPage, Page, PageUpdate, PageWithExercises};
 use actix_web::web::ServiceConfig;
 use actix_web::{
     web::{self, Json},
@@ -34,7 +34,10 @@ async fn get_page(
 /**
 POST `/api/v0/pages` - Create a new page.
 */
-async fn post_new_page(payload: web::Json<NewPage>, pool: web::Data<PgPool>) -> Result<Json<Page>> {
+async fn post_new_page(
+    payload: web::Json<NewPage>,
+    pool: web::Data<PgPool>,
+) -> Result<Json<PageWithExercises>> {
     let new_page = payload.0;
     let page = crate::models::pages::insert_page(pool.get_ref(), new_page)
         .await
@@ -51,7 +54,7 @@ async fn update_page(
     payload: web::Json<PageUpdate>,
     request_page_id: web::Path<String>,
     pool: web::Data<PgPool>,
-) -> Result<Json<Page>> {
+) -> Result<Json<PageWithExercises>> {
     let page_id = Uuid::from_str(&request_page_id)
         .map_err(|original_error| ApplicationError::BadRequest(original_error.to_string()))?;
 

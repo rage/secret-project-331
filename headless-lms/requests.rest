@@ -1,0 +1,56 @@
+POST http://localhost:3001/api/v0/pages HTTP/1.1
+Content-Type: application/json
+
+{
+  "content": [{"type": "x"}],
+  "url_path": "/part-1/hello-world",
+  "title": "Hello world!",
+  "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
+  "exercises": [
+    {
+      "id": "161966a7-84cd-4b74-ae29-a6bb4762c53d",
+      "name": "Exercise 1",
+      "exercise_items": [
+        {
+          "id": "466158ed-feae-4fa6-8824-f284a1a5324f",
+          "exercise_type": "quiz",
+          "assignment": [{"type": "y"}],
+          "spec": { "has_swag": true }
+        }
+      ]
+    }
+  ]
+}
+
+####
+
+PUT http://localhost:3001/api/v0/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02 HTTP/1.1
+Content-Type: application/json
+
+{
+  "content": [{"type": "x"}],
+  "url_path": "/part-1/hello-world",
+  "title": "Hello world!",
+  "exercises": [
+    {
+      "id": "e5773229-71fc-494e-8619-b26308df74e3",
+      "name": "Exercise 11",
+      "exercise_items": [
+        {
+          "id": "3ad208d0-a22a-43e3-a395-6f9972ce873e",
+          "exercise_type": "quiz",
+          "assignment": [{"type": "y"}],
+          "spec": { "has_swag": false }
+        }
+      ]
+    }
+  ]
+}
+
+####
+
+GET http://localhost:3001/api/v0/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02
+
+####
+
+DELETE http://localhost:3001/api/v0/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02

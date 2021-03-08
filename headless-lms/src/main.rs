@@ -5,7 +5,7 @@ pub mod utils;
 #[macro_use]
 extern crate log;
 
-use actix_web::{middleware::Logger, web, App, HttpServer};
+use actix_web::{error, middleware::Logger, web, App, HttpResponse, HttpServer};
 use anyhow::Result;
 use controllers::configure_controllers;
 use dotenv::dotenv;
@@ -28,10 +28,22 @@ async fn main() -> Result<()> {
     let db_pool = PgPool::connect(&database_url).await?;
 
     let mut server = HttpServer::new(move || {
+        let json_config = web::JsonConfig::default()
+            .limit(4096)
+            .error_handler(|err, _req| {
+                info!("Bad request: {}", &err);
+                // create custom error response
+                let response = HttpResponse::BadRequest().body(format!(
+                    "{{\"title\": \"Bad Request\", \"detail\": \"{}\"}}",
+                    &err
+                ));
+                error::InternalError::from_response(err, response).into()
+            });
         App::new()
             .wrap(Logger::new(
                 "\"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %a %Dms",
             ))
+            .app_data(json_config)
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             .service(web::scope("/api/v0").configure(configure_controllers))
     });

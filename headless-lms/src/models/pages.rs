@@ -1,7 +1,8 @@
-use std::cell::RefCell;
+use std::{cell::RefCell, collections::HashMap};
 
 use anyhow::Result;
 use chrono::NaiveDateTime;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgPool, Postgres, Transaction};
 use uuid::Uuid;
@@ -133,6 +134,65 @@ pub async fn get_page(pool: &PgPool, page_id: Uuid) -> Result<Page> {
     return Ok(pages);
 }
 
+pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<PageWithExercises> {
+    let mut connection = pool.acquire().await?;
+
+    let page = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
+        .fetch_one(&mut connection)
+        .await?;
+
+    let exercises: Vec<Exercise> = sqlx::query_as!(
+        Exercise,
+        "SELECT * FROM exercises WHERE page_id = $1;",
+        page_id
+    )
+    .fetch_all(&mut connection)
+    .await?;
+
+    let exercise_items: Vec<ExerciseItem> = sqlx::query_as!(
+        ExerciseItem,
+        "SELECT * FROM exercise_items WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
+        page_id
+    )
+    .fetch_all(&mut connection)
+    .await?;
+
+    let mut exercise_items_by_exercise: HashMap<Uuid, Vec<ExerciseItem>> = exercise_items
+        .into_iter()
+        .into_group_map_by(|ei| ei.exercise_id);
+    let page_with_exercises = PageWithExercises {
+        id: page.id,
+        created_at: page.created_at,
+        updated_at: page.updated_at,
+        content: page.content,
+        course_id: page.course_id,
+        deleted: page.deleted,
+        title: page.title,
+        url_path: page.url_path,
+        exercises: exercises
+            .into_iter()
+            .map(|e| {
+                let items = match exercise_items_by_exercise.remove(&e.id) {
+                    Some(ei) => ei,
+                    None => Vec::new(),
+                };
+                ExerciseWithExerciseItems {
+                    id: e.id,
+                    page_id: e.page_id,
+                    created_at: e.created_at,
+                    updated_at: e.updated_at,
+                    course_id: e.course_id,
+                    deadline: e.deadline,
+                    name: e.name,
+                    deleted: e.deleted,
+                    exercise_items: items,
+                }
+            })
+            .collect(),
+    };
+    return Ok(page_with_exercises);
+}
+
 // This has 3 stages: updating page, updating exercises, updating exercise items.
 // This is currently implemented with multiple sql queries, but it could be optimized
 // with data-modifying common table expressions if necessary.
@@ -189,6 +249,28 @@ async fn upsert_exercises_and_exercise_items(
     page: &Page,
     transaction_holder: &RefCell<Transaction<'_, Postgres>>,
 ) -> Result<Vec<ExerciseWithExerciseItems>> {
+    // All related exercises and items should be deleted if not included in the update
+    // We accomplish this by deleting everyting first in the transaction and then
+    // undeleting the necessary items when doing the actual updates
+    // We need existing exercise ids to check which ids are client generated and need to be replaced.
+    sqlx::query!(
+        r#"
+        UPDATE exercises SET deleted = true WHERE page_id = $1
+            "#,
+        page.id
+    )
+    .execute(&mut *transaction_holder.borrow_mut())
+    .await?;
+
+    sqlx::query!(
+        r#"
+        UPDATE exercise_items SET deleted = true WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
+            "#,
+        page.id
+    )
+    .execute(&mut *transaction_holder.borrow_mut())
+    .await?;
+
     // We need existing exercise ids to check which ids are client generated and need to be replaced.
     let existing_exercise_ids = sqlx::query!(
         r#"
@@ -226,7 +308,7 @@ async fn upsert_exercises_and_exercise_items(
 INSERT INTO exercises(id, course_id, name, page_id)
 VALUES ($1, $2, $3, $4)
 ON CONFLICT (id) DO UPDATE
-SET course_id=$2, name=$3, page_id=$4
+SET course_id=$2, name=$3, page_id=$4, deleted=false
 RETURNING *;
         "#,
             safe_for_db_exercise_id,
@@ -252,7 +334,7 @@ RETURNING *;
 INSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, spec)
 VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (id) DO UPDATE
-SET exercise_id=$2, exercise_type=$3, assignment=$4, spec=$5
+SET exercise_id=$2, exercise_type=$3, assignment=$4, spec=$5, deleted=false
 RETURNING *;
         "#,
                 safe_for_db_exercise_item_id,
@@ -277,7 +359,6 @@ RETURNING *;
             exercise_items: exercise_exercise_items,
         })
     }
-    // TODO: handle delete
     return Ok(result_exercises);
 }
 
@@ -318,9 +399,8 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<PageWithExe
     });
 }
 
-pub async fn delete_page(pool: &PgPool, page_id: Uuid) -> Result<Page> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<Page> {
+    let mut trx = pool.begin().await?;
     let page = sqlx::query_as!(
         Page,
         r#"
@@ -332,7 +412,31 @@ pub async fn delete_page(pool: &PgPool, page_id: Uuid) -> Result<Page> {
           "#,
         page_id,
     )
-    .fetch_one(connection)
+    .fetch_one(&mut trx)
     .await?;
+
+    sqlx::query!(
+        r#"
+  UPDATE exercises
+  SET deleted = true
+  WHERE page_id = $1
+          "#,
+        page_id,
+    )
+    .execute(&mut trx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+  UPDATE exercise_items
+  SET deleted = true
+  WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
+          "#,
+        page_id,
+    )
+    .execute(&mut trx)
+    .await?;
+
+    trx.commit().await?;
     return Ok(page);
 }

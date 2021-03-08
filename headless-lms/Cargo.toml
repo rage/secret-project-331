@@ -51,3 +51,5 @@ tempdir = "0.3.7"
 async-trait = "0.1.42"
 # Types and traits for working with bytes
 bytes = "1.0.1"
+# Extra iterator adaptors, iterator methods, free functions, and macros.
+itertools = "0.10.0"

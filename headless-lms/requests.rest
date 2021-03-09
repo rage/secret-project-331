@@ -54,3 +54,8 @@ GET http://localhost:3001/api/v0/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02
 ####
 
 DELETE http://localhost:3001/api/v0/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02
+
+
+###
+
+http://localhost:3001/api/v0/organizations

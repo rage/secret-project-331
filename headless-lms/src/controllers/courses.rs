@@ -81,7 +81,6 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/", web::get().to(get_all_courses))
-        .route("/courses", web::get().to(get_all_courses))
+    cfg.route("", web::get().to(get_all_courses))
         .route("/{course_id}/pages", web::get().to(get_course_pages));
 }

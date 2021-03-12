@@ -1,16 +1,15 @@
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import { ComponentType } from 'react'
-import { fetchOrganizations } from '../utils/fetchData'
+import Layout from '../components/Layout'
 
 const Editor: ComponentType = dynamic(() => import('../components/Editor'), { ssr: false })
 
 const Home = () => {
   return (
-    <>
-      <div>Hello world</div>
+    <Layout>
       <Editor />
-      <button onClick={fetchOrganizations}>Fetch org</button>
-    </>
+    </Layout>
   )
 }
 export default Home

@@ -126,19 +126,24 @@ POST /api/v0/pages HTTP/1.1
 Content-Type: application/json
 
 {
-  "content": [{"type": "x"}],
-  "url_path": "/part-1/hello-world",
+  "content": [
+    {
+      "type": "x",
+      "id": "2a4e517d-a7d2-4d82-89fb-a1333d8d01d1"
+    }
+  ],
+  "url_path": "/part-2/best-page",
   "title": "Hello world!",
   "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
   "exercises": [
     {
-      "id": "161966a7-84cd-4b74-ae29-a6bb4762c53d",
+      "id": "2a4e517d-a7d2-4d82-89fb-a1333d8d01d1",
       "name": "Exercise 1",
       "exercise_items": [
         {
-          "id": "466158ed-feae-4fa6-8824-f284a1a5324f",
+          "id": "2c12869a-d5ee-4d79-a387-2964f5352150",
           "exercise_type": "quiz",
-          "assignment": [{"type": "y"}],
+          "assignment": [{ "type": "y" }],
           "spec": { "has_swag": true }
         }
       ]
@@ -150,34 +155,35 @@ Content-Type: application/json
 Response:
 ```json
 {
-  "id": "40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02",
-  "created_at": "2021-03-08T20:14:56.216394",
-  "updated_at": "2021-03-08T20:14:56.216394",
+  "id": "d90bf7ab-181c-4aa2-a87e-5c28238cc67d",
+  "created_at": "2021-03-12T09:27:36.428501",
+  "updated_at": "2021-03-12T09:27:36.428501",
   "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
   "content": [
     {
+      "id": "18110110-d02a-4432-8cb9-084d0c63a524",
       "type": "x"
     }
   ],
-  "url_path": "/part-1/hello-world",
+  "url_path": "/part-2/best-page",
   "title": "Hello world!",
   "deleted": false,
   "exercises": [
     {
-      "id": "4b841091-caa7-468d-96f0-7ef828bbc757",
-      "created_at": "2021-03-08T20:14:56.216394",
-      "updated_at": "2021-03-08T20:14:56.216394",
+      "id": "18110110-d02a-4432-8cb9-084d0c63a524",
+      "created_at": "2021-03-12T09:27:36.428501",
+      "updated_at": "2021-03-12T09:27:36.428501",
       "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
       "deleted": false,
       "name": "Exercise 1",
       "deadline": null,
-      "page_id": "40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02",
+      "page_id": "d90bf7ab-181c-4aa2-a87e-5c28238cc67d",
       "exercise_items": [
         {
-          "id": "55a176f0-d0f8-40a8-a050-101ee6fb29ca",
-          "created_at": "2021-03-08T20:14:56.216394",
-          "updated_at": "2021-03-08T20:14:56.216394",
-          "exercise_id": "4b841091-caa7-468d-96f0-7ef828bbc757",
+          "id": "8b923a92-971a-4d84-a671-c5696a970ed7",
+          "created_at": "2021-03-12T09:27:36.428501",
+          "updated_at": "2021-03-12T09:27:36.428501",
+          "exercise_id": "18110110-d02a-4432-8cb9-084d0c63a524",
           "exercise_type": "quiz",
           "assignment": [
             {

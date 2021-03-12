@@ -224,14 +224,14 @@ RETURNING *
     .fetch_one(&mut *transaction_holder.borrow_mut())
     .await?;
 
-    let result_exercises: Vec<ExerciseWithExerciseItems> =
+    let (result_exercises, new_content) =
         upsert_exercises_and_exercise_items(&page_update.exercises, &page, &transaction_holder)
             .await?;
 
     transaction_holder.into_inner().commit().await?;
 
     return Ok(PageWithExercises {
-        content: page.content,
+        content: new_content,
         course_id: page.course_id,
         created_at: page.created_at,
         updated_at: page.updated_at,
@@ -248,7 +248,7 @@ async fn upsert_exercises_and_exercise_items(
     exercises: &Vec<PageUpdateExercise>,
     page: &Page,
     transaction_holder: &RefCell<Transaction<'_, Postgres>>,
-) -> Result<Vec<ExerciseWithExerciseItems>> {
+) -> Result<(Vec<ExerciseWithExerciseItems>, serde_json::Value)> {
     // All related exercises and items should be deleted if not included in the update
     // We accomplish this by deleting everyting first in the transaction and then
     // undeleting the necessary items when doing the actual updates
@@ -291,6 +291,7 @@ async fn upsert_exercises_and_exercise_items(
         .await?;
     // for returning the inserted values
     let mut result_exercises: Vec<ExerciseWithExerciseItems> = Vec::new();
+    let mut changed_ids: HashMap<Uuid, Uuid> = HashMap::new();
     for exercise_update in exercises.iter() {
         let mut exercise_exercise_items: Vec<ExerciseItem> = Vec::new();
         let safe_for_db_exercise_id = if existing_exercise_ids
@@ -299,7 +300,9 @@ async fn upsert_exercises_and_exercise_items(
         {
             exercise_update.id
         } else {
-            Uuid::new_v4()
+            let new_uuid = Uuid::new_v4();
+            changed_ids.insert(exercise_update.id, new_uuid);
+            new_uuid
         };
         // Upsert
         let exercise: Exercise = sqlx::query_as!(
@@ -323,8 +326,10 @@ RETURNING *;
                 .iter()
                 .any(|o| o.id == item_update.id)
             {
-                exercise_update.id
+                item_update.id
             } else {
+                // No need to add this to changed ids because exercise item ids
+                // are not supposed to appear in the content json.
                 Uuid::new_v4()
             };
             // Upsert
@@ -359,7 +364,30 @@ RETURNING *;
             exercise_items: exercise_exercise_items,
         })
     }
-    return Ok(result_exercises);
+
+    // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
+    let new_content = update_ids_in_content(&page.content, changed_ids)?;
+    sqlx::query!(
+        r#"UPDATE pages SET content = $1 WHERE id = $2;"#,
+        new_content,
+        page.id
+    )
+    .execute(&mut *transaction_holder.borrow_mut())
+    .await?;
+    return Ok((result_exercises, new_content));
+}
+
+fn update_ids_in_content(
+    content: &serde_json::Value,
+    chaged_ids: HashMap<Uuid, Uuid>,
+) -> Result<serde_json::Value> {
+    // naive implementation for now because the structure of the content was not decided at the time of writing this.
+    // In the future we could only edit the necessary fields.
+    let mut content_str = serde_json::to_string(content)?;
+    for (k, v) in chaged_ids.into_iter() {
+        content_str = content_str.replace(&k.to_string(), &v.to_string());
+    }
+    Ok(serde_json::from_str(&content_str)?)
 }
 
 pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<PageWithExercises> {
@@ -382,12 +410,12 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<PageWithExe
     .fetch_one(&mut *transaction_holder.borrow_mut())
     .await?;
 
-    let result_exercises: Vec<ExerciseWithExerciseItems> =
+    let (result_exercises, new_content) =
         upsert_exercises_and_exercise_items(&new_page.exercises, &page, &transaction_holder)
             .await?;
     transaction_holder.into_inner().commit().await?;
     return Ok(PageWithExercises {
-        content: page.content,
+        content: new_content,
         course_id: page.course_id,
         created_at: page.created_at,
         updated_at: page.updated_at,

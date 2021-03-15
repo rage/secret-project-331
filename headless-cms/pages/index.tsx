@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic'
-import Link from 'next/link'
 import { ComponentType } from 'react'
 import Layout from '../components/Layout'
 
@@ -8,6 +7,7 @@ const Editor: ComponentType = dynamic(() => import('../components/Editor'), { ss
 const Home = () => {
   return (
     <Layout>
+      <h2>This is the playground</h2>
       <Editor />
     </Layout>
   )

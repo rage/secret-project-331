@@ -15,7 +15,7 @@ const Home = () => {
       {organizations.map((org) => (
         <div key={org.id}>
           <div>Name: {org.name}</div>
-          <div>Slug: {org.id}</div>
+          <div>Id: {org.id}</div>
         </div>
       ))}
     </Layout>

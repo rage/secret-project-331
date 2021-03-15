@@ -23,6 +23,10 @@ const Layout = ({ children, title = 'Päätön CMS' }: Props) => (
         <Link href="/organizations">
           <a>Organizations</a>
         </Link>{' '}
+        |{' '}
+        <Link href="/courses">
+          <a>Courses</a>
+        </Link>{' '}
       </nav>
     </header>
     {children}

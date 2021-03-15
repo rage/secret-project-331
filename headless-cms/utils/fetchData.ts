@@ -17,16 +17,18 @@ const fetchCourses = async () => {
   try {
     const data = (await axios.get(url, { responseType: 'json' })).data
     console.log(data)
+    return data
   } catch (error) {
     console.log(error)
   }
 }
 
 const fetchCoursePages = async (courseId: String) => {
-  const url = `${API_URL}/api/v0/${courseId}/pages`
+  const url = `${API_URL}/api/v0/courses/${courseId}/pages`
   try {
     const data = (await axios.get(url, { responseType: 'json' })).data
     console.log(data)
+    return data
   } catch (error) {
     console.log(error)
   }
@@ -37,6 +39,7 @@ const fetchPageWithId = async (pageId: String) => {
   try {
     const data = (await axios.get(url, { responseType: 'json' })).data
     console.log(data)
+    return data
   } catch (error) {
     console.log(error)
   }

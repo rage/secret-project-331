@@ -33,8 +33,8 @@ import { registerBlockType } from '@wordpress/blocks'
 
 import { ProgrammingExercise } from 'moocfi-python-editor'
 
-function Editor() {
-  const [blocks, updateBlocks] = useState([])
+function Editor(props) {
+  const [blocks, updateBlocks] = useState([props.content])
   console.log(JSON.stringify(blocks, undefined, 2))
 
   useEffect(() => {

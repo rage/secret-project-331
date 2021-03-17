@@ -1,19 +1,14 @@
 import { fetchPageWithId } from '../../utils/fetchData'
 import Layout from '../../components/Layout'
 import dynamic from 'next/dynamic'
-import { PageData } from '../../utils/types'
-import usePromise from 'react-use-promise'
 import useQueryParameter from '../../hooks/useQueryParameter'
+import { useQuery } from 'react-query'
 
 const Editor = dynamic(() => import('../../components/Editor'), { ssr: false })
 
 const Pages = () => {
   const id = useQueryParameter('id')
-  const [page, error, state] = usePromise<PageData>(fetchPageWithId(id), [id])
-
-  if (!page) {
-    return <div>Loading...</div>
-  }
+  const { isLoading, error, data } = useQuery(`page-${id}`, () => fetchPageWithId(id))
 
   if (error) {
     return (
@@ -24,9 +19,13 @@ const Pages = () => {
     )
   }
 
+  if (isLoading || !data) {
+    return <div>Loading...</div>
+  }
+
   return (
     <Layout>
-      <Editor content={page.content} />
+      <Editor content={data.content} />
     </Layout>
   )
 }

@@ -1,0 +1,22 @@
+apiVersion: skaffold/v2beta12
+kind: Config
+build:
+  artifacts:
+    - image: headless-lms
+      context: headless-lms
+    - image: cms
+      context: headless-cms
+deploy:
+  kubectl:
+    manifests:
+      - headless-lms/kubernetes/*
+      - headless-cms/kubernetes/*
+portForward:
+  - resourceType: deployment
+    resourceName: headless-lms
+    port: 3001
+    localPort: 3001
+  - resourceType: deployment
+    resourceName: cms
+    port: 3000
+    localPort: 3000

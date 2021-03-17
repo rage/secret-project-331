@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: headless-lms
+  labels:
+    app: headless-lms
+spec:
+  clusterIP: None
+  ports:
+    - port: 3001
+      name: headless-lms
+  selector:
+    app: headless-lms
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: headless-lms
+  labels:
+    app: headless-lms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: headless-lms
+  template:
+    metadata:
+      labels:
+        app: headless-lms
+    spec:
+      containers:
+        - name: headless-lms
+          image: headless-lms
+          ports:
+            - containerPort: 3001
+              name: http

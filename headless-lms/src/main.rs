@@ -53,11 +53,13 @@ async fn main() -> Result<()> {
         None => {
             let host = env::var("HOST").unwrap_or_else(|_| "localhost".to_string());
             let port = env::var("PORT").unwrap_or_else(|_| "3001".to_string());
-            server.bind(format!("{}:{}", host, port))?
+            let bind_address = format!("{}:{}", host, port);
+            info!("Binding to address: {}", bind_address);
+            server.bind(bind_address)?
         }
     };
 
-    info!("Starting server");
+    info!("Starting server.");
     server.run().await?;
 
     Ok(())

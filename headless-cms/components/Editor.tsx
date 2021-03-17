@@ -33,6 +33,7 @@ import { registerCoreBlocks } from '@wordpress/block-library'
 import { registerBlockType } from '@wordpress/blocks'
 
 import { ProgrammingExercise } from 'moocfi-python-editor'
+import Exercise from '../blocks/Exercise'
 
 interface EditorProps {
   content: Array<any>
@@ -52,6 +53,7 @@ function Editor(props: EditorProps) {
 
   useEffect(() => {
     registerCoreBlocks()
+    registerBlockType('moocfi/iframe-exercise', Exercise)
     registerBlockType('moocfi/exercise', {
       title: 'Exercise',
       description: 'Exercise example',

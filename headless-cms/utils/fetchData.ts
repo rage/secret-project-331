@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { API_URL } from '../constants'
+import { PageData } from './types'
 
 const fetchOrganizations = async () => {
   const url = `${API_URL}/api/v0/organizations`
@@ -23,7 +24,7 @@ const fetchCourses = async () => {
   }
 }
 
-const fetchCoursePages = async (courseId: String) => {
+const fetchCoursePages = async (courseId: string) => {
   const url = `${API_URL}/api/v0/courses/${courseId}/pages`
   try {
     const data = (await axios.get(url, { responseType: 'json' })).data
@@ -34,7 +35,10 @@ const fetchCoursePages = async (courseId: String) => {
   }
 }
 
-const fetchPageWithId = async (pageId: String) => {
+const fetchPageWithId = async (pageId: string | undefined): Promise<PageData | undefined> => {
+  if (!pageId) {
+    return undefined
+  }
   const url = `${API_URL}/api/v0/pages/${pageId}`
   try {
     const data = (await axios.get(url, { responseType: 'json' })).data

@@ -31,7 +31,6 @@ const Layout = ({ children, title = 'Päätön CMS' }: Props) => (
     </header>
     {children}
     <footer>
-      <hr />
       <span>2021 Helsingin yliopisto</span>
     </footer>
   </div>

@@ -9,7 +9,8 @@ import '@wordpress/edit-post/build-style/style.css'
 import '@wordpress/format-library/build-style/style.css'
 import '@wordpress/nux/build-style/style.css'
 
-import { useEffect, useState, Fragment } from '@wordpress/element'
+import { Fragment } from '@wordpress/element'
+import { useState, useEffect } from 'react'
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -33,9 +34,21 @@ import { registerBlockType } from '@wordpress/blocks'
 
 import { ProgrammingExercise } from 'moocfi-python-editor'
 
-function Editor(props) {
-  const [blocks, updateBlocks] = useState([props.content])
-  console.log(JSON.stringify(blocks, undefined, 2))
+interface EditorProps {
+  content: Array<any>
+}
+
+function Editor(props: EditorProps) {
+  const [blocks, setBlocks] = useState(props.content)
+
+  const handleChanges = (page) => {
+    setBlocks(page)
+    console.log(JSON.stringify(blocks, undefined, 2))
+  }
+  const handleInput = (page) => {
+    setBlocks(page)
+    console.log(JSON.stringify(blocks, undefined, 2))
+  }
 
   useEffect(() => {
     registerCoreBlocks()
@@ -93,23 +106,9 @@ function Editor(props) {
           </div>
         )
       },
-      save: ({ attributes }) => {
-        console.log('Saving')
-        return (
-          <figure>
-            <ProgrammingExercise
-              onExerciseDetailsChange={() => {}}
-              organization={'test'}
-              course={'python-random-testcourse'}
-              exercise={attributes['exercise-name']}
-              token={'asd'}
-              height={'300px'}
-              outputHeight={'auto'}
-              outputPosition={'relative'}
-              language={'fi'}
-            />
-          </figure>
-        )
+      save: () => {
+        console.log('Saving...')
+        return <></>
       },
     })
   }, [])
@@ -118,11 +117,7 @@ function Editor(props) {
     <div className="playground">
       <SlotFillProvider>
         <DropZoneProvider>
-          <BlockEditorProvider
-            value={blocks}
-            onInput={() => updateBlocks}
-            onChange={() => updateBlocks}
-          >
+          <BlockEditorProvider value={blocks} onInput={handleInput} onChange={handleChanges}>
             <div className="playground__sidebar">
               <BlockInspector />
             </div>

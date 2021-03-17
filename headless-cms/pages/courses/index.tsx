@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useQuery } from 'react-query'
 
 const Home = () => {
-  const { isLoading, error, data } = useQuery(`courses`, () => fetchCourses())
+  const { isLoading, error, data } = useQuery(`courses`, () => fetchCourses(), {
+    cacheTime: 60000,
+  })
 
   if (error) {
     return <div>Error loading organizations.</div>

@@ -5,21 +5,10 @@ import { RecoilRoot } from 'recoil'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles'
+import { ThemeProvider } from '@material-ui/core/styles'
 import React from 'react'
-
-const muiTheme = createMuiTheme({
-  typography: {
-    button: {
-      textTransform: 'none',
-    },
-  },
-  props: {
-    MuiButton: {
-      variant: 'outlined',
-    },
-  },
-})
+import muiTheme from '../utils/muiTheme'
+import { CssBaseline } from '@material-ui/core'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,10 +28,20 @@ const queryClient = new QueryClient({
 })
 
 function MyApp({ Component, pageProps }: AppProps) {
+  React.useEffect(() => {
+    // Remove the server-side injected CSS.
+    const jssStyles = document.querySelector('#jss-server-side')
+    if (jssStyles) {
+      jssStyles.parentElement.removeChild(jssStyles)
+    }
+  }, [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
         <ThemeProvider theme={muiTheme}>
+          {/* Material UI default CSS */}
+          <CssBaseline />
           <Component {...pageProps} />
           <ReactQueryDevtools initialIsOpen={false} />
         </ThemeProvider>

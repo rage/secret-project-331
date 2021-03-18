@@ -49,16 +49,4 @@ const fetchPageWithId = async (pageId: string | undefined): Promise<PageData | u
   }
 }
 
-const postNewPage = async (content: any) => {
-  const url = `${API_URL}/api/v0/pages`
-  try {
-    const request = await axios.post(url, content, {
-      headers: { 'Content-Type': 'application/json' },
-    })
-    console.log(request.data)
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-export { fetchOrganizations, fetchCourses, fetchCoursePages, fetchPageWithId, postNewPage }
+export { fetchOrganizations, fetchCourses, fetchCoursePages, fetchPageWithId }

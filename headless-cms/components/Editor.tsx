@@ -34,13 +34,20 @@ import { registerBlockType } from '@wordpress/blocks'
 
 import { ProgrammingExercise } from 'moocfi-python-editor'
 import Exercise from '../blocks/Exercise'
+import { updateExistingPage } from '../utils/postData'
+import { Button } from '@material-ui/core'
+import { PageData } from '../utils/types'
 
 interface EditorProps {
-  content: Array<any>
+  data: PageData
 }
 
 function Editor(props: EditorProps) {
-  const [blocks, setBlocks] = useState(props.content)
+  const { id, content, exercises, url_path, title } = props.data
+  const [blocks, setBlocks] = useState(content ?? [])
+  const handleSave = () => {
+    const data = updateExistingPage(id, blocks, exercises, url_path, title)
+  }
 
   const handleChanges = (page) => {
     setBlocks(page)
@@ -117,6 +124,7 @@ function Editor(props: EditorProps) {
 
   return (
     <div className="playground">
+      <Button onClick={handleSave}>Save</Button>
       <SlotFillProvider>
         <DropZoneProvider>
           <BlockEditorProvider value={blocks} onInput={handleInput} onChange={handleChanges}>

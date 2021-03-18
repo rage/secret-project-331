@@ -4,7 +4,10 @@ import dynamic from 'next/dynamic'
 import useQueryParameter from '../../hooks/useQueryParameter'
 import { useQuery } from 'react-query'
 
-const Editor = dynamic(() => import('../../components/Editor'), { ssr: false })
+const Editor = dynamic(() => import('../../components/Editor'), {
+  ssr: false,
+  loading: () => <div>Loading editor...</div>,
+})
 
 const Pages = () => {
   const id = useQueryParameter('id')
@@ -20,12 +23,12 @@ const Pages = () => {
   }
 
   if (isLoading || !data) {
-    return <div>Loading...</div>
+    return <div>Loading page...</div>
   }
 
   return (
     <Layout>
-      <Editor content={data.content} />
+      <Editor data={data} />
     </Layout>
   )
 }

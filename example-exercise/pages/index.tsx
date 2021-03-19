@@ -1,4 +1,4 @@
-import { MutableRefObject, RefObject, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import styled from "styled-components"
 
 const Title = styled.h1`
@@ -8,7 +8,10 @@ const Title = styled.h1`
 const Iframe = styled.iframe`
   width: 100%;
   // To see the size of the frame in development
-  border: 1px solid black;
+  // Only top and bottom because frame is 100% of window width
+  // and extra border would create a scrollbar
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
 `
 
 const exampleExerciseSpec = [

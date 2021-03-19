@@ -13,7 +13,7 @@ const EditorPage = () => {
       console.log("Not adding a event listener because window is undefined.")
       return
     }
-    const handleMessage = handleMessageCreator(setState)
+    const handleMessage = handleMessageCreator(setState, state)
     console.log("Adding event listener...")
     window.addEventListener("message", handleMessage)
     if (window.parent === window) {
@@ -36,10 +36,12 @@ const EditorPage = () => {
   if (!state) {
     return <>Waiting for content...</>
   }
-  return <Editor onHeightChange={onHeightChange} state={state} />
+  return (
+    <Editor onHeightChange={onHeightChange} state={state} setState={setState} />
+  )
 }
 
-const handleMessageCreator = (setState: any) => {
+const handleMessageCreator = (setState: any, state: any) => {
   return function handleMessage(event: WindowEventMap["message"]) {
     // TODO verify event's origin since other sites or tabs can post events
     // as well
@@ -49,6 +51,16 @@ const handleMessageCreator = (setState: any) => {
     console.log("Frame received an event: ", JSON.stringify(event.data))
     if (event.data.message === "content") {
       setState(event.data.data)
+    }
+    if (event.data.message === "give-state") {
+      window.parent.postMessage(
+        {
+          message: "current-state",
+          message_type: "moocfi/editor-message",
+          data: state,
+        },
+        "*"
+      )
     }
   }
 }

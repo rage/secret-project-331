@@ -9,7 +9,6 @@ import '@wordpress/edit-post/build-style/style.css'
 import '@wordpress/format-library/build-style/style.css'
 import '@wordpress/nux/build-style/style.css'
 
-import { Fragment } from '@wordpress/element'
 import { useState, useEffect } from 'react'
 import {
   BlockEditorKeyboardShortcuts,
@@ -18,21 +17,11 @@ import {
   BlockInspector,
   WritingFlow,
   ObserveTyping,
-  InspectorControls,
 } from '@wordpress/block-editor'
-import {
-  Popover,
-  SlotFillProvider,
-  DropZoneProvider,
-  TextControl,
-  Panel,
-  PanelBody,
-  PanelRow,
-} from '@wordpress/components'
+import { Popover, SlotFillProvider, DropZoneProvider } from '@wordpress/components'
 import { registerCoreBlocks } from '@wordpress/block-library'
 import { registerBlockType } from '@wordpress/blocks'
 
-import { ProgrammingExercise } from 'moocfi-python-editor'
 import Exercise from '../blocks/Exercise'
 import { updateExistingPage } from '../utils/postData'
 import { Button } from '@material-ui/core'
@@ -45,81 +34,26 @@ interface EditorProps {
 function Editor(props: EditorProps) {
   const { id, content, exercises, url_path, title } = props.data
   const [blocks, setBlocks] = useState(content ?? [])
+  const [pageExercises, setPageExercises] = useState(exercises ?? [])
+
   const handleSave = () => {
-    const data = updateExistingPage(id, blocks, exercises, url_path, title)
+    updateExistingPage(id, blocks, exercises, url_path, title).then((res) => {
+      setBlocks(res.content)
+    })
   }
 
   const handleChanges = (page) => {
     setBlocks(page)
-    console.log(JSON.stringify(blocks, undefined, 2))
+    console.log(blocks)
   }
   const handleInput = (page) => {
     setBlocks(page)
-    console.log(JSON.stringify(blocks, undefined, 2))
+    console.log(blocks)
   }
 
   useEffect(() => {
     registerCoreBlocks()
     registerBlockType('moocfi/iframe-exercise', Exercise)
-    registerBlockType('moocfi/exercise', {
-      title: 'Exercise',
-      description: 'Exercise example',
-      category: 'embed',
-      attributes: {
-        exerciseId: {
-          type: 'string',
-          default: '',
-        },
-      },
-      edit: ({ setAttributes, clientId }) => {
-        setAttributes({ exerciseId: clientId })
-        const [exerciseName, setExerciseName] = useState('name')
-        const [deadline, setDeadline] = useState('deadline')
-        return (
-          <div>
-            <Fragment>
-              <InspectorControls>
-                <Panel>
-                  <PanelBody>
-                    <PanelRow>
-                      <TextControl
-                        label="Exercise name"
-                        onChange={(val) => {
-                          setExerciseName(val)
-                        }}
-                        value={exerciseName}
-                      />
-                      <TextControl
-                        label="Deadline"
-                        onChange={(val) => {
-                          setDeadline(val)
-                        }}
-                        value={deadline}
-                      />
-                    </PanelRow>
-                  </PanelBody>
-                </Panel>
-              </InspectorControls>
-              <ProgrammingExercise
-                onExerciseDetailsChange={() => {}}
-                organization={'test'}
-                course={'python-random-testcourse'}
-                exercise={exerciseName}
-                token={'asd'}
-                height={'300px'}
-                outputHeight={'auto'}
-                outputPosition={'relative'}
-                language={'fi'}
-              />
-            </Fragment>
-          </div>
-        )
-      },
-      save: () => {
-        console.log('Saving...')
-        return <></>
-      },
-    })
   }, [])
 
   return (

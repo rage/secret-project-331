@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import { useRouter } from 'next/router'
 import Layout from '../../../components/Layout'
 import { fetchCoursePages } from '../../../utils/fetchData'
 import Link from 'next/link'
 import useQueryParameter from '../../../hooks/useQueryParameter'
 import { useQuery } from 'react-query'
+import { dontRenderUntilQueryParametersReady } from '../../../utils/dontRenderUntilQueryParametersReady'
+import { List, ListItem, Typography, Button } from '@material-ui/core'
 
-export default function CoursePages() {
+function CoursePages() {
   const id = useQueryParameter('id')
   const { isLoading, error, data } = useQuery(`course-pages-${id}`, () => fetchCoursePages(id))
 
@@ -21,16 +22,19 @@ export default function CoursePages() {
 
   return (
     <Layout>
-      <div>Course pages for {id}</div>
-      <ul>
-        {data?.map((page) => (
-          <li>
+      <Typography>Course pages for {id}</Typography>
+      <Button>New page</Button>
+      <List>
+        {data.map((page) => (
+          <ListItem key={page.id}>
             <Link href="/pages/[id]" as={`/pages/${page.id}`}>
               {page.url_path}
             </Link>
-          </li>
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </Layout>
   )
 }
+
+export default dontRenderUntilQueryParametersReady(CoursePages)

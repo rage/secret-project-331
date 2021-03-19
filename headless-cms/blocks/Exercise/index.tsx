@@ -9,7 +9,7 @@ const ExerciseConfiguration: BlockConfiguration<{ exercise_id: string }> = {
   attributes: {
     exercise_id: {
       type: 'string',
-      default: '',
+      default: null,
     },
   },
   edit: ExerciseEditor,

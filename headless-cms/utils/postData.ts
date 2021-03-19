@@ -19,7 +19,7 @@ const updateExistingPage = async (
   exercises: Array<any>,
   url_path: string,
   title: string,
-): Promise<Array<any>> => {
+): Promise<any> => {
   const url = `${API_URL}/api/v0/pages/${pageId}`
   try {
     const response = await axios.put(

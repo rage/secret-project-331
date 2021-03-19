@@ -84,6 +84,10 @@
     "react-i18next": ">=11.3.0",
     "react-query": "^3.12.2",
     "recoil": "^0.1.3",
+    "recoil-devtools": "^0.2.1",
+    "recoil-devtools-dock": "^0.1.6",
+    "recoil-devtools-log-monitor": "^0.2.7",
+    "recoil-devtools-logger": "^0.1.5",
     "styled-components": "^5.2.1",
     "uuid": "^8.3.2"
   },

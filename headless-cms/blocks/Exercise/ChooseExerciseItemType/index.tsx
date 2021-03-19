@@ -7,9 +7,9 @@ const ChooseExerciseItemTypeWrapper = styled.div`
   margin-top: 1rem;
 `
 
-const ChooseExerciseItemType = () => {
+const ChooseExerciseItemType = ({ onChooseItem }) => {
   const [dialogOpen, setDialogOpen] = useState(false)
-  return <ExerciseServiceList />
+  return <ExerciseServiceList onChooseItem={onChooseItem} />
 }
 
 export default ChooseExerciseItemType

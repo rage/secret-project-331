@@ -1,5 +1,6 @@
 import '../styles/globals.css'
 import '../styles/playground.scss'
+import '../components/GutenbergEditor/styles/styles.scss'
 import type { AppProps } from 'next/app'
 import { RecoilRoot } from 'recoil'
 import { QueryClient, QueryClientProvider } from 'react-query'
@@ -9,6 +10,7 @@ import { ThemeProvider } from '@material-ui/core/styles'
 import React from 'react'
 import muiTheme from '../utils/muiTheme'
 import { CssBaseline } from '@material-ui/core'
+import Devtools from '../components/RecoilDevtools'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +41,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
+        <Devtools />
         <ThemeProvider theme={muiTheme}>
           {/* Material UI default CSS */}
           <CssBaseline />

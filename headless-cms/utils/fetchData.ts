@@ -35,10 +35,7 @@ const fetchCoursePages = async (courseId: string) => {
   }
 }
 
-const fetchPageWithId = async (pageId: string | undefined): Promise<PageData | undefined> => {
-  if (!pageId) {
-    return undefined
-  }
+const fetchPageWithId = async (pageId: string): Promise<PageData> => {
   const url = `${API_URL}/api/v0/pages/${pageId}`
   try {
     const data = (await axios.get(url, { responseType: 'json' })).data

@@ -1,11 +1,19 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import Editor from "../components/Editor"
+
+export interface Alternative {
+  name: string
+  correct: boolean
+}
 
 const EditorPage = () => {
+  const [state, setState] = useState<Alternative[] | null>(null)
   useEffect(() => {
     if (typeof window === undefined) {
       console.log("Not adding a event listener because window is undefined.")
       return
     }
+    const handleMessage = handleMessageCreator(setState)
     console.log("Adding event listener...")
     window.addEventListener("message", handleMessage)
     if (window.parent === window) {
@@ -14,7 +22,10 @@ const EditorPage = () => {
       )
     } else {
       console.log("Telling the parent we're ready")
-      window.parent.postMessage({ message: "ready" }, "*")
+      window.parent.postMessage(
+        { message: "ready", message_type: "moocfi/editor-message" },
+        "*"
+      )
     }
     const removeListener = () => {
       console.log("Removing event listener")
@@ -22,13 +33,34 @@ const EditorPage = () => {
     }
     return removeListener
   }, [])
-  return <>Waiting for content...</>
+  if (!state) {
+    return <>Waiting for content...</>
+  }
+  return <Editor onHeightChange={onHeightChange} state={state} />
 }
 
-const handleMessage = (event: WindowEventMap["message"]) => {
-  // TODO verify event's origin since other sites or tabs can post events
-  // as well
-  console.log("Frame received an event: ", JSON.stringify(event))
+const handleMessageCreator = (setState: any) => {
+  return function handleMessage(event: WindowEventMap["message"]) {
+    // TODO verify event's origin since other sites or tabs can post events
+    // as well
+    if (event.data.message_type !== "moocfi/editor-message") {
+      return
+    }
+    console.log("Frame received an event: ", JSON.stringify(event.data))
+    if (event.data.message === "content") {
+      setState(event.data.data)
+    }
+  }
 }
 
+function onHeightChange(newHeight: number) {
+  window.parent.postMessage(
+    {
+      message: "height-changed",
+      data: newHeight,
+      message_type: "moocfi/editor-message",
+    },
+    "*"
+  )
+}
 export default EditorPage

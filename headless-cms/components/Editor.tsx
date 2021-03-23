@@ -20,35 +20,38 @@ import {
 } from '@wordpress/block-editor'
 import { Popover, SlotFillProvider, DropZoneProvider } from '@wordpress/components'
 import { registerCoreBlocks } from '@wordpress/block-library'
-import { registerBlockType } from '@wordpress/blocks'
+import { BlockInstance, registerBlockType } from '@wordpress/blocks'
 
 import Exercise from '../blocks/Exercise'
-import { updateExistingPage } from '../utils/postData'
+import { updateExistingPage } from '../services/postData'
 import { Button } from '@material-ui/core'
-import { PageData } from '../utils/types'
+import { PageWithExercises } from '../services/services.types'
+import { exercisesState } from '../state/exercises'
+import { useRecoilValue } from 'recoil'
+import { ExerciseAttributes } from '../blocks/blocks.types'
 
 interface EditorProps {
-  data: PageData
+  data: PageWithExercises
 }
 
 function Editor(props: EditorProps) {
-  const { id, content, exercises, url_path, title } = props.data
+  const { id, content, url_path, title } = props.data
   const [blocks, setBlocks] = useState(content ?? [])
-  const [pageExercises, setPageExercises] = useState(exercises ?? [])
+  const exercises = useRecoilValue(exercisesState)
 
-  const handleSave = () => {
-    updateExistingPage(id, blocks, exercises, url_path, title).then((res) => {
-      setBlocks(res.content)
-    })
+  const handleSave = (): void => {
+    updateExistingPage({ page_id: id, content: blocks, exercises, url_path, title }).then(
+      (res: PageWithExercises) => {
+        setBlocks(res.content)
+      },
+    )
   }
 
-  const handleChanges = (page) => {
+  const handleChanges = (page: BlockInstance<ExerciseAttributes>[]): void => {
     setBlocks(page)
-    console.log(blocks)
   }
-  const handleInput = (page) => {
+  const handleInput = (page: BlockInstance<ExerciseAttributes>[]): void => {
     setBlocks(page)
-    console.log(blocks)
   }
 
   useEffect(() => {

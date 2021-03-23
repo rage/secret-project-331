@@ -1,4 +1,4 @@
-import { fetchPageWithId } from '../../utils/fetchData'
+import { fetchPageWithId } from '../../services/fetchData'
 import Layout from '../../components/Layout'
 import dynamic from 'next/dynamic'
 import { useQuery } from 'react-query'
@@ -33,11 +33,11 @@ const Pages = ({ query }: PagesProps) => {
     if (!exerciseArray) {
       return
     }
-    const obj = {}
-    exerciseArray.forEach((element) => {
-      obj[element.id] = element
-    })
-    setExercises(obj)
+    // const obj = {}
+    // exerciseArray.forEach((element) => {
+    //   obj[element.id] = element
+    // })
+    setExercises(exerciseArray)
   }, [data])
 
   if (error) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { fetchCourses } from '../../utils/fetchData'
+import { fetchCourses } from '../../services/fetchData'
 import Layout from '../../components/Layout'
 import Link from 'next/link'
 import { useQuery } from 'react-query'

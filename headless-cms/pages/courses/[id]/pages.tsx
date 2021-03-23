@@ -1,7 +1,7 @@
 import React from 'react'
 
 import Layout from '../../../components/Layout'
-import { fetchCoursePages } from '../../../utils/fetchData'
+import { fetchCoursePages } from '../../../services/fetchData'
 import Link from 'next/link'
 import useQueryParameter from '../../../hooks/useQueryParameter'
 import { useQuery } from 'react-query'
@@ -23,6 +23,7 @@ function CoursePages() {
   return (
     <Layout>
       <Typography>Course pages for {id}</Typography>
+      {/* Insert new page stuff here */}
       <Button>New page</Button>
       <List>
         {data.map((page) => (

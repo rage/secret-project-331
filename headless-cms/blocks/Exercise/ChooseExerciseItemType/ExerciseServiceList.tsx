@@ -1,6 +1,6 @@
-import { List, ListItem, Typography, ListItemIcon, ListItemText } from '@material-ui/core'
-import InboxIcon from '@material-ui/icons/Inbox'
+import { List, ListItem, Typography } from '@material-ui/core'
 
+// Fetch iFrame exercise types from an endpoint?
 const exerciseItemTypes = [
   { name: 'Quizzes', url: null },
   { name: 'Test My Code', url: null },
@@ -10,7 +10,7 @@ const exerciseItemTypes = [
 const ExerciseServiceList = ({ onChooseItem }) => {
   return (
     <div>
-      <Typography>Please select a exercise type:</Typography>
+      <Typography>Please select an exercise type:</Typography>
       <List>
         {exerciseItemTypes.map((eit) => (
           <ListItem

@@ -1,4 +1,4 @@
-import { fetchOrganizations } from '../../utils/fetchData'
+import { fetchOrganizations } from '../../services/fetchData'
 import Layout from '../../components/Layout'
 import { useQuery } from 'react-query'
 

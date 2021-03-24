@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import styled from "styled-components"
+import { v4 } from "uuid"
 
 const Title = styled.h1`
   font-size: 24px;
@@ -18,14 +19,17 @@ const exampleExerciseSpec = [
   {
     name: "A",
     correct: false,
+    id: v4(),
   },
   {
     name: "C",
     correct: false,
+    id: v4(),
   },
   {
     name: "D",
     correct: true,
+    id: v4(),
   },
 ]
 

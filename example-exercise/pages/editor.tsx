@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import Editor from "../components/Editor"
 
 export interface Alternative {
+  id: string
   name: string
   correct: boolean
 }

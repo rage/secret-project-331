@@ -2,6 +2,8 @@ import { Alternative } from "../pages/editor"
 import styled from "styled-components"
 interface Props {
   item: Alternative
+  onDelete: () => void
+  onChange: (item: Alternative) => void
 }
 
 const StyledButtonEditor = styled.div`
@@ -35,12 +37,23 @@ const DeleteButton = styled.button`
   height: 2rem;
 `
 
-const ButtonEditor = ({ item }: Props) => {
+const ButtonEditor = ({ item, onDelete, onChange }: Props) => {
   return (
     <StyledButtonEditor>
-      <InputCheckbox type="checkbox" />
-      <Input value={item.name} />
-      <DeleteButton>x</DeleteButton>
+      <InputCheckbox
+        type="checkbox"
+        checked={item.correct}
+        onChange={(e) => {
+          onChange({ ...item, correct: e.target.checked })
+        }}
+      />
+      <Input
+        value={item.name}
+        onChange={(e) => {
+          onChange({ ...item, name: e.target.value })
+        }}
+      />
+      <DeleteButton onClick={onDelete}>x</DeleteButton>
     </StyledButtonEditor>
   )
 }

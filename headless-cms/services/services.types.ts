@@ -4,8 +4,6 @@ interface DatabaseItem {
   updated_at: string
 }
 
-export type ExerciseType = 'quiz' | 'programming' | 'example'
-
 /**
  * DELETE Response
  * `${API_URL}/api/v0/pages/${page_id}`
@@ -39,10 +37,10 @@ export interface ExerciseWithExerciseItems extends DatabaseItem {
 
 export interface ExerciseItem extends DatabaseItem {
   exercise_id: string
-  exercise_type: ExerciseType
+  exercise_type: string
   assignment: Array<any> | null
   deleted: boolean
-  spec: {} | null
+  spec: any | null
   spec_file_id: string | null
 }
 
@@ -66,9 +64,9 @@ export interface PageUpdateExercise {
 
 export interface PageUpdateExerciseItem {
   id: string
-  exercise_type: ExerciseType
+  exercise_type: string
   assignment: Array<any>
-  spec: {}
+  spec: any
 }
 
 /**

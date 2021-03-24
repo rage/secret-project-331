@@ -37,7 +37,7 @@ const Pages = ({ query }: PagesProps) => {
     // exerciseArray.forEach((element) => {
     //   obj[element.id] = element
     // })
-    setExercises(exerciseArray)
+    setExercises(exerciseArray.map((ex) => ex.id))
   }, [data])
 
   if (error) {

@@ -1,10 +1,10 @@
 import { List, ListItem, Typography } from '@material-ui/core'
 
 // Fetch iFrame exercise types from an endpoint?
-const exerciseItemTypes = [
-  { name: 'Quizzes', url: null },
-  { name: 'Test My Code', url: null },
-  { name: 'Example Exercise', url: 'http://localhost:3002/editor' },
+export const exerciseItemTypes = [
+  { name: 'Quizzes', url: null, identifier: 'quizzes' },
+  { name: 'Test My Code', url: null, identifier: 'tmc' },
+  { name: 'Example Exercise', url: 'http://localhost:3002/editor', identifier: 'example' },
 ]
 
 const ExerciseServiceList = ({ onChooseItem }) => {

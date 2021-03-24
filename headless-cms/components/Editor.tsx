@@ -22,35 +22,58 @@ import { Popover, SlotFillProvider, DropZoneProvider } from '@wordpress/componen
 import { registerCoreBlocks } from '@wordpress/block-library'
 import { BlockInstance, registerBlockType } from '@wordpress/blocks'
 
-import Exercise from '../blocks/Exercise'
+import Exercise, { ExerciseAttributes } from '../blocks/Exercise'
 import { updateExistingPage } from '../services/postData'
 import { Button } from '@material-ui/core'
-import { PageWithExercises } from '../services/services.types'
-import { exercisesState } from '../state/exercises'
-import { useRecoilValue } from 'recoil'
-import { ExerciseAttributes } from '../blocks/blocks.types'
+import { ExerciseWithExerciseItems, PageWithExercises } from '../services/services.types'
+import { exerciseFamilySelector, exercisesAtoms, exercisesState } from '../state/exercises'
+import { useRecoilCallback, useRecoilValue } from 'recoil'
 
 interface EditorProps {
   data: PageWithExercises
 }
 
-function Editor(props: EditorProps) {
-  const { id, content, url_path, title } = props.data
-  const [blocks, setBlocks] = useState(content ?? [])
-  const exercises = useRecoilValue(exercisesState)
+const HandleSave = () => {
+  const saveExerciseData = useRecoilCallback(({ snapshot }) => async () => {
+    const ids = await snapshot.getPromise(exercisesState)
+    console.log(ids)
+    for (const exerciseId of ids) {
+      const exercise = await snapshot.getPromise(exerciseFamilySelector(exerciseId))
+      console.log(exercise)
+    }
+  })
+  return <Button onClick={saveExerciseData}>Save data</Button>
+  // updateExistingPage({ page_id: id, content: blocks, exercises, url_path, title }).then(
+  //   (res: PageWithExercises) => {
+  //     setBlocks(res.content)
+  //   },
+  // )
+}
 
-  const handleSave = (): void => {
-    updateExistingPage({ page_id: id, content: blocks, exercises, url_path, title }).then(
-      (res: PageWithExercises) => {
-        setBlocks(res.content)
-      },
-    )
-  }
+function Editor(props: EditorProps) {
+  const { content, url_path, title, course_id, deleted, exercises } = props.data
+  // Add content from DB to blocks...
+  const [blocks, setBlocks] = useState(content ?? [])
+  // useRecoilCallback to create exercise atom state for each exercises array
+  const createExercisesStates = useRecoilCallback(
+    ({ set }) => (exerciseData: ExerciseWithExerciseItems[]) => {
+      const ids = []
+      for (const exercise of exerciseData) {
+        ids.push(exercise.id)
+        set(exercisesAtoms(exercise.id), exercise)
+      }
+      set(exercisesState, ids)
+    },
+    [],
+  )
+  const allEditorExercises = useRecoilValue(exercisesState)
 
   const handleChanges = (page: BlockInstance<ExerciseAttributes>[]): void => {
+    console.log(page)
     setBlocks(page)
   }
   const handleInput = (page: BlockInstance<ExerciseAttributes>[]): void => {
+    console.log(page)
     setBlocks(page)
   }
 
@@ -59,9 +82,13 @@ function Editor(props: EditorProps) {
     registerBlockType('moocfi/iframe-exercise', Exercise)
   }, [])
 
+  useEffect(() => {
+    createExercisesStates(exercises)
+  }, [exercises])
+
   return (
     <div className="playground">
-      <Button onClick={handleSave}>Save</Button>
+      <HandleSave />
       <SlotFillProvider>
         <DropZoneProvider>
           <BlockEditorProvider value={blocks} onInput={handleInput} onChange={handleChanges}>

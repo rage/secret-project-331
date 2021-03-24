@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { v4 } from 'uuid'
+import { Alert } from '@material-ui/lab'
 import styled from 'styled-components'
 
 const Title = styled.h1`
@@ -18,18 +20,21 @@ const exampleExerciseSpec = [
   {
     name: 'A',
     correct: false,
+    id: v4(),
   },
   {
     name: 'C',
     correct: false,
+    id: v4(),
   },
   {
     name: 'D',
     correct: true,
+    id: v4(),
   },
 ]
 
-export default function IFrameEditor({ exercise }) {
+export default function IFrameEditor({ exercise, url }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [frameHeight, setFrameHeight] = useState(50)
   useEffect(() => {
@@ -46,10 +51,14 @@ export default function IFrameEditor({ exercise }) {
     }
     return removeListener
   }, [])
+
+  if (!url) {
+    return <Alert severity="error">Cannot render exercise item editor, missing url.</Alert>
+  }
   return (
     <>
       <Title>{exercise.name}</Title>
-      <Iframe height={frameHeight} ref={iframeRef} src={exercise.url} frameBorder="off" />
+      <Iframe height={frameHeight} ref={iframeRef} src={url} frameBorder="off" />
     </>
   )
 }

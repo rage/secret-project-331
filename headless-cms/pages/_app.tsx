@@ -1,6 +1,6 @@
 import '../styles/globals.css'
 import '../styles/playground.scss'
-import '../components/GutenbergEditor/styles/styles.scss'
+// import '../components/GutenbergEditor/styles/styles.scss'
 import type { AppProps } from 'next/app'
 import { RecoilRoot } from 'recoil'
 import { QueryClient, QueryClientProvider } from 'react-query'

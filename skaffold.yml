@@ -11,6 +11,7 @@ deploy:
     manifests:
       - headless-lms/kubernetes/*
       - headless-cms/kubernetes/*
+    kubeContext: minikube
 portForward:
   - resourceType: deployment
     resourceName: headless-lms

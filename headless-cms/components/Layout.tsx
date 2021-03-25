@@ -8,7 +8,7 @@ type Props = {
 }
 
 const Layout = ({ children, title = 'Päätön CMS' }: Props) => (
-  <div>
+  <div style={{ margin: '1em' }}>
     <Head>
       <title>{title}</title>
       <meta charSet="utf-8" />

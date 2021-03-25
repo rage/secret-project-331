@@ -23,7 +23,10 @@ const Home = () => {
         <div style={{ border: '1px dashed black', padding: '1rem' }} key={c.id}>
           <div>Name: {c.name}</div>
           <div>Id: {c.id}</div>
-          <Link href="/courses/[id]/pages" as={`/courses/${c.id}/pages`}>
+          <Link
+            href={{ pathname: '/courses/[id]/pages', query: { data: JSON.stringify(c.name) } }}
+            as={`/courses/${c.id}/pages`}
+          >
             Course pages
           </Link>
         </div>

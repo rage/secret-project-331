@@ -1,11 +1,11 @@
 import axios from 'axios'
 import { API_URL } from '../constants'
-import { PageUpdate, PageWithExercises } from './services.types'
+import { NewPage, PageUpdate, PageWithExercises } from './services.types'
 
-const postNewPage = async (content: any): Promise<PageWithExercises> => {
+const postNewPage = async (data: NewPage): Promise<PageWithExercises> => {
   const url = `${API_URL}/api/v0/pages`
   try {
-    const response = await axios.post(url, content, {
+    const response = await axios.post(url, data, {
       headers: { 'Content-Type': 'application/json' },
     })
     console.log(response.data)
@@ -38,4 +38,15 @@ const updateExistingPage = async ({
   }
 }
 
-export { postNewPage, updateExistingPage }
+const deletePage = async (page_id: string): Promise<PageWithExercises> => {
+  const url = `${API_URL}/api/v0/pages/${page_id}`
+  try {
+    const response = await axios.delete(url)
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export { postNewPage, updateExistingPage, deletePage }

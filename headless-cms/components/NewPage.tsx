@@ -38,27 +38,33 @@ const NewPage = ({ courseId }: NewPageProps) => {
 
   return (
     <div style={{ padding: '1em' }}>
-      <StyledTextField
-        required
-        id="outlined-required"
-        label="Path"
-        variant="outlined"
-        value={path}
-        onChange={(e) => {
-          setPath(e.target.value)
-        }}
-      />
-      <StyledTextField
-        required
-        id="outlined-required"
-        label="Title"
-        variant="outlined"
-        value={title}
-        onChange={(e) => {
-          setTitle(e.target.value)
-        }}
-      />
-      <StyledButton onClick={createNewPage}>Create page</StyledButton>
+      <div>
+        <StyledTextField
+          required
+          id="outlined-required"
+          label="Path"
+          variant="outlined"
+          value={path}
+          onChange={(e) => {
+            setPath(e.target.value)
+          }}
+        />
+      </div>
+      <div>
+        <StyledTextField
+          required
+          id="outlined-required"
+          label="Title"
+          variant="outlined"
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value)
+          }}
+        />
+      </div>
+      <div>
+        <StyledButton onClick={createNewPage}>Create page</StyledButton>
+      </div>
     </div>
   )
 }

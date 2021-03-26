@@ -33,6 +33,8 @@ interface EditorProps {
   data: PageWithExercises
 }
 
+// Not yet implemented fully.
+// Idea is to fetch all exercise atom states and the data from iframes and call updateExistingPage here.
 const HandleSave = () => {
   const saveExerciseData = useRecoilCallback(({ snapshot }) => async () => {
     const ids = await snapshot.getPromise(exercisesState)
@@ -43,18 +45,13 @@ const HandleSave = () => {
     }
   })
   return <Button onClick={saveExerciseData}>Save data</Button>
-  // updateExistingPage({ page_id: id, content: blocks, exercises, url_path, title }).then(
-  //   (res: PageWithExercises) => {
-  //     setBlocks(res.content)
-  //   },
-  // )
 }
 
 function Editor(props: EditorProps) {
-  const { content, url_path, title, course_id, deleted, exercises } = props.data
+  const { content, url_path, title, course_id, deleted, exercises, id } = props.data
   // Add content from DB to blocks...
   const [blocks, setBlocks] = useState(content ?? [])
-  // useRecoilCallback to create exercise atom state for each exercises array
+  // useRecoilCallback to create exercise atom state for each exercises array when opening Editor
   const createExercisesStates = useRecoilCallback(
     ({ set }) => (exerciseData: ExerciseWithExerciseItems[]) => {
       const ids = []
@@ -76,6 +73,13 @@ function Editor(props: EditorProps) {
     console.log(page)
     setBlocks(page)
   }
+  const handleSave = (): void => {
+    updateExistingPage({ page_id: id, content: blocks, exercises, url_path, title }).then(
+      (res: PageWithExercises) => {
+        setBlocks(res.content)
+      },
+    )
+  }
 
   useEffect(() => {
     registerCoreBlocks()
@@ -88,7 +92,8 @@ function Editor(props: EditorProps) {
 
   return (
     <div className="playground">
-      <HandleSave />
+      {/* <HandleSave /> */}
+      <Button onClick={handleSave}>Save</Button>
       <SlotFillProvider>
         <DropZoneProvider>
           <BlockEditorProvider value={blocks} onInput={handleInput} onChange={handleChanges}>

@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { v4 } from 'uuid'
 import { Alert } from '@material-ui/lab'
 import styled from 'styled-components'
-
-const Title = styled.h1`
-  font-size: 24px;
-`
+import { ExerciseItem, PageUpdateExerciseItem } from '../../services/services.types'
 
 const Iframe = styled.iframe`
   width: 100%;
@@ -34,7 +31,12 @@ const exampleExerciseSpec = [
   },
 ]
 
-export default function IFrameEditor({ exercise, url }) {
+interface IFrameEditorProps {
+  exercise: ExerciseItem | PageUpdateExerciseItem
+  url: string
+}
+
+export default function IFrameEditor({ exercise, url }: IFrameEditorProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [frameHeight, setFrameHeight] = useState(50)
   useEffect(() => {
@@ -57,7 +59,6 @@ export default function IFrameEditor({ exercise, url }) {
   }
   return (
     <>
-      <Title>{exercise.name}</Title>
       <Iframe height={frameHeight} ref={iframeRef} src={url} frameBorder="off" />
     </>
   )
@@ -67,7 +68,7 @@ const handleMessageCreator = (
   iframeRef: HTMLIFrameElement | null,
   onHeightChange: (newHeight: number) => void,
 ) => {
-  return function handlemessage(event: WindowEventMap['message']) {
+  return function handleMessage(event: WindowEventMap['message']) {
     // TODO verify event's origin since other sites or tabs can post events
     // as well
     if (event.data.message_type !== 'moocfi/editor-message') {
@@ -95,6 +96,9 @@ const handleMessageCreator = (
     }
     if (event.data.message === 'height-changed') {
       onHeightChange(event.data.data)
+    }
+    if (event.data.message === 'current-state') {
+        console.log(event.data)
     }
   }
 }

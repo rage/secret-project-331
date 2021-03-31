@@ -28,6 +28,7 @@ import { Button } from '@material-ui/core'
 import { ExerciseWithExerciseItems, PageWithExercises } from '../services/services.types'
 import { exerciseFamilySelector, exercisesAtoms, exercisesState } from '../state/exercises'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
+import { indigo } from '@material-ui/core/colors'
 
 interface EditorProps {
   data: PageWithExercises
@@ -74,6 +75,21 @@ function Editor(props: EditorProps) {
     setBlocks(page)
   }
   const handleSave = (): void => {
+    // This doesnt work.
+
+    const exerciseElements = allEditorExercises.map((item: string) => {
+      return document.getElementById(item)
+    })
+
+    exerciseElements.forEach((element: HTMLElement) => {
+      const frames = element.querySelectorAll('iframe')
+      frames.forEach((iframe) => {
+        iframe.contentWindow.postMessage({
+          message: 'give-state',
+          message_type: 'moocfi/editor-message',
+        }, '*')
+      })
+    })
     updateExistingPage({ page_id: id, content: blocks, exercises, url_path, title }).then(
       (res: PageWithExercises) => {
         setBlocks(res.content)

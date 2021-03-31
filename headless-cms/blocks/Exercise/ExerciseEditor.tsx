@@ -8,6 +8,7 @@ import { v4 } from 'uuid'
 import { exerciseFamilySelector } from '../../state/exercises'
 import { useRecoilState } from 'recoil'
 import {
+  ExerciseItem,
   ExerciseWithExerciseItems,
   PageUpdateExercise,
   PageUpdateExerciseItem,
@@ -21,9 +22,15 @@ const ExerciseEditorCard = styled.div`
   border-radius: 2px;
 `
 
+const Title = styled.h1`
+  font-size: 24px;
+`
+
 const ExerciseEditor = ({ attributes }: BlockEditProps<ExerciseAttributes>) => {
   const [exercise, setExercise] = useRecoilState(exerciseFamilySelector(attributes.exercise_id))
 
+  console.log("ExerciseEditor")
+  console.log(exercise)
   const onChooseExerciseType = (selectedItem: any) => {
     setExercise((prev) => {
       const newItem: PageUpdateExerciseItem = {
@@ -49,7 +56,7 @@ const ExerciseEditor = ({ attributes }: BlockEditProps<ExerciseAttributes>) => {
   const exerciseChosen = exercise.exercise_items.length > 0
 
   return (
-    <ExerciseEditorCard>
+    <ExerciseEditorCard id={exercise.id}>
       <div>Exercise editor</div>
       <TextField
         fullWidth
@@ -63,10 +70,13 @@ const ExerciseEditor = ({ attributes }: BlockEditProps<ExerciseAttributes>) => {
       />
       {!exerciseChosen && <ChooseExerciseItemType onChooseItem={onChooseExerciseType} />}
       {exerciseChosen &&
-        exercise.exercise_items.map((ei) => {
+      <>
+        <Title>{exercise.name}</Title>
+        {exercise.exercise_items.map((ei: ExerciseItem | PageUpdateExerciseItem) => {
           const url = exerciseItemTypes.find((o) => o.identifier === ei.exercise_type)?.url
           return <IFrameEditor exercise={ei} url={url} />
         })}
+      </>}
     </ExerciseEditorCard>
   )
 }

@@ -29,8 +29,6 @@ const Title = styled.h1`
 const ExerciseEditor = ({ attributes }: BlockEditProps<ExerciseAttributes>) => {
   const [exercise, setExercise] = useRecoilState(exerciseFamilySelector(attributes.exercise_id))
 
-  console.log("ExerciseEditor")
-  console.log(exercise)
   const onChooseExerciseType = (selectedItem: any) => {
     setExercise((prev) => {
       const newItem: PageUpdateExerciseItem = {
@@ -69,14 +67,17 @@ const ExerciseEditor = ({ attributes }: BlockEditProps<ExerciseAttributes>) => {
         }
       />
       {!exerciseChosen && <ChooseExerciseItemType onChooseItem={onChooseExerciseType} />}
-      {exerciseChosen &&
-      <>
-        <Title>{exercise.name}</Title>
-        {exercise.exercise_items.map((ei: ExerciseItem | PageUpdateExerciseItem) => {
-          const url = exerciseItemTypes.find((o) => o.identifier === ei.exercise_type)?.url
-          return <IFrameEditor exercise={ei} url={url} />
-        })}
-      </>}
+      {exerciseChosen && (
+        <>
+          <Title>{exercise.name}</Title>
+          {exercise.exercise_items.map((ei: ExerciseItem | PageUpdateExerciseItem) => {
+            const url = exerciseItemTypes.find((o) => o.identifier === ei.exercise_type)?.url
+            return (
+              <IFrameEditor key={ei.id} parentId={exercise.id} exerciseItemid={ei.id} url={url} />
+            )
+          })}
+        </>
+      )}
     </ExerciseEditorCard>
   )
 }

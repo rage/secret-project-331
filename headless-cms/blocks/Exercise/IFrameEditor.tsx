@@ -3,6 +3,9 @@ import { v4 } from 'uuid'
 import { Alert } from '@material-ui/lab'
 import styled from 'styled-components'
 import { ExerciseItem, PageUpdateExerciseItem } from '../../services/services.types'
+import React from 'react'
+import { SetterOrUpdater, useRecoilState } from 'recoil'
+import { exerciseItemFamilySelector } from '../../state/exercises'
 
 const Iframe = styled.iframe`
   width: 100%;
@@ -13,39 +16,30 @@ const Iframe = styled.iframe`
   border-bottom: 1px solid black;
 `
 
-const exampleExerciseSpec = [
-  {
-    name: 'A',
-    correct: false,
-    id: v4(),
-  },
-  {
-    name: 'C',
-    correct: false,
-    id: v4(),
-  },
-  {
-    name: 'D',
-    correct: true,
-    id: v4(),
-  },
-]
-
 interface IFrameEditorProps {
-  exercise: ExerciseItem | PageUpdateExerciseItem
   url: string
+  parentId: string
+  exerciseItemid: string
 }
 
-export default function IFrameEditor({ exercise, url }: IFrameEditorProps) {
+const IFrameEditor = ({ url, parentId, exerciseItemid }: IFrameEditorProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [frameHeight, setFrameHeight] = useState(50)
+  const [exerciseItem, setExerciseItem] = useRecoilState(
+    exerciseItemFamilySelector([parentId, exerciseItemid]),
+  )
   useEffect(() => {
     if (typeof window === undefined) {
       console.log('Not adding a event listener because window is undefined.')
       return
     }
     console.log('Adding event listener...')
-    const handleMessage = handleMessageCreator(iframeRef.current, setFrameHeight)
+    const handleMessage = handleMessageCreator(
+      iframeRef.current,
+      setFrameHeight,
+      setExerciseItem,
+      exerciseItem,
+    )
     window.addEventListener('message', handleMessage)
     const removeListener = () => {
       console.log('Removing event listener')
@@ -58,47 +52,68 @@ export default function IFrameEditor({ exercise, url }: IFrameEditorProps) {
     return <Alert severity="error">Cannot render exercise item editor, missing url.</Alert>
   }
   return (
-    <>
-      <Iframe height={frameHeight} ref={iframeRef} src={url} frameBorder="off" />
-    </>
+    <Iframe
+      data-exercise-item-id={exerciseItem.id}
+      height={frameHeight}
+      ref={iframeRef}
+      src={url}
+      frameBorder="off"
+    />
   )
 }
 
 const handleMessageCreator = (
   iframeRef: HTMLIFrameElement | null,
   onHeightChange: (newHeight: number) => void,
+  setExerciseItem: SetterOrUpdater<ExerciseItem | PageUpdateExerciseItem>,
+  exerciseItem: ExerciseItem | PageUpdateExerciseItem,
 ) => {
-  return function handleMessage(event: WindowEventMap['message']) {
-    // TODO verify event's origin since other sites or tabs can post events
-    // as well
-    if (event.data.message_type !== 'moocfi/editor-message') {
+  return async function handleMessage(event: WindowEventMap['message']) {
+    if (
+      event.data.message_type !== 'moocfi/editor-message' ||
+      iframeRef.contentWindow !== event.source
+    ) {
       return
     }
     console.log('Parent received an event: ', JSON.stringify(event.data))
-    if (event.data.message === 'ready') {
-      if (!iframeRef) {
-        console.error('Cannot send data to iframe because reference does not exist.')
+
+    // Handle message types.
+    switch (event.data.message) {
+      case 'ready':
+        if (!iframeRef) {
+          console.error('Cannot send data to iframe because reference does not exist.')
+          return
+        }
+        const contentWindow = iframeRef.contentWindow
+        if (!contentWindow) {
+          console.error('No frame content window')
+          return
+        }
+        contentWindow.postMessage(
+          {
+            message: 'content',
+            message_type: 'moocfi/editor-message',
+            data: exerciseItem.spec,
+          },
+          '*',
+        )
         return
-      }
-      const contentWindow = iframeRef.contentWindow
-      if (!contentWindow) {
-        console.error('No frame content window')
+      case 'height-changed':
+        onHeightChange(event.data.data)
         return
-      }
-      contentWindow.postMessage(
-        {
-          message: 'content',
-          message_type: 'moocfi/editor-message',
-          data: exampleExerciseSpec,
-        },
-        '*',
-      )
-    }
-    if (event.data.message === 'height-changed') {
-      onHeightChange(event.data.data)
-    }
-    if (event.data.message === 'current-state') {
-        console.log(event.data)
+      case 'current-state':
+        setExerciseItem((prev: ExerciseItem | PageUpdateExerciseItem) => {
+          return {
+            ...prev,
+            spec: event.data.data,
+          }
+        })
+        return
+      default:
+        console.warn('Unexpected message', JSON.stringify(event.data))
+        return
     }
   }
 }
+
+export default IFrameEditor

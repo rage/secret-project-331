@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Editor from "../components/Editor"
 
 export interface Alternative {
@@ -8,13 +8,20 @@ export interface Alternative {
 }
 
 const EditorPage = () => {
-  const [state, setState] = useState<Alternative[] | null>(null)
+  const [state, _setState] = useState<Alternative[] | null>(null)
+
+  const stateRef = useRef(state)
+  const setState = (data:Alternative[] | null) => {
+    stateRef.current = data
+    _setState(data)
+  }
+
   useEffect(() => {
     if (typeof window === undefined) {
       console.log("Not adding a event listener because window is undefined.")
       return
     }
-    const handleMessage = handleMessageCreator(setState, state)
+    const handleMessage = handleMessageCreator(setState, stateRef)
     console.log("Adding event listener...")
     window.addEventListener("message", handleMessage)
     if (window.parent === window) {
@@ -58,7 +65,7 @@ const handleMessageCreator = (setState: any, state: any) => {
         {
           message: "current-state",
           message_type: "moocfi/editor-message",
-          data: state,
+          data: state.current,
         },
         "*"
       )

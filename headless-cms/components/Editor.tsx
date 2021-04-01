@@ -25,33 +25,56 @@ import { BlockInstance, registerBlockType } from '@wordpress/blocks'
 import Exercise, { ExerciseAttributes } from '../blocks/Exercise'
 import { updateExistingPage } from '../services/postData'
 import { Button } from '@material-ui/core'
-import { ExerciseWithExerciseItems, PageWithExercises } from '../services/services.types'
-import { exerciseFamilySelector, exercisesAtoms, exercisesState } from '../state/exercises'
+import {
+  ExerciseWithExerciseItems,
+  PageUpdateExercise,
+  PageWithExercises,
+} from '../services/services.types'
+import {
+  allExercises,
+  exerciseFamilySelector,
+  exercisesAtoms,
+  exercisesState,
+} from '../state/exercises'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
-import { indigo } from '@material-ui/core/colors'
 
 interface EditorProps {
   data: PageWithExercises
 }
 
-// Not yet implemented fully.
-// Idea is to fetch all exercise atom states and the data from iframes and call updateExistingPage here.
 const HandleSave = () => {
-  const saveExerciseData = useRecoilCallback(({ snapshot }) => async () => {
-    const ids = await snapshot.getPromise(exercisesState)
-    console.log(ids)
-    for (const exerciseId of ids) {
-      const exercise = await snapshot.getPromise(exerciseFamilySelector(exerciseId))
-      console.log(exercise)
-    }
-  })
-  return <Button onClick={saveExerciseData}>Save data</Button>
+  const saveExerciseData = useRecoilCallback(
+    ({ snapshot }) => async () => {
+      const ids = await snapshot.getPromise(exercisesState)
+      for (const exerciseId of ids) {
+        const exercise = await snapshot.getPromise(exerciseFamilySelector(exerciseId))
+        const element = document.getElementById(exerciseId)
+        exercise.exercise_items.forEach((ei) => {
+          const frame: HTMLIFrameElement = element.querySelector(
+            `iframe[data-exercise-item-id='${ei.id}']`,
+          )
+          // Ask to save state for each exercise, 
+          // this is done async and we should somehow handle it synchronously, 
+          // so that we can post the latest data to DB
+          frame.contentWindow.postMessage(
+            {
+              message: 'give-state',
+              message_type: 'moocfi/editor-message',
+            },
+            '*',
+          )
+        })
+      }
+    },
+    [],
+  )
+  return <Button onClick={saveExerciseData}>Update states...</Button>
 }
 
 function Editor(props: EditorProps) {
   const { content, url_path, title, course_id, deleted, exercises, id } = props.data
-  // Add content from DB to blocks...
   const [blocks, setBlocks] = useState(content ?? [])
+
   // useRecoilCallback to create exercise atom state for each exercises array when opening Editor
   const createExercisesStates = useRecoilCallback(
     ({ set }) => (exerciseData: ExerciseWithExerciseItems[]) => {
@@ -64,7 +87,11 @@ function Editor(props: EditorProps) {
     },
     [],
   )
-  const allEditorExercises = useRecoilValue(exercisesState)
+
+  const mapExercises = useRecoilCallback(({ snapshot }) => async () => {
+    const exercises = await snapshot.getPromise(allExercises)
+    return exercises
+  })
 
   const handleChanges = (page: BlockInstance<ExerciseAttributes>[]): void => {
     console.log(page)
@@ -74,27 +101,19 @@ function Editor(props: EditorProps) {
     console.log(page)
     setBlocks(page)
   }
+
   const handleSave = (): void => {
-    // This doesnt work.
-
-    const exerciseElements = allEditorExercises.map((item: string) => {
-      return document.getElementById(item)
-    })
-
-    exerciseElements.forEach((element: HTMLElement) => {
-      const frames = element.querySelectorAll('iframe')
-      frames.forEach((iframe) => {
-        iframe.contentWindow.postMessage({
-          message: 'give-state',
-          message_type: 'moocfi/editor-message',
-        }, '*')
+    mapExercises().then((fetchedExercises: PageUpdateExercise[]) => {
+      updateExistingPage({
+        page_id: id,
+        content: blocks,
+        exercises: fetchedExercises,
+        url_path,
+        title,
+      }).then((res: PageWithExercises) => {
+        setBlocks(res.content)
       })
     })
-    updateExistingPage({ page_id: id, content: blocks, exercises, url_path, title }).then(
-      (res: PageWithExercises) => {
-        setBlocks(res.content)
-      },
-    )
   }
 
   useEffect(() => {
@@ -108,7 +127,7 @@ function Editor(props: EditorProps) {
 
   return (
     <div className="playground">
-      {/* <HandleSave /> */}
+      <HandleSave />
       <Button onClick={handleSave}>Save</Button>
       <SlotFillProvider>
         <DropZoneProvider>

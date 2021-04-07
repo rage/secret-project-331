@@ -10,8 +10,16 @@ build:
             dest: "/app"
     - image: cms
       context: headless-cms
+      sync:
+        manual:
+          - src: "src/**/*"
+            dest: "/app"
     - image: example-exercise
       context: example-exercise
+      sync:
+        manual:
+          - src: "src/**/*"
+            dest: "/app"
 deploy:
   kubectl:
     manifests:

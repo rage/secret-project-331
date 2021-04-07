@@ -58,7 +58,7 @@ const handleMessageCreator = (setState: any, state: any) => {
     }
     console.log("Frame received an event: ", JSON.stringify(event.data))
     if (event.data.message === "content") {
-      setState(event.data.data)
+      setState(event.data.data || [])
     }
     if (event.data.message === "give-state") {
       window.parent.postMessage(

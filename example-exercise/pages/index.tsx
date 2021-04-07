@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import styled from "styled-components"
 import { v4 } from "uuid"
+import basePath from "../util/base-path"
 
 const Title = styled.h1`
   font-size: 24px;
@@ -59,7 +60,7 @@ export default function Home() {
       <Iframe
         height={frameHeight}
         ref={iframeRef}
-        src="/editor"
+        src={`${basePath()}/editor`}
         frameBorder="off"
       />
     </>

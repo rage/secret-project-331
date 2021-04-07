@@ -19,6 +19,13 @@ spec:
                 name: headless-lms
                 port:
                   number: 3001
+          - path: /example-exercise
+            pathType: Prefix
+            backend:
+              service:
+                name: example-exercise
+                port:
+                  number: 3002
           - path: /
             pathType: Prefix
             backend:

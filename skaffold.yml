@@ -4,20 +4,24 @@ build:
   artifacts:
     - image: headless-lms
       context: headless-lms
+      sync:
+        manual:
+          - src: "**/*.rs"
+            dest: "/app"
     - image: cms
       context: headless-cms
+    - image: example-exercise
+      context: example-exercise
 deploy:
   kubectl:
     manifests:
       - headless-lms/kubernetes/*
       - headless-cms/kubernetes/*
-    kubeContext: minikube
+      - example-exercise/kubernetes/*
+      - kubernetes/*
+    # kubeContext: minikube
 portForward:
-  - resourceType: deployment
-    resourceName: headless-lms
-    port: 3001
-    localPort: 3001
-  - resourceType: deployment
-    resourceName: cms
-    port: 3000
-    localPort: 3000
+  - resourceType: statefulset
+    resourceName: postgres
+    port: 5432
+    localPort: 5436

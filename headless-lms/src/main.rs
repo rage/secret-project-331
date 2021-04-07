@@ -51,7 +51,7 @@ async fn main() -> Result<()> {
     server = match listenfd.take_tcp_listener(0)? {
         Some(listener) => server.listen(listener)?,
         None => {
-            let host = env::var("HOST").unwrap_or_else(|_| "localhost".to_string());
+            let host = env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
             let port = env::var("PORT").unwrap_or_else(|_| "3001".to_string());
             let bind_address = format!("{}:{}", host, port);
             info!("Binding to address: {}", bind_address);

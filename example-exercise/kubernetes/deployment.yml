@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-exercise
+  labels:
+    app: example-exercise
+spec:
+  clusterIP: None
+  ports:
+    - port: 3002
+      name: example-exercise
+  selector:
+    app: example-exercise
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-exercise
+  labels:
+    app: example-exercise
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-exercise
+  template:
+    metadata:
+      labels:
+        app: example-exercise
+    spec:
+      containers:
+        - name: example-exercise
+          image: example-exercise
+          ports:
+            - containerPort: 3002
+              name: http

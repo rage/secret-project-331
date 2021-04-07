@@ -33,4 +33,53 @@ spec:
           image: headless-lms
           ports:
             - containerPort: 3001
-              name: http
+              name: headless-lms
+          envFrom:
+            - configMapRef:
+                name: postgres-configuration
+          env:
+            - name: POSTGRES_HOST
+              value: "postgres-service"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            - name: DATABASE_URL
+              value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service/$(POSTGRES_DB)"
+---
+# Migrations
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: headless-lms-run-migrations
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      containers:
+        - name: headless-lms-run-migrations
+          image: headless-lms
+          command:
+            - bash
+            - "-c"
+            - |
+              echo Waiting for postgres to be available
+              wait-for-it --timeout=120 postgres-service:5432
+              echo Running migrations
+              cargo sqlx migrate run
+              echo Migrations complete
+          envFrom:
+            - configMapRef:
+                name: postgres-configuration
+          env:
+            - name: POSTGRES_HOST
+              value: "postgres-service"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            - name: DATABASE_URL
+              value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service/$(POSTGRES_DB)"
+      restartPolicy: Never

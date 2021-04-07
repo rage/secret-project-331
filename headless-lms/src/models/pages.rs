@@ -1,10 +1,10 @@
-use std::{cell::RefCell, collections::HashMap};
+use std::collections::HashMap;
 
 use anyhow::Result;
 use chrono::NaiveDateTime;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, FromRow, PgPool, Postgres, Transaction};
+use sqlx::{Acquire, FromRow, PgConnection, PgPool};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -201,9 +201,7 @@ pub async fn update_page(
     page_id: Uuid,
     page_update: PageUpdate,
 ) -> Result<PageWithExercises> {
-    let transaction = pool.begin().await?;
-    // For sharing the transaction between functions
-    let transaction_holder = RefCell::new(transaction);
+    let mut tx = pool.begin().await?;
     // Updating page
     let page = sqlx::query_as!(
         Page,
@@ -221,14 +219,13 @@ RETURNING *
         page_update.url_path.trim(),
         page_update.title.trim()
     )
-    .fetch_one(&mut *transaction_holder.borrow_mut())
+    .fetch_one(&mut tx)
     .await?;
 
     let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_items(&page_update.exercises, &page, &transaction_holder)
-            .await?;
+        upsert_exercises_and_exercise_items(&page_update.exercises, &page, &mut tx).await?;
 
-    transaction_holder.into_inner().commit().await?;
+    tx.commit().await?;
 
     return Ok(PageWithExercises {
         content: new_content,
@@ -247,7 +244,7 @@ RETURNING *
 async fn upsert_exercises_and_exercise_items(
     exercises: &Vec<PageUpdateExercise>,
     page: &Page,
-    transaction_holder: &RefCell<Transaction<'_, Postgres>>,
+    connection: &mut PgConnection,
 ) -> Result<(Vec<ExerciseWithExerciseItems>, serde_json::Value)> {
     // All related exercises and items should be deleted if not included in the update
     // We accomplish this by deleting everyting first in the transaction and then
@@ -259,7 +256,7 @@ async fn upsert_exercises_and_exercise_items(
             "#,
         page.id
     )
-    .execute(&mut *transaction_holder.borrow_mut())
+    .execute(&mut *connection)
     .await?;
 
     sqlx::query!(
@@ -268,7 +265,7 @@ async fn upsert_exercises_and_exercise_items(
             "#,
         page.id
     )
-    .execute(&mut *transaction_holder.borrow_mut())
+    .execute(&mut *connection)
     .await?;
 
     // We need existing exercise ids to check which ids are client generated and need to be replaced.
@@ -278,7 +275,7 @@ async fn upsert_exercises_and_exercise_items(
         "#,
         page.id
     )
-    .fetch_all(&mut *transaction_holder.borrow_mut())
+    .fetch_all(&mut *connection)
     .await?;
 
     let existing_exercise_item_ids = sqlx::query!(
@@ -287,7 +284,7 @@ async fn upsert_exercises_and_exercise_items(
         "#,
             page.id
         )
-        .fetch_all(&mut *transaction_holder.borrow_mut())
+        .fetch_all(&mut *connection)
         .await?;
     // for returning the inserted values
     let mut result_exercises: Vec<ExerciseWithExerciseItems> = Vec::new();
@@ -319,7 +316,7 @@ RETURNING *;
             exercise_update.name,
             page.id
         )
-        .fetch_one(&mut *transaction_holder.borrow_mut())
+        .fetch_one(&mut *connection)
         .await?;
         for item_update in exercise_update.exercise_items.iter() {
             let safe_for_db_exercise_item_id = if existing_exercise_item_ids
@@ -348,7 +345,7 @@ RETURNING *;
                 item_update.assignment,
                 item_update.spec
             )
-            .fetch_one(&mut *transaction_holder.borrow_mut())
+            .fetch_one(&mut *connection)
             .await?;
             exercise_exercise_items.push(exercise_item);
         }
@@ -372,7 +369,7 @@ RETURNING *;
         new_content,
         page.id
     )
-    .execute(&mut *transaction_holder.borrow_mut())
+    .execute(connection)
     .await?;
     return Ok((result_exercises, new_content));
 }
@@ -391,9 +388,9 @@ fn update_ids_in_content(
 }
 
 pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<PageWithExercises> {
-    let transaction = pool.begin().await?;
+    let mut tx = pool.begin().await?;
     // For sharing the transaction between functions
-    let transaction_holder = RefCell::new(transaction);
+    // let transaction_holder = RefCell::new(transaction);
     let page = sqlx::query_as!(
         Page,
         r#"
@@ -407,13 +404,12 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<PageWithExe
         new_page.url_path.trim(),
         new_page.title.trim()
     )
-    .fetch_one(&mut *transaction_holder.borrow_mut())
+    .fetch_one(&mut tx)
     .await?;
 
     let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_items(&new_page.exercises, &page, &transaction_holder)
-            .await?;
-    transaction_holder.into_inner().commit().await?;
+        upsert_exercises_and_exercise_items(&new_page.exercises, &page, &mut tx).await?;
+    tx.commit().await?;
     return Ok(PageWithExercises {
         content: new_content,
         course_id: page.course_id,

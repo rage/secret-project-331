@@ -6,6 +6,7 @@ import { ExerciseItem, PageUpdateExerciseItem } from '../../services/services.ty
 import React from 'react'
 import { SetterOrUpdater, useRecoilState } from 'recoil'
 import { exerciseItemFamilySelector } from '../../state/exercises'
+import { saveResolveMap } from '../../components/Editor'
 
 const Iframe = styled.iframe`
   width: 100%;
@@ -102,6 +103,10 @@ const handleMessageCreator = (
         onHeightChange(event.data.data)
         return
       case 'current-state':
+        const resolve = saveResolveMap.get(exerciseItem.id)
+        if (resolve) {
+          resolve(event.data.data)
+        }
         setExerciseItem((prev: ExerciseItem | PageUpdateExerciseItem) => {
           return {
             ...prev,

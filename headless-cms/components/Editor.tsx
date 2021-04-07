@@ -28,6 +28,7 @@ import { Button } from '@material-ui/core'
 import {
   ExerciseWithExerciseItems,
   PageUpdateExercise,
+  PageUpdateExerciseItem,
   PageWithExercises,
 } from '../services/services.types'
 import {
@@ -42,6 +43,8 @@ interface EditorProps {
   data: PageWithExercises
 }
 
+export const saveResolveMap = new Map<string, (value: unknown) => void>()
+
 const HandleSave = () => {
   const saveExerciseData = useRecoilCallback(
     ({ snapshot }) => async () => {
@@ -49,21 +52,33 @@ const HandleSave = () => {
       for (const exerciseId of ids) {
         const exercise = await snapshot.getPromise(exerciseFamilySelector(exerciseId))
         const element = document.getElementById(exerciseId)
-        exercise.exercise_items.forEach((ei) => {
-          const frame: HTMLIFrameElement = element.querySelector(
-            `iframe[data-exercise-item-id='${ei.id}']`,
-          )
-          // Ask to save state for each exercise, 
-          // this is done async and we should somehow handle it synchronously, 
-          // so that we can post the latest data to DB
-          frame.contentWindow.postMessage(
-            {
-              message: 'give-state',
-              message_type: 'moocfi/editor-message',
-            },
-            '*',
-          )
+        const promises = exercise.exercise_items.map(ei => {
+          return new Promise<[string, PageUpdateExerciseItem]>((resolve, _reject) => {
+            const enhancedResolve = (value: PageUpdateExerciseItem) => {
+              resolve([ei.id, value])
+            }
+            // Response handler will get the resolve function from this map
+            saveResolveMap.set(ei.id, enhancedResolve)
+            const frame: HTMLIFrameElement = element.querySelector(
+              `iframe[data-exercise-item-id='${ei.id}']`,
+            )
+
+            frame.contentWindow.postMessage(
+              {
+                message: 'give-state',
+                message_type: 'moocfi/editor-message',
+              },
+              '*',
+            )
+          })
         })
+        const exerciseItemContentsArray = await Promise.all(promises)
+        const exerciseItemContetentsMapping = exerciseItemContentsArray.reduce((acc, val) => {
+          const [key, value] = val;
+          acc[key] = value;
+          return acc;
+        }, {})
+        console.log(`All exercise item contents: ${JSON.stringify(exerciseItemContetentsMapping)}`)
       }
     },
     [],

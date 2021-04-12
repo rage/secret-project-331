@@ -1,0 +1,1 @@
+skaffold dev --force --port-forward

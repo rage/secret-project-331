@@ -43,10 +43,12 @@ List ingresses with kubectl and grab the IP address for `project-331-ingress`:
 kubectl get ingress
 ```
 
-Next, add a entry for the IP address you got from the previous command:
+Next, add a hosts entry for the IP address you got from the previous command:
 
 ```
 ip-from-previous-command	project-331.local
 ```
+
+You can find the hosts file in Linux from `/etc/hosts`.
 
 After that, you should be able to access the application by going to `http://project-331.local/` in your web browser. Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.

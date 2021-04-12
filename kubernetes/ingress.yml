@@ -26,17 +26,17 @@ spec:
                 name: example-exercise
                 port:
                   number: 3002
-          - path: /course-material
-            pathType: Prefix
-            backend:
-              service:
-                name: course-material
-                port:
-                  number: 3003
-          - path: /
+          - path: /cms
             pathType: Prefix
             backend:
               service:
                 name: cms
                 port:
                   number: 3000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: course-material
+                port:
+                  number: 3003

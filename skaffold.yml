@@ -29,11 +29,7 @@ build:
 deploy:
   kubectl:
     manifests:
-      - headless-lms/kubernetes/*
-      - headless-cms/kubernetes/*
-      - example-exercise/kubernetes/*
-      - course-material/kubernetes/*
-      - kubernetes/*
+      - kubernetes/**/*
     # kubeContext: minikube
 portForward:
   - resourceType: statefulset

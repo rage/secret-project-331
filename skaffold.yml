@@ -30,7 +30,8 @@ deploy:
   kubectl:
     manifests:
       - kubernetes/**/*
-    # kubeContext: minikube
+      - kubernetes/*
+  kubeContext: minikube
 portForward:
   - resourceType: statefulset
     resourceName: postgres

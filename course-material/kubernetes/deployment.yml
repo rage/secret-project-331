@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: course-material
+  labels:
+    app: course-material
+spec:
+  clusterIP: None
+  ports:
+    - port: 3003
+      name: course-material
+  selector:
+    app: course-material
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: course-material
+  labels:
+    app: course-material
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: course-material
+  template:
+    metadata:
+      labels:
+        app: course-material
+    spec:
+      containers:
+        - name: course-material
+          image: course-material
+          ports:
+            - containerPort: 3003
+              name: http
+          env:
+            - name: BASE_PATH
+              value: "/course-material"

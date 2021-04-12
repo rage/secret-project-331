@@ -52,6 +52,9 @@ pub enum ApplicationError {
 
     #[display(fmt = "Bad request")]
     BadRequest(String),
+
+    #[display(fmt = "Not found")]
+    NotFound,
 }
 
 impl std::error::Error for ApplicationError {}
@@ -75,6 +78,27 @@ impl error::ResponseError for ApplicationError {
         match *self {
             ApplicationError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApplicationError::BadRequest(_) => StatusCode::BAD_REQUEST,
+            ApplicationError::NotFound => StatusCode::NOT_FOUND,
         }
     }
 }
+
+impl From<anyhow::Error> for ApplicationError {
+    fn from(err: anyhow::Error) -> ApplicationError {
+        if let Some(sqlx_error) = err.downcast_ref::<sqlx::Error>() {
+            match sqlx_error {
+                sqlx::Error::RowNotFound => return Self::NotFound,
+                _ => (),
+            }
+        }
+        Self::InternalServerError(err.to_string())
+    }
+}
+
+impl From<uuid::Error> for ApplicationError {
+    fn from(err: uuid::Error) -> ApplicationError {
+        Self::BadRequest(err.to_string())
+    }
+}
+
+pub type ApplicationResult<T, E = ApplicationError> = std::result::Result<T, E>;

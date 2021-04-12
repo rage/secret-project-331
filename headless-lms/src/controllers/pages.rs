@@ -3,14 +3,11 @@ use std::str::FromStr;
 
 use crate::models::pages::{NewPage, Page, PageUpdate, PageWithExercises};
 use actix_web::web::ServiceConfig;
-use actix_web::{
-    web::{self, Json},
-    Result,
-};
+use actix_web::web::{self, Json};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use super::ApplicationError;
+use super::ApplicationResult;
 
 /**
 GET `/api/v0/pages/:page_id` - Get a page with exercises and exercise items by id.
@@ -101,15 +98,10 @@ Response:
 async fn get_page(
     request_page_id: web::Path<String>,
     pool: web::Data<PgPool>,
-) -> Result<Json<PageWithExercises>> {
-    let page_id = Uuid::from_str(&request_page_id)
-        .map_err(|original_error| ApplicationError::BadRequest(original_error.to_string()))?;
+) -> ApplicationResult<Json<PageWithExercises>> {
+    let page_id = Uuid::from_str(&request_page_id)?;
 
-    let page = crate::models::pages::get_page_with_exercises(pool.get_ref(), page_id)
-        .await
-        .map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
-        })?;
+    let page = crate::models::pages::get_page_with_exercises(pool.get_ref(), page_id).await?;
     Ok(Json(page))
 }
 
@@ -206,13 +198,9 @@ Response:
 async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
-) -> Result<Json<PageWithExercises>> {
+) -> ApplicationResult<Json<PageWithExercises>> {
     let new_page = payload.0;
-    let page = crate::models::pages::insert_page(pool.get_ref(), new_page)
-        .await
-        .map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
-        })?;
+    let page = crate::models::pages::insert_page(pool.get_ref(), new_page).await?;
     Ok(Json(page))
 }
 
@@ -304,16 +292,11 @@ async fn update_page(
     payload: web::Json<PageUpdate>,
     request_page_id: web::Path<String>,
     pool: web::Data<PgPool>,
-) -> Result<Json<PageWithExercises>> {
-    let page_id = Uuid::from_str(&request_page_id)
-        .map_err(|original_error| ApplicationError::BadRequest(original_error.to_string()))?;
+) -> ApplicationResult<Json<PageWithExercises>> {
+    let page_id = Uuid::from_str(&request_page_id)?;
 
     let page_update = payload.0;
-    let page = crate::models::pages::update_page(pool.get_ref(), page_id, page_update)
-        .await
-        .map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
-        })?;
+    let page = crate::models::pages::update_page(pool.get_ref(), page_id, page_update).await?;
     Ok(Json(page))
 }
 
@@ -346,15 +329,11 @@ Response:
 async fn delete_page(
     request_page_id: web::Path<String>,
     pool: web::Data<PgPool>,
-) -> Result<Json<Page>> {
-    let page_id = Uuid::from_str(&request_page_id)
-        .map_err(|original_error| ApplicationError::BadRequest(original_error.to_string()))?;
+) -> ApplicationResult<Json<Page>> {
+    let page_id = Uuid::from_str(&request_page_id)?;
 
-    let deleted_page = crate::models::pages::delete_page_and_exercises(pool.get_ref(), page_id)
-        .await
-        .map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
-        })?;
+    let deleted_page =
+        crate::models::pages::delete_page_and_exercises(pool.get_ref(), page_id).await?;
     Ok(Json(deleted_page))
 }
 

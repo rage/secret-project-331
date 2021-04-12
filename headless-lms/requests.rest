@@ -1,31 +1,62 @@
-POST http://localhost:3001/api/v0/pages HTTP/1.1
+POST http://project-331.local/api/v0/pages HTTP/1.1
 Content-Type: application/json
 
 {
   "content": [
     {
-      "type": "x",
-      "id": "2a4e517d-a7d2-4d82-89fb-a1333d8d01d1"
+      "clientId": "8af8cd1c-7e5b-4e67-b178-a2c64361f89a",
+      "name": "core/paragraph",
+      "isValid": true,
+      "attributes": {
+        "content": "Ever since the birth of computation with Alan Turing, humans have put high hopes on the power of computers and artificial intelligence (AI). AI is expected to bring significant and diverse benefits to society – from greater efficiency and productivity to tackling a number of difficult global problems, such as climate change, poverty, disease, and conflict.",
+        "dropCap": false
+      },
+      "innerBlocks": []
+    },
+    {
+      "clientId": "2f5bfdc4-050d-498a-a794-69ea378f3394",
+      "name": "core/paragraph",
+      "isValid": true,
+      "attributes": {
+        "content": "AI technologies shape our societies. They have an enormous impact on our daily lives. At the same time, multiple legal and societal issues have revealed the potential of these technologies to produce undesirable impacts. Algorithms can enhance already existing biases. They can discriminate. They can threaten our security, manipulate us and have lethal consequences.",
+        "dropCap": false
+      },
+      "innerBlocks": []
+    },
+    {
+      "clientId": "b037487e-7b9b-44c5-acdc-a153dca6d56e",
+      "name": "core/paragraph",
+      "isValid": true,
+      "attributes": {
+        "content": "For these reasons, people need to explore the ethical, social and legal aspects of AI systems. There is a common call for the ethics of AI – meaning how are we to develop and use this technology in an ethically acceptable and sustainable way? What are the ethical and moral principles we should adopt and follow?",
+        "dropCap": false
+      },
+      "innerBlocks": []
+    },
+    {
+      "clientId": "60b4cee2-eb8d-4e71-bbb0-34085896a47d",
+      "name": "core/paragraph",
+      "isValid": true,
+      "attributes": {
+        "content": "In this course, we'll take a look at the ethical issues related to contemporary AI, open up their background in philosophy and give them an interpretation in terms of computer and other sciences. The goal of course is to develop skills for ethical thinking. The course provides a guide – or a roadmap – on the ethically sustainable design, implementation and use of AI. It will introduce you to basic ethical concepts, their theoretical background, and their role in discussion on contemporary AI.",
+        "dropCap": false
+      },
+      "innerBlocks": []
+    },
+    {
+      "clientId": "6cedbbcf-5b00-48e6-ab2b-c054e1b01a49",
+      "name": "core/paragraph",
+      "isValid": true,
+      "attributes": { "content": "", "dropCap": false },
+      "innerBlocks": []
     }
   ],
-  "url_path": "/part-2/best-page",
-  "title": "Hello world!",
-  "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
-  "exercises": [
-    {
-      "id": "2a4e517d-a7d2-4d82-89fb-a1333d8d01d1",
-      "name": "Exercise 1",
-      "exercise_items": [
-        {
-          "id": "2c12869a-d5ee-4d79-a387-2964f5352150",
-          "exercise_type": "quiz",
-          "assignment": [{ "type": "y" }],
-          "spec": { "has_swag": true }
-        }
-      ]
-    }
-  ]
+  "url_path": "/chapter-1/1-a-guide-to-ai-ethics",
+  "title": "A guide to AI ethics",
+  "course_id": "85e8fb6a-4565-49d4-8fc9-6a882f93f052",
+  "exercises": []
 }
+
 
 ####
 
@@ -64,3 +95,8 @@ DELETE http://localhost:3001/api/v0/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02
 ###
 
 http://localhost:3001/api/v0/organizations
+
+
+###
+
+http://localhost:3001/api/v0/courses/10363c5b-82b4-4121-8ef1-bae8fb42a5ce/page-by-path//part-2/hello-world

@@ -20,12 +20,19 @@ build:
         manual:
           - src: "src/**/*"
             dest: "/app"
+    - image: course-material
+      context: course-material
+      sync:
+        manual:
+          - src: "src/**/*"
+            dest: "/app"
 deploy:
   kubectl:
     manifests:
       - headless-lms/kubernetes/*
       - headless-cms/kubernetes/*
       - example-exercise/kubernetes/*
+      - course-material/kubernetes/*
       - kubernetes/*
     # kubeContext: minikube
 portForward:

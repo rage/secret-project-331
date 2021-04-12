@@ -4,7 +4,7 @@ import { List, ListItem, Typography } from '@material-ui/core'
 export const exerciseItemTypes = [
   { name: 'Quizzes', url: null, identifier: 'quizzes' },
   { name: 'Test My Code', url: null, identifier: 'tmc' },
-  { name: 'Example Exercise', url: 'http://localhost:3002/editor', identifier: 'example' },
+  { name: 'Example Exercise', url: '/example-exercise/editor', identifier: 'example' },
 ]
 
 const ExerciseServiceList = ({ onChooseItem }) => {

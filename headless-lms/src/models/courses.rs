@@ -22,3 +22,16 @@ pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
         .await?;
     return Ok(courses);
 }
+
+pub async fn organization_courses(pool: &PgPool, organization_id: &Uuid) -> Result<Vec<Course>> {
+    let mut transaction = pool.begin().await?;
+    let connection = transaction.acquire().await?;
+    let courses = sqlx::query_as!(
+        Course,
+        "SELECT * FROM courses WHERE organization_id = $1 AND deleted = false;",
+        organization_id
+    )
+    .fetch_all(connection)
+    .await?;
+    return Ok(courses);
+}

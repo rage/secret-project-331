@@ -9,7 +9,7 @@ build:
           - src: "**/*.rs"
             dest: "/app"
     - image: cms
-      context: headless-cms
+      context: cms
       sync:
         manual:
           - src: "src/**/*"

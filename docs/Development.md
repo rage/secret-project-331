@@ -8,14 +8,17 @@
 2. Install kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 3. Install minikube: https://minikube.sigs.k8s.io/docs/start/
 
-You may also need stern and kubectx.
+You may also need stern and kubectx or [kubectxwin](https://github.com/thomasliddledba/kubectxwin).
+
+WTIP: Save all .exe files in same location.  
+Run command ```rundll32.exe sysdm.cpl,EditEnvironmentVariables``` and add the location to System variable PATH.
 
 ### Setting up minikube
 
 Start minikube:
 
 ```sh
-minikube start
+minikube start (--vm-driver hyperv|docker)
 ```
 
 Enable the ingress addon:

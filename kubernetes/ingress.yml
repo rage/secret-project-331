@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: project-331-ingress
@@ -13,30 +13,18 @@ spec:
     - http:
         paths:
           - path: /api
-            pathType: Prefix
             backend:
-              service:
-                name: headless-lms
-                port:
-                  number: 3001
+              serviceName: headless-lms
+              servicePort: 3001
           - path: /example-exercise
-            pathType: Prefix
             backend:
-              service:
-                name: example-exercise
-                port:
-                  number: 3002
+              serviceName: example-exercise
+              servicePort: 3002
           - path: /cms
-            pathType: Prefix
             backend:
-              service:
-                name: cms
-                port:
-                  number: 3000
+              serviceName: cms
+              servicePort: 3000
           - path: /
-            pathType: Prefix
             backend:
-              service:
-                name: course-material
-                port:
-                  number: 3003
+              serviceName: course-material
+              servicePort: 3003

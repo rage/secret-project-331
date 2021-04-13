@@ -1,0 +1,25 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Force Unix newlines
+bin/** text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.jsx text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+*.example text eol=lf
+Dockerfile text eol=lf
+*.lock text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.svg text eol=lf
+*.sql text eol=lf
+*.rs text eol=lf
+.gitignore text eol=lf
+.giattributes text eol=lf
+.babelrc text eol=lf

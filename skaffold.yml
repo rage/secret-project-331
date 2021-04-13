@@ -26,6 +26,9 @@ build:
         manual:
           - src: "src/**/*"
             dest: "/app"
+  local:
+    # Allow parallel builds
+    concurrency: 0
 deploy:
   kubectl:
     manifests:

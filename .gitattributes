@@ -2,7 +2,7 @@
 * text=auto
 
 # Force Unix newlines
-bin/** text eol=lf
+**/bin/** text eol=lf
 *.js text eol=lf
 *.ts text eol=lf
 *.jsx text eol=lf

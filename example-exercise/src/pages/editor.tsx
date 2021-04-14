@@ -14,6 +14,11 @@ const EditorPage: React.FC = () => {
   const setState = (data: Alternative[] | null) => {
     stateRef.current = data
     _setState(data)
+    console.log("Posting current state to parent")
+    window.parent.postMessage(
+      { message: "current-state2", message_type: "moocfi/editor-message", data: data },
+      "*",
+    )
   }
 
   useEffect(() => {

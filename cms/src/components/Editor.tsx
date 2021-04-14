@@ -133,7 +133,7 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
 
   useEffect(() => {
     registerCoreBlocks()
-    registerBlockType("moocfi/iframe-exercise", Exercise)
+    registerBlockType("moocfi/exercise", Exercise)
   }, [])
 
   useEffect(() => {

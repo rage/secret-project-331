@@ -9,8 +9,8 @@ export interface ExerciseAttributes {
 }
 
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
-  title: "Exercise Iframe",
-  description: "Exercise with iframe",
+  title: "Exercise",
+  description: "Exercise",
   category: "embed",
   attributes: {
     exercise_id: {

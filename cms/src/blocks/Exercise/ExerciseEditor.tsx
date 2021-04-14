@@ -10,6 +10,9 @@ import { useRecoilState } from "recoil"
 import { ExerciseItem, PageUpdateExerciseItem } from "../../services/services.types"
 import { ExerciseAttributes } from "."
 import { exerciseItemTypes } from "./ChooseExerciseItemType/ExerciseServiceList"
+import { InnerBlocks } from "@wordpress/block-editor"
+
+const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list"]
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem;
@@ -61,6 +64,9 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({ attribut
           })
         }
       />
+      {/* Exercise assignment is represented as nested gutenberg blocks.
+      However, when saving these to the database, they will be separated */}
+      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       {!exerciseChosen && <ChooseExerciseItemType onChooseItem={onChooseExerciseType} />}
       {exerciseChosen && (
         <>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Alert } from "@material-ui/lab"
-import styled from "styled-components"
+import styled from "@emotion/styled"
 import { ExerciseItem, PageUpdateExerciseItem } from "../../services/services.types"
 import React from "react"
 import { SetterOrUpdater, useRecoilState } from "recoil"
@@ -9,9 +9,12 @@ import { saveResolveMap } from "../../components/Editor"
 
 const Iframe = styled.iframe`
   width: 100%;
-  // To see the size of the frame in development
-  // Only top and bottom because frame is 100% of window width
-  // and extra border would create a scrollbar
+
+  /*
+   To see the size of the frame in development
+   Only top and bottom because frame is 100% of window width
+   and extra border would create a scrollbar
+  */
   border-top: 1px solid black;
   border-bottom: 1px solid black;
 `

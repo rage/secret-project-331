@@ -1,5 +1,5 @@
 import { Alternative } from "../pages/editor"
-import styled from "styled-components"
+import styled from "@emotion/styled"
 interface Props {
   item: Alternative
   onDelete: () => void

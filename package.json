@@ -6,7 +6,8 @@
   "scripts": {
     "eslint": "eslint --fix .",
     "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint:css": "stylelint '**/*.tsx'"
   },
   "repository": {
     "type": "git",
@@ -25,9 +26,12 @@
     "eslint-plugin-react": "^7.23.2",
     "husky": "^6.0.0",
     "lint-staged": "^10.5.4",
-    "prettier": "2.2.1"
+    "prettier": "2.2.1",
+    "stylelint": "^13.12.0",
+    "stylelint-config-standard": "^21.0.0"
   },
   "lint-staged": {
-    "*.js,*.ts,*.jsx,*.tsx": "eslint --cache --fix"
+    "*.js,*.ts,*.jsx,*.tsx": ["eslint --cache --fix", "stylelint --fix"],
+    "*.md": "prettier --write"
   }
 }

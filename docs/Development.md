@@ -10,19 +10,38 @@
 
 You may also need stern and kubectx or [kubectxwin](https://github.com/thomasliddledba/kubectxwin).
 
-WTIP: Save all .exe files in same location.  
-Run command ```rundll32.exe sysdm.cpl,EditEnvironmentVariables``` and add the location to System variable PATH.
+Windows TIP: Install tools via Chocolatey.  
+> **Alternative**: Save all `.exe` files in same location and rename them to be `skaffold.exe` etc.  
+> Run command ```rundll32.exe sysdm.cpl,EditEnvironmentVariables``` and add the path for executable files to **System variable PATH**.
 
-### Setting up minikube
+### Setting up minikube (Linux)
 
 Start minikube:
 
 ```sh
-minikube start (--vm-driver hyperv|docker)
+minikube start
 ```
 
 Enable the ingress addon:
 
+```
+minikube addons enable ingress
+```
+
+### Setting up minikube (Windows)
+
+Using Windows 10 Pro, you can enable HyperV with these [instructions](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v).  
+If you don't have Windows 10 Pro, you can install [Docker Desktop for Windows](https://docs.docker.com/docker-for-windows/install/) and change driver to ```--vm-driver docker``` for Minikube commands.
+
+*TODO: Figure out if you need to create the default vSwitch in HyperV or does Minikube take care of that*
+
+Using HyperV:
+
+```sh
+minikube start --vm-driver hyperv
+```
+
+Enable ingress:
 ```
 minikube addons enable ingress
 ```
@@ -53,5 +72,6 @@ ip-from-previous-command	project-331.local
 ```
 
 You can find the hosts file in Linux from `/etc/hosts`.
+You can find the hosts file in Windows from `C:\Windows\System32\drivers\etc`.
 
 After that, you should be able to access the application by going to `http://project-331.local/` in your web browser. Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.

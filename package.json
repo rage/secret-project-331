@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "eslint": "eslint --fix"
+    "eslint": "eslint --fix .",
+    "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code"
   },
   "repository": {
     "type": "git",

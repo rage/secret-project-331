@@ -37,7 +37,7 @@ const DeleteButton = styled.button`
   height: 2rem;
 `
 
-const ButtonEditor = ({ item, onDelete, onChange }: Props) => {
+const ButtonEditor: React.FC<Props> = ({ item, onDelete, onChange }) => {
   return (
     <StyledButtonEditor>
       <InputCheckbox

@@ -1,18 +1,18 @@
-import { atom, atomFamily, selector, selectorFamily } from 'recoil'
+import { atom, atomFamily, selector, selectorFamily } from "recoil"
 import {
   ExerciseItem,
   ExerciseWithExerciseItems,
   PageUpdateExercise,
   PageUpdateExerciseItem,
-} from '../services/services.types'
+} from "../services/services.types"
 
 export const exercisesAtoms = atomFamily<ExerciseWithExerciseItems | PageUpdateExercise, any>({
-  key: 'exercises',
+  key: "exercises",
   default: null,
 })
 
 export const exercisesState = atom<Array<string>>({
-  key: 'exercises-ids',
+  key: "exercises-ids",
   default: [],
 })
 
@@ -20,7 +20,7 @@ export const exerciseFamilySelector = selectorFamily<
   ExerciseWithExerciseItems | PageUpdateExercise,
   string
 >({
-  key: 'individual-exercises-access',
+  key: "individual-exercises-access",
   get: (id) => ({ get }) => {
     const atom = get(exercisesAtoms(id))
     return atom
@@ -37,7 +37,7 @@ export const exerciseItemFamilySelector = selectorFamily<
   ExerciseItem | PageUpdateExerciseItem,
   [string, string]
 >({
-  key: 'individual-exercises-items-access',
+  key: "individual-exercises-items-access",
   get: (id) => ({ get }) => {
     const atom = get(exercisesAtoms(id[0]))
     return atom.exercise_items.find((item) => item.id === id[1])
@@ -58,7 +58,7 @@ export const exerciseItemFamilySelector = selectorFamily<
 })
 
 export const allExercises = selector<ExerciseWithExerciseItems[] | PageUpdateExercise[]>({
-  key: 'all-exercises',
+  key: "all-exercises",
   get: ({ get }) => {
     const ids = get(exercisesState)
     const allExercises = ids.map((id) => {

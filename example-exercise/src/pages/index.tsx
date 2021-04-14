@@ -34,7 +34,7 @@ const exampleExerciseSpec = [
   },
 ]
 
-export default function Home() {
+const Home: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [frameHeight, setFrameHeight] = useState(50)
   useEffect(() => {
@@ -43,10 +43,7 @@ export default function Home() {
       return
     }
     console.log("Adding event listener...")
-    const handleMessage = handleMessageCreator(
-      iframeRef.current,
-      setFrameHeight
-    )
+    const handleMessage = handleMessageCreator(iframeRef.current, setFrameHeight)
     window.addEventListener("message", handleMessage)
     const removeListener = () => {
       console.log("Removing event listener")
@@ -57,19 +54,14 @@ export default function Home() {
   return (
     <>
       <Title>Iframe test page</Title>
-      <Iframe
-        height={frameHeight}
-        ref={iframeRef}
-        src={`${basePath()}/editor`}
-        frameBorder="off"
-      />
+      <Iframe height={frameHeight} ref={iframeRef} src={`${basePath()}/editor`} frameBorder="off" />
     </>
   )
 }
 
 const handleMessageCreator = (
   iframeRef: HTMLIFrameElement | null,
-  onHeightChange: (newHeight: number) => void
+  onHeightChange: (newHeight: number) => void,
 ) => {
   return function handlemessage(event: WindowEventMap["message"]) {
     // TODO verify event's origin since other sites or tabs can post events
@@ -80,9 +72,7 @@ const handleMessageCreator = (
     console.log("Parent received an event: ", JSON.stringify(event.data))
     if (event.data.message === "ready") {
       if (!iframeRef) {
-        console.error(
-          "Cannot send data to iframe because reference does not exist."
-        )
+        console.error("Cannot send data to iframe because reference does not exist.")
         return
       }
       const contentWindow = iframeRef.contentWindow
@@ -96,7 +86,7 @@ const handleMessageCreator = (
           message_type: "moocfi/editor-message",
           data: exampleExerciseSpec,
         },
-        "*"
+        "*",
       )
     }
     if (event.data.message === "height-changed") {
@@ -104,3 +94,5 @@ const handleMessageCreator = (
     }
   }
 }
+
+export default Home

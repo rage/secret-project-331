@@ -7,11 +7,11 @@ export interface Alternative {
   correct: boolean
 }
 
-const EditorPage = () => {
+const EditorPage: React.FC = () => {
   const [state, _setState] = useState<Alternative[] | null>(null)
 
   const stateRef = useRef(state)
-  const setState = (data:Alternative[] | null) => {
+  const setState = (data: Alternative[] | null) => {
     stateRef.current = data
     _setState(data)
   }
@@ -26,14 +26,11 @@ const EditorPage = () => {
     window.addEventListener("message", handleMessage)
     if (window.parent === window) {
       console.warn(
-        "Cannot inform the parent we're ready since there is no parent. Please make sure you're using this from an iframe."
+        "Cannot inform the parent we're ready since there is no parent. Please make sure you're using this from an iframe.",
       )
     } else {
       console.log("Telling the parent we're ready")
-      window.parent.postMessage(
-        { message: "ready", message_type: "moocfi/editor-message" },
-        "*"
-      )
+      window.parent.postMessage({ message: "ready", message_type: "moocfi/editor-message" }, "*")
     }
     const removeListener = () => {
       console.log("Removing event listener")
@@ -44,9 +41,7 @@ const EditorPage = () => {
   if (!state) {
     return <>Waiting for content...</>
   }
-  return (
-    <Editor onHeightChange={onHeightChange} state={state} setState={setState} />
-  )
+  return <Editor onHeightChange={onHeightChange} state={state} setState={setState} />
 }
 
 const handleMessageCreator = (setState: any, state: any) => {
@@ -67,7 +62,7 @@ const handleMessageCreator = (setState: any, state: any) => {
           message_type: "moocfi/editor-message",
           data: state.current,
         },
-        "*"
+        "*",
       )
     }
   }
@@ -80,7 +75,7 @@ function onHeightChange(newHeight: number) {
       data: newHeight,
       message_type: "moocfi/editor-message",
     },
-    "*"
+    "*",
   )
 }
 export default EditorPage

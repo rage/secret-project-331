@@ -1,14 +1,14 @@
-import { createMuiTheme } from '@material-ui/core/styles'
+import { createMuiTheme } from "@material-ui/core/styles"
 
 const muiTheme = createMuiTheme({
   typography: {
     button: {
-      textTransform: 'none',
+      textTransform: "none",
     },
   },
   props: {
     MuiButton: {
-      variant: 'outlined',
+      variant: "outlined",
     },
   },
 })

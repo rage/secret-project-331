@@ -1,17 +1,19 @@
-import { fetchPageWithId } from '../../services/fetchData'
-import Layout from '../../components/Layout'
-import dynamic from 'next/dynamic'
-import { useQuery } from 'react-query'
+import { fetchPageWithId } from "../../services/fetchData"
+import Layout from "../../components/Layout"
+import dynamic from "next/dynamic"
+import { useQuery } from "react-query"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from '../../utils/dontRenderUntilQueryParametersReady'
-import { useEffect } from 'react'
-import { useSetRecoilState } from 'recoil'
-import { exercisesState } from '../../state/exercises'
+} from "../../utils/dontRenderUntilQueryParametersReady"
+import { useEffect } from "react"
+import { useSetRecoilState } from "recoil"
+import { exercisesState } from "../../state/exercises"
 
-const Editor = dynamic(() => import('../../components/Editor'), {
+const EditorLoading = <div>Loading editor...</div>
+
+const Editor = dynamic(() => import("../../components/Editor"), {
   ssr: false,
-  loading: () => <div>Loading editor...</div>,
+  loading: () => EditorLoading,
 })
 
 // const GutenbergEditor = dynamic(() => import('../../components/GutenbergEditor'), {

@@ -1,12 +1,12 @@
-import axios from 'axios'
-import { API_URL } from '../constants'
-import { NewPage, PageUpdate, PageWithExercises } from './services.types'
+import axios from "axios"
+import { API_URL } from "../constants"
+import { NewPage, PageUpdate, PageWithExercises } from "./services.types"
 
 const postNewPage = async (data: NewPage): Promise<PageWithExercises> => {
   const url = `${API_URL}/api/v0/pages`
   try {
     const response = await axios.post(url, data, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     })
     console.log(response.data)
     return response.data
@@ -28,7 +28,7 @@ const updateExistingPage = async ({
       url,
       { content, exercises, url_path, title },
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       },
     )
     console.log(response.data)

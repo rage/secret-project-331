@@ -1,20 +1,15 @@
-import { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { TextField } from '@material-ui/core'
-import ChooseExerciseItemType from './ChooseExerciseItemType'
-import IFrameEditor from './IFrameEditor'
-import { BlockEditProps } from '@wordpress/blocks'
-import { v4 } from 'uuid'
-import { exerciseFamilySelector } from '../../state/exercises'
-import { useRecoilState } from 'recoil'
-import {
-  ExerciseItem,
-  ExerciseWithExerciseItems,
-  PageUpdateExercise,
-  PageUpdateExerciseItem,
-} from '../../services/services.types'
-import { ExerciseAttributes } from '.'
-import { exerciseItemTypes } from './ChooseExerciseItemType/ExerciseServiceList'
+import { useEffect } from "react"
+import styled from "styled-components"
+import { TextField } from "@material-ui/core"
+import ChooseExerciseItemType from "./ChooseExerciseItemType"
+import IFrameEditor from "./IFrameEditor"
+import { BlockEditProps } from "@wordpress/blocks"
+import { v4 } from "uuid"
+import { exerciseFamilySelector } from "../../state/exercises"
+import { useRecoilState } from "recoil"
+import { ExerciseItem, PageUpdateExerciseItem } from "../../services/services.types"
+import { ExerciseAttributes } from "."
+import { exerciseItemTypes } from "./ChooseExerciseItemType/ExerciseServiceList"
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem;
@@ -26,7 +21,7 @@ const Title = styled.h1`
   font-size: 24px;
 `
 
-const ExerciseEditor = ({ attributes }: BlockEditProps<ExerciseAttributes>) => {
+const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({ attributes }) => {
   const [exercise, setExercise] = useRecoilState(exerciseFamilySelector(attributes.exercise_id))
 
   const onChooseExerciseType = (selectedItem: any) => {
@@ -45,7 +40,7 @@ const ExerciseEditor = ({ attributes }: BlockEditProps<ExerciseAttributes>) => {
     if (exercise) {
       return
     }
-    setExercise({ id: attributes.exercise_id, exercise_items: [], name: '' })
+    setExercise({ id: attributes.exercise_id, exercise_items: [], name: "" })
   }, [exercise])
 
   if (!exercise) {

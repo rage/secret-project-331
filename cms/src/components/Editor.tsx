@@ -1,15 +1,15 @@
-import '@wordpress/block-editor/build-style/style.css'
-import '@wordpress/block-library/build-style/style.css'
-import '@wordpress/block-library/build-style/theme.css'
-import '@wordpress/block-library/build-style/editor.css'
-import '@wordpress/components/build-style/style.css'
-import '@wordpress/editor/build-style/style.css'
-import '@wordpress/editor/build-style/editor-styles.css'
-import '@wordpress/edit-post/build-style/style.css'
-import '@wordpress/format-library/build-style/style.css'
-import '@wordpress/nux/build-style/style.css'
+import "@wordpress/block-editor/build-style/style.css"
+import "@wordpress/block-library/build-style/style.css"
+import "@wordpress/block-library/build-style/theme.css"
+import "@wordpress/block-library/build-style/editor.css"
+import "@wordpress/components/build-style/style.css"
+import "@wordpress/editor/build-style/style.css"
+import "@wordpress/editor/build-style/editor-styles.css"
+import "@wordpress/edit-post/build-style/style.css"
+import "@wordpress/format-library/build-style/style.css"
+import "@wordpress/nux/build-style/style.css"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -17,27 +17,27 @@ import {
   BlockInspector,
   WritingFlow,
   ObserveTyping,
-} from '@wordpress/block-editor'
-import { Popover, SlotFillProvider, DropZoneProvider } from '@wordpress/components'
-import { registerCoreBlocks } from '@wordpress/block-library'
-import { BlockInstance, registerBlockType } from '@wordpress/blocks'
+} from "@wordpress/block-editor"
+import { Popover, SlotFillProvider, DropZoneProvider } from "@wordpress/components"
+import { registerCoreBlocks } from "@wordpress/block-library"
+import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 
-import Exercise, { ExerciseAttributes } from '../blocks/Exercise'
-import { updateExistingPage } from '../services/postData'
-import { Button } from '@material-ui/core'
+import Exercise, { ExerciseAttributes } from "../blocks/Exercise"
+import { updateExistingPage } from "../services/postData"
+import { Button } from "@material-ui/core"
 import {
   ExerciseWithExerciseItems,
   PageUpdateExercise,
   PageUpdateExerciseItem,
   PageWithExercises,
-} from '../services/services.types'
+} from "../services/services.types"
 import {
   allExercises,
   exerciseFamilySelector,
   exercisesAtoms,
   exercisesState,
-} from '../state/exercises'
-import { useRecoilCallback, useRecoilValue } from 'recoil'
+} from "../state/exercises"
+import { useRecoilCallback } from "recoil"
 
 interface EditorProps {
   data: PageWithExercises
@@ -52,7 +52,7 @@ const HandleSave = () => {
       for (const exerciseId of ids) {
         const exercise = await snapshot.getPromise(exerciseFamilySelector(exerciseId))
         const element = document.getElementById(exerciseId)
-        const promises = exercise.exercise_items.map(ei => {
+        const promises = exercise.exercise_items.map((ei) => {
           return new Promise<[string, PageUpdateExerciseItem]>((resolve, _reject) => {
             const enhancedResolve = (value: PageUpdateExerciseItem) => {
               resolve([ei.id, value])
@@ -65,18 +65,18 @@ const HandleSave = () => {
 
             frame.contentWindow.postMessage(
               {
-                message: 'give-state',
-                message_type: 'moocfi/editor-message',
+                message: "give-state",
+                message_type: "moocfi/editor-message",
               },
-              '*',
+              "*",
             )
           })
         })
         const exerciseItemContentsArray = await Promise.all(promises)
         const exerciseItemContetentsMapping = exerciseItemContentsArray.reduce((acc, val) => {
-          const [key, value] = val;
-          acc[key] = value;
-          return acc;
+          const [key, value] = val
+          acc[key] = value
+          return acc
         }, {})
         console.log(`All exercise item contents: ${JSON.stringify(exerciseItemContetentsMapping)}`)
       }
@@ -86,7 +86,7 @@ const HandleSave = () => {
   return <Button onClick={saveExerciseData}>Update states...</Button>
 }
 
-function Editor(props: EditorProps) {
+const Editor: React.FC<EditorProps> = (props: EditorProps) => {
   const { content, url_path, title, course_id, deleted, exercises, id } = props.data
   const [blocks, setBlocks] = useState(content ?? [])
 
@@ -133,7 +133,7 @@ function Editor(props: EditorProps) {
 
   useEffect(() => {
     registerCoreBlocks()
-    registerBlockType('moocfi/iframe-exercise', Exercise)
+    registerBlockType("moocfi/iframe-exercise", Exercise)
   }, [])
 
   useEffect(() => {

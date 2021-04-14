@@ -1,13 +1,17 @@
-import { List, ListItem, Typography } from '@material-ui/core'
+import { List, ListItem, Typography } from "@material-ui/core"
 
 // Fetch iFrame exercise types from an endpoint?
 export const exerciseItemTypes = [
-  { name: 'Quizzes', url: null, identifier: 'quizzes' },
-  { name: 'Test My Code', url: null, identifier: 'tmc' },
-  { name: 'Example Exercise', url: '/example-exercise/editor', identifier: 'example' },
+  { name: "Quizzes", url: null, identifier: "quizzes" },
+  { name: "Test My Code", url: null, identifier: "tmc" },
+  { name: "Example Exercise", url: "/example-exercise/editor", identifier: "example" },
 ]
 
-const ExerciseServiceList = ({ onChooseItem }) => {
+interface Props {
+  onChooseItem: (item: any) => void
+}
+
+const ExerciseServiceList: React.FC<Props> = ({ onChooseItem }) => {
   return (
     <div>
       <Typography>Please select an exercise type:</Typography>

@@ -1,20 +1,20 @@
-import { BlockConfiguration, BlockEditProps } from '@wordpress/blocks'
-import ExerciseEditor from './ExerciseEditor'
-import ExerciseSave from './ExerciseSave'
-import { v4 } from 'uuid'
-import { ComponentType } from 'react'
+import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
+import ExerciseEditor from "./ExerciseEditor"
+import ExerciseSave from "./ExerciseSave"
+import { v4 } from "uuid"
+import { ComponentType } from "react"
 
 export interface ExerciseAttributes {
   exercise_id: string
 }
 
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
-  title: 'Exercise Iframe',
-  description: 'Exercise with iframe',
-  category: 'embed',
+  title: "Exercise Iframe",
+  description: "Exercise with iframe",
+  category: "embed",
   attributes: {
     exercise_id: {
-      type: 'string',
+      type: "string",
       default: null,
     },
   },
@@ -30,7 +30,7 @@ function enforceExerciseIdDefined(
   WrappedComponent: ComponentType<BlockEditProps<ExerciseAttributes>>,
 ): ComponentType<BlockEditProps<ExerciseAttributes>> {
   // Name to display in React Dev tools
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
   const InnerComponent = (props: BlockEditProps<ExerciseAttributes>) => {
     if (!props.attributes.exercise_id) {
       const id = v4()

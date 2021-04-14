@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
-import { v4 } from 'uuid'
-import { Alert } from '@material-ui/lab'
-import styled from 'styled-components'
-import { ExerciseItem, PageUpdateExerciseItem } from '../../services/services.types'
-import React from 'react'
-import { SetterOrUpdater, useRecoilState } from 'recoil'
-import { exerciseItemFamilySelector } from '../../state/exercises'
-import { saveResolveMap } from '../../components/Editor'
+import { useEffect, useRef, useState } from "react"
+import { Alert } from "@material-ui/lab"
+import styled from "styled-components"
+import { ExerciseItem, PageUpdateExerciseItem } from "../../services/services.types"
+import React from "react"
+import { SetterOrUpdater, useRecoilState } from "recoil"
+import { exerciseItemFamilySelector } from "../../state/exercises"
+import { saveResolveMap } from "../../components/Editor"
 
 const Iframe = styled.iframe`
   width: 100%;
@@ -23,7 +22,7 @@ interface IFrameEditorProps {
   exerciseItemid: string
 }
 
-const IFrameEditor = ({ url, parentId, exerciseItemid }: IFrameEditorProps) => {
+const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, parentId, exerciseItemid }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [frameHeight, setFrameHeight] = useState(50)
   const [exerciseItem, setExerciseItem] = useRecoilState(
@@ -31,20 +30,20 @@ const IFrameEditor = ({ url, parentId, exerciseItemid }: IFrameEditorProps) => {
   )
   useEffect(() => {
     if (typeof window === undefined) {
-      console.log('Not adding a event listener because window is undefined.')
+      console.log("Not adding a event listener because window is undefined.")
       return
     }
-    console.log('Adding event listener...')
+    console.log("Adding event listener...")
     const handleMessage = handleMessageCreator(
       iframeRef.current,
       setFrameHeight,
       setExerciseItem,
       exerciseItem,
     )
-    window.addEventListener('message', handleMessage)
+    window.addEventListener("message", handleMessage)
     const removeListener = () => {
-      console.log('Removing event listener')
-      window.removeEventListener('message', handleMessage)
+      console.log("Removing event listener")
+      window.removeEventListener("message", handleMessage)
     }
     return removeListener
   }, [])
@@ -69,40 +68,42 @@ const handleMessageCreator = (
   setExerciseItem: SetterOrUpdater<ExerciseItem | PageUpdateExerciseItem>,
   exerciseItem: ExerciseItem | PageUpdateExerciseItem,
 ) => {
-  return async function handleMessage(event: WindowEventMap['message']) {
+  return async function handleMessage(event: WindowEventMap["message"]) {
     if (
-      event.data.message_type !== 'moocfi/editor-message' ||
+      event.data.message_type !== "moocfi/editor-message" ||
       iframeRef.contentWindow !== event.source
     ) {
       return
     }
-    console.log('Parent received an event: ', JSON.stringify(event.data))
+    console.log("Parent received an event: ", JSON.stringify(event.data))
 
     // Handle message types.
     switch (event.data.message) {
-      case 'ready':
+      case "ready": {
         if (!iframeRef) {
-          console.error('Cannot send data to iframe because reference does not exist.')
+          console.error("Cannot send data to iframe because reference does not exist.")
           return
         }
         const contentWindow = iframeRef.contentWindow
         if (!contentWindow) {
-          console.error('No frame content window')
+          console.error("No frame content window")
           return
         }
         contentWindow.postMessage(
           {
-            message: 'content',
-            message_type: 'moocfi/editor-message',
+            message: "content",
+            message_type: "moocfi/editor-message",
             data: exerciseItem.spec,
           },
-          '*',
+          "*",
         )
         return
-      case 'height-changed':
+      }
+      case "height-changed": {
         onHeightChange(event.data.data)
         return
-      case 'current-state':
+      }
+      case "current-state": {
         const resolve = saveResolveMap.get(exerciseItem.id)
         if (resolve) {
           resolve(event.data.data)
@@ -114,9 +115,11 @@ const handleMessageCreator = (
           }
         })
         return
-      default:
-        console.warn('Unexpected message', JSON.stringify(event.data))
+      }
+      default: {
+        console.warn("Unexpected message", JSON.stringify(event.data))
         return
+      }
     }
   }
 }

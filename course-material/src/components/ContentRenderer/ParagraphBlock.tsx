@@ -1,18 +1,23 @@
-
 import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 
 interface ParagraphBlockAttributes {
-  content: string,
+  content: string
   dropCap: boolean
 }
 
-const ParagraphBlock = ({ data }: BlockRendererProps) => {
+const ParagraphBlock: React.FC<BlockRendererProps> = ({ data }) => {
   const attributes: ParagraphBlockAttributes = data.attributes
-  return <p className={css`
-    ${normalWidthCenteredComponentStyles}
-  `}>{attributes.content}</p>
+  return (
+    <p
+      className={css`
+        ${normalWidthCenteredComponentStyles}
+      `}
+    >
+      {attributes.content}
+    </p>
+  )
 }
 
 export default ParagraphBlock

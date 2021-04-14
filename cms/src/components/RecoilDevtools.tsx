@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { RecoilLogger } from 'recoil-devtools-logger'
-import LogMonitor from 'recoil-devtools-log-monitor'
-import DockMonitor from 'recoil-devtools-dock'
+import React, { useEffect, useState } from "react"
+import { RecoilLogger } from "recoil-devtools-logger"
+import LogMonitor from "recoil-devtools-log-monitor"
+import DockMonitor from "recoil-devtools-dock"
 
-const Devtools = () => {
+const Devtools: React.FC = () => {
   const [render, setRender] = useState(false)
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-const ExerciseSave = () => {
+const ExerciseSave: React.FC = () => {
   return <div>Exercise save</div>
 }
 

@@ -3,8 +3,7 @@
 // parameters are ready. This way parts outside the subtree can still be
 // prerendered and optimized by Next.js.
 
-import { useRouter } from 'next/router'
-import { ParsedUrlQuery } from 'querystring'
+import { useRouter } from "next/router"
 
 interface ProvidedExtraProps {
   query: SimplifiedUrlQuery
@@ -15,11 +14,12 @@ interface ProvidedExtraProps {
 // We default to the first provided value.
 export type SimplifiedUrlQuery = NodeJS.Dict<string>
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function dontRenderUntilQueryParametersReady<T>(
   WrappedComponent: React.ComponentType<T & ProvidedExtraProps>,
 ) {
   // Name to display in React Dev tools
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
 
   const InnerComponent = (props: T) => {
     const queryParameters: SimplifiedUrlQuery = {}

@@ -1,3 +1,3 @@
-const API_URL = ''
+const API_URL = ""
 
 export { API_URL }

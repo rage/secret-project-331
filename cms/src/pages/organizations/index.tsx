@@ -1,8 +1,8 @@
-import { fetchOrganizations } from '../../services/fetchData'
-import Layout from '../../components/Layout'
-import { useQuery } from 'react-query'
+import { fetchOrganizations } from "../../services/fetchData"
+import Layout from "../../components/Layout"
+import { useQuery } from "react-query"
 
-const Home = () => {
+const Home: React.FC = () => {
   const { isLoading, error, data } = useQuery(`organizations`, () => fetchOrganizations(), {
     cacheTime: 60000,
   })

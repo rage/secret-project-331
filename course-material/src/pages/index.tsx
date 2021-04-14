@@ -8,9 +8,8 @@ const Title = styled.h1`
   font-size: 24px;
 `
 
-export default function Home() {
-  const { isLoading, error, data } = useQuery(`organizations`, () =>
-  fetchOrganizations())
+const Home: React.FC = () => {
+  const { isLoading, error, data } = useQuery(`organizations`, () => fetchOrganizations())
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -20,12 +19,24 @@ export default function Home() {
     return <>Loading...</>
   }
 
-  return <>
-    <Title>Organizations</Title>
+  return (
+    <>
+      <Title>Organizations</Title>
 
-    {data.map(organization => <div key={organization.id}><Link href={{
-            pathname: `${basePath()}/organizations/[id]`,
-            query: { id: organization.id },
-          }}><a>{organization.name}</a></Link></div>)}
-  </>
+      {data.map((organization) => (
+        <div key={organization.id}>
+          <Link
+            href={{
+              pathname: `${basePath()}/organizations/[id]`,
+              query: { id: organization.id },
+            }}
+          >
+            <a>{organization.name}</a>
+          </Link>
+        </div>
+      ))}
+    </>
+  )
 }
+
+export default Home

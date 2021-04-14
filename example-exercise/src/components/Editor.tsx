@@ -34,7 +34,7 @@ const NewButton = styled.button`
   }
 `
 
-const Editor = ({ state, setState, onHeightChange }: Props) => {
+const Editor: React.FC<Props> = ({ state, setState, onHeightChange }) => {
   const contentRef = useRef<HTMLDivElement>(null)
   // Automatic height resizing events
   useLayoutEffect(() => {

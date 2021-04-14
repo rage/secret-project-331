@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from "react"
 import { Alternative } from "../pages/editor"
-import styled from "styled-components"
+import styled from "@emotion/styled"
 import ButtonEditor from "./ButtonEditor"
 import { v4 } from "uuid"
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 const Wrapper = styled.div`
-  // Overflows break height calculations
+  /* Overflows break height calculations */
   overflow: hidden;
   box-sizing: border-box;
 `
@@ -27,8 +27,9 @@ const NewButton = styled.button`
   display: block;
   padding: 0.5rem;
   background-color: white;
-  border 1px solid black;
-  transition: all .3s;
+  border: 1px solid black;
+  transition: all 0.3s;
+
   &:hover {
     background-color: #f1f1f1;
   }

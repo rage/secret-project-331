@@ -9,6 +9,9 @@
     "start": "NODE_ENV=production PORT=3001 node server.js"
   },
   "dependencies": {
+    "@emotion/css": "^10.0.27",
+    "@emotion/react": "^11.1.5",
+    "@emotion/styled": "^10.0.27",
     "@fortawesome/fontawesome-free": "^5.15.2",
     "@fortawesome/fontawesome-svg-core": "^1.2.34",
     "@fortawesome/free-regular-svg-icons": "^5.15.2",
@@ -88,7 +91,6 @@
     "recoil-devtools-dock": "^0.1.6",
     "recoil-devtools-log-monitor": "^0.2.7",
     "recoil-devtools-logger": "^0.1.5",
-    "styled-components": "^5.2.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

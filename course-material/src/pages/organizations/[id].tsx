@@ -1,5 +1,5 @@
 import { useQuery } from "react-query"
-import styled from "styled-components"
+import styled from "@emotion/styled"
 import { fetchOrganizationCourses } from "../../services/backend"
 import basePath from "../../utils/base-path"
 import Link from "next/link"

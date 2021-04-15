@@ -1,17 +1,19 @@
 import { Block } from "../../services/backend"
 import DefaultBlock from "./DefaultBlock"
+import ListBlock from "./ListBlock"
 import ParagraphBlock from "./ParagraphBlock"
 
 export interface ContentRendererProps {
-  data: Block[]
+  data: Block<unknown>[]
 }
 
-export interface BlockRendererProps {
-  data: Block
+export interface BlockRendererProps<T> {
+  data: Block<T>
 }
 
 const blockToRendererMap: { [blockName: string]: any } = {
   "core/paragraph": ParagraphBlock,
+  "core/list": ListBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

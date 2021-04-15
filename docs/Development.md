@@ -139,5 +139,6 @@ ip-from-previous-command	project-331.local
 ```
 
 You can find the hosts file in Windows from `C:\Windows\System32\drivers\etc` (edit as administrator).
+For example start `Powershell` in administrator mode, navigate to path above and write `notepad hosts`.
 
 After that, you should be able to access the application by going to `http://project-331.local/` in your web browser. Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.

@@ -1,20 +1,19 @@
 # Development
 
-## Setting up development environment with Skaffold
+## Table of Contents
+1. [Setting up development environment on Linux](#setting-up-development-environment-on-linux)
+2. [Setting up development environment on Windows 10](#setting-up-development-environment-on-windows-10)
+## Setting up development environment on Linux
 
 ### Development tools
 
-1. Install Skaffold: https://skaffold.dev/docs/install/
+1. Install Skaffold: https://skaffold.dev/docs/install/ 
 2. Install kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 3. Install minikube: https://minikube.sigs.k8s.io/docs/start/
 
-You may also need stern and kubectx or [kubectxwin](https://github.com/thomasliddledba/kubectxwin).
+You may also need stern and kubectx.
 
-Windows TIP: Install tools via Chocolatey.  
-> **Alternative**: Save all `.exe` files in same location and rename them to be `skaffold.exe` etc.  
-> Run command ```rundll32.exe sysdm.cpl,EditEnvironmentVariables``` and add the path for executable files to **System variable PATH**.
-
-### Setting up minikube (Linux)
+### Setting up minikube
 
 Start minikube:
 
@@ -28,32 +27,13 @@ Enable the ingress addon:
 minikube addons enable ingress
 ```
 
-### Setting up minikube (Windows)
-
-Using Windows 10 Pro, you can enable HyperV with these [instructions](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v).  
-If you don't have Windows 10 Pro, you can install [Docker Desktop for Windows](https://docs.docker.com/docker-for-windows/install/) and change driver to ```--vm-driver docker``` for Minikube commands.
-
-*TODO: Figure out if you need to create the default vSwitch in HyperV or does Minikube take care of that*
-
-Using HyperV:
-
-```sh
-minikube start --vm-driver hyperv
-```
-
-Enable ingress:
-```
-minikube addons enable ingress
-```
-
 ### Starting the development cluster
 
 In the root of the repo, run: `bin/dev`. This skript will start the development cluster with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
 
 You can monitor the process by running `watch kubectl get pods` in another terminal.
 
-TIP: For multiple terminal windows, we recommend you to use a terminal with split window support for convenience. For Linux, one good option is [Tilix](https://gnunn1.github.io/tilix-web/) and if you're using Windows, you can use the new [Windows terminal](https://github.com/microsoft/terminal) (Documentation here: https://docs.microsoft.com/en-us/windows/terminal/panes).
-
+TIP: For multiple terminal windows, we recommend you to use a terminal with split window support for convenience. For Linux, one good option is [Tilix](https://gnunn1.github.io/tilix-web/).
 
 ### Setting up a local domain name
 
@@ -72,6 +52,92 @@ ip-from-previous-command	project-331.local
 ```
 
 You can find the hosts file in Linux from `/etc/hosts`.
-You can find the hosts file in Windows from `C:\Windows\System32\drivers\etc`.
+
+After that, you should be able to access the application by going to `http://project-331.local/` in your web browser. Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
+
+
+## Setting up development environment on Windows 10 
+
+### Development tools
+
+Install the following tools with [chocolatey](https://docs.chocolatey.org/en-us/choco/setup ):
+2. Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+3. Minikube: https://minikube.sigs.k8s.io/docs/start/
+
+You may also need [stern](https://community.chocolatey.org/packages/stern) and [kubectx](https://community.chocolatey.org/packages/kubectx).
+
+### Windows Terminal & Cygwin
+
+1. Install [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab)
+2. Install [Cygwin](https://www.cygwin.com/)
+    - During installation of Cygwin you will be prompted for additional packages, these are needed: `postgres-client` & `procps-ng`
+3. Open Windows Terminal and press the small arrow down and open Settings (as JSON), add the following:
+```
+profiles: {
+  ...
+  list: [
+    ...
+    {
+      "guid": "{00000000-0000-0000-0000-000000000001}",
+      "commandline": "C:/cygwin64/Cygwin.bat",
+      "icon": "C:/cygwin64/Cygwin-Terminal.ico",
+      "hidden": false,
+      "name": "Cygwin"
+    }
+  ]
+}
+```
+
+### Skaffold
+
+1. Download [Skaffold](https://skaffold.dev/docs/install/) latest [stable release](https://storage.googleapis.com/skaffold/releases/latest/skaffold-windows-amd64.exe) for Windows and save it under `C:\Binary`.
+2. Rename the executable to `skaffold.exe`.
+3. Start `cmd` or `Powershell` as administrator and run: `rundll32.exe sysdm.cpl,EditEnvironmentVariables`
+4. Under **System variables** click the **Path** row and click button `Edit...`, click button `New` and type in the row: `C:\Binary\`.
+5. Check with `Git Bash` or `Cygwin` that Skaffold is in correct folder by running `which skaffold`.
+
+### Setting up minikube (HyperV/Virtualbox)
+
+Using Windows 10 Pro, you can enable HyperV with these [instructions](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v).  
+
+**NB!** If you don't have access to HyperV, you can install [Virtualbox](https://www.virtualbox.org/) and change driver to `--vm-driver=virtualbox` for Minikube commands.
+> NOTE: You may need the `--no-vtx-check` parameter for `minikube start` when using Virtualbox, please try to run the command without it.
+
+Example:
+
+```sh
+minikube start --vm-driver=hyperv
+```
+
+Enable ingress:
+```
+minikube addons enable ingress
+```
+
+### Starting the development cluster
+
+Start Windows Terminal (Make sure you are using *Cygwin* terminal)
+
+In the root of the repo, run: `bin/dev`. This skript will start the development cluster with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
+
+You can monitor the process by running `watch kubectl get pods` in another *Cygwin* terminal.
+
+### Setting up a local domain name
+
+After skaffold has started up, we need to add a local domain name so that we can access the ingress of the cluster.
+
+List ingresses with kubectl and grab the IP address for `project-331-ingress`:
+
+```sh
+kubectl get ingress
+```
+
+Next, add a hosts entry for the IP address you got from the previous command:
+
+```
+ip-from-previous-command	project-331.local
+```
+
+You can find the hosts file in Windows from `C:\Windows\System32\drivers\etc` (edit as administrator).
 
 After that, you should be able to access the application by going to `http://project-331.local/` in your web browser. Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.

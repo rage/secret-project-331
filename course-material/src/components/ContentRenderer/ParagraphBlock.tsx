@@ -7,7 +7,7 @@ interface ParagraphBlockAttributes {
   dropCap: boolean
 }
 
-const ParagraphBlock: React.FC<BlockRendererProps> = ({ data }) => {
+const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({ data }) => {
   const attributes: ParagraphBlockAttributes = data.attributes
   return (
     <p

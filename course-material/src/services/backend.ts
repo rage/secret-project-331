@@ -40,23 +40,18 @@ export interface CoursePage {
   created_at: Date
   updated_at: Date
   course_id: string
-  content: Block[]
+  content: Block<unknown>[]
   url_path: string
   title: string
   deleted: boolean
 }
 
-export interface Block {
+export interface Block<T> {
   name: string
   isValid: boolean
   clientId: string
-  attributes: Attributes
+  attributes: T
   innerBlocks: any[]
-}
-
-export interface Attributes {
-  content: string
-  dropCap: boolean
 }
 
 export const fetchCoursePageByPath = async (

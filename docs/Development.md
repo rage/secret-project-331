@@ -60,9 +60,9 @@ After that, you should be able to access the application by going to `http://pro
 
 ### Development tools
 
-Install the following tools with [chocolatey](https://docs.chocolatey.org/en-us/choco/setup ):
-2. Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
-3. Minikube: https://minikube.sigs.k8s.io/docs/start/
+Install the following tools with [chocolatey](https://docs.chocolatey.org/en-us/choco/setup ):  
+1. Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+2. Minikube: https://minikube.sigs.k8s.io/docs/start/
 
 You may also need [stern](https://community.chocolatey.org/packages/stern) and [kubectx](https://community.chocolatey.org/packages/kubectx).
 
@@ -101,7 +101,7 @@ profiles: {
 Using Windows 10 Pro, you can enable HyperV with these [instructions](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v).  
 
 **NB!** If you don't have access to HyperV, you can install [Virtualbox](https://www.virtualbox.org/) and change driver to `--vm-driver=virtualbox` for Minikube commands.
-> NOTE: You may need the `--no-vtx-check` parameter for `minikube start` when using Virtualbox, please try to run the command without it.
+> NOTE: You may need the `--no-vtx-check` parameter for `minikube start` when using Virtualbox, please try to run the command without it first and see if it works.
 
 Example:
 

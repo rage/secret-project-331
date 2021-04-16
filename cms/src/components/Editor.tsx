@@ -23,6 +23,7 @@ import { registerCoreBlocks } from "@wordpress/block-library"
 import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 
 import Exercise, { ExerciseAttributes } from "../blocks/Exercise"
+import ExerciseItem, { ExerciseItemAttributes } from "../blocks/ExerciseItem"
 import { updateExistingPage } from "../services/postData"
 import { Button } from "@material-ui/core"
 import {
@@ -134,6 +135,7 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
   useEffect(() => {
     registerCoreBlocks()
     registerBlockType("moocfi/exercise", Exercise)
+    registerBlockType("moocfi/exercise-item", ExerciseItem)
   }, [])
 
   useEffect(() => {

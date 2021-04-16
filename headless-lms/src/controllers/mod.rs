@@ -1,13 +1,12 @@
 /*!
 Handlers for HTTP requests to `/api/v0`.
 
-This documents all endpoints. Select a module below for a category.
+This documents all endpoints. Select a module below for a namespace.
 
 */
 
-pub mod courses;
-pub mod organizations;
-pub mod pages;
+pub mod cms;
+pub mod course_material;
 
 use actix_web::{
     dev::HttpResponseBuilder,
@@ -20,17 +19,7 @@ use derive_more::Display;
 use http_api_problem::{HttpApiProblem, StatusCode};
 use serde::{Deserialize, Serialize};
 
-use self::{
-    courses::_add_courses_routes, organizations::_add_organizations_routes,
-    pages::_add_pages_routes,
-};
-
-/// Add controllers from all the submodules.
-pub fn configure_controllers(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("/courses").configure(_add_courses_routes))
-        .service(web::scope("/pages").configure(_add_pages_routes))
-        .service(web::scope("/organizations").configure(_add_organizations_routes));
-}
+use self::{cms::add_cms_routes, course_material::add_course_material_routes};
 
 /**
 Represents error messages that are sent in responses.
@@ -102,3 +91,9 @@ impl From<uuid::Error> for ApplicationError {
 }
 
 pub type ApplicationResult<T, E = ApplicationError> = std::result::Result<T, E>;
+
+/// Add controllers from all the submodules.
+pub fn configure_controllers(cfg: &mut ServiceConfig) {
+    cfg.service(web::scope("/course-material").configure(add_course_material_routes))
+        .service(web::scope("/cms").configure(add_cms_routes));
+}

@@ -20,20 +20,8 @@
       ]
     }
   },
-  "34a78ca49c8f506278c60a7321be13d3c71598fba3d512a28897db60982acb6e": {
-    "query": "\n  UPDATE exercises\n  SET deleted = true\n  WHERE page_id = $1\n          ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "3fb623eec05073049ad1785fda522698e1d66b36828e0d41634ecc70ffc7ec72": {
-    "query": "SELECT * FROM exercise_items WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
+  "051263a3e408a840868a9daae222c1515ea2fe440bb0377934765e63c1401d84": {
+    "query": "\nINSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, spec)\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT (id) DO UPDATE\nSET exercise_id=$2, exercise_type=$3, assignment=$4, spec=$5, deleted=false\nRETURNING id, exercise_type, assignment, spec;\n        ",
     "describe": {
       "columns": [
         {
@@ -43,42 +31,64 @@
         },
         {
           "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamp"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamp"
-        },
-        {
-          "ordinal": 3,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
           "name": "exercise_type",
           "type_info": "Varchar"
         },
         {
-          "ordinal": 5,
+          "ordinal": 2,
           "name": "assignment",
           "type_info": "Jsonb"
         },
         {
-          "ordinal": 6,
-          "name": "deleted",
-          "type_info": "Bool"
+          "ordinal": 3,
+          "name": "spec",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Jsonb",
+          "Jsonb"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true
+      ]
+    }
+  },
+  "16224c2fcf086f656e5759795f8be91822aaef3ca05b7eb7e999c94fbd61ed3d": {
+    "query": "SELECT id, exercise_type, assignment, spec, exercise_id FROM exercise_items WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
         },
         {
-          "ordinal": 7,
+          "ordinal": 1,
+          "name": "exercise_type",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "assignment",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 3,
           "name": "spec",
           "type_info": "Jsonb"
         },
         {
-          "ordinal": 8,
-          "name": "spec_file_id",
+          "ordinal": 4,
+          "name": "exercise_id",
           "type_info": "Uuid"
         }
       ],
@@ -91,13 +101,21 @@
         false,
         false,
         false,
-        false,
-        false,
         true,
-        false,
-        true,
-        true
+        false
       ]
+    }
+  },
+  "34a78ca49c8f506278c60a7321be13d3c71598fba3d512a28897db60982acb6e": {
+    "query": "\n  UPDATE exercises\n  SET deleted = true\n  WHERE page_id = $1\n          ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": []
     }
   },
   "41a09b0aef5718b0a326a14e3c7cc53a662dbbcf889b1ed8cfd6d185b653ad8b": {
@@ -430,78 +448,6 @@
         ]
       },
       "nullable": []
-    }
-  },
-  "7a089fed37ec17748400a08a0ec9661fd0da16f18bb1b867b481cf2c32852db3": {
-    "query": "\nINSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, spec)\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT (id) DO UPDATE\nSET exercise_id=$2, exercise_type=$3, assignment=$4, spec=$5, deleted=false\nRETURNING *;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamp"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamp"
-        },
-        {
-          "ordinal": 3,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "exercise_type",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "assignment",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 6,
-          "name": "deleted",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 7,
-          "name": "spec",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 8,
-          "name": "spec_file_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Varchar",
-          "Jsonb",
-          "Jsonb"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        true,
-        true
-      ]
     }
   },
   "80687e3c73c81c8048da59d2839fee7d0b79afe50d7289b4395cd8ec57c4c8d6": {

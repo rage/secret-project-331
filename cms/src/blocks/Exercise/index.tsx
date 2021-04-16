@@ -6,6 +6,7 @@ import { ComponentType } from "react"
 
 export interface ExerciseAttributes {
   exercise_id: string
+  name: string
 }
 
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
@@ -17,6 +18,10 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
       type: "string",
       default: null,
     },
+    name: {
+      type: "string",
+      default: "",
+    }
   },
   edit: enforceExerciseIdDefined(ExerciseEditor),
   save: ExerciseSave,

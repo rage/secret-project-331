@@ -15,6 +15,7 @@ GET `/api/v0/courses` - Returns a list of all courses.
 [
     {
         "id": "a90c39f8-5d23-461f-8375-0b05a55d7ac1",
+        "slug": "introduction-to-programming",
         "created_at": "2021-03-05T22:26:59.067294",
         "updated_at": "2021-03-05T22:26:59.067294",
         "name": "Introduction to Programming",

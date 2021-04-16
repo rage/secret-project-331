@@ -606,12 +606,18 @@
           "ordinal": 4,
           "name": "deleted",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 5,
+          "name": "slug",
+          "type_info": "Varchar"
         }
       ],
       "parameters": {
         "Left": []
       },
       "nullable": [
+        false,
         false,
         false,
         false,
@@ -653,12 +659,18 @@
           "ordinal": 5,
           "name": "deleted",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
         }
       ],
       "parameters": {
         "Left": []
       },
       "nullable": [
+        false,
         false,
         false,
         false,
@@ -701,6 +713,11 @@
           "ordinal": 5,
           "name": "deleted",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
         }
       ],
       "parameters": {
@@ -709,6 +726,7 @@
         ]
       },
       "nullable": [
+        false,
         false,
         false,
         false,

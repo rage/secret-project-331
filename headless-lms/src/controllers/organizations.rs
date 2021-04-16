@@ -16,6 +16,7 @@ GET `/api/v0/organizations` - Returns a list of all organizations.
 [
   {
     "id": "7b14908b-56e5-4b36-9ae6-c44cafacbe83",
+    "slug": "hy",
     "created_at": "2021-03-08T21:50:51.065821",
     "updated_at": "2021-03-08T21:50:51.065821",
     "name": "Helsingin yliopisto",

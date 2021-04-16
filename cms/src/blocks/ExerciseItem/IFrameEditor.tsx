@@ -1,11 +1,7 @@
 import { PropsWithChildren, useEffect, useRef, useState } from "react"
 import { Alert } from "@material-ui/lab"
 import styled from "@emotion/styled"
-import { ExerciseItem, PageUpdateExerciseItem } from "../../services/services.types"
 import React from "react"
-import { SetterOrUpdater, useRecoilState } from "recoil"
-import { exerciseItemFamilySelector } from "../../state/exercises"
-import { saveResolveMap } from "../../components/Editor"
 import { ExerciseItemAttributes } from "."
 import { BlockEditProps } from "@wordpress/blocks"
 

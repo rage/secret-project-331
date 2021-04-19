@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["document_schema_processor",""],["file_store","Allows storing files to a file storage backend."]]});

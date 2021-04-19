@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["chrono",""],["uuid","Generate and parse UUIDs."]],"struct":[["Json",""],["Uuid","A Universally Unique Identifier (UUID)."]],"trait":[["Type","Indicates that a SQL type is supported for a database."]]});

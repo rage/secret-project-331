@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_add_courses_routes","Add a route for each controller in this module."],["get_all_courses","GET `/api/v0/cms/courses` - Returns a list of all courses."],["get_course_pages","GET `/api/v0/cms/courses/:course_id/pages` - Returns a list of pages in a course."]]});

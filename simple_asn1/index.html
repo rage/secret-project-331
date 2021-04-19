@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `simple_asn1` crate."><meta name="keywords" content="rust, rustlang, rust-lang, simple_asn1"><title>simple_asn1 - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../simple_asn1/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate simple_asn1</p><div class="block version"><p>Version 0.4.1</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all simple_asn1's items</p></a><div class="block items"><ul><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="simple_asn1" data-ty="mod" data-relpath="../"></div></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">simple_asn1</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/simple_asn1/lib.rs.html#1-1645" title="goto source code">[src]</a></span></h1><div class="docblock"><p>A small ASN.1 parsing library for Rust. In particular, this library is used
+to translate the binary DER encoding of an ASN.1-formatted document into the
+core primitives of ASN.1. It is assumed that you can do what you need to
+from there.</p>
+<p>The critical items for this document are the traits <code>ToASN1</code> and <code>FromASN1</code>.
+The first takes your data type and encodes it into a <code>Vec</code> of simple ASN.1
+structures (<code>ASN1Block</code>s). The latter inverts the process.</p>
+<p>Items that implement <code>ToASN1</code> can be used with the function <code>der_encode</code>
+to provide single-step encoding of a data type to binary DER encoding.
+Similarly, items that are <code>FromASN</code> can be single-step decoded using
+the helper function <code>der_decode</code>.</p>
+<p>You can implement one or both traits, depending on your needs. If you do
+implement both, the obvious encode/decode quickcheck property is strongly
+advised.</p>
+<p>For decoding schemes that require the actual bytes associated with the
+binary representation, we also provide <code>FromASN1WithBody</code>. This can be
+used with the offset information in the primitive <code>ASN1Block</code>s to, for
+example, validate signatures in X509 documents.</p>
+<p>Finally, this library supports ASN.1 class information. I'm still not sure
+why it's useful, but there it is.</p>
+<p>Please send any bug reports, patches, and curses to the GitHub repository
+at <code>https://github.com/acw/simple_asn1</code>.</p>
+</div><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<table><tr class="module-item"><td><a class="macro" href="macro.oid.html" title="simple_asn1::oid macro">oid</a></td><td class="docblock-short"><p>A handy macro for generating OIDs from a sequence of <code>u64</code>s.</p>
+</td></tr></table><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.BigInt.html" title="simple_asn1::BigInt struct">BigInt</a></td><td class="docblock-short"><p>A big signed integer type.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.BigUint.html" title="simple_asn1::BigUint struct">BigUint</a></td><td class="docblock-short"><p>A big unsigned integer type.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.OID.html" title="simple_asn1::OID struct">OID</a></td><td class="docblock-short"><p>An ASN.1 OID.</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.ASN1Block.html" title="simple_asn1::ASN1Block enum">ASN1Block</a></td><td class="docblock-short"><p>A primitive block from ASN.1.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.ASN1Class.html" title="simple_asn1::ASN1Class enum">ASN1Class</a></td><td class="docblock-short"><p>An ASN.1 block class.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.ASN1DecodeErr.html" title="simple_asn1::ASN1DecodeErr enum">ASN1DecodeErr</a></td><td class="docblock-short"><p>An error that can arise decoding ASN.1 primitive blocks.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.ASN1EncodeErr.html" title="simple_asn1::ASN1EncodeErr enum">ASN1EncodeErr</a></td><td class="docblock-short"><p>An error that can arise encoding ASN.1 primitive blocks.</p>
+</td></tr></table><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<table><tr class="module-item"><td><a class="trait" href="trait.FromASN1.html" title="simple_asn1::FromASN1 trait">FromASN1</a></td><td class="docblock-short"><p>A trait defining types that can be decoded from an <code>ASN1Block</code> stream.
+Any member of this trait is also automatically a member of
+<code>FromASN1WithBody</code>, as it can obviously just ignore the body.</p>
+</td></tr><tr class="module-item"><td><a class="trait" href="trait.FromASN1WithBody.html" title="simple_asn1::FromASN1WithBody trait">FromASN1WithBody</a></td><td class="docblock-short"><p>A trait defining types that can be decoded from an <code>ASN1Block</code> stream,
+assuming they also have access to the underlying bytes making up the
+stream.</p>
+</td></tr><tr class="module-item"><td><a class="trait" href="trait.ToASN1.html" title="simple_asn1::ToASN1 trait">ToASN1</a></td><td class="docblock-short"><p>The set of types that can automatically converted into a sequence
+of <code>ASN1Block</code>s. You should probably use to_asn1() but implement
+to_asn1_class(). The former has a default implementation that passes
+<code>ASN1Class::Universal</code> as the tag to use, which should be good for
+most people.</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.der_decode.html" title="simple_asn1::der_decode fn">der_decode</a></td><td class="docblock-short"><p>Automatically decode a type via DER encoding, assuming that the type
+is a member of <code>FromASN1</code> or <code>FromASN1WithBody</code>.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.der_encode.html" title="simple_asn1::der_encode fn">der_encode</a></td><td class="docblock-short"><p>Automatically encode a type into binary via DER encoding, assuming
+that the type is a member of <code>ToASN1</code>.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.from_der.html" title="simple_asn1::from_der fn">from_der</a></td><td class="docblock-short"><p>Translate a binary blob into a series of <code>ASN1Block</code>s, or provide an
+error if it didn't work.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.to_der.html" title="simple_asn1::to_der fn">to_der</a></td><td class="docblock-short"><p>Given an <code>ASN1Block</code>, covert it to its DER encoding, or return an error
+if something broke along the way.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="simple_asn1"></div>
+    <script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>

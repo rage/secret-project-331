@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_add_courses_routes","Add a route for each controller in this module."],["get_course_page_by_path","GET `/:course_id:/page-by-path/...` - Returns a course page by path"]]});

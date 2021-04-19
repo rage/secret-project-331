@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `http_api_problem` crate."><meta name="keywords" content="rust, rustlang, rust-lang, http_api_problem"><title>http_api_problem - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../http_api_problem/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate http_api_problem</p><div class="block version"><p>Version 0.21.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all http_api_problem's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#statics">Statics</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="http_api_problem" data-ty="mod" data-relpath="../"></div></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">http_api_problem</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/http_api_problem/lib.rs.html#1-556" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="http-api-problem" class="section-header"><a href="#http-api-problem">HTTP-API-PROBLEM</a></h1>
+<p><a href="https://crates.io/crates/http-api-problem"><img src="https://img.shields.io/crates/v/http-api-problem.svg" alt="crates.io" /></a>
+<a href="https://docs.rs/http-api-problem"><img src="https://docs.rs/http-api-problem/badge.svg" alt="docs.rs" /></a>
+<a href="https://crates.io/crates/http-api-problem"><img src="https://img.shields.io/crates/d/http-api-problem.svg" alt="downloads" /></a>
+<img src="https://github.com/chridou/http-api-problem/workflows/CI/badge.svg" alt="CI" />
+<a href="https://github.com/chridou/http-api-problem/blob/master/LICENSE-MIT"><img src="http://img.shields.io/badge/license-MIT-blue.svg" alt="license-mit" /></a>
+<a href="https://github.com/chridou/http-api-problem/blob/master/LICENSE-APACHE"><img src="http://img.shields.io/badge/license-APACHE-blue.svg" alt="license-apache" /></a></p>
+<p>A library to create HTTP response content for APIs based on
+<a href="https://tools.ietf.org/html/rfc7807">RFC7807</a>.</p>
+<p>** Breaking changes! This crate now uses <code>http::StatusCode</code> instead of the own custom one **</p>
+<h2 id="usage" class="section-header"><a href="#usage">Usage</a></h2>
+<p>Get the latest version for your <code>Cargo.toml</code> from
+<a href="https://crates.io/crates/http-api-problem">crates.io</a>.</p>
+<p>Add this to your crate root:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">http_api_problem</span>;</pre></div>
+<h2 id="serde" class="section-header"><a href="#serde">serde</a></h2>
+<p><code>HttpApiProblem</code> implements <code>Serialize</code> and <code>Deserialize</code> for
+<code>HttpApiProblem</code>.</p>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">http_api_problem</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">HttpApiProblem</span>::<span class="ident">with_title_and_type_from_status</span>(<span class="ident">StatusCode</span>::<span class="ident">NOT_FOUND</span>)
+    .<span class="ident">set_detail</span>(<span class="string">&quot;detailed explanation&quot;</span>)
+    .<span class="ident">set_instance</span>(<span class="string">&quot;/on/1234/do/something&quot;</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;https://httpstatuses.com/404&quot;</span>.<span class="ident">to_string</span>()), <span class="ident">p</span>.<span class="ident">type_url</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="ident">StatusCode</span>::<span class="ident">NOT_FOUND</span>), <span class="ident">p</span>.<span class="ident">status</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;Not Found&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">p</span>.<span class="ident">title</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;detailed explanation&quot;</span>.<span class="ident">to_string</span>()), <span class="ident">p</span>.<span class="ident">detail</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;/on/1234/do/something&quot;</span>.<span class="ident">to_string</span>()), <span class="ident">p</span>.<span class="ident">instance</span>);</pre></div>
+<p>There is also <code>From&lt;u16&gt;</code> implemented for <code>StatusCode</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">http_api_problem</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">HttpApiProblem</span>::<span class="ident">with_title_and_type_from_status</span>(<span class="ident">StatusCode</span>::<span class="ident">PRECONDITION_REQUIRED</span>)
+    .<span class="ident">set_detail</span>(<span class="string">&quot;detailed explanation&quot;</span>)
+    .<span class="ident">set_instance</span>(<span class="string">&quot;/on/1234/do/something&quot;</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;https://httpstatuses.com/428&quot;</span>.<span class="ident">to_string</span>()), <span class="ident">p</span>.<span class="ident">type_url</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="ident">StatusCode</span>::<span class="ident">PRECONDITION_REQUIRED</span>), <span class="ident">p</span>.<span class="ident">status</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;Precondition Required&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">p</span>.<span class="ident">title</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;detailed explanation&quot;</span>.<span class="ident">to_string</span>()), <span class="ident">p</span>.<span class="ident">detail</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;/on/1234/do/something&quot;</span>.<span class="ident">to_string</span>()), <span class="ident">p</span>.<span class="ident">instance</span>);</pre></div>
+<h2 id="license" class="section-header"><a href="#license">License</a></h2>
+<p><code>http-api-problem</code> is primarily distributed under the terms of both the MIT
+license and the Apache License (Version 2.0).</p>
+<p>Copyright (c) 2017 Christian Douven.</p>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.HttpApiProblem.html" title="http_api_problem::HttpApiProblem struct">HttpApiProblem</a></td><td class="docblock-short"><p>Description of a problem that can be returned by an HTTP API
+based on <a href="https://tools.ietf.org/html/rfc7807">RFC7807</a></p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.StatusCode.html" title="http_api_problem::StatusCode struct">StatusCode</a></td><td class="docblock-short"><p>An HTTP status code (<code>status-code</code> in RFC 7230 et al.).</p>
+</td></tr></table><h2 id="statics" class="section-header"><a href="#statics">Statics</a></h2>
+<table><tr class="module-item"><td><a class="static" href="static.PROBLEM_JSON_MEDIA_TYPE.html" title="http_api_problem::PROBLEM_JSON_MEDIA_TYPE static">PROBLEM_JSON_MEDIA_TYPE</a></td><td class="docblock-short"><p>The recommended media type when serialized to JSON</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="http_api_problem"></div>
+    <script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>

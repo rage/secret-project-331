@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ServiceAccount","A deserialized `service-account-********.json`-file."]]});

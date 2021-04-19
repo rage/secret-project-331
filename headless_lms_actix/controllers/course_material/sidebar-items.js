@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["add_course_material_routes","Add controllers from all the submodules."]],"mod":[["courses","Controllers for requests starting with `/api/v0/course-material/courses`."]]});

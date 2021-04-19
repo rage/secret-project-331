@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Pool","An asynchronous pool of SQLx database connections."],["PoolConnection","A connection managed by a [`Pool`][crate::pool::Pool]."],["PoolOptions",""]]});

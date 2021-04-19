@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["MigrateError",""],["MigrationType","Migration Type represents the type of migration"]],"struct":[["Migration",""],["Migrator",""]],"trait":[["Migrate",""],["MigrateDatabase",""],["MigrationSource",""]]});

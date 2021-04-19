@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `guard` mod in crate `actix_web`."><meta name="keywords" content="rust, rustlang, rust-lang, guard"><title>actix_web::guard - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a><p class="location">Module guard</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"><a href="../index.html">actix_web</a></p><div id="sidebar-vars" data-name="guard" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">actix_web</a>::<wbr><a class="mod" href="">guard</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/actix_web/guard.rs.html#1-499" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Route match guards.</p>
+<p>Guards are one of the ways how actix-web router chooses a
+handler service. In essence it is just a function that accepts a
+reference to a <code>RequestHead</code> instance and returns a boolean.
+It is possible to add guards to <em>scopes</em>, <em>resources</em>
+and <em>routes</em>. Actix provide several guards by default, like various
+http methods, header, etc. To become a guard, type must implement <code>Guard</code>
+trait. Simple functions could be guards as well.</p>
+<p>Guards can not modify the request object. But it is possible
+to store extra attributes on a request by using the <code>Extensions</code> container.
+Extensions containers are available via the <code>RequestHead::extensions()</code> method.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">web</span>, <span class="ident">http</span>, <span class="ident">dev</span>, <span class="ident">guard</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>};
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/index.html&quot;</span>).<span class="ident">route</span>(
+        <span class="ident">web</span>::<span class="ident">route</span>()
+             .<span class="ident">guard</span>(<span class="ident">guard</span>::<span class="ident">Post</span>())
+             .<span class="ident">guard</span>(<span class="ident">guard</span>::<span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">head</span><span class="op">|</span> <span class="ident">head</span>.<span class="ident">method</span> <span class="op">=</span><span class="op">=</span> <span class="ident">http</span>::<span class="ident">Method</span>::<span class="ident">GET</span>))
+             .<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse</span>::<span class="ident">MethodNotAllowed</span>()))
+    );
+}</pre></div>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.AllGuard.html" title="actix_web::guard::AllGuard struct">AllGuard</a></td><td class="docblock-short"><p>Matches if all of supplied guards.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.AnyGuard.html" title="actix_web::guard::AnyGuard struct">AnyGuard</a></td><td class="docblock-short"><p>Matches any of supplied guards.</p>
+</td></tr></table><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<table><tr class="module-item"><td><a class="trait" href="trait.Guard.html" title="actix_web::guard::Guard trait">Guard</a></td><td class="docblock-short"><p>Trait defines resource guards. Guards are used for route selection.</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.All.html" title="actix_web::guard::All fn">All</a></td><td class="docblock-short"><p>Return guard that matches if all of the supplied guards.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Any.html" title="actix_web::guard::Any fn">Any</a></td><td class="docblock-short"><p>Return guard that matches if any of supplied guards.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Connect.html" title="actix_web::guard::Connect fn">Connect</a></td><td class="docblock-short"><p>Predicate to match <em>CONNECT</em> http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Delete.html" title="actix_web::guard::Delete fn">Delete</a></td><td class="docblock-short"><p>Predicate to match <em>DELETE</em> http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Get.html" title="actix_web::guard::Get fn">Get</a></td><td class="docblock-short"><p>Guard to match <em>GET</em> http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Head.html" title="actix_web::guard::Head fn">Head</a></td><td class="docblock-short"><p>Predicate to match <em>HEAD</em> http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Header.html" title="actix_web::guard::Header fn">Header</a></td><td class="docblock-short"><p>Return predicate that matches if request contains specified header and
+value.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Host.html" title="actix_web::guard::Host fn">Host</a></td><td class="docblock-short"><p>Return predicate that matches if request contains specified Host name.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Method.html" title="actix_web::guard::Method fn">Method</a></td><td class="docblock-short"><p>Predicate to match specified http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Not.html" title="actix_web::guard::Not fn">Not</a></td><td class="docblock-short"><p>Return guard that matches if supplied guard does not match.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Options.html" title="actix_web::guard::Options fn">Options</a></td><td class="docblock-short"><p>Predicate to match <em>OPTIONS</em> http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Patch.html" title="actix_web::guard::Patch fn">Patch</a></td><td class="docblock-short"><p>Predicate to match <em>PATCH</em> http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Post.html" title="actix_web::guard::Post fn">Post</a></td><td class="docblock-short"><p>Predicate to match <em>POST</em> http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Put.html" title="actix_web::guard::Put fn">Put</a></td><td class="docblock-short"><p>Predicate to match <em>PUT</em> http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.Trace.html" title="actix_web::guard::Trace fn">Trace</a></td><td class="docblock-short"><p>Predicate to match <em>TRACE</em> http method</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.fn_guard.html" title="actix_web::guard::fn_guard fn">fn_guard</a></td><td class="docblock-short"><p>Create guard object for supplied function.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web"></div>
+    <script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Transaction","An in-progress database transaction or savepoint."]]});

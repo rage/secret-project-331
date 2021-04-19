@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["TestResponse","Test `ClientResponse` builder"]]});

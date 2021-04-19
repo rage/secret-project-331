@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["denormalize",""],["normalize",""],["normalize_from_json",""]],"struct":[["DeNormalizedDocument",""],["GutenbergBlock",""],["GuternbergExerciseAttributes",""],["GuternbergExerciseItemAttributes",""],["NormalizedDocument",""],["NormalizedMoocfiExerciseAttributes",""]]});

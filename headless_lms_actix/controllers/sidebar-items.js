@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ApplicationError","Represents error messages that are sent in responses."]],"fn":[["configure_controllers","Add controllers from all the submodules."]],"mod":[["cms","Handlers for HTTP requests to `/api/v0/cms/cms`."],["course_material","Handlers for HTTP requests to `/api/v0/course-material`."]],"type":[["ApplicationResult",""]]});

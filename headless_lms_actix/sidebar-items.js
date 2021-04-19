@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["main","The entrypoint to the application."]],"mod":[["controllers","Handlers for HTTP requests to `/api/v0`."],["models","Functions and structs for interacting with the database."],["utils","Commonly used utils."]]});

@@ -1,0 +1,239 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `query` macro in crate `sqlx`."><meta name="keywords" content="rust, rustlang, rust-lang, query"><title>sqlx::query - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../sqlx/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="index.html">sqlx</a></p><div id="sidebar-vars" data-name="query" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="">query</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/sqlx/macros.rs.html#301-317" title="goto source code">[src]</a></span></h1><div class="docblock type-decl hidden-by-usual-hider"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">query</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+}</pre></div>
+</div><div class="docblock"><p>Statically checked SQL query with <code>println!()</code> style syntax.</p>
+<p>This expands to an instance of <a href="../sqlx/query/struct.Map.html" title="crate::query::Map"><code>query::Map</code></a> that outputs an ad-hoc anonymous
+struct type, if the query has at least one output column that is not <code>Void</code>, or <code>()</code> (unit) otherwise:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="comment">// let mut conn = &lt;impl sqlx::Executor&gt;;</span>
+<span class="kw">let</span> <span class="ident">account</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(<span class="string">&quot;select (1) as id, &#39;Herp Derpinson&#39; as name&quot;</span>)
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="comment">// anonymous struct has `#[derive(Debug)]` for convenience</span>
+<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">account</span>);
+<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">account</span>.<span class="ident">id</span>, <span class="ident">account</span>.<span class="ident">name</span>);
+</pre></div>
+<p><strong>The method you want to call depends on how many rows you're expecting.</strong></p>
+<table><thead><tr><th>Number of Rows</th><th>Method to Call*</th><th>Returns</th><th>Notes</th></tr></thead><tbody>
+<tr><td>None†</td><td><code>.execute(...).await</code></td><td>`sqlx::Result<a href="DB::QueryResult">DB::QueryResult</a></td><td>For <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> without <code>RETURNING</code>.</td></tr>
+<tr><td>Zero or One</td><td><code>.fetch_optional(...).await</code></td><td><code>sqlx::Result&lt;Option&lt;{adhoc struct}&gt;&gt;</code></td><td>Extra rows are ignored.</td></tr>
+<tr><td>Exactly One</td><td><code>.fetch_one(...).await</code></td><td><code>sqlx::Result&lt;{adhoc struct}&gt;</code></td><td>Errors if no rows were returned. Extra rows are ignored. Aggregate queries, use this.</td></tr>
+<tr><td>At Least One</td><td><code>.fetch(...)</code></td><td><code>impl Stream&lt;Item = sqlx::Result&lt;{adhoc struct}&gt;&gt;</code></td><td>Call <code>.try_next().await</code> to get each row result.</td></tr>
+</tbody></table>
+<p>* All methods accept one of <code>&amp;mut {connection type}</code>, <code>&amp;mut Transaction</code> or <code>&amp;Pool</code>.
+† Only callable if the query returns no columns; otherwise it's assumed the query <em>may</em> return at least one row.</p>
+<h2 id="requirements" class="section-header"><a href="#requirements">Requirements</a></h2>
+<ul>
+<li>
+<p>The <code>DATABASE_URL</code> environment variable must be set at build-time to point to a database
+server with the schema that the query string will be checked against. All variants of <code>query!()</code>
+use <a href="https://crates.io/crates/dotenv">dotenv</a> so this can be in a <code>.env</code> file instead.</p>
+<ul>
+<li>Or, <code>sqlx-data.json</code> must exist at the workspace root. See <a href="#offline-mode">Offline Mode</a>
+below.</li>
+</ul>
+</li>
+<li>
+<p>The query must be a string literal, or concatenation of string literals using <code>+</code> (useful
+for queries generated by macro), or else it cannot be introspected (and thus cannot be dynamic
+or the result of another macro).</p>
+</li>
+<li>
+<p>The <code>QueryAs</code> instance will be bound to the same database type as <code>query!()</code> was compiled
+against (e.g. you cannot build against a Postgres database and then run the query against
+a MySQL database).</p>
+<ul>
+<li>The schema of the database URL (e.g. <code>postgres://</code> or <code>mysql://</code>) will be used to
+determine the database type.</li>
+</ul>
+</li>
+</ul>
+<h2 id="query-arguments" class="section-header"><a href="#query-arguments">Query Arguments</a></h2>
+<p>Like <code>println!()</code> and the other formatting macros, you can add bind parameters to your SQL
+and this macro will typecheck passed arguments and error on missing ones:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="comment">// let mut conn = &lt;impl sqlx::Executor&gt;;</span>
+<span class="kw">let</span> <span class="ident">account</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
+        <span class="comment">// just pretend &quot;accounts&quot; is a real table</span>
+        <span class="string">&quot;select * from (select (1) as id, &#39;Herp Derpinson&#39; as name) accounts where id = ?&quot;</span>,
+        <span class="number">1i32</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">account</span>);
+<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">account</span>.<span class="ident">id</span>, <span class="ident">account</span>.<span class="ident">name</span>);</pre></div>
+<p>Bind parameters in the SQL string are specific to the database backend:</p>
+<ul>
+<li>Postgres: <code>$N</code> where <code>N</code> is the 1-based positional argument index</li>
+<li>MySQL/SQLite: <code>?</code> which matches arguments in order that it appears in the query</li>
+</ul>
+<h2 id="nullability-bind-parameters" class="section-header"><a href="#nullability-bind-parameters">Nullability: Bind Parameters</a></h2>
+<p>For a given expected type <code>T</code>, both <code>T</code> and <code>Option&lt;T&gt;</code> are allowed (as well as either
+behind references). <code>Option::None</code> will be bound as <code>NULL</code>, so if binding a type behind <code>Option</code>
+be sure your query can support it.</p>
+<p>Note, however, if binding in a <code>where</code> clause, that equality comparisons with <code>NULL</code> may not
+work as expected; instead you must use <code>IS NOT NULL</code> or <code>IS NULL</code> to check if a column is not
+null or is null, respectively.</p>
+<p>In Postgres and MySQL you may also use <code>IS [NOT] DISTINCT FROM</code> to compare with a possibly
+<code>NULL</code> value. In MySQL <code>IS NOT DISTINCT FROM</code> can be shortened to <code>&lt;=&gt;</code>.
+In SQLite you can us <code>IS</code> or <code>IS NOT</code>. Note that operator precedence may be different.</p>
+<h2 id="nullability-output-columns" class="section-header"><a href="#nullability-output-columns">Nullability: Output Columns</a></h2>
+<p>In most cases, the database engine can tell us whether or not a column may be <code>NULL</code>, and
+the <code>query!()</code> macro adjusts the field types of the returned struct accordingly.</p>
+<p>For Postgres, this only works for columns which come directly from actual tables,
+as the implementation will need to query the table metadata to find if a given column
+has a <code>NOT NULL</code> constraint. Columns that do not have a <code>NOT NULL</code> constraint or are the result
+of an expression are assumed to be nullable and so <code>Option&lt;T&gt;</code> is used instead of <code>T</code>.</p>
+<p>For MySQL, the implementation looks at <a href="https://dev.mysql.com/doc/dev/mysql-server/8.0.12/group__group__cs__column__definition__flags.html#ga50377f5ca5b3e92f3931a81fe7b44043">the <code>NOT_NULL</code> flag</a>
+of <a href="https://dev.mysql.com/doc/internals/en/com-query-response.html#column-definition">the <code>ColumnDefinition</code> structure in <code>COM_QUERY_OK</code></a>:
+if it is set, <code>T</code> is used; if it is not set, <code>Option&lt;T&gt;</code> is used.</p>
+<p>MySQL appears to be capable of determining the nullability of a result column even if it
+is the result of an expression, depending on if the expression may in any case result in
+<code>NULL</code> which then depends on the semantics of what functions are used. Consult the MySQL
+manual for the functions you are using to find the cases in which they return <code>NULL</code>.</p>
+<p>For SQLite we perform a similar check to Postgres, looking for <code>NOT NULL</code> constraints
+on columns that come from tables. However, for SQLite we also can step through the output
+of <code>EXPLAIN</code> to identify columns that may or may not be <code>NULL</code>.</p>
+<p>To override the nullability of an output column, <a href="#type-overrides-output-columns">see below</a>.</p>
+<h2 id="type-overrides-bind-parameters-postgres-only" class="section-header"><a href="#type-overrides-bind-parameters-postgres-only">Type Overrides: Bind Parameters (Postgres only)</a></h2>
+<p>For typechecking of bind parameters, casts using <code>as</code> are treated as overrides for the inferred
+types of bind parameters and no typechecking is emitted:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
+<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">transparent</span>)]</span>
+<span class="kw">struct</span> <span class="ident">MyInt4</span>(<span class="ident">i32</span>);
+
+<span class="kw">let</span> <span class="ident">my_int</span> <span class="op">=</span> <span class="ident">MyInt4</span>(<span class="number">1</span>);
+
+<span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(<span class="string">&quot;select $1::int4 as id&quot;</span>, <span class="ident">my_int</span> <span class="kw">as</span> <span class="ident">MyInt4</span>)</pre></div>
+<p>In Rust 1.45 we can eliminate this redundancy by allowing casts using <code>as _</code> or type ascription
+syntax, i.e. <code>my_int: _</code> (which is unstable but can be stripped), but this requires modifying
+the expression which is not possible as the macros are currently implemented. Casts to <code>_</code> are
+forbidden for now as they produce rather nasty type errors.</p>
+<h2 id="type-overrides-output-columns" class="section-header"><a href="#type-overrides-output-columns">Type Overrides: Output Columns</a></h2>
+<p>Type overrides are also available for output columns, utilizing the SQL standard's support
+for arbitrary text in column names:</p>
+<h5 id="force-not-null" class="section-header"><a href="#force-not-null">Force Not-Null</a></h5>
+<p>Selecting a column <code>foo as &quot;foo!&quot;</code> (Postgres / SQLite) or <code>foo as `foo!`</code> (MySQL) overrides
+inferred nullability and forces the column to be treated as <code>NOT NULL</code>; this is useful e.g. for
+selecting expressions in Postgres where we cannot infer nullability:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="comment">// Postgres: using a raw query string lets us use unescaped double-quotes</span>
+<span class="comment">// Note that this query wouldn&#39;t work in SQLite as we still don&#39;t know the exact type of `id`</span>
+<span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(<span class="string">r#&quot;select 1 as &quot;id!&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id!`&quot; instead</span>
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="comment">// For Postgres this would have been inferred to be Option&lt;i32&gt; instead</span>
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="number">1i32</span>);
+</pre></div>
+<h5 id="force-nullable" class="section-header"><a href="#force-nullable">Force Nullable</a></h5>
+<p>Selecting a column <code>foo as &quot;foo?&quot;</code> (Postgres / SQLite) or <code>foo as `foo?`</code> (MySQL) overrides
+inferred nullability and forces the column to be treated as nullable; this is provided mainly
+for symmetry with <code>!</code>.</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="comment">// Postgres/SQLite:</span>
+<span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(<span class="string">r#&quot;select 1 as &quot;id?&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id?`&quot; instead</span>
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="comment">// For Postgres this would have been inferred to be Option&lt;i32&gt; anyway</span>
+<span class="comment">// but this is just a basic example</span>
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="number">1i32</span>));</pre></div>
+<p>MySQL should be accurate with regards to nullability as it directly tells us when a column is
+expected to never be <code>NULL</code>. Any mistakes should be considered a bug in MySQL.</p>
+<p>However, inference in SQLite and Postgres is more fragile as it depends primarily on observing
+<code>NOT NULL</code> constraints on columns. If a <code>NOT NULL</code> column is brought in by a <code>LEFT JOIN</code> then
+that column may be <code>NULL</code> if its row does not satisfy the join condition. Similarly, a
+<code>FULL JOIN</code> or <code>RIGHT JOIN</code> may generate rows from the primary table that are all <code>NULL</code>.</p>
+<p>Unfortunately, the result of mistakes in inference is a <code>UnexpectedNull</code> error at runtime.</p>
+<p>In Postgres, we patch up this inference by analyzing <code>EXPLAIN VERBOSE</code> output (which is not
+well documented, is highly dependent on the query plan that Postgres generates, and may differ
+between releases) to find columns that are the result of left/right/full outer joins. This
+analysis errs on the side of producing false positives (marking columns nullable that are not
+in practice) but there are likely edge cases that it does not cover yet.</p>
+<p>Using <code>?</code> as an override we can fix this for columns we know to be nullable in practice:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="comment">// Ironically this is the exact column we primarily look at to determine nullability in Postgres</span>
+<span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
+    <span class="string">r#&quot;select attnotnull as &quot;attnotnull?&quot; from (values (1)) ids left join pg_attribute on false&quot;#</span>
+)
+.<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>)
+.<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="comment">// Although we do our best, under Postgres this might have been inferred to be `bool`</span>
+<span class="comment">// In that case, we would have gotten an error</span>
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">record</span>.<span class="ident">attnotnull</span>, <span class="prelude-val">None</span>);</pre></div>
+<p>If you find that you need to use this override, please open an issue with a query we can use
+to reproduce the problem. For Postgres users, especially helpful would be the output of
+<code>EXPLAIN (VERBOSE, FORMAT JSON) &lt;your query&gt;</code> with bind parameters substituted in the query
+(as the exact value of bind parameters can change the query plan)
+and the definitions of any relevant tables (or sufficiently anonymized equivalents).</p>
+<h5 id="force-a-differentcustom-type" class="section-header"><a href="#force-a-differentcustom-type">Force a Different/Custom Type</a></h5>
+<p>Selecting a column <code>foo as &quot;foo: T&quot;</code> (Postgres / SQLite) or <code>foo as `foo: T`</code> (MySQL)
+overrides the inferred type which is useful when selecting user-defined custom types
+(dynamic type checking is still done so if the types are incompatible this will be an error
+at runtime instead of compile-time). Note that this syntax alone doesn't override inferred nullability,
+but it is compatible with the forced not-null and forced nullable annotations:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
+<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">transparent</span>)
+<span class="kw">struct</span> <span class="ident">MyInt4</span>(<span class="ident">i32</span>);
+
+<span class="kw">let</span> <span class="ident">my_int</span> <span class="op">=</span> <span class="ident">MyInt4</span>(<span class="number">1</span>);
+
+<span class="comment">// Postgres/SQLite</span>
+<span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(<span class="string">r#&quot;select 1 as &quot;id!: MyInt4&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id: MyInt4`&quot; instead</span>
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="comment">// For Postgres this would have been inferred to be `Option&lt;i32&gt;`, MySQL/SQLite `i32`</span>
+<span class="comment">// Note that while using `id: MyInt4` (without the `!`) would work the same for MySQL/SQLite,</span>
+<span class="comment">// Postgres would expect `Some(MyInt4(1))` and the code wouldn&#39;t compile</span>
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="ident">MyInt4</span>(<span class="number">1</span>));</pre></div>
+<h5 id="overrides-cheatsheet" class="section-header"><a href="#overrides-cheatsheet">Overrides cheatsheet</a></h5><table><thead><tr><th>Syntax</th><th>Nullability</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>foo!</code></td><td>Forced not-null</td><td>Inferred</td></tr>
+<tr><td><code>foo?</code></td><td>Forced nullable</td><td>Inferred</td></tr>
+<tr><td><code>foo: T</code></td><td>Inferred</td><td>Overridden</td></tr>
+<tr><td><code>foo!: T</code></td><td>Forced not-null</td><td>Overridden</td></tr>
+<tr><td><code>foo?: T</code></td><td>Forced nullable</td><td>Overridden</td></tr>
+</tbody></table>
+<h2 id="offline-mode-requires-the-offline-feature" class="section-header"><a href="#offline-mode-requires-the-offline-feature">Offline Mode (requires the <code>offline</code> feature)</a></h2>
+<p>The macros can be configured to not require a live database connection for compilation,
+but it requires a couple extra steps:</p>
+<ul>
+<li>Run <code>cargo install sqlx-cli</code>.</li>
+<li>In your project with <code>DATABASE_URL</code> set (or in a <code>.env</code> file) and the database server running,
+run <code>cargo sqlx prepare</code>.</li>
+<li>Check the generated <code>sqlx-data.json</code> file into version control.</li>
+<li>Don't have <code>DATABASE_URL</code> set during compilation.</li>
+</ul>
+<p>Your project can now be built without a database connection (you must omit <code>DATABASE_URL</code> or
+else it will still try to connect). To update the generated file simply run <code>cargo sqlx prepare</code>
+again.</p>
+<p>To ensure that your <code>sqlx-data.json</code> file is kept up-to-date, both with the queries in your
+project and your database schema itself, run
+<code>cargo install sqlx-cli &amp;&amp; cargo sqlx prepare --check</code> in your Continuous Integration script.</p>
+<p>See <a href="https://crates.io/crate/sqlx-cli">the README for <code>sqlx-cli</code></a> for more information.</p>
+<h2 id="see-also" class="section-header"><a href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../sqlx/macro.query_as.html" title="query_as!">query_as!</a> if you want to use a struct you can name,</li>
+<li><a href="../sqlx/macro.query_file.html" title="query_file!">query_file!</a> if you want to define the SQL query out-of-line,</li>
+<li><a href="../sqlx/macro.query_file_as.html" title="query_file_as!">query_file_as!</a> if you want both of the above.</li>
+</ul>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="sqlx"></div>
+    <script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>

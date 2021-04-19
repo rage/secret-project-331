@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["all_courses",""],["organization_courses",""]],"struct":[["Course",""]]});

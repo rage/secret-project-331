@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["FromRow","A record that can be built from a row returned by the database."]]});

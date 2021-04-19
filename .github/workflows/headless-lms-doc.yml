@@ -17,10 +17,6 @@ jobs:
         run: cargo doc
         working-directory: headless-lms
 
-      - name: Copy index to target/doc
-        run: cp doc_index.html target/doc/index.html
-        working-directory: headless-lms
-
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:

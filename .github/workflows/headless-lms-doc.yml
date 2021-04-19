@@ -1,9 +1,8 @@
 name: Build and deploy headless-lms docs
 
 on:
-  release:
-    types:
-      - created
+  push:
+    branches: [ master ]
 
 jobs:
   build-and-deploy:

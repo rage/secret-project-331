@@ -3,7 +3,7 @@ import { API_URL } from "../constants"
 import { Course, Organization, Page, PageWithExercises } from "./services.types"
 
 const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const url = `${API_URL}/api/v0/organizations`
+  const url = `${API_URL}/api/v0/cms/organizations`
   try {
     const data = (await axios.get(url, { responseType: "json" })).data
     console.log(data)
@@ -14,7 +14,7 @@ const fetchOrganizations = async (): Promise<Array<Organization>> => {
 }
 
 const fetchCourses = async (): Promise<Array<Course>> => {
-  const url = `${API_URL}/api/v0/courses`
+  const url = `${API_URL}/api/v0/cms/courses`
   try {
     const data = (await axios.get(url, { responseType: "json" })).data
     console.log(data)
@@ -25,7 +25,7 @@ const fetchCourses = async (): Promise<Array<Course>> => {
 }
 
 const fetchCoursePages = async (courseId: string): Promise<Array<Page>> => {
-  const url = `${API_URL}/api/v0/courses/${courseId}/pages`
+  const url = `${API_URL}/api/v0/cms/courses/${courseId}/pages`
   try {
     const data = (await axios.get(url, { responseType: "json" })).data
     console.log(data)
@@ -36,7 +36,7 @@ const fetchCoursePages = async (courseId: string): Promise<Array<Page>> => {
 }
 
 const fetchPageWithId = async (pageId: string): Promise<PageWithExercises> => {
-  const url = `${API_URL}/api/v0/pages/${pageId}`
+  const url = `${API_URL}/api/v0/cms/pages/${pageId}`
   try {
     const data = (await axios.get(url, { responseType: "json" })).data
     console.log(data)

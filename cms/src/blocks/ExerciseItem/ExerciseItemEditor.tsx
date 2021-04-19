@@ -4,7 +4,7 @@ import ChooseExerciseItemType from "./ChooseExerciseItemType"
 import IFrameEditor from "./IFrameEditor"
 import { BlockEditProps } from "@wordpress/blocks"
 import { ExerciseItemAttributes } from "."
-import { exerciseItemTypes } from "./ChooseExerciseItemType/ExerciseServiceList"
+import { ExerciseItemTypes, exerciseItemTypes } from "./ChooseExerciseItemType/ExerciseServiceList"
 import { InnerBlocks } from "@wordpress/block-editor"
 
 const ExerciseItemEditorCard = styled.div`
@@ -16,9 +16,9 @@ const ExerciseItemEditorCard = styled.div`
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list"]
 const ExerciseItemEditor: React.FC<BlockEditProps<ExerciseItemAttributes>> = (props) => {
   const { attributes } = props
-  const [exerciseType, setExerciseType] = useState<undefined | string>(undefined)
+  const [exerciseType, setExerciseType] = useState<undefined | ExerciseItemTypes>(undefined)
 
-  const url = exerciseItemTypes.find((o) => o.identifier === exerciseType)?.url
+  const url = exerciseItemTypes.find((o) => o.identifier === exerciseType?.identifier)?.url
   const id = attributes.exercise_item_id
   return (
     <ExerciseItemEditorCard id={attributes.exercise_item_id}>

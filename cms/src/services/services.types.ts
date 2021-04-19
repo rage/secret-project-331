@@ -6,9 +6,9 @@ interface DatabaseItem {
 
 /**
  * DELETE Response
- * `${API_URL}/api/v0/pages/${page_id}`
+ * `${API_URL}/api/v0/cms/pages/${page_id}`
  * GET
- * `${API_URL}/api/v0/courses/${course_id}/pages
+ * `${API_URL}/api/v0/cms/courses/${course_id}/pages
  */
 export interface Page extends DatabaseItem {
   course_id: string
@@ -20,7 +20,7 @@ export interface Page extends DatabaseItem {
 
 /**
  * GET, PUT Response, POST Response
- * `${API_URL}/api/v0/pages/${page_id}`
+ * `${API_URL}/api/v0/cms/pages/${page_id}`
  */
 export interface PageWithExercises extends DatabaseItem, Page {
   exercises: Array<ExerciseWithExerciseItems>
@@ -46,14 +46,14 @@ export interface ExerciseItem extends DatabaseItem {
 
 /**
  * PUT
- * `${API_URL}/api/v0/pages/${page_id}`
+ * `${API_URL}/api/v0/cms/pages/${page_id}`
  */
 export interface PageUpdate {
   page_id: string
   content: Array<any>
   url_path: string
   title: string
-  exercises: Array<PageUpdateExercise>
+  // exercises: Array<PageUpdateExercise>
 }
 
 export interface PageUpdateExercise {
@@ -71,7 +71,7 @@ export interface PageUpdateExerciseItem {
 
 /**
  * POST
- * `${API_URL}/api/v0/pages/${page_id}`
+ * `${API_URL}/api/v0/cms/pages/${page_id}`
  */
 export interface NewPage {
   content: Array<any>
@@ -83,7 +83,7 @@ export interface NewPage {
 
 /**
  * GET
- * `${API_URL}/api/v0/organizations
+ * `${API_URL}/api/v0/cms/organizations
  */
 export interface Organization extends DatabaseItem {
   name: string
@@ -92,7 +92,7 @@ export interface Organization extends DatabaseItem {
 
 /**
  * GET
- * `${API_URL}/api/v0/courses
+ * `${API_URL}/api/v0/cms/courses
  */
 export interface Course extends DatabaseItem {
   name: string

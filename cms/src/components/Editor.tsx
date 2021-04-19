@@ -28,6 +28,7 @@ import { updateExistingPage } from "../services/postData"
 import { Button } from "@material-ui/core"
 import {
   ExerciseWithExerciseItems,
+  Page,
   PageUpdateExercise,
   PageUpdateExerciseItem,
   PageWithExercises,
@@ -91,18 +92,18 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
   const { content, url_path, title, course_id, deleted, exercises, id } = props.data
   const [blocks, setBlocks] = useState(content ?? [])
 
-  // useRecoilCallback to create exercise atom state for each exercises array when opening Editor
-  const createExercisesStates = useRecoilCallback(
-    ({ set }) => (exerciseData: ExerciseWithExerciseItems[]) => {
-      const ids = []
-      for (const exercise of exerciseData) {
-        ids.push(exercise.id)
-        set(exercisesAtoms(exercise.id), exercise)
-      }
-      set(exercisesState, ids)
-    },
-    [],
-  )
+  // // useRecoilCallback to create exercise atom state for each exercises array when opening Editor
+  // const createExercisesStates = useRecoilCallback(
+  //   ({ set }) => (exerciseData: ExerciseWithExerciseItems[]) => {
+  //     const ids = []
+  //     for (const exercise of exerciseData) {
+  //       ids.push(exercise.id)
+  //       set(exercisesAtoms(exercise.id), exercise)
+  //     }
+  //     set(exercisesState, ids)
+  //   },
+  //   [],
+  // )
 
   const mapExercises = useRecoilCallback(({ snapshot }) => async () => {
     const exercises = await snapshot.getPromise(allExercises)
@@ -118,17 +119,28 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
     setBlocks(page)
   }
 
+  // const handleSave = (): void => {
+  //   mapExercises().then((fetchedExercises: PageUpdateExercise[]) => {
+  //     updateExistingPage({
+  //       page_id: id,
+  //       content: blocks,
+  //       exercises: fetchedExercises,
+  //       url_path,
+  //       title,
+  //     }).then((res: PageWithExercises) => {
+  //       setBlocks(res.content)
+  //     })
+  //   })
+  // }
   const handleSave = (): void => {
-    mapExercises().then((fetchedExercises: PageUpdateExercise[]) => {
-      updateExistingPage({
-        page_id: id,
-        content: blocks,
-        exercises: fetchedExercises,
-        url_path,
-        title,
-      }).then((res: PageWithExercises) => {
-        setBlocks(res.content)
-      })
+    updateExistingPage({
+      page_id: id,
+      content: blocks,
+      url_path,
+      title
+    }).then((res: Page) => {
+      console.log(res)
+      setBlocks(res.content)
     })
   }
 
@@ -138,9 +150,9 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
     registerBlockType("moocfi/exercise-item", ExerciseItem)
   }, [])
 
-  useEffect(() => {
-    createExercisesStates(exercises)
-  }, [exercises])
+  // useEffect(() => {
+  //   createExercisesStates(exercises)
+  // }, [exercises])
 
   return (
     <div className="playground">

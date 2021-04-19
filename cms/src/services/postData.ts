@@ -3,7 +3,7 @@ import { API_URL } from "../constants"
 import { NewPage, PageUpdate, PageWithExercises } from "./services.types"
 
 const postNewPage = async (data: NewPage): Promise<PageWithExercises> => {
-  const url = `${API_URL}/api/v0/pages`
+  const url = `${API_URL}/api/v0/cms/pages`
   try {
     const response = await axios.post(url, data, {
       headers: { "Content-Type": "application/json" },
@@ -18,15 +18,16 @@ const postNewPage = async (data: NewPage): Promise<PageWithExercises> => {
 const updateExistingPage = async ({
   page_id,
   content,
-  exercises,
+  //exercises,
   url_path,
   title,
 }: PageUpdate): Promise<PageWithExercises> => {
-  const url = `${API_URL}/api/v0/pages/${page_id}`
+  const url = `${API_URL}/api/v0/cms/pages/${page_id}`
   try {
     const response = await axios.put(
       url,
-      { content, exercises, url_path, title },
+      // { content, exercises, url_path, title },
+      { content, url_path, title },
       {
         headers: { "Content-Type": "application/json" },
       },
@@ -39,7 +40,7 @@ const updateExistingPage = async ({
 }
 
 const deletePage = async (page_id: string): Promise<PageWithExercises> => {
-  const url = `${API_URL}/api/v0/pages/${page_id}`
+  const url = `${API_URL}/api/v0/cms/pages/${page_id}`
   try {
     const response = await axios.delete(url)
     console.log(response.data)

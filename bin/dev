@@ -1,3 +1,5 @@
 #!/bin/bash
 
-skaffold dev --force --port-forward
+COMMAND="skaffold dev --force --port-forward $*"
+echo "> $COMMAND"
+eval "$COMMAND"

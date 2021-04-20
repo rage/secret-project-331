@@ -7,6 +7,7 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Course {
     id: Uuid,
+    slug: String,
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
     name: String,

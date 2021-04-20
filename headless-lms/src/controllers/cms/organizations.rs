@@ -1,21 +1,24 @@
-//! Controllers for requests starting with `/api/v0/courses`.
+//! Controllers for requests starting with `/api/v0/cms/cms/organizations`.
 use std::str::FromStr;
 
-use super::ApplicationResult;
-use crate::models::{courses::Course, organizations::Organization};
+use crate::{
+    controllers::ApplicationResult,
+    models::{courses::Course, organizations::Organization},
+};
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
-GET `/api/v0/organizations` - Returns a list of all organizations.
+GET `/api/v0/cms/organizations` - Returns a list of all organizations.
 
 # Example
 ```json
 [
   {
     "id": "7b14908b-56e5-4b36-9ae6-c44cafacbe83",
+    "slug": "hy",
     "created_at": "2021-03-08T21:50:51.065821",
     "updated_at": "2021-03-08T21:50:51.065821",
     "name": "Helsingin yliopisto",
@@ -32,7 +35,7 @@ async fn get_all_organizations(
 }
 
 /**
-GET `/api/v0/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
+GET `/api/v0/cms/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
 
 # Example
 ```json

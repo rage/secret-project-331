@@ -34,7 +34,7 @@ sqlx = { version = "0.5.1", features = [ "postgres", "runtime-actix-rustls", "uu
 # A library to generate and parse UUIDs.
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
 # A generic serialization/deserialization framework
-serde = "1.0.123"
+serde = { version = "1.0.123", features = ["derive"]}
 # Date and time library for Rust
 chrono = { version = "0.4.19", features = ["serde"] }
 # A JSON serialization file format
@@ -53,3 +53,7 @@ async-trait = "0.1.42"
 bytes = "1.0.1"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.10.0"
+
+[dev-dependencies]
+# Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
+pretty_assertions = "0.7.1"

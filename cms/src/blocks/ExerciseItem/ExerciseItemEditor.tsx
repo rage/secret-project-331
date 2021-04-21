@@ -15,15 +15,20 @@ const ExerciseItemEditorCard = styled.div`
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list"]
 const ExerciseItemEditor: React.FC<BlockEditProps<ExerciseItemAttributes>> = (props) => {
-  const { attributes } = props
-  const [exerciseType, setExerciseType] = useState<undefined | ExerciseItemTypes>(undefined)
-
-  const url = exerciseItemTypes.find((o) => o.identifier === exerciseType?.identifier)?.url
-  const id = attributes.exercise_item_id
+  const { attributes, setAttributes } = props
+  const handleChooseExerciseItem = (val: ExerciseItemTypes) => {
+    setAttributes(
+    {
+      exercise_type: val.identifier
+    });
+  }
+  const exerciseType = attributes?.exercise_type
+  const url = exerciseItemTypes.find((o) => o.identifier === exerciseType)?.url
+  const id = attributes.id
   return (
-    <ExerciseItemEditorCard id={attributes.exercise_item_id}>
+    <ExerciseItemEditorCard id={attributes.id}>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
-      {!exerciseType && <ChooseExerciseItemType onChooseItem={setExerciseType} />}
+      {!exerciseType && <ChooseExerciseItemType onChooseItem={handleChooseExerciseItem} />}
       {exerciseType && <IFrameEditor key={id} exerciseItemid={id} url={url} props={props} />}
     </ExerciseItemEditorCard>
   )

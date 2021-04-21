@@ -5,8 +5,9 @@ import { v4 } from "uuid"
 import { ComponentType } from "react"
 
 export interface ExerciseItemAttributes {
-  exercise_item_id: string
-  spec: any,
+  id: string
+  exercise_type: string
+  spec: string
 }
 
 const ExerciseItemConfiguration: BlockConfiguration<ExerciseItemAttributes> = {
@@ -14,13 +15,17 @@ const ExerciseItemConfiguration: BlockConfiguration<ExerciseItemAttributes> = {
   description: "An exercise item",
   category: "embed",
   attributes: {
-    exercise_item_id: {
+    id: {
+      type: "string",
+      default: null,
+    },
+    exercise_type: {
       type: "string",
       default: null,
     },
     spec: {
-      type: "array",
-      default: []
+      type: "string",
+      default: null
     }
   },
   edit: enforceExerciseItemIdDefined(ExerciseItemEditor),
@@ -37,9 +42,9 @@ function enforceExerciseItemIdDefined(
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
   const InnerComponent = (props: BlockEditProps<ExerciseItemAttributes>) => {
-    if (!props.attributes.exercise_item_id) {
+    if (!props.attributes.id) {
       const id = v4()
-      props.setAttributes({ exercise_item_id: id })
+      props.setAttributes({ id: id })
       return null
     }
     return <WrappedComponent {...props} />

@@ -17,7 +17,7 @@ const Title = styled.h1`
 `
 const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({ attributes, setAttributes }) => {
   return (
-    <ExerciseEditorCard id={attributes.exercise_id}>
+    <ExerciseEditorCard id={attributes.id}>
       <div>Exercise editor</div>
       <TextField
         fullWidth

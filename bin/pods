@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMMAND="skaffold"
-ARGUMENTS="dev --force --port-forward $*"
+COMMAND="watch"
+ARGUMENTS="kubectl get pods $*"
 echo "> $COMMAND $ARGUMENTS"
 exec "$COMMAND" $ARGUMENTS

@@ -39,4 +39,4 @@ portForward:
   - resourceType: statefulset
     resourceName: postgres
     port: 5432
-    localPort: 5436
+    localPort: 54328

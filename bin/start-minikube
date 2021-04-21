@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+  echo "🪟  Detected Windows"
+  COMMAND="minikube start --vm-driver=virtualbox --addons ingress $*"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  echo "🍎 Detected macOS"
+  COMMAND="minikube start --addons ingress $*"
+else
+  echo "🐧 Detected Linux"
+  COMMAND="minikube start --addons ingress $*"
+fi
+echo "> $COMMAND"
+eval "$COMMAND"

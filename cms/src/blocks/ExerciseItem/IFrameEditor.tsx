@@ -97,7 +97,7 @@ const handleMessageCreator = (
           {
             message: "content",
             message_type: "moocfi/editor-message",
-            data: props.attributes.spec,
+            data: JSON.parse(props.attributes.spec),
           },
           "*",
         )
@@ -111,7 +111,7 @@ const handleMessageCreator = (
       case "current-state2": {
         // Currently this re-renders, we should useRecoilSetState here, right
         // trying now with React.memo?
-        props.setAttributes({spec: event.data.data})
+        props.setAttributes({spec: JSON.stringify(event.data.data)})
         return
       }
       default: {

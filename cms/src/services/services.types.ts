@@ -40,7 +40,7 @@ export interface ExerciseItem extends DatabaseItem {
   exercise_type: string
   assignment: Array<any> | null
   deleted: boolean
-  spec: any | null
+  spec: string | null
   spec_file_id: string | null
 }
 
@@ -66,7 +66,7 @@ export interface PageUpdateExerciseItem {
   id: string
   exercise_type: string
   assignment: Array<any>
-  spec: any
+  spec: string | null
 }
 
 /**

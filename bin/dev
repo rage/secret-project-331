@@ -1,5 +1,6 @@
 #!/bin/bash
 
-COMMAND="skaffold dev --force --port-forward $*"
-echo "> $COMMAND"
-eval "$COMMAND"
+COMMAND="skaffold"
+ARGUMENTS="dev --force --port-forward $*"
+echo "> $COMMAND $ARGUMENTS"
+exec "$COMMAND" $ARGUMENTS

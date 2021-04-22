@@ -11,12 +11,13 @@ const ListBlock: React.FC<BlockRendererProps<ListBlockAttributes>> = ({ data }) 
   const attributes: ListBlockAttributes = data.attributes
   if (attributes.ordered) {
     return (
-    <ol
-      className={css`
-            ${normalWidthCenteredComponentStyles}
-          `}
-      dangerouslySetInnerHTML={{ __html: attributes.values }}>
-    </ol>)
+      <ol
+        className={css`
+          ${normalWidthCenteredComponentStyles}
+        `}
+        dangerouslySetInnerHTML={{ __html: attributes.values }}
+      ></ol>
+    )
   } else {
     return (
       <ul
@@ -24,8 +25,7 @@ const ListBlock: React.FC<BlockRendererProps<ListBlockAttributes>> = ({ data }) 
           ${normalWidthCenteredComponentStyles}
         `}
         dangerouslySetInnerHTML={{ __html: attributes.values }}
-      >
-      </ul>
+      ></ul>
     )
   }
 }

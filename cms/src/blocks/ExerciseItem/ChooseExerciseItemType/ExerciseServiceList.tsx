@@ -1,14 +1,19 @@
 import { List, ListItem, Typography } from "@material-ui/core"
 
+export interface ExerciseItemTypes {
+  name: string
+  url: null | string
+  identifier: string
+}
 // Fetch iFrame exercise types from an endpoint?
-export const exerciseItemTypes = [
+export const exerciseItemTypes: ExerciseItemTypes[] = [
   { name: "Quizzes", url: null, identifier: "quizzes" },
   { name: "Test My Code", url: null, identifier: "tmc" },
   { name: "Example Exercise", url: "/example-exercise/editor", identifier: "example" },
 ]
 
 interface Props {
-  onChooseItem: (item: any) => void
+  onChooseItem: (item: ExerciseItemTypes) => void
 }
 
 const ExerciseServiceList: React.FC<Props> = ({ onChooseItem }) => {

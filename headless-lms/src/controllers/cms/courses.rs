@@ -1,15 +1,24 @@
 //! Controllers for requests starting with `/api/v0/cms/cms/courses`.
 use crate::{
-    controllers::ApplicationResult,
+    controllers::{ApplicationError, ApplicationResult},
     models::{
         courses::{Course, CourseUpdate, NewCourse},
         pages::Page,
     },
+    utils::file_store::{course_image_path, local_file_store::LocalFileStore, FileStore},
 };
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
+use actix_web::{
+    http::header,
+    web::{self, Json},
+};
+use actix_web::{web::ServiceConfig, HttpRequest};
+use anyhow::anyhow;
+use futures::StreamExt;
 use sqlx::PgPool;
-use std::str::FromStr;
+use std::{
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 use uuid::Uuid;
 
 /**
@@ -173,6 +182,60 @@ async fn get_course_pages(
 }
 
 /**
+Upload a image.
+*/
+async fn upload_image(
+    request_course_id: web::Path<String>,
+    payload: web::Payload,
+    request: HttpRequest,
+    pool: web::Data<PgPool>,
+) -> ApplicationResult<Json<Vec<Page>>> {
+    // TODO: add max image size
+    let course_id = Uuid::from_str(&request_course_id)?;
+    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let headers = request.headers();
+    let content_type_option = headers.get(header::CONTENT_TYPE);
+    if content_type_option.is_none() {
+        return Err(ApplicationError::BadRequest(
+            "Please provide a Content-Type header".into(),
+        ));
+    }
+    let content_type = content_type_option.unwrap();
+
+    let local_file_store = LocalFileStore::new(
+        "uploads".into(),
+        "http://project-331.local/files".to_string(),
+    )
+    .await?;
+
+    let image_id = Uuid::new_v4();
+
+    let path = course_image_path(&course, image_id.to_string())
+        .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
+
+    local_file_store
+        .upload_stream(
+            &path,
+            payload,
+            String::from_utf8_lossy(content_type.as_bytes()).into(),
+        )
+        .await?;
+
+    // let mut body = web::BytesMut::new();
+    // while let Some(chunk) = payload.next().await {
+    //     let chunk = chunk?;
+    //     // limit max size of in-memory payload
+    //     if (body.len() + chunk.len()) > MAX_IMAGE_SIZE {
+    //         return Err(anyhow!("Image was too big"));
+    //     }
+    //     body.extend_from_slice(&chunk);
+    // }
+    // file_store.upload((), body.into(), ());
+    let pages: Vec<Page> = crate::models::pages::course_pages(pool.get_ref(), course_id).await?;
+    Ok(Json(pages))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -184,5 +247,6 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         .route("", web::post().to(post_new_course))
         .route("/{course_id}", web::put().to(update_course))
         .route("/{course_id}", web::delete().to(delete_course))
+        .route("/{course_id}/images", web::post().to(upload_image))
         .route("/{course_id}/pages", web::get().to(get_course_pages));
 }

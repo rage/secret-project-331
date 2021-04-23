@@ -21,7 +21,7 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
     name: {
       type: "string",
       default: "",
-    }
+    },
   },
   edit: enforceExerciseIdDefined(ExerciseEditor),
   save: ExerciseSave,

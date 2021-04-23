@@ -6,7 +6,7 @@ export interface ExerciseItemTypes {
   identifier: string
 }
 // Fetch iFrame exercise types from an endpoint?
-export const exerciseItemTypes:ExerciseItemTypes[] = [
+export const exerciseItemTypes: ExerciseItemTypes[] = [
   { name: "Quizzes", url: null, identifier: "quizzes" },
   { name: "Test My Code", url: null, identifier: "tmc" },
   { name: "Example Exercise", url: "/example-exercise/editor", identifier: "example" },

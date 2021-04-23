@@ -15,7 +15,10 @@ const ExerciseEditorCard = styled.div`
 const Title = styled.h1`
   font-size: 24px;
 `
-const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({ attributes, setAttributes }) => {
+const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
+  attributes,
+  setAttributes,
+}) => {
   return (
     <ExerciseEditorCard id={attributes.id}>
       <div>Exercise editor</div>
@@ -23,9 +26,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({ attribut
         fullWidth
         variant="outlined"
         value={attributes.name}
-        onChange={(e) =>
-          setAttributes({ name: e.target.value })
-        }
+        onChange={(e) => setAttributes({ name: e.target.value })}
       />
       <Title>{attributes.name}</Title>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />

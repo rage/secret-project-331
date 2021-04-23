@@ -25,8 +25,8 @@ const ExerciseItemConfiguration: BlockConfiguration<ExerciseItemAttributes> = {
     },
     spec: {
       type: "string",
-      default: null
-    }
+      default: null,
+    },
   },
   edit: enforceExerciseItemIdDefined(ExerciseItemEditor),
   save: ExerciseItemSave,

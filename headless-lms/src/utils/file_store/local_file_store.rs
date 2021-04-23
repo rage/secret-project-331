@@ -1,4 +1,5 @@
 use super::{path_to_str, FileStore};
+use actix_web::web::Payload;
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -13,8 +14,8 @@ use tokio_util::io::ReaderStream;
 
 #[derive(Debug, Clone)]
 pub struct LocalFileStore {
-    base_path: PathBuf,
-    base_url: String,
+    pub base_path: PathBuf,
+    pub base_url: String,
 }
 
 impl LocalFileStore {
@@ -35,11 +36,22 @@ impl LocalFileStore {
     pub async fn upload_stream(
         &self,
         path: &Path,
-        mut contents: impl Stream<Item = std::io::Result<Bytes>> + Unpin,
+        mut contents: Payload,
         _mime_type: String,
     ) -> Result<()> {
         let full_path = self.base_path.join(path);
-
+        let parent_option = full_path.parent();
+        if parent_option.is_none() {
+            return Err(anyhow!("Image path did not have a parent folder"));
+        }
+        let parent = parent_option.unwrap();
+        if parent.exists() {
+            if !parent.is_dir() {
+                return Err(anyhow!("Base path should be a folder"));
+            }
+        } else {
+            fs::create_dir_all(&parent).await?;
+        }
         let file = OpenOptions::new()
             .create(true)
             .write(true)
@@ -50,6 +62,7 @@ impl LocalFileStore {
 
         while let Some(bytes_res) = contents.next().await {
             let bytes = bytes_res?;
+            //dbg!(&bytes);
             buf_writer.write_all(&bytes).await?;
         }
 

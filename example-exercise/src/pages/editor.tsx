@@ -46,6 +46,7 @@ const EditorPage: React.FC = () => {
   if (!state) {
     return <>Waiting for content...</>
   }
+  console.log("RENDERING EDITOR")
   return <Editor onHeightChange={onHeightChange} state={state} setState={setState} />
 }
 

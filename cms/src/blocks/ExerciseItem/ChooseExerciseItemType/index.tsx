@@ -1,7 +1,7 @@
-import ExerciseServiceList from "./ExerciseServiceList"
+import ExerciseServiceList, { ExerciseItemTypes } from "./ExerciseServiceList"
 
 interface Props {
-  onChooseItem: (item: any) => void
+  onChooseItem: (item: ExerciseItemTypes) => void
 }
 
 const ChooseExerciseItemType: React.FC<Props> = ({ onChooseItem }) => {

@@ -15,7 +15,7 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingBlockAttributes>> = ({ da
         ${normalWidthCenteredComponentStyles}
       `}
     >
-    {attributes.content}
+      {attributes.content}
     </h1>
   )
 }

@@ -12,8 +12,12 @@ const ImageBlock: React.FC<BlockRendererProps<ImageBlockAttributes>> = ({ data }
   const attributes: ImageBlockAttributes = data.attributes
   return (
     <figure>
-      <img src={attributes.url} alt={attributes.alt}
-        className={css`${normalWidthCenteredComponentStyles}`}
+      <img
+        src={attributes.url}
+        alt={attributes.alt}
+        className={css`
+          ${normalWidthCenteredComponentStyles}
+        `}
       />
       <figcaption>{attributes.caption}</figcaption>
     </figure>

@@ -6,13 +6,13 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Course {
-    id: Uuid,
-    slug: String,
-    created_at: NaiveDateTime,
-    updated_at: NaiveDateTime,
-    name: String,
-    organization_id: Uuid,
-    deleted: bool,
+    pub id: Uuid,
+    pub slug: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub name: String,
+    pub organization_id: Uuid,
+    pub deleted: bool,
 }
 
 pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
@@ -22,6 +22,15 @@ pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
         .fetch_all(connection)
         .await?;
     return Ok(courses);
+}
+
+pub async fn get_course(pool: &PgPool, course_id: Uuid) -> Result<Course> {
+    let mut transaction = pool.begin().await?;
+    let connection = transaction.acquire().await?;
+    let course = sqlx::query_as!(Course, "SELECT * FROM courses WHERE id = $1;", course_id)
+        .fetch_one(connection)
+        .await?;
+    return Ok(course);
 }
 
 pub async fn organization_courses(pool: &PgPool, organization_id: &Uuid) -> Result<Vec<Course>> {

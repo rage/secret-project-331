@@ -2,10 +2,13 @@
 pub mod google_cloud_file_store;
 pub mod local_file_store;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
+
+use crate::models::courses::Course;
+use std::str::FromStr;
 /**
 Allows storing files to a file storage backend.
 */
@@ -31,4 +34,12 @@ fn path_to_str(path: &Path) -> Result<&str> {
             ));
         }
     }
+}
+
+pub fn course_image_path(course: &Course, image_name: String) -> Result<PathBuf> {
+    let path = PathBuf::from_str(&format!(
+        "organizations/{}/courses/{}/images/{}",
+        course.organization_id, course.id, image_name
+    ))?;
+    return Ok(path);
 }

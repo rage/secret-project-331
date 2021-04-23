@@ -1,4 +1,3 @@
-import { useState } from "react"
 import styled from "@emotion/styled"
 import ChooseExerciseItemType from "./ChooseExerciseItemType"
 import IFrameEditor from "./IFrameEditor"
@@ -17,10 +16,9 @@ const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list"]
 const ExerciseItemEditor: React.FC<BlockEditProps<ExerciseItemAttributes>> = (props) => {
   const { attributes, setAttributes } = props
   const handleChooseExerciseItem = (val: ExerciseItemTypes) => {
-    setAttributes(
-    {
-      exercise_type: val.identifier
-    });
+    setAttributes({
+      exercise_type: val.identifier,
+    })
   }
   const exerciseType = attributes?.exercise_type
   const url = exerciseItemTypes.find((o) => o.identifier === exerciseType)?.url

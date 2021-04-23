@@ -43,10 +43,7 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props, exerciseItemid 
       return
     }
     console.log("Adding event listener...")
-    const handleMessage = handleMessageCreator(
-      iframeRef.current,
-      props
-    )
+    const handleMessage = handleMessageCreator(iframeRef.current, props)
     window.addEventListener("message", handleMessage)
     const removeListener = () => {
       console.log("Removing event listener")
@@ -59,18 +56,12 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props, exerciseItemid 
   if (!url) {
     return <Alert severity="error">Cannot render exercise item editor, missing url.</Alert>
   }
-  return (
-    <Iframe
-      ref={iframeRef}
-      src={url}
-      frameBorder="off"
-    /> 
-  )
+  return <Iframe ref={iframeRef} src={url} frameBorder="off" />
 }
 
 const handleMessageCreator = (
   iframeRef: HTMLIFrameElement | null,
-  props: PropsWithChildren<BlockEditProps<ExerciseItemAttributes>>
+  props: PropsWithChildren<BlockEditProps<ExerciseItemAttributes>>,
 ) => {
   return async function handleMessage(event: WindowEventMap["message"]) {
     if (
@@ -105,13 +96,13 @@ const handleMessageCreator = (
       }
       case "height-changed": {
         // Häkki solution to get rid of useState for iFrameHeight and well... scrollbar.
-        iframeRef.height = (Number(event.data.data)+10).toString() + "px"
+        iframeRef.height = (Number(event.data.data) + 10).toString() + "px"
         return
       }
       case "current-state2": {
         // Currently this re-renders, we should useRecoilSetState here, right
         // trying now with React.memo?
-        props.setAttributes({spec: JSON.stringify(event.data.data)})
+        props.setAttributes({ spec: JSON.stringify(event.data.data) })
         return
       }
       default: {

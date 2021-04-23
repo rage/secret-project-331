@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["all_courses",""],["organization_courses",""]],"struct":[["Course",""]]});
+initSidebarItems({"fn":[["all_courses",""],["delete_course",""],["get_course",""],["insert_course",""],["organization_courses",""],["update_course",""]],"struct":[["Course",""],["CourseUpdate",""],["NewCourse",""]]});

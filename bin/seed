@@ -1,0 +1,6 @@
+#!/bin/bash
+COMMAND="psql"
+ARGUMENTS="postgres://headless-lms@localhost:54328/headless_lms_dev --file headless-lms/db/seed.sql"
+
+echo "> $COMMAND $ARGUMENTS"
+exec "$COMMAND" $ARGUMENTS

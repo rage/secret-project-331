@@ -2,8 +2,8 @@ import { Block } from "../../services/backend"
 import DefaultBlock from "./DefaultBlock"
 import ListBlock from "./ListBlock"
 import ParagraphBlock from "./ParagraphBlock"
-// import ImageBlock from "./ImageBlock"
-// import HeadingBlock from "./HeadingBlock"
+import ImageBlock from "./ImageBlock"
+import HeadingBlock from "./HeadingBlock"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -16,8 +16,8 @@ export interface BlockRendererProps<T> {
 const blockToRendererMap: { [blockName: string]: any } = {
   "core/paragraph": ParagraphBlock,
   "core/list": ListBlock,
-  // "core/image": ImageBlock,
-  // "core/heading": HeadingBlock,
+  "core/image": ImageBlock,
+  "core/heading": HeadingBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

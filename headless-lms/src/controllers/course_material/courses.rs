@@ -43,6 +43,38 @@ async fn get_course_page_by_path(
 }
 
 /**
+GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages in a course.
+# Example
+```json
+[
+    {
+        "id": "86ac4f0a-ccca-464e-89f4-ed58969b1103",
+        "created_at": "2021-03-05T22:50:47.920120",
+        "updated_at": "2021-03-05T22:50:47.920120",
+        "course_id": "a90c39f8-5d23-461f-8375-0b05a55d7ac1",
+        "content": [
+            {
+                "id": "55be197d-4145-444a-bc1f-ee1091c47ad9"
+            }
+        ],
+        "url_path": "/part-1/01-loops-and-variables",
+        "title": "Loops and Variables",
+        "deleted": false
+    }
+]
+```
+*/
+async fn get_course_pages(
+    request_course_id: web::Path<String>,
+    pool: web::Data<PgPool>,
+) -> ApplicationResult<Json<Vec<Page>>> {
+    let course_id = Uuid::from_str(&request_course_id)?;
+
+    let pages: Vec<Page> = crate::models::pages::course_pages(pool.get_ref(), course_id).await?;
+    Ok(Json(pages))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -53,5 +85,6 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/{course_id}/page-by-path/{url_path:.*}",
         web::get().to(get_course_page_by_path),
-    );
+    )
+    .route("/{course_id}/pages", web::get().to(get_course_pages));
 }

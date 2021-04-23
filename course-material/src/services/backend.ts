@@ -9,7 +9,7 @@ export interface Course {
 }
 
 export const fetchCourses = async (): Promise<Array<Course>> => {
-  const data = (await axios.get("/api/v0/courses", { responseType: "json" })).data
+  const data = (await axios.get("/api/v0/course-material/courses", { responseType: "json" })).data
   return data
 }
 
@@ -22,7 +22,8 @@ export interface Organization {
 }
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const data = (await axios.get("/api/v0/organizations", { responseType: "json" })).data
+  const data = (await axios.get("/api/v0/course-material/organizations", { responseType: "json" }))
+    .data
   return data
 }
 
@@ -30,7 +31,9 @@ export const fetchOrganizationCourses = async (
   organizationId: string,
 ): Promise<Array<Organization>> => {
   const data = (
-    await axios.get(`/api/v0/organizations/${organizationId}/courses`, { responseType: "json" })
+    await axios.get(`/api/v0/course-material/organizations/${organizationId}/courses`, {
+      responseType: "json",
+    })
   ).data
   return data
 }
@@ -59,7 +62,16 @@ export const fetchCoursePageByPath = async (
   path: string,
 ): Promise<CoursePage> => {
   const data = (
-    await axios.get(`/api/v0/courses/${courseId}/page-by-path/${path}`, { responseType: "json" })
+    await axios.get(`/api/v0/course-material/courses/${courseId}/page-by-path/${path}`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
+export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[]> => {
+  const data = (
+    await axios.get(`/api/v0/course-material/courses/${courseId}/pages`, { responseType: "json" })
   ).data
   return data
 }

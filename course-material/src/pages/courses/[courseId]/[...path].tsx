@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "react-query"
 import ContentRenderer from "../../../components/ContentRenderer"
 import GenericLoading from "../../../components/GenericLoading"
+import PageNotFound from "../../../components/PageNotFound"
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { fetchCoursePageByPath } from "../../../services/backend"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
@@ -25,6 +26,9 @@ const Page = () => {
   )
 
   if (error) {
+    if ((error as any)?.response?.status === 404) {
+      return <PageNotFound path={path} courseId={courseId} />
+    }
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
 

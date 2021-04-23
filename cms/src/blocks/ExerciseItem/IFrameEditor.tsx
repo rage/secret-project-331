@@ -1,13 +1,12 @@
-import { useEffect, useRef, useState } from "react"
+import { PropsWithChildren, useEffect, useRef, useState } from "react"
 import { Alert } from "@material-ui/lab"
 import styled from "@emotion/styled"
-import { ExerciseItem, PageUpdateExerciseItem } from "../../services/services.types"
 import React from "react"
-import { SetterOrUpdater, useRecoilState } from "recoil"
-import { exerciseItemFamilySelector } from "../../state/exercises"
-import { saveResolveMap } from "../../components/Editor"
+import { ExerciseItemAttributes } from "."
+import { BlockEditProps } from "@wordpress/blocks"
 
-const Iframe = styled.iframe`
+// React memo to prevent iFrame re-render, try with console log from example exercise?
+const Iframe = React.memo(styled.iframe`
   width: 100%;
 
   /*
@@ -17,32 +16,34 @@ const Iframe = styled.iframe`
   */
   border-top: 1px solid black;
   border-bottom: 1px solid black;
-`
+`)
 
 interface IFrameEditorProps {
+  props: PropsWithChildren<BlockEditProps<ExerciseItemAttributes>>
   url: string
-  parentId: string
   exerciseItemid: string
 }
 
-const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, parentId, exerciseItemid }) => {
+const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props, exerciseItemid }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [frameHeight, setFrameHeight] = useState(50)
-  const [exerciseItem, setExerciseItem] = useRecoilState(
-    exerciseItemFamilySelector([parentId, exerciseItemid]),
-  )
+  /* If we initially set the iFrame content from props.attributes (i.e. block attributes), 
+  and we constantly update the state without re-rendering the iFrame we probably should
+  use useRecoilSetState to avoid re-rendering.
+  So the workflow when entering page edit mode:
+    1. Get pages, receive all exercises/exercise_items
+    2. Create Recoil state for each exercise and/or exercise_items (in Editor.tsx)
+    3. Each exerciseItemId creates an useRecoilSetState (in this file)
+    4. When iFrame posts (onChange) events, we update the recoilState
+    5. When we save we save from the state with a useRecoilCallback so that we dont need to subscribe to the atom
+  Alternative: Try React.memo for iFrame and use props.setAttributes()
+  */
   useEffect(() => {
     if (typeof window === undefined) {
       console.log("Not adding a event listener because window is undefined.")
       return
     }
     console.log("Adding event listener...")
-    const handleMessage = handleMessageCreator(
-      iframeRef.current,
-      setFrameHeight,
-      setExerciseItem,
-      exerciseItem,
-    )
+    const handleMessage = handleMessageCreator(iframeRef.current, props)
     window.addEventListener("message", handleMessage)
     const removeListener = () => {
       console.log("Removing event listener")
@@ -51,25 +52,16 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, parentId, exerciseItem
     return removeListener
   }, [])
 
+  console.log("Rendering...")
   if (!url) {
     return <Alert severity="error">Cannot render exercise item editor, missing url.</Alert>
   }
-  return (
-    <Iframe
-      data-exercise-item-id={exerciseItem.id}
-      height={frameHeight}
-      ref={iframeRef}
-      src={url}
-      frameBorder="off"
-    />
-  )
+  return <Iframe ref={iframeRef} src={url} frameBorder="off" />
 }
 
 const handleMessageCreator = (
   iframeRef: HTMLIFrameElement | null,
-  onHeightChange: (newHeight: number) => void,
-  setExerciseItem: SetterOrUpdater<ExerciseItem | PageUpdateExerciseItem>,
-  exerciseItem: ExerciseItem | PageUpdateExerciseItem,
+  props: PropsWithChildren<BlockEditProps<ExerciseItemAttributes>>,
 ) => {
   return async function handleMessage(event: WindowEventMap["message"]) {
     if (
@@ -80,7 +72,6 @@ const handleMessageCreator = (
     }
     console.log("Parent received an event: ", JSON.stringify(event.data))
 
-    // Handle message types.
     switch (event.data.message) {
       case "ready": {
         if (!iframeRef) {
@@ -92,31 +83,26 @@ const handleMessageCreator = (
           console.error("No frame content window")
           return
         }
+        // Set the initial state that is found in Gutenberg JSON?
         contentWindow.postMessage(
           {
             message: "content",
             message_type: "moocfi/editor-message",
-            data: exerciseItem.spec,
+            data: JSON.parse(props.attributes.spec),
           },
           "*",
         )
         return
       }
       case "height-changed": {
-        onHeightChange(event.data.data)
+        // Häkki solution to get rid of useState for iFrameHeight and well... scrollbar.
+        iframeRef.height = (Number(event.data.data) + 10).toString() + "px"
         return
       }
-      case "current-state": {
-        const resolve = saveResolveMap.get(exerciseItem.id)
-        if (resolve) {
-          resolve(event.data.data)
-        }
-        setExerciseItem((prev: ExerciseItem | PageUpdateExerciseItem) => {
-          return {
-            ...prev,
-            spec: event.data.data,
-          }
-        })
+      case "current-state2": {
+        // Currently this re-renders, we should useRecoilSetState here, right
+        // trying now with React.memo?
+        props.setAttributes({ spec: JSON.stringify(event.data.data) })
         return
       }
       default: {

@@ -100,3 +100,25 @@ http://localhost:3001/api/v0/organizations
 ###
 
 http://localhost:3001/api/v0/courses/10363c5b-82b4-4121-8ef1-bae8fb42a5ce/page-by-path//part-2/hello-world
+
+
+###
+
+POST http://project-331.local/api/v0/cms/courses HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Introduction to introduction",
+    "slug": "introduction-to-introduction",
+    "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec"
+}
+
+
+###
+
+PUT http://project-331.local/api/v0/cms/courses/ab4541d8-6db4-4561-bdb2-45f35b2544a1 HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Introduction to Introduction"
+}

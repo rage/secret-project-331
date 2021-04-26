@@ -81,7 +81,6 @@ async fn serve_upload(req: HttpRequest) -> ApplicationResult<HttpResponse> {
         .map_err(|_e| ApplicationError::InternalServerError("Could not read file".to_string()))?;
 
     let extension = path.extension().map(|o| o.to_string_lossy().to_string());
-    dbg!(&extension);
     let mut mime_type = None;
     if let Some(ext_string) = extension {
         mime_type = match ext_string.as_str() {

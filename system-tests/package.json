@@ -1,0 +1,15 @@
+{
+  "name": "system-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx folio --param browserName=chromium",
+    "test-debug": "env PWDEBUG=1 npm run test",
+    "update-snapshots": "npx folio --update-snapshots  --param browserName=chromium"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "@playwright/test": "^0.1102.0"
+  }
+}

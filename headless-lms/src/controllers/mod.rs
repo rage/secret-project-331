@@ -7,6 +7,7 @@ This documents all endpoints. Select a module below for a namespace.
 
 pub mod cms;
 pub mod course_material;
+pub mod files;
 
 use actix_web::{
     dev::HttpResponseBuilder,
@@ -19,7 +20,9 @@ use derive_more::Display;
 use http_api_problem::{HttpApiProblem, StatusCode};
 use serde::{Deserialize, Serialize};
 
-use self::{cms::add_cms_routes, course_material::add_course_material_routes};
+use self::{
+    cms::add_cms_routes, course_material::add_course_material_routes, files::_add_files_routes,
+};
 
 /**
 Represents error messages that are sent in responses.
@@ -53,6 +56,9 @@ impl error::ResponseError for ApplicationError {
         let status = self.status_code();
         let mut detail = "Error";
         if let ApplicationError::InternalServerError(reason) = self {
+            detail = reason;
+        }
+        if let ApplicationError::BadRequest(reason) = self {
             detail = reason;
         }
         let problem_description =
@@ -95,5 +101,6 @@ pub type ApplicationResult<T, E = ApplicationError> = std::result::Result<T, E>;
 /// Add controllers from all the submodules.
 pub fn configure_controllers(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/course-material").configure(add_course_material_routes))
-        .service(web::scope("/cms").configure(add_cms_routes));
+        .service(web::scope("/cms").configure(add_cms_routes))
+        .service(web::scope("/files").configure(_add_files_routes));
 }

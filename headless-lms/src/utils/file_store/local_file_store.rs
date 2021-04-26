@@ -62,9 +62,11 @@ impl LocalFileStore {
 
         while let Some(bytes_res) = contents.next().await {
             let bytes = bytes_res?;
-            //dbg!(&bytes);
+            dbg!(&bytes);
             buf_writer.write_all(&bytes).await?;
         }
+
+        buf_writer.flush().await?;
 
         Ok(())
     }

@@ -113,7 +113,6 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
-<span id="113">113</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/files`.
@@ -198,7 +197,6 @@ The file.
         .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ApplicationError</span>::<span class="ident">InternalServerError</span>(<span class="string">&quot;Could not read file&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">extension</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>());
-    <span class="macro">dbg</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">extension</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mime_type</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ext_string</span>) <span class="op">=</span> <span class="ident">extension</span> {
         <span class="ident">mime_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ext_string</span>.<span class="ident">as_str</span>() {

@@ -181,6 +181,8 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">path_to_str</span>, <span class="ident">FileStore</span>};
 <span class="kw">use</span> <span class="ident">actix_web</span>::<span class="ident">web</span>::<span class="ident">Payload</span>;
@@ -246,9 +248,11 @@
 
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes_res</span>) <span class="op">=</span> <span class="ident">contents</span>.<span class="ident">next</span>().<span class="kw">await</span> {
             <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">bytes_res</span><span class="question-mark">?</span>;
-            <span class="comment">//dbg!(&amp;bytes);</span>
+            <span class="macro">dbg</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>);
             <span class="ident">buf_writer</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         }
+
+        <span class="ident">buf_writer</span>.<span class="ident">flush</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }

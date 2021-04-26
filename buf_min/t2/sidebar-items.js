@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Bytes","A reference counted contiguous slice of memory."],["BytesMut","A unique reference to a contiguous slice of memory."]]});

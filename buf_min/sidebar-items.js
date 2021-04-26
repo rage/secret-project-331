@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["t2","tokio/bytes@0.5 implementation and reexport"]],"trait":[["Buffer","Minimal Buffer trait"]]});

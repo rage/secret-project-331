@@ -4,8 +4,6 @@
 @import '~@wordpress/base-styles/breakpoints';
 @import '~@wordpress/base-styles/animations';
 @import '~@wordpress/base-styles/z-index';
-
-@import '../styles/reset';
 @import '../styles/editor-styles';
 
 .playground {
@@ -14,6 +12,7 @@
   }
   padding-top: 20px;
   background-color: #fafafa;
+
   img {
     max-width: 100%;
     height: auto;
@@ -37,6 +36,7 @@
 
   // Temporarily disable the sidebar on mobile
   display: none;
+
   @include break-small() {
     display: block;
   }
@@ -53,6 +53,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

@@ -20,7 +20,7 @@ const Home: React.FC = () => {
   return (
     <Layout>
       {data.map((c) => (
-        <div style={{ border: "1px dashed black", padding: "1rem" }} key={c.id}>
+        <div key={c.id}>
           <div>Name: {c.name}</div>
           <div>Id: {c.id}</div>
           <Link

@@ -12,17 +12,8 @@ const Page = () => {
   const courseId = useQueryParameter("courseId")
   const path = `/${useQueryParameter("path")}`
 
-  const { isLoading, error, data } = useQuery(
-    `course-${courseId}-page-${path}`,
-    () => fetchCoursePageByPath(courseId, path),
-    {
-      retry: (failureCount, error) => {
-        if ((error as any)?.response?.status === 404) {
-          return false
-        }
-        return failureCount < 3
-      },
-    },
+  const { isLoading, error, data } = useQuery(`course-${courseId}-page-${path}`, () =>
+    fetchCoursePageByPath(courseId, path),
   )
 
   if (error) {

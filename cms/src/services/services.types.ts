@@ -98,3 +98,16 @@ export interface Course extends DatabaseItem {
   name: string
   deleted: boolean
 }
+
+export interface CourseOverview {
+  course: Course
+  pages: Page[]
+  course_parts: CoursePart[]
+}
+
+export interface CoursePart extends DatabaseItem {
+  name: string
+  course_id: string
+  deleted: boolean
+  part_number: number
+}

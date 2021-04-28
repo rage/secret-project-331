@@ -25,6 +25,14 @@ const queryClient = new QueryClient({
       // Same applies here too
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+      retry: (failureCount, error) => {
+        // Don't want to retry 404 -- it just gives the impression of slowness.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((error as any)?.response?.status === 404) {
+          return false
+        }
+        return failureCount < 3
+      },
     },
   },
 })

@@ -4,7 +4,12 @@ use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgPool};
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize)]
+use super::{
+    course_parts::{course_course_parts, CoursePart},
+    pages::{course_pages, Page},
+};
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Course {
     pub id: Uuid,
     pub slug: String,
@@ -13,6 +18,13 @@ pub struct Course {
     pub name: String,
     pub organization_id: Uuid,
     pub deleted: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct CourseStructure {
+    pub course: Course,
+    pub pages: Vec<Page>,
+    pub course_parts: Vec<CoursePart>,
 }
 
 pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
@@ -31,6 +43,17 @@ pub async fn get_course(pool: &PgPool, course_id: Uuid) -> Result<Course> {
         .fetch_one(connection)
         .await?;
     return Ok(course);
+}
+
+pub async fn get_course_structure(pool: &PgPool, course_id: Uuid) -> Result<CourseStructure> {
+    let course = get_course(pool, course_id).await?;
+    let pages = course_pages(pool, course_id).await?;
+    let course_parts = course_course_parts(pool, course_id).await?;
+    Ok(CourseStructure {
+        course,
+        pages,
+        course_parts,
+    })
 }
 
 pub async fn organization_courses(pool: &PgPool, organization_id: &Uuid) -> Result<Vec<Course>> {

@@ -16,17 +16,8 @@ const Layout: React.FC<Props> = ({ children, title = "Päätön CMS" }) => (
     </Head>
     <header>
       <nav>
-        <Link href="/">
-          <a>Home</a>
-        </Link>{" "}
-        |{" "}
-        <Link href="/organizations">
-          <a>Organizations</a>
-        </Link>{" "}
-        |{" "}
-        <Link href="/courses">
-          <a>Courses</a>
-        </Link>{" "}
+        <Link href="/">Home</Link> | <Link href="/organizations">Organizations</Link> |{" "}
+        <Link href="/courses">Courses</Link>{" "}
       </nav>
     </header>
     {children}

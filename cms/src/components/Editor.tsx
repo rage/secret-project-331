@@ -27,6 +27,8 @@ import ExerciseItem from "../blocks/ExerciseItem"
 import { updateExistingPage } from "../services/postData"
 import { Button } from "@material-ui/core"
 import { Page, PageWithExercises } from "../services/services.types"
+import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
+import { css } from "@emotion/css"
 
 interface EditorProps {
   data: PageWithExercises
@@ -64,7 +66,11 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
   }, [])
 
   return (
-    <div className="playground">
+    <div
+      className={css`
+        ${normalWidthCenteredComponentStyles}
+      `}
+    >
       <Button onClick={handleSave}>Save</Button>
       <SlotFillProvider>
         <DropZoneProvider>

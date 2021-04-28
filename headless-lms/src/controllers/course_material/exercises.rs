@@ -1,10 +1,7 @@
 //! Controllers for requests starting with `/api/v0/course-material/organizations`.
 use std::str::FromStr;
 
-use crate::{
-    controllers::ApplicationResult,
-    models::exercises::{CourseMaterialExercise, Exercise},
-};
+use crate::{controllers::ApplicationResult, models::exercises::CourseMaterialExercise};
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;

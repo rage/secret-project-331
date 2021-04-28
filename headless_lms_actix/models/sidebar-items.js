@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["courses",""],["exercise_items",""],["exercises",""],["organizations",""],["pages",""]]});
+initSidebarItems({"mod":[["course_parts",""],["courses",""],["exercise_items",""],["exercises",""],["organizations",""],["pages",""]]});

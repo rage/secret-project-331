@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["all_courses",""],["delete_course",""],["get_course",""],["insert_course",""],["organization_courses",""],["update_course",""]],"struct":[["Course",""],["CourseUpdate",""],["NewCourse",""]]});
+initSidebarItems({"fn":[["all_courses",""],["delete_course",""],["get_course",""],["get_course_structure",""],["insert_course",""],["organization_courses",""],["update_course",""]],"struct":[["Course",""],["CourseStructure",""],["CourseUpdate",""],["NewCourse",""]]});

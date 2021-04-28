@@ -278,14 +278,30 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/cms/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers</span>::{<span class="ident">ApplicationError</span>, <span class="ident">ApplicationResult</span>},
-    <span class="ident">models</span>::{
-        <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
-        <span class="ident">pages</span>::<span class="ident">Page</span>,
-    },
+    <span class="ident">models</span>::<span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
     <span class="ident">utils</span>::<span class="ident">file_store</span>::{<span class="ident">course_image_path</span>, <span class="ident">local_file_store</span>::<span class="ident">LocalFileStore</span>},
 };
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
@@ -429,35 +445,54 @@ DELETE `/api/v0/cms/courses/:course_id` - Delete a course.
 }
 
 <span class="doccomment">/**
-GET `/api/v0/cms/courses/:course_id/pages` - Returns a list of pages in a course.
+GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a course.
 # Example
 ```json
-[
+{
+  &quot;course&quot;: {
+    &quot;id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
+    &quot;slug&quot;: &quot;introduction-to-everything&quot;,
+    &quot;created_at&quot;: &quot;2021-04-28T10:40:54.503917&quot;,
+    &quot;updated_at&quot;: &quot;2021-04-28T10:40:54.503917&quot;,
+    &quot;name&quot;: &quot;Introduction to everything&quot;,
+    &quot;organization_id&quot;: &quot;1b89e57e-8b57-42f2-9fed-c7a6736e3eec&quot;,
+    &quot;deleted&quot;: false
+  },
+  &quot;pages&quot;: [
     {
-        &quot;id&quot;: &quot;86ac4f0a-ccca-464e-89f4-ed58969b1103&quot;,
-        &quot;created_at&quot;: &quot;2021-03-05T22:50:47.920120&quot;,
-        &quot;updated_at&quot;: &quot;2021-03-05T22:50:47.920120&quot;,
-        &quot;course_id&quot;: &quot;a90c39f8-5d23-461f-8375-0b05a55d7ac1&quot;,
-        &quot;content&quot;: [
-            {
-                &quot;id&quot;: &quot;55be197d-4145-444a-bc1f-ee1091c47ad9&quot;
-            }
-        ],
-        &quot;url_path&quot;: &quot;/part-1/01-loops-and-variables&quot;,
-        &quot;title&quot;: &quot;Loops and Variables&quot;,
-        &quot;deleted&quot;: false
+      &quot;id&quot;: &quot;f3b0d699-c9be-4d56-bd0a-9d40e5547e4d&quot;,
+      &quot;created_at&quot;: &quot;2021-04-28T13:51:51.024118&quot;,
+      &quot;updated_at&quot;: &quot;2021-04-28T14:36:18.179490&quot;,
+      &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
+      &quot;content&quot;: [],
+      &quot;url_path&quot;: &quot;/&quot;,
+      &quot;title&quot;: &quot;Welcome to Introduction to Everything&quot;,
+      &quot;deleted&quot;: false
     }
-]
+  ],
+  &quot;course_parts&quot;: [
+    {
+      &quot;id&quot;: &quot;d332f3d9-39a5-4a18-80f4-251727693c37&quot;,
+      &quot;created_at&quot;: &quot;2021-04-28T16:11:47.477850&quot;,
+      &quot;updated_at&quot;: &quot;2021-04-28T16:11:47.477850&quot;,
+      &quot;name&quot;: &quot;The Basics&quot;,
+      &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
+      &quot;deleted&quot;: false,
+      &quot;part_number&quot;: 1
+    }
+  ]
+}
 ```
 */</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_pages</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_structure</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseStructure</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">Uuid</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">request_course_id</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">course_pages</span>(<span class="ident">pool</span>.<span class="ident">get_ref</span>(), <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">pages</span>))
+    <span class="kw">let</span> <span class="ident">course_structure</span> <span class="op">=</span>
+        <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">courses</span>::<span class="ident">get_course_structure</span>(<span class="ident">pool</span>.<span class="ident">get_ref</span>(), <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">course_structure</span>))
 }
 <span class="doccomment">/// Result of a image upload. Tells where the uploaded image can be retrieved from.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -554,7 +589,10 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}&quot;</span>, <span class="ident">web</span>::<span class="ident">put</span>().<span class="ident">to</span>(<span class="ident">update_course</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}&quot;</span>, <span class="ident">web</span>::<span class="ident">delete</span>().<span class="ident">to</span>(<span class="ident">delete_course</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/images&quot;</span>, <span class="ident">web</span>::<span class="ident">post</span>().<span class="ident">to</span>(<span class="ident">upload_image</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/pages&quot;</span>, <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_course_pages</span>));
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/structure&quot;</span>,
+            <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_course_structure</span>),
+        );
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix"></div>

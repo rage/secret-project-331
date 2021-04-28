@@ -75,3 +75,21 @@ export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[
   ).data
   return data
 }
+
+export interface Exercise {
+  id: string
+  created_at: string
+  updated_at: string
+  name: string
+  course_id: string
+  page_id: string
+  deadline: null
+  deleted: boolean
+}
+
+export const fetchExerciseById = async (id: string): Promise<Exercise> => {
+  const data = (
+    await axios.get(`/api/v0/course-material/exercises/${id}`, { responseType: "json" })
+  ).data
+  return data
+}

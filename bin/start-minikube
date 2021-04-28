@@ -1,16 +1,18 @@
 #!/bin/bash
 
 COMMAND="minikube"
+cores=$(nproc)
+echo "Using $cores cores."
 
 if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
   echo "🪟  Detected Windows"
-  ARGUMENTS="start --vm-driver=virtualbox --addons ingress $*"
+  ARGUMENTS="start --vm-driver=virtualbox --addons ingress --cpus $cores $*"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "🍎 Detected macOS"
-  ARGUMENTS="start --addons ingress $*"
+  ARGUMENTS="start --addons ingress --cpus $cores $*"
 else
   echo "🐧 Detected Linux"
-  ARGUMENTS="start --addons ingress $*"
+  ARGUMENTS="start --addons ingress --cpus $cores $*"
 fi
 echo "> $COMMAND $ARGUMENTS"
 exec "$COMMAND" $ARGUMENTS

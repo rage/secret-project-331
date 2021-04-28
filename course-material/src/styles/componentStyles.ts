@@ -5,7 +5,9 @@ import { css } from "@emotion/css"
 // of the page.
 export const normalWidthCenteredComponentStyles = css`
   width: 100%;
-  max-width: 900px;
+  max-width: 780px;
   margin-left: auto;
   margin-right: auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
 `

@@ -54,7 +54,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             font-weight: 400;
           `}
         >
-          {data.name}
+          {data.exercise.name}
         </h2>
         <div
           className={css`

@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 
 import Layout from "../../../components/Layout"
-import { fetchCoursePages } from "../../../services/fetchData"
+import { fetchCourseStructure } from "../../../services/fetchData"
 import { deletePage } from "../../../services/postData"
 import Link from "next/link"
 import useQueryParameter from "../../../hooks/useQueryParameter"
@@ -13,13 +13,13 @@ import { Page } from "../../../services/services.types"
 
 function CoursePages() {
   const id = useQueryParameter("id")
-  const { isLoading, error, data, refetch } = useQuery(`course-pages-${id}`, () =>
-    fetchCoursePages(id),
+  const { isLoading, error, data, refetch } = useQuery(`course-structure-${id}`, () =>
+    fetchCourseStructure(id),
   )
   const [showNewPageForm, setShowNewPageForm] = useState(false)
 
   if (error) {
-    return <div>Error loading organizations.</div>
+    return <div>Error overview.</div>
   }
 
   if (isLoading || !data) {
@@ -45,7 +45,7 @@ function CoursePages() {
           <Button onClick={handleShowingPageForm}>Hide</Button>
         </div>
       )}
-      {data
+      {data.pages
         .filter((page) => !page.deleted)
         .map((page: Page) => (
           <Grid key={page.id} style={{ margin: "0.5em" }} container spacing={1}>
@@ -69,6 +69,7 @@ function CoursePages() {
             </Grid>
           </Grid>
         ))}
+      <pre>{JSON.stringify(data, undefined, 2)}</pre>
     </Layout>
   )
 }

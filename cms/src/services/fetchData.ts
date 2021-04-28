@@ -1,5 +1,5 @@
 import axios from "axios"
-import { Course, Organization, Page, PageWithExercises } from "./services.types"
+import { Course, CourseOverview, Organization, Page, PageWithExercises } from "./services.types"
 
 const fetchOrganizations = async (): Promise<Array<Organization>> => {
   const url = `/api/v0/cms/organizations`
@@ -23,8 +23,8 @@ const fetchCourses = async (): Promise<Array<Course>> => {
   }
 }
 
-const fetchCoursePages = async (courseId: string): Promise<Array<Page>> => {
-  const url = `/api/v0/cms/courses/${courseId}/pages`
+const fetchCourseStructure = async (courseId: string): Promise<CourseOverview> => {
+  const url = `/api/v0/cms/courses/${courseId}/structure`
   try {
     const data = (await axios.get(url, { responseType: "json" })).data
     console.log(data)
@@ -45,4 +45,4 @@ const fetchPageWithId = async (pageId: string): Promise<PageWithExercises> => {
   }
 }
 
-export { fetchOrganizations, fetchCourses, fetchCoursePages, fetchPageWithId }
+export { fetchOrganizations, fetchCourses, fetchCourseStructure, fetchPageWithId }

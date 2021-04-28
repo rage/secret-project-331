@@ -24,10 +24,10 @@ const Home: React.FC = () => {
           <div>Name: {c.name}</div>
           <div>Id: {c.id}</div>
           <Link
-            href={{ pathname: "/courses/[id]/pages", query: { data: JSON.stringify(c.name) } }}
-            as={`/courses/${c.id}/pages`}
+            href={{ pathname: "/courses/[id]/overview", query: { data: JSON.stringify(c.name) } }}
+            as={`/courses/${c.id}/overview`}
           >
-            Course pages
+            Course overview
           </Link>
         </div>
       ))}

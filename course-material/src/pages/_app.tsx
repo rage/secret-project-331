@@ -24,6 +24,13 @@ const queryClient = new QueryClient({
       // Same applies here too
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+      retry: (failureCount, error) => {
+        // Don't want to retry 404 -- it just gives the impression of slowness.
+        if ((error as any)?.response?.status === 404) {
+          return false
+        }
+        return failureCount < 3
+      },
     },
   },
 })

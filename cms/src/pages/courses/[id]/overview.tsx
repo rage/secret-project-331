@@ -14,7 +14,7 @@ import { normalWidthCenteredComponentStyles } from "../../../styles/componentSty
 import { css } from "@emotion/css"
 import NewPartForm from "../../../components/forms/NewPartForm"
 
-const CoursePages: React.FC<any> = () => {
+const CoursePages: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
   const { isLoading, error, data, refetch } = useQuery(`course-structure-${id}`, () =>
     fetchCourseStructure(id),

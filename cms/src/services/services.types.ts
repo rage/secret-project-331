@@ -12,7 +12,7 @@ interface DatabaseItem {
  */
 export interface Page extends DatabaseItem {
   course_id: string
-  content: Array<any> // Wordpress content object, figure out type
+  content: Array<unknown> // Wordpress content object, figure out type
   url_path: string
   title: string
   deleted: boolean
@@ -38,7 +38,7 @@ export interface ExerciseWithExerciseItems extends DatabaseItem {
 export interface ExerciseItem extends DatabaseItem {
   exercise_id: string
   exercise_type: string
-  assignment: Array<any> | null
+  assignment: Array<unknown> | null
   deleted: boolean
   spec: string | null
   spec_file_id: string | null
@@ -50,7 +50,7 @@ export interface ExerciseItem extends DatabaseItem {
  */
 export interface PageUpdate {
   page_id: string
-  content: Array<any>
+  content: Array<unknown>
   url_path: string
   title: string
   // exercises: Array<PageUpdateExercise>
@@ -65,7 +65,7 @@ export interface PageUpdateExercise {
 export interface PageUpdateExerciseItem {
   id: string
   exercise_type: string
-  assignment: Array<any>
+  assignment: Array<unknown>
   spec: string | null
 }
 
@@ -74,7 +74,7 @@ export interface PageUpdateExerciseItem {
  * `${API_URL}/api/v0/cms/pages/${page_id}`
  */
 export interface NewPage {
-  content: Array<any>
+  content: Array<unknown>
   url_path: string
   title: string
   course_id: string

@@ -24,11 +24,11 @@ import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 
 import Exercise, { ExerciseAttributes } from "../blocks/Exercise"
 import ExerciseItem from "../blocks/ExerciseItem"
-import { updateExistingPage } from "../services/postData"
 import { Button } from "@material-ui/core"
 import { Page, PageWithExercises } from "../services/services.types"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
 import { css } from "@emotion/css"
+import { updateExistingPage } from "../services/backend/pages"
 
 interface EditorProps {
   data: PageWithExercises

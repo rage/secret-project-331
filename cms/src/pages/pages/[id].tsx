@@ -1,4 +1,3 @@
-import { fetchPageWithId } from "../../services/fetchData"
 import Layout from "../../components/Layout"
 import dynamic from "next/dynamic"
 import { useQuery } from "react-query"
@@ -8,6 +7,7 @@ import dontRenderUntilQueryParametersReady, {
 import { useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { exercisesState } from "../../state/exercises"
+import { fetchPageWithId } from "../../services/backend/pages"
 
 const EditorLoading = <div>Loading editor...</div>
 

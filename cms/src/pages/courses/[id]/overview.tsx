@@ -1,8 +1,6 @@
 import React, { useState } from "react"
 
 import Layout from "../../../components/Layout"
-import { fetchCourseStructure } from "../../../services/fetchData"
-import { deletePage } from "../../../services/postData"
 import Link from "next/link"
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { useQuery } from "react-query"
@@ -10,6 +8,8 @@ import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUn
 import { Typography, Button, Grid } from "@material-ui/core"
 import NewPage from "../../../components/NewPage"
 import { Page } from "../../../services/services.types"
+import { fetchCourseStructure } from "../../../services/backend/courses"
+import { deletePage } from "../../../services/backend/pages"
 
 function CoursePages() {
   const id = useQueryParameter("id")

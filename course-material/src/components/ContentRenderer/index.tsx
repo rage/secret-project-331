@@ -8,6 +8,7 @@ import ButtonBlock from "./ButtonBlock"
 import CodeBlock from "./CodeBlock"
 import QuoteBlock from "./QuoteBlock"
 import AudioBlock from "./AudioBlock"
+import TableBlock from "./TableBlock"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -26,6 +27,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/code": CodeBlock,
   "core/quote": QuoteBlock,
   "core/audio": AudioBlock,
+  "core/columns": TableBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

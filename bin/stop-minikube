@@ -1,0 +1,6 @@
+#!/bin/bash
+COMMAND="minikube"
+ARGUMENTS="stop"
+
+echo "> $COMMAND $ARGUMENTS"
+exec "$COMMAND" $ARGUMENTS

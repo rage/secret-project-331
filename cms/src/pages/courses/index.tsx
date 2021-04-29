@@ -22,7 +22,6 @@ const Home: React.FC = () => {
       {data.map((c) => (
         <div key={c.id}>
           <div>Name: {c.name}</div>
-          <div>Id: {c.id}</div>
           <Link
             href={{ pathname: "/courses/[id]/overview", query: { data: JSON.stringify(c.name) } }}
             as={`/courses/${c.id}/overview`}

@@ -11,7 +11,7 @@ const Title = styled.h1`
   font-size: 24px;
 `
 
-const Organization: React.FC<any> = () => {
+const Organization: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
   const { isLoading, error, data } = useQuery(`organizations`, () => fetchOrganizationCourses(id))
 

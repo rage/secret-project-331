@@ -5,6 +5,7 @@ import ParagraphBlock from "./ParagraphBlock"
 import ImageBlock from "./ImageBlock"
 import HeadingBlock from "./HeadingBlock"
 import ButtonBlock from "./ButtonBlock"
+import CodeBlock from "./CodeBlock"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -20,6 +21,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/image": ImageBlock,
   "core/heading": HeadingBlock,
   "core/buttons": ButtonBlock,
+  "core/code": CodeBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

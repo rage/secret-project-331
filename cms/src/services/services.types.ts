@@ -1,3 +1,5 @@
+import { BlockInstance } from "@wordpress/blocks"
+
 interface DatabaseItem {
   id: string
   created_at: string
@@ -12,7 +14,7 @@ interface DatabaseItem {
  */
 export interface Page extends DatabaseItem {
   course_id: string
-  content: Array<unknown> // Wordpress content object, figure out type
+  content: BlockInstance[]
   url_path: string
   title: string
   deleted: boolean
@@ -50,7 +52,7 @@ export interface ExerciseItem extends DatabaseItem {
  */
 export interface PageUpdate {
   page_id: string
-  content: Array<unknown>
+  content: BlockInstance[]
   url_path: string
   title: string
   // exercises: Array<PageUpdateExercise>
@@ -74,7 +76,7 @@ export interface PageUpdateExerciseItem {
  * `${API_URL}/api/v0/cms/pages/${page_id}`
  */
 export interface NewPage {
-  content: Array<unknown>
+  content: BlockInstance[]
   url_path: string
   title: string
   course_id: string
@@ -99,6 +101,10 @@ export interface Course extends DatabaseItem {
   deleted: boolean
 }
 
+/**
+ * GET
+ * `${API_URL}/api/v0/cms/courses/:course_id/structure
+ */
 export interface CourseOverview {
   course: Course
   pages: Page[]
@@ -109,5 +115,14 @@ export interface CoursePart extends DatabaseItem {
   name: string
   course_id: string
   deleted: boolean
+  part_number: number
+}
+
+/**
+ * POST /api/v0/cms/course-parts
+ */
+export interface NewCoursePart {
+  name: string
+  course_id: string
   part_number: number
 }

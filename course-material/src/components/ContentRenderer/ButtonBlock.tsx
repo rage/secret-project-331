@@ -11,7 +11,6 @@ interface HeadingBlockInnerBlock {
 }
 
 const HeadingBlock: React.FC<BlockRendererProps<HeadingBlockAttributes>> = ({ data }) => {
-  const attr: HeadingBlockAttributes = data.attributes
   const innerBlocks: HeadingBlockInnerBlock = data.innerBlocks[0].attributes
   return (
     <button

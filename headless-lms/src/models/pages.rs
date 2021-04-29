@@ -94,6 +94,7 @@ struct Exercise {
     name: String,
     deadline: Option<NaiveDateTime>,
     page_id: Uuid,
+    score_maximum: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -107,6 +108,7 @@ struct ExerciseWithExerciseItems {
     deadline: Option<NaiveDateTime>,
     page_id: Uuid,
     exercise_items: Vec<ExerciseItem>,
+    score_maximum: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]

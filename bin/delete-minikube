@@ -1,0 +1,6 @@
+#!/bin/bash
+COMMAND="minikube"
+ARGUMENTS="delete"
+
+echo "> $COMMAND $ARGUMENTS"
+exec "$COMMAND" $ARGUMENTS

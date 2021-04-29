@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect, useRef, useState } from "react"
+import { PropsWithChildren, useEffect, useRef } from "react"
 import { Alert } from "@material-ui/lab"
 import styled from "@emotion/styled"
 import React from "react"
@@ -24,7 +24,7 @@ interface IFrameEditorProps {
   exerciseItemid: string
 }
 
-const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props, exerciseItemid }) => {
+const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   /* If we initially set the iFrame content from props.attributes (i.e. block attributes), 
   and we constantly update the state without re-rendering the iFrame we probably should
@@ -35,7 +35,7 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props, exerciseItemid 
     3. Each exerciseItemId creates an useRecoilSetState (in this file)
     4. When iFrame posts (onChange) events, we update the recoilState
     5. When we save we save from the state with a useRecoilCallback so that we dont need to subscribe to the atom
-  Alternative: Try React.memo for iFrame and use props.setAttributes()
+  Alternative in use: Try React.memo for iFrame and use props.setAttributes()
   */
   useEffect(() => {
     if (typeof window === undefined) {

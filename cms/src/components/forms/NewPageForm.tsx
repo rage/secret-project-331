@@ -39,19 +39,17 @@ const NewPageForm: React.FC<NewPageFormProps> = ({ courseId, onSubmitForm }) => 
   return (
     <div style={{ padding: "1em" }}>
       <div>
-        <div>
-          <StyledTextField
-            required
-            id="outlined-required"
-            label="Title"
-            variant="outlined"
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value)
-              setPath(normalizePath(e.target.value))
-            }}
-          />
-        </div>
+        <StyledTextField
+          required
+          id="outlined-required"
+          label="Title"
+          variant="outlined"
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value)
+            setPath(normalizePath(e.target.value))
+          }}
+        />
         <StyledTextField
           required
           id="outlined-required"

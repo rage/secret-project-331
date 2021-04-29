@@ -36,7 +36,7 @@ interface EditorProps {
 
 const Editor: React.FC<EditorProps> = (props: EditorProps) => {
   const { content, url_path, title, id } = props.data
-  const [blocks, setBlocks] = useState(content ?? [])
+  const [blocks, setBlocks] = useState<BlockInstance[]>(content)
 
   const handleChanges = (page: BlockInstance<ExerciseAttributes>[]): void => {
     console.log(page)

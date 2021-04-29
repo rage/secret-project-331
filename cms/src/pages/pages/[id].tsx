@@ -37,6 +37,7 @@ const Pages = ({ query }: PagesProps) => {
   return (
     <Layout>
       <Editor data={data} />
+      <pre>{JSON.stringify(data, undefined, 2)}</pre>
     </Layout>
   )
 }

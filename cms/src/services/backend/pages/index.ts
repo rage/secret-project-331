@@ -1,5 +1,16 @@
 import axios from "axios"
-import { NewPage, PageUpdate, PageWithExercises } from "./services.types"
+import { NewPage, PageUpdate, PageWithExercises } from "../../services.types"
+
+const fetchPageWithId = async (pageId: string): Promise<PageWithExercises> => {
+  const url = `/api/v0/cms/pages/${pageId}`
+  try {
+    const data = (await axios.get(url, { responseType: "json" })).data
+    console.log(data)
+    return data
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 const postNewPage = async (data: NewPage): Promise<PageWithExercises> => {
   const url = `/api/v0/cms/pages`
@@ -49,4 +60,4 @@ const deletePage = async (page_id: string): Promise<PageWithExercises> => {
   }
 }
 
-export { postNewPage, updateExistingPage, deletePage }
+export { updateExistingPage, postNewPage, fetchPageWithId, deletePage }

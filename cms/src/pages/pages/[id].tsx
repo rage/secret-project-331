@@ -1,13 +1,10 @@
-import { fetchPageWithId } from "../../services/fetchData"
 import Layout from "../../components/Layout"
 import dynamic from "next/dynamic"
 import { useQuery } from "react-query"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../utils/dontRenderUntilQueryParametersReady"
-import { useEffect } from "react"
-import { useSetRecoilState } from "recoil"
-import { exercisesState } from "../../state/exercises"
+import { fetchPageWithId } from "../../services/backend/pages"
 
 const EditorLoading = <div>Loading editor...</div>
 
@@ -16,11 +13,6 @@ const Editor = dynamic(() => import("../../components/Editor"), {
   loading: () => EditorLoading,
 })
 
-// const GutenbergEditor = dynamic(() => import('../../components/GutenbergEditor'), {
-//   ssr: false,
-//   loading: () => <div>Loading editor...</div>,
-// })
-
 interface PagesProps {
   query: SimplifiedUrlQuery
 }
@@ -28,19 +20,6 @@ interface PagesProps {
 const Pages = ({ query }: PagesProps) => {
   const { id } = query
   const { isLoading, error, data } = useQuery(`page-${id}`, () => fetchPageWithId(id))
-  const setExercises = useSetRecoilState(exercisesState)
-
-  useEffect(() => {
-    const exerciseArray = data?.exercises
-    if (!exerciseArray) {
-      return
-    }
-    // const obj = {}
-    // exerciseArray.forEach((element) => {
-    //   obj[element.id] = element
-    // })
-    setExercises(exerciseArray.map((ex) => ex.id))
-  }, [data])
 
   if (error) {
     return (
@@ -58,7 +37,7 @@ const Pages = ({ query }: PagesProps) => {
   return (
     <Layout>
       <Editor data={data} />
-      {/* <GutenbergEditor /> */}
+      <pre>{JSON.stringify(data, undefined, 2)}</pre>
     </Layout>
   )
 }

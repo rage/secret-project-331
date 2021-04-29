@@ -1,3 +1,5 @@
+import { BlockInstance } from "@wordpress/blocks"
+
 interface DatabaseItem {
   id: string
   created_at: string
@@ -12,7 +14,7 @@ interface DatabaseItem {
  */
 export interface Page extends DatabaseItem {
   course_id: string
-  content: Array<any> // Wordpress content object, figure out type
+  content: BlockInstance[]
   url_path: string
   title: string
   deleted: boolean
@@ -38,7 +40,7 @@ export interface ExerciseWithExerciseItems extends DatabaseItem {
 export interface ExerciseItem extends DatabaseItem {
   exercise_id: string
   exercise_type: string
-  assignment: Array<any> | null
+  assignment: Array<unknown> | null
   deleted: boolean
   spec: string | null
   spec_file_id: string | null
@@ -50,7 +52,7 @@ export interface ExerciseItem extends DatabaseItem {
  */
 export interface PageUpdate {
   page_id: string
-  content: Array<any>
+  content: BlockInstance[]
   url_path: string
   title: string
   // exercises: Array<PageUpdateExercise>
@@ -65,7 +67,7 @@ export interface PageUpdateExercise {
 export interface PageUpdateExerciseItem {
   id: string
   exercise_type: string
-  assignment: Array<any>
+  assignment: Array<unknown>
   spec: string | null
 }
 
@@ -74,7 +76,7 @@ export interface PageUpdateExerciseItem {
  * `${API_URL}/api/v0/cms/pages/${page_id}`
  */
 export interface NewPage {
-  content: Array<any>
+  content: BlockInstance[]
   url_path: string
   title: string
   course_id: string
@@ -97,4 +99,30 @@ export interface Organization extends DatabaseItem {
 export interface Course extends DatabaseItem {
   name: string
   deleted: boolean
+}
+
+/**
+ * GET
+ * `${API_URL}/api/v0/cms/courses/:course_id/structure
+ */
+export interface CourseOverview {
+  course: Course
+  pages: Page[]
+  course_parts: CoursePart[]
+}
+
+export interface CoursePart extends DatabaseItem {
+  name: string
+  course_id: string
+  deleted: boolean
+  part_number: number
+}
+
+/**
+ * POST /api/v0/cms/course-parts
+ */
+export interface NewCoursePart {
+  name: string
+  course_id: string
+  part_number: number
 }

@@ -1,10 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/cms/courses`.
 use crate::{
     controllers::{ApplicationError, ApplicationResult},
-    models::{
-        courses::{Course, CourseUpdate, NewCourse},
-        pages::Page,
-    },
+    models::courses::{Course, CourseStructure, CourseUpdate, NewCourse},
     utils::file_store::{course_image_path, local_file_store::LocalFileStore},
 };
 use actix_web::{
@@ -148,35 +145,54 @@ async fn delete_course(
 }
 
 /**
-GET `/api/v0/cms/courses/:course_id/pages` - Returns a list of pages in a course.
+GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a course.
 # Example
 ```json
-[
+{
+  "course": {
+    "id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
+    "slug": "introduction-to-everything",
+    "created_at": "2021-04-28T10:40:54.503917",
+    "updated_at": "2021-04-28T10:40:54.503917",
+    "name": "Introduction to everything",
+    "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+    "deleted": false
+  },
+  "pages": [
     {
-        "id": "86ac4f0a-ccca-464e-89f4-ed58969b1103",
-        "created_at": "2021-03-05T22:50:47.920120",
-        "updated_at": "2021-03-05T22:50:47.920120",
-        "course_id": "a90c39f8-5d23-461f-8375-0b05a55d7ac1",
-        "content": [
-            {
-                "id": "55be197d-4145-444a-bc1f-ee1091c47ad9"
-            }
-        ],
-        "url_path": "/part-1/01-loops-and-variables",
-        "title": "Loops and Variables",
-        "deleted": false
+      "id": "f3b0d699-c9be-4d56-bd0a-9d40e5547e4d",
+      "created_at": "2021-04-28T13:51:51.024118",
+      "updated_at": "2021-04-28T14:36:18.179490",
+      "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
+      "content": [],
+      "url_path": "/",
+      "title": "Welcome to Introduction to Everything",
+      "deleted": false
     }
-]
+  ],
+  "course_parts": [
+    {
+      "id": "d332f3d9-39a5-4a18-80f4-251727693c37",
+      "created_at": "2021-04-28T16:11:47.477850",
+      "updated_at": "2021-04-28T16:11:47.477850",
+      "name": "The Basics",
+      "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
+      "deleted": false,
+      "part_number": 1
+    }
+  ]
+}
 ```
 */
-async fn get_course_pages(
+async fn get_course_structure(
     request_course_id: web::Path<String>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<Page>>> {
+) -> ApplicationResult<Json<CourseStructure>> {
     let course_id = Uuid::from_str(&request_course_id)?;
 
-    let pages: Vec<Page> = crate::models::pages::course_pages(pool.get_ref(), course_id).await?;
-    Ok(Json(pages))
+    let course_structure =
+        crate::models::courses::get_course_structure(pool.get_ref(), course_id).await?;
+    Ok(Json(course_structure))
 }
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -273,5 +289,8 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         .route("/{course_id}", web::put().to(update_course))
         .route("/{course_id}", web::delete().to(delete_course))
         .route("/{course_id}/images", web::post().to(upload_image))
-        .route("/{course_id}/pages", web::get().to(get_course_pages));
+        .route(
+            "/{course_id}/structure",
+            web::get().to(get_course_structure),
+        );
 }

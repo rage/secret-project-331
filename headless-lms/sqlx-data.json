@@ -106,6 +106,64 @@
       ]
     }
   },
+  "33ec62c0457e0d68ebcca178fc8e1a92445d32c4d1c3e83596b566664bcf26c4": {
+    "query": "\nUPDATE course_parts\n    SET name = $1,\n    part_number = $2\nWHERE\n    id = $3\n    RETURNING *\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "part_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Int4",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
   "34a78ca49c8f506278c60a7321be13d3c71598fba3d512a28897db60982acb6e": {
     "query": "\n  UPDATE exercises\n  SET deleted = true\n  WHERE page_id = $1\n          ",
     "describe": {
@@ -116,6 +174,62 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "3af5c92ff229f452dd0a0429b76cd5db87cb82179f90139d7178b75ea5d5df6f": {
+    "query": "SELECT * FROM course_parts WHERE course_id = $1 AND deleted = false;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "part_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "41a09b0aef5718b0a326a14e3c7cc53a662dbbcf889b1ed8cfd6d185b653ad8b": {
@@ -431,6 +545,142 @@
       ]
     }
   },
+  "6173b06dce571e98c36a74e6077e9b9207d63987c43521e38bb8eb1dbe1e62fe": {
+    "query": "SELECT * FROM exercise_items WHERE exercise_id = $1 AND deleted = false ORDER BY random();",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 3,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exercise_type",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "assignment",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 7,
+          "name": "spec",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 8,
+          "name": "spec_file_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
+    }
+  },
+  "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
+    "query": "SELECT * FROM exercises WHERE id = $1;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "deleted",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "deadline",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_maximum",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
+    }
+  },
   "6da0005e9e7e6edae3cad8c12cd4c51e0dc9d7ad35274fa4aa1b36e95d0f124c": {
     "query": "\nINSERT INTO exercises(id, course_id, name, page_id)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (id) DO UPDATE\nSET course_id=$2, name=$3, page_id=$4, deleted=false\nRETURNING *;\n        ",
     "describe": {
@@ -474,6 +724,11 @@
           "ordinal": 7,
           "name": "page_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_maximum",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -492,6 +747,7 @@
         false,
         false,
         true,
+        false,
         false
       ]
     }
@@ -682,6 +938,62 @@
       ]
     }
   },
+  "9ed1d7803678ae8f915c4e3bc1ad99994e81b0be8f00f4d7133706513f3681dd": {
+    "query": "\nUPDATE course_parts\n    SET deleted = true\nWHERE\n    id = $1\nRETURNING *\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "part_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
   "ad71a05be4092be9b722b9499bb0921ea97cbb01192d4dd5c694f52b37a3d531": {
     "query": "\n  UPDATE exercise_items\n  SET deleted = true\n  WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)\n          ",
     "describe": {
@@ -733,6 +1045,64 @@
         "Left": []
       },
       "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "b34b452c8aec85153cdbd8581f303e013687ede930bc362a7978d16d6098df7f": {
+    "query": "\n    INSERT INTO\n      course_parts(name, course_id, part_number)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "part_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false,
         false,
         false,
         false,
@@ -1059,6 +1429,11 @@
           "ordinal": 7,
           "name": "page_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_maximum",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -1074,6 +1449,7 @@
         false,
         false,
         true,
+        false,
         false
       ]
     }

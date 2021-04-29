@@ -1,8 +1,8 @@
 import React from "react"
-import { fetchCourses } from "../../services/fetchData"
 import Layout from "../../components/Layout"
 import Link from "next/link"
 import { useQuery } from "react-query"
+import { fetchCourses } from "../../services/backend/courses"
 
 const Home: React.FC = () => {
   const { isLoading, error, data } = useQuery(`courses`, () => fetchCourses(), {
@@ -22,12 +22,11 @@ const Home: React.FC = () => {
       {data.map((c) => (
         <div key={c.id}>
           <div>Name: {c.name}</div>
-          <div>Id: {c.id}</div>
           <Link
-            href={{ pathname: "/courses/[id]/pages", query: { data: JSON.stringify(c.name) } }}
-            as={`/courses/${c.id}/pages`}
+            href={{ pathname: "/courses/[id]/overview", query: { data: JSON.stringify(c.name) } }}
+            as={`/courses/${c.id}/overview`}
           >
-            Course pages
+            Course overview
           </Link>
         </div>
       ))}

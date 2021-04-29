@@ -24,11 +24,11 @@ import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 
 import Exercise, { ExerciseAttributes } from "../blocks/Exercise"
 import ExerciseItem from "../blocks/ExerciseItem"
-import { updateExistingPage } from "../services/postData"
 import { Button } from "@material-ui/core"
 import { Page, PageWithExercises } from "../services/services.types"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
 import { css } from "@emotion/css"
+import { updateExistingPage } from "../services/backend/pages"
 
 interface EditorProps {
   data: PageWithExercises
@@ -36,7 +36,7 @@ interface EditorProps {
 
 const Editor: React.FC<EditorProps> = (props: EditorProps) => {
   const { content, url_path, title, id } = props.data
-  const [blocks, setBlocks] = useState(content ?? [])
+  const [blocks, setBlocks] = useState<BlockInstance[]>(content)
 
   const handleChanges = (page: BlockInstance<ExerciseAttributes>[]): void => {
     console.log(page)

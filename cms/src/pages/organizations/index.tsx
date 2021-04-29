@@ -1,6 +1,8 @@
-import { fetchOrganizations } from "../../services/fetchData"
 import Layout from "../../components/Layout"
 import { useQuery } from "react-query"
+import Link from "next/link"
+import basePath from "../../utils/base-path"
+import { fetchOrganizations } from "../../services/backend/organizations"
 
 const Home: React.FC = () => {
   const { isLoading, error, data } = useQuery(`organizations`, () => fetchOrganizations(), {
@@ -17,10 +19,16 @@ const Home: React.FC = () => {
 
   return (
     <Layout>
-      {data.map((org) => (
-        <div key={org.id}>
-          <div>Name: {org.name}</div>
-          <div>Id: {org.id}</div>
+      {data.map((organization) => (
+        <div key={organization.id}>
+          <Link
+            href={{
+              pathname: `${basePath()}/organizations/[id]`,
+              query: { id: organization.id },
+            }}
+          >
+            <a>{organization.name}</a>
+          </Link>
         </div>
       ))}
     </Layout>

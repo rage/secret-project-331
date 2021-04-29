@@ -7,6 +7,9 @@ import { ThemeProvider } from "@material-ui/core/styles"
 import React from "react"
 import muiTheme from "../utils/muiTheme"
 import { CssBaseline } from "@material-ui/core"
+import "@fontsource/montserrat"
+import "@fontsource/montserrat/700.css"
+import { Global, css } from "@emotion/react"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,6 +24,13 @@ const queryClient = new QueryClient({
       // Same applies here too
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+      retry: (failureCount, error) => {
+        // Don't want to retry 404 -- it just gives the impression of slowness.
+        if ((error as any)?.response?.status === 404) {
+          return false
+        }
+        return failureCount < 3
+      },
     },
   },
 })
@@ -40,6 +50,18 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
         <ThemeProvider theme={muiTheme}>
           {/* Material UI default CSS */}
           <CssBaseline />
+          <Global
+            styles={css`
+              html,
+              body {
+                margin: 0;
+                padding: 0;
+                font-family: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif, "Segoe UI",
+                  Roboto, "Helvetica Neue", Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji",
+                  "Segoe UI Symbol", "Noto Color Emoji";
+              }
+            `}
+          />
           <Component {...pageProps} />
           <ReactQueryDevtools initialIsOpen={false} />
         </ThemeProvider>

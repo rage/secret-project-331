@@ -6,13 +6,13 @@ echo "Using $cores cores."
 
 if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
   echo "🪟  Detected Windows"
-  ARGUMENTS="start --vm-driver=virtualbox --addons ingress --cpus $cores --disk-size 2000g $*"
+  ARGUMENTS="start --vm-driver=virtualbox --addons ingress --cpus $cores --disk-size 100g $*"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "🍎 Detected macOS"
-  ARGUMENTS="start --addons ingress --cpus $cores --disk-size 2000g $*"
+  ARGUMENTS="start --addons ingress --cpus $cores --disk-size 100g $*"
 else
   echo "🐧 Detected Linux"
-  ARGUMENTS="start --addons ingress --cpus $cores --disk-size 2000g $*"
+  ARGUMENTS="start --addons ingress --cpus $cores --disk-size 100g $*"
 fi
 echo "> $COMMAND $ARGUMENTS"
 exec "$COMMAND" $ARGUMENTS

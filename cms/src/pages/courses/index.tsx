@@ -1,8 +1,8 @@
 import React from "react"
-import { fetchCourses } from "../../services/fetchData"
 import Layout from "../../components/Layout"
 import Link from "next/link"
 import { useQuery } from "react-query"
+import { fetchCourses } from "../../services/backend/courses"
 
 const Home: React.FC = () => {
   const { isLoading, error, data } = useQuery(`courses`, () => fetchCourses(), {

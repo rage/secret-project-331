@@ -507,6 +507,21 @@
 <span id="504">504</span>
 <span id="505">505</span>
 <span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -526,6 +541,7 @@
     <span class="ident">created_at</span>: <span class="ident">NaiveDateTime</span>,
     <span class="ident">updated_at</span>: <span class="ident">NaiveDateTime</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
     <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="ident">title</span>: <span class="ident">String</span>,
@@ -538,6 +554,7 @@
     <span class="ident">created_at</span>: <span class="ident">NaiveDateTime</span>,
     <span class="ident">updated_at</span>: <span class="ident">NaiveDateTime</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
     <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="ident">title</span>: <span class="ident">String</span>,
@@ -552,6 +569,7 @@
     <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="ident">title</span>: <span class="ident">String</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="comment">// Represents the subset of page fields that the user is allowed to modify.</span>
@@ -560,6 +578,7 @@
     <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
     <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="ident">title</span>: <span class="ident">String</span>,
+    <span class="ident">course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -575,7 +594,8 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
-    <span class="kw">pub</span> <span class="ident">spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -583,15 +603,17 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
-    <span class="kw">pub</span> <span class="ident">spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageExerciseItem</span> {
-    <span class="ident">exercise_type</span>: <span class="ident">String</span>,
-    <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
-    <span class="ident">spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
+    <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -630,7 +652,8 @@
     <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
     <span class="ident">deleted</span>: <span class="ident">bool</span>,
-    <span class="ident">spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
     <span class="ident">spec_file_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
@@ -687,7 +710,7 @@
 
     <span class="kw">let</span> <span class="ident">exercise_items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseItemWithExerciseId</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">PageUpdateExerciseItemWithExerciseId</span>,
-        <span class="string">&quot;SELECT id, exercise_type, assignment, spec, exercise_id FROM exercise_items WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);&quot;</span>,
+        <span class="string">&quot;SELECT id, exercise_type, assignment, public_spec, private_spec, exercise_id FROM exercise_items WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);&quot;</span>,
         <span class="ident">page_id</span>
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
@@ -706,7 +729,8 @@
                         <span class="ident">id</span>: <span class="ident">i</span>.<span class="ident">id</span>,
                         <span class="ident">exercise_type</span>: <span class="ident">i</span>.<span class="ident">exercise_type</span>,
                         <span class="ident">assignment</span>: <span class="ident">i</span>.<span class="ident">assignment</span>,
-                        <span class="ident">spec</span>: <span class="ident">i</span>.<span class="ident">spec</span>,
+                        <span class="ident">public_spec</span>: <span class="ident">i</span>.<span class="ident">public_spec</span>,
+                        <span class="ident">private_spec</span>: <span class="ident">i</span>.<span class="ident">private_spec</span>,
                     })
                     .<span class="ident">collect</span>(),
             )
@@ -756,14 +780,16 @@ UPDATE pages
 SET
     content = $2,
     url_path = $3,
-    title = $4
+    title = $4,
+    course_part_id = $5
 WHERE id = $1
 RETURNING *
             &quot;#</span>,
         <span class="ident">page_id</span>,
         <span class="ident">content_as_json</span>,
         <span class="ident">page_update</span>.<span class="ident">url_path</span>.<span class="ident">trim</span>(),
-        <span class="ident">page_update</span>.<span class="ident">title</span>.<span class="ident">trim</span>()
+        <span class="ident">page_update</span>.<span class="ident">title</span>.<span class="ident">trim</span>(),
+        <span class="ident">page_update</span>.<span class="ident">course_part_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -787,6 +813,7 @@ RETURNING *
         <span class="ident">id</span>: <span class="ident">page</span>.<span class="ident">id</span>,
         <span class="ident">title</span>: <span class="ident">page</span>.<span class="ident">title</span>,
         <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
+        <span class="ident">course_part_id</span>: <span class="ident">page</span>.<span class="ident">course_part_id</span>,
     });
 }
 
@@ -883,17 +910,18 @@ RETURNING *;
             <span class="kw">let</span> <span class="ident">exercise_item</span>: <span class="ident">PageUpdateExerciseItem</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
                 <span class="ident">PageUpdateExerciseItem</span>,
                 <span class="string">r#&quot;
-INSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, spec)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO UPDATE
-SET exercise_id=$2, exercise_type=$3, assignment=$4, spec=$5, deleted=false
-RETURNING id, exercise_type, assignment, spec;
+SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted=false
+RETURNING id, exercise_type, assignment, public_spec, private_spec;
         &quot;#</span>,
                 <span class="ident">safe_for_db_exercise_item_id</span>,
                 <span class="ident">safe_for_db_exercise_id</span>,
                 <span class="ident">item_update</span>.<span class="ident">exercise_type</span>,
                 <span class="ident">item_update</span>.<span class="ident">assignment</span>,
-                <span class="ident">item_update</span>.<span class="ident">spec</span>
+                <span class="ident">item_update</span>.<span class="ident">public_spec</span>,
+                <span class="ident">item_update</span>.<span class="ident">private_spec</span>,
             )
             .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">connection</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -942,14 +970,15 @@ RETURNING id, exercise_type, assignment, spec;
         <span class="ident">Page</span>,
         <span class="string">r#&quot;
   INSERT INTO
-    pages(course_id, content, url_path, title)
-  VALUES($1, $2, $3, $4)
+    pages(course_id, content, url_path, title, course_part_id)
+  VALUES($1, $2, $3, $4, $5)
   RETURNING *
           &quot;#</span>,
         <span class="ident">new_page</span>.<span class="ident">course_id</span>,
         <span class="ident">content_as_json</span>,
         <span class="ident">new_page</span>.<span class="ident">url_path</span>.<span class="ident">trim</span>(),
-        <span class="ident">new_page</span>.<span class="ident">title</span>.<span class="ident">trim</span>()
+        <span class="ident">new_page</span>.<span class="ident">title</span>.<span class="ident">trim</span>(),
+        <span class="ident">new_page</span>.<span class="ident">course_part_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -970,6 +999,7 @@ RETURNING id, exercise_type, assignment, spec;
         <span class="ident">id</span>: <span class="ident">page</span>.<span class="ident">id</span>,
         <span class="ident">title</span>: <span class="ident">page</span>.<span class="ident">title</span>,
         <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
+        <span class="ident">course_part_id</span>: <span class="ident">page</span>.<span class="ident">course_part_id</span>,
     });
 }
 

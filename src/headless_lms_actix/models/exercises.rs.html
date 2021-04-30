@@ -129,7 +129,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">exercise_items</span>::<span class="ident">get_random_exercise_item</span>;
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">exercise_items</span>::<span class="ident">ExerciseItem</span>;
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">exercise_items</span>::<span class="ident">CourseMaterialExerciseItem</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Exercise</span> {
@@ -147,7 +147,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialExercise</span> {
     <span class="kw">pub</span> <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
-    <span class="kw">pub</span> <span class="ident">current_exercise_item</span>: <span class="ident">ExerciseItem</span>,
+    <span class="kw">pub</span> <span class="ident">current_exercise_item</span>: <span class="ident">CourseMaterialExerciseItem</span>,
     <span class="doccomment">/// None for logged out users.</span>
     <span class="kw">pub</span> <span class="ident">exercise_status</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseStatus</span><span class="op">&gt;</span>,
 }

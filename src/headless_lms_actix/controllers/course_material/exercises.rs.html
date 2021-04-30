@@ -67,6 +67,9 @@
 <span id="64">64</span>
 <span id="65">65</span>
 <span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/organizations`.</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
@@ -80,6 +83,9 @@
 <span class="doccomment">/**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
 relevant context so that doing the exercise is possible based on the response.
+
+This endpoint does not expose exercise&#39;s private spec because it would
+expose the correct answers to the user.
 
 # Example
 ```json
@@ -103,7 +109,7 @@ relevant context so that doing the exercise is possible based on the response.
     &quot;exercise_type&quot;: &quot;example-exercise&quot;,
     &quot;assignment&quot;: [],
     &quot;deleted&quot;: false,
-    &quot;spec&quot;: null,
+    &quot;public_spec&quot;: null,
     &quot;spec_file_id&quot;: null
   },
   &quot;exercise_status&quot;: {

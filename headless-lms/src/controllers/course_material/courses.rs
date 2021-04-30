@@ -22,7 +22,8 @@ GET /api/v0/course-material/courses/10363c5b-82b4-4121-8ef1-bae8fb42a5ce/page-by
   "content": [],
   "url_path": "/part-2/hello-world",
   "title": "Hello world!",
-  "deleted": false
+  "deleted": false,
+  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 */

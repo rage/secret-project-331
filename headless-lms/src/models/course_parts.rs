@@ -13,20 +13,23 @@ pub struct CoursePart {
     pub course_id: Uuid,
     pub deleted: bool,
     pub part_number: i32,
+    pub page_id: Option<Uuid>,
 }
 
 // Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NewCoursePart {
-    name: String,
-    course_id: Uuid,
-    part_number: i32,
+    pub name: String,
+    pub course_id: Uuid,
+    pub part_number: i32,
+    pub page_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct CoursePartUpdate {
-    name: String,
-    part_number: i32,
+    pub name: String,
+    pub part_number: i32,
+    pub page_id: Option<Uuid>,
 }
 
 pub async fn update_course_part(

@@ -178,7 +178,8 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
       "name": "The Basics",
       "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
       "deleted": false,
-      "part_number": 1
+      "part_number": 1,
+      "page_id": null
     }
   ]
 }

@@ -16,6 +16,7 @@ pub struct Page {
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
     course_id: Uuid,
+    course_part_id: Option<Uuid>,
     content: serde_json::Value,
     url_path: String,
     title: String,
@@ -28,6 +29,7 @@ pub struct PageWithExercises {
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
     course_id: Uuid,
+    course_part_id: Option<Uuid>,
     content: serde_json::Value,
     url_path: String,
     title: String,
@@ -42,6 +44,7 @@ pub struct NewPage {
     url_path: String,
     title: String,
     course_id: Uuid,
+    course_part_id: Option<Uuid>,
 }
 
 // Represents the subset of page fields that the user is allowed to modify.
@@ -50,6 +53,7 @@ pub struct PageUpdate {
     content: serde_json::Value,
     url_path: String,
     title: String,
+    course_part_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -251,14 +255,16 @@ UPDATE pages
 SET
     content = $2,
     url_path = $3,
-    title = $4
+    title = $4,
+    course_part_id = $5
 WHERE id = $1
 RETURNING *
             "#,
         page_id,
         content_as_json,
         page_update.url_path.trim(),
-        page_update.title.trim()
+        page_update.title.trim(),
+        page_update.course_part_id
     )
     .fetch_one(&mut tx)
     .await?;
@@ -282,6 +288,7 @@ RETURNING *
         id: page.id,
         title: page.title,
         url_path: page.url_path,
+        course_part_id: page.course_part_id,
     });
 }
 
@@ -438,14 +445,15 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
         Page,
         r#"
   INSERT INTO
-    pages(course_id, content, url_path, title)
-  VALUES($1, $2, $3, $4)
+    pages(course_id, content, url_path, title, course_part_id)
+  VALUES($1, $2, $3, $4, $5)
   RETURNING *
           "#,
         new_page.course_id,
         content_as_json,
         new_page.url_path.trim(),
-        new_page.title.trim()
+        new_page.title.trim(),
+        new_page.course_part_id
     )
     .fetch_one(&mut tx)
     .await?;
@@ -466,6 +474,7 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
         id: page.id,
         title: page.title,
         url_path: page.url_path,
+        course_part_id: page.course_part_id,
     });
 }
 

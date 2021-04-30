@@ -31,7 +31,8 @@ Response:
   ],
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
-  "deleted": false
+  "deleted": false,
+  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 */
@@ -68,6 +69,7 @@ Content-Type: application/json
   "url_path": "/part-2/best-page",
   "title": "Hello world!",
   "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
+  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 
@@ -86,7 +88,8 @@ Response:
   ],
   "url_path": "/part-2/best-page",
   "title": "Hello world!",
-  "deleted": false
+  "deleted": false,
+  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 
@@ -116,7 +119,8 @@ Content-Type: application/json
 {
   "content": [{"type": "x"}],
   "url_path": "/part-1/hello-world",
-  "title": "Hello world!"
+  "title": "Hello world!",
+  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 
@@ -135,7 +139,8 @@ Response:
   ],
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
-  "deleted": false
+  "deleted": false,
+  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 */
@@ -173,7 +178,8 @@ Response:
   ],
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
-  "deleted": true
+  "deleted": true,
+  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 */

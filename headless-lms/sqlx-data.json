@@ -144,6 +144,11 @@
           "ordinal": 6,
           "name": "deleted",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
@@ -160,7 +165,8 @@
         false,
         false,
         false,
-        false
+        false,
+        true
       ]
     }
   },
@@ -214,6 +220,11 @@
           "ordinal": 6,
           "name": "deleted",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
@@ -228,7 +239,8 @@
         false,
         false,
         false,
-        false
+        false,
+        true
       ]
     }
   },
@@ -976,6 +988,11 @@
           "ordinal": 6,
           "name": "deleted",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
@@ -990,7 +1007,8 @@
         false,
         false,
         false,
-        false
+        false,
+        true
       ]
     }
   },
@@ -1092,6 +1110,11 @@
           "ordinal": 6,
           "name": "deleted",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
@@ -1108,7 +1131,8 @@
         false,
         false,
         false,
-        false
+        false,
+        true
       ]
     }
   },

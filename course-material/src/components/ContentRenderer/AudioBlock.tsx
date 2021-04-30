@@ -3,17 +3,21 @@ import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 
 interface AudioBlockAttributes {
-  url: string
+  src: string
   caption: string
 }
 
 const AudioBlock: React.FC<BlockRendererProps<AudioBlockAttributes>> = ({ data }) => {
   const attributes: AudioBlockAttributes = data.attributes
   return (
-    <figure>
+    <figure
+      className={css`
+        ${normalWidthCenteredComponentStyles}
+      `}
+    >
       <audio controls>
         <source
-          src={attributes.url}
+          src={attributes.src}
           className={css`
             ${normalWidthCenteredComponentStyles}
           `}

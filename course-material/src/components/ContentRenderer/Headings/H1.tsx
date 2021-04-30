@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import styled from "@emotion/styled"
 
@@ -8,7 +7,7 @@ const H1 = styled.h1`
   font-size: clamp(40px, 4vw, 60px);
 `
 
-const Heading1 = ({ children }) => {
+const Heading1: React.FC = ({ children }) => {
   return (
     <H1
       className={css`

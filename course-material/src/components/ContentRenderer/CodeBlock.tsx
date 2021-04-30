@@ -9,13 +9,13 @@ interface CodeBlockAttributes {
 const CodeBlock: React.FC<BlockRendererProps<CodeBlockAttributes>> = ({ data }) => {
   const attributes: CodeBlockAttributes = data.attributes
   return (
-    <code
+    <pre
       className={css`
         ${normalWidthCenteredComponentStyles}
       `}
     >
-      {attributes.content}
-    </code>
+      <code>{attributes.content}</code>
+    </pre>
   )
 }
 

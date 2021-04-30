@@ -84,14 +84,10 @@ export interface CourseMaterialExercise {
 
 export interface CurrentExerciseItem {
   id: string
-  created_at: Date
-  updated_at: Date
   exercise_id: string
   exercise_type: string
   assignment: unknown[]
-  deleted: boolean
-  spec: null
-  spec_file_id: null
+  public_spec: unknown
 }
 
 export interface Exercise {

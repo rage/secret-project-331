@@ -5,3 +5,5 @@ export const breakpoints = {
   md: "64em",
   lg: "70em",
 }
+
+export const defaultContainerWidth = 780

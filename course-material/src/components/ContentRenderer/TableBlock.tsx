@@ -10,7 +10,7 @@ type TableBlockType = {
 }
 
 type TableBlockCell = {
-  [key:string]: TableBlockType
+  [key: string]: TableBlockType
 }
 
 const TableBlock: React.FC<BlockRendererProps<any>> = ({ data }) => {
@@ -25,21 +25,20 @@ const TableBlock: React.FC<BlockRendererProps<any>> = ({ data }) => {
         ${normalWidthCenteredComponentStyles}
       `}
     >
-    <tr>
-      {headers.map((header) => (
-        <th key={header.content}>{header.content}</th>
-      ))}
-    </tr>
-    <tbody>
-      {body.map((obj, index) => {
-        <tr key={index}>
-          {Object.values(obj)
-            .map((o,index) => {
+      <tr>
+        {headers.map((header) => (
+          <th key={header.content}>{header.content}</th>
+        ))}
+      </tr>
+      <tbody>
+        {body.map((obj, index) => {
+          ;<tr key={index}>
+            {Object.values(obj).map((o, index) => {
               return <td key={index}>{o.content}</td>
             })}
-        </tr>
-      })}
-    </tbody>
+          </tr>
+        })}
+      </tbody>
     </table>
   )
 }

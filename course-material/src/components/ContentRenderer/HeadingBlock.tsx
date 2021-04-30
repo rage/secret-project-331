@@ -30,7 +30,6 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingBlockAttributes>> = ({ da
 
 export default HeadingBlock
 
-
 /* This is a conditional Render for Heading [Work-in-progress]*/
 
 /* const HeadingBlock: React.FC<BlockRendererProps<HeadingBlockAttributes>> = ({ data }) => {

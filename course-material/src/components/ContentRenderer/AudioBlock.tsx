@@ -11,17 +11,16 @@ const AudioBlock: React.FC<BlockRendererProps<AudioBlockAttributes>> = ({ data }
   const attributes: AudioBlockAttributes = data.attributes
   return (
     <figure>
-    <audio controls>
-      <source
-        src={attributes.url}
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-        `}
-      />
+      <audio controls>
+        <source
+          src={attributes.url}
+          className={css`
+            ${normalWidthCenteredComponentStyles}
+          `}
+        />
       </audio>
       <figcaption>{attributes.caption}</figcaption>
-      </figure>
-    
+    </figure>
   )
 }
 

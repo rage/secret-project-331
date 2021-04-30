@@ -133,6 +133,11 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/course_parts`.</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
@@ -158,7 +163,8 @@ Content-Type: application/json
 {
     &quot;name&quot;: &quot;The Basics&quot;,
     &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-    &quot;part_number&quot;: 1
+    &quot;part_number&quot;: 1,
+    &quot;page_id&quot;: null
 }
 ```
 
@@ -171,7 +177,8 @@ Response:
   &quot;name&quot;: &quot;The Basics&quot;,
   &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
   &quot;deleted&quot;: false,
-  &quot;part_number&quot;: 1
+  &quot;part_number&quot;: 1,
+  &quot;page_id&quot;: null
 }
 ```
 */</span>
@@ -196,7 +203,8 @@ DELETE `/api/v0/cms/courses-parts/:course_part_id` - Delete a course part.
   &quot;name&quot;: &quot;The Basics&quot;,
   &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
   &quot;deleted&quot;: true,
-  &quot;part_number&quot;: 1
+  &quot;part_number&quot;: 1,
+  &quot;page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
 }
 ```
 */</span>
@@ -222,7 +230,8 @@ Content-Type: application/json
 
 {
     &quot;name&quot;: &quot;The Basics&quot;,
-    &quot;part_number&quot;: 2
+    &quot;part_number&quot;: 2,
+    &quot;page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
 }
 
 ```
@@ -236,7 +245,8 @@ Response:
   &quot;name&quot;: &quot;The Basics&quot;,
   &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
   &quot;deleted&quot;: false,
-  &quot;part_number&quot;: 2
+  &quot;part_number&quot;: 2,
+  &quot;page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
 }
 ```
 */</span>

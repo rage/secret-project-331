@@ -109,6 +109,9 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::<span class="ident">NaiveDateTime</span>;
@@ -125,20 +128,23 @@
     <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">deleted</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">part_number</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="comment">// Represents the subset of page fields that are required to create a new course.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewCoursePart</span> {
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">part_number</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">part_number</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CoursePartUpdate</span> {
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">part_number</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">part_number</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_course_part</span>(

@@ -5,9 +5,16 @@ import { fetchExerciseById } from "../../../services/backend"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 import HelpIcon from "@material-ui/icons/Help"
+import ExerciseItemIframe from "./ExerciseItemIframe"
+import { defaultContainerWidth } from "../../../styles/constants"
+import { useState } from "react"
 
 interface ExerciseBlockAttributes {
   id: string
+}
+
+const exericseTypeToIframeUrl: { [key: string]: string | undefined } = {
+  example: "/example-exercise/exercise",
 }
 
 // Special care taken here to ensure exercise content can have full width of
@@ -15,6 +22,7 @@ interface ExerciseBlockAttributes {
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const id = props.data.attributes.id
   const { isLoading, error, data } = useQuery(`exercise-${id}`, () => fetchExerciseById(id))
+  const [answer, setAnswer] = useState<unknown>(null)
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -23,6 +31,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   if (isLoading || !data) {
     return <GenericLoading />
   }
+
+  const currentType = data.current_exercise_item.exercise_type
+  const url = exericseTypeToIframeUrl[currentType]
 
   return (
     <div
@@ -72,6 +83,15 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           0/100
         </div>
       </div>
+      {url ? (
+        <ExerciseItemIframe
+          public_spec={data.current_exercise_item.public_spec}
+          url={`${url}?width=${defaultContainerWidth}`}
+          setAnswer={setAnswer}
+        />
+      ) : (
+        "Don't know how to render this assignment"
+      )}
       <pre
         className={css`
           ${normalWidthCenteredComponentStyles}

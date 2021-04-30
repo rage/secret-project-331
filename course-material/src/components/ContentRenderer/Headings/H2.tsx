@@ -1,14 +1,13 @@
 import { css } from "@emotion/css"
-import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import styled from "@emotion/styled"
 
-const H1 = styled.h1`
+const H1 = styled.h2`
   color: red;
   font-size: clamp(40px, 4vw, 60px);
 `
 
-const Heading1 = ({ children }) => {
+const Heading2: React.FC = ({ children }) => {
   return (
     <H1
       className={css`
@@ -20,4 +19,4 @@ const Heading1 = ({ children }) => {
   )
 }
 
-export default Heading1
+export default Heading2

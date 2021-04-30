@@ -26,7 +26,7 @@ interface IFrameEditorProps {
 
 const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  /* If we initially set the iFrame content from props.attributes (i.e. block attributes), 
+  /* If we initially set the iFrame content from props.attributes (i.e. block attributes),
   and we constantly update the state without re-rendering the iFrame we probably should
   use useRecoilSetState to avoid re-rendering.
   So the workflow when entering page edit mode:
@@ -88,7 +88,7 @@ const handleMessageCreator = (
           {
             message: "content",
             message_type: "moocfi/editor-message",
-            data: JSON.parse(props.attributes.spec),
+            data: JSON.parse(props.attributes.private_spec),
           },
           "*",
         )
@@ -102,7 +102,10 @@ const handleMessageCreator = (
       case "current-state2": {
         // Currently this re-renders, we should useRecoilSetState here, right
         // trying now with React.memo?
-        props.setAttributes({ spec: JSON.stringify(event.data.data) })
+        props.setAttributes({
+          public_spec: JSON.stringify(event.data.data.public_spec),
+          private_spec: JSON.stringify(event.data.data.private_spec),
+        })
         return
       }
       default: {

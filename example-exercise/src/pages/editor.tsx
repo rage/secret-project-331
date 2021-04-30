@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import Editor from "../components/Editor"
-
-export interface Alternative {
-  id: string
-  name: string
-  correct: boolean
-}
+import convertStateToSpecs from "../util/convertStateToSpecs"
+import { Alternative } from "../util/stateInterfaces"
 
 const EditorPage: React.FC = () => {
   const [state, _setState] = useState<Alternative[] | null>(null)
@@ -16,7 +12,11 @@ const EditorPage: React.FC = () => {
     _setState(data)
     console.log("Posting current state to parent")
     window.parent.postMessage(
-      { message: "current-state2", message_type: "moocfi/editor-message", data: data },
+      {
+        message: "current-state2",
+        message_type: "moocfi/editor-message",
+        data: convertStateToSpecs(data),
+      },
       "*",
     )
   }
@@ -66,7 +66,7 @@ const handleMessageCreator = (setState: any, state: any) => {
         {
           message: "current-state",
           message_type: "moocfi/editor-message",
-          data: state.current,
+          data: convertStateToSpecs(state.current),
         },
         "*",
       )

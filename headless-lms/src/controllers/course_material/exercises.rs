@@ -11,6 +11,9 @@ use uuid::Uuid;
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
 relevant context so that doing the exercise is possible based on the response.
 
+This endpoint does not expose exercise's private spec because it would
+expose the correct answers to the user.
+
 # Example
 ```json
 {
@@ -33,7 +36,7 @@ relevant context so that doing the exercise is possible based on the response.
     "exercise_type": "example-exercise",
     "assignment": [],
     "deleted": false,
-    "spec": null,
+    "public_spec": null,
     "spec_file_id": null
   },
   "exercise_status": {

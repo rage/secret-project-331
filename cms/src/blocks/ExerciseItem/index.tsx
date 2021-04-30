@@ -7,13 +7,15 @@ import { ComponentType } from "react"
 export interface ExerciseItemAttributes {
   id: string
   exercise_type: string
-  spec: string
+  public_spec: string
+  private_spec: string
 }
 
 const ExerciseItemConfiguration: BlockConfiguration<ExerciseItemAttributes> = {
   title: "ExerciseItem",
   description: "An exercise item",
   category: "embed",
+  parent: ["moocfi/exercise"],
   attributes: {
     id: {
       type: "string",
@@ -23,7 +25,11 @@ const ExerciseItemConfiguration: BlockConfiguration<ExerciseItemAttributes> = {
       type: "string",
       default: null,
     },
-    spec: {
+    public_spec: {
+      type: "string",
+      default: null,
+    },
+    private_spec: {
       type: "string",
       default: null,
     },

@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::models::exercise_items::get_random_exercise_item;
 
-use super::exercise_items::ExerciseItem;
+use super::exercise_items::CourseMaterialExerciseItem;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Exercise {
@@ -24,7 +24,7 @@ pub struct Exercise {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
-    pub current_exercise_item: ExerciseItem,
+    pub current_exercise_item: CourseMaterialExerciseItem,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
 }

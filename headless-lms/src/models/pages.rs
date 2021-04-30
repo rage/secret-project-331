@@ -65,7 +65,8 @@ pub struct PageUpdateExerciseItem {
     pub id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
-    pub spec: Option<serde_json::Value>,
+    pub public_spec: Option<serde_json::Value>,
+    pub private_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -73,15 +74,17 @@ pub struct PageUpdateExerciseItemWithExerciseId {
     pub id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
-    pub spec: Option<serde_json::Value>,
+    pub public_spec: Option<serde_json::Value>,
+    pub private_spec: Option<serde_json::Value>,
     pub exercise_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct PageExerciseItem {
-    exercise_type: String,
-    assignment: serde_json::Value,
-    spec: Option<serde_json::Value>,
+    pub exercise_type: String,
+    pub assignment: serde_json::Value,
+    pub public_spec: Option<serde_json::Value>,
+    pub private_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -120,7 +123,8 @@ struct ExerciseItem {
     exercise_type: String,
     assignment: serde_json::Value,
     deleted: bool,
-    spec: Option<serde_json::Value>,
+    public_spec: Option<serde_json::Value>,
+    private_spec: Option<serde_json::Value>,
     spec_file_id: Option<Uuid>,
 }
 
@@ -177,7 +181,7 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
 
     let exercise_items: Vec<PageUpdateExerciseItemWithExerciseId> = sqlx::query_as!(
         PageUpdateExerciseItemWithExerciseId,
-        "SELECT id, exercise_type, assignment, spec, exercise_id FROM exercise_items WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
+        "SELECT id, exercise_type, assignment, public_spec, private_spec, exercise_id FROM exercise_items WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
         page_id
     )
     .fetch_all(&mut connection)
@@ -196,7 +200,8 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
                         id: i.id,
                         exercise_type: i.exercise_type,
                         assignment: i.assignment,
-                        spec: i.spec,
+                        public_spec: i.public_spec,
+                        private_spec: i.private_spec,
                     })
                     .collect(),
             )
@@ -373,17 +378,18 @@ RETURNING *;
             let exercise_item: PageUpdateExerciseItem = sqlx::query_as!(
                 PageUpdateExerciseItem,
                 r#"
-INSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, spec)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO UPDATE
-SET exercise_id=$2, exercise_type=$3, assignment=$4, spec=$5, deleted=false
-RETURNING id, exercise_type, assignment, spec;
+SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted=false
+RETURNING id, exercise_type, assignment, public_spec, private_spec;
         "#,
                 safe_for_db_exercise_item_id,
                 safe_for_db_exercise_id,
                 item_update.exercise_type,
                 item_update.assignment,
-                item_update.spec
+                item_update.public_spec,
+                item_update.private_spec,
             )
             .fetch_one(&mut *connection)
             .await?;

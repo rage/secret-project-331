@@ -18,6 +18,7 @@ export interface Page extends DatabaseItem {
   url_path: string
   title: string
   deleted: boolean
+  course_part_id: string | null
 }
 
 /**
@@ -51,11 +52,10 @@ export interface ExerciseItem extends DatabaseItem {
  * `${API_URL}/api/v0/cms/pages/${page_id}`
  */
 export interface PageUpdate {
-  page_id: string
+  page_id?: string
   content: BlockInstance[]
   url_path: string
   title: string
-  // exercises: Array<PageUpdateExercise>
 }
 
 export interface PageUpdateExercise {
@@ -80,7 +80,7 @@ export interface NewPage {
   url_path: string
   title: string
   course_id: string
-  exercises: Array<PageUpdateExercise>
+  course_part_id: string | null
 }
 
 /**
@@ -116,6 +116,7 @@ export interface CoursePart extends DatabaseItem {
   course_id: string
   deleted: boolean
   part_number: number
+  page_id: string | null
 }
 
 /**
@@ -125,4 +126,5 @@ export interface NewCoursePart {
   name: string
   course_id: string
   part_number: number
+  page_id: string | null
 }

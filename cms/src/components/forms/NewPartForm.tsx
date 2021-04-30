@@ -29,6 +29,7 @@ const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm }) => 
         course_id: courseId,
         name: name,
         part_number: part,
+        page_id: null,
       })
       onSubmitForm()
     }

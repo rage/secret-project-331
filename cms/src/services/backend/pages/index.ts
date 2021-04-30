@@ -1,7 +1,7 @@
 import axios from "axios"
-import { NewPage, PageUpdate, PageWithExercises } from "../../services.types"
+import { NewPage, Page, PageUpdate } from "../../services.types"
 
-const fetchPageWithId = async (pageId: string): Promise<PageWithExercises> => {
+const fetchPageWithId = async (pageId: string): Promise<Page> => {
   const url = `/api/v0/cms/pages/${pageId}`
   try {
     const data = (await axios.get(url, { responseType: "json" })).data
@@ -12,7 +12,7 @@ const fetchPageWithId = async (pageId: string): Promise<PageWithExercises> => {
   }
 }
 
-const postNewPage = async (data: NewPage): Promise<PageWithExercises> => {
+const postNewPage = async (data: NewPage): Promise<Page> => {
   const url = `/api/v0/cms/pages`
   try {
     const response = await axios.post(url, data, {
@@ -28,10 +28,9 @@ const postNewPage = async (data: NewPage): Promise<PageWithExercises> => {
 const updateExistingPage = async ({
   page_id,
   content,
-  //exercises,
   url_path,
   title,
-}: PageUpdate): Promise<PageWithExercises> => {
+}: PageUpdate): Promise<Page> => {
   const url = `/api/v0/cms/pages/${page_id}`
   try {
     const response = await axios.put(
@@ -49,7 +48,7 @@ const updateExistingPage = async ({
   }
 }
 
-const deletePage = async (page_id: string): Promise<PageWithExercises> => {
+const deletePage = async (page_id: string): Promise<Page> => {
   const url = `/api/v0/cms/pages/${page_id}`
   try {
     const response = await axios.delete(url)

@@ -24,39 +24,22 @@ import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 
 import Exercise, { ExerciseAttributes } from "../blocks/Exercise"
 import ExerciseItem from "../blocks/ExerciseItem"
-import { Button } from "@material-ui/core"
-import { Page, PageWithExercises } from "../services/services.types"
-import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
-import { css } from "@emotion/css"
-import { updateExistingPage } from "../services/backend/pages"
 
 interface EditorProps {
-  data: PageWithExercises
+  content: BlockInstance[]
+  onContentChange: React.Dispatch<BlockInstance[]>
 }
 
 const Editor: React.FC<EditorProps> = (props: EditorProps) => {
-  const { content, url_path, title, id } = props.data
-  const [blocks, setBlocks] = useState<BlockInstance[]>(content)
+  const { content, onContentChange } = props
 
   const handleChanges = (page: BlockInstance<ExerciseAttributes>[]): void => {
     console.log(page)
-    setBlocks(page)
+    onContentChange(page)
   }
   const handleInput = (page: BlockInstance<ExerciseAttributes>[]): void => {
     console.log(page)
-    setBlocks(page)
-  }
-
-  const handleSave = (): void => {
-    updateExistingPage({
-      page_id: id,
-      content: blocks,
-      url_path,
-      title,
-    }).then((res: Page) => {
-      console.log(res)
-      setBlocks(res.content)
-    })
+    onContentChange(page)
   }
 
   useEffect(() => {
@@ -66,15 +49,10 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
   }, [])
 
   return (
-    <div
-      className={css`
-        ${normalWidthCenteredComponentStyles}
-      `}
-    >
-      <Button onClick={handleSave}>Save</Button>
+    <div>
       <SlotFillProvider>
         <DropZoneProvider>
-          <BlockEditorProvider value={blocks} onInput={handleInput} onChange={handleChanges}>
+          <BlockEditorProvider value={content} onInput={handleInput} onChange={handleChanges}>
             <div className="playground__sidebar">
               <BlockInspector />
             </div>

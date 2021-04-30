@@ -8,7 +8,7 @@ import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUn
 import { Typography, Grid, Button } from "@material-ui/core"
 import NewPageForm from "../../../components/forms/NewPageForm"
 import { CoursePart, Page } from "../../../services/services.types"
-import { deletePage } from "../../../services/backend/pages"
+import { deletePage, postNewPage } from "../../../services/backend/pages"
 import { fetchCourseStructure } from "../../../services/backend/courses"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import { css } from "@emotion/css"
@@ -133,8 +133,25 @@ const CoursePages: React.FC<unknown> = () => {
           {data.course_parts
             .filter((part) => !part.deleted)
             .map((part: CoursePart) => (
-              <div key={part.id}>
+              <div onClick={() => router.push(`/pages/${part.page_id}`)} key={part.id}>
                 <p>{part.name}</p>
+                <p>{part.part_number}</p>
+                {part.page_id ?? (
+                  <Button
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      await postNewPage({
+                        content: [],
+                        url_path: `/part-${part.part_number}`,
+                        title: part.name,
+                        course_id: part.course_id,
+                        course_part_id: part.id,
+                      })
+                    }}
+                  >
+                    Create part frontpage
+                  </Button>
+                )}
               </div>
             ))}
           {!showNewPartForm && (

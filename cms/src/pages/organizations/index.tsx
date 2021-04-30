@@ -19,6 +19,7 @@ const Home: React.FC = () => {
 
   return (
     <Layout>
+      <h1>Organizations</h1>
       {data.map((organization) => (
         <div key={organization.id}>
           <Link

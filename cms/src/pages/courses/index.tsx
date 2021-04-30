@@ -19,6 +19,7 @@ const Home: React.FC = () => {
 
   return (
     <Layout>
+      <h1>All courses in all organizations</h1>
       {data.map((c) => (
         <div key={c.id}>
           <div>Name: {c.name}</div>

@@ -1,17 +1,11 @@
 import Layout from "../../components/Layout"
-import dynamic from "next/dynamic"
 import { useQuery } from "react-query"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../utils/dontRenderUntilQueryParametersReady"
-import { fetchPageWithId } from "../../services/backend/pages"
-
-const EditorLoading = <div>Loading editor...</div>
-
-const Editor = dynamic(() => import("../../components/Editor"), {
-  ssr: false,
-  loading: () => EditorLoading,
-})
+import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
+import { Page, PageUpdate } from "../../services/services.types"
+import PageEditor from "../../components/PageEditor"
 
 interface PagesProps {
   query: SimplifiedUrlQuery
@@ -19,7 +13,7 @@ interface PagesProps {
 
 const Pages = ({ query }: PagesProps) => {
   const { id } = query
-  const { isLoading, error, data } = useQuery(`page-${id}`, () => fetchPageWithId(id))
+  const { isLoading, error, data, refetch } = useQuery(`page-${id}`, () => fetchPageWithId(id))
 
   if (error) {
     return (
@@ -34,9 +28,19 @@ const Pages = ({ query }: PagesProps) => {
     return <div>Loading page...</div>
   }
 
+  const handleSave = (page: PageUpdate): void => {
+    updateExistingPage({
+      page_id: id,
+      ...page,
+    }).then((res: Page) => {
+      console.log(res)
+      refetch()
+    })
+  }
+
   return (
     <Layout>
-      <Editor data={data} />
+      <PageEditor data={data} handleSave={handleSave} />
       <pre>{JSON.stringify(data, undefined, 2)}</pre>
     </Layout>
   )

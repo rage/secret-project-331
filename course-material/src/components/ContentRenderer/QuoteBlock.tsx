@@ -16,10 +16,9 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteBlockAttributes>> = ({ data }
       `}
       cite={attributes.citation}
     >
-    {attributes.value}
-    <cite>{attributes.citation}</cite>
+      {attributes.value}
+      <cite>{attributes.citation}</cite>
     </blockquote>
-
   )
 }
 

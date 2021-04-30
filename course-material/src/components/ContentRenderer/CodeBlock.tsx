@@ -14,7 +14,7 @@ const CodeBlock: React.FC<BlockRendererProps<CodeBlockAttributes>> = ({ data }) 
         ${normalWidthCenteredComponentStyles}
       `}
     >
-    {attributes.content}
+      {attributes.content}
     </code>
   )
 }

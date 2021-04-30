@@ -45,6 +45,8 @@ pub struct NewPage {
     title: String,
     course_id: Uuid,
     course_part_id: Option<Uuid>,
+    /// If set, set this page to be the front page of this course part.
+    front_page_of_course_part_id: Option<Uuid>,
 }
 
 // Represents the subset of page fields that the user is allowed to modify.
@@ -54,6 +56,8 @@ pub struct PageUpdate {
     url_path: String,
     title: String,
     course_part_id: Option<Uuid>,
+    /// If set, set this page to be the front page of this course part.
+    front_page_of_course_part_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -272,12 +276,26 @@ RETURNING *
     let (result_exercises, new_content) =
         upsert_exercises_and_exercise_items(&exercises, &page, &mut tx).await?;
 
-    tx.commit().await?;
-
     let denormalized_content = denormalize(NormalizedDocument {
         content: serde_json::from_value(new_content)?,
         exercises: result_exercises,
     })?;
+
+    if let Some(front_page_of_course_part_id) = page_update.front_page_of_course_part_id {
+        let _res = sqlx::query_as!(
+            CoursePart,
+            r#"
+UPDATE course_parts SET page_id = $1 WHERE id = $2
+        "#,
+            page_id,
+            front_page_of_course_part_id
+        )
+        // this should fail if no rows returned
+        .fetch_one(&mut tx)
+        .await?;
+    }
+
+    tx.commit().await?;
 
     return Ok(Page {
         content: serde_json::to_value(denormalized_content)?,
@@ -460,11 +478,27 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
 
     let (result_exercises, new_content) =
         upsert_exercises_and_exercise_items(&exercises, &page, &mut tx).await?;
-    tx.commit().await?;
+
     let denormalized_content = denormalize(NormalizedDocument {
         content: serde_json::from_value(new_content)?,
         exercises: result_exercises,
     })?;
+
+    if let Some(front_page_of_course_part_id) = new_page.front_page_of_course_part_id {
+        let _res = sqlx::query_as!(
+            CoursePart,
+            r#"
+UPDATE course_parts SET page_id = $1 WHERE id = $2
+        "#,
+            page.id,
+            front_page_of_course_part_id
+        )
+        // this should fail if no rows returned
+        .fetch_one(&mut tx)
+        .await?;
+    }
+
+    tx.commit().await?;
     return Ok(Page {
         content: serde_json::to_value(denormalized_content)?,
         course_id: page.course_id,

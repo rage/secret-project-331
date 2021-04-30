@@ -141,6 +141,19 @@
       ]
     }
   },
+  "332f201c9af83a88d4c1d12e791d9ec4ece927e0252ca761dcbeddb5a234198e": {
+    "query": "\nUPDATE course_parts SET page_id = $1 WHERE id = $2\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "33ec62c0457e0d68ebcca178fc8e1a92445d32c4d1c3e83596b566664bcf26c4": {
     "query": "\nUPDATE course_parts\n    SET name = $1,\n    part_number = $2\nWHERE\n    id = $3\n    RETURNING *\n    ",
     "describe": {

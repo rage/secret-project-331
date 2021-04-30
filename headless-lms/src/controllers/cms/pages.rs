@@ -52,6 +52,8 @@ POST `/api/v0/cms/pages` - Create a new page.
 
 Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
 
+If optional property front_page_of_course_part_id is set, this page will become the front page of the specified course part.
+
 # Example:
 
 Request:
@@ -89,7 +91,8 @@ Response:
   "url_path": "/part-2/best-page",
   "title": "Hello world!",
   "deleted": false,
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
+  "front_page_of_course_part_id": null
 }
 ```
 
@@ -107,6 +110,8 @@ async fn post_new_page(
 PUT `/api/v0/cms/pages/:page_id` - Update a page by id.
 
 Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
+
+If optional property front_page_of_course_part_id is set, this page will become the front page of the specified course part.
 
 # Example:
 
@@ -140,7 +145,8 @@ Response:
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
   "deleted": false,
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
+  "front_page_of_course_part_id": null
 }
 ```
 */

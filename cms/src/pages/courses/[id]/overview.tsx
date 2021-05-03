@@ -67,6 +67,8 @@ const CoursePages: React.FC<unknown> = () => {
 
   const maxPart = max(data.course_parts.map((p) => p.part_number))
 
+  const frontPage = data.pages.find((page) => page.url_path === "/")
+
   return (
     <Layout>
       <div
@@ -76,6 +78,22 @@ const CoursePages: React.FC<unknown> = () => {
         `}
       >
         <h1>Course overview for {data.course.name}</h1>
+        {!frontPage && (
+          <Button
+            onClick={async (_e) => {
+              await postNewPage({
+                content: [],
+                url_path: `/`,
+                title: data.course.name,
+                course_id: data.course.id,
+                course_part_id: null,
+              })
+              await refetch()
+            }}
+          >
+            Create front page for the course
+          </Button>
+        )}
         <PageList
           data={data.pages.filter((page) => !page.course_part_id)}
           refetch={refetch}

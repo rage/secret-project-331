@@ -3,13 +3,7 @@ import styled from "@emotion/styled"
 import { Button, TextField } from "@material-ui/core"
 import React, { useState } from "react"
 import { postNewCourse } from "../../services/backend/courses"
-import { postNewPage } from "../../services/backend/pages"
 import { normalizePath } from "../../utils/normalizePath"
-
-const PathFieldWithPrefixElement = styled.div`
-  display: flex;
-  align-items: center;
-`
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

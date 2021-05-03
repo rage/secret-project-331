@@ -31,7 +31,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({ courseId, onSubmitForm }) => 
       content: [],
       url_path: path,
       title,
-      exercises: [],
+      course_part_id: null,
     })
     onSubmitForm()
   }
@@ -41,6 +41,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({ courseId, onSubmitForm }) => 
       <div>
         <StyledTextField
           required
+          fullWidth
           id="outlined-required"
           label="Title"
           variant="outlined"
@@ -52,6 +53,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({ courseId, onSubmitForm }) => 
         />
         <StyledTextField
           required
+          fullWidth
           id="outlined-required"
           label="Path"
           variant="outlined"

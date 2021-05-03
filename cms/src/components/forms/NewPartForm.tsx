@@ -41,6 +41,7 @@ const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm }) => 
         <StyledTextField
           required
           id="outlined-required"
+          fullWidth
           label="Name"
           variant="outlined"
           value={name}
@@ -51,6 +52,7 @@ const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm }) => 
         <StyledTextField
           required
           id="outlined-required"
+          fullWidth
           label="Part number"
           variant="outlined"
           type="number"

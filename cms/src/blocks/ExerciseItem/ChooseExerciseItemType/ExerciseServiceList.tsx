@@ -1,4 +1,4 @@
-import { List, ListItem, Typography } from "@material-ui/core"
+import { List, ListItem } from "@material-ui/core"
 
 export interface ExerciseItemTypes {
   name: string
@@ -19,7 +19,7 @@ interface Props {
 const ExerciseServiceList: React.FC<Props> = ({ onChooseItem }) => {
   return (
     <div>
-      <Typography>Please select an exercise type:</Typography>
+      <h2>Please select an exercise type:</h2>
       <List>
         {exerciseItemTypes.map((eit) => (
           <ListItem

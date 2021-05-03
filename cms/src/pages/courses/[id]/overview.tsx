@@ -5,7 +5,7 @@ import Link from "next/link"
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { useQuery } from "react-query"
 import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
-import { Typography, Grid, Button } from "@material-ui/core"
+import { Button, Dialog } from "@material-ui/core"
 import NewPageForm from "../../../components/forms/NewPageForm"
 import { CoursePart, Page } from "../../../services/services.types"
 import { deletePage, postNewPage } from "../../../services/backend/pages"
@@ -14,27 +14,19 @@ import { normalWidthCenteredComponentStyles } from "../../../styles/componentSty
 import { css } from "@emotion/css"
 import NewPartForm from "../../../components/forms/NewPartForm"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons"
+import { faTrash } from "@fortawesome/free-solid-svg-icons"
 
 import styled from "@emotion/styled"
-import { useRouter } from "next/router"
+import DebugModal from "../../../components/DebugModal"
+import PageList from "../../../components/PageList"
+import { groupBy } from "lodash"
 
 const DeleteButton = styled.button`
-  color: red;
   border: 0;
-
-  &:hover {
-    cursor: pointer;
-  }
-`
-
-const EditButton = styled.button`
-  color: blue;
-  border: 0;
-
-  &:hover {
-    cursor: pointer;
-  }
+  border: none;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
 `
 
 const CoursePages: React.FC<unknown> = () => {
@@ -44,7 +36,6 @@ const CoursePages: React.FC<unknown> = () => {
   )
   const [showNewPageForm, setShowNewPageForm] = useState(false)
   const [showNewPartForm, setShowNewPartForm] = useState(false)
-  const router = useRouter()
 
   if (error) {
     return <div>Error overview.</div>
@@ -72,74 +63,41 @@ const CoursePages: React.FC<unknown> = () => {
     refetch()
   }
 
+  const pagesByPart = groupBy(data.pages, "course_part_id")
+
   return (
     <Layout>
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}
+          margin-bottom: 1rem;
         `}
       >
-        <Typography>
-          Course overview for <b>{data.course.name}</b>
-        </Typography>
-        <Grid key={data.course.id} style={{ margin: "0.5em 0" }} container spacing={1}>
-          <Grid item xs={4}>
-            <h3>Path</h3>
-          </Grid>
-          <Grid item xs={6}>
-            <h3>Title</h3>
-          </Grid>
-          <Grid item xs={1}>
-            <h3>Edit</h3>
-          </Grid>
-          <Grid item xs={1}>
-            <h3>Delete</h3>
-          </Grid>
-          {data.pages
-            .filter((page) => !page.deleted)
-            .map((page: Page) => (
-              <>
-                <Grid item xs={4}>
-                  {page.url_path}
-                </Grid>
-                <Grid item xs={6}>
-                  <Link href="/pages/[id]" as={`/pages/${page.id}`}>
-                    {page.title}
-                  </Link>
-                </Grid>
-                <Grid item xs={1}>
-                  <EditButton onClick={() => router.push(`/pages/${page.id}`)}>
-                    <FontAwesomeIcon icon={faPen} size="lg" />
-                  </EditButton>
-                </Grid>
-                <Grid item xs={1}>
-                  <DeleteButton onClick={() => handleDeleteTopLevelPage(page.id, page.title)}>
-                    <FontAwesomeIcon icon={faTrash} size="lg" />
-                  </DeleteButton>
-                </Grid>
-              </>
-            ))}
-        </Grid>
-        {!showNewPageForm && (
-          <Button onClick={() => setShowNewPageForm(!showNewPageForm)}>New top level page</Button>
-        )}
-        {showNewPageForm && (
-          <div>
-            <Button onClick={() => setShowNewPageForm(!showNewPageForm)}>Hide</Button>
-            <NewPageForm courseId={id} onSubmitForm={handleCreateTopLevelPage} />
-          </div>
-        )}
+        <h1>Course overview for {data.course.name}</h1>
+        <PageList
+          data={data.pages.filter((page) => !page.course_part_id)}
+          refetch={refetch}
+          courseId={id}
+        />
         <div>
           {data.course_parts
             .filter((part) => !part.deleted)
             .map((part: CoursePart) => (
-              <div onClick={() => router.push(`/pages/${part.page_id}`)} key={part.id}>
-                <p>{part.name}</p>
-                <p>{part.part_number}</p>
+              <div
+                className={css`
+                  border: 1px solid black;
+                  padding: 2rem;
+                  margin-bottom: 1rem;
+                `}
+                key={part.id}
+              >
+                <h3>
+                  Part {part.part_number}: {part.name}
+                </h3>
+                <p></p>
                 {part.page_id ?? (
                   <Button
-                    onClick={async (e) => {
-                      e.stopPropagation()
+                    onClick={async (_e) => {
                       await postNewPage({
                         content: [],
                         url_path: `/part-${part.part_number}`,
@@ -149,23 +107,25 @@ const CoursePages: React.FC<unknown> = () => {
                       })
                     }}
                   >
-                    Create part frontpage
+                    Create part front page
                   </Button>
                 )}
+                <PageList data={pagesByPart[part.id] ?? []} refetch={refetch} courseId={id} />
               </div>
             ))}
-          {!showNewPartForm && (
-            <Button onClick={() => setShowNewPartForm(!showNewPartForm)}>Add new part</Button>
-          )}
-          {showNewPartForm && (
+
+          <Button onClick={() => setShowNewPartForm(!showNewPartForm)}>Add new part</Button>
+
+          <Dialog open={showNewPartForm} onClose={() => setShowNewPartForm(!showNewPartForm)}>
             <div>
-              <Button onClick={() => setShowNewPartForm(!showNewPartForm)}>Hide</Button>
+              <Button onClick={() => setShowNewPartForm(!showNewPartForm)}>Close</Button>
               <NewPartForm courseId={id} onSubmitForm={handleCreatePart} />
             </div>
-          )}
+          </Dialog>
         </div>
       </div>
-      <pre>{JSON.stringify(data, undefined, 2)}</pre>
+
+      <DebugModal data={data} />
     </Layout>
   )
 }

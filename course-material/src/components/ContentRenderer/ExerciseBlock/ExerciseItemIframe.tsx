@@ -38,6 +38,7 @@ const ExerciseItemIframe: React.FC<ExerciseItemIframeProps> = ({ url, public_spe
       window.removeEventListener("message", handleMessage)
     }
     return removeListener
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (!url) {

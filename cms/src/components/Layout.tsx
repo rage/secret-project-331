@@ -9,25 +9,26 @@ type Props = {
   title?: string
 }
 
-const NavStyles = css`
-  margin-bottom: 10px;
-`
-
-const FooterStyles = css`
-  margin-top: 10px;
-`
-
 const Layout: React.FC<Props> = ({ children, title = "Päätön CMS" }) => (
-  <div style={{ margin: "1em" }}>
+  <div
+    className={css`
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    `}
+  >
     <Head>
       <title>{title}</title>
       <meta charSet="utf-8" />
       <meta name="viewport" content="initial-scale=1.0, width=device-width" />
     </Head>
     <header>
-      <nav className={NavStyles}>
-        <Link href="/">Home</Link> | <Link href="/organizations">Organizations</Link> |{" "}
-        <Link href="/courses">Courses</Link>{" "}
+      <nav
+        className={css`
+          padding: 1rem;
+        `}
+      >
+        <Link href="/">Home</Link>
       </nav>
     </header>
     <div
@@ -37,9 +38,13 @@ const Layout: React.FC<Props> = ({ children, title = "Päätön CMS" }) => (
     >
       {children}
     </div>
-    <footer className={FooterStyles}>
-      <span>2021 Helsingin yliopisto</span>
-    </footer>
+    <footer
+      className={css`
+        margin-top: auto;
+        background-color: #f1f1f1;
+        height: 10rem;
+      `}
+    ></footer>
   </div>
 )
 

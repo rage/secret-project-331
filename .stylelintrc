@@ -9,6 +9,7 @@
     "no-eol-whitespace": null,
     "no-invalid-double-slash-comments": true,
     "named-grid-areas-no-invalid": null,
-    "declaration-colon-newline-after": null
+    "declaration-colon-newline-after": null,
+    "value-list-comma-newline-after": null
   }
 }

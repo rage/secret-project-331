@@ -7,10 +7,10 @@ use std::str::FromStr;
 use uuid::Uuid;
 
 /**
-GET `/:course_id:/page-by-path/...` - Returns a course page by path
+GET `/:course_slug/page-by-path/...` - Returns a course page by path
 # Example
 
-GET /api/v0/course-material/courses/10363c5b-82b4-4121-8ef1-bae8fb42a5ce/page-by-path//part-2/hello-world
+GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 
 
 ```json
@@ -31,15 +31,14 @@ async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
-    let (request_course_id, raw_page_path) = params.into_inner();
+    let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
         raw_page_path
     } else {
         format!("/{}", raw_page_path)
     };
-    let course_id = Uuid::from_str(&request_course_id)?;
 
-    let page = crate::models::pages::get_page_by_path(pool.get_ref(), course_id, &path).await?;
+    let page = crate::models::pages::get_page_by_path(pool.get_ref(), course_slug, &path).await?;
     Ok(Json(page))
 }
 

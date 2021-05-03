@@ -41,7 +41,6 @@ const Pages = ({ query }: PagesProps) => {
   return (
     <Layout>
       <PageEditor data={data} handleSave={handleSave} />
-      <pre>{JSON.stringify(data, undefined, 2)}</pre>
     </Layout>
   )
 }

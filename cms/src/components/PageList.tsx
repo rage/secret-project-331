@@ -32,9 +32,10 @@ interface Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refetch: () => any
   courseId: string
+  coursePart?: CoursePart
 }
 
-const PageList: React.FC<Props> = ({ data, refetch, courseId }) => {
+const PageList: React.FC<Props> = ({ data, refetch, courseId, coursePart }) => {
   const [showNewPageForm, setShowNewPageForm] = useState(false)
   const handleCreateTopLevelPage = () => {
     setShowNewPageForm(!showNewPageForm)
@@ -84,7 +85,12 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId }) => {
       <Dialog open={showNewPageForm} onClose={() => setShowNewPageForm(!showNewPageForm)}>
         <div>
           <Button onClick={() => setShowNewPageForm(!showNewPageForm)}>Close</Button>
-          <NewPageForm courseId={courseId} onSubmitForm={handleCreateTopLevelPage} />
+          <NewPageForm
+            coursePartId={coursePart?.id}
+            courseId={courseId}
+            onSubmitForm={handleCreateTopLevelPage}
+            prefix={coursePart && `/part-${coursePart.part_number}/`}
+          />
         </div>
       </Dialog>
     </div>

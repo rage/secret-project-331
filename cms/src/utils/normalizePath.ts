@@ -1,3 +1,3 @@
 export const normalizePath = (title: string): string => {
-  return "/" + title.split(" ").join("-").toLocaleLowerCase()
+  return title.split(" ").join("-").toLocaleLowerCase()
 }

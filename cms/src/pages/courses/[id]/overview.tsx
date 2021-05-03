@@ -82,6 +82,7 @@ const CoursePages: React.FC<unknown> = () => {
         <div>
           {data.course_parts
             .filter((part) => !part.deleted)
+            .sort((a, b) => a.part_number - b.part_number)
             .map((part: CoursePart) => (
               <div
                 className={css`
@@ -94,8 +95,7 @@ const CoursePages: React.FC<unknown> = () => {
                 <h3>
                   Part {part.part_number}: {part.name}
                 </h3>
-                <p></p>
-                {part.page_id ?? (
+                {!part.page_id && (
                   <Button
                     onClick={async (_e) => {
                       await postNewPage({
@@ -104,13 +104,20 @@ const CoursePages: React.FC<unknown> = () => {
                         title: part.name,
                         course_id: part.course_id,
                         course_part_id: part.id,
+                        front_page_of_course_part_id: part.id,
                       })
+                      await refetch()
                     }}
                   >
                     Create part front page
                   </Button>
                 )}
-                <PageList data={pagesByPart[part.id] ?? []} refetch={refetch} courseId={id} />
+                <PageList
+                  data={pagesByPart[part.id] ?? []}
+                  refetch={refetch}
+                  courseId={id}
+                  coursePart={part}
+                />
               </div>
             ))}
 

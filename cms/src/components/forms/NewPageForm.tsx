@@ -1,70 +1,93 @@
+import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { Button, TextField } from "@material-ui/core"
-import { withStyles } from "@material-ui/styles"
 import React, { useState } from "react"
 import { postNewPage } from "../../services/backend/pages"
 import { normalizePath } from "../../utils/normalizePath"
 
-const StyledTextField = withStyles({
-  root: {
-    margin: "0.3em",
-  },
-})(TextField)
+const PathFieldWithPrefixElement = styled.div`
+  display: flex;
+  align-items: center;
+`
 
-const StyledButton = withStyles({
-  root: {
-    margin: "0.3em",
-  },
-})(Button)
+const FieldContainer = styled.div`
+  margin-bottom: 1rem;
+`
 
 interface NewPageFormProps {
   courseId: string
   onSubmitForm: () => void
+  coursePartId?: string
+  prefix?: string
 }
 
-const NewPageForm: React.FC<NewPageFormProps> = ({ courseId, onSubmitForm }) => {
-  const [path, setPath] = useState("/")
+const NewPageForm: React.FC<NewPageFormProps> = ({
+  courseId,
+  onSubmitForm,
+  coursePartId,
+  prefix = "/",
+}) => {
+  const [path, setPath] = useState("")
   const [title, setTitle] = useState("")
 
   const createNewPage = async () => {
     await postNewPage({
       course_id: courseId,
       content: [],
-      url_path: path,
+      url_path: `${prefix}${path}`,
       title,
-      course_part_id: null,
+      course_part_id: coursePartId,
     })
     onSubmitForm()
   }
 
   return (
-    <div style={{ padding: "1em" }}>
+    <div
+      className={css`
+        width: 500px;
+        padding: 1rem;
+      `}
+    >
       <div>
-        <StyledTextField
-          required
-          fullWidth
-          id="outlined-required"
-          label="Title"
-          variant="outlined"
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value)
-            setPath(normalizePath(e.target.value))
-          }}
-        />
-        <StyledTextField
-          required
-          fullWidth
-          id="outlined-required"
-          label="Path"
-          variant="outlined"
-          value={path}
-          onChange={(e) => {
-            setPath(e.target.value)
-          }}
-        />
+        <FieldContainer>
+          <TextField
+            required
+            fullWidth
+            id="outlined-required"
+            label="Title"
+            variant="outlined"
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value)
+              setPath(normalizePath(e.target.value))
+            }}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <PathFieldWithPrefixElement>
+            <span
+              className={css`
+                margin-right: 0.5rem;
+              `}
+            >
+              {prefix}
+            </span>
+            <TextField
+              required
+              fullWidth
+              id="outlined-required"
+              label="Path"
+              variant="outlined"
+              value={path}
+              onChange={(e) => {
+                setPath(e.target.value)
+              }}
+            />
+          </PathFieldWithPrefixElement>
+        </FieldContainer>
       </div>
       <div>
-        <StyledButton onClick={createNewPage}>Create page</StyledButton>
+        <Button onClick={createNewPage}>Create page</Button>
       </div>
     </div>
   )

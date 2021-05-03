@@ -81,6 +81,8 @@ export interface NewPage {
   title: string
   course_id: string
   course_part_id: string | null
+  // If set, set this page to be the front page of this course part.
+  front_page_of_course_part_id?: string
 }
 
 /**

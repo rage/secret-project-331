@@ -9,6 +9,11 @@ const StyledTextField = styled(TextField)`
 const StyledButton = styled(Button)`
   margin: 0.3rem;
 `
+
+const FieldContainer = styled.div`
+  margin-bottom: 1rem;
+`
+
 interface NewPartFormProps {
   courseId: string
   onSubmitForm: () => void
@@ -34,29 +39,33 @@ const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm, partN
   return (
     <div style={{ padding: "1em" }}>
       <div>
-        <StyledTextField
-          required
-          id="outlined-required"
-          fullWidth
-          label="Name"
-          variant="outlined"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value)
-          }}
-        />
-        <StyledTextField
-          required
-          id="outlined-required"
-          fullWidth
-          label="Part number"
-          variant="outlined"
-          type="number"
-          value={part}
-          onChange={(e) => {
-            setPart(Number(e.target.value))
-          }}
-        />
+        <FieldContainer>
+          <StyledTextField
+            required
+            id="outlined-required"
+            fullWidth
+            label="Name"
+            variant="outlined"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value)
+            }}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <StyledTextField
+            required
+            id="outlined-required"
+            fullWidth
+            label="Part number"
+            variant="outlined"
+            type="number"
+            value={part}
+            onChange={(e) => {
+              setPart(Number(e.target.value))
+            }}
+          />
+        </FieldContainer>
       </div>
       <div>
         <StyledButton onClick={createNewCoursePart}>Create part</StyledButton>

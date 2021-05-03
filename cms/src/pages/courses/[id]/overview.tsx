@@ -128,7 +128,11 @@ const CoursePages: React.FC<unknown> = () => {
           <Dialog open={showNewPartForm} onClose={() => setShowNewPartForm(!showNewPartForm)}>
             <div>
               <Button onClick={() => setShowNewPartForm(!showNewPartForm)}>Close</Button>
-              <NewPartForm courseId={id} onSubmitForm={handleCreatePart} partNumber={maxPart + 1} />
+              <NewPartForm
+                courseId={id}
+                onSubmitForm={handleCreatePart}
+                partNumber={maxPart + 1 || 1}
+              />
             </div>
           </Dialog>
         </div>

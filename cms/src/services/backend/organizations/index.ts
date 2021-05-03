@@ -1,5 +1,5 @@
 import axios from "axios"
-import { Organization } from "../../services.types"
+import { Course, Organization } from "../../services.types"
 
 const fetchOrganizations = async (): Promise<Array<Organization>> => {
   const url = `/api/v0/cms/organizations`
@@ -12,7 +12,7 @@ const fetchOrganizations = async (): Promise<Array<Organization>> => {
   }
 }
 
-const fetchOrganizationCourses = async (organizationId: string): Promise<Array<Organization>> => {
+const fetchOrganizationCourses = async (organizationId: string): Promise<Array<Course>> => {
   const data = (
     await axios.get(`/api/v0/cms/organizations/${organizationId}/courses`, {
       responseType: "json",

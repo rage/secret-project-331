@@ -21,38 +21,23 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   const [title, setTitle] = useState(data.title)
   const [urlPath, setUrlPath] = useState(data.url_path)
   const [content, setContent] = useState<BlockInstance[]>(data.content)
-  const [showCourseEdit, setShowCourseEdit] = useState(false)
 
   const handleOnSave = () => {
     handleSave({ title, url_path: urlPath, content })
-  }
-  const handleOnUpdateCourseData = (newTitle: string, newPath: string) => {
-    setTitle(newTitle)
-    setUrlPath(newPath)
-    setShowCourseEdit(!showCourseEdit)
-    handleOnSave()
-  }
-
-  const onEditCourseDetails = () => {
-    setShowCourseEdit(!showCourseEdit)
   }
 
   return (
     <>
       <h1>{data.title}</h1>
       <Button onClick={handleOnSave}>Save</Button>
-      {showCourseEdit ? (
-        <>
-          <Button onClick={onEditCourseDetails}>Hide</Button>
-          <UpdatePageDetailsForm
-            title={title}
-            urlPath={urlPath}
-            onUpdateCourseData={handleOnUpdateCourseData}
-          />
-        </>
-      ) : (
-        <Button onClick={onEditCourseDetails}>Edit Course Details</Button>
-      )}
+
+      <UpdatePageDetailsForm
+        title={title}
+        urlPath={urlPath}
+        setTitle={setTitle}
+        setUrlPath={setUrlPath}
+      />
+
       <Editor content={content} onContentChange={setContent} />
     </>
   )

@@ -17,21 +17,16 @@ const StyledButton = withStyles({
 interface UpdatePageDetailsFormProps {
   title: string
   urlPath: string
-  onUpdateCourseData: (newTitle: string, newPath: string) => void
+  setTitle: (newTitle: string) => void
+  setUrlPath: (newUrlPath: string) => void
 }
 
 const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({
   title,
   urlPath,
-  onUpdateCourseData,
+  setTitle,
+  setUrlPath,
 }) => {
-  const [newTitle, setNewTitle] = useState(title)
-  const [newUrlPath, setNewUrlPath] = useState(urlPath)
-
-  const onUpdate = () => {
-    onUpdateCourseData(newTitle, newUrlPath)
-  }
-
   return (
     <div style={{ padding: "1em" }}>
       <div>
@@ -40,10 +35,10 @@ const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({
           id="outlined-required"
           label="Title"
           variant="outlined"
-          value={newTitle}
+          value={title}
           fullWidth
           onChange={(e) => {
-            setNewTitle(e.target.value)
+            setTitle(e.target.value)
           }}
         />
         <StyledTextField
@@ -51,15 +46,12 @@ const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({
           id="outlined-required"
           label="Path"
           variant="outlined"
-          value={newUrlPath}
+          value={urlPath}
           fullWidth
           onChange={(e) => {
-            setNewUrlPath(e.target.value)
+            setUrlPath(e.target.value)
           }}
         />
-      </div>
-      <div>
-        <StyledButton onClick={onUpdate}>Update</StyledButton>
       </div>
     </div>
   )

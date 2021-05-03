@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
-use crate::utils::document_schema_processor::{
-    denormalize, normalize_from_json, NormalizedDocument,
+use crate::{
+    models::course_parts::CoursePart,
+    utils::document_schema_processor::{denormalize, normalize_from_json, NormalizedDocument},
 };
 use anyhow::Result;
 use chrono::NaiveDateTime;
@@ -490,10 +491,11 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
     })?;
 
     if let Some(front_page_of_course_part_id) = new_page.front_page_of_course_part_id {
+        dbg!(&front_page_of_course_part_id);
         let _res = sqlx::query_as!(
             CoursePart,
             r#"
-UPDATE course_parts SET page_id = $1 WHERE id = $2
+UPDATE course_parts SET page_id = $1 WHERE id = $2 RETURNING *
         "#,
             page.id,
             front_page_of_course_part_id

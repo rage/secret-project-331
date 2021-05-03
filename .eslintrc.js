@@ -55,10 +55,32 @@ module.exports = {
             importNames: ["default"],
             message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
           },
+          {
+            name: "@material-ui/styles",
+            importNames: ["withStyles"],
+            message: "Don't use withStyles from @material-ui. Please use emotion.js.",
+          },
+          {
+            name: "@material-ui/styles/withStyles",
+            importNames: ["default"],
+            message: "Don't use withStyles from @material-ui. Please use emotion.js.",
+          },
         ],
       },
     ],
     "eslint-custom-rules/ban-ts-ignore-without-comment": "error",
     "eslint-custom-rules/no-material-ui-grid-component": "error",
+    "react/forbid-component-props": [
+      "error",
+      {
+        forbid: [
+          {
+            propName: "style",
+            message: "Use emotion.js instead of the style prop",
+          },
+        ],
+      },
+    ],
+    "@typescript-eslint/ban-ts-comment": "off",
   },
 }

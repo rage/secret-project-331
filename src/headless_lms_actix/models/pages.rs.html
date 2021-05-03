@@ -561,11 +561,14 @@
 <span id="558">558</span>
 <span id="559">559</span>
 <span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">document_schema_processor</span>::{
-    <span class="ident">denormalize</span>, <span class="ident">normalize_from_json</span>, <span class="ident">NormalizedDocument</span>,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">models</span>::<span class="ident">course_parts</span>::<span class="ident">CoursePart</span>,
+    <span class="ident">utils</span>::<span class="ident">document_schema_processor</span>::{<span class="ident">denormalize</span>, <span class="ident">normalize_from_json</span>, <span class="ident">NormalizedDocument</span>},
 };
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::<span class="ident">NaiveDateTime</span>;
@@ -1054,10 +1057,11 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
     })<span class="question-mark">?</span>;
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">front_page_of_course_part_id</span>) <span class="op">=</span> <span class="ident">new_page</span>.<span class="ident">front_page_of_course_part_id</span> {
+        <span class="macro">dbg</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">front_page_of_course_part_id</span>);
         <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
             <span class="ident">CoursePart</span>,
             <span class="string">r#&quot;
-UPDATE course_parts SET page_id = $1 WHERE id = $2
+UPDATE course_parts SET page_id = $1 WHERE id = $2 RETURNING *
         &quot;#</span>,
             <span class="ident">page</span>.<span class="ident">id</span>,
             <span class="ident">front_page_of_course_part_id</span>

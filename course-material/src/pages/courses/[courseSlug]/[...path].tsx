@@ -1,15 +1,13 @@
-import { css } from "@emotion/css"
 import { useQuery } from "react-query"
-import ContentRenderer from "../../../components/ContentRenderer"
 import GenericLoading from "../../../components/GenericLoading"
 import PageNotFound from "../../../components/PageNotFound"
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { fetchCoursePageByPath } from "../../../services/backend"
-import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
+import Page from "../../../components/Page"
 
-const Page = () => {
-  const courseId = useQueryParameter("courseId")
+const PagePage = () => {
+  const courseId = useQueryParameter("courseSlug")
   const path = `/${useQueryParameter("path")}`
 
   const { isLoading, error, data } = useQuery(`course-${courseId}-page-${path}`, () =>
@@ -27,19 +25,7 @@ const Page = () => {
     return <GenericLoading />
   }
 
-  return (
-    <>
-      <h1
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-        `}
-      >
-        {data.title}
-      </h1>
-      <ContentRenderer data={data.content} />
-      {/* <pre>{JSON.stringify(data, undefined, 2)}</pre> */}
-    </>
-  )
+  return <Page data={data} />
 }
 
-export default dontRenderUntilQueryParametersReady(Page)
+export default dontRenderUntilQueryParametersReady(PagePage)

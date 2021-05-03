@@ -6,6 +6,7 @@ export interface Course {
   updated_at: string
   name: string
   deleted: boolean
+  slug: string
 }
 
 export const fetchCourses = async (): Promise<Array<Course>> => {
@@ -27,9 +28,7 @@ export const fetchOrganizations = async (): Promise<Array<Organization>> => {
   return data
 }
 
-export const fetchOrganizationCourses = async (
-  organizationId: string,
-): Promise<Array<Organization>> => {
+export const fetchOrganizationCourses = async (organizationId: string): Promise<Array<Course>> => {
   const data = (
     await axios.get(`/api/v0/course-material/organizations/${organizationId}/courses`, {
       responseType: "json",
@@ -58,11 +57,11 @@ export interface Block<T> {
 }
 
 export const fetchCoursePageByPath = async (
-  courseId: string,
+  courseSlug: string,
   path: string,
 ): Promise<CoursePage> => {
   const data = (
-    await axios.get(`/api/v0/course-material/courses/${courseId}/page-by-path/${path}`, {
+    await axios.get(`/api/v0/course-material/courses/${courseSlug}/page-by-path/${path}`, {
       responseType: "json",
     })
   ).data
@@ -99,6 +98,7 @@ export interface Exercise {
   page_id: string
   deadline: null
   deleted: boolean
+  score_maximum: number
 }
 
 export interface ExerciseStatus {

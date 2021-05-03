@@ -50,6 +50,7 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
       window.removeEventListener("message", handleMessage)
     }
     return removeListener
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   console.log("Rendering...")

@@ -30,8 +30,8 @@ const Organization: React.FC<any> = () => {
         <div key={course.id}>
           <Link
             href={{
-              pathname: `${basePath()}/courses/[id]`,
-              query: { id: course.id },
+              pathname: `${basePath()}/courses/[courseSlug]`,
+              query: { courseSlug: course.slug },
             }}
           >
             <a>{course.name}</a>

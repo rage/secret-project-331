@@ -3,6 +3,7 @@ import Layout from "../../components/Layout"
 import Link from "next/link"
 import { useQuery } from "react-query"
 import { fetchCourses } from "../../services/backend/courses"
+import DebugModal from "../../components/DebugModal"
 
 const Home: React.FC = () => {
   const { isLoading, error, data } = useQuery(`courses`, () => fetchCourses(), {
@@ -31,6 +32,7 @@ const Home: React.FC = () => {
           </Link>
         </div>
       ))}
+      <DebugModal data={data} />
     </Layout>
   )
 }

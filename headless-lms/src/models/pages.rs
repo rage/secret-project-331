@@ -17,10 +17,10 @@ pub struct Page {
     updated_at: NaiveDateTime,
     course_id: Uuid,
     course_part_id: Option<Uuid>,
-    content: serde_json::Value,
     url_path: String,
     title: String,
     deleted: bool,
+    content: serde_json::Value,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -158,13 +158,18 @@ pub async fn get_page(pool: &PgPool, page_id: Uuid) -> Result<Page> {
     return Ok(pages);
 }
 
-pub async fn get_page_by_path(pool: &PgPool, course_id: Uuid, url_path: &str) -> Result<Page> {
+pub async fn get_page_by_path(pool: &PgPool, course_slug: String, url_path: &str) -> Result<Page> {
     let mut transaction = pool.begin().await?;
     let connection = transaction.acquire().await?;
     let page = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE course_id = $1 AND url_path = $2 AND deleted = false;",
-        course_id,
+        "SELECT pages.* FROM pages
+        JOIN courses ON (pages.course_id = courses.id)
+        WHERE courses.slug = $1
+        AND url_path = $2
+        AND courses.deleted = false
+        AND pages.deleted = false;",
+        course_slug,
         url_path
     )
     .fetch_one(connection)

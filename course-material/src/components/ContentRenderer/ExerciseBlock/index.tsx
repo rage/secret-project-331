@@ -1,13 +1,15 @@
 import { css } from "@emotion/css"
 import { useQuery } from "react-query"
-import { BlockRendererProps } from ".."
-import { fetchExerciseById } from "../../../services/backend"
+import ContentRenderer, { BlockRendererProps } from ".."
+import { Block, fetchExerciseById } from "../../../services/backend"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 import HelpIcon from "@material-ui/icons/Help"
 import ExerciseItemIframe from "./ExerciseItemIframe"
 import { defaultContainerWidth } from "../../../styles/constants"
 import { useState } from "react"
+import DebugModal from "../../DebugModal"
+import { Button } from "@material-ui/core"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -34,6 +36,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
 
   const currentType = data.current_exercise_item.exercise_type
   const url = exericseTypeToIframeUrl[currentType]
+
+  const currentExerciseItemAssignment = (data.current_exercise_item
+    .assignment as unknown) as Block<unknown>[]
 
   return (
     <div
@@ -80,9 +85,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         >
           Points:
           <br />
-          0/100
+          {data.exercise_status?.score_given ?? 0}/{data.exercise.score_maximum}
         </div>
       </div>
+      {currentExerciseItemAssignment && <ContentRenderer data={currentExerciseItemAssignment} />}
       {url ? (
         <ExerciseItemIframe
           public_spec={data.current_exercise_item.public_spec}
@@ -92,13 +98,20 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       ) : (
         "Don't know how to render this assignment"
       )}
-      <pre
+      <div
         className={css`
           ${normalWidthCenteredComponentStyles}
+          button {
+            margin-bottom: 0.5rem;
+          }
         `}
       >
-        {JSON.stringify(data, undefined, 2)}
-      </pre>
+        <Button color="primary" variant="contained">
+          Submit
+        </Button>
+        <br />
+        <DebugModal data={data} />
+      </div>
     </div>
   )
 }

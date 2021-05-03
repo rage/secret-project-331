@@ -19,7 +19,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons"
 import styled from "@emotion/styled"
 import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
-import { groupBy } from "lodash"
+import { groupBy, max } from "lodash"
 
 const DeleteButton = styled.button`
   border: 0;
@@ -64,6 +64,8 @@ const CoursePages: React.FC<unknown> = () => {
   }
 
   const pagesByPart = groupBy(data.pages, "course_part_id")
+
+  const maxPart = max(data.course_parts.map((p) => p.part_number))
 
   return (
     <Layout>
@@ -126,7 +128,7 @@ const CoursePages: React.FC<unknown> = () => {
           <Dialog open={showNewPartForm} onClose={() => setShowNewPartForm(!showNewPartForm)}>
             <div>
               <Button onClick={() => setShowNewPartForm(!showNewPartForm)}>Close</Button>
-              <NewPartForm courseId={id} onSubmitForm={handleCreatePart} />
+              <NewPartForm courseId={id} onSubmitForm={handleCreatePart} partNumber={maxPart + 1} />
             </div>
           </Dialog>
         </div>

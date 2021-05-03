@@ -1,26 +1,22 @@
+import styled from "@emotion/styled"
 import { Button, TextField } from "@material-ui/core"
-import { withStyles } from "@material-ui/styles"
 import React, { useState } from "react"
 import { postNewCoursePart } from "../../services/backend/courses"
 
-const StyledTextField = withStyles({
-  root: {
-    margin: "0.3em",
-  },
-})(TextField)
-
-const StyledButton = withStyles({
-  root: {
-    margin: "0.3em",
-  },
-})(Button)
+const StyledTextField = styled(TextField)`
+  margin: 0.3rem;
+`
+const StyledButton = styled(Button)`
+  margin: 0.3rem;
+`
 interface NewPartFormProps {
   courseId: string
   onSubmitForm: () => void
+  partNumber: number
 }
 
-const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm }) => {
-  const [part, setPart] = useState<number | undefined>(undefined)
+const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm, partNumber }) => {
+  const [part, setPart] = useState<number | undefined>(partNumber)
   const [name, setName] = useState<string>("")
 
   const createNewCoursePart = async () => {

@@ -101,6 +101,18 @@ export interface Organization extends DatabaseItem {
 export interface Course extends DatabaseItem {
   name: string
   deleted: boolean
+  slug: string
+  organization_id: string
+}
+
+/**
+ * POST
+ * `${API_URL}/api/v0/cms/courses
+ */
+export interface NewCourse {
+  name: string
+  slug: string
+  organization_id: string
 }
 
 /**

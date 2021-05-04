@@ -1,41 +1,28 @@
 import React, { useState } from "react"
 
 import Layout from "../../../components/Layout"
-import Link from "next/link"
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { useQuery } from "react-query"
 import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
 import { Button, Dialog } from "@material-ui/core"
-import NewPageForm from "../../../components/forms/NewPageForm"
-import { CoursePart, Page } from "../../../services/services.types"
-import { deletePage, postNewPage } from "../../../services/backend/pages"
+import { CoursePart } from "../../../services/services.types"
+import { postNewPage } from "../../../services/backend/pages"
 import { fetchCourseStructure } from "../../../services/backend/courses"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import { css } from "@emotion/css"
 import NewPartForm from "../../../components/forms/NewPartForm"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faTrash } from "@fortawesome/free-solid-svg-icons"
 
-import styled from "@emotion/styled"
 import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
 import { groupBy, max } from "lodash"
-
-const DeleteButton = styled.button`
-  border: 0;
-  border: none;
-  background-color: transparent;
-  outline: none;
-  cursor: pointer;
-`
+import { createBlockInstance } from "../../../utils/blockUtils"
 
 const CoursePages: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
   const { isLoading, error, data, refetch } = useQuery(`course-structure-${id}`, () =>
     fetchCourseStructure(id),
   )
-  const [showNewPageForm, setShowNewPageForm] = useState(false)
-  const [showNewPartForm, setShowNewPartForm] = useState(false)
+  const [showForm, setShowForm] = useState(false)
 
   if (error) {
     return <div>Error overview.</div>
@@ -45,22 +32,21 @@ const CoursePages: React.FC<unknown> = () => {
     return <div>Loading...</div>
   }
 
-  const handleDeleteTopLevelPage = async (pageId: string, name: string) => {
-    const result = confirm(`Want to delete ${name}?`)
-    if (result) {
-      await deletePage(pageId)
-      refetch()
-    }
+  const handleCreateFrontPage = async () => {
+    const el = createBlockInstance("moocfi/course-grid", { hidden: false })
+    await postNewPage({
+      content: [el],
+      url_path: "/",
+      title: data.course.name,
+      course_id: data.course.id,
+      course_part_id: null,
+    })
+    await refetch()
   }
 
-  const handleCreateTopLevelPage = () => {
-    setShowNewPageForm(!showNewPageForm)
-    refetch()
-  }
-
-  const handleCreatePart = () => {
-    setShowNewPartForm(!showNewPartForm)
-    refetch()
+  const handleCreatePart = async () => {
+    setShowForm(!showForm)
+    await refetch()
   }
 
   const pagesByPart = groupBy(data.pages, "course_part_id")
@@ -79,20 +65,7 @@ const CoursePages: React.FC<unknown> = () => {
       >
         <h1>Course overview for {data.course.name}</h1>
         {!frontPage && (
-          <Button
-            onClick={async (_e) => {
-              await postNewPage({
-                content: [],
-                url_path: `/`,
-                title: data.course.name,
-                course_id: data.course.id,
-                course_part_id: null,
-              })
-              await refetch()
-            }}
-          >
-            Create front page for the course
-          </Button>
+          <Button onClick={handleCreateFrontPage}>Create front page for the course</Button>
         )}
         <PageList
           data={data.pages.filter((page) => !page.course_part_id)}
@@ -141,11 +114,15 @@ const CoursePages: React.FC<unknown> = () => {
               </div>
             ))}
 
-          <Button onClick={() => setShowNewPartForm(!showNewPartForm)}>Add new part</Button>
+          <Button onClick={() => setShowForm(!showForm)}>Add new part</Button>
 
-          <Dialog open={showNewPartForm} onClose={() => setShowNewPartForm(!showNewPartForm)}>
-            <div>
-              <Button onClick={() => setShowNewPartForm(!showNewPartForm)}>Close</Button>
+          <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
+            <div
+              className={css`
+                margin: 1rem;
+              `}
+            >
+              <Button onClick={() => setShowForm(!showForm)}>Close</Button>
               <NewPartForm
                 courseId={id}
                 onSubmitForm={handleCreatePart}

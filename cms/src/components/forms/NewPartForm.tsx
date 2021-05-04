@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Button, TextField } from "@material-ui/core"
 import React, { useState } from "react"
@@ -37,7 +38,11 @@ const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm, partN
   }
 
   return (
-    <div style={{ padding: "1em" }}>
+    <div
+      className={css`
+        padding: 1rem 0;
+      `}
+    >
       <div>
         <FieldContainer>
           <StyledTextField

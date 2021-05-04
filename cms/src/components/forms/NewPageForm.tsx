@@ -45,7 +45,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
     <div
       className={css`
         width: 500px;
-        padding: 1rem;
+        padding: 1rem 0;
       `}
     >
       <div>
@@ -68,6 +68,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
             <span
               className={css`
                 margin-right: 0.5rem;
+                white-space: nowrap;
               `}
             >
               {prefix}

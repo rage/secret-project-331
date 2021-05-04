@@ -1,23 +1,15 @@
 import React, { useState } from "react"
 
-import Layout from "./Layout"
 import Link from "next/link"
-import useQueryParameter from "../hooks/useQueryParameter"
-import { useQuery } from "react-query"
-import { dontRenderUntilQueryParametersReady } from "../utils/dontRenderUntilQueryParametersReady"
 import { Button, Dialog } from "@material-ui/core"
 import NewPageForm from "./forms/NewPageForm"
 import { CoursePart, Page } from "../services/services.types"
-import { deletePage, postNewPage } from "../services/backend/pages"
-import { fetchCourseStructure } from "../services/backend/courses"
-import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
+import { deletePage } from "../services/backend/pages"
 import { css } from "@emotion/css"
-import NewPartForm from "./forms/NewPartForm"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faTrash } from "@fortawesome/free-solid-svg-icons"
 
 import styled from "@emotion/styled"
-import DebugModal from "./DebugModal"
 
 const DeleteButton = styled.button`
   border: 0;
@@ -83,7 +75,11 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, coursePart }) => {
       <Button onClick={() => setShowNewPageForm(!showNewPageForm)}>New page</Button>
 
       <Dialog open={showNewPageForm} onClose={() => setShowNewPageForm(!showNewPageForm)}>
-        <div>
+        <div
+          className={css`
+            margin: 1rem;
+          `}
+        >
           <Button onClick={() => setShowNewPageForm(!showNewPageForm)}>Close</Button>
           <NewPageForm
             coursePartId={coursePart?.id}

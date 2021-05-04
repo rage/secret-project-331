@@ -58,7 +58,11 @@ const Organization: React.FC<unknown> = () => {
         <Button onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}>Add course</Button>
 
         <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
-          <div>
+          <div
+            className={css`
+              margin: 1rem;
+            `}
+          >
             <Button onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}>Close</Button>
             <NewCourseForm
               organizationId={id}

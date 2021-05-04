@@ -31,7 +31,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
     <div
       className={css`
         width: 500px;
-        padding: 1rem;
+        padding: 1rem 0;
       `}
     >
       <div>

@@ -61,23 +61,24 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
       `}
     >
       <SlotFillProvider>
-        <DropZoneProvider>
-          <BlockEditorProvider value={content} onInput={handleInput} onChange={handleChanges}>
-            <div className="playground__sidebar">
-              <BlockInspector />
-            </div>
-            <div className="editor-styles-wrapper">
-              <Popover.Slot />
-              <BlockEditorKeyboardShortcuts />
-              <WritingFlow>
-                <ObserveTyping>
-                  <BlockList />
-                </ObserveTyping>
-              </WritingFlow>
-              <Popover.Slot />
-            </div>
-          </BlockEditorProvider>
-        </DropZoneProvider>
+        <BlockEditorProvider value={content} onInput={handleInput} onChange={handleChanges}>
+          <div className="playground__sidebar">
+            <BlockInspector />
+          </div>
+          <div className="editor-styles-wrapper">
+            {/* @ts-ignore: type signature incorrect */}
+            <Popover.Slot name="block-toolbar" />
+            {/* @ts-ignore: @type signature incorrect */}
+            <BlockEditorKeyboardShortcuts.Register />
+            <BlockEditorKeyboardShortcuts />
+            <WritingFlow>
+              <ObserveTyping>
+                <BlockList />
+              </ObserveTyping>
+            </WritingFlow>
+          </div>
+          <Popover.Slot />
+        </BlockEditorProvider>
       </SlotFillProvider>
       <SerializeGutenbergModal content={content} />
       <DebugModal data={content} />

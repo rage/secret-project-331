@@ -1,23 +1,11 @@
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import { useRouter } from "next/dist/client/router"
-import { useLayoutEffect, useRef, useState } from "react"
-
-const placeholderSpec = [
-  {
-    id: "d7fb22c3-038f-4ae4-a09c-80129e8d8117",
-    name: "a",
-  },
-  {
-    id: "25c3c38e-fe08-440c-b454-a10fd834a00a",
-    name: "b",
-  },
-  {
-    id: "d97391a8-127b-46a2-a000-717fa55e1dcd",
-    name: "c",
-  },
-]
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { PublicAlternative } from "../util/stateInterfaces"
 
 const Editor: React.FC = () => {
+  const [state, setState] = useState<PublicAlternative[] | null>(null)
+  const [port, setPort] = useState<MessagePort | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
   let maxWidth: number | null = null
@@ -25,31 +13,68 @@ const Editor: React.FC = () => {
     maxWidth = Number(rawMaxWidth)
   }
 
+  useEffect(() => {
+    const handler = (message: WindowEventMap["message"]) => {
+      if (message.origin !== parent.origin) {
+        return
+      }
+      const port = message.ports[0]
+      if (port) {
+        console.log("Frame received a port:", port)
+        setPort(port)
+        port.onmessage = (message: WindowEventMap["message"]) => {
+          console.log("Frame received a message from port", JSON.stringify(message.data))
+          const data = message.data
+          if (data.message === "content") {
+            console.log("Frame: setting state from message")
+            setState(data.data)
+          } else {
+            console.error("Frame received an unknown message from message port")
+          }
+        }
+      }
+    }
+    window.addEventListener("message", handler)
+
+    // cleanup function
+    return () => {
+      window.removeEventListener("message", handler)
+    }
+  }, [])
+
   const contentRef = useRef<HTMLDivElement>(null)
   // Automatic height resizing events
   const [selectedId, _setSelectedId] = useState<string | null>(null)
 
   const setSelectedId: typeof _setSelectedId = (value) => {
     const res = _setSelectedId(value)
+    if (!port) {
+      console.error("Cannot send current state to parent because I don't have a port")
+      return
+    }
     console.log("Posting current state to parent")
-    window.parent.postMessage(
-      {
-        message: "current-state2",
-        message_type: "moocfi/exercise-message",
-        data: { selectedValue: value },
-      },
-      "*",
-    )
+    port.postMessage({ message: "current-state-2", data: { selectedValue: value } })
     return res
   }
 
   useLayoutEffect(() => {
     const ref = contentRef.current
-    if (!ref) {
+    if (!ref || !port) {
       return
     }
-    onHeightChange(ref.getBoundingClientRect().height)
+    onHeightChange(ref.getBoundingClientRect().height, port)
   })
+
+  if (!maxWidth) {
+    return null
+  }
+  if (!state) {
+    return <>Waiting for content...</>
+  }
+
+  if (!port) {
+    return <>Waiting for port...</>
+  }
   return (
     <div
       ref={contentRef}
@@ -61,7 +86,7 @@ const Editor: React.FC = () => {
         flex-direction: column;
       `}
     >
-      {placeholderSpec.map((option) => {
+      {state.map((option) => {
         const selected = selectedId === option.id
         return (
           <button
@@ -92,15 +117,11 @@ const Editor: React.FC = () => {
   )
 }
 
-function onHeightChange(newHeight: number) {
-  window.parent.postMessage(
-    {
-      message: "height-changed",
-      data: newHeight,
-      message_type: "moocfi/exercise-message",
-    },
-    "*",
-  )
+function onHeightChange(newHeight: number, port: MessagePort) {
+  port.postMessage({
+    message: "height-changed",
+    data: newHeight,
+  })
 }
 
 export default Editor

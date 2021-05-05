@@ -2,6 +2,8 @@ import { Dispatch, useEffect, useRef } from "react"
 import { Alert } from "@material-ui/lab"
 import styled from "@emotion/styled"
 import React from "react"
+import { css } from "@emotion/css"
+import useMessageChannel from "../../../hooks/useMessageChannel"
 
 // React memo to prevent iFrame re-render, try with console log from example exercise?
 const Iframe = React.memo(styled.iframe`
@@ -25,26 +27,62 @@ interface ExerciseItemIframeProps {
 const ExerciseItemIframe: React.FC<ExerciseItemIframeProps> = ({ url, public_spec, setAnswer }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  useEffect(() => {
-    if (typeof window === undefined) {
-      console.log("Not adding a event listener because window is undefined.")
-      return
-    }
-    console.log("Adding event listener...")
-    const handleMessage = handleMessageCreator(iframeRef.current, public_spec, setAnswer)
-    window.addEventListener("message", handleMessage)
-    const removeListener = () => {
-      console.log("Removing event listener")
-      window.removeEventListener("message", handleMessage)
-    }
-    return removeListener
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const messageChannel = useMessageChannel()
+
+  if (!messageChannel) {
+    return null
+  }
 
   if (!url) {
     return <Alert severity="error">Cannot render exercise item editor, missing url.</Alert>
   }
-  return <Iframe ref={iframeRef} src={url} frameBorder="off" />
+  return (
+    <Iframe
+      className={css`
+        overflow: hidden;
+      `}
+      ref={iframeRef}
+      src={url}
+      onLoad={() => {
+        // We use port 1 for communication
+        messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
+          console.log("Parent received a message from port", JSON.stringify(message.data))
+          const data = message.data
+          if (data.message === "height-changed") {
+            if (!iframeRef.current) {
+              console.error("Cannot send data to iframe because reference does not exist.")
+              return
+            }
+            console.log("Updating height")
+            iframeRef.current.height = Number(data.data).toString() + "px"
+          } else if (data.message === "current-state-2") {
+            console.log("Parent: setting answer")
+            setAnswer(data.data)
+          } else {
+            console.error("Iframe received an unknown message from message port")
+          }
+        }
+        // Second argument in the url constructor enables the constructor to work with relative urls.
+        // If the url is not relative, the argument will be ignored
+        const iframeOrigin = new URL(url, document.location.toString()).origin
+        if (iframeRef.current && iframeRef.current.contentWindow) {
+          // The iframe will use port 2 for communication
+          iframeRef.current.contentWindow.postMessage("communication-port", iframeOrigin, [
+            messageChannel.port2,
+          ])
+          messageChannel.port1.postMessage({
+            message: "content",
+            data: public_spec,
+          })
+        } else {
+          console.error(
+            "Could not send port to iframe because the target iframe content window could not be found.",
+          )
+        }
+      }}
+      frameBorder="off"
+    />
+  )
 }
 
 const handleMessageCreator = (

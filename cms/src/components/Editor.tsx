@@ -27,6 +27,7 @@ import ExerciseItem from "../blocks/ExerciseItem"
 import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
 import CourseGrid from "../blocks/CourseGrid"
+import { css } from "@emotion/css"
 
 interface EditorProps {
   content: BlockInstance[]
@@ -53,7 +54,12 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
   }, [])
 
   return (
-    <div>
+    <div
+      className={css`
+        /* This makes Gutenberg popovers to keep their position on scrolling */
+        position: relative;
+      `}
+    >
       <SlotFillProvider>
         <DropZoneProvider>
           <BlockEditorProvider value={content} onInput={handleInput} onChange={handleChanges}>

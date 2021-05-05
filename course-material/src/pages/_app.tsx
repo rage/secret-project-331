@@ -52,6 +52,16 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
           <CssBaseline />
           <Global
             styles={css`
+              html {
+                box-sizing: border-box;
+              }
+
+              *,
+              *::before,
+              *::after {
+                box-sizing: inherit;
+              }
+
               html,
               body {
                 margin: 0;

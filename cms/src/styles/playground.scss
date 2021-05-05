@@ -7,9 +7,9 @@
 @import '../styles/editor-styles';
 
 .playground {
-  // @include break-small() {
-  //   width: calc(100% - #{$sidebar-width});
-  // }
+  @include break-small() {
+    width: calc(100% - #{$sidebar-width});
+  }
   padding-top: 20px;
 
   img {
@@ -36,9 +36,9 @@
   // Temporarily disable the sidebar on mobile
   display: none;
 
-  // @include break-small() {
-  //   display: block;
-  // }
+  @include break-small() {
+    display: block;
+  }
 }
 
 /**

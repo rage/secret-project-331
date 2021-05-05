@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import sanitizeHtml from "sanitize-html"
 
 interface ListBlockAttributes {
   values: string
@@ -15,7 +16,7 @@ const ListBlock: React.FC<BlockRendererProps<ListBlockAttributes>> = ({ data }) 
         className={css`
           ${normalWidthCenteredComponentStyles}
         `}
-        dangerouslySetInnerHTML={{ __html: attributes.values }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.values) }}
       ></ol>
     )
   } else {
@@ -24,7 +25,7 @@ const ListBlock: React.FC<BlockRendererProps<ListBlockAttributes>> = ({ data }) 
         className={css`
           ${normalWidthCenteredComponentStyles}
         `}
-        dangerouslySetInnerHTML={{ __html: attributes.values }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.values) }}
       ></ul>
     )
   }

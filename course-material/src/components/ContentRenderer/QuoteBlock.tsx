@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import sanitizeHtml from "sanitize-html"
 
 interface QuoteBlockAttributes {
   value: string
@@ -16,7 +17,7 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteBlockAttributes>> = ({ data }
       `}
       cite={attributes.citation}
     >
-      <div dangerouslySetInnerHTML={{ __html: attributes.value }} />
+      <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.value) }} />
       <cite>{attributes.citation}</cite>
     </blockquote>
   )

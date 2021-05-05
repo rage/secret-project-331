@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import sanitizeHtml from "sanitize-html"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 
@@ -14,9 +15,8 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
       className={css`
         ${normalWidthCenteredComponentStyles}
       `}
-    >
-      {attributes.content}
-    </p>
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.content) }}
+    />
   )
 }
 

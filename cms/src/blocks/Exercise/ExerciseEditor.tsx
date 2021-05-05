@@ -10,6 +10,7 @@ const ExerciseEditorCard = styled.div`
   padding: 2rem;
   border: 1px solid black;
   border-radius: 2px;
+  margin-bottom: 1rem;
 `
 
 const Title = styled.h1`

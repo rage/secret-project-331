@@ -10,6 +10,7 @@
     "no-invalid-double-slash-comments": true,
     "named-grid-areas-no-invalid": null,
     "declaration-colon-newline-after": null,
-    "value-list-comma-newline-after": null
+    "value-list-comma-newline-after": null,
+    "at-rule-no-unknown": null,
   }
 }

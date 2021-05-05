@@ -52,7 +52,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
-        <Devtools />
+        {/* <Devtools /> */}
         <ThemeProvider theme={muiTheme}>
           {/* Material UI default CSS */}
           <CssBaseline />

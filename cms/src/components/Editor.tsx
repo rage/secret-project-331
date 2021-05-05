@@ -18,8 +18,10 @@ import {
   WritingFlow,
   ObserveTyping,
 } from "@wordpress/block-editor"
-import { Popover, SlotFillProvider, DropZoneProvider } from "@wordpress/components"
+import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
+// This import is needed for bold, italics, ... formatting
+import "@wordpress/format-library"
 import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 
 import Exercise, { ExerciseAttributes } from "../blocks/Exercise"

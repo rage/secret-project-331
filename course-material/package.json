@@ -27,6 +27,7 @@
     "react-is": "^17.0.1",
     "react-query": "^3.13.4",
     "recoil": "^0.2.0",
+    "sanitize-html": "^2.3.3",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
     "@types/node": "^12.0.12",
     "@types/react": "16.8.23",
     "@types/react-dom": "16.8.4",
+    "@types/sanitize-html": "^2.3.1",
     "@types/uuid": "^8.3.0",
     "stylelint": "^13.12.0",
     "stylelint-config-standard": "^21.0.0",

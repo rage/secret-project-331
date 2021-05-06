@@ -31,6 +31,7 @@ import DebugModal from "./DebugModal"
 import CourseGrid from "../blocks/CourseGrid"
 import PagesInPart from "../blocks/PagesInPart"
 import { css } from "@emotion/css"
+import ExerciseInPart from "../blocks/ExerciseInPart"
 
 interface EditorProps {
   content: BlockInstance[]
@@ -55,6 +56,7 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
     registerBlockType("moocfi/exercise-item", ExerciseItem)
     registerBlockType("moocfi/course-grid", CourseGrid)
     registerBlockType("moocfi/pages-in-part", PagesInPart)
+    registerBlockType("moocfi/exercises-in-part", ExerciseInPart)
   }, [])
 
   return (

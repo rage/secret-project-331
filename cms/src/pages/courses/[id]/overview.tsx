@@ -16,7 +16,6 @@ import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
 import { groupBy, max } from "lodash"
 import { createBlockInstance } from "../../../utils/blockUtils"
-import { createBlock } from "@wordpress/blocks"
 
 const CoursePages: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
@@ -47,8 +46,9 @@ const CoursePages: React.FC<unknown> = () => {
 
   const handleCreatePartFrontPage = async (part: CoursePart) => {
     const partsBlock = createBlockInstance("moocfi/pages-in-part", { hidden: false })
+    const exercisesInPart = createBlockInstance("moocfi/exercises-in-part", { hidden: false })
     await postNewPage({
-      content: [partsBlock],
+      content: [partsBlock, exercisesInPart],
       url_path: `/part-${part.part_number}`,
       title: part.name,
       course_id: part.course_id,

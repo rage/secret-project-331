@@ -14,7 +14,8 @@ const Layout: React.FC<Props> = ({ children, title = "Päätön CMS" }) => (
     className={css`
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: 100%;
+      min-height: 100vh;
     `}
   >
     <Head>

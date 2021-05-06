@@ -48,13 +48,20 @@ pub enum ActivityProgress {
     Completed,
 }
 
+enum Color {
+    Red,
+    Green,
+    Yellow,
+}
+
 /**
 
 Tells what's the status of the grading progress for a user and exercise.
 
 As close as possible LTI's grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, sqlx::Type)]
 pub enum GradingProgress {
     /// The grading process is completed; the score value, if any, represents the current Final Grade;
     FullyGraded,

@@ -66,8 +66,8 @@ const Organization: React.FC<unknown> = () => {
             <Button onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}>Close</Button>
             <NewCourseForm
               organizationId={id}
-              onSubmitForm={() => {
-                refetch()
+              onSubmitForm={async () => {
+                await refetch()
                 setNewCourseFormOpen(false)
               }}
             />

@@ -1065,6 +1065,89 @@
       ]
     }
   },
+  "a1f2669eafb8c02aa8ce9b1adf5b1fe66a9c43544633f2997f1e6c7501e9bedb": {
+    "query": "\n  INSERT INTO\n    submissions(exercise_item_id, data_json, exercise_id, course_id)\n  VALUES($1, $2, $3, $4)\n  RETURNING *\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 4,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_item_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "data_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 8,
+          "name": "grading_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "metadata",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "user_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
+    }
+  },
   "ad71a05be4092be9b722b9499bb0921ea97cbb01192d4dd5c694f52b37a3d531": {
     "query": "\n  UPDATE exercise_items\n  SET deleted = true\n  WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)\n          ",
     "describe": {

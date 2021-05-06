@@ -1,7 +1,10 @@
 //! Controllers for requests starting with `/api/v0/cms/cms/courses`.
 use crate::{
     controllers::{ApplicationError, ApplicationResult},
-    models::courses::{Course, CourseStructure, CourseUpdate, NewCourse},
+    models::{
+        courses::{Course, CourseStructure, CourseUpdate, NewCourse},
+        submissions::{SubmissionCount, SubmissionCountByWeekAndHour},
+    },
     utils::file_store::{course_image_path, local_file_store::LocalFileStore},
 };
 use actix_web::{
@@ -279,6 +282,68 @@ async fn upload_image(
 }
 
 /**
+GET `/api/v0/cms/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
+
+# Example
+```json
+[
+    {
+        "date": "2021-01-01",
+        "count": 23
+    },
+    {
+        "date": "2021-01-02",
+        "count": 57
+    }
+]
+```
+ */
+async fn get_daily_submission_counts(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<String>,
+) -> ApplicationResult<Json<Vec<SubmissionCount>>> {
+    let course_id = Uuid::from_str(&request_course_id)?;
+    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let res =
+        crate::models::submissions::get_course_daily_submission_counts(pool.get_ref(), &course)
+            .await?;
+    Ok(Json(res))
+}
+
+/**
+GET `/api/v0/cms/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
+
+# Example
+```json
+[
+    {
+        "isodow": 1,
+        "hour": 23
+        "count": 23
+    },
+    {
+        "isodow": 2,
+        "hour": 5
+        "count": 55
+    }
+]
+```
+ */
+async fn get_weekday_hour_submission_counts(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<String>,
+) -> ApplicationResult<Json<Vec<SubmissionCountByWeekAndHour>>> {
+    let course_id = Uuid::from_str(&request_course_id)?;
+    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let res = crate::models::submissions::get_course_submission_counts_by_weekday_and_hour(
+        pool.get_ref(),
+        &course,
+    )
+    .await?;
+    Ok(Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -294,5 +359,13 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/structure",
             web::get().to(get_course_structure),
+        )
+        .route(
+            "/{course_id}/daily-submission-counts",
+            web::get().to(get_daily_submission_counts),
+        )
+        .route(
+            "/{course_id}/weekday-hour-submission-counts",
+            web::get().to(get_weekday_hour_submission_counts),
         );
 }

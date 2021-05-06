@@ -142,3 +142,14 @@ export interface NewCoursePart {
   part_number: number
   page_id: string | null
 }
+
+export interface CourseSubmissionCount {
+  date: string
+  count: number
+}
+
+export interface CourseSubmissionCountByWeekdayAndHour {
+  isodow: number
+  hour: number
+  count: number
+}

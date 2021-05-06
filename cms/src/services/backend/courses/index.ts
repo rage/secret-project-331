@@ -1,5 +1,13 @@
 import axios from "axios"
-import { Course, CourseOverview, CoursePart, NewCourse, NewCoursePart } from "../../services.types"
+import {
+  Course,
+  CourseOverview,
+  CoursePart,
+  CourseSubmissionCount,
+  CourseSubmissionCountByWeekdayAndHour,
+  NewCourse,
+  NewCoursePart,
+} from "../../services.types"
 
 const fetchCourses = async (): Promise<Array<Course>> => {
   const url = `/api/v0/cms/courses`
@@ -53,4 +61,39 @@ const postNewCourse = async (data: NewCourse): Promise<Course> => {
   }
 }
 
-export { fetchCourses, fetchCourseStructure, postNewCoursePart, postNewCourse }
+const fetchCourseDailySubmissionCounts = async (
+  courseId: string,
+): Promise<CourseSubmissionCount[]> => {
+  const url = `/api/v0/cms/courses/${courseId}/daily-submission-counts`
+  try {
+    const data = (await axios.get(url, { responseType: "json" })).data
+    console.log(data)
+    return data
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+const fetchCourseWeekdayHourSubmissionCounts = async (
+  courseId: string,
+): Promise<CourseSubmissionCountByWeekdayAndHour[]> => {
+  const url = `/api/v0/cms/courses/${courseId}/weekday-hour-submission-counts`
+  try {
+    const data = (await axios.get(url, { responseType: "json" })).data
+    console.log(data)
+    return data
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+export {
+  fetchCourses,
+  fetchCourseStructure,
+  postNewCoursePart,
+  postNewCourse,
+  fetchCourseDailySubmissionCounts,
+  fetchCourseWeekdayHourSubmissionCounts,
+}

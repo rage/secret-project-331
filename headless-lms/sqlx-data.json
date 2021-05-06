@@ -811,6 +811,32 @@
       ]
     }
   },
+  "785c6a12aad375df96e3ce5dee4b20fde25e67ec826c645019a03222a07c2aa9": {
+    "query": "\nSELECT DATE(created_at) date, count(*)::integer\nFROM submissions\nWHERE course_id = $1\nGROUP BY date\nORDER BY date;\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "date",
+          "type_info": "Date"
+        },
+        {
+          "ordinal": 1,
+          "name": "count",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        null,
+        null
+      ]
+    }
+  },
   "790b2beff9eaf13304cb3cd82cc8f5731b70772f005ce91926370cfababb3314": {
     "query": "\n        UPDATE exercise_items SET deleted = true WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)\n            ",
     "describe": {
@@ -1494,6 +1520,38 @@
       ]
     }
   },
+  "c8c5264811bce45733628caa8a1e90a07e2d16cbb5ad6ce0cd35f3e1e1921a4e": {
+    "query": "\nSELECT date_part('isodow', created_at)::integer isodow, date_part('hour', created_at)::integer \"hour\", count(*)::integer\nFROM submissions\nWHERE course_id = $1\nGROUP BY isodow, \"hour\"\nORDER BY isodow, hour;\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "isodow",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "hour",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 2,
+          "name": "count",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        null,
+        null,
+        null
+      ]
+    }
+  },
   "d701490a19e3c1ae703469c40d283936cf3182439766eb400d88df0456ad3516": {
     "query": "SELECT * FROM pages WHERE course_id = $1 AND deleted = false;",
     "describe": {
@@ -1559,6 +1617,153 @@
         false,
         false,
         true
+      ]
+    }
+  },
+  "dde7a7461313ff9db491f067e04cdf4b9baf8cb142d46b19be6e0c757395d033": {
+    "query": "\nINSERT INTO\n  gradings(submission_id, course_id, exercise_id)\nVALUES($1, $2, $3)\nRETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as \"grading_progress: _\", user_points_update_strategy as \"user_points_update_strategy: _\", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 3,
+          "name": "submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_item_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "grading_priority",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "user_points_update_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "user_points_update_strategy",
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "unscaled_score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 12,
+          "name": "unscaled_max_points",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 13,
+          "name": "grading_started_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 14,
+          "name": "grading_completed_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 15,
+          "name": "feedback_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 16,
+          "name": "feedback_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 17,
+          "name": "deleted",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
       ]
     }
   },

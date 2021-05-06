@@ -29,6 +29,7 @@ import ExerciseItem from "../blocks/ExerciseItem"
 import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
 import CourseGrid from "../blocks/CourseGrid"
+import PagesInPart from "../blocks/PagesInPart"
 import { css } from "@emotion/css"
 
 interface EditorProps {
@@ -53,6 +54,7 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
     registerBlockType("moocfi/exercise", Exercise)
     registerBlockType("moocfi/exercise-item", ExerciseItem)
     registerBlockType("moocfi/course-grid", CourseGrid)
+    registerBlockType("moocfi/pages-in-part", PagesInPart)
   }, [])
 
   return (

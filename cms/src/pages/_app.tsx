@@ -1,6 +1,6 @@
 import "../styles/globals.css"
 import "../styles/playground.scss"
-// import '../components/GutenbergEditor/styles/styles.scss'
+
 import type { AppProps } from "next/app"
 import { RecoilRoot } from "recoil"
 import { QueryClient, QueryClientProvider } from "react-query"
@@ -10,7 +10,7 @@ import { ThemeProvider } from "@material-ui/core/styles"
 import React from "react"
 import muiTheme from "../utils/muiTheme"
 import { CssBaseline } from "@material-ui/core"
-import Devtools from "../components/RecoilDevtools"
+
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
 import { Global, css } from "@emotion/react"

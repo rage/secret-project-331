@@ -16,6 +16,7 @@ import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
 import { groupBy, max } from "lodash"
 import { createBlockInstance } from "../../../utils/blockUtils"
+import { createBlock } from "@wordpress/blocks"
 
 const CoursePages: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
@@ -33,13 +34,26 @@ const CoursePages: React.FC<unknown> = () => {
   }
 
   const handleCreateFrontPage = async () => {
-    const el = createBlockInstance("moocfi/course-grid", { hidden: false })
+    const courseGrid = createBlockInstance("moocfi/course-grid", { hidden: false })
     await postNewPage({
-      content: [el],
+      content: [courseGrid],
       url_path: "/",
       title: data.course.name,
       course_id: data.course.id,
       course_part_id: null,
+    })
+    await refetch()
+  }
+
+  const handleCreatePartFrontPage = async (part: CoursePart) => {
+    const partsBlock = createBlockInstance("moocfi/pages-in-part", { hidden: false })
+    await postNewPage({
+      content: [partsBlock],
+      url_path: `/part-${part.part_number}`,
+      title: part.name,
+      course_id: part.course_id,
+      course_part_id: part.id,
+      front_page_of_course_part_id: part.id,
     })
     await refetch()
   }
@@ -65,7 +79,7 @@ const CoursePages: React.FC<unknown> = () => {
       >
         <h1>Course overview for {data.course.name}</h1>
         {!frontPage && (
-          <Button onClick={handleCreateFrontPage}>Create front page for the course</Button>
+          <Button onClick={handleCreateFrontPage}>Create front page for course</Button>
         )}
         <PageList
           data={data.pages.filter((page) => !page.course_part_id)}
@@ -89,19 +103,7 @@ const CoursePages: React.FC<unknown> = () => {
                   Part {part.part_number}: {part.name}
                 </h3>
                 {!part.page_id && (
-                  <Button
-                    onClick={async (_e) => {
-                      await postNewPage({
-                        content: [],
-                        url_path: `/part-${part.part_number}`,
-                        title: part.name,
-                        course_id: part.course_id,
-                        course_part_id: part.id,
-                        front_page_of_course_part_id: part.id,
-                      })
-                      await refetch()
-                    }}
-                  >
+                  <Button onClick={async () => await handleCreatePartFrontPage(part)}>
                     Create part front page
                   </Button>
                 )}

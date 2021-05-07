@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     models::course_parts::CoursePart,
+    models::exercise_items::ExerciseItem,
     utils::document_schema_processor::{denormalize, normalize_from_json, NormalizedDocument},
 };
 use anyhow::Result;
@@ -121,20 +122,6 @@ struct ExerciseWithExerciseItems {
     page_id: Uuid,
     exercise_items: Vec<ExerciseItem>,
     score_maximum: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
-struct ExerciseItem {
-    id: Uuid,
-    created_at: NaiveDateTime,
-    updated_at: NaiveDateTime,
-    exercise_id: Uuid,
-    exercise_type: String,
-    assignment: serde_json::Value,
-    deleted: bool,
-    public_spec: Option<serde_json::Value>,
-    private_spec: Option<serde_json::Value>,
-    spec_file_id: Option<Uuid>,
 }
 
 pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {

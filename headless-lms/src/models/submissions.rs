@@ -1,10 +1,18 @@
+use std::time::Duration;
+
+use crate::models::exercise_items::get_exercise_item_by_id;
+
+use super::{
+    courses::Course,
+    exercise_items::ExerciseItem,
+    exercises::{Exercise, GradingProgress},
+    gradings::{new_grading, Grading},
+};
 use anyhow::Result;
 use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
-
-use super::{courses::Course, exercises::Exercise, gradings::new_grading};
 
 // Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -41,9 +49,32 @@ pub struct SubmissionCountByWeekAndHour {
     pub count: Option<i32>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct SubmissionCountByExercise {
+    pub exercise_id: Option<Uuid>,
+    pub count: Option<i32>,
+    pub exercise_name: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct GradingRequest {
+    pub exercise_spec: Option<serde_json::Value>,
+    pub submission_data: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct GradingResult {
+    pub grading_progress: GradingProgress,
+    pub score_given: f32,
+    pub score_maximum: i32,
+    pub feedback_text: Option<String>,
+    pub feedback_obj: Option<serde_json::Value>,
+}
+
 pub async fn insert_submission(
     pool: &PgPool,
     new_submission: NewSubmission,
+    user_id: Uuid,
     exercise: Exercise,
 ) -> Result<Submission> {
     let mut connection = pool.acquire().await?;
@@ -51,22 +82,54 @@ pub async fn insert_submission(
         Submission,
         r#"
   INSERT INTO
-    submissions(exercise_item_id, data_json, exercise_id, course_id)
-  VALUES($1, $2, $3, $4)
+    submissions(exercise_item_id, data_json, exercise_id, course_id, user_id)
+  VALUES($1, $2, $3, $4, $5)
   RETURNING *
           "#,
         new_submission.exercise_item_id,
         new_submission.data_json,
         exercise.id,
-        exercise.course_id
+        exercise.course_id,
+        user_id
     )
     .fetch_one(&mut connection)
     .await?;
+    let exercise_item = get_exercise_item_by_id(pool, submission.exercise_item_id).await?;
+    let grading = new_grading(pool, &submission).await?;
+    sqlx::query!(
+        "UPDATE submissions SET grading_id = $1 WHERE id = $2",
+        grading.id,
+        submission.id
+    )
+    .execute(pool)
+    .await?;
+    let res = grade_submission(pool, submission.clone(), exercise_item, grading).await?;
+
     Ok(submission)
 }
 
-pub async fn grade_submission(pool: &PgPool, submission: &Submission) -> Result<()> {
-    let grading = new_grading(pool, submission).await?;
+pub async fn grade_submission(
+    pool: &PgPool,
+    submission: Submission,
+    exercise_item: ExerciseItem,
+    grading: Grading,
+) -> Result<()> {
+    let client = reqwest::Client::new();
+    let res = client
+        .post("http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/grade")
+        .timeout(Duration::from_secs(120))
+        .json(&GradingRequest {
+            exercise_spec: exercise_item.private_spec,
+            submission_data: submission.data_json,
+        })
+        .send()
+        .await?;
+    let status = res.status();
+    if !status.is_success() {
+        // failed
+    }
+    let obj = res.json::<GradingResult>().await?;
+    println!("{:#?}", obj);
     Ok(())
 }
 
@@ -104,6 +167,30 @@ FROM submissions
 WHERE course_id = $1
 GROUP BY isodow, "hour"
 ORDER BY isodow, hour;
+          "#,
+        course.id
+    )
+    .fetch_all(&mut connection)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_course_submission_counts_by_exercise(
+    pool: &PgPool,
+    course: &Course,
+) -> Result<Vec<SubmissionCountByExercise>> {
+    let mut connection = pool.acquire().await?;
+    let res = sqlx::query_as!(
+        SubmissionCountByExercise,
+        r#"
+SELECT counts.*, exercises.name exercise_name
+    FROM (
+        SELECT exercise_id, count(*)::integer count
+        FROM submissions
+        WHERE course_id = $1
+        GROUP BY exercise_id
+    ) counts
+    JOIN exercises ON (counts.exercise_id = exercises.id);
           "#,
         course.id
     )

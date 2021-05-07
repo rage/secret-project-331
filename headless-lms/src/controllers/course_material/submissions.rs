@@ -1,9 +1,13 @@
 //! Controllers for requests starting with `/api/v0/course-material/submissions`.
+
 use std::str::FromStr;
 
 use crate::{
     controllers::ApplicationResult,
-    models::{courses::Course, organizations::Organization},
+    models::{
+        organizations::Organization,
+        submissions::{NewSubmission, Submission},
+    },
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -29,11 +33,22 @@ POST `/api/v0/course-material/submissions` - Post a new submission.
  */
 async fn post_submission(
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<Organization>>> {
-    let courses = crate::models::organizations::all_organizations(pool.get_ref()).await?;
-    Ok(Json(courses))
+    payload: web::Json<NewSubmission>,
+) -> ApplicationResult<Json<Submission>> {
+    let user_id = Uuid::new_v4();
+    let exercise_item_id = payload.0.exercise_item_id;
+    let exercise_item =
+        crate::models::exercise_items::get_exercise_item_by_id(pool.get_ref(), exercise_item_id)
+            .await?;
+    let exercise =
+        crate::models::exercises::get_exercise_by_id(pool.get_ref(), exercise_item.exercise_id)
+            .await?;
+    crate::models::users::upsert_user_id(pool.get_ref(), &user_id).await?;
+    let submission =
+        crate::models::submissions::insert_submission(pool.get_ref(), payload.0, user_id, exercise)
+            .await?;
+    Ok(Json(submission))
 }
-
 
 /**
 Add a route for each controller in this module.
@@ -43,8 +58,5 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_submissions_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "",
-        web::post().to(post_submission),
-    );
+    cfg.route("", web::post().to(post_submission));
 }

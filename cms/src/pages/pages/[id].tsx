@@ -28,14 +28,14 @@ const Pages = ({ query }: PagesProps) => {
     return <div>Loading page...</div>
   }
 
-  const handleSave = (page: PageUpdate): void => {
-    updateExistingPage({
+  const handleSave = async (page: PageUpdate): Promise<Page> => {
+    const res = await updateExistingPage({
       page_id: id,
       ...page,
-    }).then((res: Page) => {
-      console.log(res)
-      refetch()
     })
+    console.log(res)
+    await refetch()
+    return res
   }
 
   return (

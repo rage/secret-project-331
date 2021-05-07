@@ -12,7 +12,7 @@ interface PageEditorProps {
 
 const EditorLoading = <div>Loading editor...</div>
 
-const Editor = dynamic(() => import("./Editor"), {
+const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   ssr: false,
   loading: () => EditorLoading,
 })
@@ -38,7 +38,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         setUrlPath={setUrlPath}
       />
 
-      <Editor content={content} onContentChange={setContent} />
+      <GutenbergEditor content={content} onContentChange={setContent} />
     </>
   )
 }

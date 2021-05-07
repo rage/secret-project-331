@@ -8,3 +8,7 @@ export interface Alternative {
   name: string
   correct: boolean
 }
+
+export interface Answer {
+  selectedOptionId?: string
+}

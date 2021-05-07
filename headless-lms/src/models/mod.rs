@@ -11,3 +11,4 @@ pub mod gradings;
 pub mod organizations;
 pub mod pages;
 pub mod submissions;
+pub mod users;

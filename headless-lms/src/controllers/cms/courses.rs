@@ -3,7 +3,7 @@ use crate::{
     controllers::{ApplicationError, ApplicationResult},
     models::{
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
-        submissions::{SubmissionCount, SubmissionCountByWeekAndHour},
+        submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
     },
     utils::file_store::{course_image_path, local_file_store::LocalFileStore},
 };
@@ -344,6 +344,33 @@ async fn get_weekday_hour_submission_counts(
 }
 
 /**
+GET `/api/v0/cms/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
+
+# Example
+```json
+[
+    {
+        "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
+        "count": 23,
+        "exercise_name": "Best exercise"
+    }
+```
+ */
+async fn get_submission_counts_by_exercise(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<String>,
+) -> ApplicationResult<Json<Vec<SubmissionCountByExercise>>> {
+    let course_id = Uuid::from_str(&request_course_id)?;
+    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let res = crate::models::submissions::get_course_submission_counts_by_exercise(
+        pool.get_ref(),
+        &course,
+    )
+    .await?;
+    Ok(Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -367,5 +394,9 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/weekday-hour-submission-counts",
             web::get().to(get_weekday_hour_submission_counts),
+        )
+        .route(
+            "/{course_id}/submission-counts-by-exercise",
+            web::get().to(get_submission_counts_by_exercise),
         );
 }

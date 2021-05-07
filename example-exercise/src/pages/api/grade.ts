@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next"
+import { Alternative, Answer } from "../../util/stateInterfaces"
 
 export default (req: NextApiRequest, res: NextApiResponse): unknown => {
   if (req.method !== "POST") {
-    return res.status(404)
+    return res.status(404).json({ message: "Not found" })
   }
 
   return handlePost(req, res)
@@ -12,11 +13,43 @@ interface GradingResult {
   grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
   score_given: number
   score_maximum: number
-  feedback_text: string
-  feedback_obj: null
+  feedback_text: string | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  feedback_obj: any | null
 }
 
-const handlePost = (_req: NextApiRequest, res: NextApiResponse<GradingResult>) => {
+interface GradingRequest {
+  exercise_spec: Alternative[]
+  submission_data: Answer
+}
+
+const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) => {
+  const gradingRequest: GradingRequest = req.body
+  console.log(gradingRequest)
+
+  if (!gradingRequest?.submission_data?.selectedOptionId) {
+    return res.status(200).json({
+      grading_progress: "FullyGraded",
+      score_given: 0,
+      score_maximum: 1,
+      feedback_text: "You didn't select anything",
+      feedback_obj: null,
+    })
+  }
+
+  const selectedOptionId = gradingRequest?.submission_data?.selectedOptionId
+
+  const selectedOptionSpec = gradingRequest?.exercise_spec.find((o) => o.id == selectedOptionId)
+  if (!selectedOptionSpec || !selectedOptionSpec.correct) {
+    return res.status(200).json({
+      grading_progress: "FullyGraded",
+      score_given: 0,
+      score_maximum: 1,
+      feedback_text: "Your answer was not correct",
+      feedback_obj: null,
+    })
+  }
+
   res.status(200).json({
     grading_progress: "FullyGraded",
     score_given: 1,

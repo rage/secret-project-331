@@ -1,10 +1,13 @@
 use anyhow::Result;
 use chrono::NaiveDateTime;
-use serde::{serde_if_integer128, Deserialize, Serialize};
-use sqlx::{Acquire, PgPool};
+use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use uuid::Uuid;
 
-use super::{exercises::GradingProgress, submissions::Submission};
+use super::{
+    exercises::GradingProgress,
+    submissions::{GradingResult, Submission},
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Grading {
@@ -41,15 +44,43 @@ pub async fn new_grading(pool: &PgPool, submission: &Submission) -> Result<Gradi
         Grading,
         r#"
 INSERT INTO
-  gradings(submission_id, course_id, exercise_id)
-VALUES($1, $2, $3)
+  gradings(submission_id, course_id, exercise_id, exercise_item_id)
+VALUES($1, $2, $3, $4)
 RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
         "#,
         submission.id,
         submission.course_id,
         submission.exercise_id,
+        submission.exercise_item_id
     )
     .fetch_one(&mut connection)
     .await?;
     Ok(submission)
 }
+
+// pub async fn update_grading(
+//     pool: &PgPool,
+//     grading: &Grading,
+//     grading_result: &GradingResult,
+// ) -> Result<Grading> {
+//     let mut connection = pool.acquire().await?;
+//     let submission = sqlx::query_as!(
+//         Grading,
+//         r#"
+// UPDATE gradings
+// SET
+//     grading_progress = $2,
+//     score_given = $3,
+//     feedback_text = $5
+// WHERE id = $1
+// RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
+//         "#,
+//         grading.id,
+//         grading_result.grading_progress,
+//         grading_result.score_given,
+//         grading_result.feedback_text,
+//     )
+//     .fetch_one(&mut connection)
+//     .await?;
+//     Ok(submission)
+// }

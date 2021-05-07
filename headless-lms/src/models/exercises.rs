@@ -48,12 +48,6 @@ pub enum ActivityProgress {
     Completed,
 }
 
-enum Color {
-    Red,
-    Green,
-    Yellow,
-}
-
 /**
 
 Tells what's the status of the grading progress for a user and exercise.
@@ -94,6 +88,15 @@ pub async fn get_exercise(pool: &PgPool, exercise_id: Uuid) -> Result<Exercise> 
     .fetch_one(connection)
     .await?;
     return Ok(exercise);
+}
+
+pub async fn get_exercise_by_id(pool: &PgPool, id: Uuid) -> Result<Exercise> {
+    let mut transaction = pool.begin().await?;
+    let connection = transaction.acquire().await?;
+    let exercise = sqlx::query_as!(Exercise, "SELECT * FROM exercises WHERE id = $1;", id)
+        .fetch_one(connection)
+        .await?;
+    Ok(exercise)
 }
 
 pub async fn get_course_material_exercise(

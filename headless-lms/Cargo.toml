@@ -61,6 +61,8 @@ rand = "0.8.3"
 blake3 = "0.3.7"
 # Recursively walk a directory.
 walkdir = "2.3.2"
+# higher level HTTP client library
+reqwest = { version = "0.11.3", features=["brotli", "gzip"] }
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

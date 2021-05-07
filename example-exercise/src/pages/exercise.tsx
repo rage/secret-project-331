@@ -1,6 +1,6 @@
 import { useRouter } from "next/dist/client/router"
-import { useEffect, useState } from "react"
 import Exercise from "../components/Exercise"
+import { useEffect, useState } from "react"
 import { PublicAlternative } from "../util/stateInterfaces"
 
 const ExercisePage: React.FC = () => {

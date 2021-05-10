@@ -10,7 +10,7 @@ interface PullquoteBlockAttributes {
   className: string
   mainColor?: string
   customMainColor?: string
-  textColor: string
+  textColor?: string
 }
 
 const Figure = styled.figure`
@@ -46,11 +46,21 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = (
   const attributes: PullquoteBlockAttributes = data.attributes
 
 
-  const mainColor = attributes.customMainColor !== undefined 
+  var mainColor = attributes.customMainColor !== undefined 
   ? attributes.customMainColor
-  : textColorMapper.find(color => color[0] === attributes.mainColor)[1]
+  : "#FFFFFF"
 
-    const textColor = textColorMapper.find(color => color[0] === attributes.textColor)[1]
+  mainColor = attributes.mainColor !== undefined 
+  ? textColorMapper.find(color => color[0] === attributes.mainColor)[1]
+  : "#FFFFFF"
+
+  const textColor = attributes.textColor !== undefined
+  ? textColorMapper.find(color => color[0] === attributes.textColor)[1]
+  : "#000000"
+
+  const value = attributes.value !== undefined
+  ? attributes.value
+  : "<p></p>"
 
   return (
         <Figure currentColor={mainColor} attributes={attributes} className={css`
@@ -58,7 +68,7 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = (
       `}>
           <Blockquote currentColor={textColor}>
             <div>
-              <p style={{fontSize: "28px"}} dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.value) }}></p>
+              <p style={{fontSize: "28px"}} dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}></p>
                </div>
             <cite>{attributes.citation}</cite>
           </Blockquote>

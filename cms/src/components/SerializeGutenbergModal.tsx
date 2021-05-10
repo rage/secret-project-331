@@ -10,7 +10,7 @@ export interface SerializeGutenbergModalProps {
 
 const MonacoLoading = <div>Loading editor...</div>
 
-const Editor = dynamic(() => import("@monaco-editor/react"), {
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
   loading: () => MonacoLoading,
 })
@@ -27,7 +27,7 @@ const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ conte
             overflow: hidden;
           `}
         >
-          <Editor
+          <MonacoEditor
             options={{ wordWrap: "on" }}
             height="90vh"
             width="80vw"

@@ -33,12 +33,12 @@ import PagesInPart from "../blocks/PagesInPart"
 import { css } from "@emotion/css"
 import ExerciseInPart from "../blocks/ExerciseInPart"
 
-interface EditorProps {
+interface GutenbergEditor {
   content: BlockInstance[]
   onContentChange: React.Dispatch<BlockInstance[]>
 }
 
-const Editor: React.FC<EditorProps> = (props: EditorProps) => {
+const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
   const { content, onContentChange } = props
 
   const handleChanges = (page: BlockInstance<ExerciseAttributes>[]): void => {
@@ -92,4 +92,4 @@ const Editor: React.FC<EditorProps> = (props: EditorProps) => {
   )
 }
 
-export default Editor
+export default GutenbergEditor

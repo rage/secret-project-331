@@ -8,7 +8,7 @@ interface PreformatterBlockAttributes {
   gradient?: string
   backgroundColor?: string
   textColor?: string
-  fontSize: string
+  fontSize?: string
 }
 
 const colorMapper = [
@@ -42,11 +42,11 @@ const gradientColorMapper = [
 ]
 
 const fontSizeMapper = [
-  ["small", "18px"],
-  ["normal", "24px"],
-  ["medium", "30px"],
-  ["large", "36px"],
-  ["huge", "42px"],
+  ["small", "13px"],
+  ["normal", "16px"],
+  ["medium", "24px"],
+  ["large", "30px"],
+  ["huge", "36px"],
 ]
 
 const Pre = styled.pre`
@@ -59,8 +59,10 @@ text-color: ${props => props.currentColor};
 text-align: center;
 `
 const chooseColor = (props) => {
-  console.log(props)
   var backgroundColor
+if(props[0] === undefined) {
+  return "#FFFFFF"
+}  
 if(props[1] === "solid") {
    backgroundColor = colorMapper.find(color => color[0] === props[0])[1]
 } else {
@@ -73,9 +75,13 @@ return backgroundColor
 const PreformatterBlock: React.FC<BlockRendererProps<PreformatterBlockAttributes>> = ({ data }) => {
   const attributes: PreformatterBlockAttributes = data.attributes
 
-  const textColor = colorMapper.find(color => color[0] === attributes.textColor)[1]
+  const textColor = attributes.textColor !== undefined
+  ? colorMapper.find(color => color[0] === attributes.textColor)[1]
+  : "#000000"
 
-  const fontSize = fontSizeMapper.find(fontSize => fontSize[0] === attributes.fontSize)[1]
+  const fontSize = attributes.fontSize !== undefined 
+  ? fontSizeMapper.find(fontSize => fontSize[0] === attributes.fontSize)[1]
+  : "16px"
 
   return (
     <Pre
@@ -84,9 +90,10 @@ const PreformatterBlock: React.FC<BlockRendererProps<PreformatterBlockAttributes
         ${normalWidthCenteredComponentStyles}
         color: ${textColor};
         font-size: ${fontSize};
+        white-space: pre-line;
       `}
     >
-      <div> {attributes.content} </div>
+      <div style={{overflowWrap: "break-word"}}> {attributes.content} </div>
     </Pre>
   )
 }

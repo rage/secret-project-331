@@ -14,16 +14,19 @@ interface PullquoteBlockAttributes {
 }
 
 const Figure = styled.figure`
-background-color: ${props => (props.attributes.className === "is-style-solid-color" ? props.currentColor: null)};
-border-bottom: 4px solid ${props => (props.attributes.className === "is-style-default" ? props.currentColor : null)};
-border-top: 4px solid ${props => (props.attributes.className === "is-style-default" ? props.currentColor : null)};
-margin-bottom: 1.75em;
+  background-color: ${(props) =>
+    props.attributes.className === "is-style-solid-color" ? props.currentColor : null};
+  border-bottom: 4px solid
+    ${(props) => (props.attributes.className === "is-style-default" ? props.currentColor : null)};
+  border-top: 4px solid
+    ${(props) => (props.attributes.className === "is-style-default" ? props.currentColor : null)};
+  margin-bottom: 1.75em;
 `
 
 const Blockquote = styled.blockquote`
-text-color: ${props => props.currentColor};
-padding: 3em 0;
-text-align: center;
+  text-color: ${(props) => props.currentColor};
+  padding: 3em 0;
+  text-align: center;
 `
 
 const textColorMapper = [
@@ -41,38 +44,41 @@ const textColorMapper = [
   ["vivid-purple", "#800080"],
 ]
 
-
 const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = ({ data }) => {
   const attributes: PullquoteBlockAttributes = data.attributes
 
+  let mainColor = attributes.customMainColor !== undefined ? attributes.customMainColor : "#FFFFFF"
 
-  var mainColor = attributes.customMainColor !== undefined 
-  ? attributes.customMainColor
-  : "#FFFFFF"
+  mainColor =
+    attributes.mainColor !== undefined
+      ? textColorMapper.find((color) => color[0] === attributes.mainColor)[1]
+      : "#FFFFFF"
 
-  mainColor = attributes.mainColor !== undefined 
-  ? textColorMapper.find(color => color[0] === attributes.mainColor)[1]
-  : "#FFFFFF"
+  const textColor =
+    attributes.textColor !== undefined
+      ? textColorMapper.find((color) => color[0] === attributes.textColor)[1]
+      : "#000000"
 
-  const textColor = attributes.textColor !== undefined
-  ? textColorMapper.find(color => color[0] === attributes.textColor)[1]
-  : "#000000"
-
-  const value = attributes.value !== undefined
-  ? attributes.value
-  : "<p></p>"
+  const value = attributes.value !== undefined ? attributes.value : "<p></p>"
 
   return (
-        <Figure currentColor={mainColor} attributes={attributes} className={css`
+    <Figure
+      currentColor={mainColor}
+      attributes={attributes}
+      className={css`
         ${normalWidthCenteredComponentStyles}
-      `}>
-          <Blockquote currentColor={textColor}>
-            <div>
-              <p style={{fontSize: "28px"}} dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}></p>
-               </div>
-            <cite>{attributes.citation}</cite>
-          </Blockquote>
-        </Figure>
+      `}
+    >
+      <Blockquote currentColor={textColor}>
+        <div>
+          <p
+            style={{ fontSize: "28px" }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
+          ></p>
+        </div>
+        <cite>{attributes.citation}</cite>
+      </Blockquote>
+    </Figure>
   )
 }
 

@@ -10,6 +10,8 @@ import QuoteBlock from "./QuoteBlock"
 import AudioBlock from "./AudioBlock"
 import TableBlock from "./TableBlock"
 import ExerciseBlock from "./ExerciseBlock"
+import PreformatterBlock from "./PreformatterBlock"
+import PullquoteBlock from "./PullquoteBlock"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -27,7 +29,8 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/buttons": ButtonBlock,
   "core/code": CodeBlock,
   "core/quote": QuoteBlock,
-  "core/audio": AudioBlock,
+  "core/pullquote": PullquoteBlock,
+  "core/preformatted": PreformatterBlock,
   "core/columns": TableBlock,
   "moocfi/exercise": ExerciseBlock,
 }

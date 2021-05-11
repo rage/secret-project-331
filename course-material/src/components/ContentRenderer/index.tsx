@@ -10,6 +10,7 @@ import QuoteBlock from "./QuoteBlock"
 import AudioBlock from "./AudioBlock"
 import TableBlock from "./TableBlock"
 import ExerciseBlock from "./ExerciseBlock"
+import CustomHTMLBlock from "./CustomHTMLBlock"
 import PreformatterBlock from "./PreformatterBlock"
 import VerseBlock from "./VerseBlock"
 import PullquoteBlock from "./PullquoteBlock"
@@ -30,6 +31,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/buttons": ButtonBlock,
   "core/code": CodeBlock,
   "core/quote": QuoteBlock,
+  "core/html": CustomHTMLBlock,
   "core/verse": VerseBlock,
   "core/pullquote": PullquoteBlock,
   "core/preformatted": PreformatterBlock,

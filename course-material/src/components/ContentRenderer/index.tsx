@@ -11,6 +11,7 @@ import AudioBlock from "./AudioBlock"
 import TableBlock from "./TableBlock"
 import ExerciseBlock from "./ExerciseBlock"
 import PreformatterBlock from "./PreformatterBlock"
+import VerseBlock from "./VerseBlock"
 import PullquoteBlock from "./PullquoteBlock"
 
 export interface ContentRendererProps {
@@ -29,6 +30,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/buttons": ButtonBlock,
   "core/code": CodeBlock,
   "core/quote": QuoteBlock,
+  "core/verse": VerseBlock,
   "core/pullquote": PullquoteBlock,
   "core/preformatted": PreformatterBlock,
   "core/columns": TableBlock,

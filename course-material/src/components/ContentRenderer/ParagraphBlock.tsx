@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-import ColorMapper from "../../styles/ColorMapper"
-import FontSizeMapper from "../../styles/FontSizeMapper"
+import colorMapper from "../../styles/colorMapper"
+import fontSizeMapper from "../../styles/fontSizeMapper"
 
 interface ParagraphBlockAttributes {
   content: string
@@ -17,12 +17,12 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
   const attributes: ParagraphBlockAttributes = data.attributes
 
   const textColor =
-    attributes.textColor !== undefined ? ColorMapper(attributes.textColor) : "#FFFFFF"
+    attributes.textColor !== undefined ? colorMapper(attributes.textColor) : "#FFFFFF"
 
   const backgroundColor =
-    attributes.backgroundColor !== undefined ? ColorMapper(attributes.backgroundColor) : "#000000"
+    attributes.backgroundColor !== undefined ? colorMapper(attributes.backgroundColor) : "#000000"
 
-  const fontSize = FontSizeMapper(attributes.fontSize)
+  const fontSize = fontSizeMapper(attributes.fontSize)
 
   return (
     <p

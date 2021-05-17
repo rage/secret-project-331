@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import sanitizeHtml from "sanitize-html"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-import ColorMapper from "../../styles/ColorMapper"
+import colorMapper from "../../styles/colorMapper"
 
 interface PullquoteBlockAttributes {
   value: string
@@ -38,12 +38,12 @@ const Blockquote = styled.blockquote<{ currentColor: string }>`
 const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = ({ data }) => {
   const attributes: PullquoteBlockAttributes = data.attributes
 
-  let mainColor = attributes.mainColor !== undefined ? ColorMapper(attributes.mainColor) : "#FFFFFF"
+  let mainColor = attributes.mainColor !== undefined ? colorMapper(attributes.mainColor) : "#FFFFFF"
 
   mainColor = attributes.customMainColor !== undefined ? attributes.customMainColor : "#FFFFFF"
 
   const textColor =
-    attributes.textColor !== undefined ? ColorMapper(attributes.textColor) : "#000000"
+    attributes.textColor !== undefined ? colorMapper(attributes.textColor) : "#000000"
 
   const value = attributes.value !== undefined ? attributes.value : "<p></p>"
   return (

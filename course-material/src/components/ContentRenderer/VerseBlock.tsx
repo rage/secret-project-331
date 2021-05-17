@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import sanitizeHtml from "sanitize-html"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-import ColorMapper from "../../styles/ColorMapper"
-import FontSizeMapper from "../../styles/FontSizeMapper"
+import colorMapper from "../../styles/colorMapper"
+import fontSizeMapper from "../../styles/fontSizeMapper"
 
 interface VerseBlockAttributes {
   content: string
@@ -17,14 +17,14 @@ const VerseBlock: React.FC<BlockRendererProps<VerseBlockAttributes>> = ({ data }
   const attributes: VerseBlockAttributes = data.attributes
 
   const solidBackground =
-    attributes.backgroundColor !== undefined ? ColorMapper(attributes.backgroundColor) : "#FFFFFF"
+    attributes.backgroundColor !== undefined ? colorMapper(attributes.backgroundColor) : "#FFFFFF"
 
   const gradientBackground =
-    attributes.gradient !== undefined ? ColorMapper(attributes.gradient) : "#FFFFFF"
+    attributes.gradient !== undefined ? colorMapper(attributes.gradient) : "#FFFFFF"
 
   const textColor =
-    attributes.textColor !== undefined ? ColorMapper(attributes.textColor) : "#000000"
-  const fontSize = FontSizeMapper(attributes.fontSize)
+    attributes.textColor !== undefined ? colorMapper(attributes.textColor) : "#000000"
+  const fontSize = fontSizeMapper(attributes.fontSize)
 
   return (
     <pre

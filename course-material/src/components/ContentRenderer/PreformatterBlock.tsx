@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import styled from "@emotion/styled"
-import ColorMapper from "../../styles/ColorMapper"
-import FontSizeMapper from "../../styles/FontSizeMapper"
+import colorMapper from "../../styles/colorMapper"
+import fontSizeMapper from "../../styles/fontSizeMapper"
 
 interface PreformatterBlockAttributes {
   content: string
@@ -29,7 +29,7 @@ const chooseColor = (color) => {
   if (color === undefined) {
     return "#FFFFFF"
   }
-  const backgroundColor = ColorMapper(color)
+  const backgroundColor = colorMapper(color)
   return backgroundColor
 }
 
@@ -37,9 +37,9 @@ const PreformatterBlock: React.FC<BlockRendererProps<PreformatterBlockAttributes
   const attributes: PreformatterBlockAttributes = data.attributes
 
   const textColor =
-    attributes.textColor !== undefined ? ColorMapper(attributes.textColor) : "#000000"
+    attributes.textColor !== undefined ? colorMapper(attributes.textColor) : "#000000"
 
-  const fontSize = FontSizeMapper(attributes.fontSize)
+  const fontSize = fontSizeMapper(attributes.fontSize)
 
   return (
     <Pre

@@ -1,7 +1,7 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `query` macro in crate `sqlx`."><meta name="keywords" content="rust, rustlang, rust-lang, query"><title>sqlx::query - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Statically checked SQL query with `println!()` style syntax."><meta name="keywords" content="rust, rustlang, rust-lang, query"><title>sqlx::query - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../sqlx/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="index.html">sqlx</a></p><div id="sidebar-vars" data-name="query" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="">query</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/sqlx/macros.rs.html#301-317" title="goto source code">[src]</a></span></h1><div class="docblock type-decl hidden-by-usual-hider"><div class="example-wrap"><pre class="rust macro">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../sqlx/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="index.html">sqlx</a></p><div id="sidebar-vars" data-name="query" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="">query</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/sqlx/macros.rs.html#301-317" title="goto source code">[src]</a></span></h1><div class="docblock type-decl hidden-by-usual-hider"><div class="example-wrap"><pre class="rust macro">
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">query</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
@@ -20,7 +20,7 @@ struct type, if the query has at least one output column that is not <code>Void<
 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">account</span>);
 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">account</span>.<span class="ident">id</span>, <span class="ident">account</span>.<span class="ident">name</span>);
 </pre></div>
-<p><strong>The method you want to call depends on how many rows you're expecting.</strong></p>
+<p><strong>The method you want to call depends on how many rows you’re expecting.</strong></p>
 <table><thead><tr><th>Number of Rows</th><th>Method to Call*</th><th>Returns</th><th>Notes</th></tr></thead><tbody>
 <tr><td>None†</td><td><code>.execute(...).await</code></td><td>`sqlx::Result<a href="DB::QueryResult">DB::QueryResult</a></td><td>For <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> without <code>RETURNING</code>.</td></tr>
 <tr><td>Zero or One</td><td><code>.fetch_optional(...).await</code></td><td><code>sqlx::Result&lt;Option&lt;{adhoc struct}&gt;&gt;</code></td><td>Extra rows are ignored.</td></tr>
@@ -28,7 +28,7 @@ struct type, if the query has at least one output column that is not <code>Void<
 <tr><td>At Least One</td><td><code>.fetch(...)</code></td><td><code>impl Stream&lt;Item = sqlx::Result&lt;{adhoc struct}&gt;&gt;</code></td><td>Call <code>.try_next().await</code> to get each row result.</td></tr>
 </tbody></table>
 <p>* All methods accept one of <code>&amp;mut {connection type}</code>, <code>&amp;mut Transaction</code> or <code>&amp;Pool</code>.
-† Only callable if the query returns no columns; otherwise it's assumed the query <em>may</em> return at least one row.</p>
+† Only callable if the query returns no columns; otherwise it’s assumed the query <em>may</em> return at least one row.</p>
 <h2 id="requirements" class="section-header"><a href="#requirements">Requirements</a></h2>
 <ul>
 <li>
@@ -121,7 +121,7 @@ syntax, i.e. <code>my_int: _</code> (which is unstable but can be stripped), but
 the expression which is not possible as the macros are currently implemented. Casts to <code>_</code> are
 forbidden for now as they produce rather nasty type errors.</p>
 <h2 id="type-overrides-output-columns" class="section-header"><a href="#type-overrides-output-columns">Type Overrides: Output Columns</a></h2>
-<p>Type overrides are also available for output columns, utilizing the SQL standard's support
+<p>Type overrides are also available for output columns, utilizing the SQL standard’s support
 for arbitrary text in column names:</p>
 <h5 id="force-not-null" class="section-header"><a href="#force-not-null">Force Not-Null</a></h5>
 <p>Selecting a column <code>foo as &quot;foo!&quot;</code> (Postgres / SQLite) or <code>foo as `foo!`</code> (MySQL) overrides
@@ -186,7 +186,7 @@ and the definitions of any relevant tables (or sufficiently anonymized equivalen
 <p>Selecting a column <code>foo as &quot;foo: T&quot;</code> (Postgres / SQLite) or <code>foo as `foo: T`</code> (MySQL)
 overrides the inferred type which is useful when selecting user-defined custom types
 (dynamic type checking is still done so if the types are incompatible this will be an error
-at runtime instead of compile-time). Note that this syntax alone doesn't override inferred nullability,
+at runtime instead of compile-time). Note that this syntax alone doesn’t override inferred nullability,
 but it is compatible with the forced not-null and forced nullable annotations:</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
@@ -220,7 +220,7 @@ but it requires a couple extra steps:</p>
 <li>In your project with <code>DATABASE_URL</code> set (or in a <code>.env</code> file) and the database server running,
 run <code>cargo sqlx prepare</code>.</li>
 <li>Check the generated <code>sqlx-data.json</code> file into version control.</li>
-<li>Don't have <code>DATABASE_URL</code> set during compilation.</li>
+<li>Don’t have <code>DATABASE_URL</code> set during compilation.</li>
 </ul>
 <p>Your project can now be built without a database connection (you must omit <code>DATABASE_URL</code> or
 else it will still try to connect). To update the generated file simply run <code>cargo sqlx prepare</code>
@@ -235,5 +235,5 @@ project and your database schema itself, run
 <li><a href="../sqlx/macro.query_file.html" title="query_file!">query_file!</a> if you want to define the SQL query out-of-line,</li>
 <li><a href="../sqlx/macro.query_file_as.html" title="query_file_as!">query_file_as!</a> if you want both of the above.</li>
 </ul>
-</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="sqlx"></div>
-    <script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="sqlx" data-search-js="../search-index.js"></div>
+    <script src="../main.js"></script></body></html>

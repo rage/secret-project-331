@@ -1,12 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `iter` mod in crate `nom`."><meta name="keywords" content="rust, rustlang, rust-lang, iter"><title>nom::lib::std::iter - Rust</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Composable external iteration."><meta name="keywords" content="rust, rustlang, rust-lang, iter"><title>nom::lib::std::iter - Rust</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a><p class="location">Module iter</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"><a href="../../../index.html">nom</a>::<wbr><a href="../../index.html">lib</a>::<wbr><a href="../index.html">std</a></p><div id="sidebar-vars" data-name="iter" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../../index.html">nom</a>::<wbr><a href="../../index.html">lib</a>::<wbr><a href="../index.html">std</a>::<wbr><a class="mod" href="">iter</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/lib.rs.html#247" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Composable external iteration.</p>
-<p>If you've found yourself with a collection of some kind, and needed to
-perform an operation on the elements of said collection, you'll quickly run
-into 'iterators'. Iterators are heavily used in idiomatic Rust code, so
-it's worth becoming familiar with them.</p>
-<p>Before explaining more, let's talk about how this module is structured:</p>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a><p class="location">Module iter</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"><a href="../../../index.html">nom</a>::<wbr><a href="../../index.html">lib</a>::<wbr><a href="../index.html">std</a></p><div id="sidebar-vars" data-name="iter" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../../index.html">nom</a>::<wbr><a href="../../index.html">lib</a>::<wbr><a href="../index.html">std</a>::<wbr><a class="mod" href="">iter</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/lib.rs.html#250" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Composable external iteration.</p>
+<p>If you’ve found yourself with a collection of some kind, and needed to
+perform an operation on the elements of said collection, you’ll quickly run
+into ‘iterators’. Iterators are heavily used in idiomatic Rust code, so
+it’s worth becoming familiar with them.</p>
+<p>Before explaining more, let’s talk about how this module is structured:</p>
 <h1 id="organization" class="section-header"><a href="#organization">Organization</a></h1>
 <p>This module is largely organized by type:</p>
 <ul>
@@ -15,11 +15,11 @@ exist and what you can do with them. The methods of these traits are worth
 putting some extra study time into.</li>
 <li><a href="#functions">Functions</a> provide some helpful ways to create some basic iterators.</li>
 <li><a href="#structs">Structs</a> are often the return types of the various methods on this
-module's traits. You'll usually want to look at the method that creates
+module’s traits. You’ll usually want to look at the method that creates
 the <code>struct</code>, rather than the <code>struct</code> itself. For more detail about why,
-see '<a href="#implementing-iterator">Implementing Iterator</a>'.</li>
+see ‘<a href="#implementing-iterator">Implementing Iterator</a>’.</li>
 </ul>
-<p>That's it! Let's dig into iterators.</p>
+<p>That’s it! Let’s dig into iterators.</p>
 <h1 id="iterator" class="section-header"><a href="#iterator">Iterator</a></h1>
 <p>The heart and soul of this module is the <a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a> trait. The core of
 <a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a> looks like this:</p>
@@ -31,14 +31,14 @@ see '<a href="#implementing-iterator">Implementing Iterator</a>'.</li>
 }</pre></div>
 <p>An iterator has a method, <a href="../../../../nom/lib/std/iter/trait.Iterator.html#tymethod.next"><code>next</code></a>, which when called, returns an
 <a href="../../../../nom/lib/std/option/enum.Option.html" title="Option"><code>Option</code></a><code>&lt;Item&gt;</code>. <a href="../../../../nom/lib/std/iter/trait.Iterator.html#tymethod.next"><code>next</code></a> will return <a href="../../../../nom/lib/std/option/enum.Option.html#variant.Some"><code>Some(Item)</code></a> as long as there
-are elements, and once they've all been exhausted, will return <code>None</code> to
+are elements, and once they’ve all been exhausted, will return <code>None</code> to
 indicate that iteration is finished. Individual iterators may choose to
 resume iteration, and so calling <a href="../../../../nom/lib/std/iter/trait.Iterator.html#tymethod.next"><code>next</code></a> again may or may not eventually
 start returning <a href="../../../../nom/lib/std/option/enum.Option.html#variant.Some"><code>Some(Item)</code></a> again at some point (for example, see <a href="../../std/sync/mpsc/struct.TryIter.html"><code>TryIter</code></a>).</p>
-<p><a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a>'s full definition includes a number of other methods as well,
+<p><a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a>’s full definition includes a number of other methods as well,
 but they are default methods, built on top of <a href="../../../../nom/lib/std/iter/trait.Iterator.html#tymethod.next"><code>next</code></a>, and so you get
 them for free.</p>
-<p>Iterators are also composable, and it's common to chain them together to do
+<p>Iterators are also composable, and it’s common to chain them together to do
 more complex forms of processing. See the <a href="#adapters">Adapters</a> section
 below for more details.</p>
 <h1 id="the-three-forms-of-iteration" class="section-header"><a href="#the-three-forms-of-iteration">The three forms of iteration</a></h1>
@@ -52,10 +52,10 @@ below for more details.</p>
 three, where appropriate.</p>
 <h1 id="implementing-iterator" class="section-header"><a href="#implementing-iterator">Implementing Iterator</a></h1>
 <p>Creating an iterator of your own involves two steps: creating a <code>struct</code> to
-hold the iterator's state, and then implementing <a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a> for that <code>struct</code>.
+hold the iterator’s state, and then implementing <a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a> for that <code>struct</code>.
 This is why there are so many <code>struct</code>s in this module: there is one for
 each iterator and iterator adapter.</p>
-<p>Let's make an iterator named <code>Counter</code> which counts from <code>1</code> to <code>5</code>:</p>
+<p>Let’s make an iterator named <code>Counter</code> which counts from <code>1</code> to <code>5</code>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="comment">// First, the struct:</span>
@@ -105,14 +105,14 @@ each iterator and iterator adapter.</p>
 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">counter</span>.<span class="ident">next</span>(), <span class="prelude-val">Some</span>(<span class="number">5</span>));
 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">counter</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);</pre></div>
 <p>Calling <a href="../../../../nom/lib/std/iter/trait.Iterator.html#tymethod.next"><code>next</code></a> this way gets repetitive. Rust has a construct which can
-call <a href="../../../../nom/lib/std/iter/trait.Iterator.html#tymethod.next"><code>next</code></a> on your iterator, until it reaches <code>None</code>. Let's go over that
+call <a href="../../../../nom/lib/std/iter/trait.Iterator.html#tymethod.next"><code>next</code></a> on your iterator, until it reaches <code>None</code>. Let’s go over that
 next.</p>
 <p>Also note that <code>Iterator</code> provides a default implementation of methods such as <code>nth</code> and <code>fold</code>
 which call <code>next</code> internally. However, it is also possible to write a custom implementation of
 methods like <code>nth</code> and <code>fold</code> if an iterator can compute them more efficiently without calling
 <code>next</code>.</p>
 <h1 id="for-loops-and-intoiterator" class="section-header"><a href="#for-loops-and-intoiterator"><code>for</code> loops and <code>IntoIterator</code></a></h1>
-<p>Rust's <code>for</code> loop syntax is actually sugar for iterators. Here's a basic
+<p>Rust’s <code>for</code> loop syntax is actually sugar for iterators. Here’s a basic
 example of <code>for</code>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -122,12 +122,12 @@ example of <code>for</code>:</p>
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">x</span>);
 }</pre></div>
 <p>This will print the numbers one through five, each on their own line. But
-you'll notice something here: we never called anything on our vector to
+you’ll notice something here: we never called anything on our vector to
 produce an iterator. What gives?</p>
-<p>There's a trait in the standard library for converting something into an
+<p>There’s a trait in the standard library for converting something into an
 iterator: <a href="../../../../nom/lib/std/iter/trait.IntoIterator.html" title="IntoIterator"><code>IntoIterator</code></a>. This trait has one method, <a href="../../../../nom/lib/std/iter/trait.IntoIterator.html#tymethod.into_iter"><code>into_iter</code></a>,
 which converts the thing implementing <a href="../../../../nom/lib/std/iter/trait.IntoIterator.html" title="IntoIterator"><code>IntoIterator</code></a> into an iterator.
-Let's take a look at that <code>for</code> loop again, and what the compiler converts
+Let’s take a look at that <code>for</code> loop again, and what the compiler converts
 it into:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -156,8 +156,8 @@ it into:</p>
 }</pre></div>
 <p>First, we call <code>into_iter()</code> on the value. Then, we match on the iterator
 that returns, calling <a href="../../../../nom/lib/std/iter/trait.Iterator.html#tymethod.next"><code>next</code></a> over and over until we see a <code>None</code>. At
-that point, we <code>break</code> out of the loop, and we're done iterating.</p>
-<p>There's one more subtle bit here: the standard library contains an
+that point, we <code>break</code> out of the loop, and we’re done iterating.</p>
+<p>There’s one more subtle bit here: the standard library contains an
 interesting implementation of <a href="../../../../nom/lib/std/iter/trait.IntoIterator.html" title="IntoIterator"><code>IntoIterator</code></a>:</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
@@ -165,8 +165,8 @@ interesting implementation of <a href="../../../../nom/lib/std/iter/trait.IntoIt
 <p>In other words, all <a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a>s implement <a href="../../../../nom/lib/std/iter/trait.IntoIterator.html" title="IntoIterator"><code>IntoIterator</code></a>, by just
 returning themselves. This means two things:</p>
 <ol>
-<li>If you're writing an <a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a>, you can use it with a <code>for</code> loop.</li>
-<li>If you're creating a collection, implementing <a href="../../../../nom/lib/std/iter/trait.IntoIterator.html" title="IntoIterator"><code>IntoIterator</code></a> for it
+<li>If you’re writing an <a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a>, you can use it with a <code>for</code> loop.</li>
+<li>If you’re creating a collection, implementing <a href="../../../../nom/lib/std/iter/trait.IntoIterator.html" title="IntoIterator"><code>IntoIterator</code></a> for it
 will allow your collection to be used with the <code>for</code> loop.</li>
 </ol>
 <h1 id="iterating-by-reference" class="section-header"><a href="#iterating-by-reference">Iterating by reference</a></h1>
@@ -206,8 +206,8 @@ put the collection into an inconsistent state if the key hashes change, so
 these collections only offer <code>iter()</code>.</p>
 <h1 id="adapters" class="section-header"><a href="#adapters">Adapters</a></h1>
 <p>Functions which take an <a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a> and return another <a href="../../../../nom/lib/std/iter/trait.Iterator.html" title="Iterator"><code>Iterator</code></a> are
-often called 'iterator adapters', as they're a form of the 'adapter
-pattern'.</p>
+often called ‘iterator adapters’, as they’re a form of the ‘adapter
+pattern’.</p>
 <p>Common iterator adapters include <a href="../../../../nom/lib/std/iter/trait.Iterator.html#method.map"><code>map</code></a>, <a href="../../../../nom/lib/std/iter/trait.Iterator.html#method.take"><code>take</code></a>, and <a href="../../../../nom/lib/std/iter/trait.Iterator.html#method.filter"><code>filter</code></a>.
 For more, see their documentation.</p>
 <p>If an iterator adapter panics, the iterator will be in an unspecified (but
@@ -216,7 +216,7 @@ across versions of Rust, so you should avoid relying on the exact values
 returned by an iterator which panicked.</p>
 <h1 id="laziness" class="section-header"><a href="#laziness">Laziness</a></h1>
 <p>Iterators (and iterator <a href="#adapters">adapters</a>) are <em>lazy</em>. This means that
-just creating an iterator doesn't <em>do</em> a whole lot. Nothing really happens
+just creating an iterator doesn’t <em>do</em> a whole lot. Nothing really happens
 until you call <a href="../../../../nom/lib/std/iter/trait.Iterator.html#tymethod.next"><code>next</code></a>. This is sometimes a source of confusion when
 creating an iterator solely for its side effects. For example, the <a href="../../../../nom/lib/std/iter/trait.Iterator.html#method.map"><code>map</code></a>
 method calls a closure on each element it iterates over:</p>
@@ -337,5 +337,5 @@ the provided closure.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.repeat_with.html" title="nom::lib::std::iter::repeat_with fn">repeat_with</a></td><td class="docblock-short"><p>Creates a new iterator that repeats elements of type <code>A</code> endlessly by
 applying the provided closure, the repeater, <code>F: FnMut() -&gt; A</code>.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.successors.html" title="nom::lib::std::iter::successors fn">successors</a></td><td class="docblock-short"><p>Creates a new iterator where each successive item is computed based on the preceding one.</p>
-</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="nom"></div>
-    <script src="../../../../main.js"></script><script defer src="../../../../search-index.js"></script></body></html>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="nom" data-search-js="../../../../search-index.js"></div>
+    <script src="../../../../main.js"></script></body></html>

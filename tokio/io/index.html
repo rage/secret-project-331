@@ -1,14 +1,14 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `io` mod in crate `tokio`."><meta name="keywords" content="rust, rustlang, rust-lang, io"><title>tokio::io - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Traits, helpers, and type definitions for asynchronous I/O functionality."><meta name="keywords" content="rust, rustlang, rust-lang, io"><title>tokio::io - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module io</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"><a href="../index.html">tokio</a></p><div id="sidebar-vars" data-name="io" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">tokio</a>::<wbr><a class="mod" href="">io</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/tokio/io/mod.rs.html#1-267" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Traits, helpers, and type definitions for asynchronous I/O functionality.</p>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module io</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"><a href="../index.html">tokio</a></p><div id="sidebar-vars" data-name="io" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">tokio</a>::<wbr><a class="mod" href="">io</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/tokio/io/mod.rs.html#1-267" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Traits, helpers, and type definitions for asynchronous I/O functionality.</p>
 <p>This module is the asynchronous version of <code>std::io</code>. Primarily, it
 defines two traits, <a href="../../tokio/io/trait.AsyncRead.html"><code>AsyncRead</code></a> and <a href="../../tokio/io/trait.AsyncWrite.html"><code>AsyncWrite</code></a>, which are asynchronous
 versions of the <a href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html"><code>Read</code></a> and <a href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html"><code>Write</code></a> traits in the standard library.</p>
 <h1 id="asyncread-and-asyncwrite" class="section-header"><a href="#asyncread-and-asyncwrite">AsyncRead and AsyncWrite</a></h1>
-<p>Like the standard library's <a href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html"><code>Read</code></a> and <a href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html"><code>Write</code></a> traits, <a href="../../tokio/io/trait.AsyncRead.html"><code>AsyncRead</code></a> and
+<p>Like the standard library’s <a href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html"><code>Read</code></a> and <a href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html"><code>Write</code></a> traits, <a href="../../tokio/io/trait.AsyncRead.html"><code>AsyncRead</code></a> and
 <a href="../../tokio/io/trait.AsyncWrite.html"><code>AsyncWrite</code></a> provide the most general interface for reading and writing
-input and output. Unlike the standard library's traits, however, they are
+input and output. Unlike the standard library’s traits, however, they are
 <em>asynchronous</em> — meaning that reading from or writing to a <code>tokio::io</code>
 type will <em>yield</em> to the Tokio scheduler when IO is not ready, rather than
 blocking. This allows other tasks to run while waiting on IO.</p>
@@ -22,8 +22,8 @@ respectively.</p>
 <code>AsyncWrite</code>. Instead, they will use the async functions defined in the
 extension traits. Library authors are expected to implement <code>AsyncRead</code>
 and <code>AsyncWrite</code> in order to provide types that behave like byte streams.</p>
-<p>Even with these differences, Tokio's <code>AsyncRead</code> and <code>AsyncWrite</code> traits
-can be used in almost exactly the same manner as the standard library's
+<p>Even with these differences, Tokio’s <code>AsyncRead</code> and <code>AsyncWrite</code> traits
+can be used in almost exactly the same manner as the standard library’s
 <code>Read</code> and <code>Write</code>. Most types in the standard library that implement <code>Read</code>
 and <code>Write</code> have asynchronous equivalents in <code>tokio</code> that implement
 <code>AsyncRead</code> and <code>AsyncWrite</code>, such as <a href="../../tokio/fs/struct.File.html"><code>File</code></a> and <a href="../../tokio/net/struct.TcpStream.html"><code>TcpStream</code></a>.</p>
@@ -47,7 +47,7 @@ can do the same with <a href="../../tokio/fs/struct.File.html"><code>tokio::fs::
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
 <h2 id="buffered-readers-and-writers" class="section-header"><a href="#buffered-readers-and-writers">Buffered Readers and Writers</a></h2>
-<p>Byte-based interfaces are unwieldy and can be inefficient, as we'd need to be
+<p>Byte-based interfaces are unwieldy and can be inefficient, as we’d need to be
 making near-constant calls to the operating system. To help with this,
 <code>std::io</code> comes with <a href="https://doc.rust-lang.org/nightly/std/io/index.html#bufreader-and-bufwriter">support for <em>buffered</em> readers and writers</a>,
 and therefore, <code>tokio::io</code> does as well.</p>
@@ -74,7 +74,7 @@ extra methods to any async reader:</p>
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">buffer</span>);
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
-<p><a href="../../tokio/io/struct.BufWriter.html"><code>BufWriter</code></a> doesn't add any new ways of writing; it just buffers every call
+<p><a href="../../tokio/io/struct.BufWriter.html"><code>BufWriter</code></a> doesn’t add any new ways of writing; it just buffers every call
 to <a href="../../tokio/io/trait.AsyncWriteExt.html#method.write"><code>write</code></a>. However, you <strong>must</strong> flush
 <a href="../../tokio/io/struct.BufWriter.html"><code>BufWriter</code></a> to ensure that any buffered data is written.</p>
 
@@ -111,7 +111,7 @@ type that is encoded as bytes and/or decoded from bytes. Tokio
 provides some utility traits in the <a href="https://docs.rs/tokio-util/0.6/tokio_util/codec/index.html">tokio-util</a> crate that
 abstract the asynchronous buffering that is required and allows
 you to write <a href="https://docs.rs/tokio-util/0.6/tokio_util/codec/trait.Encoder.html"><code>Encoder</code></a> and <a href="https://docs.rs/tokio-util/0.6/tokio_util/codec/trait.Decoder.html"><code>Decoder</code></a> functions working with a
-buffer of bytes, and then use that <a href="https://docs.rs/tokio-util/0.6/tokio_util/codec/index.html">&quot;codec&quot;</a> to transform anything
+buffer of bytes, and then use that <a href="https://docs.rs/tokio-util/0.6/tokio_util/codec/index.html">“codec”</a> to transform anything
 that implements <a href="../../tokio/io/trait.AsyncRead.html"><code>AsyncRead</code></a> and <a href="../../tokio/io/trait.AsyncWrite.html"><code>AsyncWrite</code></a> into a <code>Sink</code>/<code>Stream</code> of
 your structured data.</p>
 <h1 id="standard-input-and-output" class="section-header"><a href="#standard-input-and-output">Standard input and output</a></h1>
@@ -139,7 +139,7 @@ re-exported from <code>std::io</code> for ease of use.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.ReadHalf.html" title="tokio::io::ReadHalf struct">ReadHalf</a></td><td class="docblock-short"><p>The readable half of a value returned from <a href="../../tokio/io/fn.split.html"><code>split</code></a>.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Ready.html" title="tokio::io::Ready struct">Ready</a></td><td class="docblock-short"><p>Describes the readiness state of an I/O resources.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Repeat.html" title="tokio::io::Repeat struct">Repeat</a></td><td class="docblock-short"><p>An async reader which yields one byte over and over and over and over and
-over and...</p>
+over and…</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Sink.html" title="tokio::io::Sink struct">Sink</a></td><td class="docblock-short"><p>An async writer which will move data into the void.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Split.html" title="tokio::io::Split struct">Split</a></td><td class="docblock-short"><p>Splitter for the <a href="../../tokio/io/trait.AsyncBufReadExt.html#method.split"><code>split</code></a> method.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Take.html" title="tokio::io::Take struct">Take</a></td><td class="docblock-short"><p>Stream for the <a href="../../tokio/io/trait.AsyncReadExt.html#method.take"><code>take</code></a> method.</p>
@@ -163,5 +163,5 @@ over and...</p>
 data.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.split.html" title="tokio::io::split fn">split</a></td><td class="docblock-short"><p>Splits a single value implementing <code>AsyncRead + AsyncWrite</code> into separate
 <code>AsyncRead</code> and <code>AsyncWrite</code> handles.</p>
-</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tokio"></div>
-    <script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tokio" data-search-js="../../search-index.js"></div>
+    <script src="../../main.js"></script></body></html>

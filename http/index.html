@@ -1,28 +1,28 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `http` crate."><meta name="keywords" content="rust, rustlang, rust-lang, http"><title>http - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A general purpose library of common HTTP types"><meta name="keywords" content="rust, rustlang, rust-lang, http"><title>http - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../http/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate http</p><div class="block version"><p>Version 0.2.3</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all http's items</p></a><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="http" data-ty="mod" data-relpath="../"></div></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">http</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/http/lib.rs.html#1-211" title="goto source code">[src]</a></span></h1><div class="docblock"><p>A general purpose library of common HTTP types</p>
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../http/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate http</p><div class="block version"><p>Version 0.2.3</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all http's items</p></a><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="http" data-ty="mod" data-relpath="../"></div></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">http</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/http/lib.rs.html#1-211" title="goto source code">[src]</a></span></h1><div class="docblock"><p>A general purpose library of common HTTP types</p>
 <p>This crate is a general purpose library for common types found when working
-with the HTTP protocol. You'll find <code>Request</code> and <code>Response</code> types for
+with the HTTP protocol. You’ll find <code>Request</code> and <code>Response</code> types for
 working as either a client or a server as well as all of their components.
-Notably you'll find <code>Uri</code> for what a <code>Request</code> is requesting, a <code>Method</code>
-for how it's being requested, a <code>StatusCode</code> for what sort of response came
+Notably you’ll find <code>Uri</code> for what a <code>Request</code> is requesting, a <code>Method</code>
+for how it’s being requested, a <code>StatusCode</code> for what sort of response came
 back, a <code>Version</code> for how this was communicated, and
 <code>HeaderName</code>/<code>HeaderValue</code> definitions to get grouped in a <code>HeaderMap</code> to
 work with request/response headers.</p>
 <p>You will notably <em>not</em> find an implementation of sending requests or
-spinning up a server in this crate. It's intended that this crate is the
-&quot;standard library&quot; for HTTP clients and servers without dictating any
+spinning up a server in this crate. It’s intended that this crate is the
+“standard library” for HTTP clients and servers without dictating any
 particular implementation. Note that this crate is still early on in its
 lifecycle so the support libraries that integrate with the <code>http</code> crate are
-a work in progress! Stay tuned and we'll be sure to highlight crates here
+a work in progress! Stay tuned and we’ll be sure to highlight crates here
 in the future.</p>
 <h2 id="requests-and-responses" class="section-header"><a href="#requests-and-responses">Requests and Responses</a></h2>
 <p>Perhaps the main two types in this crate are the <code>Request</code> and <code>Response</code>
 types. A <code>Request</code> could either be constructed to get sent off as a client
 or it can also be received to generate a <code>Response</code> for a server. Similarly
 as a client a <code>Response</code> is what you get after sending a <code>Request</code>, whereas
-on a server you'll be manufacturing a <code>Response</code> to send back to the client.</p>
+on a server you’ll be manufacturing a <code>Response</code> to send back to the client.</p>
 <p>Each type has a number of accessors for the component fields. For as a
 server you might want to inspect a requests URI to dispatch it:</p>
 
@@ -37,7 +37,7 @@ server you might want to inspect a requests URI to dispatch it:</p>
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">not_found</span>(<span class="ident">req</span>),
     }
 }</pre></div>
-<p>On a <code>Request</code> you'll also find accessors like <code>method</code> to return a
+<p>On a <code>Request</code> you’ll also find accessors like <code>method</code> to return a
 <code>Method</code> and <code>headers</code> to inspect the various headers. A <code>Response</code>
 has similar methods for headers, the status code, etc.</p>
 <p>In addition to getters, request/response types also have mutable accessors
@@ -63,8 +63,8 @@ libraries maximal flexibility in implementing the body as appropriate.</p>
 <h2 id="http-headers" class="section-header"><a href="#http-headers">HTTP Headers</a></h2>
 <p>Another major piece of functionality in this library is HTTP header
 interpretation and generation. The <code>HeaderName</code> type serves as a way to
-define header <em>names</em>, or what's to the left of the colon. A <code>HeaderValue</code>
-conversely is the header <em>value</em>, or what's to the right of a colon.</p>
+define header <em>names</em>, or what’s to the left of the colon. A <code>HeaderValue</code>
+conversely is the header <em>value</em>, or what’s to the right of a colon.</p>
 <p>For example, if you have an HTTP request that looks like:</p>
 <pre><code class="language-http">GET /foo HTTP/1.1
 Accept: text/html
@@ -105,7 +105,7 @@ function:</p>
 <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="string">&quot;text/html&quot;</span>;
 <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();</pre></div>
 <p>Most HTTP requests and responses tend to come with more than one header, so
-it's not too useful to just work with names and values only! This crate also
+it’s not too useful to just work with names and values only! This crate also
 provides a <code>HeaderMap</code> type which is a specialized hash map for keys as
 <code>HeaderName</code> and generic values. This type, like header names, is optimized
 for common usage but should continue to scale with your needs over time.</p>
@@ -135,9 +135,9 @@ interpret it:</p>
 </td></tr><tr class="module-item"><td><a class="mod" href="uri/index.html" title="http::uri mod">uri</a></td><td class="docblock-short"><p>URI component of request and response lines</p>
 </td></tr><tr class="module-item"><td><a class="mod" href="version/index.html" title="http::version mod">version</a></td><td class="docblock-short"><p>HTTP version</p>
 </td></tr></table><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<table><tr class="module-item"><td><a class="struct" href="struct.Error.html" title="http::Error struct">Error</a></td><td class="docblock-short"><p>A generic &quot;error&quot; for HTTP connections</p>
+<table><tr class="module-item"><td><a class="struct" href="struct.Error.html" title="http::Error struct">Error</a></td><td class="docblock-short"><p>A generic “error” for HTTP connections</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Extensions.html" title="http::Extensions struct">Extensions</a></td><td class="docblock-short"><p>A type map of protocol extensions.</p>
 </td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
 <table><tr class="module-item"><td><a class="type" href="type.Result.html" title="http::Result type">Result</a></td><td class="docblock-short"><p>A <code>Result</code> typedef to use with the <code>http::Error</code> type</p>
-</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="http"></div>
-    <script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="http" data-search-js="../search-index.js"></div>
+    <script src="../main.js"></script></body></html>

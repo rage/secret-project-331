@@ -8,6 +8,9 @@ build:
         manual:
           - src: "**/*.rs"
             dest: "/app"
+      docker:
+        cacheFrom:
+          - "eu.gcr.io/moocfi-public/project-331-headless-lms-dev:latest"
     - image: cms
       context: cms
       sync:

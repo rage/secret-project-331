@@ -1,18 +1,4 @@
-FROM rust as planner
-WORKDIR /app
-# We only pay the installation cost once,
-# it will be cached from the second build onwards
-RUN cargo install cargo-chef
-COPY . .
-RUN cargo chef prepare  --recipe-path recipe.json
-
-FROM rust as cacher
-WORKDIR /app
-RUN cargo install cargo-chef
-COPY --from=planner /app/recipe.json recipe.json
-RUN cargo chef cook --recipe-path recipe.json
-
-FROM rust as builder
+FROM rust
 
 RUN apt-get update \
   && apt-get install -yy wait-for-it \
@@ -22,9 +8,21 @@ RUN cargo install sqlx-cli --no-default-features --features postgres && \
   cargo install cargo-watch && \
   cargo install systemfd
 WORKDIR /app
+
+# create dummy main.rs file so that cargo will download dependencies
+# we also are setting the timestamp to a old value because cargo will only
+# build new sources if the timestamp older than the previous build.
+RUN mkdir src && touch -a -m -t 199901010101.00 src/lib.rs
+# Copying only Cargo.toml and Cargo.lock will allow the compilation of dependencies
+# to be cached as long as these two files don't change
+COPY Cargo.toml .
+COPY Cargo.lock .
+
+# Compile dependencies
+RUN cargo build && rm src/lib.rs
+
 COPY . .
-# Copy over the cached dependencies
-COPY --from=cacher /app/target target
-COPY --from=cacher $CARGO_HOME $CARGO_HOME
+# Compile the program
 RUN cargo build
+
 CMD [ "bin/dev" ]

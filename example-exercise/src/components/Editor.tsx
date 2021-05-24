@@ -6,7 +6,8 @@ import { Alternative } from "../util/stateInterfaces"
 interface Props {
   state: Alternative[]
   setState: (newState: Alternative[]) => void
-  onHeightChange: (newHeight: number) => void
+  onHeightChange: (newHeight: number, port: MessagePort) => void
+  port: MessagePort
 }
 
 const Wrapper = styled.div`
@@ -35,7 +36,7 @@ const NewButton = styled.button`
   }
 `
 
-const Editor: React.FC<Props> = ({ state, setState, onHeightChange }) => {
+const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port }) => {
   const contentRef = useRef<HTMLDivElement>(null)
   // Automatic height resizing events
   useLayoutEffect(() => {
@@ -43,7 +44,7 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange }) => {
     if (!ref) {
       return
     }
-    onHeightChange(ref.getBoundingClientRect().height)
+    onHeightChange(ref.getBoundingClientRect().height, port)
   })
   return (
     <Wrapper ref={contentRef}>

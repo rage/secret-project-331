@@ -1,4 +1,4 @@
-import { Dispatch, useEffect, useRef } from "react"
+import { Dispatch, useRef } from "react"
 import { Alert } from "@material-ui/lab"
 import styled from "@emotion/styled"
 import React from "react"
@@ -34,7 +34,7 @@ const ExerciseItemIframe: React.FC<ExerciseItemIframeProps> = ({ url, public_spe
   }
 
   if (!url) {
-    return <Alert severity="error">Cannot render exercise item editor, missing url.</Alert>
+    return <Alert severity="error">Cannot render exercise item, missing url.</Alert>
   }
   return (
     <Iframe
@@ -83,63 +83,6 @@ const ExerciseItemIframe: React.FC<ExerciseItemIframeProps> = ({ url, public_spe
       frameBorder="off"
     />
   )
-}
-
-const handleMessageCreator = (
-  iframeRef: HTMLIFrameElement | null,
-  public_spec: unknown,
-  setAnswer: Dispatch<unknown>,
-) => {
-  return async function handleMessage(event: WindowEventMap["message"]) {
-    if (
-      event.data.message_type !== "moocfi/exercise-message" ||
-      (iframeRef && iframeRef.contentWindow !== event.source)
-    ) {
-      return
-    }
-    console.log("Parent received an event: ", JSON.stringify(event.data))
-
-    switch (event.data.message) {
-      case "ready": {
-        if (!iframeRef) {
-          console.error("Cannot send data to iframe because reference does not exist.")
-          return
-        }
-        const contentWindow = iframeRef.contentWindow
-        if (!contentWindow) {
-          console.error("No frame content window")
-          return
-        }
-        // Set the initial state that is found in Gutenberg JSON?
-        contentWindow.postMessage(
-          {
-            message: "content",
-            message_type: "moocfi/exercise-message",
-            data: public_spec,
-          },
-          "*",
-        )
-        return
-      }
-      case "height-changed": {
-        // Häkki solution to get rid of useState for iFrameHeight and well... scrollbar.
-        if (!iframeRef) {
-          console.error("Cannot send data to iframe because reference does not exist.")
-          return
-        }
-        iframeRef.height = (Number(event.data.data) + 10).toString() + "px"
-        return
-      }
-      case "current-state2": {
-        setAnswer(event.data.data)
-        return
-      }
-      default: {
-        console.warn("Unexpected message", JSON.stringify(event.data))
-        return
-      }
-    }
-  }
 }
 
 export default ExerciseItemIframe

@@ -2,6 +2,7 @@
   "recommendations": [
     "stylelint.vscode-stylelint",
     "dbaeumer.vscode-eslint",
-    "editorconfig.editorconfig"
+    "editorconfig.editorconfig",
+    "matklad.rust-analyzer"
   ]
 }

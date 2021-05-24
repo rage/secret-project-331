@@ -3,8 +3,9 @@
 ## Development environment
 
 Requirements:
-* PostgreSQL
-* Rust (https://www.rust-lang.org/tools/install)
+
+- PostgreSQL
+- Rust (https://www.rust-lang.org/tools/install)
 
 Setup:
 

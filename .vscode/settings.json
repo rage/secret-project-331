@@ -1,5 +1,7 @@
 {
-    "editor.tabSize": 2,
-    "files.eol": "\n",
-    "eslint.format.enable": true
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "eslint.format.enable": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file"
 }

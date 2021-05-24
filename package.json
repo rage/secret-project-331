@@ -38,6 +38,6 @@
       "eslint --cache --fix",
       "stylelint --fix"
     ],
-    "*.md": "prettier --write"
+    "*.md,*.json,*.scss,*.css": "prettier --write"
   }
 }

@@ -22,7 +22,7 @@ const Pre = styled.pre`
 `
 
 const Blockquote = styled.blockquote`
-  text-color: ${(props) => props.currentColor};
+  color: ${(props) => props.currentColor};
   text-align: center;
 `
 const chooseColor = (color) => {

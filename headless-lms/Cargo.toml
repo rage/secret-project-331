@@ -57,7 +57,10 @@ bytes = "1.0.1"
 itertools = "0.10.0"
 # Random number generators and other randomness functionality.
 rand = "0.8.3"
-
+# the BLAKE3 hash function
+blake3 = "0.3.7"
+# Recursively walk a directory.
+walkdir = "2.3.2"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

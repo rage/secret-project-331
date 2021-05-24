@@ -3,6 +3,7 @@ import { TextField } from "@material-ui/core"
 import { BlockEditProps } from "@wordpress/blocks"
 import { ExerciseAttributes } from "."
 import { InnerBlocks } from "@wordpress/block-editor"
+import { css } from "@emotion/css"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-item"]
 
@@ -10,12 +11,10 @@ const ExerciseEditorCard = styled.div`
   padding: 2rem;
   border: 1px solid black;
   border-radius: 2px;
-  margin-bottom: 1rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
 `
 
-const Title = styled.h1`
-  font-size: 24px;
-`
 const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
   attributes,
   setAttributes,
@@ -28,8 +27,10 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
         variant="outlined"
         value={attributes.name}
         onChange={(e) => setAttributes({ name: e.target.value })}
+        className={css`
+          margin-bottom: 1rem !important;
+        `}
       />
-      <Title>{attributes.name}</Title>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </ExerciseEditorCard>
   )

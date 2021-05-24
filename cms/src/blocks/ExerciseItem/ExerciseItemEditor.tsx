@@ -10,6 +10,7 @@ const ExerciseItemEditorCard = styled.div`
   padding: 2rem;
   border: 1px solid black;
   border-radius: 2px;
+  margin-bottom: 2rem;
 `
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list"]

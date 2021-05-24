@@ -38,6 +38,7 @@
       "eslint --cache --fix",
       "stylelint --fix"
     ],
-    "*.md,*.json,*.scss,*.css": "prettier --write"
+    "*.md,*.json,*.scss,*.css": "prettier --write",
+    "*.rs": "cargo fmt --manifest-path headless-lms/Cargo.toml --all -- --files-with-diff"
   }
 }

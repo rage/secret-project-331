@@ -37,3 +37,10 @@ spec:
           env:
             - name: BASE_PATH
               value: "/cms"
+          resources:
+            limits:
+              memory: 500Mi
+              cpu: 500m
+            requests:
+              memory: 200Mi
+              cpu: 200m

@@ -3,6 +3,8 @@
     "stylelint.vscode-stylelint",
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
-    "matklad.rust-analyzer"
+    "matklad.rust-analyzer",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "timonwong.shellcheck"
   ]
 }

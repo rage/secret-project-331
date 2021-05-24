@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["constant_time_eq","Compares two equal-sized byte strings in constant time."],["constant_time_eq_16","Compares two 128-bit byte strings in constant time."],["constant_time_eq_32","Compares two 256-bit byte strings in constant time."],["constant_time_eq_64","Compares two 512-bit byte strings in constant time."]]});

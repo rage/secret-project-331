@@ -21,16 +21,20 @@ export const exerciseFamilySelector = selectorFamily<
   string
 >({
   key: "individual-exercises-access",
-  get: (id) => ({ get }) => {
-    const atom = get(exercisesAtoms(id))
-    return atom
-  },
-  set: (id) => ({ set, get }, exercise: ExerciseWithExerciseItems | PageUpdateExercise) => {
-    set(exercisesAtoms(id), exercise)
-    if (!get(exercisesState).includes(id)) {
-      set(exercisesState, (prev) => [...prev, id])
-    }
-  },
+  get:
+    (id) =>
+    ({ get }) => {
+      const atom = get(exercisesAtoms(id))
+      return atom
+    },
+  set:
+    (id) =>
+    ({ set, get }, exercise: ExerciseWithExerciseItems | PageUpdateExercise) => {
+      set(exercisesAtoms(id), exercise)
+      if (!get(exercisesState).includes(id)) {
+        set(exercisesState, (prev) => [...prev, id])
+      }
+    },
 })
 
 export const exerciseItemFamilySelector = selectorFamily<
@@ -38,23 +42,27 @@ export const exerciseItemFamilySelector = selectorFamily<
   [string, string]
 >({
   key: "individual-exercises-items-access",
-  get: (id) => ({ get }) => {
-    const atom = get(exercisesAtoms(id[0]))
-    return atom.exercise_items.find((item) => item.id === id[1])
-  },
-  set: (id) => ({ set }, exerciseItemSpec: any) => {
-    set(exercisesAtoms(id[0]), (prev) => {
-      return {
-        ...prev,
-        exercise_items: prev.exercise_items.map((ei) => {
-          if (ei.id !== exerciseItemSpec.id) {
-            return ei
-          }
-          return exerciseItemSpec
-        }),
-      }
-    })
-  },
+  get:
+    (id) =>
+    ({ get }) => {
+      const atom = get(exercisesAtoms(id[0]))
+      return atom.exercise_items.find((item) => item.id === id[1])
+    },
+  set:
+    (id) =>
+    ({ set }, exerciseItemSpec: any) => {
+      set(exercisesAtoms(id[0]), (prev) => {
+        return {
+          ...prev,
+          exercise_items: prev.exercise_items.map((ei) => {
+            if (ei.id !== exerciseItemSpec.id) {
+              return ei
+            }
+            return exerciseItemSpec
+          }),
+        }
+      })
+    },
 })
 
 export const allExercises = selector<ExerciseWithExerciseItems[] | PageUpdateExercise[]>({

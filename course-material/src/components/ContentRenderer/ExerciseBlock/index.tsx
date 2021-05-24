@@ -37,8 +37,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const currentType = data.current_exercise_item.exercise_type
   const url = exericseTypeToIframeUrl[currentType]
 
-  const currentExerciseItemAssignment = (data.current_exercise_item
-    .assignment as unknown) as Block<unknown>[]
+  const currentExerciseItemAssignment = data.current_exercise_item
+    .assignment as unknown as Block<unknown>[]
 
   return (
     <div

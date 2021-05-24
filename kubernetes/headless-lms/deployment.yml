@@ -77,9 +77,6 @@ spec:
               cargo sqlx migrate run
               echo Migrations complete
           resources:
-            limits:
-              memory: 500Mi
-              cpu: 500m
             requests:
               memory: 200Mi
               cpu: 200m

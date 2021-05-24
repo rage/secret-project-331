@@ -46,6 +46,7 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port }) => {
     }
     onHeightChange(ref.getBoundingClientRect().height, port)
   })
+  console.log(typeof state)
   return (
     <Wrapper ref={contentRef}>
       <ButtonWrapper>

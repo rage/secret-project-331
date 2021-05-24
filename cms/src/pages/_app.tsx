@@ -5,6 +5,7 @@ import type { AppProps } from "next/app"
 import { RecoilRoot } from "recoil"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
+import { StylesProvider } from "@material-ui/core/styles"
 
 import { ThemeProvider } from "@material-ui/core/styles"
 import React from "react"
@@ -53,96 +54,98 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
         {/* <Devtools /> */}
-        <ThemeProvider theme={muiTheme}>
-          {/* Material UI default CSS */}
-          <CssBaseline />
-          <Global
-            styles={css`
-              html,
-              body {
-                margin: 0;
-                padding: 0;
-                font-family: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif, "Segoe UI",
-                  Roboto, "Helvetica Neue", Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji",
-                  "Segoe UI Symbol", "Noto Color Emoji";
-                font-size: 1rem;
-                font-weight: 400;
-                line-height: 1.5;
-                color: #212529;
-                background-color: #fff;
-                -webkit-text-size-adjust: 100%;
-                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-              }
+        <StylesProvider injectFirst>
+          <ThemeProvider theme={muiTheme}>
+            {/* Material UI default CSS */}
+            <CssBaseline />
+            <Global
+              styles={css`
+                html,
+                body {
+                  margin: 0;
+                  padding: 0;
+                  font-family: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif,
+                    "Segoe UI", Roboto, "Helvetica Neue", Arial, Noto Sans, "Apple Color Emoji",
+                    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+                  font-size: 1rem;
+                  font-weight: 400;
+                  line-height: 1.5;
+                  color: #212529;
+                  background-color: #fff;
+                  -webkit-text-size-adjust: 100%;
+                  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                }
 
-              h6,
-              h5,
-              h4,
-              h3,
-              h2,
-              h1 {
-                margin-top: 0;
-                margin-bottom: 0.5rem;
-                font-weight: 500;
-                line-height: 1.2;
-              }
-
-              h1 {
-                font-size: calc(1.375rem + 1.5vw);
-              }
-
-              @media (min-width: 1200px) {
+                h6,
+                h5,
+                h4,
+                h3,
+                h2,
                 h1 {
-                  font-size: 2.5rem;
+                  margin-top: 0;
+                  margin-bottom: 0.5rem;
+                  font-weight: 500;
+                  line-height: 1.2;
                 }
-              }
 
-              h2 {
-                font-size: calc(1.325rem + 0.9vw);
-              }
+                h1 {
+                  font-size: calc(1.375rem + 1.5vw);
+                }
 
-              @media (min-width: 1200px) {
+                @media (min-width: 1200px) {
+                  h1 {
+                    font-size: 2.5rem;
+                  }
+                }
+
                 h2 {
-                  font-size: 2rem;
+                  font-size: calc(1.325rem + 0.9vw);
                 }
-              }
 
-              h3 {
-                font-size: calc(1.3rem + 0.6vw);
-              }
+                @media (min-width: 1200px) {
+                  h2 {
+                    font-size: 2rem;
+                  }
+                }
 
-              @media (min-width: 1200px) {
                 h3 {
-                  font-size: 1.75rem;
+                  font-size: calc(1.3rem + 0.6vw);
                 }
-              }
 
-              h4 {
-                font-size: calc(1.275rem + 0.3vw);
-              }
+                @media (min-width: 1200px) {
+                  h3 {
+                    font-size: 1.75rem;
+                  }
+                }
 
-              @media (min-width: 1200px) {
                 h4 {
-                  font-size: 1.5rem;
+                  font-size: calc(1.275rem + 0.3vw);
                 }
-              }
 
-              h5 {
-                font-size: 1.25rem;
-              }
+                @media (min-width: 1200px) {
+                  h4 {
+                    font-size: 1.5rem;
+                  }
+                }
 
-              h6 {
-                font-size: 1rem;
-              }
+                h5 {
+                  font-size: 1.25rem;
+                }
 
-              p {
-                margin-top: 0;
-                margin-bottom: 1rem;
-              }
-            `}
-          />
-          <Component {...pageProps} />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </ThemeProvider>
+                h6 {
+                  font-size: 1rem;
+                }
+
+                p {
+                  margin-top: 0;
+                  margin-bottom: 1rem;
+                }
+              `}
+            />
+            <Component {...pageProps} />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </ThemeProvider>
+        </StylesProvider>
       </RecoilRoot>
     </QueryClientProvider>
   )

@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
 
     let mut server = HttpServer::new(move || {
         let json_config = web::JsonConfig::default()
-            .limit(4096)
+            .limit(81920)
             .error_handler(|err, _req| {
                 info!("Bad request: {}", &err);
                 // create custom error response

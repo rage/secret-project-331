@@ -35,9 +35,6 @@ spec:
             - containerPort: 3003
               name: http
           resources:
-            limits:
-              memory: 2000Mi
-              cpu: 8000m
             requests:
               memory: 200Mi
               cpu: 200m

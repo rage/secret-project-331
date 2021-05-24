@@ -1,11 +1,11 @@
-import { PropsWithChildren, useEffect, useRef } from "react"
+import { PropsWithChildren, useRef } from "react"
 import { Alert } from "@material-ui/lab"
 import styled from "@emotion/styled"
 import React from "react"
 import { ExerciseItemAttributes } from "."
 import { BlockEditProps } from "@wordpress/blocks"
-import useMessageChannel from "../../hooks/useMessageChannel"
 import { css } from "@emotion/css"
+import useMessageChannel from "../../hooks/useMessageChannel"
 
 // React memo to prevent iFrame re-render, try with console log from example exercise?
 const Iframe = React.memo(styled.iframe`
@@ -72,13 +72,16 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
         // If the url is not relative, the argument will be ignored
         const iframeOrigin = new URL(url, document.location.toString()).origin
         if (iframeRef.current && iframeRef.current.contentWindow) {
-          // The iframe will use port 2 for communication
-          iframeRef.current.contentWindow.postMessage("communication-port", iframeOrigin, [
-            messageChannel.port2,
-          ])
+          setTimeout(() => {
+            // The iframe will use port 2 for communication
+            iframeRef.current.contentWindow.postMessage("communication-port", iframeOrigin, [
+              messageChannel.port2,
+            ])
+          }, 1)
+
           messageChannel.port1.postMessage({
             message: "content",
-            data: props.attributes.private_spec,
+            data: JSON.parse(props.attributes.private_spec),
           })
         } else {
           console.error(

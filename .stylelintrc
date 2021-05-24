@@ -1,16 +1,3 @@
 {
-  "extends": [
-    "stylelint-config-standard"
-  ],
-  "rules": {
-    "no-empty-source": null,
-    "declaration-empty-line-before": null,
-    "no-missing-end-of-source-newline": null,
-    "no-eol-whitespace": null,
-    "no-invalid-double-slash-comments": true,
-    "named-grid-areas-no-invalid": null,
-    "declaration-colon-newline-after": null,
-    "value-list-comma-newline-after": null,
-    "at-rule-no-unknown": null,
-  }
+  "extends": "stylelint-config-recommended"
 }

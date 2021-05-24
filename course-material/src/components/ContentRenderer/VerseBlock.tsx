@@ -29,7 +29,7 @@ const VerseBlock: React.FC<BlockRendererProps<VerseBlockAttributes>> = ({ data }
   return (
     <pre
       className={css`
-        ${normalWidthCenteredComponentStyles};
+        ${normalWidthCenteredComponentStyles}
         ${attributes.backgroundColor !== undefined && `background-color: ${solidBackground};`}
         ${attributes.gradient !== undefined && `background-image: ${gradientBackground};`}
         color: ${textColor}

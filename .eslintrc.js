@@ -76,7 +76,20 @@ module.exports = {
         forbid: [
           {
             propName: "style",
-            message: "Use emotion.js instead of the style prop",
+            message:
+              "Use emotion.js instead of the style prop\nE.g. className={css`font-size: 28px;`}",
+          },
+        ],
+      },
+    ],
+    "react/forbid-dom-props": [
+      "error",
+      {
+        forbid: [
+          {
+            propName: "style",
+            message:
+              "Use emotion.js instead of the style prop\nE.g. className={css`font-size: 28px;`}",
           },
         ],
       },

@@ -38,12 +38,11 @@ const Blockquote = styled.blockquote<{ currentColor: string }>`
 const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = ({ data }) => {
   const attributes: PullquoteBlockAttributes = data.attributes
 
-  let mainColor = attributes.mainColor !== undefined ? colorMapper(attributes.mainColor) : "#FFFFFF"
+  let mainColor = colorMapper(attributes.mainColor, "#FFFFFF")
 
-  mainColor = attributes.customMainColor !== undefined ? attributes.customMainColor : "#FFFFFF"
+  mainColor = attributes.customMainColor ?? "#FFFFFF"
 
-  const textColor =
-    attributes.textColor !== undefined ? colorMapper(attributes.textColor) : "#000000"
+  const textColor = colorMapper(attributes.textColor, "#000000")
 
   const value = attributes.value !== undefined ? attributes.value : "<p></p>"
   return (
@@ -57,7 +56,9 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = (
       <Blockquote currentColor={textColor}>
         <div>
           <p
-            style={{ fontSize: "28px" }}
+            className={css`
+              font-size: 28px;
+            `}
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
           ></p>
         </div>

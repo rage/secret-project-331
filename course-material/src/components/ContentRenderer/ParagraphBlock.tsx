@@ -16,11 +16,11 @@ interface ParagraphBlockAttributes {
 const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({ data }) => {
   const attributes: ParagraphBlockAttributes = data.attributes
 
-  const textColor = attributes.textColor ? colorMapper(attributes.textColor) : "#000000"
+  const textColor = colorMapper(attributes.textColor, "#000000")
 
   // If background color is undefined, it indicates a transparent background
   // and we let the background color property unset in CSS.
-  const backgroundColor = attributes.backgroundColor && colorMapper(attributes.backgroundColor)
+  const backgroundColor = colorMapper(attributes.backgroundColor, "unset")
 
   const fontSize = fontSizeMapper(attributes.fontSize)
 
@@ -31,7 +31,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
         white-space: pre-line;
         min-width: 1px;
         color: ${textColor};
-        background-color: ${backgroundColor ?? "unset"};
+        background-color: ${backgroundColor};
         font-size: ${fontSize};
         ${backgroundColor && `padding: 1.25em 2.375em;`}
       `}

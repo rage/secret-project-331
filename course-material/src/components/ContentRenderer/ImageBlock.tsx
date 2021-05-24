@@ -1,8 +1,6 @@
 import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-import { defaultContainerWidth } from "../../styles/constants"
-
 interface ImageBlockAttributes {
   alt: string
   url: string

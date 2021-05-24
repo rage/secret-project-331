@@ -1,4 +1,4 @@
-const colorMapper: { [colorName: string]: string | undefined } = {
+const colorMap: { [colorName: string]: string | undefined } = {
   black: "#000000",
   "vivid-red": "#fc2403",
   "cyan-bluish-gray": "#E0FFFF",
@@ -13,7 +13,7 @@ const colorMapper: { [colorName: string]: string | undefined } = {
   "vivid-purple": "#800080",
 }
 
-const gradientColorMapper: { [colorName: string]: string | undefined } = {
+const gradientColorMap: { [colorName: string]: string | undefined } = {
   "vivid-cyan-blue-to-vivid-purple": "linear-gradient(135deg, #0693e3 0%, #9b51e0 100%)",
   "light-green-cyan-to-vivid-green-cyan": "linear-gradient(135deg, #7adcb4 0%, #00d082 100%)",
   "luminous-vivid-amber-to-luminous-vivid-orange":
@@ -30,19 +30,22 @@ const gradientColorMapper: { [colorName: string]: string | undefined } = {
   "blush-light-purple": "linear-gradient(135deg, #ffceec 0%, #9896f0 100%)",
 }
 
-// Returns a css color, defaults to black
-const ColorMapper = (colorName: string): string | undefined => {
-  let cssColor = colorMapper[colorName]
+// Returns a css color
+const colorMapper = (colorName: string | undefined, defaultColor = "unset"): string => {
+  if (!colorName) {
+    return defaultColor
+  }
+  let cssColor = colorMap[colorName]
 
   if (!cssColor) {
-    cssColor = gradientColorMapper[colorName]
+    cssColor = gradientColorMap[colorName]
   }
 
   if (!cssColor) {
-    cssColor = "#000000"
+    return defaultColor
   }
 
   return cssColor
 }
 
-export default ColorMapper
+export default colorMapper

@@ -39,7 +39,7 @@ spec:
               value: "/example-exercise"
           resources:
             limits:
-              memory: 500Mi
+              memory: 1000Mi
               cpu: 500m
             requests:
               memory: 200Mi

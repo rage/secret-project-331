@@ -1,10 +1,9 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { BlockRendererProps } from "."
-import sanitizeHtml from "sanitize-html"
 import colorMapper from "../../styles/colorMapper"
-import fontSizeMapper from "../../styles/fontSizeMapper"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import Paragraph from "./ParagraphBlock"
 
 interface CoverTextPosition {
   justifyContent: string
@@ -12,7 +11,7 @@ interface CoverTextPosition {
 }
 
 const textPosition: {
-  [contentPosition: string]: CoverTextPosition | { alignItems: "center"; justifyContent: "center" }
+  [contentPosition: string]: CoverTextPosition
 } = {
   "top left": { alignItems: "flex-start", justifyContent: "flex-start" },
   "top center": { alignItems: "flex-start", justifyContent: "center" },
@@ -28,9 +27,7 @@ const LayoutContainer = styled.div<LayoutContainerAttributes>`
   display: flex;
   justify-content: ${(props) => props.contentPosition.justifyContent};
   align-items: ${(props) => props.contentPosition.alignItems};
-  background-color: ${(props) => props.backgroundColor};
-  color: ${(props) => props.textColor};
-  font-size: ${(props) => props.fontSize};
+  background-color: ${(props) => props.overlayColor};
   overflow-wrap: break-word;
   background-size: cover;
   background-position: center center;
@@ -60,32 +57,22 @@ interface CoverBlockAttributes {
 }
 
 interface LayoutContainerAttributes {
-  backgroundColor: string
+  overlayColor: string
   backgroundType: boolean
   dimRatio: number
   hasParallax: boolean
   isRepeated: boolean
   contentPosition: CoverTextPosition
-  textColor: string
-  fontSize: string
-}
-
-interface InnerBlockAttributes {
-  align: string
-  content: string
-  dropCap: boolean
-  fontSize: string
-  textColor: string
 }
 
 const CoverBlock: React.FC<BlockRendererProps<CoverBlockAttributes>> = ({ data }) => {
   const attributes: CoverBlockAttributes = data.attributes
-  const innerBlocks: InnerBlockAttributes = data.innerBlocks[0].attributes
 
-  const backgroundColor = colorMapper(attributes.overlayColor, "unset")
-  const textColor = colorMapper(innerBlocks.textColor, "#000000")
-  const fontSize = fontSizeMapper(innerBlocks.fontSize)
-  const contentPosition = textPosition[attributes.contentPosition]
+  const overlayColor = colorMapper(attributes.overlayColor, "unset")
+  const contentPosition: CoverTextPosition =
+    textPosition[attributes.contentPosition] === undefined
+      ? { alignItems: "center", justifyContent: "center" }
+      : textPosition[attributes.contentPosition]
   console.log(data)
   return (
     <pre
@@ -98,12 +85,17 @@ const CoverBlock: React.FC<BlockRendererProps<CoverBlockAttributes>> = ({ data }
         dimRatio={attributes.dimRatio}
         hasParallax={attributes.hasParallax}
         isRepeated={attributes.isRepeated}
-        backgroundColor={backgroundColor}
+        overlayColor={overlayColor}
         contentPosition={contentPosition}
-        textColor={textColor}
-        fontSize={fontSize}
-        dangerouslySetInnerHTML={{ __html: sanitizeHtml(innerBlocks.content) }}
-      ></LayoutContainer>
+      >
+        <div
+          className={css`
+            width: auto;
+          `}
+        >
+          <Paragraph data={data.innerBlocks[0]}></Paragraph>
+        </div>
+      </LayoutContainer>
     </pre>
   )
 }

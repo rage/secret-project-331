@@ -39,9 +39,8 @@ const VerseBlock: React.FC<BlockRendererProps<VerseBlockAttributes>> = ({ data }
         className={css`
           font-size: ${fontSize};
         `}
-      >
-        {attributes.content}{" "}
-      </div>
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.content) }}
+      ></div>
     </pre>
   )
 }

@@ -62,7 +62,7 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = (
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
           ></p>
         </div>
-        <cite>{attributes.citation}</cite>
+        <cite dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.citation) }}></cite>
       </Blockquote>
     </Figure>
   )

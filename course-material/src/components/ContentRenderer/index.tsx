@@ -14,6 +14,7 @@ import CustomHTMLBlock from "./CustomHTMLBlock"
 import PreformatterBlock from "./PreformatterBlock"
 import VerseBlock from "./VerseBlock"
 import PullquoteBlock from "./PullquoteBlock"
+import CoverBlock from "./CoverBlock"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -33,6 +34,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/quote": QuoteBlock,
   "core/html": CustomHTMLBlock,
   "core/verse": VerseBlock,
+  "core/cover": CoverBlock,
   "core/pullquote": PullquoteBlock,
   "core/preformatted": PreformatterBlock,
   "core/columns": TableBlock,

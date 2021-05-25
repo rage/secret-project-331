@@ -1,9 +1,9 @@
 const fontSizes: { [colorName: string]: string | undefined } = {
   small: "13px",
   normal: "16px",
-  medium: "24px",
-  large: "30px",
-  huge: "36px",
+  medium: "20px",
+  large: "36px",
+  huge: "42px",
 }
 
 const DEFAULT_FONT_SIZE = "16px"

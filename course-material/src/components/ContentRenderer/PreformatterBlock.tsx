@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
+import sanitizeHtml from "sanitize-html"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
@@ -34,9 +35,8 @@ const PreformatterBlock: React.FC<BlockRendererProps<PreformatterBlockAttributes
         className={css`
           overflow-wrap: "break-word";
         `}
-      >
-        {attributes.content}
-      </div>
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.content) }}
+      ></div>
     </pre>
   )
 }

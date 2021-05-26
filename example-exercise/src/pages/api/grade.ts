@@ -15,7 +15,7 @@ interface GradingResult {
   score_maximum: number
   feedback_text: string | null
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  feedback_obj: any | null
+  feedback_json: any | null
 }
 
 interface GradingRequest {
@@ -33,7 +33,7 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) =>
       score_given: 0,
       score_maximum: 1,
       feedback_text: "You didn't select anything",
-      feedback_obj: null,
+      feedback_json: null,
     })
   }
 
@@ -46,7 +46,7 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) =>
       score_given: 0,
       score_maximum: 1,
       feedback_text: "Your answer was not correct",
-      feedback_obj: null,
+      feedback_json: null,
     })
   }
 
@@ -55,6 +55,6 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) =>
     score_given: 1,
     score_maximum: 1,
     feedback_text: "Good job!",
-    feedback_obj: null,
+    feedback_json: null,
   })
 }

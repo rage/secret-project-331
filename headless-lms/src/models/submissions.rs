@@ -68,7 +68,7 @@ pub struct GradingResult {
     pub score_given: f32,
     pub score_maximum: i32,
     pub feedback_text: Option<String>,
-    pub feedback_obj: Option<serde_json::Value>,
+    pub feedback_json: Option<serde_json::Value>,
 }
 
 pub async fn insert_submission(

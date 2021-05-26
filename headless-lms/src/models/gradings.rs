@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -31,8 +31,8 @@ pub struct Grading {
     pub deleted: bool,
 }
 
-#[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, sqlx::Type)]
+#[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 pub enum UserPointsUpdateStrategy {
     CanAddPointsButCannotRemovePoints,
     CanAddPointsAndCanRemovePoints,
@@ -40,7 +40,7 @@ pub enum UserPointsUpdateStrategy {
 
 pub async fn new_grading(pool: &PgPool, submission: &Submission) -> Result<Grading> {
     let mut connection = pool.acquire().await?;
-    let submission = sqlx::query_as!(
+    let grading = sqlx::query_as!(
         Grading,
         r#"
 INSERT INTO
@@ -55,7 +55,46 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
     )
     .fetch_one(&mut connection)
     .await?;
-    Ok(submission)
+    Ok(grading)
+}
+
+pub async fn update_grading(
+    pool: &PgPool,
+    grading: Grading,
+    grading_result: GradingResult,
+) -> Result<Grading> {
+    let mut connection = pool.acquire().await?;
+    let grading_completed_at = if grading_result.grading_progress.is_complete() {
+        Some(Utc::now().naive_utc())
+    } else {
+        None
+    };
+    let grading = sqlx::query_as!(
+        Grading,
+        r#"
+UPDATE gradings
+  SET
+    grading_progress = $2,
+    unscaled_score_given = $3,
+    unscaled_max_points = $4,
+    feedback_text = $5,
+    feedback_json = $6,
+    grading_completed_at = $7
+WHERE id = $1
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
+        "#,
+        grading.id,
+        grading_result.grading_progress as GradingProgress,
+        grading_result.score_given,
+        grading_result.score_maximum,
+        grading_result.feedback_text,
+        grading_result.feedback_json,
+        grading_completed_at
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    Ok(grading)
 }
 
 // pub async fn update_grading(

@@ -111,7 +111,6 @@
 <span id="108">108</span>
 <span id="109">109</span>
 <span id="110">110</span>
-<span id="111">111</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::<span class="ident">NaiveDateTime</span>;
@@ -173,14 +172,13 @@ WHERE
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_course_parts</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>, <span class="ident">course_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CoursePart</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transaction</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">transaction</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_parts</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">CoursePart</span>,
         <span class="string">&quot;SELECT * FROM course_parts WHERE course_id = $1 AND deleted = false;&quot;</span>,
         <span class="ident">course_id</span>
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">connection</span>)
+    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">course_parts</span>);
 }

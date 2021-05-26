@@ -562,7 +562,6 @@
 <span id="559">559</span>
 <span id="560">560</span>
 <span id="561">561</span>
-<span id="562">562</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -726,8 +725,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_by_path</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>, <span class="ident">course_slug</span>: <span class="ident">String</span>, <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transaction</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">transaction</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">Page</span>,
         <span class="string">&quot;SELECT pages.* FROM pages
@@ -739,7 +737,7 @@
         <span class="ident">course_slug</span>,
         <span class="ident">url_path</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">connection</span>)
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">page</span>);
 }

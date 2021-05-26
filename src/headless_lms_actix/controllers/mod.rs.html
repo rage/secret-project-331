@@ -107,6 +107,10 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
@@ -206,6 +210,10 @@ Represents error messages that are sent in responses.
     }
 }
 
+<span class="doccomment">/**
+Used as the result types for all controllers.
+Only put information here that you want to be visible to users.
+*/</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">ApplicationError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Add controllers from all the submodules.</span>

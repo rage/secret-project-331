@@ -54,8 +54,8 @@ Tells what's the status of the grading progress for a user and exercise.
 
 As close as possible LTI's grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
 */
-#[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, sqlx::Type)]
+#[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
 pub enum GradingProgress {
     /// The grading process is completed; the score value, if any, represents the current Final Grade;
     FullyGraded,
@@ -67,6 +67,15 @@ pub enum GradingProgress {
     Failed,
     /// There is no grading process occurring; for example, the student has not yet made any submission.
     NotReady,
+}
+
+impl GradingProgress {
+    pub fn is_complete(&self) -> bool {
+        if self == &Self::FullyGraded || self == &Self::Failed {
+            return true;
+        }
+        false
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

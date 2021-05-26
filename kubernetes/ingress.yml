@@ -8,6 +8,9 @@ metadata:
     nginx.ingress.kubernetes.io/limit-connections: "100"
     nginx.ingress.kubernetes.io/limit-rps: "20"
     nginx.ingress.kubernetes.io/limit-rpm: "500"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
 spec:
   rules:
     - http:

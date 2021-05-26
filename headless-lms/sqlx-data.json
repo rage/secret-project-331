@@ -1,5 +1,169 @@
 {
   "db": "PostgreSQL",
+  "00f1eb83fd64fd1a39a6290058e64cc63f5fc1a56aecc360cbb0c7bf1ccd4608": {
+    "query": "\nUPDATE gradings\n  SET\n    grading_progress = $2,\n    unscaled_score_given = $3,\n    unscaled_max_points = $4,\n    feedback_text = $5,\n    feedback_json = $6,\n    grading_completed_at = $7\nWHERE id = $1\nRETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as \"grading_progress: _\", user_points_update_strategy as \"user_points_update_strategy: _\", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 3,
+          "name": "submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_item_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "grading_priority",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "user_points_update_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "user_points_update_strategy",
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "unscaled_score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 12,
+          "name": "unscaled_max_points",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 13,
+          "name": "grading_started_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 14,
+          "name": "grading_completed_at",
+          "type_info": "Timestamp"
+        },
+        {
+          "ordinal": 15,
+          "name": "feedback_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 16,
+          "name": "feedback_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 17,
+          "name": "deleted",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          },
+          "Float4",
+          "Int4",
+          "Text",
+          "Jsonb",
+          "Timestamp"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
+    }
+  },
   "02ff83f40b183e7295450f84a7327cf545fa5f357451097c7afb35db5a4b6f2a": {
     "query": "\nSELECT counts.*, exercises.name exercise_name\n    FROM (\n        SELECT exercise_id, count(*)::integer count\n        FROM submissions\n        WHERE course_id = $1\n        GROUP BY exercise_id\n    ) counts\n    JOIN exercises ON (counts.exercise_id = exercises.id);\n          ",
     "describe": {

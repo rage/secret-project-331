@@ -160,8 +160,7 @@ pub async fn get_page(pool: &PgPool, page_id: Uuid) -> Result<Page> {
 }
 
 pub async fn get_page_by_path(pool: &PgPool, course_slug: String, url_path: &str) -> Result<Page> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+    let mut connection = pool.acquire().await?;
     let page = sqlx::query_as!(
         Page,
         "SELECT pages.* FROM pages
@@ -173,7 +172,7 @@ pub async fn get_page_by_path(pool: &PgPool, course_slug: String, url_path: &str
         course_slug,
         url_path
     )
-    .fetch_one(connection)
+    .fetch_one(&mut connection)
     .await?;
     return Ok(page);
 }

@@ -58,14 +58,13 @@ WHERE
 }
 
 pub async fn course_course_parts(pool: &PgPool, course_id: Uuid) -> Result<Vec<CoursePart>> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+    let mut connection = pool.acquire().await?;
     let course_parts = sqlx::query_as!(
         CoursePart,
         "SELECT * FROM course_parts WHERE course_id = $1 AND deleted = false;",
         course_id
     )
-    .fetch_all(connection)
+    .fetch_all(&mut connection)
     .await?;
     return Ok(course_parts);
 }

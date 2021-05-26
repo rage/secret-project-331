@@ -96,6 +96,10 @@ impl From<uuid::Error> for ApplicationError {
     }
 }
 
+/**
+Used as the result types for all controllers.
+Only put information here that you want to be visible to users.
+*/
 pub type ApplicationResult<T, E = ApplicationError> = std::result::Result<T, E>;
 
 /// Add controllers from all the submodules.

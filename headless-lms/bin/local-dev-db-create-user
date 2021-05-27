@@ -1,0 +1,6 @@
+#!/bin/bash
+COMMAND="sudo"
+ARGUMENTS=(runuser -u postgres -- createuser --superuser "$(whoami)")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

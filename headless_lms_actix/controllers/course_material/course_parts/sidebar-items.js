@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_add_course_parts_routes","Add a route for each controller in this module."],["get_course_parts_pages",""]]});

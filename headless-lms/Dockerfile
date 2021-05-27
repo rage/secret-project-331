@@ -1,13 +1,5 @@
-FROM rust
-
-RUN apt-get update \
-  && apt-get install -yy wait-for-it \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN cargo install sqlx-cli --no-default-features --features postgres && \
-  cargo install cargo-watch && \
-  cargo install systemfd
-WORKDIR /app
+# Built from DockerfileBase.dockerfile
+FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest
 
 # create dummy main.rs file so that cargo will download dependencies
 # we also are setting the timestamp to a old value because cargo will only

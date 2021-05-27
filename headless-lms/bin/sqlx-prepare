@@ -1,6 +1,6 @@
 #!/bin/bash
-COMMAND="minikube"
-ARGUMENTS=(stop "$@")
+COMMAND="cargo"
+ARGUMENTS=(sqlx prepare "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

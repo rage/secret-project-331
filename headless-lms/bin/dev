@@ -1,3 +1,6 @@
 #!/bin/bash
+COMMAND="systemfd"
+ARGUMENTS=(--no-pid -s http::0.0.0.0:3001 -- cargo watch -x run "$@")
 
-systemfd --no-pid -s http::0.0.0.0:3001 -- cargo watch -x run
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

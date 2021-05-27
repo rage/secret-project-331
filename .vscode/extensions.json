@@ -5,6 +5,7 @@
     "editorconfig.editorconfig",
     "matklad.rust-analyzer",
     "ms-kubernetes-tools.vscode-kubernetes-tools",
-    "timonwong.shellcheck"
+    "timonwong.shellcheck",
+    "humao.rest-client"
   ]
 }

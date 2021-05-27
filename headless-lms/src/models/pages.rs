@@ -150,6 +150,18 @@ pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {
     return Ok(pages);
 }
 
+pub async fn course_part_pages(pool: &PgPool, course_part_id: Uuid) -> Result<Vec<Page>> {
+    let mut connection = pool.acquire().await?;
+    let pages = sqlx::query_as!(
+        Page,
+        "SELECT * FROM pages WHERE course_part_id = $1 AND deleted = false;",
+        course_part_id
+    )
+    .fetch_all(&mut connection)
+    .await?;
+    return Ok(pages);
+}
+
 pub async fn get_page(pool: &PgPool, page_id: Uuid) -> Result<Page> {
     let mut transaction = pool.begin().await?;
     let connection = transaction.acquire().await?;

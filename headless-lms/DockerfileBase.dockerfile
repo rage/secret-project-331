@@ -8,3 +8,5 @@ RUN cargo install sqlx-cli --no-default-features --features postgres && \
   cargo install cargo-watch && \
   cargo install systemfd
 WORKDIR /app
+
+RUN useradd -ms /usr/sbin/nologin user

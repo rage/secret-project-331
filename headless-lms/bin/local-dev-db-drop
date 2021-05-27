@@ -1,0 +1,6 @@
+#!/bin/bash
+COMMAND="dropdb"
+ARGUMENTS=(headless_lms_dev "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

@@ -1,0 +1,6 @@
+#!/bin/bash
+COMMAND="minikube"
+ARGUMENTS=(ssh "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

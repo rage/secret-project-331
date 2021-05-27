@@ -1,0 +1,9 @@
+#!/bin/bash
+COMMAND="kubectl"
+
+POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)
+
+ARGUMENTS=(exec -it "$POD_NAME" "$@" -- bash)
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

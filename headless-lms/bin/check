@@ -1,6 +1,6 @@
 #!/bin/bash
-COMMAND="minikube"
-ARGUMENTS=(stop "$@")
+COMMAND="cargo"
+ARGUMENTS=(check "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

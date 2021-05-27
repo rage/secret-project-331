@@ -1,6 +1,7 @@
 #!/bin/bash
 
 COMMAND="watch"
-ARGUMENTS="kubectl get pods $*"
-echo "> $COMMAND $ARGUMENTS"
-exec "$COMMAND" $ARGUMENTS
+ARGUMENTS=(kubectl get pods "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

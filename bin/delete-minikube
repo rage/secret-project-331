@@ -1,6 +1,6 @@
 #!/bin/bash
 COMMAND="minikube"
-ARGUMENTS="delete"
+ARGUMENTS=(delete "$@")
 
-echo "> $COMMAND $ARGUMENTS"
-exec "$COMMAND" $ARGUMENTS
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

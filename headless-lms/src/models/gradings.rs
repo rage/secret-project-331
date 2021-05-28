@@ -1,5 +1,3 @@
-use std::cmp;
-
 use anyhow::Result;
 use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -24,7 +22,7 @@ pub struct Grading {
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,
     pub user_points_update_strategy: UserPointsUpdateStrategy,
-    pub unscaled_score_given: Option<f32>,
+    pub unscaled_score_maximum: Option<f32>,
     pub unscaled_max_points: Option<i32>,
     pub grading_started_at: Option<NaiveDateTime>,
     pub grading_completed_at: Option<NaiveDateTime>,
@@ -48,7 +46,7 @@ pub async fn new_grading(pool: &PgPool, submission: &Submission) -> Result<Gradi
 INSERT INTO
   gradings(submission_id, course_id, exercise_id, exercise_item_id, grading_started_at)
 VALUES($1, $2, $3, $4, now())
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
         "#,
         submission.id,
         submission.course_id,
@@ -86,14 +84,14 @@ pub async fn update_grading(
 UPDATE gradings
   SET
     grading_progress = $2,
-    unscaled_score_given = $3,
+    unscaled_score_maximum = $3,
     unscaled_max_points = $4,
     feedback_text = $5,
     feedback_json = $6,
     grading_completed_at = $7,
     score_given = $8
 WHERE id = $1
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
         "#,
         grading.id,
         grading_result.grading_progress as GradingProgress,

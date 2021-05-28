@@ -1,13 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course-material/submissions`.
 
-use std::str::FromStr;
-
 use crate::{
     controllers::ApplicationResult,
-    models::{
-        organizations::Organization,
-        submissions::{NewSubmission, Submission, SubmissionResult},
-    },
+    models::submissions::{NewSubmission, SubmissionResult},
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};

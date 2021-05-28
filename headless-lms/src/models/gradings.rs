@@ -1,3 +1,5 @@
+use std::cmp;
+
 use anyhow::Result;
 use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -5,7 +7,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use super::{
-    exercises::GradingProgress,
+    exercises::{Exercise, GradingProgress},
     submissions::{GradingResult, Submission},
 };
 
@@ -44,8 +46,8 @@ pub async fn new_grading(pool: &PgPool, submission: &Submission) -> Result<Gradi
         Grading,
         r#"
 INSERT INTO
-  gradings(submission_id, course_id, exercise_id, exercise_item_id)
-VALUES($1, $2, $3, $4)
+  gradings(submission_id, course_id, exercise_id, exercise_item_id, grading_started_at)
+VALUES($1, $2, $3, $4, now())
 RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
         "#,
         submission.id,
@@ -62,6 +64,7 @@ pub async fn update_grading(
     pool: &PgPool,
     grading: Grading,
     grading_result: GradingResult,
+    exercise: Exercise,
 ) -> Result<Grading> {
     let mut connection = pool.acquire().await?;
     let grading_completed_at = if grading_result.grading_progress.is_complete() {
@@ -69,6 +72,14 @@ pub async fn update_grading(
     } else {
         None
     };
+    let correctness_coefficient =
+        grading_result.score_given / (grading_result.score_maximum as f32);
+    let score_given_with_all_decumals = f32::max(
+        (exercise.score_maximum as f32) * correctness_coefficient,
+        exercise.score_maximum as f32,
+    );
+    // Scores are rounded to two decimals
+    let score_given_rounded = (score_given_with_all_decumals * (100 as f32)).trunc() / (100 as f32);
     let grading = sqlx::query_as!(
         Grading,
         r#"
@@ -79,7 +90,8 @@ UPDATE gradings
     unscaled_max_points = $4,
     feedback_text = $5,
     feedback_json = $6,
-    grading_completed_at = $7
+    grading_completed_at = $7,
+    score_given = $8
 WHERE id = $1
 RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
         "#,
@@ -89,37 +101,11 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
         grading_result.score_maximum,
         grading_result.feedback_text,
         grading_result.feedback_json,
-        grading_completed_at
+        grading_completed_at,
+        score_given_rounded
     )
     .fetch_one(&mut connection)
     .await?;
 
     Ok(grading)
 }
-
-// pub async fn update_grading(
-//     pool: &PgPool,
-//     grading: &Grading,
-//     grading_result: &GradingResult,
-// ) -> Result<Grading> {
-//     let mut connection = pool.acquire().await?;
-//     let submission = sqlx::query_as!(
-//         Grading,
-//         r#"
-// UPDATE gradings
-// SET
-//     grading_progress = $2,
-//     score_given = $3,
-//     feedback_text = $5
-// WHERE id = $1
-// RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
-//         "#,
-//         grading.id,
-//         grading_result.grading_progress,
-//         grading_result.score_given,
-//         grading_result.feedback_text,
-//     )
-//     .fetch_one(&mut connection)
-//     .await?;
-//     Ok(submission)
-// }

@@ -6,7 +6,7 @@ use crate::{
     controllers::ApplicationResult,
     models::{
         organizations::Organization,
-        submissions::{NewSubmission, Submission},
+        submissions::{NewSubmission, Submission, SubmissionResult},
     },
 };
 use actix_web::web::ServiceConfig;
@@ -34,7 +34,7 @@ POST `/api/v0/course-material/submissions` - Post a new submission.
 async fn post_submission(
     pool: web::Data<PgPool>,
     payload: web::Json<NewSubmission>,
-) -> ApplicationResult<Json<Submission>> {
+) -> ApplicationResult<Json<SubmissionResult>> {
     let user_id = Uuid::new_v4();
     let exercise_item_id = payload.0.exercise_item_id;
     let exercise_item =

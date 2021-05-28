@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
 import React from "react"
@@ -20,7 +21,11 @@ const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({
   setUrlPath,
 }) => {
   return (
-    <div style={{ padding: "1em" }}>
+    <div
+      className={css`
+        padding: 1rem;
+      `}
+    >
       <div>
         <FieldContainer>
           <TextField

@@ -2,9 +2,12 @@
 COMMAND="psql"
 if [ ! -f ../headless-lms/.env ]
 then
-  export $(cat headless-lms/.env | xargs)
+  set -o allexport
+    # shellcheck disable=SC1091
+    source headless-lms/.env set
+  +o allexport
 fi
-ARGUMENTS=($DATABASE_URL --file headless-lms/db/seed.sql "$@")
+ARGUMENTS=("$DATABASE_URL" --file headless-lms/db/seed.sql "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

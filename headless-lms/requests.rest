@@ -94,7 +94,7 @@ DELETE http://localhost:3001/api/v0/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02
 
 ###
 
-http://localhost:3001/api/v0/cms/organizations
+http://localhost:3001/api/v0/cms/courses
 
 
 ###
@@ -150,9 +150,12 @@ Content-Type: application/json
 
 ####
 
-GET http://localhost:3001/api/v0/course-material/course-parts/d332f3d9-39a5-4a18-80f4-251727693c37/pages
+GET http://localhost:3001/api/v0/course-material/course-parts/b25f849a-5b7b-4718-b0d7-88f435e2393d/pages
 
 
 ####
 
-GET http://localhost:3001/api/v0/cms/courses/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/overview
+GET http://localhost:3001/api/v0/cms/courses/8f605161-125b-449b-a443-c62ffc1b077f/structure
+
+####
+http://project-331.local/api/v0/cms/courses

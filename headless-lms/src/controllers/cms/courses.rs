@@ -1,4 +1,4 @@
-//! Controllers for requests starting with `/api/v0/cms/cms/courses`.
+//! Controllers for requests starting with `/api/v0/cms/courses`.
 use crate::{
     controllers::{ApplicationError, ApplicationResult},
     models::{

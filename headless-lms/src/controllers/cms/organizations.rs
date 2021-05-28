@@ -1,4 +1,4 @@
-//! Controllers for requests starting with `/api/v0/cms/cms/organizations`.
+//! Controllers for requests starting with `/api/v0/cms/organizations`.
 use std::str::FromStr;
 
 use crate::{

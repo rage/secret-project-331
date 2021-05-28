@@ -1,5 +1,5 @@
 /*!
-Handlers for HTTP requests to `/api/v0/cms/cms`.
+Handlers for HTTP requests to `/api/v0/cms`.
 
 This documents all endpoints. Select a module below for a category.
 

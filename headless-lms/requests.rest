@@ -94,7 +94,7 @@ DELETE http://localhost:3001/api/v0/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02
 
 ###
 
-http://localhost:3001/api/v0/organizations
+http://localhost:3001/api/v0/cms/organizations
 
 
 ###
@@ -147,3 +147,12 @@ Content-Type: application/json
   "exercise_item_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
   "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
 }
+
+####
+
+GET http://localhost:3001/api/v0/course-material/course-parts/d332f3d9-39a5-4a18-80f4-251727693c37/pages
+
+
+####
+
+GET http://localhost:3001/api/v0/cms/courses/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/overview

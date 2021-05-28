@@ -1,6 +1,10 @@
 #!/bin/bash
 COMMAND="psql"
-ARGUMENTS=(postgres://headless-lms@localhost:54328/headless_lms_dev --file headless-lms/db/seed.sql "$@")
+if [ ! -f ../headless-lms/.env ]
+then
+  export $(cat headless-lms/.env | xargs)
+fi
+ARGUMENTS=($DATABASE_URL --file headless-lms/db/seed.sql "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

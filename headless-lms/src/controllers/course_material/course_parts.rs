@@ -8,6 +8,55 @@ use actix_web::web::{self, Json};
 use sqlx::PgPool;
 use uuid::Uuid;
 
+/**
+GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a list of pages in course part.
+# Example
+```json
+[
+  {
+    "id": "cfa0b214-f225-464b-a326-cc4e7d865bb4",
+    "created_at": "2021-05-25T06:35:52.881313",
+    "updated_at": "2021-05-25T06:35:52.881313",
+    "course_id": "8f605161-125b-449b-a443-c62ffc1b077f",
+    "course_part_id": "b25f849a-5b7b-4718-b0d7-88f435e2393d",
+    "url_path": "/part-1",
+    "title": "123",
+    "deleted": false,
+    "content": [
+      {
+        "name": "moocfi/pages-in-part",
+        "isValid": true,
+        "clientId": "c68f55ae-65c4-4e9b-aded-0b52e36e344a",
+        "attributes": {
+          "hidden": false
+        },
+        "innerBlocks": []
+      },
+      {
+        "name": "moocfi/exercises-in-part",
+        "isValid": true,
+        "clientId": "415ecc4c-a5c6-410e-a43f-c14b8ee910ea",
+        "attributes": {
+          "hidden": false
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "id": "2248c59e-ef3b-41d7-b5dd-0588255ac9ae",
+    "created_at": "2021-05-25T06:35:56.819750",
+    "updated_at": "2021-05-25T06:35:56.819750",
+    "course_id": "8f605161-125b-449b-a443-c62ffc1b077f",
+    "course_part_id": "b25f849a-5b7b-4718-b0d7-88f435e2393d",
+    "url_path": "/part-1/asdasdasd",
+    "title": "asdasdasd",
+    "deleted": false,
+    "content": []
+  },
+]
+```
+*/
 async fn get_course_parts_pages(
     request_course_part_id: web::Path<String>,
     pool: web::Data<PgPool>,

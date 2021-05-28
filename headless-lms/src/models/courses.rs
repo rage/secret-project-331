@@ -17,7 +17,7 @@ pub struct Course {
     pub updated_at: NaiveDateTime,
     pub name: String,
     pub organization_id: Uuid,
-    pub deleted: bool,
+    pub deleted_at: Option<NaiveDateTime>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -30,7 +30,7 @@ pub struct CourseStructure {
 pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
     let mut transaction = pool.begin().await?;
     let connection = transaction.acquire().await?;
-    let courses = sqlx::query_as!(Course, "SELECT * FROM courses WHERE deleted = false;")
+    let courses = sqlx::query_as!(Course, "SELECT * FROM courses WHERE deleted_at IS NULL;")
         .fetch_all(connection)
         .await?;
     return Ok(courses);
@@ -61,7 +61,7 @@ pub async fn organization_courses(pool: &PgPool, organization_id: &Uuid) -> Resu
     let connection = transaction.acquire().await?;
     let courses = sqlx::query_as!(
         Course,
-        "SELECT * FROM courses WHERE organization_id = $1 AND deleted = false;",
+        "SELECT * FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;",
         organization_id
     )
     .fetch_all(connection)
@@ -131,7 +131,7 @@ pub async fn delete_course(pool: &sqlx::Pool<sqlx::Postgres>, course_id: Uuid) -
         Course,
         r#"
 UPDATE courses
-    SET deleted = true
+    SET deleted_at = now()
 WHERE
     id = $1
 RETURNING *

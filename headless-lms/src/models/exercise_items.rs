@@ -21,7 +21,7 @@ pub struct ExerciseItem {
     pub exercise_id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
-    pub deleted: bool,
+    pub deleted_at: Option<NaiveDateTime>,
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
     pub spec_file_id: Option<Uuid>,
@@ -35,7 +35,7 @@ pub async fn get_random_exercise_item(
     let connection = transaction.acquire().await?;
     let exercise_item = sqlx::query_as!(
         CourseMaterialExerciseItem,
-        "SELECT id, exercise_id, exercise_type, assignment, public_spec FROM exercise_items WHERE exercise_id = $1 AND deleted = false ORDER BY random();",
+        "SELECT id, exercise_id, exercise_type, assignment, public_spec FROM exercise_items WHERE exercise_id = $1 AND deleted_at IS NULL ORDER BY random();",
         exercise_id
     )
     .fetch_one(connection)

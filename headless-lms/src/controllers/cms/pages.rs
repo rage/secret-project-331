@@ -31,7 +31,7 @@ Response:
   ],
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
-  "deleted": false,
+  "deleted_at": null,
   "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
@@ -90,7 +90,7 @@ Response:
   ],
   "url_path": "/part-2/best-page",
   "title": "Hello world!",
-  "deleted": false,
+  "deleted_at": null,
   "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
   "front_page_of_course_part_id": null
 }
@@ -144,7 +144,7 @@ Response:
   ],
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
-  "deleted": false,
+  "deleted_at": null,
   "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
   "front_page_of_course_part_id": null
 }
@@ -184,7 +184,7 @@ Response:
   ],
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
-  "deleted": true,
+  "deleted_at": "2021-04-28T16:33:42.670935",
   "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```

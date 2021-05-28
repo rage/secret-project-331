@@ -25,7 +25,7 @@ expose the correct answers to the user.
     "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
     "page_id": "f3b0d699-c9be-4d56-bd0a-9d40e5547e4d",
     "deadline": null,
-    "deleted": false,
+    "deleted_at": null,
     "score_maximum": 1
   },
   "current_exercise_item": {
@@ -35,7 +35,7 @@ expose the correct answers to the user.
     "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
     "exercise_type": "example-exercise",
     "assignment": [],
-    "deleted": false,
+    "deleted_at": null,
     "public_spec": null,
     "spec_file_id": null
   },

@@ -21,7 +21,7 @@ pub struct Page {
     course_part_id: Option<Uuid>,
     url_path: String,
     title: String,
-    deleted: bool,
+    deleted_at: Option<NaiveDateTime>,
     content: serde_json::Value,
 }
 
@@ -35,7 +35,7 @@ pub struct PageWithExercises {
     content: serde_json::Value,
     url_path: String,
     title: String,
-    deleted: bool,
+    deleted_at: Option<NaiveDateTime>,
     exercises: Vec<ExerciseWithExerciseItems>,
 }
 
@@ -103,7 +103,7 @@ struct Exercise {
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
     course_id: Uuid,
-    deleted: bool,
+    deleted_at: Option<NaiveDateTime>,
     name: String,
     deadline: Option<NaiveDateTime>,
     page_id: Uuid,
@@ -116,7 +116,7 @@ struct ExerciseWithExerciseItems {
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
     course_id: Uuid,
-    deleted: bool,
+    deleted_at: Option<NaiveDateTime>,
     name: String,
     deadline: Option<NaiveDateTime>,
     page_id: Uuid,
@@ -129,7 +129,7 @@ pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {
     let connection = transaction.acquire().await?;
     let pages = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE course_id = $1 AND deleted = false;",
+        "SELECT * FROM pages WHERE course_id = $1 AND deleted_at IS NULL;",
         course_id
     )
     .fetch_all(connection)
@@ -141,7 +141,7 @@ pub async fn course_part_pages(pool: &PgPool, course_part_id: Uuid) -> Result<Ve
     let mut connection = pool.acquire().await?;
     let pages = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE course_part_id = $1 AND deleted = false;",
+        "SELECT * FROM pages WHERE course_part_id = $1 AND deleted_at IS NULL;",
         course_part_id
     )
     .fetch_all(&mut connection)
@@ -166,8 +166,8 @@ pub async fn get_page_by_path(pool: &PgPool, course_slug: String, url_path: &str
         JOIN courses ON (pages.course_id = courses.id)
         WHERE courses.slug = $1
         AND url_path = $2
-        AND courses.deleted = false
-        AND pages.deleted = false;",
+        AND courses.deleted_at IS NULL
+        AND pages.deleted_at IS NULL;",
         course_slug,
         url_path
     )
@@ -306,7 +306,7 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2
         course_id: page.course_id,
         created_at: page.created_at,
         updated_at: page.updated_at,
-        deleted: page.deleted,
+        deleted_at: page.deleted_at,
         id: page.id,
         title: page.title,
         url_path: page.url_path,
@@ -326,7 +326,7 @@ async fn upsert_exercises_and_exercise_items(
     // We need existing exercise ids to check which ids are client generated and need to be replaced.
     sqlx::query!(
         r#"
-        UPDATE exercises SET deleted = true WHERE page_id = $1
+        UPDATE exercises SET deleted_at = now() WHERE page_id = $1
             "#,
         page.id
     )
@@ -335,7 +335,7 @@ async fn upsert_exercises_and_exercise_items(
 
     sqlx::query!(
         r#"
-        UPDATE exercise_items SET deleted = true WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
+        UPDATE exercise_items SET deleted_at = now() WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
             "#,
         page.id
     )
@@ -382,7 +382,7 @@ async fn upsert_exercises_and_exercise_items(
 INSERT INTO exercises(id, course_id, name, page_id)
 VALUES ($1, $2, $3, $4)
 ON CONFLICT (id) DO UPDATE
-SET course_id=$2, name=$3, page_id=$4, deleted=false
+SET course_id=$2, name=$3, page_id=$4, deleted_at=NULL
 RETURNING *;
         "#,
             safe_for_db_exercise_id,
@@ -410,7 +410,7 @@ RETURNING *;
 INSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
 VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO UPDATE
-SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted=false
+SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
 RETURNING id, exercise_type, assignment, public_spec, private_spec;
         "#,
                 safe_for_db_exercise_item_id,
@@ -509,7 +509,7 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2 RETURNING *
         course_id: page.course_id,
         created_at: page.created_at,
         updated_at: page.updated_at,
-        deleted: page.deleted,
+        deleted_at: page.deleted_at,
         id: page.id,
         title: page.title,
         url_path: page.url_path,
@@ -524,7 +524,7 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
         r#"
   UPDATE pages
   SET
-    deleted = true
+    deleted_at = now()
   WHERE id = $1
   RETURNING *
           "#,
@@ -536,7 +536,7 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
     sqlx::query!(
         r#"
   UPDATE exercises
-  SET deleted = true
+  SET deleted_at = now()
   WHERE page_id = $1
           "#,
         page_id,
@@ -547,7 +547,7 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
     sqlx::query!(
         r#"
   UPDATE exercise_items
-  SET deleted = true
+  SET deleted_at = now()
   WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
           "#,
         page_id,

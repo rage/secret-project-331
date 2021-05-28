@@ -23,7 +23,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
   "content": [],
   "url_path": "/part-2/hello-world",
   "title": "Hello world!",
-  "deleted": false,
+  "deleted_at": null,
   "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
@@ -60,7 +60,7 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
         ],
         "url_path": "/part-1/01-loops-and-variables",
         "title": "Loops and Variables",
-        "deleted": false
+        "deleted_at": null
     }
 ]
 ```
@@ -86,7 +86,7 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
     "updated_at": "2021-05-15T16:49:18.689393",
     "name": "The Basics",
     "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-    "deleted": false,
+    "deleted_at": null,
     "part_number": 1,
     "page_id": null
   }

@@ -32,7 +32,7 @@ GET `/api/v0/cms/courses` - Returns a list of all courses.
         "updated_at": "2021-03-05T22:26:59.067294",
         "name": "Introduction to Programming",
         "organization_id": "c6fbb0fe-b418-4156-8319-fc761d482dcb",
-        "deleted": false
+        "deleted_at": null
     }
 ]
 ```
@@ -67,7 +67,7 @@ Response:
     "updated_at": "2021-04-21T18:34:21.795388",
     "name": "Introduction to introduction",
     "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-    "deleted": false
+    "deleted_at": null
 }
 ```
 */
@@ -104,7 +104,7 @@ Response:
     "updated_at": "2021-04-21T18:49:21.398638",
     "name": "Introduction to Introduction",
     "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-    "deleted": false
+    "deleted_at": null
 }
 ```
 */
@@ -133,7 +133,7 @@ DELETE `/api/v0/cms/courses/:course_id` - Delete a course.
     "updated_at": "2021-04-21T18:49:21.398638",
     "name": "Introduction to Introduction",
     "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-    "deleted": true
+    "deleted_at": "2021-04-28T16:33:42.670935"
 }
 ```
 */
@@ -159,7 +159,7 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
     "updated_at": "2021-04-28T10:40:54.503917",
     "name": "Introduction to everything",
     "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-    "deleted": false
+    "deleted_at": null
   },
   "pages": [
     {
@@ -170,7 +170,7 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
       "content": [],
       "url_path": "/",
       "title": "Welcome to Introduction to Everything",
-      "deleted": false,
+      "deleted_at": null,
       "course_part_id": "d332f3d9-39a5-4a18-80f4-251727693c37"
     }
   ],
@@ -181,7 +181,7 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
       "updated_at": "2021-04-28T16:11:47.477850",
       "name": "The Basics",
       "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-      "deleted": false,
+      "deleted_at": null,
       "part_number": 1,
       "page_id": null
     }

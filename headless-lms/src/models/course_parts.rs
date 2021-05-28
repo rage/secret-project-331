@@ -11,7 +11,7 @@ pub struct CoursePart {
     pub updated_at: NaiveDateTime,
     pub name: String,
     pub course_id: Uuid,
-    pub deleted: bool,
+    pub deleted_at: Option<NaiveDateTime>,
     pub part_number: i32,
     pub page_id: Option<Uuid>,
 }
@@ -61,7 +61,7 @@ pub async fn course_course_parts(pool: &PgPool, course_id: Uuid) -> Result<Vec<C
     let mut connection = pool.acquire().await?;
     let course_parts = sqlx::query_as!(
         CoursePart,
-        "SELECT * FROM course_parts WHERE course_id = $1 AND deleted = false;",
+        "SELECT * FROM course_parts WHERE course_id = $1 AND deleted_at IS NULL;",
         course_id
     )
     .fetch_all(&mut connection)
@@ -97,7 +97,7 @@ pub async fn delete_course_part(
         CoursePart,
         r#"
 UPDATE course_parts
-    SET deleted = true
+    SET deleted_at = now()
 WHERE
     id = $1
 RETURNING *

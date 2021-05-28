@@ -5,7 +5,7 @@ export interface Course {
   created_at: string
   updated_at: string
   name: string
-  deleted: boolean
+  deleted_at: string | null
   slug: string
 }
 
@@ -19,7 +19,7 @@ export interface Organization {
   created_at: string
   updated_at: string
   name: string
-  deleted: boolean
+  deleted_at: string | null
 }
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
@@ -45,7 +45,7 @@ export interface CoursePage {
   content: Block<unknown>[]
   url_path: string
   title: string
-  deleted: boolean
+  deleted_at: string | null
 }
 
 export interface Block<T> {
@@ -97,7 +97,7 @@ export interface Exercise {
   course_id: string
   page_id: string
   deadline: null
-  deleted: boolean
+  deleted_at: string | null
   score_maximum: number
 }
 

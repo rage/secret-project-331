@@ -17,7 +17,7 @@ export interface Page extends DatabaseItem {
   content: BlockInstance[]
   url_path: string
   title: string
-  deleted: boolean
+  deleted_at: string | null
   course_part_id: string | null
 }
 
@@ -31,7 +31,7 @@ export interface PageWithExercises extends DatabaseItem, Page {
 
 export interface ExerciseWithExerciseItems extends DatabaseItem {
   course_id: string
-  deleted: boolean
+  deleted_at: string | null
   name: string
   deadline: string | null
   page_id: string
@@ -42,7 +42,7 @@ export interface ExerciseItem extends DatabaseItem {
   exercise_id: string
   exercise_type: string
   assignment: Array<unknown> | null
-  deleted: boolean
+  deleted_at: string | null
   spec: string | null
   spec_file_id: string | null
 }
@@ -91,7 +91,7 @@ export interface NewPage {
  */
 export interface Organization extends DatabaseItem {
   name: string
-  deleted: boolean
+  deleted_at: string | null
 }
 
 /**
@@ -100,7 +100,7 @@ export interface Organization extends DatabaseItem {
  */
 export interface Course extends DatabaseItem {
   name: string
-  deleted: boolean
+  deleted_at: string | null
   slug: string
   organization_id: string
 }
@@ -128,7 +128,7 @@ export interface CourseOverview {
 export interface CoursePart extends DatabaseItem {
   name: string
   course_id: string
-  deleted: boolean
+  deleted_at: string | null
   part_number: number
   page_id: string | null
 }

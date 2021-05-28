@@ -26,7 +26,7 @@ pub struct Submission {
     pub id: Uuid,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub deleted: bool,
+    pub deleted_at: Option<NaiveDateTime>,
     pub exercise_id: Uuid,
     pub course_id: Uuid,
     pub exercise_item_id: Uuid,

@@ -35,7 +35,7 @@ Response:
   "updated_at": "2021-04-28T16:33:42.670935",
   "name": "The Basics",
   "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-  "deleted": false,
+  "deleted_at": null,
   "part_number": 1,
   "page_id": null
 }
@@ -61,7 +61,7 @@ DELETE `/api/v0/cms/courses-parts/:course_part_id` - Delete a course part.
   "updated_at": "2021-04-28T16:33:42.670935",
   "name": "The Basics",
   "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-  "deleted": true,
+  "deleted_at": "2021-04-28T16:33:42.670935",
   "part_number": 1,
   "page_id": "0ebba931-b027-4154-8274-2afb00d79306"
 }
@@ -103,7 +103,7 @@ Response:
   "updated_at": "2021-04-28T16:53:14.896121",
   "name": "The Basics",
   "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-  "deleted": false,
+  "deleted_at": null,
   "part_number": 2,
   "page_id": "0ebba931-b027-4154-8274-2afb00d79306"
 }

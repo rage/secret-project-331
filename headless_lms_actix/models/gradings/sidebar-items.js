@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["UserPointsUpdateStrategy",""]],"fn":[["new_grading",""],["update_grading",""]],"struct":[["Grading",""]]});

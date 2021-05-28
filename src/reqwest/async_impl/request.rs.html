@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.1/src/async_impl/request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.3/src/async_impl/request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../reqwest/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -961,7 +961,6 @@
 <span id="958">958</span>
 <span id="959">959</span>
 <span id="960">960</span>
-<span id="961">961</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -979,11 +978,11 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">multipart</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">response</span>::<span class="ident">Response</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">header</span>::{<span class="ident">HeaderMap</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">header</span>::{<span class="ident">HeaderMap</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Method</span>, <span class="ident">Url</span>};
-<span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">Request</span> <span class="kw">as</span> <span class="ident">HttpRequest</span>, <span class="ident">request</span>::<span class="ident">Parts</span>};
+<span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">request</span>::<span class="ident">Parts</span>, <span class="ident">Request</span> <span class="kw">as</span> <span class="ident">HttpRequest</span>};
 
 <span class="doccomment">/// A request which can be executed with `Client::execute()`.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Request</span> {
@@ -1012,7 +1011,7 @@
             <span class="ident">url</span>,
             <span class="ident">headers</span>: <span class="ident">HeaderMap</span>::<span class="ident">new</span>(),
             <span class="ident">body</span>: <span class="prelude-val">None</span>,
-            <span class="ident">timeout</span>: <span class="prelude-val">None</span>
+            <span class="ident">timeout</span>: <span class="prelude-val">None</span>,
         }
     }
 
@@ -1119,7 +1118,7 @@
         <span class="ident">HeaderName</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
         <span class="op">&lt;</span><span class="ident">HeaderName</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Error</span><span class="op">&gt;</span>,
         <span class="ident">HeaderValue</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">HeaderValue</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Error</span><span class="op">&gt;</span>, 
+        <span class="op">&lt;</span><span class="ident">HeaderValue</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Error</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">header_sensitive</span>(<span class="ident">key</span>, <span class="ident">value</span>, <span class="bool-val">false</span>)
     }
@@ -1441,7 +1440,6 @@
         .<span class="ident">field</span>(<span class="string">&quot;headers&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">headers</span>)
 }
 
-
 <span class="doccomment">/// Check the request URL for a &quot;username:password&quot; type authority, and if</span>
 <span class="doccomment">/// found, remove it from the URL and return it.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">extract_authority</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
@@ -1459,20 +1457,21 @@
                 .<span class="ident">map</span>(<span class="ident">String</span>::<span class="ident">from</span>)
         });
         <span class="kw">if</span> <span class="op">!</span><span class="ident">username</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">password</span>.<span class="ident">is_some</span>() {
-            <span class="ident">url</span>
-                .<span class="ident">set_username</span>(<span class="string">&quot;&quot;</span>)
+            <span class="ident">url</span>.<span class="ident">set_username</span>(<span class="string">&quot;&quot;</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;has_authority means set_username shouldn&#39;t fail&quot;</span>);
-            <span class="ident">url</span>
-                .<span class="ident">set_password</span>(<span class="prelude-val">None</span>)
+            <span class="ident">url</span>.<span class="ident">set_password</span>(<span class="prelude-val">None</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;has_authority means set_password shouldn&#39;t fail&quot;</span>);
-            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">username</span>, <span class="ident">password</span>))
+            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">username</span>, <span class="ident">password</span>));
         }
     }
 
     <span class="prelude-val">None</span>
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">HttpRequest</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Request</span> <span class="kw">where</span> <span class="ident">T</span>:<span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>{
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">HttpRequest</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Request</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>,
+{
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
@@ -1483,8 +1482,7 @@
             <span class="ident">headers</span>,
             ..
         } <span class="op">=</span> <span class="ident">parts</span>;
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>.<span class="ident">to_string</span>())
-            .<span class="ident">map_err</span>(<span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">builder</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>.<span class="ident">to_string</span>()).<span class="ident">map_err</span>(<span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">builder</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">Request</span> {
             <span class="ident">method</span>,
             <span class="ident">url</span>,
@@ -1611,7 +1609,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_clone_reusable</span>() {
         <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="string">&quot;http://httpbin.org/post&quot;</span>)
+        <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">client</span>
+            .<span class="ident">post</span>(<span class="string">&quot;http://httpbin.org/post&quot;</span>)
             .<span class="ident">header</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
             .<span class="ident">body</span>(<span class="string">&quot;from a &amp;str!&quot;</span>);
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">builder</span>
@@ -1641,14 +1640,11 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">try_clone_stream</span>() {
-        <span class="kw">let</span> <span class="ident">chunks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, ::<span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="prelude-val">Ok</span>(<span class="string">&quot;hello&quot;</span>),
-            <span class="prelude-val">Ok</span>(<span class="string">&quot; &quot;</span>),
-            <span class="prelude-val">Ok</span>(<span class="string">&quot;world&quot;</span>),
-        ];
+        <span class="kw">let</span> <span class="ident">chunks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, ::<span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="prelude-val">Ok</span>(<span class="string">&quot;hello&quot;</span>), <span class="prelude-val">Ok</span>(<span class="string">&quot; &quot;</span>), <span class="prelude-val">Ok</span>(<span class="string">&quot;world&quot;</span>)];
         <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">futures_util</span>::<span class="ident">stream</span>::<span class="ident">iter</span>(<span class="ident">chunks</span>);
         <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">get</span>(<span class="string">&quot;http://httpbin.org/get&quot;</span>)
+        <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">client</span>
+            .<span class="ident">get</span>(<span class="string">&quot;http://httpbin.org/get&quot;</span>)
             .<span class="ident">body</span>(<span class="kw">super</span>::<span class="ident">Body</span>::<span class="ident">wrap_stream</span>(<span class="ident">stream</span>));
         <span class="kw">let</span> <span class="ident">clone</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">try_clone</span>();
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">clone</span>.<span class="ident">is_none</span>());
@@ -1659,13 +1655,13 @@
         <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://Aladdin:open sesame@localhost/&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="ident">some_url</span>)
-            .<span class="ident">build</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;request build&quot;</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">get</span>(<span class="ident">some_url</span>).<span class="ident">build</span>().<span class="ident">expect</span>(<span class="string">&quot;request build&quot;</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;https://localhost/&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>], <span class="string">&quot;Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>],
+            <span class="string">&quot;Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==&quot;</span>
+        );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1680,7 +1676,10 @@
             .<span class="ident">expect</span>(<span class="string">&quot;request build&quot;</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;https://localhost/&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>], <span class="string">&quot;Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>],
+            <span class="string">&quot;Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==&quot;</span>
+        );
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>].<span class="ident">is_sensitive</span>(), <span class="bool-val">true</span>);
     }
 
@@ -1700,11 +1699,10 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>].<span class="ident">is_sensitive</span>(), <span class="bool-val">true</span>);
     }
 
-    
-
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">convert_from_http_request</span>() {
-        <span class="kw">let</span> <span class="ident">http_request</span> <span class="op">=</span> <span class="ident">HttpRequest</span>::<span class="ident">builder</span>().<span class="ident">method</span>(<span class="string">&quot;GET&quot;</span>)
+        <span class="kw">let</span> <span class="ident">http_request</span> <span class="op">=</span> <span class="ident">HttpRequest</span>::<span class="ident">builder</span>()
+            .<span class="ident">method</span>(<span class="string">&quot;GET&quot;</span>)
             .<span class="ident">uri</span>(<span class="string">&quot;http://localhost/&quot;</span>)
             .<span class="ident">header</span>(<span class="string">&quot;User-Agent&quot;</span>, <span class="string">&quot;my-awesome-agent/1.0&quot;</span>)
             .<span class="ident">body</span>(<span class="string">&quot;test test test&quot;</span>)

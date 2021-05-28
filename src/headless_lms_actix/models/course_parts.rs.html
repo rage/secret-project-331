@@ -125,7 +125,7 @@
     <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">NaiveDateTime</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">deleted</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NaiveDateTime</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">part_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
@@ -175,7 +175,7 @@ WHERE
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_parts</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">CoursePart</span>,
-        <span class="string">&quot;SELECT * FROM course_parts WHERE course_id = $1 AND deleted = false;&quot;</span>,
+        <span class="string">&quot;SELECT * FROM course_parts WHERE course_id = $1 AND deleted_at IS NULL;&quot;</span>,
         <span class="ident">course_id</span>
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
@@ -211,7 +211,7 @@ WHERE
         <span class="ident">CoursePart</span>,
         <span class="string">r#&quot;
 UPDATE course_parts
-    SET deleted = true
+    SET deleted_at = now()
 WHERE
     id = $1
 RETURNING *

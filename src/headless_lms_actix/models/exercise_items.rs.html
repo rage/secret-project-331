@@ -82,7 +82,7 @@
     <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
-    <span class="kw">pub</span> <span class="ident">deleted</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NaiveDateTime</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">spec_file_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -96,7 +96,7 @@
     <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">transaction</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">exercise_item</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">CourseMaterialExerciseItem</span>,
-        <span class="string">&quot;SELECT id, exercise_id, exercise_type, assignment, public_spec FROM exercise_items WHERE exercise_id = $1 AND deleted = false ORDER BY random();&quot;</span>,
+        <span class="string">&quot;SELECT id, exercise_id, exercise_type, assignment, public_spec FROM exercise_items WHERE exercise_id = $1 AND deleted_at IS NULL ORDER BY random();&quot;</span>,
         <span class="ident">exercise_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">connection</span>)

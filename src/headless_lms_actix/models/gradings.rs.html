@@ -141,7 +141,7 @@
     <span class="kw">pub</span> <span class="ident">grading_completed_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NaiveDateTime</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">feedback_json</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">feedback_text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NaiveDateTime</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
@@ -159,7 +159,7 @@
 INSERT INTO
   gradings(submission_id, course_id, exercise_id, exercise_item_id, grading_started_at)
 VALUES($1, $2, $3, $4, now())
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         &quot;#</span>,
         <span class="ident">submission</span>.<span class="ident">id</span>,
         <span class="ident">submission</span>.<span class="ident">course_id</span>,
@@ -204,7 +204,7 @@ UPDATE gradings
     grading_completed_at = $7,
     score_given = $8
 WHERE id = $1
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         &quot;#</span>,
         <span class="ident">grading</span>.<span class="ident">id</span>,
         <span class="ident">grading_result</span>.<span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,

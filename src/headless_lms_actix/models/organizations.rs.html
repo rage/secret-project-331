@@ -42,7 +42,7 @@
     <span class="ident">created_at</span>: <span class="ident">NaiveDateTime</span>,
     <span class="ident">updated_at</span>: <span class="ident">NaiveDateTime</span>,
     <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">deleted</span>: <span class="ident">bool</span>,
+    <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NaiveDateTime</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">all_organizations</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -50,7 +50,7 @@
     <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">transaction</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">Organization</span>,
-        <span class="string">&quot;SELECT * FROM organizations WHERE deleted = false;&quot;</span>
+        <span class="string">&quot;SELECT * FROM organizations WHERE deleted_at IS NULL;&quot;</span>
     )
     .<span class="ident">fetch_all</span>(<span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

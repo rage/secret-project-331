@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_course_parts_routes","Add a route for each controller in this module."],["get_course_parts_pages",""]]});
+initSidebarItems({"fn":[["_add_course_parts_routes","Add a route for each controller in this module."],["get_course_parts_pages","GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a list of pages in course part."]]});

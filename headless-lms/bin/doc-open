@@ -1,0 +1,6 @@
+#!/bin/bash
+COMMAND="cargo"
+ARGUMENTS=(doc --open "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

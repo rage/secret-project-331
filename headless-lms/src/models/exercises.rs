@@ -17,7 +17,7 @@ pub struct Exercise {
     pub course_id: Uuid,
     pub page_id: Uuid,
     pub deadline: Option<NaiveDateTime>,
-    pub deleted: bool,
+    pub deleted_at: Option<NaiveDateTime>,
     pub score_maximum: i32,
 }
 

@@ -88,7 +88,7 @@ const CoursePages: React.FC<unknown> = () => {
         />
         <div>
           {data.course_parts
-            .filter((part) => !part.deleted)
+            .filter((part) => !part.deleted_at)
             .sort((a, b) => a.part_number - b.part_number)
             .map((part: CoursePart) => (
               <div

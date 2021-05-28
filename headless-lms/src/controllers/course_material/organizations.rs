@@ -22,7 +22,7 @@ GET `/api/v0/course-material/organizations` - Returns a list of all organization
     "created_at": "2021-03-08T21:50:51.065821",
     "updated_at": "2021-03-08T21:50:51.065821",
     "name": "Helsingin yliopisto",
-    "deleted": false
+    "deleted_at": null
   }
 ]
 ```
@@ -45,7 +45,7 @@ GET `/api/v0/course-material/organizations/{organization_id}/courses"` - Returns
     "created_at": "2021-03-08T21:50:51.065821",
     "updated_at": "2021-03-08T21:50:51.065821",
     "name": "Helsingin yliopisto",
-    "deleted": false
+    "deleted_at": null
   }
 ]
 ```

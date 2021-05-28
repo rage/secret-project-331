@@ -11,7 +11,7 @@ pub struct Organization {
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
     name: String,
-    deleted: bool,
+    deleted_at: Option<NaiveDateTime>,
 }
 
 pub async fn all_organizations(pool: &PgPool) -> Result<Vec<Organization>> {
@@ -19,7 +19,7 @@ pub async fn all_organizations(pool: &PgPool) -> Result<Vec<Organization>> {
     let connection = transaction.acquire().await?;
     let courses = sqlx::query_as!(
         Organization,
-        "SELECT * FROM organizations WHERE deleted = false;"
+        "SELECT * FROM organizations WHERE deleted_at IS NULL;"
     )
     .fetch_all(connection)
     .await?;

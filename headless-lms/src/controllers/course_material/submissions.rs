@@ -21,7 +21,7 @@ POST `/api/v0/course-material/submissions` - Post a new submission.
     "created_at": "2021-03-08T21:50:51.065821",
     "updated_at": "2021-03-08T21:50:51.065821",
     "name": "Helsingin yliopisto",
-    "deleted": false
+    "deleted_at": null
   }
 ]
 ```

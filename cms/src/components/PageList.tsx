@@ -54,7 +54,7 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, coursePart }) => {
         `}
       >
         {data
-          .filter((page) => !page.deleted)
+          .filter((page) => !page.deleted_at)
           .map((page: Page) => (
             <li key={page.id}>
               <Link

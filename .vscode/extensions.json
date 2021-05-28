@@ -6,6 +6,7 @@
     "matklad.rust-analyzer",
     "ms-kubernetes-tools.vscode-kubernetes-tools",
     "timonwong.shellcheck",
-    "humao.rest-client"
+    "humao.rest-client",
+    "mtxr.sqltools"
   ]
 }

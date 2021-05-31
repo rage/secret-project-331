@@ -16,17 +16,14 @@ interface PullquoteBlockAttributes {
 
 interface FigureAttributes {
   currentColor: string
-  attributes: PullquoteBlockAttributes
+  solidColor: boolean
 }
 
 const Figure = styled.figure<FigureAttributes>`
-  background-color: ${(props) =>
-    props.attributes.className === "is-style-solid-color" ? props.currentColor : null};
-  border-bottom: 4px solid
-    ${(props) => (props.attributes.className === "is-style-default" ? props.currentColor : null)};
-  border-top: 4px solid
-    ${(props) => (props.attributes.className === "is-style-default" ? props.currentColor : null)};
-  margin-bottom: 1.75em;
+  ${(props) =>
+    props.solidColor === true
+      ? `background-color: ${props.currentColor}`
+      : `border-bottom: 4px solid ${props.currentColor}; border-top: 4px solid ${props.currentColor}; margin-bottom: 1.75em;`}
 `
 
 const Blockquote = styled.blockquote<{ currentColor: string }>`
@@ -43,12 +40,12 @@ const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = (
   mainColor = attributes.customMainColor ?? "#FFFFFF"
 
   const textColor = colorMapper(attributes.textColor, "#000000")
-
+  const solidColor = attributes.className === "is-style-solid-color" ? true : false
   const value = attributes.value !== undefined ? attributes.value : "<p></p>"
   return (
     <Figure
       currentColor={mainColor}
-      attributes={attributes}
+      solidColor={solidColor}
       className={css`
         ${normalWidthCenteredComponentStyles}
       `}

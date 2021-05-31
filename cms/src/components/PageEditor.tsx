@@ -26,7 +26,12 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
 
   const handleOnSave = async () => {
     setSaving(true)
-    const res = await handleSave({ title, url_path: urlPath, content, course_part_id: data.course_part_id })
+    const res = await handleSave({
+      title,
+      url_path: urlPath,
+      content,
+      course_part_id: data.course_part_id,
+    })
     setContent(res.content)
     setSaving(false)
   }

@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 use crate::controllers::ApplicationResult;
 use crate::models::pages::Page;
+use crate::models::pages::PageWithExercises;
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
@@ -69,6 +70,70 @@ async fn get_course_parts_pages(
 }
 
 /**
+GET `/api/v0/course-material/course-parts/:course_part_id/exercises` - Returns a list of pages and its exercises in course part.
+# Example
+```json
+[
+  {
+    "id": "33866d5d-ec23-4a0d-91e2-59ada15341fe",
+    "created_at": "2021-05-31T08:42:22.116641",
+    "updated_at": "2021-05-31T08:42:41.652250",
+    "course_id": "8f605161-125b-449b-a443-c62ffc1b077f",
+    "course_part_id": "b25f849a-5b7b-4718-b0d7-88f435e2393d",
+    "content": [
+      {
+        "name": "core/paragraph",
+        "isValid": true,
+        "clientId": "b428e394-2f25-4cd8-a2d6-ff26525e614d",
+        "attributes": {
+          "content": "Hi Exercise",
+          "dropCap": false
+        },
+        "innerBlocks": []
+      },
+      {
+        "name": "moocfi/exercise",
+        "isValid": true,
+        "clientId": "2638a02b-1cef-490a-855f-d566b9cfac77",
+        "attributes": {
+          "id": "4beec1b7-5f37-4c5b-a654-7acc9ad6e90b"
+        },
+        "innerBlocks": []
+      }
+    ],
+    "url_path": "/part-1/abba",
+    "title": "abba",
+    "deleted_at": null,
+    "exercises": [
+      {
+        "id": "4beec1b7-5f37-4c5b-a654-7acc9ad6e90b",
+        "created_at": "2021-05-31T08:42:41.652250",
+        "updated_at": "2021-05-31T08:42:41.652250",
+        "course_id": "8f605161-125b-449b-a443-c62ffc1b077f",
+        "deleted_at": null,
+        "name": "Hello Exercise",
+        "deadline": null,
+        "page_id": "33866d5d-ec23-4a0d-91e2-59ada15341fe",
+        "score_maximum": 1
+      }
+    ]
+  }
+]
+```
+*/
+async fn get_course_parts_exercises(
+    request_course_part_id: web::Path<String>,
+    pool: web::Data<PgPool>,
+) -> ApplicationResult<Json<Vec<PageWithExercises>>> {
+    let course_part_id = Uuid::from_str(&request_course_part_id)?;
+
+    let course_part_pages_with_exercises =
+        crate::models::pages::get_course_parts_pages_with_exercises(pool.get_ref(), course_part_id)
+            .await?;
+    Ok(Json(course_part_pages_with_exercises))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -79,5 +144,9 @@ pub fn _add_course_parts_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/{course_part_id}/pages",
         web::get().to(get_course_parts_pages),
+    )
+    .route(
+        "/{course_part_id}/exercises",
+        web::get().to(get_course_parts_exercises),
     );
 }

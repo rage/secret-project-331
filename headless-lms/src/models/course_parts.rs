@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
 
+use super::pages::PageWithExercises;
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct CoursePart {
     pub id: Uuid,
@@ -14,6 +16,18 @@ pub struct CoursePart {
     pub deleted_at: Option<NaiveDateTime>,
     pub part_number: i32,
     pub page_id: Option<Uuid>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct CoursePartPagesWithExercises {
+    pub id: Uuid,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub name: String,
+    pub course_id: Uuid,
+    pub deleted_at: Option<NaiveDateTime>,
+    pub part_number: i32,
+    pub pages: Vec<PageWithExercises>,
 }
 
 // Represents the subset of page fields that are required to create a new course.

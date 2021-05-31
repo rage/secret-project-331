@@ -150,12 +150,17 @@ Content-Type: application/json
 
 ####
 
-GET http://localhost:3001/api/v0/course-material/course-parts/b25f849a-5b7b-4718-b0d7-88f435e2393d/pages
+GET http://project-331.local/api/v0/course-material/course-parts/b25f849a-5b7b-4718-b0d7-88f435e2393d/pages
 
 
 ####
 
-GET http://localhost:3001/api/v0/cms/courses/8f605161-125b-449b-a443-c62ffc1b077f/structure
+GET http://project-331.local/api/v0/cms/courses/8f605161-125b-449b-a443-c62ffc1b077f/structure
 
 ####
 http://project-331.local/api/v0/cms/courses
+
+
+####
+
+GET http://project-331.local/api/v0/course-material/course-parts/b25f849a-5b7b-4718-b0d7-88f435e2393d/exercises

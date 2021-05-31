@@ -36,7 +36,7 @@ pub struct PageWithExercises {
     url_path: String,
     title: String,
     deleted_at: Option<NaiveDateTime>,
-    exercises: Vec<ExerciseWithExerciseItems>,
+    exercises: Vec<Exercise>,
 }
 
 // Represents the subset of page fields that are required to create a new page.
@@ -557,4 +557,65 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
 
     trx.commit().await?;
     return Ok(page);
+}
+
+pub async fn get_course_parts_pages_with_exercises(
+    pool: &PgPool,
+    course_parts_id: Uuid,
+) -> Result<Vec<PageWithExercises>> {
+    let mut connection = pool.acquire().await?;
+    let course_part_pages = sqlx::query_as!(
+        Page,
+        r#"
+SELECT *
+FROM pages
+WHERE course_part_id = $1
+  AND deleted_at IS NULL
+        "#,
+        course_parts_id
+    )
+    .fetch_all(&mut connection)
+    .await?;
+    let page_ids: Vec<Uuid> = course_part_pages.iter().map(|page| page.id).collect();
+    let pages_exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE page_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND deleted_at IS NULL
+        "#,
+        &page_ids
+    )
+    .fetch_all(&mut connection)
+    .await?;
+
+    let mut page_to_exercises: HashMap<Uuid, Vec<Exercise>> = pages_exercises
+        .into_iter()
+        .into_group_map_by(|exercise| exercise.page_id);
+    let course_part_pages_with_exercises = course_part_pages
+        .into_iter()
+        .map(|page| {
+            let page_id = page.id;
+            let exercises = match page_to_exercises.remove(&page_id) {
+                Some(ex) => ex,
+                None => Vec::new(),
+            };
+            return PageWithExercises {
+                id: page.id,
+                created_at: page.created_at,
+                updated_at: page.updated_at,
+                course_id: page.course_id,
+                course_part_id: page.course_part_id,
+                content: page.content,
+                url_path: page.url_path,
+                title: page.title,
+                deleted_at: page.deleted_at,
+                exercises,
+            };
+        })
+        .collect();
+    return Ok(course_part_pages_with_exercises);
 }

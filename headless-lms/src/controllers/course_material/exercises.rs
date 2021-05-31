@@ -1,4 +1,4 @@
-//! Controllers for requests starting with `/api/v0/course-material/organizations`.
+//! Controllers for requests starting with `/api/v0/course-material/exercises`.
 use std::str::FromStr;
 
 use crate::{controllers::ApplicationResult, models::exercises::CourseMaterialExercise};

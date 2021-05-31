@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import { BlockRendererProps } from "."
 import colorMapper from "../../styles/colorMapper"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-import Paragraph from "./ParagraphBlock"
+import ContentRenderer from "./index"
 
 interface CoverTextPosition {
   justifyContent: string
@@ -73,6 +73,7 @@ const CoverBlock: React.FC<BlockRendererProps<CoverBlockAttributes>> = ({ data }
     textPosition[attributes.contentPosition] === undefined
       ? { alignItems: "center", justifyContent: "center" }
       : textPosition[attributes.contentPosition]
+  console.log(data)
   return (
     <pre
       className={css`
@@ -92,7 +93,7 @@ const CoverBlock: React.FC<BlockRendererProps<CoverBlockAttributes>> = ({ data }
             width: auto;
           `}
         >
-          <Paragraph data={data.innerBlocks[0]}></Paragraph>
+          <ContentRenderer data={data.innerBlocks}></ContentRenderer>
         </div>
       </LayoutContainer>
     </pre>

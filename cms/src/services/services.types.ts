@@ -56,6 +56,7 @@ export interface PageUpdate {
   content: BlockInstance[]
   url_path: string
   title: string
+  course_part_id: string | null
 }
 
 export interface PageUpdateExercise {

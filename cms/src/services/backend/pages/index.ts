@@ -30,13 +30,14 @@ const updateExistingPage = async ({
   content,
   url_path,
   title,
+  course_part_id,
 }: PageUpdate): Promise<Page> => {
   const url = `/api/v0/cms/pages/${page_id}`
   try {
     const response = await axios.put(
       url,
       // { content, exercises, url_path, title },
-      { content, url_path, title },
+      { content, url_path, title, course_part_id },
       {
         headers: { "Content-Type": "application/json" },
       },

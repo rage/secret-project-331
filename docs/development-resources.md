@@ -32,3 +32,7 @@ Here are some useful resources, conventions and courses that help with the devel
 - The Rust Programming Language Book: https://doc.rust-lang.org/book/#the-rust-programming-language
 - Actix Web: https://actix.rs/
 - Sqlx: https://github.com/launchbadge/sqlx#usage
+- Rust by Example: https://doc.rust-lang.org/rust-by-example/
+- Learn Rust With Entirely Too Many Linked Lists: https://rust-unofficial.github.io/too-many-lists/
+- rustlings: https://github.com/rust-lang/rustlings
+- Rust Cookbook: https://rust-lang-nursery.github.io/rust-cookbook/

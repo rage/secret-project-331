@@ -4,8 +4,8 @@ if [ ! -f ../headless-lms/.env ]
 then
   set -o allexport
     # shellcheck disable=SC1091
-    source headless-lms/.env set
-  +o allexport
+    source headless-lms/.env 
+  set +o allexport
 fi
 ARGUMENTS=("$DATABASE_URL" --file headless-lms/db/seed.sql "$@")
 

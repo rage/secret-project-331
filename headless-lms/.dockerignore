@@ -2,3 +2,4 @@ target
 .env
 uploads
 requests.rest
+dbdoc

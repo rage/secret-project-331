@@ -1,0 +1,12 @@
+#!/bin/bash
+COMMAND="tbls doc \"postgres://headless-lms@localhost:54328/headless_lms_dev?sslmode=disable\" --force"
+
+echo "> $COMMAND"
+eval "$COMMAND"
+
+
+COMMAND="planter er  --exclude=\"_sqlx_migrations\" \"postgres://headless-lms@localhost:54328/headless_lms_dev?sslmode=disable\""
+
+echo "> $COMMAND"
+eval "$COMMAND"
+

@@ -9,7 +9,8 @@ Creating new migration files on with the cluster environment is hard, because it
 3. `bin/local-dev-db-create-user`
 4. `bin/local-dev-db-create`
 5. Run `bin/sqlx-migrate-run`
-6. If migrations succeed, run `bin/dev`
+6. (Optional) `bin/seed-local`
+7. If migrations succeed, run `bin/dev`
 
 Creating new SQL queries in headless-lms using Sqlx requires running `bin/sqlx-prepare` so that it builds.
 ## New migrations

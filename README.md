@@ -6,7 +6,7 @@ Before you start working on this project, please run `npm ci` on the repo root.
 
 Read [Development.md](https://github.com/rage/secret-project-331/blob/master/docs/Development.md) on how to setup using Windows or Linux.
 
-## Seed database
+## Seed cluster database
 
 ```sh
 bin/seed

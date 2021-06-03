@@ -3,6 +3,7 @@ use crate::{
     controllers::ApplicationResult, models::submissions::Submission, utils::pagination::Pagination,
 };
 use actix_web::web::{self, Json, ServiceConfig};
+use futures::future;
 use serde::Serialize;
 use sqlx::PgPool;
 use std::str::FromStr;
@@ -47,11 +48,13 @@ async fn get_exercise_submissions(
     let exercise_id = Uuid::from_str(&exercise_id)?;
 
     let submission_count =
-        crate::models::submissions::exercise_submission_count(&pool, &exercise_id).await?;
+        crate::models::submissions::exercise_submission_count(&pool, &exercise_id);
+    let submissions =
+        crate::models::submissions::exercise_submissions(&pool, &exercise_id, &pagination);
+    let (submission_count, submissions) = future::try_join(submission_count, submissions).await?;
+
     let total_pages = pagination.total_pages(submission_count);
 
-    let submissions =
-        crate::models::submissions::exercise_submissions(&pool, &exercise_id, &pagination).await?;
     Ok(Json(ExerciseSubmissions {
         data: submissions,
         total_pages,

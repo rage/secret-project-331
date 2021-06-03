@@ -1,6 +1,9 @@
 use std::time::Duration;
 
-use crate::models::{exercise_items::get_exercise_item_by_id, gradings::update_grading};
+use crate::{
+    models::{exercise_items::get_exercise_item_by_id, gradings::update_grading},
+    utils::pagination::Pagination,
+};
 
 use super::{
     courses::Course,
@@ -11,7 +14,7 @@ use super::{
 use anyhow::Result;
 use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::{Acquire, PgPool};
 use uuid::Uuid;
 
 // Represents the subset of page fields that are required to create a new course.
@@ -75,6 +78,37 @@ pub struct GradingResult {
 pub struct SubmissionResult {
     submission: Submission,
     grading: Grading,
+}
+
+pub async fn exercise_submission_count(pool: &PgPool, exercise_id: &Uuid) -> Result<i64> {
+    let mut transaction = pool.begin().await?;
+    let connection = transaction.acquire().await?;
+    let count = sqlx::query!(
+        "SELECT COUNT(*) as count FROM submissions WHERE exercise_id = $1",
+        exercise_id,
+    )
+    .fetch_one(connection)
+    .await?;
+    Ok(count.count.unwrap_or(0))
+}
+
+pub async fn exercise_submissions(
+    pool: &PgPool,
+    exercise_id: &Uuid,
+    pagination: &Pagination,
+) -> Result<Vec<Submission>> {
+    let mut transaction = pool.begin().await?;
+    let connection = transaction.acquire().await?;
+    let submissions = sqlx::query_as!(
+        Submission,
+        "SELECT * FROM submissions WHERE exercise_id = $1 LIMIT $2 OFFSET $3;",
+        exercise_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(connection)
+    .await?;
+    Ok(submissions)
 }
 
 pub async fn insert_submission(

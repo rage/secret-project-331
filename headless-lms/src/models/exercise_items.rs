@@ -40,7 +40,7 @@ pub async fn get_random_exercise_item(
     )
     .fetch_one(connection)
     .await?;
-    return Ok(exercise_item);
+    Ok(exercise_item)
 }
 
 pub async fn get_exercise_item_by_id(pool: &PgPool, id: Uuid) -> Result<ExerciseItem> {
@@ -53,5 +53,5 @@ pub async fn get_exercise_item_by_id(pool: &PgPool, id: Uuid) -> Result<Exercise
     )
     .fetch_one(connection)
     .await?;
-    return Ok(exercise_item);
+    Ok(exercise_item)
 }

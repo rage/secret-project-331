@@ -77,7 +77,7 @@ pub async fn update_grading(
         exercise.score_maximum as f32,
     );
     // Scores are rounded to two decimals
-    let score_given_rounded = (score_given_with_all_decumals * (100 as f32)).trunc() / (100 as f32);
+    let score_given_rounded = (score_given_with_all_decumals * (100_f32)).trunc() / (100_f32);
     let grading = sqlx::query_as!(
         Grading,
         r#"

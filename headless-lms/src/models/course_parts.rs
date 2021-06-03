@@ -80,7 +80,7 @@ pub async fn course_course_parts(pool: &PgPool, course_id: Uuid) -> Result<Vec<C
     )
     .fetch_all(&mut connection)
     .await?;
-    return Ok(course_parts);
+    Ok(course_parts)
 }
 
 pub async fn insert_course_part(pool: &PgPool, course_part: NewCoursePart) -> Result<CoursePart> {

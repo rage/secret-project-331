@@ -1,5 +1,8 @@
 name: Generate db docs
-on: push
+
+on:
+  push:
+    branches: [master]
 
 jobs:
   generate-db-docs:

@@ -23,5 +23,5 @@ pub async fn all_organizations(pool: &PgPool) -> Result<Vec<Organization>> {
     )
     .fetch_all(connection)
     .await?;
-    return Ok(courses);
+    Ok(courses)
 }

@@ -171,7 +171,7 @@ pub fn denormalize(input: NormalizedDocument) -> Result<Vec<GutenbergBlock>> {
             })
         })
         .collect();
-    Ok(res?)
+    res
 }
 
 #[cfg(test)]

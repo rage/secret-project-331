@@ -134,7 +134,7 @@ pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {
     )
     .fetch_all(connection)
     .await?;
-    return Ok(pages);
+    Ok(pages)
 }
 
 pub async fn course_part_pages(pool: &PgPool, course_part_id: Uuid) -> Result<Vec<Page>> {
@@ -146,7 +146,7 @@ pub async fn course_part_pages(pool: &PgPool, course_part_id: Uuid) -> Result<Ve
     )
     .fetch_all(&mut connection)
     .await?;
-    return Ok(pages);
+    Ok(pages)
 }
 
 pub async fn get_page(pool: &PgPool, page_id: Uuid) -> Result<Page> {
@@ -155,7 +155,7 @@ pub async fn get_page(pool: &PgPool, page_id: Uuid) -> Result<Page> {
     let pages = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
         .fetch_one(connection)
         .await?;
-    return Ok(pages);
+    Ok(pages)
 }
 
 pub async fn get_page_by_path(pool: &PgPool, course_slug: String, url_path: &str) -> Result<Page> {
@@ -173,7 +173,7 @@ pub async fn get_page_by_path(pool: &PgPool, course_slug: String, url_path: &str
     )
     .fetch_one(&mut connection)
     .await?;
-    return Ok(page);
+    Ok(page)
 }
 
 pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Page> {
@@ -244,7 +244,7 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
     let content_json = serde_json::to_value(denormalized_content)?;
     page.content = content_json;
 
-    return Ok(page);
+    Ok(page)
 }
 
 // This has 3 stages: updating page, updating exercises, updating exercise items.
@@ -316,7 +316,7 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2
 
 /// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.
 async fn upsert_exercises_and_exercise_items(
-    exercises: &Vec<PageUpdateExercise>,
+    exercises: &[PageUpdateExercise],
     page: &Page,
     connection: &mut PgConnection,
 ) -> Result<(Vec<PageUpdateExercise>, serde_json::Value)> {
@@ -440,7 +440,7 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
     )
     .execute(connection)
     .await?;
-    return Ok((result_exercises, new_content));
+    Ok((result_exercises, new_content))
 }
 
 fn update_ids_in_content(
@@ -556,7 +556,7 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
     .await?;
 
     trx.commit().await?;
-    return Ok(page);
+    Ok(page)
 }
 
 pub async fn get_course_parts_pages_with_exercises(
@@ -603,7 +603,7 @@ WHERE page_id IN (
                 Some(ex) => ex,
                 None => Vec::new(),
             };
-            return PageWithExercises {
+            PageWithExercises {
                 id: page.id,
                 created_at: page.created_at,
                 updated_at: page.updated_at,
@@ -614,8 +614,8 @@ WHERE page_id IN (
                 title: page.title,
                 deleted_at: page.deleted_at,
                 exercises,
-            };
+            }
         })
         .collect();
-    return Ok(course_part_pages_with_exercises);
+    Ok(course_part_pages_with_exercises)
 }

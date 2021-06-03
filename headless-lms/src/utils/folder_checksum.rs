@@ -89,9 +89,10 @@ fn determine_permissions_mode_for_hashing(permissions: &Permissions) -> u32 {
     // Default implementation for mostly windows that has no unix like modes.
     // Another approach here could be to pull the file mode from git.
     if permissions.readonly() {
-        return 0o444;
+        0o444
+    } else {
+        0o644
     }
-    return 0o644;
 }
 
 #[cfg(test)]

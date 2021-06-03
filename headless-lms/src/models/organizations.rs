@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgPool};
 use uuid::Uuid;
@@ -8,10 +8,10 @@ use uuid::Uuid;
 pub struct Organization {
     id: Uuid,
     slug: String,
-    created_at: NaiveDateTime,
-    updated_at: NaiveDateTime,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
     name: String,
-    deleted_at: Option<NaiveDateTime>,
+    deleted_at: Option<DateTime<Utc>>,
 }
 
 pub async fn all_organizations(pool: &PgPool) -> Result<Vec<Organization>> {

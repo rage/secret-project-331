@@ -6,7 +6,7 @@ use crate::{
     utils::document_schema_processor::{denormalize, normalize_from_json, NormalizedDocument},
 };
 use anyhow::Result;
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection, PgPool};
@@ -15,27 +15,27 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Page {
     id: Uuid,
-    created_at: NaiveDateTime,
-    updated_at: NaiveDateTime,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
     course_id: Uuid,
     course_part_id: Option<Uuid>,
     url_path: String,
     title: String,
-    deleted_at: Option<NaiveDateTime>,
+    deleted_at: Option<DateTime<Utc>>,
     content: serde_json::Value,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct PageWithExercises {
     id: Uuid,
-    created_at: NaiveDateTime,
-    updated_at: NaiveDateTime,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
     course_id: Uuid,
     course_part_id: Option<Uuid>,
     content: serde_json::Value,
     url_path: String,
     title: String,
-    deleted_at: Option<NaiveDateTime>,
+    deleted_at: Option<DateTime<Utc>>,
     exercises: Vec<Exercise>,
 }
 
@@ -100,12 +100,12 @@ pub struct PageExerciseItem {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 struct Exercise {
     id: Uuid,
-    created_at: NaiveDateTime,
-    updated_at: NaiveDateTime,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
     course_id: Uuid,
-    deleted_at: Option<NaiveDateTime>,
+    deleted_at: Option<DateTime<Utc>>,
     name: String,
-    deadline: Option<NaiveDateTime>,
+    deadline: Option<DateTime<Utc>>,
     page_id: Uuid,
     score_maximum: i32,
 }
@@ -113,12 +113,12 @@ struct Exercise {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 struct ExerciseWithExerciseItems {
     id: Uuid,
-    created_at: NaiveDateTime,
-    updated_at: NaiveDateTime,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
     course_id: Uuid,
-    deleted_at: Option<NaiveDateTime>,
+    deleted_at: Option<DateTime<Utc>>,
     name: String,
-    deadline: Option<NaiveDateTime>,
+    deadline: Option<DateTime<Utc>>,
     page_id: Uuid,
     exercise_items: Vec<ExerciseItem>,
     score_maximum: i32,

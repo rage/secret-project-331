@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::{NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -12,8 +12,8 @@ use super::{
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Grading {
     pub id: Uuid,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub submission_id: Uuid,
     pub course_id: Uuid,
     pub exercise_id: Uuid,
@@ -24,11 +24,11 @@ pub struct Grading {
     pub user_points_update_strategy: UserPointsUpdateStrategy,
     pub unscaled_score_maximum: Option<f32>,
     pub unscaled_max_points: Option<i32>,
-    pub grading_started_at: Option<NaiveDateTime>,
-    pub grading_completed_at: Option<NaiveDateTime>,
+    pub grading_started_at: Option<DateTime<Utc>>,
+    pub grading_completed_at: Option<DateTime<Utc>>,
     pub feedback_json: Option<serde_json::Value>,
     pub feedback_text: Option<String>,
-    pub deleted_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, sqlx::Type)]
@@ -66,7 +66,7 @@ pub async fn update_grading(
 ) -> Result<Grading> {
     let mut connection = pool.acquire().await?;
     let grading_completed_at = if grading_result.grading_progress.is_complete() {
-        Some(Utc::now().naive_utc())
+        Some(Utc::now())
     } else {
         None
     };

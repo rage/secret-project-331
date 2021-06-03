@@ -7,7 +7,7 @@ then
     source .env
   set +o allexport
 fi
-ARGUMENTS=("$DATABASE_URL" --file headless-lms/db/seed.sql "$@")
+ARGUMENTS=("$DATABASE_URL" --file db/seed.sql "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

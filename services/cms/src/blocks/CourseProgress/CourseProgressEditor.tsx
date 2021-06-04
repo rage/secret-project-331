@@ -9,7 +9,7 @@ const CourseProgressEditor: React.FC<BlockEditProps<Record<string, never>>> = ({
   return (
     <BlockPlaceholderWrapper id={clientId}>
       <h3>Course Progress Placeholder</h3>
-      <p>This block is placed on the course material where you wish to show course progres.</p>
+      <p>This block is placed on the course material where you wish to show the course progress.</p>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgPool};
 use uuid::Uuid;
@@ -16,12 +16,12 @@ pub struct CourseMaterialExerciseItem {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 pub struct ExerciseItem {
     pub id: Uuid,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub exercise_id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
-    pub deleted_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
     pub spec_file_id: Option<Uuid>,

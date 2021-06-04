@@ -12,7 +12,7 @@ use super::{
     gradings::{new_grading, Grading},
 };
 use anyhow::Result;
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgPool};
 use uuid::Uuid;
@@ -27,9 +27,9 @@ pub struct NewSubmission {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Submission {
     pub id: Uuid,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-    pub deleted_at: Option<NaiveDateTime>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub exercise_id: Uuid,
     pub course_id: Uuid,
     pub exercise_item_id: Uuid,

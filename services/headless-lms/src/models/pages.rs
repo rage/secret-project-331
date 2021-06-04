@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    models::course_parts::CoursePart,
-    models::exercise_items::ExerciseItem,
+    models::{course_parts::CoursePart, exercise_items::ExerciseItem},
     utils::document_schema_processor::{denormalize, normalize_from_json, NormalizedDocument},
 };
 use anyhow::Result;
@@ -97,6 +96,13 @@ pub struct PageExerciseItem {
     pub private_spec: Option<serde_json::Value>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct NextPage {
+    path: Option<String>,
+    name: Option<String>,
+    part: Option<i32>,
+}
+
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 struct Exercise {
     id: Uuid,
@@ -122,13 +128,6 @@ struct ExerciseWithExerciseItems {
     page_id: Uuid,
     exercise_items: Vec<ExerciseItem>,
     score_maximum: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct NextPage {
-    path: Option<String>,
-    name: Option<String>,
-    part: Option<i32>,
 }
 
 pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {

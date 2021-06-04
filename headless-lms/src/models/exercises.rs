@@ -54,7 +54,7 @@ Tells what's the status of the grading progress for a user and exercise.
 
 As close as possible LTI's grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
 pub enum GradingProgress {
     /// The grading process is completed; the score value, if any, represents the current Final Grade;
@@ -70,11 +70,8 @@ pub enum GradingProgress {
 }
 
 impl GradingProgress {
-    pub fn is_complete(&self) -> bool {
-        if self == &Self::FullyGraded || self == &Self::Failed {
-            return true;
-        }
-        false
+    pub fn is_complete(self) -> bool {
+        self == Self::FullyGraded || self == Self::Failed
     }
 }
 
@@ -96,7 +93,7 @@ pub async fn get_exercise(pool: &PgPool, exercise_id: Uuid) -> Result<Exercise> 
     )
     .fetch_one(connection)
     .await?;
-    return Ok(exercise);
+    Ok(exercise)
 }
 
 pub async fn get_exercise_by_id(pool: &PgPool, id: Uuid) -> Result<Exercise> {

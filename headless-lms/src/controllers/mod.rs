@@ -80,11 +80,8 @@ impl error::ResponseError for ApplicationError {
 
 impl From<anyhow::Error> for ApplicationError {
     fn from(err: anyhow::Error) -> ApplicationError {
-        if let Some(sqlx_error) = err.downcast_ref::<sqlx::Error>() {
-            match sqlx_error {
-                sqlx::Error::RowNotFound => return Self::NotFound,
-                _ => (),
-            }
+        if let Some(sqlx::Error::RowNotFound) = err.downcast_ref::<sqlx::Error>() {
+            return Self::NotFound;
         }
         Self::InternalServerError(err.to_string())
     }

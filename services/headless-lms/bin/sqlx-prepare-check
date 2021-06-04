@@ -1,0 +1,9 @@
+#!/bin/bash
+COMMAND="cargo"
+ARGUMENTS=(sqlx prepare --check)
+
+BASEDIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
+echo "> cd $BASEDIR"
+cd "$BASEDIR" || exit
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

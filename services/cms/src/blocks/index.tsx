@@ -1,5 +1,6 @@
 import { BlockConfiguration } from "@wordpress/blocks"
 import CourseGrid from "./CourseGrid"
+import CoursePartProgress from "./CoursePartProgress"
 import CourseProgress from "./CourseProgress"
 import Exercise from "./Exercise"
 import ExerciseInPart from "./ExerciseInPart"
@@ -13,4 +14,5 @@ export const blockTypeMap: Array<[string, BlockConfiguration]> = [
   ["moocfi/pages-in-part", PagesInPart],
   ["moocfi/exercises-in-part", ExerciseInPart],
   ["moocfi/course-progress", CourseProgress],
+  ["moocfi/course-part-progress", CoursePartProgress],
 ]

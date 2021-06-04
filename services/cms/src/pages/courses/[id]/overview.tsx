@@ -48,8 +48,9 @@ const CoursePages: React.FC<unknown> = () => {
   const handleCreatePartFrontPage = async (part: CoursePart) => {
     const partsBlock = createBlockInstance("moocfi/pages-in-part")
     const exercisesInPart = createBlockInstance("moocfi/exercises-in-part")
+    const coursePartProgress = createBlockInstance("moocfi/course-part-progress")
     await postNewPage({
-      content: [partsBlock, exercisesInPart],
+      content: [partsBlock, exercisesInPart, coursePartProgress],
       url_path: `/part-${part.part_number}`,
       title: part.name,
       course_id: part.course_id,

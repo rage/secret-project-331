@@ -27,12 +27,10 @@ pub trait FileStore {
 fn path_to_str(path: &Path) -> Result<&str> {
     let str = path.to_str();
     match str {
-        Some(s) => return Ok(s),
-        None => {
-            return Err(anyhow!(
-                "Could not convert path to string because it contained invalid UTF-8 characters."
-            ));
-        }
+        Some(s) => Ok(s),
+        None => Err(anyhow!(
+            "Could not convert path to string because it contained invalid UTF-8 characters."
+        )),
     }
 }
 
@@ -41,5 +39,5 @@ pub fn course_image_path(course: &Course, image_name: String) -> Result<PathBuf>
         "organizations/{}/courses/{}/images/{}",
         course.organization_id, course.id, image_name
     ))?;
-    return Ok(path);
+    Ok(path)
 }

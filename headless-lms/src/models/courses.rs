@@ -33,7 +33,7 @@ pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
     let courses = sqlx::query_as!(Course, "SELECT * FROM courses WHERE deleted_at IS NULL;")
         .fetch_all(connection)
         .await?;
-    return Ok(courses);
+    Ok(courses)
 }
 
 pub async fn get_course(pool: &PgPool, course_id: Uuid) -> Result<Course> {
@@ -42,7 +42,7 @@ pub async fn get_course(pool: &PgPool, course_id: Uuid) -> Result<Course> {
     let course = sqlx::query_as!(Course, "SELECT * FROM courses WHERE id = $1;", course_id)
         .fetch_one(connection)
         .await?;
-    return Ok(course);
+    Ok(course)
 }
 
 pub async fn get_course_structure(pool: &PgPool, course_id: Uuid) -> Result<CourseStructure> {
@@ -66,7 +66,7 @@ pub async fn organization_courses(pool: &PgPool, organization_id: &Uuid) -> Resu
     )
     .fetch_all(connection)
     .await?;
-    return Ok(courses);
+    Ok(courses)
 }
 
 // Represents the subset of page fields that are required to create a new course.

@@ -33,13 +33,5 @@
     "stylelint": "^13.13.1",
     "stylelint-config-recommended": "^5.0.0",
     "typescript": "^4.2.4"
-  },
-  "lint-staged": {
-    "*.js,*.ts,*.jsx,*.tsx": [
-      "eslint --cache --fix",
-      "stylelint --fix"
-    ],
-    "*.md,*.json,*.scss,*.css": "prettier --write",
-    "*.rs": "cargo fmt --manifest-path headless-lms/Cargo.toml --all -- --files-with-diff"
   }
 }

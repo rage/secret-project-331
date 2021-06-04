@@ -34,6 +34,9 @@ spec:
           ports:
             - containerPort: 3003
               name: http
+          env:
+            - name: BASE_PATH
+              value: "/courses"
           resources:
             requests:
               memory: 200Mi

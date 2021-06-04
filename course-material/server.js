@@ -25,7 +25,7 @@ app
   .then(() => {
     const server = express()
 
-    if (isDevelopment) {
+    if (isDevelopment && process.env.USE_LOCAL_PROXY) {
       server.use("/api", createProxyMiddleware(apiPaths["/api"]))
     }
 

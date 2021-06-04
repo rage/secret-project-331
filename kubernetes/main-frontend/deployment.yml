@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-frontend
+  labels:
+    app: main-frontend
+spec:
+  clusterIP: None
+  ports:
+    - port: 3000
+      name: main-frontend
+  selector:
+    app: main-frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-frontend
+  labels:
+    app: main-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: main-frontend
+  template:
+    metadata:
+      labels:
+        app: main-frontend
+    spec:
+      containers:
+        - name: main-frontend
+          image: main-frontend
+          ports:
+            - containerPort: 3000
+              name: main-frontend
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m

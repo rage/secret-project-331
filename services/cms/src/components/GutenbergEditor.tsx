@@ -8,6 +8,8 @@ import "@wordpress/editor/build-style/style.css"
 import "@wordpress/edit-post/build-style/style.css"
 import "@wordpress/format-library/build-style/style.css"
 import "@wordpress/nux/build-style/style.css"
+// This import is needed for bold, italics, ... formatting
+import "@wordpress/format-library"
 
 import React, { useEffect } from "react"
 import {
@@ -20,18 +22,12 @@ import {
 } from "@wordpress/block-editor"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
-// This import is needed for bold, italics, ... formatting
-import "@wordpress/format-library"
 import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 
-import Exercise, { ExerciseAttributes } from "../blocks/Exercise"
-import ExerciseItem from "../blocks/ExerciseItem"
 import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
-import CourseGrid from "../blocks/CourseGrid"
-import PagesInPart from "../blocks/PagesInPart"
 import { css } from "@emotion/css"
-import ExerciseInPart from "../blocks/ExerciseInPart"
+import { blockTypeMap } from "../blocks"
 
 interface GutenbergEditor {
   content: BlockInstance[]
@@ -41,22 +37,20 @@ interface GutenbergEditor {
 const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
   const { content, onContentChange } = props
 
-  const handleChanges = (page: BlockInstance<ExerciseAttributes>[]): void => {
+  const handleChanges = (page: BlockInstance[]): void => {
     console.log(page)
     onContentChange(page)
   }
-  const handleInput = (page: BlockInstance<ExerciseAttributes>[]): void => {
+  const handleInput = (page: BlockInstance[]): void => {
     console.log(page)
     onContentChange(page)
   }
 
   useEffect(() => {
     registerCoreBlocks()
-    registerBlockType("moocfi/exercise", Exercise)
-    registerBlockType("moocfi/exercise-item", ExerciseItem)
-    registerBlockType("moocfi/course-grid", CourseGrid)
-    registerBlockType("moocfi/pages-in-part", PagesInPart)
-    registerBlockType("moocfi/exercises-in-part", ExerciseInPart)
+    blockTypeMap.forEach(([blockName, block]) => {
+      registerBlockType(blockName, block)
+    })
   }, [])
 
   return (

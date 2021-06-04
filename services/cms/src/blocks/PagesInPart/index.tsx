@@ -2,20 +2,11 @@ import { BlockConfiguration } from "@wordpress/blocks"
 import PagesInPartEditor from "./PagesInPartEditor"
 import PagesInPartSave from "./PagesInPartSave"
 
-export interface PagesInPartAttributes {
-  hidden: boolean
-}
-
-const PagesInPartConfiguration: BlockConfiguration<PagesInPartAttributes> = {
+const PagesInPartConfiguration: BlockConfiguration = {
   title: "Pages In Part",
   description: "Pages In Part",
   category: "embed",
-  attributes: {
-    hidden: {
-      type: "boolean",
-      default: false,
-    },
-  },
+  attributes: {},
   edit: PagesInPartEditor,
   save: PagesInPartSave,
 }

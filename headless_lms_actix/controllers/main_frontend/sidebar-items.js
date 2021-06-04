@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["add_main_frontend_routes","Add controllers from all the submodules."]],"mod":[["courses","Controllers for requests starting with `/api/v0/main-frontend/courses`."],["organizations","Controllers for requests starting with `/api/v0/main-frontend/organizations`."]]});

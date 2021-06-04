@@ -69,17 +69,17 @@
         {
           "ordinal": 2,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 4,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
@@ -132,12 +132,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -162,7 +162,7 @@
         {
           "ordinal": 7,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 8,
@@ -244,17 +244,17 @@
         {
           "ordinal": 4,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
@@ -293,12 +293,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -323,7 +323,7 @@
         {
           "ordinal": 7,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 8,
@@ -366,12 +366,12 @@
         {
           "ordinal": 2,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 4,
@@ -381,7 +381,7 @@
         {
           "ordinal": 5,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
@@ -417,12 +417,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -447,7 +447,7 @@
         {
           "ordinal": 7,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 8,
@@ -501,12 +501,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -531,7 +531,7 @@
         {
           "ordinal": 7,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 8,
@@ -679,12 +679,12 @@
         {
           "ordinal": 2,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 4,
@@ -694,7 +694,7 @@
         {
           "ordinal": 5,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
@@ -732,12 +732,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -747,7 +747,7 @@
         {
           "ordinal": 4,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
@@ -757,7 +757,7 @@
         {
           "ordinal": 6,
           "name": "deadline",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
@@ -800,12 +800,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -815,7 +815,7 @@
         {
           "ordinal": 4,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
@@ -825,7 +825,7 @@
         {
           "ordinal": 6,
           "name": "deadline",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
@@ -886,17 +886,17 @@
         {
           "ordinal": 4,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
@@ -1010,12 +1010,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -1093,12 +1093,12 @@
         {
           "ordinal": 13,
           "name": "grading_started_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 14,
           "name": "grading_completed_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 15,
@@ -1113,7 +1113,7 @@
         {
           "ordinal": 17,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         }
       ],
       "parameters": {
@@ -1158,12 +1158,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -1188,7 +1188,7 @@
         {
           "ordinal": 7,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 8,
@@ -1231,12 +1231,12 @@
         {
           "ordinal": 2,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 4,
@@ -1246,7 +1246,7 @@
         {
           "ordinal": 5,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
@@ -1282,12 +1282,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -1307,7 +1307,7 @@
         {
           "ordinal": 6,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
@@ -1371,17 +1371,17 @@
         {
           "ordinal": 4,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
@@ -1418,12 +1418,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -1433,7 +1433,7 @@
         {
           "ordinal": 4,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
@@ -1443,7 +1443,7 @@
         {
           "ordinal": 6,
           "name": "deadline",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
@@ -1583,17 +1583,17 @@
         {
           "ordinal": 4,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
@@ -1637,12 +1637,12 @@
         {
           "ordinal": 2,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 4,
@@ -1652,7 +1652,7 @@
         {
           "ordinal": 5,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
@@ -1691,12 +1691,12 @@
         {
           "ordinal": 2,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 4,
@@ -1706,7 +1706,7 @@
         {
           "ordinal": 5,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
@@ -1774,12 +1774,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -1804,7 +1804,7 @@
         {
           "ordinal": 7,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 8,
@@ -1842,12 +1842,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -1872,7 +1872,7 @@
         {
           "ordinal": 7,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 8,
@@ -1922,17 +1922,17 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 4,
@@ -2003,12 +2003,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -2033,7 +2033,7 @@
         {
           "ordinal": 7,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 8,
@@ -2117,12 +2117,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -2200,12 +2200,12 @@
         {
           "ordinal": 13,
           "name": "grading_started_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 14,
           "name": "grading_completed_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 15,
@@ -2220,7 +2220,7 @@
         {
           "ordinal": 17,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         }
       ],
       "parameters": {
@@ -2244,7 +2244,7 @@
           "Int4",
           "Text",
           "Jsonb",
-          "Timestamp",
+          "Timestamptz",
           "Float4"
         ]
       },
@@ -2287,12 +2287,12 @@
         {
           "ordinal": 2,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 4,
@@ -2302,7 +2302,7 @@
         {
           "ordinal": 5,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
@@ -2339,17 +2339,17 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 4,
@@ -2438,17 +2438,17 @@
         {
           "ordinal": 4,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
@@ -2485,12 +2485,12 @@
         {
           "ordinal": 1,
           "name": "created_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 2,
           "name": "updated_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 3,
@@ -2500,7 +2500,7 @@
         {
           "ordinal": 4,
           "name": "deleted_at",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 5,
@@ -2510,7 +2510,7 @@
         {
           "ordinal": 6,
           "name": "deadline",
-          "type_info": "Timestamp"
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,

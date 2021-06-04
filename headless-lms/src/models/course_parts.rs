@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -9,11 +9,11 @@ use super::pages::PageWithExercises;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct CoursePart {
     pub id: Uuid,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub name: String,
     pub course_id: Uuid,
-    pub deleted_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub part_number: i32,
     pub page_id: Option<Uuid>,
 }
@@ -21,11 +21,11 @@ pub struct CoursePart {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct CoursePartPagesWithExercises {
     pub id: Uuid,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub name: String,
     pub course_id: Uuid,
-    pub deleted_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub part_number: i32,
     pub pages: Vec<PageWithExercises>,
 }

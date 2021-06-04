@@ -41,7 +41,7 @@ jobs:
 
       - name: Setup database
         run: sqlx database setup
-        working-directory: ./headless-lms
+        working-directory: ./services/headless-lms
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_dev
 

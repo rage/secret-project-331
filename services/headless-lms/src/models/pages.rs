@@ -124,6 +124,13 @@ struct ExerciseWithExerciseItems {
     score_maximum: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct NextPage {
+    path: Option<String>,
+    name: Option<String>,
+    part: Option<i32>,
+}
+
 pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {
     let mut transaction = pool.begin().await?;
     let connection = transaction.acquire().await?;
@@ -618,4 +625,30 @@ WHERE page_id IN (
         })
         .collect();
     Ok(course_part_pages_with_exercises)
+}
+
+pub async fn get_next_page(pool: &PgPool, course_parts_id: Uuid) -> Result<NextPage> {
+    let mut connection = pool.acquire().await?;
+
+    let next_page_data = sqlx::query_as!(
+        NextPage,
+        "
+select p.url_path as path,
+  p.title as name,
+  cp.part_number as part
+from pages p
+  left join course_parts cp on p.id = cp.page_id
+where cp.part_number = (
+    select part_number
+    from course_parts
+    where course_parts.page_id = $1
+    limit 1
+  ) + 1;
+    ",
+        course_parts_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    Ok(next_page_data)
 }

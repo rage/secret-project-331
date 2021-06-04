@@ -5,17 +5,19 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 
-const PagesInPartEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
+const CoursePartProgressEditor: React.FC<BlockEditProps<Record<string, never>>> = ({
+  clientId,
+}) => {
   return (
     <BlockPlaceholderWrapper id={clientId}>
-      <h3>Pages In Part Grid Placeholder</h3>
+      <h3>Course Part Progress Placeholder</h3>
       <p>
-        This block is placed on each part front page, e.g. /part-1/ for navigating to different sub
-        sections easily.
+        This block is used to display course part progress. To display the whole course progress,
+        you should use the Course Progress block.
       </p>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )
 }
 
-export default PagesInPartEditor
+export default CoursePartProgressEditor

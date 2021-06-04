@@ -33,9 +33,10 @@ const CoursePages: React.FC<unknown> = () => {
   }
 
   const handleCreateFrontPage = async () => {
-    const courseGrid = createBlockInstance("moocfi/course-grid", { hidden: false })
+    const courseGrid = createBlockInstance("moocfi/course-grid")
+    const courseProgress = createBlockInstance("moocfi/course-progress")
     await postNewPage({
-      content: [courseGrid],
+      content: [courseGrid, courseProgress],
       url_path: "/",
       title: data.course.name,
       course_id: data.course.id,
@@ -45,8 +46,8 @@ const CoursePages: React.FC<unknown> = () => {
   }
 
   const handleCreatePartFrontPage = async (part: CoursePart) => {
-    const partsBlock = createBlockInstance("moocfi/pages-in-part", { hidden: false })
-    const exercisesInPart = createBlockInstance("moocfi/exercises-in-part", { hidden: false })
+    const partsBlock = createBlockInstance("moocfi/pages-in-part")
+    const exercisesInPart = createBlockInstance("moocfi/exercises-in-part")
     await postNewPage({
       content: [partsBlock, exercisesInPart],
       url_path: `/part-${part.part_number}`,

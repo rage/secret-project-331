@@ -38,13 +38,17 @@ const Organization: React.FC<unknown> = () => {
       >
         {data.map((course) => (
           <div key={course.id}>
+            <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
+            <a href={`/cms/courses/${course.id}/overview`}>Edit</a>{" "}
             <Link
               href={{
-                pathname: `${basePath()}/courses/[id]/overview`,
-                query: { id: course.id },
+                pathname: "/manage/courses/[id]/stats",
+                query: {
+                  id: course.id,
+                },
               }}
             >
-              {course.name}
+              Stats
             </Link>
           </div>
         ))}

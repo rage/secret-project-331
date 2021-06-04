@@ -27,7 +27,11 @@ spec:
             backend:
               serviceName: cms
               servicePort: 3000
-          - path: /
+          - path: /courses
             backend:
               serviceName: course-material
               servicePort: 3003
+          - path: /
+            backend:
+              serviceName: main-frontend
+              servicePort: 3000

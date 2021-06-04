@@ -1,10 +1,10 @@
 import { useQuery } from "react-query"
-import GenericLoading from "../../../components/GenericLoading"
-import PageNotFound from "../../../components/PageNotFound"
-import useQueryParameter from "../../../hooks/useQueryParameter"
-import { fetchCoursePageByPath } from "../../../services/backend"
-import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
-import Page from "../../../components/Page"
+import GenericLoading from "../../components/GenericLoading"
+import PageNotFound from "../../components/PageNotFound"
+import useQueryParameter from "../../hooks/useQueryParameter"
+import { fetchCoursePageByPath } from "../../services/backend"
+import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
+import Page from "../../components/Page"
 
 const PagePage = () => {
   const courseId = useQueryParameter("courseSlug")

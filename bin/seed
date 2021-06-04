@@ -1,6 +1,6 @@
 #!/bin/bash
 COMMAND="psql"
-ARGUMENTS=(postgres://headless-lms@localhost:54328/headless_lms_dev --file headless-lms/db/seed.sql "$@")
+ARGUMENTS=(postgres://headless-lms@localhost:54328/headless_lms_dev --file services/headless-lms/db/seed.sql "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

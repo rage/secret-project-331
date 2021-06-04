@@ -3,31 +3,31 @@ kind: Config
 build:
   artifacts:
     - image: headless-lms
-      context: headless-lms
+      context: services/headless-lms
       sync:
         manual:
           - src: "**/*.rs"
             dest: "/app"
     - image: cms
-      context: cms
+      context: services/cms
       sync:
         manual:
           - src: "src/**/*"
             dest: "/app"
     - image: main-frontend
-      context: main-frontend
+      context: services/main-frontend
       sync:
         manual:
           - src: "src/**/*"
             dest: "/app"
     - image: example-exercise
-      context: example-exercise
+      context: services/example-exercise
       sync:
         manual:
           - src: "src/**/*"
             dest: "/app"
     - image: course-material
-      context: course-material
+      context: services/course-material
       sync:
         manual:
           - src: "src/**/*"

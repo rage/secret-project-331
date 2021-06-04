@@ -17,4 +17,4 @@ jobs:
       - name: Stylelint
         run: npm run lint:css
       - name: Cargo fmt
-        run: cargo fmt --manifest-path headless-lms/Cargo.toml --all -- --files-with-diff --check
+        run: cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff --check

@@ -15,11 +15,11 @@ jobs:
 
       - name: Install and build
         run: cargo doc
-        working-directory: headless-lms
+        working-directory: services/headless-lms
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: headless-lms/target/doc
+          FOLDER: services/headless-lms/target/doc

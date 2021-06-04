@@ -190,7 +190,7 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
         <span class="ident">exercise</span>.<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>,
     );
     <span class="comment">// Scores are rounded to two decimals</span>
-    <span class="kw">let</span> <span class="ident">score_given_rounded</span> <span class="op">=</span> (<span class="ident">score_given_with_all_decumals</span> <span class="op">*</span> (<span class="number">100</span> <span class="kw">as</span> <span class="ident">f32</span>)).<span class="ident">trunc</span>() <span class="op">/</span> (<span class="number">100</span> <span class="kw">as</span> <span class="ident">f32</span>);
+    <span class="kw">let</span> <span class="ident">score_given_rounded</span> <span class="op">=</span> (<span class="ident">score_given_with_all_decumals</span> <span class="op">*</span> (<span class="number">100_f32</span>)).<span class="ident">trunc</span>() <span class="op">/</span> (<span class="number">100_f32</span>);
     <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">Grading</span>,
         <span class="string">r#&quot;

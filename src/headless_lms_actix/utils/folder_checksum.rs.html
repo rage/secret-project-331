@@ -178,6 +178,7 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
+<span id="178">178</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Provides functionality for checksumming directory trees.
@@ -270,9 +271,10 @@ might take a while since reading a lot of data from disk is not fast.
     <span class="comment">// Default implementation for mostly windows that has no unix like modes.</span>
     <span class="comment">// Another approach here could be to pull the file mode from git.</span>
     <span class="kw">if</span> <span class="ident">permissions</span>.<span class="ident">readonly</span>() {
-        <span class="kw">return</span> <span class="number">0o444</span>;
+        <span class="number">0o444</span>
+    } <span class="kw">else</span> {
+        <span class="number">0o644</span>
     }
-    <span class="kw">return</span> <span class="number">0o644</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>

@@ -4,6 +4,18 @@ use sqlx::PgPool;
 use std::str::FromStr;
 use uuid::Uuid;
 
+/**
+ GET /api/v0/course-material/pages/:page_id/next-page - returns next pages info.
+ If current page is the last page of the chapter, returns next chapters first page.
+ # Example,
+```json
+{
+    "path": "/path-to-next/page",
+    "name": "Name of the next page",
+    "part": 1,
+}
+```
+*/
 async fn get_next_page(
     request_page_id: web::Path<String>,
     pool: web::Data<PgPool>,
@@ -15,5 +27,5 @@ async fn get_next_page(
 }
 
 pub fn _add_pages_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/:current_page_id/next_page", web::get().to(get_next_page));
+    cfg.route("/{current_page_id}/next_page", web::get().to(get_next_page));
 }

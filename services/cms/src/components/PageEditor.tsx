@@ -30,7 +30,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       title,
       url_path: urlPath,
       content,
-      course_part_id: data.course_part_id,
+      chapter_id: data.chapter_id,
     })
     setContent(res.content)
     setSaving(false)

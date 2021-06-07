@@ -5,12 +5,12 @@ import useQueryParameter from "../../../hooks/useQueryParameter"
 import { useQuery } from "react-query"
 import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
 import { Button, Dialog } from "@material-ui/core"
-import { CoursePart } from "../../../services/services.types"
+import { Chapter } from "../../../services/services.types"
 import { postNewPage } from "../../../services/backend/pages"
 import { fetchCourseStructure } from "../../../services/backend/courses"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import { css } from "@emotion/css"
-import NewPartForm from "../../../components/forms/NewPartForm"
+import NewPartForm from "../../../components/forms/NewChapterForm"
 
 import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
@@ -40,22 +40,22 @@ const CoursePages: React.FC<unknown> = () => {
       url_path: "/",
       title: data.course.name,
       course_id: data.course.id,
-      course_part_id: null,
+      chapter_id: null,
     })
     await refetch()
   }
 
-  const handleCreatePartFrontPage = async (part: CoursePart) => {
-    const partsBlock = createBlockInstance("moocfi/pages-in-part")
-    const exercisesInPart = createBlockInstance("moocfi/exercises-in-part")
-    const coursePartProgress = createBlockInstance("moocfi/course-part-progress")
+  const handleCreatePartFrontPage = async (chapter: Chapter) => {
+    const partsBlock = createBlockInstance("moocfi/pages-in-chapter")
+    const exercisesInChapter = createBlockInstance("moocfi/exercises-in-chapter")
+    const ChapterProgress = createBlockInstance("moocfi/chapter-progress")
     await postNewPage({
-      content: [partsBlock, exercisesInPart, coursePartProgress],
-      url_path: `/part-${part.part_number}`,
-      title: part.name,
-      course_id: part.course_id,
-      course_part_id: part.id,
-      front_page_of_course_part_id: part.id,
+      content: [partsBlock, exercisesInChapter, ChapterProgress],
+      url_path: `/chapter-${chapter.chapter_number}`,
+      title: chapter.name,
+      course_id: chapter.course_id,
+      chapter_id: chapter.id,
+      front_page_of_chapter_id: chapter.id,
     })
     await refetch()
   }
@@ -65,9 +65,9 @@ const CoursePages: React.FC<unknown> = () => {
     await refetch()
   }
 
-  const pagesByPart = groupBy(data.pages, "course_part_id")
+  const pagesByChapter = groupBy(data.pages, "chapter_id")
 
-  const maxPart = max(data.course_parts.map((p) => p.part_number))
+  const maxPart = max(data.chapters.map((p) => p.chapter_number))
 
   const frontPage = data.pages.find((page) => page.url_path === "/")
 
@@ -84,41 +84,41 @@ const CoursePages: React.FC<unknown> = () => {
           <Button onClick={handleCreateFrontPage}>Create front page for course</Button>
         )}
         <PageList
-          data={data.pages.filter((page) => !page.course_part_id)}
+          data={data.pages.filter((page) => !page.chapter_id)}
           refetch={refetch}
           courseId={id}
         />
         <div>
-          {data.course_parts
-            .filter((part) => !part.deleted_at)
-            .sort((a, b) => a.part_number - b.part_number)
-            .map((part: CoursePart) => (
+          {data.chapters
+            .filter((chapter) => !chapter.deleted_at)
+            .sort((a, b) => a.chapter_number - b.chapter_number)
+            .map((chapter: Chapter) => (
               <div
                 className={css`
                   border: 1px solid black;
                   padding: 2rem;
                   margin-bottom: 1rem;
                 `}
-                key={part.id}
+                key={chapter.id}
               >
                 <h3>
-                  Part {part.part_number}: {part.name}
+                  Chapter {chapter.chapter_number}: {chapter.name}
                 </h3>
-                {!part.page_id && (
-                  <Button onClick={async () => await handleCreatePartFrontPage(part)}>
-                    Create part front page
+                {!chapter.page_id && (
+                  <Button onClick={async () => await handleCreatePartFrontPage(chapter)}>
+                    Create chapter front page
                   </Button>
                 )}
                 <PageList
-                  data={pagesByPart[part.id] ?? []}
+                  data={pagesByChapter[chapter.id] ?? []}
                   refetch={refetch}
                   courseId={id}
-                  coursePart={part}
+                  chapter={chapter}
                 />
               </div>
             ))}
 
-          <Button onClick={() => setShowForm(!showForm)}>Add new part</Button>
+          <Button onClick={() => setShowForm(!showForm)}>Add new chapter</Button>
 
           <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
             <div
@@ -130,7 +130,7 @@ const CoursePages: React.FC<unknown> = () => {
               <NewPartForm
                 courseId={id}
                 onSubmitForm={handleCreatePart}
-                partNumber={maxPart + 1 || 1}
+                chapterNumber={maxPart + 1 || 1}
               />
             </div>
           </Dialog>

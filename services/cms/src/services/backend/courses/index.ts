@@ -1,5 +1,5 @@
 import axios from "axios"
-import { CourseOverview, CoursePart, NewCoursePart } from "../../services.types"
+import { CourseOverview, Chapter, NewChapter } from "../../services.types"
 
 export const fetchCourseStructure = async (courseId: string): Promise<CourseOverview> => {
   const url = `/api/v0/cms/courses/${courseId}/structure`
@@ -7,8 +7,8 @@ export const fetchCourseStructure = async (courseId: string): Promise<CourseOver
   return data
 }
 
-export const postNewCoursePart = async (data: NewCoursePart): Promise<CoursePart> => {
-  const url = `/api/v0/cms/course-parts`
+export const postNewChapter = async (data: NewChapter): Promise<Chapter> => {
+  const url = `/api/v0/cms/chapters`
   const response = await axios.post(url, data, {
     headers: { "Content-Type": "application/json" },
   })

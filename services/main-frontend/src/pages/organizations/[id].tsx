@@ -37,7 +37,7 @@ const Organization: React.FC<unknown> = () => {
       >
         {data.map((course) => (
           <div key={course.id}>
-            <Link href={`/courses/${course.slug}`}>{course.name}</Link>{" "}
+            <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
             <Link href={`/cms/courses/${course.id}/overview`}>Edit</Link>{" "}
             <Link
               href={{

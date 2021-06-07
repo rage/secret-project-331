@@ -87,7 +87,7 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
     "name": "The Basics",
     "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
     "deleted_at": null,
-    "part_number": 1,
+    "chapter_number": 1,
     "page_id": null
   }
 ]

@@ -260,20 +260,8 @@
       ]
     }
   },
-  "2edca259dbf1d56f1473cb0587b75dcd1888d4fe7c2599df3d69c5d394902001": {
-    "query": "\n        UPDATE exercise_items SET deleted_at = now() WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)\n            ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "3394783aac5a96207d8f0f7e4fd03c5fed19baf9b0759049b7dc2e0c63b4a777": {
-    "query": "\n    INSERT INTO\n      chapters(name, course_id, part_number)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
+  "28d85f709ff96819aec1e135cef78a3f2674c747c3b1140c7857c85f5facff56": {
+    "query": "\n    INSERT INTO\n      chapters(name, course_id, chapter_number)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
     "describe": {
       "columns": [
         {
@@ -293,7 +281,7 @@
         },
         {
           "ordinal": 3,
-          "name": "part_number",
+          "name": "chapter_number",
           "type_info": "Int4"
         },
         {
@@ -334,6 +322,18 @@
         true,
         true
       ]
+    }
+  },
+  "2edca259dbf1d56f1473cb0587b75dcd1888d4fe7c2599df3d69c5d394902001": {
+    "query": "\n        UPDATE exercise_items SET deleted_at = now() WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": []
     }
   },
   "3fe37166761219fc5d832aff78c2ae81f963c9b1fa42ac8519e80bc436c54200": {
@@ -724,7 +724,7 @@
         },
         {
           "ordinal": 3,
-          "name": "part_number",
+          "name": "chapter_number",
           "type_info": "Int4"
         },
         {
@@ -831,70 +831,6 @@
         true,
         false,
         false
-      ]
-    }
-  },
-  "6b0a09205bee8cc4b8ad39cc08e81d231f471529c85354172349855fd9c19b1e": {
-    "query": "\nUPDATE chapters\n    SET name = $1,\n    part_number = $2\nWHERE\n    id = $3\n    RETURNING *\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "part_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 4,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 7,
-          "name": "page_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Varchar",
-          "Int4",
-          "Uuid"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true
       ]
     }
   },
@@ -1459,6 +1395,70 @@
       ]
     }
   },
+  "a9e2fc40cc3a0a3e0bb5910ea9a354f91a3717e602eb8648fe8fd34a7da9bf44": {
+    "query": "\nUPDATE chapters\n    SET name = $1,\n    chapter_number = $2\nWHERE\n    id = $3\n    RETURNING *\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Int4",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
+    }
+  },
   "aacdef2e863b8bccca736bbb23962375df020de373e83c5f907afd83e1167327": {
     "query": "SELECT * FROM submissions WHERE exercise_id = $1 LIMIT $2 OFFSET $3;",
     "describe": {
@@ -1629,7 +1629,7 @@
         },
         {
           "ordinal": 3,
-          "name": "part_number",
+          "name": "chapter_number",
           "type_info": "Int4"
         },
         {
@@ -2291,7 +2291,7 @@
         },
         {
           "ordinal": 3,
-          "name": "part_number",
+          "name": "chapter_number",
           "type_info": "Int4"
         },
         {

@@ -14,7 +14,7 @@ pub struct Chapter {
     pub name: String,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub part_number: i32,
+    pub chapter_number: i32,
     pub page_id: Option<Uuid>,
 }
 
@@ -26,7 +26,7 @@ pub struct ChapterPagesWithExercises {
     pub name: String,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub part_number: i32,
+    pub chapter_number: i32,
     pub pages: Vec<PageWithExercises>,
 }
 
@@ -35,14 +35,14 @@ pub struct ChapterPagesWithExercises {
 pub struct NewChapter {
     pub name: String,
     pub course_id: Uuid,
-    pub part_number: i32,
+    pub chapter_number: i32,
     pub page_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct ChapterUpdate {
     pub name: String,
-    pub part_number: i32,
+    pub chapter_number: i32,
     pub page_id: Option<Uuid>,
 }
 
@@ -57,13 +57,13 @@ pub async fn update_chapter(
         r#"
 UPDATE chapters
     SET name = $1,
-    part_number = $2
+    chapter_number = $2
 WHERE
     id = $3
     RETURNING *
     "#,
         chapter_update.name,
-        chapter_update.part_number,
+        chapter_update.chapter_number,
         course_id
     )
     .fetch_one(&mut connection)
@@ -89,13 +89,13 @@ pub async fn insert_chapter(pool: &PgPool, chapter: NewChapter) -> Result<Chapte
         Chapter,
         r#"
     INSERT INTO
-      chapters(name, course_id, part_number)
+      chapters(name, course_id, chapter_number)
     VALUES($1, $2, $3)
     RETURNING *
             "#,
         chapter.name,
         chapter.course_id,
-        chapter.part_number
+        chapter.chapter_number
     )
     .fetch_one(&mut connection)
     .await?;

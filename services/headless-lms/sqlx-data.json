@@ -52,6 +52,38 @@
       ]
     }
   },
+  "13f49bf6b296f33776371ae63a0da19b3723e35ef18c1ebfea75c88677e124b9": {
+    "query": "\nselect p.url_path,\n  p.title,\n  cp.part_number\nfrom pages p\n  left join course_parts cp on p.id = cp.page_id\nwhere cp.part_number = (\n    select part_number\n    from course_parts\n    where course_parts.page_id = $1\n    limit 1\n  ) + 1;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "part_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        true,
+        true,
+        true
+      ]
+    }
+  },
   "17ac831ff424d02bd7609c76c190768ef00265bf144ab61459e11f1b7179b660": {
     "query": "SELECT * FROM organizations WHERE deleted_at IS NULL;",
     "describe": {
@@ -168,6 +200,11 @@
           "ordinal": 8,
           "name": "course_part_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -188,7 +225,8 @@
         false,
         false,
         true,
-        true
+        true,
+        false
       ]
     }
   },
@@ -329,6 +367,11 @@
           "ordinal": 8,
           "name": "course_part_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -345,7 +388,8 @@
         false,
         false,
         true,
-        true
+        true,
+        false
       ]
     }
   },
@@ -453,6 +497,11 @@
           "ordinal": 8,
           "name": "course_part_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -473,7 +522,8 @@
         false,
         false,
         true,
-        true
+        true,
+        false
       ]
     }
   },
@@ -537,6 +587,11 @@
           "ordinal": 8,
           "name": "course_part_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -553,7 +608,8 @@
         false,
         false,
         true,
-        true
+        true,
+        false
       ]
     }
   },
@@ -1194,6 +1250,11 @@
           "ordinal": 8,
           "name": "course_part_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -1210,7 +1271,8 @@
         false,
         false,
         true,
-        true
+        true,
+        false
       ]
     }
   },
@@ -1556,38 +1618,6 @@
       ]
     }
   },
-  "ae686b1ba305f9a77f42aced6b9e37623e6ef725d501583d195d55e0f9c40bcf": {
-    "query": "\nselect p.url_path as path,\n  p.title as name,\n  cp.part_number as part\nfrom pages p\n  left join course_parts cp on p.id = cp.page_id\nwhere cp.part_number = (\n    select part_number\n    from course_parts\n    where course_parts.page_id = $1\n    limit 1\n  ) + 1;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "part",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      },
-      "nullable": [
-        true,
-        true,
-        true
-      ]
-    }
-  },
   "b34b452c8aec85153cdbd8581f303e013687ede930bc362a7978d16d6098df7f": {
     "query": "\n    INSERT INTO\n      course_parts(name, course_id, part_number)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
     "describe": {
@@ -1842,6 +1872,11 @@
           "ordinal": 8,
           "name": "course_part_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -1858,7 +1893,8 @@
         false,
         false,
         true,
-        true
+        true,
+        false
       ]
     }
   },
@@ -1910,6 +1946,11 @@
           "ordinal": 8,
           "name": "course_part_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -1926,7 +1967,8 @@
         false,
         false,
         true,
-        true
+        true,
+        false
       ]
     }
   },
@@ -2071,6 +2113,11 @@
           "ordinal": 8,
           "name": "course_part_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
@@ -2088,7 +2135,8 @@
         false,
         false,
         true,
-        true
+        true,
+        false
       ]
     }
   },

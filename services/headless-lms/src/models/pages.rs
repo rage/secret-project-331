@@ -22,7 +22,7 @@ pub struct Page {
     title: String,
     deleted_at: Option<DateTime<Utc>>,
     content: serde_json::Value,
-    order_number: i32
+    order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -318,6 +318,7 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2
         title: page.title,
         url_path: page.url_path,
         course_part_id: page.course_part_id,
+        order_number: page.order_number,
     });
 }
 
@@ -521,6 +522,7 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2 RETURNING *
         title: page.title,
         url_path: page.url_path,
         course_part_id: page.course_part_id,
+        order_number: page.order_number,
     });
 }
 

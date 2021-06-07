@@ -104,7 +104,7 @@ const CoursePages: React.FC<unknown> = () => {
                 <h3>
                   Chapter {chapter.chapter_number}: {chapter.name}
                 </h3>
-                {!chapter.page_id && (
+                {!chapter.front_page_id && (
                   <Button onClick={async () => await handleCreatePartFrontPage(chapter)}>
                     Create chapter front page
                   </Button>

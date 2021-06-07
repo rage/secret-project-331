@@ -131,7 +131,7 @@ export interface Chapter extends DatabaseItem {
   course_id: string
   deleted_at: string | null
   chapter_number: number
-  page_id: string | null
+  front_page_id: string | null
 }
 
 /**
@@ -141,7 +141,7 @@ export interface NewChapter {
   name: string
   course_id: string
   chapter_number: number
-  page_id: string | null
+  front_page_id: string | null
 }
 
 export interface CourseSubmissionCount {

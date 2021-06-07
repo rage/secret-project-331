@@ -15,7 +15,7 @@ pub struct Chapter {
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_number: i32,
-    pub page_id: Option<Uuid>,
+    pub front_page_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -36,14 +36,14 @@ pub struct NewChapter {
     pub name: String,
     pub course_id: Uuid,
     pub chapter_number: i32,
-    pub page_id: Option<Uuid>,
+    pub front_front_page_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct ChapterUpdate {
     pub name: String,
     pub chapter_number: i32,
-    pub page_id: Option<Uuid>,
+    pub front_front_page_id: Option<Uuid>,
 }
 
 pub async fn update_chapter(

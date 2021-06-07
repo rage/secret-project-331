@@ -289,7 +289,7 @@ RETURNING *
         let _res = sqlx::query_as!(
             Chapter,
             r#"
-UPDATE chapters SET page_id = $1 WHERE id = $2
+UPDATE chapters SET front_page_id = $1 WHERE id = $2
         "#,
             page_id,
             front_page_of_chapter_id
@@ -493,7 +493,7 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
         let _res = sqlx::query_as!(
             Chapter,
             r#"
-UPDATE chapters SET page_id = $1 WHERE id = $2 RETURNING *
+UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
         "#,
             page.id,
             front_page_of_chapter_id

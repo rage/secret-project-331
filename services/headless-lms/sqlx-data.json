@@ -1,5 +1,68 @@
 {
   "db": "PostgreSQL",
+  "00f3f7096674aa5bc7faeebac5406f9259a72172cb63f1cd415da4519c783fe7": {
+    "query": "\nUPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "front_page_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
+    }
+  },
   "02ff83f40b183e7295450f84a7327cf545fa5f357451097c7afb35db5a4b6f2a": {
     "query": "\nSELECT counts.*, exercises.name exercise_name\n    FROM (\n        SELECT exercise_id, count(*)::integer count\n        FROM submissions\n        WHERE course_id = $1\n        GROUP BY exercise_id\n    ) counts\n    JOIN exercises ON (counts.exercise_id = exercises.id);\n          ",
     "describe": {
@@ -50,6 +113,19 @@
       "nullable": [
         false
       ]
+    }
+  },
+  "07ff6c440bb184c682c8095f73537a51399aff014e77485afa80dcde0268607f": {
+    "query": "\nUPDATE chapters SET front_page_id = $1 WHERE id = $2\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": []
     }
   },
   "17ac831ff424d02bd7609c76c190768ef00265bf144ab61459e11f1b7179b660": {
@@ -301,7 +377,7 @@
         },
         {
           "ordinal": 7,
-          "name": "page_id",
+          "name": "front_page_id",
           "type_info": "Uuid"
         }
       ],
@@ -692,69 +768,6 @@
       },
       "nullable": [
         false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true
-      ]
-    }
-  },
-  "66b55fe9cbc0a7776aa5bfb9adf65064372cf223cf33fc38c9ff79404740ca5c": {
-    "query": "\nUPDATE chapters SET page_id = $1 WHERE id = $2 RETURNING *\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "chapter_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 4,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 7,
-          "name": "page_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid"
-        ]
-      },
-      "nullable": [
         false,
         false,
         false,
@@ -1436,7 +1449,7 @@
         },
         {
           "ordinal": 7,
-          "name": "page_id",
+          "name": "front_page_id",
           "type_info": "Uuid"
         }
       ],
@@ -1595,19 +1608,6 @@
       ]
     }
   },
-  "b986a422a4f73b41a7e169b21eb96c35cdfcd026ce10dfc6bab7364a0907ba64": {
-    "query": "\nUPDATE chapters SET page_id = $1 WHERE id = $2\n        ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid"
-        ]
-      },
-      "nullable": []
-    }
-  },
   "c1908e69ccbe1ec11a22f88ec34da84b934b07915a2c659cdbf16a24d2c5f611": {
     "query": "SELECT * FROM chapters WHERE course_id = $1 AND deleted_at IS NULL;",
     "describe": {
@@ -1649,7 +1649,7 @@
         },
         {
           "ordinal": 7,
-          "name": "page_id",
+          "name": "front_page_id",
           "type_info": "Uuid"
         }
       ],
@@ -2311,7 +2311,7 @@
         },
         {
           "ordinal": 7,
-          "name": "page_id",
+          "name": "front_page_id",
           "type_info": "Uuid"
         }
       ],

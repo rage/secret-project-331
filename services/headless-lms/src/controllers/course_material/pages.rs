@@ -1,3 +1,4 @@
+//! Controllers for requests starting with `/api/v0/course-material/pages`.
 use crate::{controllers::ApplicationResult, models::pages::NextPage};
 use actix_web::web::{self, Json, ServiceConfig};
 use sqlx::PgPool;

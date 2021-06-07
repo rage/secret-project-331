@@ -22,6 +22,7 @@ pub struct Page {
     title: String,
     deleted_at: Option<DateTime<Utc>>,
     content: serde_json::Value,
+    order_number: i32
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -98,9 +99,9 @@ pub struct PageExerciseItem {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NextPage {
-    path: Option<String>,
-    name: Option<String>,
-    part: Option<i32>,
+    url_path: Option<String>,
+    title: Option<String>,
+    part_number: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -632,9 +633,9 @@ pub async fn get_next_page(pool: &PgPool, course_parts_id: Uuid) -> Result<NextP
     let next_page_data = sqlx::query_as!(
         NextPage,
         "
-select p.url_path as path,
-  p.title as name,
-  cp.part_number as part
+select p.url_path,
+  p.title,
+  cp.part_number
 from pages p
   left join course_parts cp on p.id = cp.page_id
 where cp.part_number = (

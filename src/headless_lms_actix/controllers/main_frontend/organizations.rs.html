@@ -74,12 +74,8 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/organizations`.</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
-
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers</span>::<span class="ident">ApplicationResult</span>,
     <span class="ident">models</span>::{<span class="ident">courses</span>::<span class="ident">Course</span>, <span class="ident">organizations</span>::<span class="ident">Organization</span>},
@@ -130,12 +126,12 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
 ```
  */</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_courses</span>(
-    <span class="ident">params</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">request_organization_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">Uuid</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">into_inner</span>())<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span>
-        <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">courses</span>::<span class="ident">organization_courses</span>(<span class="ident">pool</span>.<span class="ident">get_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">organization_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">courses</span>::<span class="ident">organization_courses</span>(<span class="ident">pool</span>.<span class="ident">get_ref</span>(), <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">request_organization_id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">courses</span>))
 }
 

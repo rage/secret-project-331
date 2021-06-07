@@ -6,9 +6,9 @@ interface DatabaseItem {
 
 /**
  * DELETE Response
- * `${API_URL}/api/v0/cms/pages/${page_id}`
+ * `${API_URL}/api/v0/main-frontend/pages/${page_id}`
  * GET
- * `${API_URL}/api/v0/cms/courses/${course_id}/pages
+ * `${API_URL}/api/v0/main-frontend/courses/${course_id}/pages
  */
 export interface Page extends DatabaseItem {
   course_id: string
@@ -21,7 +21,7 @@ export interface Page extends DatabaseItem {
 
 /**
  * GET, PUT Response, POST Response
- * `${API_URL}/api/v0/cms/pages/${page_id}`
+ * `${API_URL}/api/v0/main-frontend/pages/${page_id}`
  */
 export interface PageWithExercises extends DatabaseItem, Page {
   exercises: Array<ExerciseWithExerciseItems>
@@ -47,7 +47,7 @@ export interface ExerciseItem extends DatabaseItem {
 
 /**
  * PUT
- * `${API_URL}/api/v0/cms/pages/${page_id}`
+ * `${API_URL}/api/v0/main-frontend/pages/${page_id}`
  */
 export interface PageUpdate {
   page_id?: string
@@ -72,7 +72,7 @@ export interface PageUpdateExerciseItem {
 
 /**
  * POST
- * `${API_URL}/api/v0/cms/pages/${page_id}`
+ * `${API_URL}/api/v0/main-frontend/pages/${page_id}`
  */
 export interface NewPage {
   content: unknown[]
@@ -86,7 +86,7 @@ export interface NewPage {
 
 /**
  * GET
- * `${API_URL}/api/v0/cms/organizations
+ * `${API_URL}/api/v0/main-frontend/organizations
  */
 export interface Organization extends DatabaseItem {
   name: string
@@ -95,7 +95,7 @@ export interface Organization extends DatabaseItem {
 
 /**
  * GET
- * `${API_URL}/api/v0/cms/courses
+ * `${API_URL}/api/v0/main-frontend/courses
  */
 export interface Course extends DatabaseItem {
   name: string
@@ -106,7 +106,7 @@ export interface Course extends DatabaseItem {
 
 /**
  * POST
- * `${API_URL}/api/v0/cms/courses
+ * `${API_URL}/api/v0/main-frontend/courses
  */
 export interface NewCourse {
   name: string
@@ -115,8 +115,16 @@ export interface NewCourse {
 }
 
 /**
+ * POST
+ * `${API_URL}/api/v0/main-frontend/courses/:course_id
+ */
+export interface CourseUpdate {
+  name: string
+}
+
+/**
  * GET
- * `${API_URL}/api/v0/cms/courses/:course_id/structure
+ * `${API_URL}/api/v0/main-frontend/courses/:course_id/structure
  */
 export interface CourseOverview {
   course: Course
@@ -133,7 +141,7 @@ export interface CoursePart extends DatabaseItem {
 }
 
 /**
- * POST /api/v0/cms/course-parts
+ * POST /api/v0/main-frontend/course-parts
  */
 export interface NewCoursePart {
   name: string

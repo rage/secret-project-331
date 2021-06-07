@@ -40,10 +40,10 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
       "url_path": "/",
       "title": "Welcome to Introduction to Everything",
       "deleted_at": null,
-      "course_part_id": "d332f3d9-39a5-4a18-80f4-251727693c37"
+      "chapter_id": "d332f3d9-39a5-4a18-80f4-251727693c37"
     }
   ],
-  "course_parts": [
+  "chapters": [
     {
       "id": "d332f3d9-39a5-4a18-80f4-251727693c37",
       "created_at": "2021-04-28T16:11:47.477850",

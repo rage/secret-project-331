@@ -150,7 +150,7 @@ Content-Type: application/json
 
 ####
 
-GET http://project-331.local/api/v0/course-material/course-parts/b25f849a-5b7b-4718-b0d7-88f435e2393d/pages
+GET http://project-331.local/api/v0/course-material/chapters/b25f849a-5b7b-4718-b0d7-88f435e2393d/pages
 
 
 ####
@@ -163,4 +163,4 @@ http://project-331.local/api/v0/cms/courses
 
 ####
 
-GET http://project-331.local/api/v0/course-material/course-parts/b25f849a-5b7b-4718-b0d7-88f435e2393d/exercises
+GET http://project-331.local/api/v0/course-material/chapters/b25f849a-5b7b-4718-b0d7-88f435e2393d/exercises

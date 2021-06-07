@@ -1,4 +1,4 @@
-//! Controllers for requests starting with `/api/v0/course_material/course-parts`.
+//! Controllers for requests starting with `/api/v0/course_material/chapters`.
 use std::str::FromStr;
 
 use crate::controllers::ApplicationResult;
@@ -10,7 +10,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
-GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a list of pages in course part.
+GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in course part.
 # Example
 ```json
 [
@@ -19,7 +19,7 @@ GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a lis
     "created_at": "2021-05-25T06:35:52.881313",
     "updated_at": "2021-05-25T06:35:52.881313",
     "course_id": "8f605161-125b-449b-a443-c62ffc1b077f",
-    "course_part_id": "b25f849a-5b7b-4718-b0d7-88f435e2393d",
+    "chapter_id": "b25f849a-5b7b-4718-b0d7-88f435e2393d",
     "url_path": "/part-1",
     "title": "123",
     "deleted": false,
@@ -49,7 +49,7 @@ GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a lis
     "created_at": "2021-05-25T06:35:56.819750",
     "updated_at": "2021-05-25T06:35:56.819750",
     "course_id": "8f605161-125b-449b-a443-c62ffc1b077f",
-    "course_part_id": "b25f849a-5b7b-4718-b0d7-88f435e2393d",
+    "chapter_id": "b25f849a-5b7b-4718-b0d7-88f435e2393d",
     "url_path": "/part-1/asdasdasd",
     "title": "asdasdasd",
     "deleted": false,
@@ -58,19 +58,19 @@ GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a lis
 ]
 ```
 */
-async fn get_course_parts_pages(
-    request_course_part_id: web::Path<String>,
+async fn get_chapters_pages(
+    request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Page>>> {
-    let course_part_id = Uuid::from_str(&request_course_part_id)?;
+    let chapter_id = Uuid::from_str(&request_chapter_id)?;
 
-    let course_part_pages: Vec<Page> =
-        crate::models::pages::course_part_pages(pool.get_ref(), course_part_id).await?;
-    Ok(Json(course_part_pages))
+    let chapter_pages: Vec<Page> =
+        crate::models::pages::chapter_pages(pool.get_ref(), chapter_id).await?;
+    Ok(Json(chapter_pages))
 }
 
 /**
-GET `/api/v0/course-material/course-parts/:course_part_id/exercises` - Returns a list of pages and its exercises in course part.
+GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in course part.
 # Example
 ```json
 [
@@ -79,7 +79,7 @@ GET `/api/v0/course-material/course-parts/:course_part_id/exercises` - Returns a
     "created_at": "2021-05-31T08:42:22.116641",
     "updated_at": "2021-05-31T08:42:41.652250",
     "course_id": "8f605161-125b-449b-a443-c62ffc1b077f",
-    "course_part_id": "b25f849a-5b7b-4718-b0d7-88f435e2393d",
+    "chapter_id": "b25f849a-5b7b-4718-b0d7-88f435e2393d",
     "content": [
       {
         "name": "core/paragraph",
@@ -121,16 +121,15 @@ GET `/api/v0/course-material/course-parts/:course_part_id/exercises` - Returns a
 ]
 ```
 */
-async fn get_course_parts_exercises(
-    request_course_part_id: web::Path<String>,
+async fn get_chapters_exercises(
+    request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<PageWithExercises>>> {
-    let course_part_id = Uuid::from_str(&request_course_part_id)?;
+    let chapter_id = Uuid::from_str(&request_chapter_id)?;
 
-    let course_part_pages_with_exercises =
-        crate::models::pages::get_course_parts_pages_with_exercises(pool.get_ref(), course_part_id)
-            .await?;
-    Ok(Json(course_part_pages_with_exercises))
+    let chapter_pages_with_exercises =
+        crate::models::pages::get_chapters_pages_with_exercises(pool.get_ref(), chapter_id).await?;
+    Ok(Json(chapter_pages_with_exercises))
 }
 
 /**
@@ -140,13 +139,10 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_course_parts_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/{course_part_id}/pages",
-        web::get().to(get_course_parts_pages),
-    )
-    .route(
-        "/{course_part_id}/exercises",
-        web::get().to(get_course_parts_exercises),
-    );
+pub fn _add_chapters_routes(cfg: &mut ServiceConfig) {
+    cfg.route("/{chapter_id}/pages", web::get().to(get_chapters_pages))
+        .route(
+            "/{chapter_id}/exercises",
+            web::get().to(get_chapters_exercises),
+        );
 }

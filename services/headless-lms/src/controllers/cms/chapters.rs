@@ -1,9 +1,9 @@
-//! Controllers for requests starting with `/api/v0/cms/course_parts`.
+//! Controllers for requests starting with `/api/v0/cms/chapters`.
 use std::str::FromStr;
 
 use crate::{
     controllers::ApplicationResult,
-    models::course_parts::{CoursePart, CoursePartUpdate, NewCoursePart},
+    models::chapters::{Chapter, ChapterUpdate, NewChapter},
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -11,12 +11,12 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
-POST `/api/v0/cms/course-parts` - Create a new course part.
+POST `/api/v0/cms/chapters` - Create a new course part.
 # Example
 
 Request:
 ```http
-POST /api/v0/cms/course-parts HTTP/1.1
+POST /api/v0/cms/chapters HTTP/1.1
 Content-Type: application/json
 
 {
@@ -41,17 +41,17 @@ Response:
 }
 ```
 */
-async fn post_new_course_part(
+async fn post_new_chapter(
     pool: web::Data<PgPool>,
-    payload: web::Json<NewCoursePart>,
-) -> ApplicationResult<Json<CoursePart>> {
+    payload: web::Json<NewChapter>,
+) -> ApplicationResult<Json<Chapter>> {
     let new_course = payload.0;
-    let course_part = crate::models::course_parts::insert_course_part(&pool, new_course).await?;
-    Ok(Json(course_part))
+    let chapter = crate::models::chapters::insert_chapter(&pool, new_course).await?;
+    Ok(Json(chapter))
 }
 
 /**
-DELETE `/api/v0/cms/courses-parts/:course_part_id` - Delete a course part.
+DELETE `/api/v0/cms/courses-parts/:chapter_id` - Delete a course part.
 # Example
 
 ```json
@@ -67,24 +67,23 @@ DELETE `/api/v0/cms/courses-parts/:course_part_id` - Delete a course part.
 }
 ```
 */
-async fn delete_course_part(
-    request_course_part_id: web::Path<String>,
+async fn delete_chapter(
+    request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<CoursePart>> {
-    let course_id = Uuid::from_str(&request_course_part_id)?;
+) -> ApplicationResult<Json<Chapter>> {
+    let course_id = Uuid::from_str(&request_chapter_id)?;
 
-    let course_part =
-        crate::models::course_parts::delete_course_part(pool.get_ref(), course_id).await?;
-    Ok(Json(course_part))
+    let chapter = crate::models::chapters::delete_chapter(pool.get_ref(), course_id).await?;
+    Ok(Json(chapter))
 }
 
 /**
-PUT `/api/v0/cms/course-parts/:course_part_id` - Update course part.
+PUT `/api/v0/cms/chapters/:chapter_id` - Update course part.
 # Example
 
 Request:
 ```http
-PUT /api/v0/cms/course-parts/d332f3d9-39a5-4a18-80f4-251727693c37  HTTP/1.1
+PUT /api/v0/cms/chapters/d332f3d9-39a5-4a18-80f4-251727693c37  HTTP/1.1
 Content-Type: application/json
 
 {
@@ -109,18 +108,17 @@ Response:
 }
 ```
 */
-async fn update_course_part(
-    payload: web::Json<CoursePartUpdate>,
-    request_course_part_id: web::Path<String>,
+async fn update_chapter(
+    payload: web::Json<ChapterUpdate>,
+    request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<CoursePart>> {
-    let course_id = Uuid::from_str(&request_course_part_id)?;
+) -> ApplicationResult<Json<Chapter>> {
+    let course_id = Uuid::from_str(&request_chapter_id)?;
 
     let course_update = payload.0;
-    let course_part =
-        crate::models::course_parts::update_course_part(pool.get_ref(), course_id, course_update)
-            .await?;
-    Ok(Json(course_part))
+    let chapter =
+        crate::models::chapters::update_chapter(pool.get_ref(), course_id, course_update).await?;
+    Ok(Json(chapter))
 }
 
 /**
@@ -130,8 +128,8 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_course_parts_routes(cfg: &mut ServiceConfig) {
-    cfg.route("", web::post().to(post_new_course_part))
-        .route("/{course_part_id}", web::delete().to(delete_course_part))
-        .route("/{course_part_id}", web::put().to(update_course_part));
+pub fn _add_chapters_routes(cfg: &mut ServiceConfig) {
+    cfg.route("", web::post().to(post_new_chapter))
+        .route("/{chapter_id}", web::delete().to(delete_chapter))
+        .route("/{chapter_id}", web::put().to(update_chapter));
 }

@@ -7,7 +7,7 @@ use uuid::Uuid;
 use super::pages::PageWithExercises;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct CoursePart {
+pub struct Chapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -19,7 +19,7 @@ pub struct CoursePart {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct CoursePartPagesWithExercises {
+pub struct ChapterPagesWithExercises {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -32,7 +32,7 @@ pub struct CoursePartPagesWithExercises {
 
 // Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct NewCoursePart {
+pub struct NewChapter {
     pub name: String,
     pub course_id: Uuid,
     pub part_number: i32,
@@ -40,30 +40,30 @@ pub struct NewCoursePart {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct CoursePartUpdate {
+pub struct ChapterUpdate {
     pub name: String,
     pub part_number: i32,
     pub page_id: Option<Uuid>,
 }
 
-pub async fn update_course_part(
+pub async fn update_chapter(
     pool: &sqlx::Pool<sqlx::Postgres>,
     course_id: Uuid,
-    course_part_update: CoursePartUpdate,
-) -> Result<CoursePart> {
+    chapter_update: ChapterUpdate,
+) -> Result<Chapter> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
-        CoursePart,
+        Chapter,
         r#"
-UPDATE course_parts
+UPDATE chapters
     SET name = $1,
     part_number = $2
 WHERE
     id = $3
     RETURNING *
     "#,
-        course_part_update.name,
-        course_part_update.part_number,
+        chapter_update.name,
+        chapter_update.part_number,
         course_id
     )
     .fetch_one(&mut connection)
@@ -71,52 +71,52 @@ WHERE
     Ok(res)
 }
 
-pub async fn course_course_parts(pool: &PgPool, course_id: Uuid) -> Result<Vec<CoursePart>> {
+pub async fn course_chapters(pool: &PgPool, course_id: Uuid) -> Result<Vec<Chapter>> {
     let mut connection = pool.acquire().await?;
-    let course_parts = sqlx::query_as!(
-        CoursePart,
-        "SELECT * FROM course_parts WHERE course_id = $1 AND deleted_at IS NULL;",
+    let chapters = sqlx::query_as!(
+        Chapter,
+        "SELECT * FROM chapters WHERE course_id = $1 AND deleted_at IS NULL;",
         course_id
     )
     .fetch_all(&mut connection)
     .await?;
-    Ok(course_parts)
+    Ok(chapters)
 }
 
-pub async fn insert_course_part(pool: &PgPool, course_part: NewCoursePart) -> Result<CoursePart> {
+pub async fn insert_chapter(pool: &PgPool, chapter: NewChapter) -> Result<Chapter> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
-        CoursePart,
+        Chapter,
         r#"
     INSERT INTO
-      course_parts(name, course_id, part_number)
+      chapters(name, course_id, part_number)
     VALUES($1, $2, $3)
     RETURNING *
             "#,
-        course_part.name,
-        course_part.course_id,
-        course_part.part_number
+        chapter.name,
+        chapter.course_id,
+        chapter.part_number
     )
     .fetch_one(&mut connection)
     .await?;
     Ok(res)
 }
 
-pub async fn delete_course_part(
+pub async fn delete_chapter(
     pool: &sqlx::Pool<sqlx::Postgres>,
-    course_part_id: Uuid,
-) -> Result<CoursePart> {
+    chapter_id: Uuid,
+) -> Result<Chapter> {
     let mut connection = pool.acquire().await?;
     let deleted = sqlx::query_as!(
-        CoursePart,
+        Chapter,
         r#"
-UPDATE course_parts
+UPDATE chapters
     SET deleted_at = now()
 WHERE
     id = $1
 RETURNING *
     "#,
-        course_part_id
+        chapter_id
     )
     .fetch_one(&mut connection)
     .await?;

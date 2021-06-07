@@ -27,5 +27,5 @@ async fn get_next_page(
 }
 
 pub fn _add_pages_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{current_page_id}/next_page", web::get().to(get_next_page));
+    cfg.route("/{current_page_id}/next-page", web::get().to(get_next_page));
 }

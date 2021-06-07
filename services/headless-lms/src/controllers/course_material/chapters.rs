@@ -1,5 +1,4 @@
 //! Controllers for requests starting with `/api/v0/course_material/chapters`.
-use std::str::FromStr;
 
 use crate::controllers::ApplicationResult;
 use crate::models::pages::Page;
@@ -59,13 +58,11 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 ```
 */
 async fn get_chapters_pages(
-    request_chapter_id: web::Path<String>,
+    request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Page>>> {
-    let chapter_id = Uuid::from_str(&request_chapter_id)?;
-
     let chapter_pages: Vec<Page> =
-        crate::models::pages::chapter_pages(pool.get_ref(), chapter_id).await?;
+        crate::models::pages::chapter_pages(pool.get_ref(), *request_chapter_id).await?;
     Ok(Json(chapter_pages))
 }
 
@@ -122,13 +119,14 @@ GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of
 ```
 */
 async fn get_chapters_exercises(
-    request_chapter_id: web::Path<String>,
+    request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<PageWithExercises>>> {
-    let chapter_id = Uuid::from_str(&request_chapter_id)?;
-
-    let chapter_pages_with_exercises =
-        crate::models::pages::get_chapters_pages_with_exercises(pool.get_ref(), chapter_id).await?;
+    let chapter_pages_with_exercises = crate::models::pages::get_chapters_pages_with_exercises(
+        pool.get_ref(),
+        *request_chapter_id,
+    )
+    .await?;
     Ok(Json(chapter_pages_with_exercises))
 }
 

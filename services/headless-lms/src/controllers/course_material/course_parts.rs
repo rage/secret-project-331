@@ -1,5 +1,4 @@
 //! Controllers for requests starting with `/api/v0/course_material/course-parts`.
-use std::str::FromStr;
 
 use crate::controllers::ApplicationResult;
 use crate::models::pages::Page;
@@ -59,13 +58,11 @@ GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a lis
 ```
 */
 async fn get_course_parts_pages(
-    request_course_part_id: web::Path<String>,
+    request_course_part_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Page>>> {
-    let course_part_id = Uuid::from_str(&request_course_part_id)?;
-
     let course_part_pages: Vec<Page> =
-        crate::models::pages::course_part_pages(pool.get_ref(), course_part_id).await?;
+        crate::models::pages::course_part_pages(pool.get_ref(), *request_course_part_id).await?;
     Ok(Json(course_part_pages))
 }
 
@@ -122,14 +119,15 @@ GET `/api/v0/course-material/course-parts/:course_part_id/exercises` - Returns a
 ```
 */
 async fn get_course_parts_exercises(
-    request_course_part_id: web::Path<String>,
+    request_course_part_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<PageWithExercises>>> {
-    let course_part_id = Uuid::from_str(&request_course_part_id)?;
-
     let course_part_pages_with_exercises =
-        crate::models::pages::get_course_parts_pages_with_exercises(pool.get_ref(), course_part_id)
-            .await?;
+        crate::models::pages::get_course_parts_pages_with_exercises(
+            pool.get_ref(),
+            *request_course_part_id,
+        )
+        .await?;
     Ok(Json(course_part_pages_with_exercises))
 }
 

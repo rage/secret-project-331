@@ -1,6 +1,4 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/organizations`.
-use std::str::FromStr;
-
 use crate::{
     controllers::ApplicationResult,
     models::{courses::Course, organizations::Organization},
@@ -51,12 +49,12 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
 ```
  */
 async fn get_organization_courses(
-    params: web::Path<String>,
+    request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Course>>> {
-    let organization_id = Uuid::from_str(&params.into_inner())?;
     let courses =
-        crate::models::courses::organization_courses(pool.get_ref(), &organization_id).await?;
+        crate::models::courses::organization_courses(pool.get_ref(), &*request_organization_id)
+            .await?;
     Ok(Json(courses))
 }
 

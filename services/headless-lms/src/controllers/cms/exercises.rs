@@ -6,7 +6,6 @@ use actix_web::web::{self, Json, ServiceConfig};
 use futures::future;
 use serde::Serialize;
 use sqlx::PgPool;
-use std::str::FromStr;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -42,15 +41,13 @@ GET `/api/v0/cms/exercises/:exercise_id/submissions` - Returns an exercise's sub
  */
 async fn get_exercise_submissions(
     pool: web::Data<PgPool>,
-    exercise_id: web::Path<String>,
+    request_exercise_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
 ) -> ApplicationResult<Json<ExerciseSubmissions>> {
-    let exercise_id = Uuid::from_str(&exercise_id)?;
-
     let submission_count =
-        crate::models::submissions::exercise_submission_count(&pool, &exercise_id);
+        crate::models::submissions::exercise_submission_count(&pool, &*request_exercise_id);
     let submissions =
-        crate::models::submissions::exercise_submissions(&pool, &exercise_id, &pagination);
+        crate::models::submissions::exercise_submissions(&pool, &*request_exercise_id, &pagination);
     let (submission_count, submissions) = future::try_join(submission_count, submissions).await?;
 
     let total_pages = pagination.total_pages(submission_count);

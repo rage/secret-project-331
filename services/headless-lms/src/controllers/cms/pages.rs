@@ -1,5 +1,4 @@
 //! Controllers for requests starting with `/api/v0/cms/pages`.
-use std::str::FromStr;
 
 use crate::{
     controllers::ApplicationResult,
@@ -38,12 +37,11 @@ Response:
 */
 
 async fn get_page(
-    request_page_id: web::Path<String>,
+    request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
-    let page_id = Uuid::from_str(&request_page_id)?;
-
-    let page = crate::models::pages::get_page_with_exercises(pool.get_ref(), page_id).await?;
+    let page =
+        crate::models::pages::get_page_with_exercises(pool.get_ref(), *request_page_id).await?;
     Ok(Json(page))
 }
 
@@ -152,13 +150,12 @@ Response:
 */
 async fn update_page(
     payload: web::Json<PageUpdate>,
-    request_page_id: web::Path<String>,
+    request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
-    let page_id = Uuid::from_str(&request_page_id)?;
-
     let page_update = payload.0;
-    let page = crate::models::pages::update_page(pool.get_ref(), page_id, page_update).await?;
+    let page =
+        crate::models::pages::update_page(pool.get_ref(), *request_page_id, page_update).await?;
     Ok(Json(page))
 }
 
@@ -190,13 +187,11 @@ Response:
 ```
 */
 async fn delete_page(
-    request_page_id: web::Path<String>,
+    request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
-    let page_id = Uuid::from_str(&request_page_id)?;
-
     let deleted_page =
-        crate::models::pages::delete_page_and_exercises(pool.get_ref(), page_id).await?;
+        crate::models::pages::delete_page_and_exercises(pool.get_ref(), *request_page_id).await?;
     Ok(Json(deleted_page))
 }
 

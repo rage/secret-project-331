@@ -9,7 +9,6 @@ use crate::{
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
-use std::str::FromStr;
 use uuid::Uuid;
 
 /**
@@ -80,14 +79,13 @@ Response:
 */
 async fn update_course(
     payload: web::Json<CourseUpdate>,
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Course>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-
     let course_update = payload.0;
     let course =
-        crate::models::courses::update_course(pool.get_ref(), course_id, course_update).await?;
+        crate::models::courses::update_course(pool.get_ref(), *request_course_id, course_update)
+            .await?;
     Ok(Json(course))
 }
 
@@ -108,12 +106,10 @@ DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 ```
 */
 async fn delete_course(
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Course>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-
-    let course = crate::models::courses::delete_course(pool.get_ref(), course_id).await?;
+    let course = crate::models::courses::delete_course(pool.get_ref(), *request_course_id).await?;
     Ok(Json(course))
 }
 
@@ -136,10 +132,9 @@ GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submis
 */
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<Vec<SubmissionCount>>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
     let res =
         crate::models::submissions::get_course_daily_submission_counts(pool.get_ref(), &course)
             .await?;
@@ -167,10 +162,9 @@ GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns
 */
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<Vec<SubmissionCountByWeekAndHour>>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
     let res = crate::models::submissions::get_course_submission_counts_by_weekday_and_hour(
         pool.get_ref(),
         &course,
@@ -194,10 +188,9 @@ GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns 
 */
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<Vec<SubmissionCountByExercise>>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
     let res = crate::models::submissions::get_course_submission_counts_by_exercise(
         pool.get_ref(),
         &course,

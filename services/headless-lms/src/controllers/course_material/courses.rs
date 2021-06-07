@@ -4,7 +4,6 @@ use crate::{controllers::ApplicationResult, models::pages::Page};
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
-use std::str::FromStr;
 use uuid::Uuid;
 
 /**
@@ -66,12 +65,11 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 ```
 */
 async fn get_course_pages(
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Page>>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-
-    let pages: Vec<Page> = crate::models::pages::course_pages(pool.get_ref(), course_id).await?;
+    let pages: Vec<Page> =
+        crate::models::pages::course_pages(pool.get_ref(), *request_course_id).await?;
     Ok(Json(pages))
 }
 
@@ -94,13 +92,12 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
 ```
 */
 async fn get_course_parts(
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<CoursePart>>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-
     let course_parts: Vec<CoursePart> =
-        crate::models::course_parts::course_course_parts(pool.get_ref(), course_id).await?;
+        crate::models::course_parts::course_course_parts(pool.get_ref(), *request_course_id)
+            .await?;
     Ok(Json(course_parts))
 }
 

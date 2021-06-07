@@ -1,5 +1,4 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
-use std::str::FromStr;
 
 use crate::{controllers::ApplicationResult, models::exercises::CourseMaterialExercise};
 use actix_web::web::ServiceConfig;
@@ -49,11 +48,13 @@ expose the correct answers to the user.
  */
 async fn get_exercise(
     pool: web::Data<PgPool>,
-    request_exercise_id: web::Path<String>,
+    request_exercise_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<CourseMaterialExercise>> {
-    let exercise_id = Uuid::from_str(&request_exercise_id)?;
-    let exercise =
-        crate::models::exercises::get_course_material_exercise(pool.get_ref(), exercise_id).await?;
+    let exercise = crate::models::exercises::get_course_material_exercise(
+        pool.get_ref(),
+        *request_exercise_id,
+    )
+    .await?;
     Ok(Json(exercise))
 }
 

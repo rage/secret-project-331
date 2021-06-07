@@ -1,5 +1,4 @@
 //! Controllers for requests starting with `/api/v0/cms/course_parts`.
-use std::str::FromStr;
 
 use crate::{
     controllers::ApplicationResult,
@@ -36,7 +35,7 @@ Response:
   "name": "The Basics",
   "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
   "deleted_at": null,
-  "part_number": 1,
+  "part_number": 2,
   "page_id": null
 }
 ```
@@ -68,13 +67,12 @@ DELETE `/api/v0/cms/courses-parts/:course_part_id` - Delete a course part.
 ```
 */
 async fn delete_course_part(
-    request_course_part_id: web::Path<String>,
+    request_course_part_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<CoursePart>> {
-    let course_id = Uuid::from_str(&request_course_part_id)?;
-
     let course_part =
-        crate::models::course_parts::delete_course_part(pool.get_ref(), course_id).await?;
+        crate::models::course_parts::delete_course_part(pool.get_ref(), *request_course_part_id)
+            .await?;
     Ok(Json(course_part))
 }
 
@@ -111,15 +109,16 @@ Response:
 */
 async fn update_course_part(
     payload: web::Json<CoursePartUpdate>,
-    request_course_part_id: web::Path<String>,
+    request_course_part_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<CoursePart>> {
-    let course_id = Uuid::from_str(&request_course_part_id)?;
-
     let course_update = payload.0;
-    let course_part =
-        crate::models::course_parts::update_course_part(pool.get_ref(), course_id, course_update)
-            .await?;
+    let course_part = crate::models::course_parts::update_course_part(
+        pool.get_ref(),
+        *request_course_part_id,
+        course_update,
+    )
+    .await?;
     Ok(Json(course_part))
 }
 

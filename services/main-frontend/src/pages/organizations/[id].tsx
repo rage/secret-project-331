@@ -1,5 +1,4 @@
 import { useQuery } from "react-query"
-import basePath from "../../utils/base-path"
 import Link from "next/link"
 import Layout from "../../components/Layout"
 import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
@@ -38,8 +37,18 @@ const Organization: React.FC<unknown> = () => {
       >
         {data.map((course) => (
           <div key={course.id}>
-            <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
-            <a href={`/cms/courses/${course.id}/overview`}>Edit</a>{" "}
+            <Link href={`/courses/${course.slug}`}>{course.name}</Link>{" "}
+            <Link href={`/cms/courses/${course.id}/overview`}>Edit</Link>{" "}
+            <Link
+              href={{
+                pathname: "/manage/courses/[id]",
+                query: {
+                  id: course.id,
+                },
+              }}
+            >
+              Manage
+            </Link>{" "}
             <Link
               href={{
                 pathname: "/manage/courses/[id]/stats",

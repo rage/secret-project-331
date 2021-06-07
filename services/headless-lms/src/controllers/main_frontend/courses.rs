@@ -13,6 +13,31 @@ use std::str::FromStr;
 use uuid::Uuid;
 
 /**
+GET `/api/v0/main-frontend/courses/:course_id` - Get course.
+# Example
+
+Response:
+```json
+{
+  "id": "ab4541d8-6db4-4561-bdb2-45f35b2544a1",
+  "slug": "introduction-to-introduction",
+  "created_at": "2021-04-21T18:34:21.795388",
+  "updated_at": "2021-04-21T18:49:21.398638",
+  "name": "Introduction to Introduction",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "deleted_at": null
+}
+```
+*/
+async fn get_course(
+    request_course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ApplicationResult<Json<Course>> {
+    let course = crate::models::courses::get_course(&pool, *request_course_id).await?;
+    Ok(Json(course))
+}
+
+/**
 POST `/api/v0/main-frontend/courses` - Create a new course.
 # Example
 
@@ -214,7 +239,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
-    cfg.route("", web::post().to(post_new_course))
+    cfg.route("/{course_id}", web::get().to(get_course))
+        .route("", web::post().to(post_new_course))
         .route("/{course_id}", web::put().to(update_course))
         .route("/{course_id}", web::delete().to(delete_course))
         .route(

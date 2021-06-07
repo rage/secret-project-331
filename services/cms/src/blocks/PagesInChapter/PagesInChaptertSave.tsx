@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const CoursePartProgressSave: React.FC = () => {
+const PagesInChapterSave: React.FC = () => {
   return (
     <div>
       <InnerBlocks.Content />
@@ -8,4 +8,4 @@ const CoursePartProgressSave: React.FC = () => {
   )
 }
 
-export default CoursePartProgressSave
+export default PagesInChapterSave

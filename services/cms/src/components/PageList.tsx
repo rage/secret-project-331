@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import Link from "next/link"
 import { Button, Dialog } from "@material-ui/core"
 import NewPageForm from "./forms/NewPageForm"
-import { CoursePart, Page } from "../services/services.types"
+import { Chapter, Page } from "../services/services.types"
 import { deletePage } from "../services/backend/pages"
 import { css } from "@emotion/css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -24,10 +24,10 @@ interface Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refetch: () => any
   courseId: string
-  coursePart?: CoursePart
+  chapter?: Chapter
 }
 
-const PageList: React.FC<Props> = ({ data, refetch, courseId, coursePart }) => {
+const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
   const [showNewPageForm, setShowNewPageForm] = useState(false)
   const handleCreateTopLevelPage = () => {
     setShowNewPageForm(!showNewPageForm)
@@ -82,10 +82,10 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, coursePart }) => {
         >
           <Button onClick={() => setShowNewPageForm(!showNewPageForm)}>Close</Button>
           <NewPageForm
-            coursePartId={coursePart?.id}
+            chapterId={chapter?.id}
             courseId={courseId}
             onSubmitForm={handleCreateTopLevelPage}
-            prefix={coursePart && `/part-${coursePart.part_number}/`}
+            prefix={chapter && `/chapter-${chapter.chapter_number}/`}
           />
         </div>
       </Dialog>

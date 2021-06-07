@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Button, TextField } from "@material-ui/core"
 import React, { useState } from "react"
-import { postNewCoursePart } from "../../services/backend/courses"
+import { postNewChapter } from "../../services/backend/courses"
 
 const StyledTextField = styled(TextField)`
   margin: 0.3rem;
@@ -18,19 +18,19 @@ const FieldContainer = styled.div`
 interface NewPartFormProps {
   courseId: string
   onSubmitForm: () => void
-  partNumber: number
+  chapterNumber: number
 }
 
-const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm, partNumber }) => {
-  const [part, setPart] = useState<number | undefined>(partNumber)
+const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm, chapterNumber }) => {
+  const [chapter, setChapter] = useState<number | undefined>(chapterNumber)
   const [name, setName] = useState<string>("")
 
-  const createNewCoursePart = async () => {
-    if (part !== undefined) {
-      await postNewCoursePart({
+  const createNewChapter = async () => {
+    if (chapter !== undefined) {
+      await postNewChapter({
         course_id: courseId,
         name: name,
-        part_number: part,
+        chapter_number: chapter,
         page_id: null,
       })
       onSubmitForm()
@@ -62,18 +62,18 @@ const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm, partN
             required
             id="outlined-required"
             fullWidth
-            label="Part number"
+            label="Chapter number"
             variant="outlined"
             type="number"
-            value={part}
+            value={chapter}
             onChange={(e) => {
-              setPart(Number(e.target.value))
+              setChapter(Number(e.target.value))
             }}
           />
         </FieldContainer>
       </div>
       <div>
-        <StyledButton onClick={createNewCoursePart}>Create part</StyledButton>
+        <StyledButton onClick={createNewChapter}>Create chapter</StyledButton>
       </div>
     </div>
   )

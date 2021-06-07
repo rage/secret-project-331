@@ -1,5 +1,5 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
-use crate::models::course_parts::CoursePart;
+use crate::models::chapters::Chapter;
 use crate::{controllers::ApplicationResult, models::pages::Page};
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -23,7 +23,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
   "url_path": "/part-2/hello-world",
   "title": "Hello world!",
   "deleted_at": null,
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 */
@@ -85,20 +85,19 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
     "name": "The Basics",
     "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
     "deleted_at": null,
-    "part_number": 1,
-    "page_id": null
+    "chapter_number": 1,
+    "front_page_id": null
   }
 ]
 ```
 */
-async fn get_course_parts(
+async fn get_chapters(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<CoursePart>>> {
-    let course_parts: Vec<CoursePart> =
-        crate::models::course_parts::course_course_parts(pool.get_ref(), *request_course_id)
-            .await?;
-    Ok(Json(course_parts))
+) -> ApplicationResult<Json<Vec<Chapter>>> {
+    let chapters: Vec<Chapter> =
+        crate::models::chapters::course_chapters(pool.get_ref(), *request_course_id).await?;
+    Ok(Json(chapters))
 }
 
 /**
@@ -114,5 +113,5 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_course_page_by_path),
     )
     .route("/{course_id}/pages", web::get().to(get_course_pages))
-    .route("/{course_id}/parts", web::get().to(get_course_parts));
+    .route("/{course_id}/parts", web::get().to(get_chapters));
 }

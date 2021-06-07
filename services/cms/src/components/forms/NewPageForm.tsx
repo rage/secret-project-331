@@ -17,14 +17,14 @@ const FieldContainer = styled.div`
 interface NewPageFormProps {
   courseId: string
   onSubmitForm: () => void
-  coursePartId?: string
+  chapterId?: string
   prefix?: string
 }
 
 const NewPageForm: React.FC<NewPageFormProps> = ({
   courseId,
   onSubmitForm,
-  coursePartId,
+  chapterId,
   prefix = "/",
 }) => {
   const [path, setPath] = useState("")
@@ -36,7 +36,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
       content: [],
       url_path: `${prefix}${path}`,
       title,
-      course_part_id: coursePartId,
+      chapter_id: chapterId,
     })
     onSubmitForm()
   }

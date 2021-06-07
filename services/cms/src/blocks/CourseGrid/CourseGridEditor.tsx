@@ -8,7 +8,7 @@ const ALLOWED_NESTED_BLOCKS = [""]
 const CourseGridEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
   return (
     <BlockPlaceholderWrapper id={clientId}>
-      <h3>Course Parts Grid Placeholder</h3>
+      <h3>Chapters Grid Placeholder</h3>
       <p>
         This block is placed on the course material front page for navigating to different parts
         easily.

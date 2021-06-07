@@ -3,8 +3,8 @@ import CourseGridEditor from "./CourseGridEditor"
 import CourseGridSave from "./CourseGridSave"
 
 const CourseGridConfiguration: BlockConfiguration = {
-  title: "Course Parts Grid",
-  description: "Course Parts Grid.",
+  title: "Chapters Grid",
+  description: "Chapters Grid.",
   category: "design",
   attributes: {},
   edit: CourseGridEditor,

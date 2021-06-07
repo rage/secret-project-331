@@ -5,7 +5,7 @@ use sqlx::{Acquire, PgPool};
 use uuid::Uuid;
 
 use super::{
-    course_parts::{course_course_parts, CoursePart},
+    chapters::{course_chapters, Chapter},
     pages::{course_pages, Page},
 };
 
@@ -24,7 +24,7 @@ pub struct Course {
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
-    pub course_parts: Vec<CoursePart>,
+    pub chapters: Vec<Chapter>,
 }
 
 pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
@@ -48,11 +48,11 @@ pub async fn get_course(pool: &PgPool, course_id: Uuid) -> Result<Course> {
 pub async fn get_course_structure(pool: &PgPool, course_id: Uuid) -> Result<CourseStructure> {
     let course = get_course(pool, course_id).await?;
     let pages = course_pages(pool, course_id).await?;
-    let course_parts = course_course_parts(pool, course_id).await?;
+    let chapters = course_chapters(pool, course_id).await?;
     Ok(CourseStructure {
         course,
         pages,
-        course_parts,
+        chapters,
     })
 }
 

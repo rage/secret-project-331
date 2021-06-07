@@ -245,7 +245,7 @@ Response:
   &quot;url_path&quot;: &quot;/part-1/hello-world&quot;,
   &quot;title&quot;: &quot;Hello world!&quot;,
   &quot;deleted_at&quot;: null,
-  &quot;course_part_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
+  &quot;chapter_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
 }
 ```
 */</span>
@@ -264,7 +264,7 @@ POST `/api/v0/cms/pages` - Create a new page.
 
 Please note that this endpoint will change all the exercise and exercise item ids you&#39;ve created. Make sure the use the updated ids from the response object.
 
-If optional property front_page_of_course_part_id is set, this page will become the front page of the specified course part.
+If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
 # Example:
 
@@ -283,7 +283,7 @@ Content-Type: application/json
   &quot;url_path&quot;: &quot;/part-2/best-page&quot;,
   &quot;title&quot;: &quot;Hello world!&quot;,
   &quot;course_id&quot;: &quot;10363c5b-82b4-4121-8ef1-bae8fb42a5ce&quot;,
-  &quot;course_part_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
+  &quot;chapter_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
 }
 ```
 
@@ -303,8 +303,8 @@ Response:
   &quot;url_path&quot;: &quot;/part-2/best-page&quot;,
   &quot;title&quot;: &quot;Hello world!&quot;,
   &quot;deleted_at&quot;: null,
-  &quot;course_part_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;,
-  &quot;front_page_of_course_part_id&quot;: null
+  &quot;chapter_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;,
+  &quot;front_page_of_chapter_id&quot;: null
 }
 ```
 
@@ -323,7 +323,7 @@ PUT `/api/v0/cms/pages/:page_id` - Update a page by id.
 
 Please note that this endpoint will change all the exercise and exercise item ids you&#39;ve created. Make sure the use the updated ids from the response object.
 
-If optional property front_page_of_course_part_id is set, this page will become the front page of the specified course part.
+If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
 # Example:
 
@@ -337,7 +337,7 @@ Content-Type: application/json
   &quot;content&quot;: [{&quot;type&quot;: &quot;x&quot;}],
   &quot;url_path&quot;: &quot;/part-1/hello-world&quot;,
   &quot;title&quot;: &quot;Hello world!&quot;,
-  &quot;course_part_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
+  &quot;chapter_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
 }
 ```
 
@@ -357,8 +357,8 @@ Response:
   &quot;url_path&quot;: &quot;/part-1/hello-world&quot;,
   &quot;title&quot;: &quot;Hello world!&quot;,
   &quot;deleted_at&quot;: null,
-  &quot;course_part_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;,
-  &quot;front_page_of_course_part_id&quot;: null
+  &quot;chapter_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;,
+  &quot;front_page_of_chapter_id&quot;: null
 }
 ```
 */</span>
@@ -396,7 +396,7 @@ Response:
   &quot;url_path&quot;: &quot;/part-1/hello-world&quot;,
   &quot;title&quot;: &quot;Hello world!&quot;,
   &quot;deleted_at&quot;: &quot;2021-04-28T16:33:42.670935&quot;,
-  &quot;course_part_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
+  &quot;chapter_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
 }
 ```
 */</span>

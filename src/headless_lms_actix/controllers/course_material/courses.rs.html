@@ -118,10 +118,9 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
-<span id="118">118</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">course_parts</span>::<span class="ident">CoursePart</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">chapters</span>::<span class="ident">Chapter</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers</span>::<span class="ident">ApplicationResult</span>, <span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">Page</span>};
 <span class="kw">use</span> <span class="ident">actix_web</span>::<span class="ident">web</span>::<span class="ident">ServiceConfig</span>;
 <span class="kw">use</span> <span class="ident">actix_web</span>::<span class="ident">web</span>::{<span class="self">self</span>, <span class="ident">Json</span>};
@@ -145,7 +144,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
   &quot;url_path&quot;: &quot;/part-2/hello-world&quot;,
   &quot;title&quot;: &quot;Hello world!&quot;,
   &quot;deleted_at&quot;: null,
-  &quot;course_part_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
+  &quot;chapter_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
 }
 ```
 */</span>
@@ -207,20 +206,19 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
     &quot;name&quot;: &quot;The Basics&quot;,
     &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
     &quot;deleted_at&quot;: null,
-    &quot;part_number&quot;: 1,
-    &quot;page_id&quot;: null
+    &quot;chapter_number&quot;: 1,
+    &quot;front_page_id&quot;: null
   }
 ]
 ```
 */</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_parts</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CoursePart</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CoursePart</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">course_parts</span>::<span class="ident">course_course_parts</span>(<span class="ident">pool</span>.<span class="ident">get_ref</span>(), <span class="kw-2">*</span><span class="ident">request_course_id</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">course_parts</span>))
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">chapters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">chapters</span>::<span class="ident">course_chapters</span>(<span class="ident">pool</span>.<span class="ident">get_ref</span>(), <span class="kw-2">*</span><span class="ident">request_course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">chapters</span>))
 }
 
 <span class="doccomment">/**
@@ -236,7 +234,7 @@ We add the routes by calling the route method instead of using the route annotat
         <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_course_page_by_path</span>),
     )
     .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/pages&quot;</span>, <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_course_pages</span>))
-    .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/parts&quot;</span>, <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_course_parts</span>));
+    .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/parts&quot;</span>, <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_chapters</span>));
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-js="../../../../search-index.js"></div>

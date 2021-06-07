@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["course_chapters",""],["delete_chapter",""],["insert_chapter",""],["update_chapter",""]],"struct":[["Chapter",""],["ChapterPagesWithExercises",""],["ChapterUpdate",""],["NewChapter",""]]});

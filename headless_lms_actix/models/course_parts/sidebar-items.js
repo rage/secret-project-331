@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["course_course_parts",""],["delete_course_part",""],["insert_course_part",""],["update_course_part",""]],"struct":[["CoursePart",""],["CoursePartPagesWithExercises",""],["CoursePartUpdate",""],["NewCoursePart",""]]});

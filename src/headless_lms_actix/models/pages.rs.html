@@ -626,7 +626,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">models</span>::<span class="ident">course_parts</span>::<span class="ident">CoursePart</span>,
+    <span class="ident">models</span>::<span class="ident">chapters</span>::<span class="ident">Chapter</span>,
     <span class="ident">models</span>::<span class="ident">exercise_items</span>::<span class="ident">ExerciseItem</span>,
     <span class="ident">utils</span>::<span class="ident">document_schema_processor</span>::{<span class="ident">denormalize</span>, <span class="ident">normalize_from_json</span>, <span class="ident">NormalizedDocument</span>},
 };
@@ -643,7 +643,7 @@
     <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="ident">title</span>: <span class="ident">String</span>,
     <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -656,7 +656,7 @@
     <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
     <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="ident">title</span>: <span class="ident">String</span>,
@@ -671,9 +671,9 @@
     <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="ident">title</span>: <span class="ident">String</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="doccomment">/// If set, set this page to be the front page of this course part.</span>
-    <span class="ident">front_page_of_course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="comment">// Represents the subset of page fields that the user is allowed to modify.</span>
@@ -682,9 +682,9 @@
     <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
     <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="ident">course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="doccomment">/// If set, set this page to be the front page of this course part.</span>
-    <span class="ident">front_page_of_course_part_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -762,12 +762,12 @@
     <span class="prelude-val">Ok</span>(<span class="ident">pages</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_part_pages</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>, <span class="ident">course_part_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">chapter_pages</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">pages</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">Page</span>,
-        <span class="string">&quot;SELECT * FROM pages WHERE course_part_id = $1 AND deleted_at IS NULL;&quot;</span>,
-        <span class="ident">course_part_id</span>
+        <span class="string">&quot;SELECT * FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL;&quot;</span>,
+        <span class="ident">chapter_id</span>
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -889,7 +889,7 @@ SET
     content = $2,
     url_path = $3,
     title = $4,
-    course_part_id = $5
+    chapter_id = $5
 WHERE id = $1
 RETURNING *
             &quot;#</span>,
@@ -897,7 +897,7 @@ RETURNING *
         <span class="ident">content_as_json</span>,
         <span class="ident">page_update</span>.<span class="ident">url_path</span>.<span class="ident">trim</span>(),
         <span class="ident">page_update</span>.<span class="ident">title</span>.<span class="ident">trim</span>(),
-        <span class="ident">page_update</span>.<span class="ident">course_part_id</span>
+        <span class="ident">page_update</span>.<span class="ident">chapter_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -910,14 +910,14 @@ RETURNING *
         <span class="ident">exercises</span>: <span class="ident">result_exercises</span>,
     })<span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">front_page_of_course_part_id</span>) <span class="op">=</span> <span class="ident">page_update</span>.<span class="ident">front_page_of_course_part_id</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">front_page_of_chapter_id</span>) <span class="op">=</span> <span class="ident">page_update</span>.<span class="ident">front_page_of_chapter_id</span> {
         <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
-            <span class="ident">CoursePart</span>,
+            <span class="ident">Chapter</span>,
             <span class="string">r#&quot;
-UPDATE course_parts SET page_id = $1 WHERE id = $2
+UPDATE chapters SET front_page_id = $1 WHERE id = $2
         &quot;#</span>,
             <span class="ident">page_id</span>,
-            <span class="ident">front_page_of_course_part_id</span>
+            <span class="ident">front_page_of_chapter_id</span>
         )
         <span class="comment">// this should fail if no rows returned</span>
         .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
@@ -935,7 +935,7 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2
         <span class="ident">id</span>: <span class="ident">page</span>.<span class="ident">id</span>,
         <span class="ident">title</span>: <span class="ident">page</span>.<span class="ident">title</span>,
         <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
-        <span class="ident">course_part_id</span>: <span class="ident">page</span>.<span class="ident">course_part_id</span>,
+        <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
     });
 }
 
@@ -1092,7 +1092,7 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
         <span class="ident">Page</span>,
         <span class="string">r#&quot;
   INSERT INTO
-    pages(course_id, content, url_path, title, course_part_id)
+    pages(course_id, content, url_path, title, chapter_id)
   VALUES($1, $2, $3, $4, $5)
   RETURNING *
           &quot;#</span>,
@@ -1100,7 +1100,7 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
         <span class="ident">content_as_json</span>,
         <span class="ident">new_page</span>.<span class="ident">url_path</span>.<span class="ident">trim</span>(),
         <span class="ident">new_page</span>.<span class="ident">title</span>.<span class="ident">trim</span>(),
-        <span class="ident">new_page</span>.<span class="ident">course_part_id</span>
+        <span class="ident">new_page</span>.<span class="ident">chapter_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1113,15 +1113,15 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
         <span class="ident">exercises</span>: <span class="ident">result_exercises</span>,
     })<span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">front_page_of_course_part_id</span>) <span class="op">=</span> <span class="ident">new_page</span>.<span class="ident">front_page_of_course_part_id</span> {
-        <span class="macro">dbg</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">front_page_of_course_part_id</span>);
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">front_page_of_chapter_id</span>) <span class="op">=</span> <span class="ident">new_page</span>.<span class="ident">front_page_of_chapter_id</span> {
+        <span class="macro">dbg</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">front_page_of_chapter_id</span>);
         <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
-            <span class="ident">CoursePart</span>,
+            <span class="ident">Chapter</span>,
             <span class="string">r#&quot;
-UPDATE course_parts SET page_id = $1 WHERE id = $2 RETURNING *
+UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
         &quot;#</span>,
             <span class="ident">page</span>.<span class="ident">id</span>,
-            <span class="ident">front_page_of_course_part_id</span>
+            <span class="ident">front_page_of_chapter_id</span>
         )
         <span class="comment">// this should fail if no rows returned</span>
         .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
@@ -1138,7 +1138,7 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2 RETURNING *
         <span class="ident">id</span>: <span class="ident">page</span>.<span class="ident">id</span>,
         <span class="ident">title</span>: <span class="ident">page</span>.<span class="ident">title</span>,
         <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
-        <span class="ident">course_part_id</span>: <span class="ident">page</span>.<span class="ident">course_part_id</span>,
+        <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
     });
 }
 
@@ -1184,24 +1184,24 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2 RETURNING *
     <span class="prelude-val">Ok</span>(<span class="ident">page</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_parts_pages_with_exercises</span>(
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages_with_exercises</span>(
     <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>,
-    <span class="ident">course_parts_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">chapters_id</span>: <span class="ident">Uuid</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageWithExercises</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_part_pages</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="ident">chapter_pages</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">Page</span>,
         <span class="string">r#&quot;
 SELECT *
 FROM pages
-WHERE course_part_id = $1
+WHERE chapter_id = $1
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">course_parts_id</span>
+        <span class="ident">chapters_id</span>
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page_ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">course_part_pages</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">page</span><span class="op">|</span> <span class="ident">page</span>.<span class="ident">id</span>).<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="ident">page_ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">chapter_pages</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">page</span><span class="op">|</span> <span class="ident">page</span>.<span class="ident">id</span>).<span class="ident">collect</span>();
     <span class="kw">let</span> <span class="ident">pages_exercises</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">Exercise</span>,
         <span class="string">r#&quot;
@@ -1220,7 +1220,7 @@ WHERE page_id IN (
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">page_to_exercises</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pages_exercises</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">into_group_map_by</span>(<span class="op">|</span><span class="ident">exercise</span><span class="op">|</span> <span class="ident">exercise</span>.<span class="ident">page_id</span>);
-    <span class="kw">let</span> <span class="ident">course_part_pages_with_exercises</span> <span class="op">=</span> <span class="ident">course_part_pages</span>
+    <span class="kw">let</span> <span class="ident">chapter_pages_with_exercises</span> <span class="op">=</span> <span class="ident">chapter_pages</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">page</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">page_id</span> <span class="op">=</span> <span class="ident">page</span>.<span class="ident">id</span>;
@@ -1233,7 +1233,7 @@ WHERE page_id IN (
                 <span class="ident">created_at</span>: <span class="ident">page</span>.<span class="ident">created_at</span>,
                 <span class="ident">updated_at</span>: <span class="ident">page</span>.<span class="ident">updated_at</span>,
                 <span class="ident">course_id</span>: <span class="ident">page</span>.<span class="ident">course_id</span>,
-                <span class="ident">course_part_id</span>: <span class="ident">page</span>.<span class="ident">course_part_id</span>,
+                <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
                 <span class="ident">content</span>: <span class="ident">page</span>.<span class="ident">content</span>,
                 <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
                 <span class="ident">title</span>: <span class="ident">page</span>.<span class="ident">title</span>,
@@ -1242,7 +1242,7 @@ WHERE page_id IN (
             }
         })
         .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">course_part_pages_with_exercises</span>)
+    <span class="prelude-val">Ok</span>(<span class="ident">chapter_pages_with_exercises</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-js="../../../search-index.js"></div>

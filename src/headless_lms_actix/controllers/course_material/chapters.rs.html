@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/controllers/course_material/course_parts.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>course_parts.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/controllers/course_material/chapters.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chapters.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../headless_lms_actix/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -147,12 +147,8 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="doccomment">//! Controllers for requests starting with `/api/v0/course_material/course-parts`.</span>
+<span class="doccomment">//! Controllers for requests starting with `/api/v0/course_material/chapters`.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">controllers</span>::<span class="ident">ApplicationResult</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">Page</span>;
@@ -163,7 +159,7 @@
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
 
 <span class="doccomment">/**
-GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a list of pages in course part.
+GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in course part.
 # Example
 ```json
 [
@@ -172,7 +168,7 @@ GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a lis
     &quot;created_at&quot;: &quot;2021-05-25T06:35:52.881313&quot;,
     &quot;updated_at&quot;: &quot;2021-05-25T06:35:52.881313&quot;,
     &quot;course_id&quot;: &quot;8f605161-125b-449b-a443-c62ffc1b077f&quot;,
-    &quot;course_part_id&quot;: &quot;b25f849a-5b7b-4718-b0d7-88f435e2393d&quot;,
+    &quot;chapter_id&quot;: &quot;b25f849a-5b7b-4718-b0d7-88f435e2393d&quot;,
     &quot;url_path&quot;: &quot;/part-1&quot;,
     &quot;title&quot;: &quot;123&quot;,
     &quot;deleted&quot;: false,
@@ -202,7 +198,7 @@ GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a lis
     &quot;created_at&quot;: &quot;2021-05-25T06:35:56.819750&quot;,
     &quot;updated_at&quot;: &quot;2021-05-25T06:35:56.819750&quot;,
     &quot;course_id&quot;: &quot;8f605161-125b-449b-a443-c62ffc1b077f&quot;,
-    &quot;course_part_id&quot;: &quot;b25f849a-5b7b-4718-b0d7-88f435e2393d&quot;,
+    &quot;chapter_id&quot;: &quot;b25f849a-5b7b-4718-b0d7-88f435e2393d&quot;,
     &quot;url_path&quot;: &quot;/part-1/asdasdasd&quot;,
     &quot;title&quot;: &quot;asdasdasd&quot;,
     &quot;deleted&quot;: false,
@@ -211,17 +207,17 @@ GET `/api/v0/course-material/course-parts/:course_part_id/pages` - Returns a lis
 ]
 ```
 */</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_parts_pages</span>(
-    <span class="ident">request_course_part_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages</span>(
+    <span class="ident">request_chapter_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_part_pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">course_part_pages</span>(<span class="ident">pool</span>.<span class="ident">get_ref</span>(), <span class="kw-2">*</span><span class="ident">request_course_part_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">course_part_pages</span>))
+    <span class="kw">let</span> <span class="ident">chapter_pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">chapter_pages</span>(<span class="ident">pool</span>.<span class="ident">get_ref</span>(), <span class="kw-2">*</span><span class="ident">request_chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">chapter_pages</span>))
 }
 
 <span class="doccomment">/**
-GET `/api/v0/course-material/course-parts/:course_part_id/exercises` - Returns a list of pages and its exercises in course part.
+GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in course part.
 # Example
 ```json
 [
@@ -230,7 +226,7 @@ GET `/api/v0/course-material/course-parts/:course_part_id/exercises` - Returns a
     &quot;created_at&quot;: &quot;2021-05-31T08:42:22.116641&quot;,
     &quot;updated_at&quot;: &quot;2021-05-31T08:42:41.652250&quot;,
     &quot;course_id&quot;: &quot;8f605161-125b-449b-a443-c62ffc1b077f&quot;,
-    &quot;course_part_id&quot;: &quot;b25f849a-5b7b-4718-b0d7-88f435e2393d&quot;,
+    &quot;chapter_id&quot;: &quot;b25f849a-5b7b-4718-b0d7-88f435e2393d&quot;,
     &quot;content&quot;: [
       {
         &quot;name&quot;: &quot;core/paragraph&quot;,
@@ -272,17 +268,16 @@ GET `/api/v0/course-material/course-parts/:course_part_id/exercises` - Returns a
 ]
 ```
 */</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_parts_exercises</span>(
-    <span class="ident">request_course_part_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_exercises</span>(
+    <span class="ident">request_chapter_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageWithExercises</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_part_pages_with_exercises</span> <span class="op">=</span>
-        <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">get_course_parts_pages_with_exercises</span>(
-            <span class="ident">pool</span>.<span class="ident">get_ref</span>(),
-            <span class="kw-2">*</span><span class="ident">request_course_part_id</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">course_part_pages_with_exercises</span>))
+    <span class="kw">let</span> <span class="ident">chapter_pages_with_exercises</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">get_chapters_pages_with_exercises</span>(
+        <span class="ident">pool</span>.<span class="ident">get_ref</span>(),
+        <span class="kw-2">*</span><span class="ident">request_chapter_id</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">chapter_pages_with_exercises</span>))
 }
 
 <span class="doccomment">/**
@@ -292,15 +287,12 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_course_parts_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(
-        <span class="string">&quot;/{course_part_id}/pages&quot;</span>,
-        <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_course_parts_pages</span>),
-    )
-    .<span class="ident">route</span>(
-        <span class="string">&quot;/{course_part_id}/exercises&quot;</span>,
-        <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_course_parts_exercises</span>),
-    );
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_chapters_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}/pages&quot;</span>, <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_chapters_pages</span>))
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{chapter_id}/exercises&quot;</span>,
+            <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">get_chapters_exercises</span>),
+        );
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-js="../../../../search-index.js"></div>

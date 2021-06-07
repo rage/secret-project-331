@@ -35,7 +35,7 @@ This documents all endpoints. Select a module below for a category.
 
 */</span>
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_parts</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">chapters</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">courses</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercises</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pages</span>;
@@ -43,8 +43,8 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">use</span> <span class="ident">actix_web</span>::<span class="ident">web</span>::{<span class="self">self</span>, <span class="ident">ServiceConfig</span>};
 
 <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">course_parts</span>::<span class="ident">_add_course_parts_routes</span>, <span class="ident">courses</span>::<span class="ident">_add_courses_routes</span>,
-    <span class="ident">exercises</span>::<span class="ident">_add_exercises_routes</span>, <span class="ident">pages</span>::<span class="ident">_add_pages_routes</span>,
+    <span class="ident">chapters</span>::<span class="ident">_add_chapters_routes</span>, <span class="ident">courses</span>::<span class="ident">_add_courses_routes</span>, <span class="ident">exercises</span>::<span class="ident">_add_exercises_routes</span>,
+    <span class="ident">pages</span>::<span class="ident">_add_pages_routes</span>,
 };
 
 <span class="doccomment">/// Add controllers from all the submodules.</span>
@@ -52,7 +52,7 @@ This documents all endpoints. Select a module below for a category.
     <span class="ident">cfg</span>.<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/courses&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_courses_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/exercises&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_exercises_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/pages&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_pages_routes</span>))
-        .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/course-parts&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_course_parts_routes</span>));
+        .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/chapters&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_chapters_routes</span>));
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-js="../../../../search-index.js"></div>

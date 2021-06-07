@@ -22,13 +22,13 @@ export const updateExistingPage = async ({
   content,
   url_path,
   title,
-  course_part_id,
+  chapter_id,
 }: PageUpdate): Promise<Page> => {
   const url = `/api/v0/cms/pages/${page_id}`
 
   const response = await axios.put(
     url,
-    { content, url_path, title, course_part_id },
+    { content, url_path, title, chapter_id },
     {
       headers: { "Content-Type": "application/json" },
     },

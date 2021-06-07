@@ -31,7 +31,7 @@ Response:
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
   "deleted_at": null,
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 */
@@ -50,7 +50,7 @@ POST `/api/v0/cms/pages` - Create a new page.
 
 Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
 
-If optional property front_page_of_course_part_id is set, this page will become the front page of the specified course part.
+If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
 # Example:
 
@@ -69,7 +69,7 @@ Content-Type: application/json
   "url_path": "/part-2/best-page",
   "title": "Hello world!",
   "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 
@@ -89,8 +89,8 @@ Response:
   "url_path": "/part-2/best-page",
   "title": "Hello world!",
   "deleted_at": null,
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
-  "front_page_of_course_part_id": null
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
+  "front_page_of_chapter_id": null
 }
 ```
 
@@ -109,7 +109,7 @@ PUT `/api/v0/cms/pages/:page_id` - Update a page by id.
 
 Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
 
-If optional property front_page_of_course_part_id is set, this page will become the front page of the specified course part.
+If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
 # Example:
 
@@ -123,7 +123,7 @@ Content-Type: application/json
   "content": [{"type": "x"}],
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 
@@ -143,8 +143,8 @@ Response:
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
   "deleted_at": null,
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
-  "front_page_of_course_part_id": null
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
+  "front_page_of_chapter_id": null
 }
 ```
 */
@@ -182,7 +182,7 @@ Response:
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
   "deleted_at": "2021-04-28T16:33:42.670935",
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 */

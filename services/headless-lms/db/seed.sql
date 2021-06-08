@@ -165,6 +165,6 @@ INSERT INTO roles (user_id, organization_id, course_id, role)
 VALUES (
     'd01e3b4e-e7e6-405d-9407-05dce3eb4434',
     '1b89e57e-8b57-42f2-9fed-c7a6736e3eec',
-    'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
+    '2d56db91-399a-43e7-b6d0-21c3f18d72af',
     'assistant'
   );

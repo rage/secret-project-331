@@ -46,6 +46,15 @@ pub struct ChapterUpdate {
     pub front_front_page_id: Option<Uuid>,
 }
 
+pub async fn get_course_id(pool: &PgPool, chapter_id: Uuid) -> Result<Uuid> {
+    let mut connection = pool.acquire().await?;
+    let course_id = sqlx::query!("SELECT course_id from chapters where id = $1", chapter_id)
+        .fetch_one(&mut connection)
+        .await?
+        .course_id;
+    Ok(course_id)
+}
+
 pub async fn update_chapter(
     pool: &sqlx::Pool<sqlx::Postgres>,
     course_id: Uuid,

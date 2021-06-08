@@ -45,6 +45,15 @@ pub async fn get_course(pool: &PgPool, course_id: Uuid) -> Result<Course> {
     Ok(course)
 }
 
+pub async fn get_organization_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
+    let mut connection = pool.acquire().await?;
+    let organization_id = sqlx::query!("SELECT organization_id FROM courses WHERE id = $1", id)
+        .fetch_one(&mut connection)
+        .await?
+        .organization_id;
+    Ok(organization_id)
+}
+
 pub async fn get_course_structure(pool: &PgPool, course_id: Uuid) -> Result<CourseStructure> {
     let course = get_course(pool, course_id).await?;
     let pages = course_pages(pool, course_id).await?;

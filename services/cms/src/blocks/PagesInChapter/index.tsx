@@ -1,6 +1,6 @@
 import { BlockConfiguration } from "@wordpress/blocks"
 import PagesInChapterEditor from "./PagesInChapterEditor"
-import PagesInChapterSave from "./PagesInChapterSave"
+import PagesInChapterSave from "./PagesInChaptertSave"
 
 const PagesInChapterConfiguration: BlockConfiguration = {
   title: "Pages In Chapter",

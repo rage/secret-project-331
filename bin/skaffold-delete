@@ -1,0 +1,6 @@
+#!/bin/bash
+COMMAND="skaffold"
+ARGUMENTS=(delete "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

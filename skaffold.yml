@@ -36,10 +36,9 @@ build:
     # Allow parallel builds
     concurrency: 0
 deploy:
-  kubectl:
-    manifests:
-      - kubernetes/**/*
-      - kubernetes/*
+  kustomize:
+    paths:
+      - kubernetes/dev
   kubeContext: minikube
 portForward:
   - resourceType: statefulset

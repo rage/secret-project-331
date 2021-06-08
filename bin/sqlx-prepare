@@ -1,6 +1,7 @@
 #!/bin/bash
 # Only meant to be ran against the database in minikube. You can start it with
 # either `bin/dev` or `bin/dev-only-db`.
+set -euo pipefail
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/"
@@ -13,4 +14,11 @@ COMMAND="cargo"
 ARGUMENTS=(sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev prepare "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+eval "$COMMAND" "${ARGUMENTS[@]}"
+
+# Formatting the result file so that diffs are pretty
+COMMAND2="npx"
+ARGUMENTS2=(prettier --write sqlx-data.json)
+
+echo "> $COMMAND2" "$(printf "%q " "${ARGUMENTS2[@]}")"
+eval "$COMMAND2" "${ARGUMENTS2[@]}"

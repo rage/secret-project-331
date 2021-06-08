@@ -45,3 +45,14 @@ portForward:
     resourceName: postgres
     port: 5432
     localPort: 54328
+profiles:
+  - name: only-db
+    patches:
+      - op: remove
+        path: /build/artifacts
+      - op: remove
+        path: /deploy/kustomize
+    deploy:
+      kubectl:
+        manifests:
+          - kubernetes/dev/postgres-dev.yml

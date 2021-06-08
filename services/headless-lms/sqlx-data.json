@@ -115,6 +115,26 @@
       ]
     }
   },
+  "053e5c65ad914c26871d476a7f8ef21a51c824aaa02eecf1165386f6f0540e26": {
+    "query": "\nselect min(p1.order_number) as order_number\nfrom pages p1\nwhere p1.order_number > (\n    select p.order_number\n    from pages p\n    where p.id = $1);\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        null
+      ]
+    }
+  },
   "07ff6c440bb184c682c8095f73537a51399aff014e77485afa80dcde0268607f": {
     "query": "\nUPDATE chapters SET front_page_id = $1 WHERE id = $2\n        ",
     "describe": {
@@ -551,6 +571,26 @@
         false,
         true,
         false
+      ]
+    }
+  },
+  "47e7b57d1fd0b6793feb910332f6daa2c9b51346bc1ebc96921545148bdff40c": {
+    "query": "\nselect min(c.chapter_number) as chapter_number\nfrom pages p\n  left join chapters c on p.chapter_id = c.id\nwhere c.chapter_number > (\n    select c2.chapter_number\n    from pages p\n      left join chapters c2 on p.chapter_id = c2.id\n    where p.id = $1\n  )\n  and c.course_id = (\n    select p.course_id\n    from pages p\n    where p.id = $1\n  );\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        null
       ]
     }
   },
@@ -1166,38 +1206,6 @@
       ]
     }
   },
-  "8040e96ac54744ea98fb0dc275bfca776598b301a40d8d8af58c11bc83463d71": {
-    "query": "\nselect p.url_path,\n  p.title,\n  cp.chapter_number\nfrom pages p\n  left join chapters cp on p.id = cp.front_page_id\nwhere cp.chapter_number = (\n    select chapter_number\n    from chapters\n    where chapters.front_page_id = $1\n    limit 1\n  ) + 1;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "chapter_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      },
-      "nullable": [
-        true,
-        true,
-        true
-      ]
-    }
-  },
   "80687e3c73c81c8048da59d2839fee7d0b79afe50d7289b4395cd8ec57c4c8d6": {
     "query": "SELECT * FROM pages WHERE id = $1;",
     "describe": {
@@ -1670,6 +1678,39 @@
       ]
     }
   },
+  "c002fa9d32623bbf631ef1e523aad549018bff807e0f109e2498fa6975204afa": {
+    "query": "\nselect p.url_path,\n  p.title,\n  c.chapter_number\nfrom pages p\n  left join chapters c on p.chapter_id = c.id\nwhere p.order_number = $1\n  and p.chapter_id = (\n    select p1.chapter_id\n    from pages p1\n    where p1.id = $2\n  );\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false
+      ]
+    }
+  },
   "c1908e69ccbe1ec11a22f88ec34da84b934b07915a2c659cdbf16a24d2c5f611": {
     "query": "SELECT * FROM chapters WHERE course_id = $1 AND deleted_at IS NULL;",
     "describe": {
@@ -2072,6 +2113,38 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "deaa1145dfbf36a35422c80969589a6cdc87ad303e8d1cc1014f0011e0911662": {
+    "query": "\nselect p.url_path,\n  p.title,\n  c.chapter_number\nfrom pages p\n  left join chapters c on p.chapter_id = c.id\nwhere c.chapter_number = $1\n  and p.id = c.front_page_id;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false
+      ]
     }
   },
   "eafba529f9f59d8e18f5202cf980792f7242e8e46682e4191e0dc632cf656ed9": {

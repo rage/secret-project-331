@@ -56,6 +56,22 @@ INSERT INTO pages (
     order_number
   )
 VALUES (
+    'de5590c6-97b3-40f1-b2e1-2195645da509',
+    'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
+    '[{"name": "core/snd-paragraph", "isValid": true, "clientId": "e6f023d2-eb6c-436c-996c-13982df9cfa9", "attributes": {"content": "First chapters second page.", "dropCap": false}, "innerBlocks": []}, {"name": "moocfi/snd-exercise", "isValid": true, "clientId": "9cda760e-2309-4782-bd67-57b5d1d4a791", "attributes": {"id": "4b8d6878-89dc-4224-aaa6-488a6dab5d95"}, "innerBlocks": []}]'::jsonb,
+    '/',
+    'In the second page of first chapter...',
+    2
+  );
+INSERT INTO pages (
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
+VALUES (
     'aeac9212-b1d8-4a59-b5fb-1656606e9f5c',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '[{"name": "core/snd-paragraph", "isValid": true, "clientId": "376b8be3-bd9f-493f-a85c-59dd2aaae818bad", "attributes": {"content": "Everything is a big topic.", "dropCap": false}, "innerBlocks": []}, {"name": "moocfi/snd-exercise", "isValid": true, "clientId": "06b3113c-8bef-49ed-b0b0-9ecc33375662", "attributes": {"id": "d313dc8f-c12d-4237-8730-bca936931fc9"}, "innerBlocks": []}]'::jsonb,
@@ -186,3 +202,6 @@ where id = 'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d';
 UPDATE pages
 SET chapter_id = 'e9f24363-81ca-425b-ade2-80cc33105e75'
 where id = 'aeac9212-b1d8-4a59-b5fb-1656606e9f5c';
+UPDATE pages
+SET chapter_id = 'd332f3d9-39a5-4a18-80f4-251727693c37'
+where id = 'de5590c6-97b3-40f1-b2e1-2195645da509';

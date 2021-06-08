@@ -100,9 +100,9 @@ pub struct PageExerciseItem {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NextPage {
-    url_path: Option<String>,
-    title: Option<String>,
-    chapter_number: Option<i32>,
+    url_path: String,
+    title: String,
+    chapter_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -130,6 +130,16 @@ struct ExerciseWithExerciseItems {
     page_id: Uuid,
     exercise_items: Vec<ExerciseItem>,
     score_maximum: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+struct NextPageOrderNumber {
+    order_number: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+struct NextChapterChapterNumber {
+    chapter_number: Option<i32>,
 }
 
 pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {
@@ -630,28 +640,131 @@ WHERE page_id IN (
     Ok(chapter_pages_with_exercises)
 }
 
-pub async fn get_next_page(pool: &PgPool, chapters_id: Uuid) -> Result<NextPage> {
+pub async fn get_next_page(pool: &PgPool, pages_id: Uuid) -> Result<NextPage> {
+    let next_order_number = get_next_page_order_number(pool, pages_id).await?;
+
+    let next_page_data = match next_order_number.order_number {
+        Some(order_number) => {
+            get_next_page_with_next_order_number(pool, pages_id, order_number).await?
+        }
+        None => {
+            let next_chapter_number = get_next_chapters_chapter_number(pool, pages_id).await?;
+            let next_chapters_front_page = match next_chapter_number.chapter_number {
+                Some(chapter_number) => get_next_chapters_front_page(pool, chapter_number).await?,
+                None => panic!("No more pages :("),
+            };
+            next_chapters_front_page
+        }
+    };
+
+    Ok(next_page_data)
+}
+
+async fn get_next_page_order_number(
+    pool: &PgPool,
+    current_page_id: Uuid,
+) -> Result<NextPageOrderNumber> {
     let mut connection = pool.acquire().await?;
 
-    let next_page_data = sqlx::query_as!(
-        NextPage,
+    let nex_page_order_number = sqlx::query_as!(
+        NextPageOrderNumber,
         "
-select p.url_path,
-  p.title,
-  cp.chapter_number
-from pages p
-  left join chapters cp on p.id = cp.front_page_id
-where cp.chapter_number = (
-    select chapter_number
-    from chapters
-    where chapters.front_page_id = $1
-    limit 1
-  ) + 1;
+select min(p1.order_number) as order_number
+from pages p1
+where p1.order_number > (
+    select p.order_number
+    from pages p
+    where p.id = $1);
     ",
-        chapters_id
+        current_page_id
     )
     .fetch_one(&mut connection)
     .await?;
 
-    Ok(next_page_data)
+    Ok(nex_page_order_number)
+}
+
+async fn get_next_chapters_chapter_number(
+    pool: &PgPool,
+    current_page_id: Uuid,
+) -> Result<NextChapterChapterNumber> {
+    let mut connection = pool.acquire().await?;
+
+    let next_chapter_number = sqlx::query_as!(
+        NextChapterChapterNumber,
+        "
+select min(c.chapter_number) as chapter_number
+from pages p
+  left join chapters c on p.chapter_id = c.id
+where c.chapter_number > (
+    select c2.chapter_number
+    from pages p
+      left join chapters c2 on p.chapter_id = c2.id
+    where p.id = $1
+  )
+  and c.course_id = (
+    select p.course_id
+    from pages p
+    where p.id = $1
+  );
+    ",
+        current_page_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    Ok(next_chapter_number)
+}
+
+async fn get_next_page_with_next_order_number(
+    pool: &PgPool,
+    current_page_id: Uuid,
+    next_order_number: i32,
+) -> Result<NextPage> {
+    let mut connection = pool.acquire().await?;
+
+    let next_page = sqlx::query_as!(
+        NextPage,
+        "
+select p.url_path,
+  p.title,
+  c.chapter_number
+from pages p
+  left join chapters c on p.chapter_id = c.id
+where p.order_number = $1
+  and p.chapter_id = (
+    select p1.chapter_id
+    from pages p1
+    where p1.id = $2
+  );
+    ",
+        next_order_number,
+        current_page_id,
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    Ok(next_page)
+}
+
+async fn get_next_chapters_front_page(pool: &PgPool, next_chapter_number: i32) -> Result<NextPage> {
+    let mut connection = pool.acquire().await?;
+
+    let next_chapters_front_page = sqlx::query_as!(
+        NextPage,
+        "
+select p.url_path,
+  p.title,
+  c.chapter_number
+from pages p
+  left join chapters c on p.chapter_id = c.id
+where c.chapter_number = $1
+  and p.id = c.front_page_id;
+        ",
+        next_chapter_number,
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    Ok(next_chapters_front_page)
 }

@@ -1,0 +1,9 @@
+resources:
+- ../base
+- postgres-dev.yml
+patches:
+  - path: headless-lms/patch-deployment.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: headless-lms

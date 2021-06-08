@@ -1,5 +1,4 @@
 //! Controllers for requests starting with `/api/v0/cms/pages`.
-use std::str::FromStr;
 
 use crate::{
     controllers::ApplicationResult,
@@ -32,18 +31,17 @@ Response:
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
   "deleted_at": null,
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 */
 
 async fn get_page(
-    request_page_id: web::Path<String>,
+    request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
-    let page_id = Uuid::from_str(&request_page_id)?;
-
-    let page = crate::models::pages::get_page_with_exercises(pool.get_ref(), page_id).await?;
+    let page =
+        crate::models::pages::get_page_with_exercises(pool.get_ref(), *request_page_id).await?;
     Ok(Json(page))
 }
 
@@ -52,7 +50,7 @@ POST `/api/v0/cms/pages` - Create a new page.
 
 Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
 
-If optional property front_page_of_course_part_id is set, this page will become the front page of the specified course part.
+If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
 # Example:
 
@@ -71,7 +69,7 @@ Content-Type: application/json
   "url_path": "/part-2/best-page",
   "title": "Hello world!",
   "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 
@@ -91,8 +89,8 @@ Response:
   "url_path": "/part-2/best-page",
   "title": "Hello world!",
   "deleted_at": null,
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
-  "front_page_of_course_part_id": null
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
+  "front_page_of_chapter_id": null
 }
 ```
 
@@ -111,7 +109,7 @@ PUT `/api/v0/cms/pages/:page_id` - Update a page by id.
 
 Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
 
-If optional property front_page_of_course_part_id is set, this page will become the front page of the specified course part.
+If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
 # Example:
 
@@ -125,7 +123,7 @@ Content-Type: application/json
   "content": [{"type": "x"}],
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 
@@ -145,20 +143,19 @@ Response:
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
   "deleted_at": null,
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
-  "front_page_of_course_part_id": null
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
+  "front_page_of_chapter_id": null
 }
 ```
 */
 async fn update_page(
     payload: web::Json<PageUpdate>,
-    request_page_id: web::Path<String>,
+    request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
-    let page_id = Uuid::from_str(&request_page_id)?;
-
     let page_update = payload.0;
-    let page = crate::models::pages::update_page(pool.get_ref(), page_id, page_update).await?;
+    let page =
+        crate::models::pages::update_page(pool.get_ref(), *request_page_id, page_update).await?;
     Ok(Json(page))
 }
 
@@ -185,18 +182,16 @@ Response:
   "url_path": "/part-1/hello-world",
   "title": "Hello world!",
   "deleted_at": "2021-04-28T16:33:42.670935",
-  "course_part_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
 */
 async fn delete_page(
-    request_page_id: web::Path<String>,
+    request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
-    let page_id = Uuid::from_str(&request_page_id)?;
-
     let deleted_page =
-        crate::models::pages::delete_page_and_exercises(pool.get_ref(), page_id).await?;
+        crate::models::pages::delete_page_and_exercises(pool.get_ref(), *request_page_id).await?;
     Ok(Json(deleted_page))
 }
 

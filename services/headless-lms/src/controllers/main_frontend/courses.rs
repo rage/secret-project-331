@@ -9,8 +9,32 @@ use crate::{
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
-use std::str::FromStr;
 use uuid::Uuid;
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id` - Get course.
+# Example
+
+Response:
+```json
+{
+  "id": "ab4541d8-6db4-4561-bdb2-45f35b2544a1",
+  "slug": "introduction-to-introduction",
+  "created_at": "2021-04-21T18:34:21.795388",
+  "updated_at": "2021-04-21T18:49:21.398638",
+  "name": "Introduction to Introduction",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "deleted_at": null
+}
+```
+*/
+async fn get_course(
+    request_course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ApplicationResult<Json<Course>> {
+    let course = crate::models::courses::get_course(&pool, *request_course_id).await?;
+    Ok(Json(course))
+}
 
 /**
 POST `/api/v0/main-frontend/courses` - Create a new course.
@@ -80,14 +104,13 @@ Response:
 */
 async fn update_course(
     payload: web::Json<CourseUpdate>,
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Course>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-
     let course_update = payload.0;
     let course =
-        crate::models::courses::update_course(pool.get_ref(), course_id, course_update).await?;
+        crate::models::courses::update_course(pool.get_ref(), *request_course_id, course_update)
+            .await?;
     Ok(Json(course))
 }
 
@@ -108,12 +131,10 @@ DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 ```
 */
 async fn delete_course(
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Course>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-
-    let course = crate::models::courses::delete_course(pool.get_ref(), course_id).await?;
+    let course = crate::models::courses::delete_course(pool.get_ref(), *request_course_id).await?;
     Ok(Json(course))
 }
 
@@ -136,10 +157,9 @@ GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submis
 */
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<Vec<SubmissionCount>>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
     let res =
         crate::models::submissions::get_course_daily_submission_counts(pool.get_ref(), &course)
             .await?;
@@ -167,10 +187,9 @@ GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns
 */
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<Vec<SubmissionCountByWeekAndHour>>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
     let res = crate::models::submissions::get_course_submission_counts_by_weekday_and_hour(
         pool.get_ref(),
         &course,
@@ -194,10 +213,9 @@ GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns 
 */
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<Vec<SubmissionCountByExercise>>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
     let res = crate::models::submissions::get_course_submission_counts_by_exercise(
         pool.get_ref(),
         &course,
@@ -214,7 +232,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
-    cfg.route("", web::post().to(post_new_course))
+    cfg.route("/{course_id}", web::get().to(get_course))
+        .route("", web::post().to(post_new_course))
         .route("/{course_id}", web::put().to(update_course))
         .route("/{course_id}", web::delete().to(delete_course))
         .route(

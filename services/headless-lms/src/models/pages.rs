@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use crate::{
-    models::{course_parts::CoursePart, exercise_items::ExerciseItem},
+    models::chapters::Chapter,
+    models::exercise_items::ExerciseItem,
     utils::document_schema_processor::{denormalize, normalize_from_json, NormalizedDocument},
 };
 use anyhow::Result;
@@ -17,7 +18,7 @@ pub struct Page {
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
     course_id: Uuid,
-    course_part_id: Option<Uuid>,
+    chapter_id: Option<Uuid>,
     url_path: String,
     title: String,
     deleted_at: Option<DateTime<Utc>>,
@@ -31,7 +32,7 @@ pub struct PageWithExercises {
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
     course_id: Uuid,
-    course_part_id: Option<Uuid>,
+    chapter_id: Option<Uuid>,
     content: serde_json::Value,
     url_path: String,
     title: String,
@@ -46,9 +47,9 @@ pub struct NewPage {
     url_path: String,
     title: String,
     course_id: Uuid,
-    course_part_id: Option<Uuid>,
+    chapter_id: Option<Uuid>,
     /// If set, set this page to be the front page of this course part.
-    front_page_of_course_part_id: Option<Uuid>,
+    front_page_of_chapter_id: Option<Uuid>,
 }
 
 // Represents the subset of page fields that the user is allowed to modify.
@@ -57,9 +58,9 @@ pub struct PageUpdate {
     content: serde_json::Value,
     url_path: String,
     title: String,
-    course_part_id: Option<Uuid>,
+    chapter_id: Option<Uuid>,
     /// If set, set this page to be the front page of this course part.
-    front_page_of_course_part_id: Option<Uuid>,
+    front_page_of_chapter_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -101,7 +102,7 @@ pub struct PageExerciseItem {
 pub struct NextPage {
     url_path: Option<String>,
     title: Option<String>,
-    part_number: Option<i32>,
+    chapter_number: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -144,12 +145,12 @@ pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {
     Ok(pages)
 }
 
-pub async fn course_part_pages(pool: &PgPool, course_part_id: Uuid) -> Result<Vec<Page>> {
+pub async fn chapter_pages(pool: &PgPool, chapter_id: Uuid) -> Result<Vec<Page>> {
     let mut connection = pool.acquire().await?;
     let pages = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE course_part_id = $1 AND deleted_at IS NULL;",
-        course_part_id
+        "SELECT * FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL;",
+        chapter_id
     )
     .fetch_all(&mut connection)
     .await?;
@@ -271,7 +272,7 @@ SET
     content = $2,
     url_path = $3,
     title = $4,
-    course_part_id = $5
+    chapter_id = $5
 WHERE id = $1
 RETURNING *
             "#,
@@ -279,7 +280,7 @@ RETURNING *
         content_as_json,
         page_update.url_path.trim(),
         page_update.title.trim(),
-        page_update.course_part_id
+        page_update.chapter_id
     )
     .fetch_one(&mut tx)
     .await?;
@@ -292,14 +293,14 @@ RETURNING *
         exercises: result_exercises,
     })?;
 
-    if let Some(front_page_of_course_part_id) = page_update.front_page_of_course_part_id {
+    if let Some(front_page_of_chapter_id) = page_update.front_page_of_chapter_id {
         let _res = sqlx::query_as!(
-            CoursePart,
+            Chapter,
             r#"
-UPDATE course_parts SET page_id = $1 WHERE id = $2
+UPDATE chapters SET front_page_id = $1 WHERE id = $2
         "#,
             page_id,
-            front_page_of_course_part_id
+            front_page_of_chapter_id
         )
         // this should fail if no rows returned
         .fetch_one(&mut tx)
@@ -317,8 +318,8 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2
         id: page.id,
         title: page.title,
         url_path: page.url_path,
-        course_part_id: page.course_part_id,
         order_number: page.order_number,
+        chapter_id: page.chapter_id,
     });
 }
 
@@ -475,7 +476,7 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
         Page,
         r#"
   INSERT INTO
-    pages(course_id, content, url_path, title, course_part_id)
+    pages(course_id, content, url_path, title, chapter_id)
   VALUES($1, $2, $3, $4, $5)
   RETURNING *
           "#,
@@ -483,7 +484,7 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
         content_as_json,
         new_page.url_path.trim(),
         new_page.title.trim(),
-        new_page.course_part_id
+        new_page.chapter_id
     )
     .fetch_one(&mut tx)
     .await?;
@@ -496,15 +497,15 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
         exercises: result_exercises,
     })?;
 
-    if let Some(front_page_of_course_part_id) = new_page.front_page_of_course_part_id {
-        dbg!(&front_page_of_course_part_id);
+    if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
+        dbg!(&front_page_of_chapter_id);
         let _res = sqlx::query_as!(
-            CoursePart,
+            Chapter,
             r#"
-UPDATE course_parts SET page_id = $1 WHERE id = $2 RETURNING *
+UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
         "#,
             page.id,
-            front_page_of_course_part_id
+            front_page_of_chapter_id
         )
         // this should fail if no rows returned
         .fetch_one(&mut tx)
@@ -521,8 +522,8 @@ UPDATE course_parts SET page_id = $1 WHERE id = $2 RETURNING *
         id: page.id,
         title: page.title,
         url_path: page.url_path,
-        course_part_id: page.course_part_id,
         order_number: page.order_number,
+        chapter_id: page.chapter_id,
     });
 }
 
@@ -568,24 +569,24 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
     Ok(page)
 }
 
-pub async fn get_course_parts_pages_with_exercises(
+pub async fn get_chapters_pages_with_exercises(
     pool: &PgPool,
-    course_parts_id: Uuid,
+    chapters_id: Uuid,
 ) -> Result<Vec<PageWithExercises>> {
     let mut connection = pool.acquire().await?;
-    let course_part_pages = sqlx::query_as!(
+    let chapter_pages = sqlx::query_as!(
         Page,
         r#"
 SELECT *
 FROM pages
-WHERE course_part_id = $1
+WHERE chapter_id = $1
   AND deleted_at IS NULL
         "#,
-        course_parts_id
+        chapters_id
     )
     .fetch_all(&mut connection)
     .await?;
-    let page_ids: Vec<Uuid> = course_part_pages.iter().map(|page| page.id).collect();
+    let page_ids: Vec<Uuid> = chapter_pages.iter().map(|page| page.id).collect();
     let pages_exercises = sqlx::query_as!(
         Exercise,
         r#"
@@ -604,7 +605,7 @@ WHERE page_id IN (
     let mut page_to_exercises: HashMap<Uuid, Vec<Exercise>> = pages_exercises
         .into_iter()
         .into_group_map_by(|exercise| exercise.page_id);
-    let course_part_pages_with_exercises = course_part_pages
+    let chapter_pages_with_exercises = chapter_pages
         .into_iter()
         .map(|page| {
             let page_id = page.id;
@@ -617,7 +618,7 @@ WHERE page_id IN (
                 created_at: page.created_at,
                 updated_at: page.updated_at,
                 course_id: page.course_id,
-                course_part_id: page.course_part_id,
+                chapter_id: page.chapter_id,
                 content: page.content,
                 url_path: page.url_path,
                 title: page.title,
@@ -626,10 +627,10 @@ WHERE page_id IN (
             }
         })
         .collect();
-    Ok(course_part_pages_with_exercises)
+    Ok(chapter_pages_with_exercises)
 }
 
-pub async fn get_next_page(pool: &PgPool, course_parts_id: Uuid) -> Result<NextPage> {
+pub async fn get_next_page(pool: &PgPool, chapters_id: Uuid) -> Result<NextPage> {
     let mut connection = pool.acquire().await?;
 
     let next_page_data = sqlx::query_as!(
@@ -637,17 +638,17 @@ pub async fn get_next_page(pool: &PgPool, course_parts_id: Uuid) -> Result<NextP
         "
 select p.url_path,
   p.title,
-  cp.part_number
+  cp.chapter_number
 from pages p
-  left join course_parts cp on p.id = cp.page_id
-where cp.part_number = (
-    select part_number
-    from course_parts
-    where course_parts.page_id = $1
+  left join chapters cp on p.id = cp.front_page_id
+where cp.chapter_number = (
+    select chapter_number
+    from chapters
+    where chapters.front_page_id = $1
     limit 1
   ) + 1;
     ",
-        course_parts_id
+        chapters_id
     )
     .fetch_one(&mut connection)
     .await?;

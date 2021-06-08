@@ -2,20 +2,11 @@ import { BlockConfiguration } from "@wordpress/blocks"
 import CourseGridEditor from "./CourseGridEditor"
 import CourseGridSave from "./CourseGridSave"
 
-export interface CourseGridAttributes {
-  hidden: boolean
-}
-
-const CourseGridConfiguration: BlockConfiguration<CourseGridAttributes> = {
-  title: "Course Grid",
-  description: "Course parts grid.",
+const CourseGridConfiguration: BlockConfiguration = {
+  title: "Chapters Grid",
+  description: "Chapters Grid.",
   category: "design",
-  attributes: {
-    hidden: {
-      type: "boolean",
-      default: false,
-    },
-  },
+  attributes: {},
   edit: CourseGridEditor,
   save: CourseGridSave,
 }

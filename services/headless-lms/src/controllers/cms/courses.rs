@@ -13,7 +13,6 @@ use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use std::str::FromStr;
 use uuid::Uuid;
 
 /**
@@ -40,10 +39,10 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
       "url_path": "/",
       "title": "Welcome to Introduction to Everything",
       "deleted_at": null,
-      "course_part_id": "d332f3d9-39a5-4a18-80f4-251727693c37"
+      "chapter_id": "d332f3d9-39a5-4a18-80f4-251727693c37"
     }
   ],
-  "course_parts": [
+  "chapters": [
     {
       "id": "d332f3d9-39a5-4a18-80f4-251727693c37",
       "created_at": "2021-04-28T16:11:47.477850",
@@ -51,21 +50,19 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
       "name": "The Basics",
       "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
       "deleted_at": null,
-      "part_number": 1,
-      "page_id": null
+      "chapter_number": 1,
+      "front_page_id": null
     }
   ]
 }
 ```
 */
 async fn get_course_structure(
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<CourseStructure>> {
-    let course_id = Uuid::from_str(&request_course_id)?;
-
     let course_structure =
-        crate::models::courses::get_course_structure(pool.get_ref(), course_id).await?;
+        crate::models::courses::get_course_structure(pool.get_ref(), *request_course_id).await?;
     Ok(Json(course_structure))
 }
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
@@ -96,14 +93,13 @@ Response:
 ```
 */
 async fn upload_image(
-    request_course_id: web::Path<String>,
+    request_course_id: web::Path<Uuid>,
     payload: web::Payload,
     request: HttpRequest,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<ImageUploadResult>> {
     // TODO: add max image size
-    let course_id = Uuid::from_str(&request_course_id)?;
-    let course = crate::models::courses::get_course(pool.get_ref(), course_id).await?;
+    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
     let headers = request.headers();
     let content_type_option = headers.get(header::CONTENT_TYPE);
     if content_type_option.is_none() {

@@ -61,7 +61,7 @@ VALUES (
     '[{"name": "core/snd-paragraph", "isValid": true, "clientId": "376b8be3-bd9f-493f-a85c-59dd2aaae818bad", "attributes": {"content": "Everything is a big topic.", "dropCap": false}, "innerBlocks": []}, {"name": "moocfi/snd-exercise", "isValid": true, "clientId": "06b3113c-8bef-49ed-b0b0-9ecc33375662", "attributes": {"id": "d313dc8f-c12d-4237-8730-bca936931fc9"}, "innerBlocks": []}]'::jsonb,
     '/',
     'In the second part...',
-    2
+    1
   );
 INSERT INTO exercises (id, course_id, "name", page_id)
 VALUES (
@@ -86,14 +86,14 @@ VALUES (
     '[{"id": "1c206384-8373-40be-bcbd-2940c0eb5205", "name": "a", "correct": false}, {"id": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af", "name": "b", "correct": true}, {"id": "af5cdeb3-7d69-4c32-9f44-d8e2aece3d02", "name": "c", "correct": false}]'::jsonb,
     '[{"id": "1c206384-8373-40be-bcbd-2940c0eb5205", "name": "a"}, {"id": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af", "name": "b"}, {"id": "af5cdeb3-7d69-4c32-9f44-d8e2aece3d02", "name": "c"}]'::jsonb
   );
-INSERT INTO course_parts(id, name, course_id, part_number)
+INSERT INTO chapters(id, name, course_id, chapter_number)
 VALUES (
     'd332f3d9-39a5-4a18-80f4-251727693c37',
     'The Basics',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     1
   );
-INSERT INTO course_parts(id, name, course_id, part_number)
+INSERT INTO chapters(id, name, course_id, chapter_number)
 VALUES (
     'e9f24363-81ca-425b-ade2-80cc33105e75',
     'The Intermediaries',
@@ -174,15 +174,15 @@ VALUES (
     '0125c21b-6afa-4652-89f7-56c48bd8ffe4',
     '0589dc46-71a9-4220-baf2-d2f0dc77ef9a'
   );
-UPDATE course_parts
-SET page_id = 'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d'
+UPDATE chapters
+SET front_page_id = 'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d'
 where id = 'd332f3d9-39a5-4a18-80f4-251727693c37';
-UPDATE course_parts
-SET page_id = 'aeac9212-b1d8-4a59-b5fb-1656606e9f5c'
+UPDATE chapters
+SET front_page_id = 'aeac9212-b1d8-4a59-b5fb-1656606e9f5c'
 where id = 'e9f24363-81ca-425b-ade2-80cc33105e75';
 UPDATE pages
-SET course_part_id = 'd332f3d9-39a5-4a18-80f4-251727693c37'
+SET chapter_id = 'd332f3d9-39a5-4a18-80f4-251727693c37'
 where id = 'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d';
 UPDATE pages
-SET course_part_id = 'e9f24363-81ca-425b-ade2-80cc33105e75'
+SET chapter_id = 'e9f24363-81ca-425b-ade2-80cc33105e75'
 where id = 'aeac9212-b1d8-4a59-b5fb-1656606e9f5c';

@@ -1444,13 +1444,13 @@
       ]
     }
   },
-  "9b3fb94435a52e2b1d1713f448d60248931ee7b007c915d60c81bdd845923e0c": {
-    "query": "SELECT exercise_id FROM exercise_items WHERE id = $1",
+  "9aa4d4d1fd01a17c7ce4dbfb8eaab61ee5c88722cce1c9609d96863c1e0777f5": {
+    "query": "SELECT course_id FROM exercises WHERE id = (SELECT exercise_id FROM exercise_items WHERE id = $1)",
     "describe": {
       "columns": [
         {
           "ordinal": 0,
-          "name": "exercise_id",
+          "name": "course_id",
           "type_info": "Uuid"
         }
       ],
@@ -1748,26 +1748,6 @@
         false,
         false,
         true,
-        false
-      ]
-    }
-  },
-  "bdecef24e150a71a554e7ef757d09326650c0f3ed9abb8558433cf484f0863c2": {
-    "query": "SELECT course_id FROM exercises WHERE id = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "course_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      },
-      "nullable": [
         false
       ]
     }

@@ -1,9 +1,10 @@
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use sqlx::Type;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Copy, Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
@@ -12,7 +13,7 @@ pub enum UserRole {
     Reviewer,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub struct Role {
     pub organization_id: Option<Uuid>,
     pub course_id: Option<Uuid>,
@@ -24,11 +25,11 @@ impl Role {
         self.organization_id.is_none() && self.course_id.is_none()
     }
 
-    pub fn is_role_for_organization(&self, organization_role: Uuid) -> bool {
+    pub fn is_role_for_organization(&self, organization_id: Uuid) -> bool {
         self.course_id.is_none()
             && self
                 .organization_id
-                .map(|id| id == organization_role)
+                .map(|id| id == organization_id)
                 .unwrap_or_default()
     }
 

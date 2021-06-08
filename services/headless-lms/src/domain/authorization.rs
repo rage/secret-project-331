@@ -1,9 +1,10 @@
 use crate::models::roles::UserRole;
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum Action {
     View,
     Edit,
@@ -13,7 +14,7 @@ pub enum Action {
     DeleteAnswer,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum Resource {
     Chapter(Uuid),
     Course(Uuid),

@@ -31,21 +31,37 @@ VALUES (
     'introduction-to-statistics',
     'b36c94f5-bc87-4bc9-aab8-a0591b9f6f81'
   );
-INSERT INTO pages (id, course_id, content, url_path, title)
+INSERT INTO pages (
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
 VALUES (
     'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '[{"name": "core/paragraph", "isValid": true, "clientId": "fdc9354b-4f84-4561-b5fc-b7e77fc07bad", "attributes": {"content": "Everything is a big topic.", "dropCap": false}, "innerBlocks": []}, {"name": "moocfi/exercise", "isValid": true, "clientId": "022157e6-d10c-4f87-9eb3-ee8a17c4f249", "attributes": {"id": "34e47a8e-d573-43be-8f23-79128cbb29b8"}, "innerBlocks": []}]'::jsonb,
     '/',
-    'Welcome to Introduction to Everything'
+    'Welcome to Introduction to Everything',
+    1
   );
-INSERT INTO pages (id, course_id, content, url_path, title)
+INSERT INTO pages (
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
 VALUES (
     'aeac9212-b1d8-4a59-b5fb-1656606e9f5c',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '[{"name": "core/snd-paragraph", "isValid": true, "clientId": "376b8be3-bd9f-493f-a85c-59dd2aaae818bad", "attributes": {"content": "Everything is a big topic.", "dropCap": false}, "innerBlocks": []}, {"name": "moocfi/snd-exercise", "isValid": true, "clientId": "06b3113c-8bef-49ed-b0b0-9ecc33375662", "attributes": {"id": "d313dc8f-c12d-4237-8730-bca936931fc9"}, "innerBlocks": []}]'::jsonb,
     '/',
-    'In the second part...'
+    'In the second part...',
+    2
   );
 INSERT INTO exercises (id, course_id, "name", page_id)
 VALUES (

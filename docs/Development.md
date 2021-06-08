@@ -10,8 +10,9 @@
 ### Development tools
 
 1. Install Skaffold: https://skaffold.dev/docs/install/
-2. Install kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
-3. Install minikube: https://minikube.sigs.k8s.io/docs/start/
+2. Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+3. Install Minikube: https://minikube.sigs.k8s.io/docs/start/
+4. Install Kustomize: https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/
 
 You may also need stern and kubectx.
 

@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 COMMAND="sudo"
 ARGUMENTS=(runuser -u postgres -- createuser --superuser "$(whoami)")
 

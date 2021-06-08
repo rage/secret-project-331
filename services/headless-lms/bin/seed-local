@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 COMMAND="psql"
 if [ ! -f ../.env ]
 then

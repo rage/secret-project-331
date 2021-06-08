@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 COMMAND="systemfd"
 ARGUMENTS=(--no-pid -s http::0.0.0.0:3001 -- cargo watch -x run "$@")
 

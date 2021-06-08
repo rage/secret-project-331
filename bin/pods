@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 COMMAND="watch"
 ARGUMENTS=(kubectl get pods "$@")

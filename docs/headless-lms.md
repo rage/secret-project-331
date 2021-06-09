@@ -2,6 +2,10 @@
 
 Creating new SQL queries in headless-lms using Sqlx requires running `bin/sqlx-prepare` so that it builds.
 
+## Sqlx data types
+
+https://docs.rs/sqlx/0.5.5/sqlx/postgres/types/index.html
+
 ## New migrations
 
 First, stop `bin/dev` if you have that running and start `bin/dev-only-db`. This is because `bin/dev` automatically runs migrations and you don't want to run your new migration before it's ready.

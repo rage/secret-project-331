@@ -681,7 +681,7 @@ where p1.order_number > (
     .fetch_one(&mut connection)
     .await?;
 
-    Ok(nex_page_order_number)
+    Ok(next_page_order_number)
 }
 
 async fn get_next_chapters_chapter_number(

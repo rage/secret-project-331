@@ -38,7 +38,7 @@ async fn post_submission(
     let exercise =
         crate::models::exercises::get_exercise_by_id(pool.get_ref(), exercise_item.exercise_id)
             .await?;
-    crate::models::users::upsert_user_id(pool.get_ref(), &user_id).await?;
+    crate::models::users::upsert_user_id(pool.get_ref(), user_id, None).await?;
     let submission =
         crate::models::submissions::insert_submission(pool.get_ref(), payload.0, user_id, exercise)
             .await?;

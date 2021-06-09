@@ -160,6 +160,26 @@
       "nullable": [null]
     }
   },
+  "1daa6a64b96d07871fcd53657c9b31c9901c13391c1a83ad214e8365d8fcd00c": {
+    "query": "SELECT course_id FROM exercises WHERE id = $1;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "216274644eb91791c11037c6ce36bed38f64b1e3be53585ddce293db048a3513": {
     "query": "\nUPDATE pages\nSET\n    content = $2,\n    url_path = $3,\n    title = $4,\n    chapter_id = $5\nWHERE id = $1\nRETURNING *\n            ",
     "describe": {
@@ -331,6 +351,26 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "36578c1a1be112ab9d9f49eea1c69240309c9bf83e6a4b98237e687d1fa04b92": {
+    "query": "SELECT course_id FROM pages WHERE id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
     }
   },
   "3fe37166761219fc5d832aff78c2ae81f963c9b1fa42ac8519e80bc436c54200": {
@@ -782,6 +822,50 @@
       "nullable": [false, false, false, true, true, false]
     }
   },
+  "77589f5977cb1abcf08674c88fcc060ccb0be732fde86e1fd3b4b21c6de86565": {
+    "query": "SELECT organization_id, course_id, role AS \"role: UserRole\" FROM roles WHERE user_id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "role: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        true,
+        true,
+        false
+      ]
+    }
+  },
   "785c6a12aad375df96e3ce5dee4b20fde25e67ec826c645019a03222a07c2aa9": {
     "query": "\nSELECT DATE(created_at) date, count(*)::integer\nFROM submissions\nWHERE course_id = $1\nGROUP BY date\nORDER BY date;\n          ",
     "describe": {
@@ -1042,6 +1126,26 @@
       "nullable": [false, false, false, false, false, true, false]
     }
   },
+  "88890869dabe25130451185ec231260f8cdc6121649923e7209346dded7d0014": {
+    "query": "SELECT organization_id FROM courses WHERE id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "9057dd020d252d6f0c39e2214cc20e8280ae89061ce4b45fa5ec8facb961ed0e": {
     "query": "SELECT * FROM exercise_items WHERE id = $1;",
     "describe": {
@@ -1101,6 +1205,26 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true]
+    }
+  },
+  "9aa4d4d1fd01a17c7ce4dbfb8eaab61ee5c88722cce1c9609d96863c1e0777f5": {
+    "query": "SELECT course_id FROM exercises WHERE id = (SELECT exercise_id FROM exercise_items WHERE id = $1)",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
     }
   },
   "9c85b99d223ec35dd6a3d00598117fba6db802ec315cd2d1c38012b577d270bb": {
@@ -1274,6 +1398,26 @@
         "Left": ["Uuid", "Int8", "Int8"]
       },
       "nullable": [false, false, false, true, false, false, false, true, true, true, false]
+    }
+  },
+  "b0302cd73ce7a9f3d86d798a9a6c8ae768a0722bfeef08cd89c8716b36bce665": {
+    "query": "SELECT course_id FROM submissions WHERE id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
     }
   },
   "b7c1d6419ba5258f9768f21c871f7e20ec929aeb83445e8a09a5cbd4e9425def": {
@@ -1575,6 +1719,26 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, true, true, true, false]
+    }
+  },
+  "d741c2e76aa58f5fe945e4a96f0f598d29b7fd6e2552b3afdc183ec445938c40": {
+    "query": "SELECT course_id from gradings where id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
     }
   },
   "da896f936aafd16dba8e38e8e97b7907310051fa453acf242dccab1776995e48": {
@@ -2039,6 +2203,26 @@
         "Left": ["Uuid", "Jsonb", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, true, true, true, false]
+    }
+  },
+  "fca8672f757656db6332543f9d4351224a1218c4387310e9447e70dad48af7cf": {
+    "query": "SELECT course_id from chapters where id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
     }
   },
   "fedf6f6fd2c1c81adf93753386ca0313066e6045f5dfd0cd55eeaf7e59866fad": {

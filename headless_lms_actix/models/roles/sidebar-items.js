@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["UserRole",""]],"fn":[["get_roles",""]],"struct":[["Role",""]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["course_chapters",""],["delete_chapter",""],["insert_chapter",""],["update_chapter",""]],"struct":[["Chapter",""],["ChapterPagesWithExercises",""],["ChapterUpdate",""],["NewChapter",""]]});
+initSidebarItems({"fn":[["course_chapters",""],["delete_chapter",""],["get_course_id",""],["insert_chapter",""],["update_chapter",""]],"struct":[["Chapter",""],["ChapterPagesWithExercises",""],["ChapterUpdate",""],["NewChapter",""]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["get_exercise_item_by_id",""],["get_random_exercise_item",""]],"struct":[["CourseMaterialExerciseItem",""],["ExerciseItem",""]]});
+initSidebarItems({"fn":[["get_course_id",""],["get_exercise_item_by_id",""],["get_random_exercise_item",""]],"struct":[["CourseMaterialExerciseItem",""],["ExerciseItem",""]]});

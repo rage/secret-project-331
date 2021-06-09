@@ -666,7 +666,7 @@ async fn get_next_page_order_number(
 ) -> Result<NextPageOrderNumber> {
     let mut connection = pool.acquire().await?;
 
-    let nex_page_order_number = sqlx::query_as!(
+    let next_page_order_number = sqlx::query_as!(
         NextPageOrderNumber,
         "
 select min(p1.order_number) as order_number

@@ -10,6 +10,6 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^0.1102.0"
+    "@playwright/test": "^1.12.0"
   }
 }

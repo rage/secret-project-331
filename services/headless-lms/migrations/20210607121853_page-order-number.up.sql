@@ -1,4 +1,4 @@
 ALTER TABLE pages
 ADD COLUMN order_number INTEGER NOT NULL;
-ALTER TABLE pages
-ADD CONSTRAINT pages_order_number_uniqueness UNIQUE (id, order_number);
+CREATE UNIQUE INDEX pages_order_number_uniqueness ON pages (id, order_number)
+WHERE id IS NULL;

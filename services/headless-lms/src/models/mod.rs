@@ -10,5 +10,6 @@ pub mod exercises;
 pub mod gradings;
 pub mod organizations;
 pub mod pages;
+pub mod roles;
 pub mod submissions;
 pub mod users;

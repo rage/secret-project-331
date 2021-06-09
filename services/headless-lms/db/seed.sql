@@ -71,6 +71,10 @@ VALUES (
   );
 INSERT INTO users (id)
 VALUES ('0589dc46-71a9-4220-baf2-d2f0dc77ef9a');
+INSERT INTO users (id)
+VALUES ('b8f1d304-aaad-4bd7-a2fe-7598e946029a');
+INSERT INTO users (id)
+VALUES ('d01e3b4e-e7e6-405d-9407-05dce3eb4434');
 INSERT INTO submissions (
     id,
     created_at,
@@ -142,4 +146,25 @@ VALUES (
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '0125c21b-6afa-4652-89f7-56c48bd8ffe4',
     '0589dc46-71a9-4220-baf2-d2f0dc77ef9a'
+  );
+INSERT INTO roles (user_id, organization_id, course_id, role)
+VALUES (
+    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a',
+    NULL,
+    NULL,
+    'admin'
+  );
+INSERT INTO roles (user_id, organization_id, course_id, role)
+VALUES (
+    'b8f1d304-aaad-4bd7-a2fe-7598e946029a',
+    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec',
+    NULL,
+    'teacher'
+  );
+INSERT INTO roles (user_id, organization_id, course_id, role)
+VALUES (
+    'd01e3b4e-e7e6-405d-9407-05dce3eb4434',
+    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec',
+    '2d56db91-399a-43e7-b6d0-21c3f18d72af',
+    'assistant'
   );

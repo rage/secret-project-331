@@ -640,7 +640,7 @@ WHERE page_id IN (
     Ok(chapter_pages_with_exercises)
 }
 
-pub async fn get_next_page(pool: &PgPool, pages_id: Uuid) -> Result<NextPage> {
+pub async fn get_next_page(pool: &PgPool, pages_id: Uuid) -> Result<Option<NextPage>> {
     let next_order_number = get_next_page_order_number(pool, pages_id).await?;
 
     let next_page_data = match next_order_number.order_number {

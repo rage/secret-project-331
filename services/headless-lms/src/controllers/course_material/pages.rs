@@ -18,7 +18,7 @@ use uuid::Uuid;
 ```
 */
 async fn get_next_page(
-    request_page_id: web::Path<String>,
+    request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<NextPage>> {
     let pages_id = Uuid::from_str(&request_page_id)?;

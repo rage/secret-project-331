@@ -513,16 +513,6 @@
       "nullable": [false, false, false, false, true]
     }
   },
-  "57ffb868215b4171d67c2328e13526b333f28227a25431752887c846398e5987": {
-    "query": "\nINSERT INTO\n  users (id)\nVALUES($1)\nON CONFLICT(id) DO NOTHING;\n          ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "5b50658c54be97bcf0f0f82cbdc9488a7e7e7bcf1590be15076f2bf0c7ab2c0e": {
     "query": "\nINSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, public_spec, private_spec)\nVALUES ($1, $2, $3, $4, $5, $6)\nON CONFLICT (id) DO UPDATE\nSET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL\nRETURNING id, exercise_type, assignment, public_spec, private_spec;\n        ",
     "describe": {
@@ -1599,6 +1589,16 @@
         "Left": []
       },
       "nullable": [false, false, false, false, false, true, false]
+    }
+  },
+  "b966f7627244180588cd487928d5717f2f60a660edd71039075ef24dba237697": {
+    "query": "\nINSERT INTO\n  users (id, legacy_id)\nVALUES($1, $2)\nON CONFLICT(id) DO NOTHING;\n          ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Int4"]
+      },
+      "nullable": []
     }
   },
   "c1908e69ccbe1ec11a22f88ec34da84b934b07915a2c659cdbf16a24d2c5f611": {

@@ -1,6 +1,7 @@
 resources:
 - ../base
 - postgres-dev.yml
+- headless-lms/dev.yml
 patches:
   - path: headless-lms/patch-deployment.yml
     target:

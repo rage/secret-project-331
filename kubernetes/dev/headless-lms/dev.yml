@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: headless-lms-secrets
+type: Opaque
+data:
+  # for local development only, intentionally public
+  privateCookieKey: "bmljZSBrZXkgbmljZSBrZXkgbmljZSBrZXkgbmljZSBrZXk="
+  oAuthApplicationId: "TkY0cFNhWThVWVk0MjViOWdYekpWaGlMdV9RMVpMMnNGdEZSMS1nZ3hnMA=="
+  oAuthSecret: "LVJlaTVuVzJsUlVwbjRGTnJQallLellJVTBiYlpHQy1PX2JIcmlZb0NYaw=="

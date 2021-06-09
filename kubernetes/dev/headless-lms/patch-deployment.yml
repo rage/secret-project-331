@@ -15,3 +15,18 @@
         key: password
   - name: DATABASE_URL
     value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres/$(POSTGRES_DB)
+  - name: PRIVATE_COOKIE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: headless-lms-secrets
+        key: privateCookieKey
+  - name: OAUTH_APPLICATION_ID
+    valueFrom:
+      secretKeyRef:
+        name: headless-lms-secrets
+        key: oAuthApplicationId
+  - name: OAUTH_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: headless-lms-secrets
+        key: oAuthSecret

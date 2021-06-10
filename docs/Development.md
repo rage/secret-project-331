@@ -21,7 +21,7 @@ You may also need stern and kubectx.
 Start minikube:
 
 ```sh
-bin/start-minikube
+bin/minikube-start
 ```
 
 ### Starting the development cluster

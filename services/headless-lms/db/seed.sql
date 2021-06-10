@@ -17,6 +17,11 @@ VALUES (
     'introduction-to-everything',
     '1b89e57e-8b57-42f2-9fed-c7a6736e3eec'
   );
+INSERT INTO course_instances (id, course_id)
+VALUES (
+    '25800692-0d99-4f29-b741-92d69b0900b9',
+    'd86cf910-4d26-40e9-8c9c-1cc35294fdbb'
+  );
 INSERT INTO courses (id, "name", slug, organization_id)
 VALUES (
     '2d56db91-399a-43e7-b6d0-21c3f18d72af',
@@ -24,12 +29,22 @@ VALUES (
     'introduction-to-computer-science',
     '1b89e57e-8b57-42f2-9fed-c7a6736e3eec'
   );
+INSERT INTO course_instances (id, course_id)
+VALUES (
+    '049d8ef0-0d77-4fc5-8870-e215160f464c',
+    '2d56db91-399a-43e7-b6d0-21c3f18d72af'
+  );
 INSERT INTO courses (id, "name", slug, organization_id)
 VALUES (
     '8f605161-125b-449b-a443-c62ffc1b077f',
     'Introduction to Statistics',
     'introduction-to-statistics',
     'b36c94f5-bc87-4bc9-aab8-a0591b9f6f81'
+  );
+INSERT INTO course_instances (id, course_id)
+VALUES (
+    'eb5e96df-4a47-4a6e-995b-6af03f8173ad',
+    '8f605161-125b-449b-a443-c62ffc1b077f'
   );
 INSERT INTO pages (id, course_id, content, url_path, title)
 VALUES (
@@ -82,7 +97,8 @@ INSERT INTO submissions (
     exercise_id,
     course_id,
     exercise_item_id,
-    user_id
+    user_id,
+    course_instance_id
   )
 VALUES (
     'f87e11e4-c6e5-40cc-bde7-7c371609643f',
@@ -91,7 +107,8 @@ VALUES (
     '34e47a8e-d573-43be-8f23-79128cbb29b8',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '0125c21b-6afa-4652-89f7-56c48bd8ffe4',
-    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a'
+    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a',
+    '25800692-0d99-4f29-b741-92d69b0900b9'
   );
 INSERT INTO submissions (
     id,
@@ -100,7 +117,8 @@ INSERT INTO submissions (
     exercise_id,
     course_id,
     exercise_item_id,
-    user_id
+    user_id,
+    course_instance_id
   )
 VALUES (
     '2eb3aaf2-e2a7-4a0c-80c0-e8f3d62660ec',
@@ -109,7 +127,8 @@ VALUES (
     '34e47a8e-d573-43be-8f23-79128cbb29b8',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '0125c21b-6afa-4652-89f7-56c48bd8ffe4',
-    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a'
+    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a',
+    '25800692-0d99-4f29-b741-92d69b0900b9'
   );
 INSERT INTO submissions (
     id,
@@ -118,7 +137,8 @@ INSERT INTO submissions (
     exercise_id,
     course_id,
     exercise_item_id,
-    user_id
+    user_id,
+    course_instance_id
   )
 VALUES (
     'cc19e9b6-3b47-4e72-b7bc-052eb04dedc7',
@@ -127,7 +147,8 @@ VALUES (
     '34e47a8e-d573-43be-8f23-79128cbb29b8',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '0125c21b-6afa-4652-89f7-56c48bd8ffe4',
-    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a'
+    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a',
+    '25800692-0d99-4f29-b741-92d69b0900b9'
   );
 INSERT INTO submissions (
     id,
@@ -136,7 +157,8 @@ INSERT INTO submissions (
     exercise_id,
     course_id,
     exercise_item_id,
-    user_id
+    user_id,
+    course_instance_id
   )
 VALUES (
     '2c4fd344-bdc7-42cc-83f0-8836ad752d79',
@@ -145,7 +167,8 @@ VALUES (
     '34e47a8e-d573-43be-8f23-79128cbb29b8',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '0125c21b-6afa-4652-89f7-56c48bd8ffe4',
-    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a'
+    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a',
+    '25800692-0d99-4f29-b741-92d69b0900b9'
   );
 INSERT INTO roles (user_id, organization_id, course_id, role)
 VALUES (

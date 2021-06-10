@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../kubernetes/production/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+COMMAND="kustomize"
+ARGUMENTS=(build "$RELATIVE_PATH" "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

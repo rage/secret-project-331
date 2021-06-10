@@ -1,6 +1,12 @@
 #!/bin/bash
+set -euo pipefail
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FILE_PATH="$BASEDIR/../services/headless-lms/db/seed.sql"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
+
 COMMAND="psql"
-ARGUMENTS=(postgres://headless-lms@localhost:54328/headless_lms_dev --file services/headless-lms/db/seed.sql "$@")
+ARGUMENTS=(postgres://headless-lms@localhost:54328/headless_lms_dev --file "$RELATIVE_PATH" "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

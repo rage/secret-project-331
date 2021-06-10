@@ -140,6 +140,15 @@ struct ExerciseWithExerciseItems {
     score_maximum: i32,
 }
 
+pub async fn get_course_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
+    let mut connection = pool.acquire().await?;
+    let course_id = sqlx::query!("SELECT course_id FROM pages WHERE id = $1", id)
+        .fetch_one(&mut connection)
+        .await?
+        .course_id;
+    Ok(course_id)
+}
+
 pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {
     let mut transaction = pool.begin().await?;
     let connection = transaction.acquire().await?;

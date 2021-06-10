@@ -27,6 +27,15 @@ pub struct ExerciseItem {
     pub spec_file_id: Option<Uuid>,
 }
 
+pub async fn get_course_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
+    let mut connection = pool.acquire().await?;
+    let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = (SELECT exercise_id FROM exercise_items WHERE id = $1)", id)
+        .fetch_one(&mut connection)
+        .await?
+        .course_id;
+    Ok(course_id)
+}
+
 pub async fn get_random_exercise_item(
     pool: &PgPool,
     exercise_id: Uuid,

@@ -1,0 +1,17 @@
+:root {
+	/* stylelint-disable-next-line */
+	@include reset;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	font-family: $default-font;
+	font-size: $default-font-size;
+}
+
+a,
+div {
+	outline: 0;
+}

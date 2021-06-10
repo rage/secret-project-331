@@ -38,6 +38,15 @@ pub enum UserPointsUpdateStrategy {
     CanAddPointsAndCanRemovePoints,
 }
 
+pub async fn get_course_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
+    let mut connection = pool.acquire().await?;
+    let course_id = sqlx::query!(r#"SELECT course_id from gradings where id = $1"#, id)
+        .fetch_one(&mut connection)
+        .await?
+        .course_id;
+    Ok(course_id)
+}
+
 pub async fn new_grading(pool: &PgPool, submission: &Submission) -> Result<Grading> {
     let mut connection = pool.acquire().await?;
     let grading = sqlx::query_as!(

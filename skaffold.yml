@@ -36,13 +36,23 @@ build:
     # Allow parallel builds
     concurrency: 0
 deploy:
-  kubectl:
-    manifests:
-      - kubernetes/**/*
-      - kubernetes/*
+  kustomize:
+    paths:
+      - kubernetes/dev
   kubeContext: minikube
 portForward:
   - resourceType: statefulset
     resourceName: postgres
     port: 5432
     localPort: 54328
+profiles:
+  - name: only-db
+    patches:
+      - op: remove
+        path: /build/artifacts
+      - op: remove
+        path: /deploy/kustomize
+    deploy:
+      kubectl:
+        manifests:
+          - kubernetes/dev/postgres-dev.yml

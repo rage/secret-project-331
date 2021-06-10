@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
+COMMAND="skaffold"
+ARGUMENTS=(delete "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

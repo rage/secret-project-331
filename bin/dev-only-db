@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
+COMMAND="skaffold"
+ARGUMENTS=(dev --force --port-forward -p only-db "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

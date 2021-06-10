@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 COMMAND="kubectl"
 
 POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)

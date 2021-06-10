@@ -118,6 +118,10 @@ VALUES (
   );
 INSERT INTO users (id)
 VALUES ('0589dc46-71a9-4220-baf2-d2f0dc77ef9a');
+INSERT INTO users (id)
+VALUES ('b8f1d304-aaad-4bd7-a2fe-7598e946029a');
+INSERT INTO users (id)
+VALUES ('d01e3b4e-e7e6-405d-9407-05dce3eb4434');
 INSERT INTO submissions (
     id,
     created_at,
@@ -205,3 +209,24 @@ where id = 'aeac9212-b1d8-4a59-b5fb-1656606e9f5c';
 UPDATE pages
 SET chapter_id = 'd332f3d9-39a5-4a18-80f4-251727693c37'
 where id = 'de5590c6-97b3-40f1-b2e1-2195645da509';
+INSERT INTO roles (user_id, organization_id, course_id, role)
+VALUES (
+    '0589dc46-71a9-4220-baf2-d2f0dc77ef9a',
+    NULL,
+    NULL,
+    'admin'
+  );
+INSERT INTO roles (user_id, organization_id, course_id, role)
+VALUES (
+    'b8f1d304-aaad-4bd7-a2fe-7598e946029a',
+    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec',
+    NULL,
+    'teacher'
+  );
+INSERT INTO roles (user_id, organization_id, course_id, role)
+VALUES (
+    'd01e3b4e-e7e6-405d-9407-05dce3eb4434',
+    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec',
+    '2d56db91-399a-43e7-b6d0-21c3f18d72af',
+    'assistant'
+  );

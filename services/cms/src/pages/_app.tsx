@@ -1,5 +1,5 @@
 import "../styles/globals.css"
-import "../styles/playground.scss"
+import "../styles/Gutenberg/style.scss"
 
 import type { AppProps } from "next/app"
 import { RecoilRoot } from "recoil"

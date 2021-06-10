@@ -1,8 +1,28 @@
 # Notes on headless lms
 
-Creating new migration files on with the cluster environment is hard, because it automatically runs migraitons.
+Creating new SQL queries in headless-lms using Sqlx requires running `bin/sqlx-prepare` so that it builds.
 
-## Setup local dev env
+## Sqlx data types
+
+https://docs.rs/sqlx/0.5.5/sqlx/postgres/types/index.html
+
+## New migrations
+
+First, stop `bin/dev` if you have that running and start `bin/dev-only-db`. This is because `bin/dev` automatically runs migrations and you don't want to run your new migration before it's ready.
+
+In the root of the repo run:
+
+```bash
+bin/sqlx-migrate-add migration_name
+```
+
+Then write your migration in `services/headless-lms/migrations/<>.up.sql` and write the reverse migration in `services/headless-lms/migrations/<>.down.sql`.
+
+Run migrations with `bin/sqlx-migrate-run` or `bin/sqlx-migrate-revert`. Once done with the migration, test the migration by running the migration, then reverting it, and finally running it again.
+
+## Setup development with a local Postgres
+
+Usually you don't need this as you can use the Postgres started by either `bin/dev` or `bin/dev-only-db`.
 
 1. Rename `.env.example` -> `.env`
 2. In `.env` setup `DATABASE_URL=postgres://localhost/headless_lms_dev`
@@ -11,19 +31,6 @@ Creating new migration files on with the cluster environment is hard, because it
 5. Run `bin/sqlx-migrate-run`
 6. (Optional) `bin/seed-local`
 7. If migrations succeed, run `bin/dev`
-
-Creating new SQL queries in headless-lms using Sqlx requires running `bin/sqlx-prepare` so that it builds.
-## New migrations
-
-In the headless_lms folder run:
-
-```bash
-bin/sqlx-migrate-add migration_name
-```
-
-Then write your migration in `migrations/<>.up.sql` and write the reverse migration in `migrations/<>.down.sql`.
-
-Run migrations with `bin/sqlx-migrate-run` or `bin/sqlx-migrate-revert`.
 
 ## New endpoint
 

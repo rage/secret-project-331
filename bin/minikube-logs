@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
+COMMAND="minikube"
+ARGUMENTS=(logs -f "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

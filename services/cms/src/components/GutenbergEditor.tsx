@@ -1,21 +1,32 @@
+/**
+ * WordPress dependencies
+ */
+// This import is needed for bold, italics, ... formatting
+import "@wordpress/format-library"
+
+// @wordpress package styles
+// @import "~@wordpress/components/src/style.scss";
+// @import "~@wordpress/block-editor/src/style.scss";
+// @import "~@wordpress/block-library/src/style.scss";
+// @import "~@wordpress/block-library/src/theme.scss";
+// @import "~@wordpress/block-library/src/editor.scss";
+// @import "~@wordpress/format-library/src/style.scss";
+
+import "@wordpress/components/build-style/style.css"
 import "@wordpress/block-editor/build-style/style.css"
 import "@wordpress/block-library/build-style/style.css"
 import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
-import "@wordpress/components/build-style/style.css"
-import "@wordpress/editor/build-style/style.css"
-// import "@wordpress/editor/build-style/editor-styles.css"
-import "@wordpress/edit-post/build-style/style.css"
 import "@wordpress/format-library/build-style/style.css"
-import "@wordpress/nux/build-style/style.css"
-// This import is needed for bold, italics, ... formatting
-import "@wordpress/format-library"
+// import "@wordpress/editor/build-style/style.css"
+// import "@wordpress/edit-post/build-style/style.css"
 
 import React, { useEffect } from "react"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
   BlockList,
+  // BlockToolbar,
   BlockInspector,
   WritingFlow,
   ObserveTyping,
@@ -24,9 +35,11 @@ import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
 import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 
+/**
+ * Internal dependencies
+ */
 import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
-import { css } from "@emotion/css"
 import { blockTypeMap } from "../blocks"
 
 interface GutenbergEditor {
@@ -54,30 +67,27 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
   }, [])
 
   return (
-    <div
-      className={css`
-        /* This makes Gutenberg popovers to keep their position on scrolling */
-        position: relative;
-      `}
-    >
+    <div className="editor">
       <SlotFillProvider>
         <BlockEditorProvider value={content} onInput={handleInput} onChange={handleChanges}>
-          <div className="playground__sidebar">
+          <div className="editor__sidebar">
             <BlockInspector />
           </div>
-          <div className="editor-styles-wrapper">
-            {/* @ts-ignore: type signature incorrect */}
-            <Popover.Slot name="block-toolbar" />
-            {/* @ts-ignore: @type signature incorrect */}
-            <BlockEditorKeyboardShortcuts.Register />
-            <BlockEditorKeyboardShortcuts />
-            <WritingFlow>
-              <ObserveTyping>
-                <BlockList />
-              </ObserveTyping>
-            </WritingFlow>
+          <div className="editor__content">
+            {/* <BlockTools> */}
+            <div className="editor-styles-wrapper">
+              <Popover.Slot />
+              {/* @ts-ignore: type signature incorrect */}
+              <BlockEditorKeyboardShortcuts.Register />
+              <BlockEditorKeyboardShortcuts />
+              <WritingFlow>
+                <ObserveTyping>
+                  <BlockList />
+                </ObserveTyping>
+              </WritingFlow>
+            </div>
+            {/* </BlockTools> */}
           </div>
-          <Popover.Slot />
         </BlockEditorProvider>
       </SlotFillProvider>
       <SerializeGutenbergModal content={content} />

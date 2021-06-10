@@ -102,7 +102,7 @@ pub struct PageExerciseItem {
 pub struct NextPage {
     url_path: String,
     title: String,
-    chapter_number: i32,
+    chapter_number: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -110,7 +110,7 @@ pub struct PageData {
     page_id: Uuid,
     order_number: i32,
     chapter_id: Uuid,
-    chapter_number: i32
+    chapter_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -638,14 +638,15 @@ WHERE page_id IN (
     Ok(chapter_pages_with_exercises)
 }
 
-pub async fn get_next_page(pool: &PgPool, pages_id: Uuid) -> Result<NextPage> {
+pub async fn get_next_page(pool: &PgPool, pages_id: Uuid) -> Result<Option<NextPage>> {
     let page_data = get_page_data(pool, pages_id).await?;
     let next_page = get_next_page_by_order_number(pool, page_data.order_number).await?;
 
     match next_page {
-        Some(next_page) => Ok(next_page),
+        Some(next_page) => Ok(Some(next_page)),
         None => {
-            let first_page = get_next_page_by_chapter_number(pool, page_data.chapter_number).await?;
+            let first_page =
+                get_next_page_by_chapter_number(pool, page_data.chapter_number).await?;
             Ok(first_page)
         }
     }
@@ -665,12 +666,17 @@ FROM pages p
 WHERE p.id = $1;
         "#,
         page_id
-    ).fetch_one(&mut connection).await?;
+    )
+    .fetch_one(&mut connection)
+    .await?;
 
     Ok(page_data)
 }
 
-async fn get_next_page_by_order_number(pool: &PgPool, order_number: i32) -> Result<NextPage> {
+async fn get_next_page_by_order_number(
+    pool: &PgPool,
+    order_number: i32,
+) -> Result<Option<NextPage>> {
     let mut connection = pool.acquire().await?;
     let next_page = sqlx::query_as!(
         NextPage,
@@ -688,12 +694,17 @@ WHERE order_number = (
   );
         "#,
         order_number
-    ).fetch_one(&mut connection).await?;
+    )
+    .fetch_one(&mut connection)
+    .await?;
 
-    Ok(next_page)
+    Ok(Some(next_page))
 }
 
-async fn get_next_page_by_chapter_number(pool: &PgPool, chapter_number: i32) -> Result<NextPage> {
+async fn get_next_page_by_chapter_number(
+    pool: &PgPool,
+    chapter_number: i32,
+) -> Result<Option<NextPage>> {
     let mut connection = pool.acquire().await?;
     let next_page = sqlx::query_as!(
         NextPage,
@@ -711,7 +722,9 @@ WHERE chapter_number = (
   );
         "#,
         chapter_number
-    ).fetch_one(&mut connection).await?;
+    )
+    .fetch_one(&mut connection)
+    .await?;
 
-    Ok(next_page)
+    Ok(Some(next_page))
 }

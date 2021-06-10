@@ -2,7 +2,6 @@
 use crate::{controllers::ApplicationResult, models::pages::NextPage};
 use actix_web::web::{self, Json, ServiceConfig};
 use sqlx::PgPool;
-use std::str::FromStr;
 use uuid::Uuid;
 
 /**
@@ -20,10 +19,9 @@ use uuid::Uuid;
 async fn get_next_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<NextPage>> {
-    let pages_id = Uuid::from_str(&request_page_id)?;
-    let next_page_data: NextPage =
-        crate::models::pages::get_next_page(pool.get_ref(), pages_id).await?;
+) -> ApplicationResult<Json<Option<NextPage>>> {
+    let next_page_data =
+        crate::models::pages::get_next_page(pool.get_ref(), *request_page_id).await?;
     Ok(Json(next_page_data))
 }
 

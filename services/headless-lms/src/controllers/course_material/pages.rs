@@ -10,9 +10,9 @@ use uuid::Uuid;
  # Example,
 ```json
 {
-    "path": "/path-to-next/page",
-    "name": "Name of the next page",
-    "part": 1,
+    "url_path": "/path-to-next/page",
+    "title": "Name of the next page",
+    "chapter_number": 1
 }
 ```
 */

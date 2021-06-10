@@ -648,22 +648,22 @@ WHERE page_id IN (
 }
 
 pub async fn get_next_page(pool: &PgPool, pages_id: Uuid) -> Result<Option<NextPage>> {
-    let page_data = get_page_data(pool, pages_id).await?;
-    let next_page = get_next_page_by_order_number(pool, page_data.order_number).await?;
+    let page_metadata = get_page_metadata(pool, pages_id).await?;
+    let next_page = get_next_page_by_order_number(pool, page_metadata.order_number).await?;
 
     match next_page {
         Some(next_page) => Ok(Some(next_page)),
         None => {
             let first_page =
-                get_next_page_by_chapter_number(pool, page_data.chapter_number).await?;
+                get_next_page_by_chapter_number(pool, page_metadata.chapter_number).await?;
             Ok(first_page)
         }
     }
 }
 
-async fn get_page_data(pool: &PgPool, page_id: Uuid) -> Result<PageData> {
+async fn get_page_metadata(pool: &PgPool, page_id: Uuid) -> Result<PageData> {
     let mut connection = pool.acquire().await?;
-    let page_data = sqlx::query_as!(
+    let page_metadata = sqlx::query_as!(
         PageData,
         r#"
 SELECT p.id as page_id,
@@ -679,7 +679,7 @@ WHERE p.id = $1;
     .fetch_one(&mut connection)
     .await?;
 
-    Ok(page_data)
+    Ok(page_metadata)
 }
 
 async fn get_next_page_by_order_number(

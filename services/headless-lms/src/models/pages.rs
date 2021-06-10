@@ -106,7 +106,7 @@ pub struct NextPage {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
-pub struct PageData {
+pub struct NextPageMetadata {
     page_id: Uuid,
     order_number: i32,
     chapter_id: Uuid,
@@ -661,10 +661,10 @@ pub async fn get_next_page(pool: &PgPool, pages_id: Uuid) -> Result<Option<NextP
     }
 }
 
-async fn get_page_metadata(pool: &PgPool, page_id: Uuid) -> Result<PageData> {
+async fn get_page_metadata(pool: &PgPool, page_id: Uuid) -> Result<NextPageMetadata> {
     let mut connection = pool.acquire().await?;
     let page_metadata = sqlx::query_as!(
-        PageData,
+        NextPageMetadata,
         r#"
 SELECT p.id as page_id,
   p.order_number as order_number,

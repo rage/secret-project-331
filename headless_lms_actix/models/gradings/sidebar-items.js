@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["UserPointsUpdateStrategy",""]],"fn":[["get_course_id",""],["new_grading",""],["update_grading",""]],"struct":[["Grading",""]]});
+initSidebarItems({"enum":[["UserPointsUpdateStrategy",""]],"fn":[["get_course_id",""],["grade_submission",""],["new_grading",""],["update_grading",""]],"struct":[["Grading",""]]});

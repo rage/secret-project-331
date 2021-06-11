@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["figure_out_new_activity_progress","Returns a new state for the activity progress."],["figure_out_new_grading_progress","Returns a new state for the grading progress."],["figure_out_new_score_given",""],["get_or_create_user_exercise_state",""],["update_user_exercise_state",""]],"struct":[["UserExerciseState",""]]});

@@ -12,10 +12,12 @@ use anyhow::Context;
 use oauth2::{ResourceOwnerPassword, ResourceOwnerUsername, TokenResponse};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Login {
-    login: String,
+    email: String,
     password: String,
 }
 
@@ -29,20 +31,23 @@ POST `/api/v0/auth/login` Logs in to TMC.
 **/
 pub async fn login(
     session: Session,
+    pool: web::Data<PgPool>,
     client: web::Data<OAuthClient>,
-    payload: web::Form<Login>,
+    payload: web::Json<Login>,
 ) -> ApplicationResult<HttpResponse> {
-    let Login { login, password } = payload.into_inner();
+    let Login { email, password } = payload.into_inner();
 
+    // login to TMC
     let token = client
         .exchange_password(
-            &ResourceOwnerUsername::new(login.clone()),
+            &ResourceOwnerUsername::new(email.clone()),
             &ResourceOwnerPassword::new(password.clone()),
         )
         .request_async(oauth2::reqwest::async_http_client)
         .await
         .context("Failed to authenticate")?;
 
+    // get upstream id for user from TMC
     let current_user_url = "https://tmc.mooc.fi/api/v8/users/current";
     let client = Client::default();
     let res = client
@@ -54,9 +59,17 @@ pub async fn login(
     if !res.status().is_success() {
         return Err(anyhow::anyhow!("Failed to get current user from TMC").into());
     }
-
     let current_user: CurrentUser = res.json().await.context("Unexpected response from TMC")?;
     let upstream_id = current_user.id;
+
+    // create new user if one doesn't exist yet
+    let existing_user = crate::models::users::find_by_upstream_id(&pool, upstream_id)
+        .await
+        .context("Error while trying to find user")?;
+    if existing_user.is_none() {
+        let new_id = Uuid::new_v4();
+        crate::models::users::upsert_user_id(&pool, new_id, Some(upstream_id)).await?;
+    }
 
     session
         .insert("session", upstream_id)

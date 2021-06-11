@@ -145,6 +145,7 @@ Content-Type: application/json
 
 {
   "exercise_item_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+  "course_instance_id": "25800692-0d99-4f29-b741-92d69b0900b9",
   "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
 }
 

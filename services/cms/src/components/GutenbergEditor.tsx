@@ -41,7 +41,8 @@ import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
 import { blockTypeMap } from "../blocks"
-
+import { addFilter } from "@wordpress/hooks"
+import MyMediaUpload from "./MediaUpload"
 interface GutenbergEditor {
   content: BlockInstance[]
   onContentChange: React.Dispatch<BlockInstance[]>
@@ -58,8 +59,10 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
     console.log(page)
     onContentChange(page)
   }
+  const replaceMediaUpload = () => MyMediaUpload
 
   useEffect(() => {
+    addFilter("editor.MediaUpload", "core/edit-post/replace-media-upload", replaceMediaUpload)
     registerCoreBlocks()
     blockTypeMap.forEach(([blockName, block]) => {
       registerBlockType(blockName, block)

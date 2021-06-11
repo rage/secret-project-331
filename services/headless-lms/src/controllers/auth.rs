@@ -56,10 +56,10 @@ pub async fn login(
     }
 
     let current_user: CurrentUser = res.json().await.context("Unexpected response from TMC")?;
-    let legacy_id = current_user.id;
+    let upstream_id = current_user.id;
 
     session
-        .insert("session", legacy_id)
+        .insert("session", upstream_id)
         .map_err(|_| anyhow::anyhow!("Failed to insert to session"))?;
     Ok(HttpResponse::Ok().finish())
 }

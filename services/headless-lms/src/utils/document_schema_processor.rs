@@ -292,7 +292,7 @@ mod tests {
             &PageUpdateExercise {
                 id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                 name: "Best exercise".to_string(),
-                order_number: 0,
+                order_number: 1,
                 exercise_items: vec![
                     PageUpdateExerciseItem {
                         id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),

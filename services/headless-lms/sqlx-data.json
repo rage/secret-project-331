@@ -171,13 +171,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "216274644eb91791c11037c6ce36bed38f64b1e3be53585ddce293db048a3513": {
@@ -364,13 +360,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "3fe37166761219fc5d832aff78c2ae81f963c9b1fa42ac8519e80bc436c54200": {
@@ -843,27 +835,16 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer"
-                ]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        true,
-        true,
-        false
-      ]
+      "nullable": [true, true, false]
     }
   },
   "785c6a12aad375df96e3ce5dee4b20fde25e67ec826c645019a03222a07c2aa9": {
@@ -1137,13 +1118,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "9057dd020d252d6f0c39e2214cc20e8280ae89061ce4b45fa5ec8facb961ed0e": {
@@ -1218,13 +1195,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "9c85b99d223ec35dd6a3d00598117fba6db802ec315cd2d1c38012b577d270bb": {
@@ -1411,13 +1384,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "b7c1d6419ba5258f9768f21c871f7e20ec929aeb83445e8a09a5cbd4e9425def": {
@@ -1732,13 +1701,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "da896f936aafd16dba8e38e8e97b7907310051fa453acf242dccab1776995e48": {
@@ -2216,13 +2181,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "fedf6f6fd2c1c81adf93753386ca0313066e6045f5dfd0cd55eeaf7e59866fad": {

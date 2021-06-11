@@ -5,6 +5,7 @@ import useQueryParameter from "../../hooks/useQueryParameter"
 import { fetchCoursePageByPath } from "../../services/backend"
 import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 import Page from "../../components/Page"
+import PageContext from "../../contexts/PageContext"
 
 const PagePage = () => {
   const courseId = useQueryParameter("courseSlug")
@@ -25,7 +26,11 @@ const PagePage = () => {
     return <GenericLoading />
   }
 
-  return <Page data={data} />
+  return (
+    <PageContext.Provider value={data}>
+      <Page data={data} />
+    </PageContext.Provider>
+  )
 }
 
 export default dontRenderUntilQueryParametersReady(PagePage)

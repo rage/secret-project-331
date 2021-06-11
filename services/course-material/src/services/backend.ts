@@ -46,6 +46,7 @@ export interface CoursePage {
   url_path: string
   title: string
   deleted_at: string | null
+  chapter_id: string
 }
 
 export interface Block<T> {
@@ -110,6 +111,28 @@ export interface ExerciseStatus {
 export const fetchExerciseById = async (id: string): Promise<CourseMaterialExercise> => {
   const data = (
     await axios.get(`/api/v0/course-material/exercises/${id}`, { responseType: "json" })
+  ).data
+  return data
+}
+
+interface ChaptersExercises {
+  id: string
+  created_at: Date
+  updated_at: Date
+  course_id: string
+  chpater_id: string
+  content: any
+  url_path: string
+  title: string
+  deleted_at: Date
+  exercises: Exercise[]
+}
+
+export const fetchChaptersExercises = async (chapterId: string): Promise<ChaptersExercises> => {
+  const data = (
+    await axios.get(`/api/v0/course-material/chapters/${chapterId}/exercises`, {
+      responseType: "json",
+    })
   ).data
   return data
 }

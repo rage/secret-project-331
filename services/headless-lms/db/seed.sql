@@ -39,12 +39,13 @@ VALUES (
     '/',
     'Welcome to Introduction to Everything'
   );
-INSERT INTO exercises (id, course_id, "name", page_id)
+INSERT INTO exercises (id, course_id, "name", page_id, order_number)
 VALUES (
     '34e47a8e-d573-43be-8f23-79128cbb29b8',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     'Best exercise',
-    'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d'
+    'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d',
+    1
   );
 INSERT INTO exercise_items (
     id,

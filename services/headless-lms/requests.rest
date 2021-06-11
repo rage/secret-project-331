@@ -163,4 +163,4 @@ http://project-331.local/api/v0/cms/courses
 
 ####
 
-GET http://project-331.local/api/v0/course-material/chapters/b25f849a-5b7b-4718-b0d7-88f435e2393d/exercises
+GET http://project-331.local/api/v0/course-material/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/exercises

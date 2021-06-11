@@ -68,6 +68,7 @@ pub struct PageUpdateExercise {
     pub id: Uuid,
     pub name: String,
     pub exercise_items: Vec<PageUpdateExerciseItem>,
+    pub order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -108,6 +109,7 @@ struct Exercise {
     deadline: Option<DateTime<Utc>>,
     page_id: Uuid,
     score_maximum: i32,
+    order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -240,6 +242,7 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
                 id: e.id,
                 name: e.name,
                 exercise_items: items,
+                order_number: e.order_number,
             }
         })
         .collect();
@@ -437,6 +440,7 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
             id: exercise.id,
             name: exercise.name,
             exercise_items: exercise_exercise_items,
+            order_number: exercise.order_number,
         })
     }
 

@@ -171,13 +171,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "216274644eb91791c11037c6ce36bed38f64b1e3be53585ddce293db048a3513": {
@@ -364,13 +360,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "3fe37166761219fc5d832aff78c2ae81f963c9b1fa42ac8519e80bc436c54200": {
@@ -717,12 +709,17 @@
           "ordinal": 8,
           "name": "score_maximum",
           "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false]
+      "nullable": [false, false, false, false, true, false, true, false, false, false]
     }
   },
   "6bec859d2330e33c7ed7b764071bc302f2db2d97daca66cd27b90ac42beeb091": {
@@ -773,12 +770,17 @@
           "ordinal": 8,
           "name": "score_maximum",
           "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid", "Uuid", "Varchar", "Uuid"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false]
+      "nullable": [false, false, false, false, true, false, true, false, false, false]
     }
   },
   "6f24e7835586e73005affad8d35b2163f6ba08dffac560810b91a53d4dcf2fff": {
@@ -843,27 +845,16 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer"
-                ]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        true,
-        true,
-        false
-      ]
+      "nullable": [true, true, false]
     }
   },
   "785c6a12aad375df96e3ce5dee4b20fde25e67ec826c645019a03222a07c2aa9": {
@@ -1137,13 +1128,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "9057dd020d252d6f0c39e2214cc20e8280ae89061ce4b45fa5ec8facb961ed0e": {
@@ -1218,13 +1205,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "9c85b99d223ec35dd6a3d00598117fba6db802ec315cd2d1c38012b577d270bb": {
@@ -1275,12 +1258,17 @@
           "ordinal": 8,
           "name": "score_maximum",
           "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["UuidArray"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false]
+      "nullable": [false, false, false, false, true, false, true, false, false, false]
     }
   },
   "a9e2fc40cc3a0a3e0bb5910ea9a354f91a3717e602eb8648fe8fd34a7da9bf44": {
@@ -1411,13 +1399,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "b7c1d6419ba5258f9768f21c871f7e20ec929aeb83445e8a09a5cbd4e9425def": {
@@ -1732,13 +1716,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "da896f936aafd16dba8e38e8e97b7907310051fa453acf242dccab1776995e48": {
@@ -2216,13 +2196,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false
-      ]
+      "nullable": [false]
     }
   },
   "fedf6f6fd2c1c81adf93753386ca0313066e6045f5dfd0cd55eeaf7e59866fad": {
@@ -2273,12 +2249,17 @@
           "ordinal": 8,
           "name": "score_maximum",
           "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, true, false, true, false, false]
+      "nullable": [false, false, false, false, true, false, true, false, false, false]
     }
   }
 }

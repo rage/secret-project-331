@@ -57,7 +57,8 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
     let mut exercises: Vec<PageUpdateExercise> = Vec::new();
     let res: Result<Vec<GutenbergBlock>> = input
         .into_iter()
-        .map(|block| {
+        .enumerate()
+        .map(|(i, block)| {
             if block.name != "moocfi/exercise" {
                 return Ok(block);
             }
@@ -98,6 +99,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
                 id: exercise_attributes.id,
                 name: exercise_attributes.name,
                 exercise_items: exercise_items?,
+                order_number: i as i32,
             };
             let id = exercise.id;
             exercises.push(exercise);
@@ -290,6 +292,7 @@ mod tests {
             &PageUpdateExercise {
                 id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                 name: "Best exercise".to_string(),
+                order_number: 0,
                 exercise_items: vec![
                     PageUpdateExerciseItem {
                         id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
@@ -350,6 +353,7 @@ mod tests {
         let exercises = vec![PageUpdateExercise {
             id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
             name: "Best exercise".to_string(),
+            order_number: 0,
             exercise_items: vec![
                 PageUpdateExerciseItem {
                     id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),

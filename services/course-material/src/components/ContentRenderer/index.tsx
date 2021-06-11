@@ -15,6 +15,7 @@ import PreformatterBlock from "./PreformatterBlock"
 import VerseBlock from "./VerseBlock"
 import PullquoteBlock from "./PullquoteBlock"
 import CoverBlock from "./CoverBlock"
+import ExerciseListBlock from "./ExerciseListBlock/index"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -39,12 +40,14 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/preformatted": PreformatterBlock,
   "core/columns": TableBlock,
   "moocfi/exercise": ExerciseBlock,
+  "moocfi/exercises-in-chapter": ExerciseListBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
   return (
     <>
       {props.data.map((block) => {
+        console.log(block)
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         return <Component key={block.clientId} data={block} />
       })}

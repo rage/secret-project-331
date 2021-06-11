@@ -30,9 +30,7 @@ const Layout: React.FC<Props> = ({ children, title = "Päätön CMS" }) => (
           padding: 1rem;
         `}
       >
-      <a href="/">Home</a>
-      {' '}
-      <LoginLogoutButton />
+        <a href="/">Home</a> <LoginLogoutButton />
       </nav>
     </header>
     <div

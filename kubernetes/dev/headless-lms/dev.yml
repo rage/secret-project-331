@@ -5,6 +5,6 @@ metadata:
 type: Opaque
 data:
   # for local development only, intentionally public
-  privateCookieKey: "bmljZSBrZXkgbmljZSBrZXkgbmljZSBrZXkgbmljZSBrZXk="
-  oAuthApplicationId: "TkY0cFNhWThVWVk0MjViOWdYekpWaGlMdV9RMVpMMnNGdEZSMS1nZ3hnMA=="
-  oAuthSecret: "LVJlaTVuVzJsUlVwbjRGTnJQallLellJVTBiYlpHQy1PX2JIcmlZb0NYaw=="
+  PRIVATE_COOKIE_KEY: "bmljZSBrZXkgbmljZSBrZXkgbmljZSBrZXkgbmljZSBrZXk="
+  OAUTH_APPLICATION_ID: "TkY0cFNhWThVWVk0MjViOWdYekpWaGlMdV9RMVpMMnNGdEZSMS1nZ3hnMA=="
+  OAUTH_SECRET: "LVJlaTVuVzJsUlVwbjRGTnJQallLellJVTBiYlpHQy1PX2JIcmlZb0NYaw=="

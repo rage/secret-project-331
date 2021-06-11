@@ -10,36 +10,57 @@ VALUES (
     'University of Helsinki, Department of Mathematics and Statistics',
     'uh-mathstat'
   );
-INSERT INTO courses (id, "name", slug, organization_id)
+INSERT INTO courses (
+    id,
+    "name",
+    slug,
+    organization_id,
+    variant_status
+  )
 VALUES (
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     'Introduction to everything',
     'introduction-to-everything',
-    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec'
+    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec',
+    'active'
   );
 INSERT INTO course_instances (id, course_id)
 VALUES (
     '25800692-0d99-4f29-b741-92d69b0900b9',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb'
   );
-INSERT INTO courses (id, "name", slug, organization_id)
+INSERT INTO courses (
+    id,
+    "name",
+    slug,
+    organization_id,
+    variant_status
+  )
 VALUES (
     '2d56db91-399a-43e7-b6d0-21c3f18d72af',
     'Introduction to Computer Science',
     'introduction-to-computer-science',
-    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec'
+    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec',
+    'active'
   );
 INSERT INTO course_instances (id, course_id)
 VALUES (
     '049d8ef0-0d77-4fc5-8870-e215160f464c',
     '2d56db91-399a-43e7-b6d0-21c3f18d72af'
   );
-INSERT INTO courses (id, "name", slug, organization_id)
+INSERT INTO courses (
+    id,
+    "name",
+    slug,
+    organization_id,
+    variant_status
+  )
 VALUES (
     '8f605161-125b-449b-a443-c62ffc1b077f',
     'Introduction to Statistics',
     'introduction-to-statistics',
-    'b36c94f5-bc87-4bc9-aab8-a0591b9f6f81'
+    'b36c94f5-bc87-4bc9-aab8-a0591b9f6f81',
+    'active'
   );
 INSERT INTO course_instances (id, course_id)
 VALUES (

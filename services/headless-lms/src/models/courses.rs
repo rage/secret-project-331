@@ -18,6 +18,16 @@ pub struct Course {
     pub name: String,
     pub organization_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub variant_status: CourseVariantStatus,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[sqlx(type_name = "variant-status", rename_all = "snake_case")]
+pub enum CourseVariantStatus {
+    Draft,
+    Upcoming,
+    Active,
+    Ended,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -30,7 +40,7 @@ pub struct CourseStructure {
 pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
     let mut transaction = pool.begin().await?;
     let connection = transaction.acquire().await?;
-    let courses = sqlx::query_as!(Course, "SELECT * FROM courses WHERE deleted_at IS NULL;")
+    let courses = sqlx::query_as!(Course, r#"SELECT id, slug, created_at, updated_at, name, organization_id, deleted_at, variant_status as "variant_status: CourseVariantStatus" FROM courses WHERE deleted_at IS NULL;"#)
         .fetch_all(connection)
         .await?;
     Ok(courses)
@@ -39,7 +49,7 @@ pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
 pub async fn get_course(pool: &PgPool, course_id: Uuid) -> Result<Course> {
     let mut transaction = pool.begin().await?;
     let connection = transaction.acquire().await?;
-    let course = sqlx::query_as!(Course, "SELECT * FROM courses WHERE id = $1;", course_id)
+    let course = sqlx::query_as!(Course, r#"SELECT id, slug, created_at, updated_at, name, organization_id, deleted_at, variant_status as "variant_status: CourseVariantStatus" FROM courses WHERE id = $1;"#, course_id)
         .fetch_one(connection)
         .await?;
     Ok(course)
@@ -70,7 +80,7 @@ pub async fn organization_courses(pool: &PgPool, organization_id: &Uuid) -> Resu
     let connection = transaction.acquire().await?;
     let courses = sqlx::query_as!(
         Course,
-        "SELECT * FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;",
+        r#"SELECT id, slug, created_at, updated_at, name, organization_id, deleted_at, variant_status as "variant_status: CourseVariantStatus" FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;"#,
         organization_id
     )
     .fetch_all(connection)
@@ -94,7 +104,7 @@ pub async fn insert_course(pool: &PgPool, course: NewCourse) -> Result<Course> {
     INSERT INTO
       courses(name, slug, organization_id)
     VALUES($1, $2, $3)
-    RETURNING *
+    RETURNING id, slug, created_at, updated_at, name, organization_id, deleted_at, variant_status as "variant_status: CourseVariantStatus"
             "#,
         course.name,
         course.slug,
@@ -124,7 +134,7 @@ UPDATE courses
     SET name = $1
 WHERE
     id = $2
-    RETURNING *
+    RETURNING id, slug, created_at, updated_at, name, organization_id, deleted_at, variant_status as "variant_status: CourseVariantStatus"
     "#,
         course_update.name,
         course_id
@@ -143,7 +153,7 @@ UPDATE courses
     SET deleted_at = now()
 WHERE
     id = $1
-RETURNING *
+RETURNING id, slug, created_at, updated_at, name, organization_id, deleted_at, variant_status as "variant_status: CourseVariantStatus"
     "#,
         course_id
     )

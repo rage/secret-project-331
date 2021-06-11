@@ -651,6 +651,22 @@
       "nullable": [false, false, false, false, false, false, false, true, true]
     }
   },
+  "62a325f62a3c1386c8de90c87c94577bd0c290f37608057f9f6a1f4f24420c95": {
+    "query": "SELECT id FROM users WHERE upstream_id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Int4"]
+      },
+      "nullable": [false]
+    }
+  },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
     "query": "SELECT * FROM exercises WHERE id = $1;",
     "describe": {

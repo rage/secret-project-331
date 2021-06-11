@@ -6,14 +6,13 @@ export const loggedIn = async (): Promise<boolean> => {
   return data
 }
 
-export const login = async (login: string, password: string): Promise<void> => {
+export const login = async (email: string, password: string): Promise<void> => {
   const url = `/api/v0/auth/login`
-  const params = new URLSearchParams()
-  params.append("login", login)
-  params.append("password", password)
-
   try {
-    await axios.post(url, params)
+    await axios.post(url, {
+      email,
+      password,
+    })
   } catch (e) {
     console.log("failed to login: ", e)
   }

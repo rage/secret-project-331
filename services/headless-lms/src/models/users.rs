@@ -18,3 +18,12 @@ ON CONFLICT(id) DO NOTHING;
     .await?;
     Ok(())
 }
+
+pub async fn find_by_upstream_id(pool: &PgPool, upstream_id: i32) -> Result<Option<Uuid>> {
+    let mut connection = pool.acquire().await?;
+    let id = sqlx::query!("SELECT id FROM users WHERE upstream_id = $1", upstream_id)
+        .fetch_optional(&mut connection)
+        .await?
+        .map(|u| u.id);
+    Ok(id)
+}

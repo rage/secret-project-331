@@ -1351,6 +1351,16 @@
       "nullable": [false]
     }
   },
+  "9bb3961a0472ee0cfa9f181eab747b9e292d8273a8199a11d5efce1721b8ee39": {
+    "query": "\nINSERT INTO\n  users (id, upstream_id)\nVALUES($1, $2)\nON CONFLICT(id) DO NOTHING;\n          ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Int4"]
+      },
+      "nullable": []
+    }
+  },
   "9c85b99d223ec35dd6a3d00598117fba6db802ec315cd2d1c38012b577d270bb": {
     "query": "\nSELECT *\nFROM exercises\nWHERE page_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL\n        ",
     "describe": {
@@ -1589,16 +1599,6 @@
         "Left": []
       },
       "nullable": [false, false, false, false, false, true, false]
-    }
-  },
-  "b966f7627244180588cd487928d5717f2f60a660edd71039075ef24dba237697": {
-    "query": "\nINSERT INTO\n  users (id, legacy_id)\nVALUES($1, $2)\nON CONFLICT(id) DO NOTHING;\n          ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Int4"]
-      },
-      "nullable": []
     }
   },
   "c1908e69ccbe1ec11a22f88ec34da84b934b07915a2c659cdbf16a24d2c5f611": {

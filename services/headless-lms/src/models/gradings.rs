@@ -36,7 +36,7 @@ pub struct Grading {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 pub enum UserPointsUpdateStrategy {
     CanAddPointsButCannotRemovePoints,

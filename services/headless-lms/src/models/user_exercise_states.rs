@@ -57,39 +57,42 @@ RETURNING user_id,
     Ok(res)
 }
 
-fn figure_out_new_score_given<'a>(
-    current_score_given: &'a Option<f32>,
-    grading_score_given: &'a Option<f32>,
-    user_points_update_strategy: &'a UserPointsUpdateStrategy,
-) -> &'a Option<f32> {
-    if current_score_given.is_none() {
+fn figure_out_new_score_given(
+    current_score_given: Option<f32>,
+    grading_score_given: Option<f32>,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> Option<f32> {
+    let current_score_given = if let Some(current_score_given) = current_score_given {
+        current_score_given
+    } else {
         info!(
             "Current state has no score, using score from grading ({:?})",
-            &grading_score_given
+            grading_score_given
         );
         return grading_score_given;
-    }
-    if grading_score_given.is_none() {
+    };
+    let grading_score_given = if let Some(grading_score_given) = grading_score_given {
+        grading_score_given
+    } else {
         info!(
             "Grading has no score, using score from current state ({:?})",
-            &current_score_given
+            current_score_given
         );
-        return current_score_given;
-    }
-    let some_current_score_given = current_score_given.expect("Never none, checked above");
-    let some_grading_score_given = grading_score_given.expect("Never none, checked above");
+        return Some(current_score_given);
+    };
+
     let new_score = match user_points_update_strategy {
         UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints => {
-            if some_current_score_given >= some_grading_score_given {
+            if current_score_given >= grading_score_given {
                 info!(
                     "Not updating score ({:?} >= {:?})",
-                    &some_current_score_given, &some_grading_score_given
+                    current_score_given, grading_score_given
                 );
                 current_score_given
             } else {
                 info!(
                     "Updating score from {:?} to {:?}",
-                    &some_current_score_given, &some_grading_score_given
+                    current_score_given, grading_score_given
                 );
                 grading_score_given
             }
@@ -97,12 +100,12 @@ fn figure_out_new_score_given<'a>(
         UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints => {
             info!(
                 "Updating score from {:?} to {:?}",
-                &some_current_score_given, &some_grading_score_given
+                current_score_given, grading_score_given
             );
             grading_score_given
         }
     };
-    new_score
+    Some(new_score)
 }
 
 /**
@@ -117,13 +120,13 @@ In the future this function will be extended to support peer reviews. When
 there's a peer review associated with the exercise, it is part of the overall
 grading progress.
 */
-fn figure_out_new_grading_progress<'a>(
-    current_grading_progress: &'a GradingProgress,
-    grading_grading_progress: &'a GradingProgress,
+fn figure_out_new_grading_progress(
+    current_grading_progress: GradingProgress,
+    grading_grading_progress: GradingProgress,
 ) -> GradingProgress {
     match current_grading_progress {
         GradingProgress::FullyGraded => GradingProgress::FullyGraded,
-        _ => *grading_grading_progress,
+        _ => grading_grading_progress,
     }
 }
 
@@ -135,9 +138,9 @@ there's a peer review associated with the exercise, the activity is not complete
 before the user has given the peer reviews that they're required to give.
 */
 fn figure_out_new_activity_progress(
-    current_activity_progress: &ActivityProgress,
+    current_activity_progress: ActivityProgress,
 ) -> ActivityProgress {
-    if current_activity_progress == &ActivityProgress::Completed {
+    if current_activity_progress == ActivityProgress::Completed {
         return ActivityProgress::Completed;
     }
 
@@ -166,13 +169,13 @@ pub async fn update_user_exercise_state(
         grading.user_points_update_strategy
     );
     let new_score_given = figure_out_new_score_given(
-        &current_state.score_given,
-        &grading.score_given,
-        &grading.user_points_update_strategy,
+        current_state.score_given,
+        grading.score_given,
+        grading.user_points_update_strategy,
     );
     let new_grading_progress =
-        figure_out_new_grading_progress(&current_state.grading_progress, &grading.grading_progress);
-    let new_activity_progress = figure_out_new_activity_progress(&current_state.activity_progress);
+        figure_out_new_grading_progress(current_state.grading_progress, grading.grading_progress);
+    let new_activity_progress = figure_out_new_activity_progress(current_state.activity_progress);
 
     let res = sqlx::query_as!(
         UserExerciseState,
@@ -195,7 +198,7 @@ RETURNING user_id,
         user_id,
         exercise_id,
         course_instance_id,
-        *new_score_given,
+        new_score_given,
         new_grading_progress as GradingProgress,
         new_activity_progress as ActivityProgress,
     )
@@ -221,9 +224,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &Some(1.1),
-                        &Some(1.1),
-                        &UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+                        Some(1.1),
+                        Some(1.1),
+                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
                     )
                     .unwrap(),
                     1.1,
@@ -233,9 +236,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &Some(1.1),
-                        &Some(20.9),
-                        &UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+                        Some(1.1),
+                        Some(20.9),
+                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
                     )
                     .unwrap(),
                     20.9,
@@ -245,9 +248,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &Some(20.9),
-                        &Some(1.1),
-                        &UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+                        Some(20.9),
+                        Some(1.1),
+                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
                     )
                     .unwrap(),
                     1.1,
@@ -261,9 +264,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &Some(1.1),
-                        &Some(1.1),
-                        &UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+                        Some(1.1),
+                        Some(1.1),
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
                     )
                     .unwrap(),
                     1.1,
@@ -273,9 +276,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &Some(1.1),
-                        &Some(20.9),
-                        &UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+                        Some(1.1),
+                        Some(20.9),
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
                     )
                     .unwrap(),
                     20.9,
@@ -285,9 +288,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &Some(20.9),
-                        &Some(1.1),
-                        &UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+                        Some(20.9),
+                        Some(1.1),
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
                     )
                     .unwrap(),
                     20.9,
@@ -301,9 +304,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &None,
-                        &Some(1.1),
-                        &UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+                        None,
+                        Some(1.1),
+                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
                     )
                     .unwrap(),
                     1.1,
@@ -313,9 +316,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &None,
-                        &Some(1.1),
-                        &UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+                        None,
+                        Some(1.1),
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
                     )
                     .unwrap(),
                     1.1,
@@ -325,9 +328,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &Some(1.1),
-                        &None,
-                        &UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+                        Some(1.1),
+                        None,
+                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
                     )
                     .unwrap(),
                     1.1,
@@ -337,9 +340,9 @@ mod tests {
             assert_eq!(
                 f32_approx_eq(
                     figure_out_new_score_given(
-                        &Some(1.1),
-                        &None,
-                        &UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+                        Some(1.1),
+                        None,
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
                     )
                     .unwrap(),
                     1.1,
@@ -348,19 +351,19 @@ mod tests {
             );
             assert_eq!(
                 figure_out_new_score_given(
-                    &None,
-                    &None,
-                    &UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+                    None,
+                    None,
+                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
                 ),
-                &None
+                None
             );
             assert_eq!(
                 figure_out_new_score_given(
-                    &None,
-                    &None,
-                    &UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+                    None,
+                    None,
+                    UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
                 ),
-                &None
+                None
             );
         }
     }
@@ -374,23 +377,20 @@ mod tests {
         fn it_works() {
             assert_eq!(
                 figure_out_new_grading_progress(
-                    &GradingProgress::Failed,
-                    &GradingProgress::FullyGraded
+                    GradingProgress::Failed,
+                    GradingProgress::FullyGraded
                 ),
                 GradingProgress::FullyGraded
             );
             assert_eq!(
                 figure_out_new_grading_progress(
-                    &GradingProgress::FullyGraded,
-                    &GradingProgress::Failed
+                    GradingProgress::FullyGraded,
+                    GradingProgress::Failed
                 ),
                 GradingProgress::FullyGraded
             );
             assert_eq!(
-                figure_out_new_grading_progress(
-                    &GradingProgress::Failed,
-                    &GradingProgress::Pending
-                ),
+                figure_out_new_grading_progress(GradingProgress::Failed, GradingProgress::Pending),
                 GradingProgress::Pending
             );
         }
@@ -404,7 +404,7 @@ mod tests {
         #[test]
         fn it_works() {
             assert_eq!(
-                figure_out_new_activity_progress(&ActivityProgress::Initialized),
+                figure_out_new_activity_progress(ActivityProgress::Initialized),
                 ActivityProgress::Completed
             );
         }

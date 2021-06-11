@@ -1,10 +1,15 @@
+use std::time::Duration;
+
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
 
+use crate::models::submissions::GradingRequest;
+
 use super::{
+    exercise_items::ExerciseItem,
     exercises::{Exercise, GradingProgress},
     submissions::{GradingResult, Submission},
 };
@@ -31,7 +36,7 @@ pub struct Grading {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 pub enum UserPointsUpdateStrategy {
     CanAddPointsButCannotRemovePoints,
@@ -65,6 +70,33 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
     .fetch_one(&mut connection)
     .await?;
     Ok(grading)
+}
+
+pub async fn grade_submission(
+    pool: &PgPool,
+    submission: Submission,
+    exercise_item: ExerciseItem,
+    exercise: Exercise,
+    grading: Grading,
+) -> Result<Grading> {
+    let client = reqwest::Client::new();
+    let res = client
+        .post("http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/grade")
+        .timeout(Duration::from_secs(120))
+        .json(&GradingRequest {
+            exercise_spec: exercise_item.private_spec,
+            submission_data: submission.data_json,
+        })
+        .send()
+        .await?;
+    let status = res.status();
+    if !status.is_success() {
+        anyhow::bail!("Grading failed");
+    }
+    let obj = res.json::<GradingResult>().await?;
+    info!("Received a grading result: {:#?}", &obj);
+    let updated_grading = update_grading(&pool, grading, obj, exercise).await?;
+    Ok(updated_grading)
 }
 
 pub async fn update_grading(

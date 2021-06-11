@@ -9,7 +9,7 @@ echo "> cd $RELATIVE_PATH"
 cd "$RELATIVE_PATH" || exit
 
 COMMAND="cargo"
-ARGUMENTS=(sqlx migrate add -r "$@")
+ARGUMENTS=(sqlx migrate add -r "$@" -- --bin headless-lms-actix)
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

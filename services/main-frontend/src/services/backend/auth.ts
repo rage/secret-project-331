@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "axios"
 
 export const loggedIn = async (): Promise<boolean> => {
   const url = `/api/v0/auth/logged-in`
@@ -8,7 +8,7 @@ export const loggedIn = async (): Promise<boolean> => {
 
 export const login = async (login: string, password: string): Promise<void> => {
   const url = `/api/v0/auth/login`
-  const params = new URLSearchParams();
+  const params = new URLSearchParams()
   params.append("login", login)
   params.append("password", password)
 
@@ -21,5 +21,5 @@ export const login = async (login: string, password: string): Promise<void> => {
 
 export const logout = async (): Promise<void> => {
   const url = `/api/v0/auth/logout`
-  await axios.post(url);
+  await axios.post(url)
 }

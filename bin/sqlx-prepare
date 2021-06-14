@@ -11,7 +11,7 @@ echo "> cd $RELATIVE_PATH"
 cd "$RELATIVE_PATH" || exit
 
 COMMAND="cargo"
-ARGUMENTS=(sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev prepare "$@" -- --bin headless-lms-actix)
+ARGUMENTS=(sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev prepare "$@" --merged)
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 eval "$COMMAND" "${ARGUMENTS[@]}"

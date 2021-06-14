@@ -14,15 +14,13 @@ INSERT INTO courses (
     id,
     "name",
     slug,
-    organization_id,
-    variant_status
+    organization_id
   )
 VALUES (
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     'Introduction to everything',
     'introduction-to-everything',
-    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec',
-    'active'
+    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec'
   );
 INSERT INTO course_instances (id, course_id)
 VALUES (
@@ -33,39 +31,39 @@ INSERT INTO courses (
     id,
     "name",
     slug,
-    organization_id,
-    variant_status
+    organization_id
   )
 VALUES (
     '2d56db91-399a-43e7-b6d0-21c3f18d72af',
     'Introduction to Computer Science',
     'introduction-to-computer-science',
-    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec',
-    'active'
+    '1b89e57e-8b57-42f2-9fed-c7a6736e3eec'
   );
-INSERT INTO course_instances (id, course_id)
+INSERT INTO course_instances (id, course_id, variant_status, starts_at)
 VALUES (
     '049d8ef0-0d77-4fc5-8870-e215160f464c',
-    '2d56db91-399a-43e7-b6d0-21c3f18d72af'
+    '2d56db91-399a-43e7-b6d0-21c3f18d72af',
+    'upcoming',
+    now()
   );
 INSERT INTO courses (
     id,
     "name",
     slug,
-    organization_id,
-    variant_status
+    organization_id
   )
 VALUES (
     '8f605161-125b-449b-a443-c62ffc1b077f',
     'Introduction to Statistics',
     'introduction-to-statistics',
-    'b36c94f5-bc87-4bc9-aab8-a0591b9f6f81',
-    'active'
+    'b36c94f5-bc87-4bc9-aab8-a0591b9f6f81'
   );
-INSERT INTO course_instances (id, course_id)
+INSERT INTO course_instances (id, course_id, variant_status, ends_at)
 VALUES (
     'eb5e96df-4a47-4a6e-995b-6af03f8173ad',
-    '8f605161-125b-449b-a443-c62ffc1b077f'
+    '8f605161-125b-449b-a443-c62ffc1b077f',
+    'active',
+    now()
   );
 INSERT INTO pages (
     id,

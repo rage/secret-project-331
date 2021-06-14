@@ -43,10 +43,10 @@ Represents error messages that are sent in responses.
 */
 #[derive(Debug, Display, Serialize, Deserialize)]
 pub enum ApplicationError {
-    #[display(fmt = "Internal server error")]
+    #[display(fmt = "Internal server error: {}", _0)]
     InternalServerError(String),
 
-    #[display(fmt = "Bad request")]
+    #[display(fmt = "Bad request: {}", _0)]
     BadRequest(String),
 
     #[display(fmt = "Not found")]
@@ -88,7 +88,7 @@ impl From<anyhow::Error> for ApplicationError {
             return Self::NotFound;
         }
 
-        log::error!("Internal server error: {}", err.chain().join("\n    "));
+        error!("Internal server error: {}", err.chain().join("\n    "));
         Self::InternalServerError(err.to_string())
     }
 }

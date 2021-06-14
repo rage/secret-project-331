@@ -67,6 +67,7 @@ Response:
 }
 ```
  */
+#[instrument(skip(pool))]
 async fn post_submission(
     pool: web::Data<PgPool>,
     payload: web::Json<NewSubmission>,

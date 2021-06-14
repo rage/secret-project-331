@@ -27,6 +27,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
@@ -64,6 +65,7 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 ]
 ```
 */
+#[instrument(skip(pool))]
 async fn get_course_pages(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -91,6 +93,7 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
 ]
 ```
 */
+#[instrument(skip(pool))]
 async fn get_chapters(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

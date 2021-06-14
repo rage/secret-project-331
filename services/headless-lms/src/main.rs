@@ -1,5 +1,5 @@
 #[macro_use]
-extern crate log;
+extern crate tracing;
 
 use actix_session::CookieSession;
 use actix_web::{error, middleware::Logger, web, App, HttpResponse, HttpServer};
@@ -17,7 +17,7 @@ use url::Url;
 async fn main() -> Result<()> {
     std::env::set_var("RUST_LOG", "info,actix_web=info");
     dotenv().ok();
-    env_logger::init();
+    tracing_subscriber::fmt::init();
 
     // read environment variables
     let database_url = env::var("DATABASE_URL")

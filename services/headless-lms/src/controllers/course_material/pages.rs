@@ -16,6 +16,7 @@ use uuid::Uuid;
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_next_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

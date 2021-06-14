@@ -30,6 +30,8 @@ import {
   BlockInspector,
   WritingFlow,
   ObserveTyping,
+  EditorSettings,
+  EditorBlockListSettings,
 } from "@wordpress/block-editor"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
@@ -42,7 +44,9 @@ import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
 import { blockTypeMap } from "../blocks"
 import { addFilter } from "@wordpress/hooks"
-import MyMediaUpload from "./MediaUpload"
+import { replaceMediaUpload } from "./OpenMediaGalleryMediaUpload"
+import mediaUpload from "../services/backend/mediaUpload"
+
 interface GutenbergEditor {
   content: BlockInstance[]
   onContentChange: React.Dispatch<BlockInstance[]>
@@ -59,20 +63,30 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
     console.log(page)
     onContentChange(page)
   }
-  const replaceMediaUpload = () => MyMediaUpload
 
   useEffect(() => {
-    addFilter("editor.MediaUpload", "core/edit-post/replace-media-upload", replaceMediaUpload)
+    addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", replaceMediaUpload)
     registerCoreBlocks()
     blockTypeMap.forEach(([blockName, block]) => {
       registerBlockType(blockName, block)
     })
   }, [])
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editorSettings: Partial<EditorSettings & EditorBlockListSettings & { mediaUpload: any }> =
+    {}
+  // Enables uploading media
+  editorSettings.mediaUpload = mediaUpload
+
   return (
     <div className="editor">
       <SlotFillProvider>
-        <BlockEditorProvider value={content} onInput={handleInput} onChange={handleChanges}>
+        <BlockEditorProvider
+          settings={editorSettings}
+          value={content}
+          onInput={handleInput}
+          onChange={handleChanges}
+        >
           <div className="editor__sidebar">
             <BlockInspector />
           </div>

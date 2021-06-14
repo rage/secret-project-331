@@ -56,6 +56,23 @@ The same syntax can be used with `sqlx::query_as!`
 ```
 
 Here, `Role` is a struct with various fields, including a `role: UserRole` field.
+### Adding new tables
+
+Use the following as a template for new tables. It includes common fields that most tables should have, a trigger for automatically updating the updated\_at field, and a comment for explaining what the table is for.
+
+```sql
+CREATE TABLE table_templates (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE
+);
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON table_templates FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+COMMENT ON TABLE table_templates IS 'An example';
+```
+
+When you come up with the table name, make sure to make it plural. If you want to look at other examples, you can observe the create statements for other tables by running `bin/database-dump-schema`.
 
 ## Setup development with a local Postgres
 

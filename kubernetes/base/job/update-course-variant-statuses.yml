@@ -1,0 +1,26 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: update-course-variant-statuses
+spec:
+  schedule: "0 3 * * *"
+  startingDeadlineSeconds: 900
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 1800
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: update-course-variant-statuses
+            image: busybox
+            imagePullPolicy: IfNotPresent
+            command:
+            - cargo
+            - run
+            - --bin
+            - update-course-variant-statuses
+            envFrom:
+            - secretRef:
+                name: headless-lms-secrets

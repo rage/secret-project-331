@@ -30,25 +30,22 @@ pub struct UserProgress {
     score_given: i32,
     score_maximum: i32,
     total_exercises: i32,
-    completed_exercises: i32
+    completed_exercises: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 pub struct UserMetrics {
     score_given: i32,
-    completed_exercises: i32
+    completed_exercises: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 pub struct CourseMetrics {
-    total_exericises: i32,
-    score_maximum: i32
+    total_exercises: i32,
+    score_maximum: i32,
 }
 
-pub async fn get_course_metrics(
-    pool: &PgPool,
-    course_id: &Uuid
-) -> Result<CourseMetrics> {
+pub async fn get_course_metrics(pool: &PgPool, course_id: &Uuid) -> Result<CourseMetrics> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         CourseMetrics,
@@ -60,7 +57,6 @@ FROM exercises
 WHERE course_id = $1;
         "#,
         course_id
-
     )
     .fetch_one(&mut connection)
     .await?;
@@ -70,7 +66,7 @@ WHERE course_id = $1;
 pub async fn get_user_metrics(
     pool: &PgPool,
     course_id: &Uuid,
-    user_id: &Uuid
+    user_id: &Uuid,
 ) -> Result<UserMetrics> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
@@ -95,16 +91,15 @@ WHERE e.course_id = $1
 pub async fn get_user_progress(
     pool: &PgPool,
     course_id: &Uuid,
-    user_id: &Uuid
-) -> UserProgress {
-    // TODO
+    user_id: &Uuid,
+) -> Result<UserProgress> {
     let course_metrics = get_course_metrics(course_id).await?;
     let user_metrics = get_user_metrics(user_id, course_id).await?;
     let result = UserProgress {
         score_given: user_metrics.score_given,
         completed_exercises: user_metrics.completed_exercises,
         score_maximum: course_metrics.score_maximum,
-        total_exercises: course_metrics.total_exercises
+        total_exercises: course_metrics.total_exercises,
     };
     Ok(result)
 }

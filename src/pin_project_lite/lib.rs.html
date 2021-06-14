@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/pin-project-lite-0.2.4/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/pin-project-lite-0.2.6/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../pin_project_lite/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1722,22 +1722,6 @@
 <span id="1719">1719</span>
 <span id="1720">1720</span>
 <span id="1721">1721</span>
-<span id="1722">1722</span>
-<span id="1723">1723</span>
-<span id="1724">1724</span>
-<span id="1725">1725</span>
-<span id="1726">1726</span>
-<span id="1727">1727</span>
-<span id="1728">1728</span>
-<span id="1729">1729</span>
-<span id="1730">1730</span>
-<span id="1731">1731</span>
-<span id="1732">1732</span>
-<span id="1733">1733</span>
-<span id="1734">1734</span>
-<span id="1735">1735</span>
-<span id="1736">1736</span>
-<span id="1737">1737</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A lightweight version of [pin-project] written with declarative macros.</span>
 <span class="doccomment">//!</span>
@@ -1746,8 +1730,9 @@
 <span class="doccomment">//! [`pin_project!`] macro creates a projection type covering all the fields of struct.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use pin_project_lite::pin_project;</span>
 <span class="doccomment">//! use std::pin::Pin;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! use pin_project_lite::pin_project;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! pin_project! {</span>
 <span class="doccomment">//!     struct Struct&lt;T, U&gt; {</span>
@@ -1770,8 +1755,9 @@
 <span class="doccomment">//! returned from the method.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use pin_project_lite::pin_project;</span>
 <span class="doccomment">//! use std::pin::Pin;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! use pin_project_lite::pin_project;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! pin_project! {</span>
 <span class="doccomment">//!     #[project = EnumProj]</span>
@@ -1906,23 +1892,6 @@
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The `#[project]` (and `#[project_ref]`) attribute must precede the other</span>
-<span class="doccomment">/// attributes except for `#[doc]`. For example, the following code will not be compiled:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,compile_fail</span>
-<span class="doccomment">/// # use pin_project_lite::pin_project;</span>
-<span class="doccomment">/// # use std::pin::Pin;</span>
-<span class="doccomment">/// pin_project! {</span>
-<span class="doccomment">///     /// documents (`#[doc]`) can be placed before `#[project]`.</span>
-<span class="doccomment">///     #[derive(Clone)] // &lt;--- ERROR</span>
-<span class="doccomment">///     #[project = EnumProj]</span>
-<span class="doccomment">///     #[derive(Debug)] // &lt;--- Ok</span>
-<span class="doccomment">///     enum Enum&lt;T&gt; {</span>
-<span class="doccomment">///         Variant { #[pin] field: T },</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// Also, note that the projection types returned by `project` and `project_ref` have</span>
 <span class="doccomment">/// an additional lifetime at the beginning of generics.</span>
 <span class="doccomment">///</span>
@@ -1946,8 +1915,9 @@
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use pin_project_lite::pin_project;</span>
 <span class="doccomment">/// use std::pin::Pin;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// use pin_project_lite::pin_project;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// pin_project! {</span>
 <span class="doccomment">///     struct Struct&lt;T, U&gt; {</span>
@@ -1970,8 +1940,9 @@
 <span class="doccomment">/// returned from the method.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use pin_project_lite::pin_project;</span>
 <span class="doccomment">/// use std::pin::Pin;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// use pin_project_lite::pin_project;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// pin_project! {</span>
 <span class="doccomment">///     #[project = EnumProj]</span>
@@ -2001,8 +1972,9 @@
 <span class="doccomment">/// consuming the [`Pin`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use pin_project_lite::pin_project;</span>
 <span class="doccomment">/// use std::pin::Pin;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// use pin_project_lite::pin_project;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// pin_project! {</span>
 <span class="doccomment">///     struct Struct&lt;T&gt; {</span>
@@ -2026,8 +1998,9 @@
 <span class="doccomment">/// attribute for a [`PhantomPinned`] field.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use pin_project_lite::pin_project;</span>
 <span class="doccomment">/// use std::marker::PhantomPinned;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// use pin_project_lite::pin_project;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// pin_project! {</span>
 <span class="doccomment">///     struct Struct&lt;T&gt; {</span>
@@ -2046,94 +2019,9 @@
 <span class="doccomment">/// [pin-project]: https://github.com/taiki-e/pin-project</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">pin_project</span> {
-    <span class="comment">// Parses options</span>
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>]</span>
-        <span class="attribute">#[<span class="ident">project_ref</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>]</span>
-        <span class="attribute">#[<span class="ident">project_replace</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>]</span>
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
-            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>][<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>][<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>]
-            $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
-        }
-    };
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>]</span>
-        <span class="attribute">#[<span class="ident">project_ref</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>]</span>
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
-            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>][<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>][]
-            $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
-        }
-    };
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>]</span>
-        <span class="attribute">#[<span class="ident">project_replace</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>]</span>
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
-            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>][][<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>]
-            $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
-        }
-    };
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">project_ref</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>]</span>
-        <span class="attribute">#[<span class="ident">project_replace</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>]</span>
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
-            [][<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>][<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>]
-            $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
-        }
-    };
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>]</span>
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
-            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>][][]
-            $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
-        }
-    };
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">project_ref</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>]</span>
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
-            [][<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>][]
-            $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
-        }
-    };
-    (
-        $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">project_replace</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>]</span>
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
-            [][][<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>]
-            $(<span class="attribute">#[<span class="ident">doc</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>)<span class="kw-2">*</span>]</span>)<span class="op">*</span>
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
-        }
-    };
-    (
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
-            [][][]
+            [][][][]
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
         }
     };
@@ -2325,10 +2213,8 @@
 
             <span class="comment">// Ensure that it&#39;s impossible to use pin projections on a #[repr(packed)] struct.</span>
             <span class="comment">//</span>
-            <span class="comment">// Taking a reference to a packed field is unsafe, amd appplying</span>
-            <span class="comment">// #[forbid(safe_packed_borrows)] makes sure that doing this without</span>
-            <span class="comment">// an &#39;unsafe&#39; block (which we deliberately do not generate)</span>
-            <span class="comment">// is a hard error.</span>
+            <span class="comment">// Taking a reference to a packed field is UB, and applying</span>
+            <span class="comment">// `#[forbid(unaligned_references)]` makes sure that doing this is a hard error.</span>
             <span class="comment">//</span>
             <span class="comment">// If the struct ends up having #[repr(packed)] applied somehow,</span>
             <span class="comment">// this will generate an (unfriendly) error message. Under all reasonable</span>
@@ -2336,7 +2222,16 @@
             <span class="comment">// a much nicer error above.</span>
             <span class="comment">//</span>
             <span class="comment">// See https://github.com/taiki-e/pin-project/pull/34 for more details.</span>
-            <span class="attribute">#[<span class="ident">forbid</span>(<span class="ident">safe_packed_borrows</span>)]</span>
+            <span class="comment">//</span>
+            <span class="comment">// Note:</span>
+            <span class="comment">// - Lint-based tricks aren&#39;t perfect, but they&#39;re much better than nothing:</span>
+            <span class="comment">//   https://github.com/taiki-e/pin-project-lite/issues/26</span>
+            <span class="comment">//</span>
+            <span class="comment">// - Enable both unaligned_references and safe_packed_borrows lints</span>
+            <span class="comment">//   because unaligned_references lint does not exist in older compilers:</span>
+            <span class="comment">//   https://github.com/taiki-e/pin-project-lite/pull/55</span>
+            <span class="comment">//   https://github.com/rust-lang/rust/pull/82525</span>
+            <span class="attribute">#[<span class="ident">forbid</span>(<span class="ident">unaligned_references</span>, <span class="ident">safe_packed_borrows</span>)]</span>
             <span class="kw">fn</span> <span class="ident">__assert_not_repr_packed</span> <span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">impl_generics</span>)<span class="kw-2">*</span><span class="op">&gt;</span> (<span class="ident">this</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span> <span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty_generics</span>)<span class="kw-2">*</span><span class="op">&gt;</span>)
             $(<span class="kw">where</span>
                 $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">where_clause</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>
@@ -3142,13 +3037,86 @@
 
     <span class="comment">// =============================================================================================</span>
     <span class="comment">// Parses input and determines visibility</span>
+
+    (
+        []
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
+
+        <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>]</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
+            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>)<span class="question-mark">?</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>)<span class="question-mark">?</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>)<span class="kw-2">*</span>]
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
+        }
+    };
+
+    {
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        []
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
+
+        <span class="attribute">#[<span class="ident">project_ref</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>]</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    } <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>)<span class="question-mark">?</span>]
+            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>)<span class="question-mark">?</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>)<span class="kw-2">*</span>]
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
+        }
+    };
+
+    {
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        []
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
+
+        <span class="attribute">#[<span class="ident">project_replace</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>]</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    } <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>)<span class="question-mark">?</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>)<span class="question-mark">?</span>]
+            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>)<span class="kw-2">*</span>]
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
+        }
+    };
+
+    {
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
+
+        <span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    } <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">__pin_project_internal</span><span class="macro">!</span> {
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>)<span class="question-mark">?</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>)<span class="question-mark">?</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>)<span class="question-mark">?</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>)<span class="op">*</span> <span class="attribute">#[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>)<span class="kw-2">*</span>]</span>]
+            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
+        }
+    };
+
     <span class="comment">// struct</span>
     (
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
 
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>:<span class="ident">ident</span> $(<span class="op">&lt;</span>
             $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime</span>:<span class="ident">lifetime</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime_bound</span>:<span class="ident">lifetime</span>)<span class="question-mark">?</span> ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
             $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>
@@ -3177,7 +3145,7 @@
             [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>)<span class="question-mark">?</span>]
             [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>)<span class="question-mark">?</span>]
             [<span class="kw">pub</span>(<span class="kw">crate</span>)]
-            [$(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>]</span>)<span class="op">*</span> <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>)<span class="op">*</span> <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>]
             [$(<span class="op">&lt;</span>
                 $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime_bound</span>)<span class="question-mark">?</span> ,)<span class="op">*</span>
                 $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>
@@ -3213,8 +3181,8 @@
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
 
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>:<span class="ident">vis</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>:<span class="ident">ident</span> $(<span class="op">&lt;</span>
             $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime</span>:<span class="ident">lifetime</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime_bound</span>:<span class="ident">lifetime</span>)<span class="question-mark">?</span> ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
             $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>
@@ -3243,7 +3211,7 @@
             [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>)<span class="question-mark">?</span>]
             [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>)<span class="question-mark">?</span>]
             [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>]
-            [$(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>]</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>]
             [$(<span class="op">&lt;</span>
                 $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime_bound</span>)<span class="question-mark">?</span> ,)<span class="op">*</span>
                 $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>
@@ -3280,8 +3248,8 @@
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
 
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
         <span class="kw">pub</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>:<span class="ident">ident</span> $(<span class="op">&lt;</span>
             $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime</span>:<span class="ident">lifetime</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime_bound</span>:<span class="ident">lifetime</span>)<span class="question-mark">?</span> ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
             $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>
@@ -3315,7 +3283,7 @@
             [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>)<span class="question-mark">?</span>]
             [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>)<span class="question-mark">?</span>]
             [<span class="kw">pub</span>(<span class="kw">crate</span>)]
-            [$(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>]</span>)<span class="op">*</span> <span class="kw">pub</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>)<span class="op">*</span> <span class="kw">pub</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>]
             [$(<span class="op">&lt;</span>
                 $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime_bound</span>)<span class="question-mark">?</span> ,)<span class="op">*</span>
                 $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>
@@ -3356,8 +3324,8 @@
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_mut_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
         [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>]
+        [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
 
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>:<span class="ident">vis</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>:<span class="ident">ident</span> $(<span class="op">&lt;</span>
             $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime</span>:<span class="ident">lifetime</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime_bound</span>:<span class="ident">lifetime</span>)<span class="question-mark">?</span> ),<span class="op">*</span> $(,)<span class="question-mark">?</span>
             $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>:<span class="ident">ident</span>
@@ -3391,7 +3359,7 @@
             [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_ref_ident</span>)<span class="question-mark">?</span>]
             [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">proj_replace_ident</span>)<span class="question-mark">?</span>]
             [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>]
-            [$(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>]</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>]
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attrs</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span> <span class="kw">enum</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>]
             [$(<span class="op">&lt;</span>
                 $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime</span> $(: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lifetime_bound</span>)<span class="question-mark">?</span> ,)<span class="op">*</span>
                 $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">generics</span>

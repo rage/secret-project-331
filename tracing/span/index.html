@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Spans represent periods of time in which a program was executing in a particular context."><meta name="keywords" content="rust, rustlang, rust-lang, span"><title>tracing::span - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png' alt='logo'></div></a><p class="location">Module span</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><p class="location"><a href="../index.html">tracing</a></p><div id="sidebar-vars" data-name="span" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">tracing</a>::<wbr><a class="mod" href="">span</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/tracing/span.rs.html#1-1284" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Spans represent periods of time in which a program was executing in a
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">tracing</a>::<wbr><a class="mod" href="">span</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/tracing/span.rs.html#1-1526" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Spans represent periods of time in which a program was executing in a
 particular context.</p>
 <p>A span consists of <a href="../field/index.html">fields</a>, user-defined key-value pairs of arbitrary data
 that describe the context the span represents, and a set of fixed attributes
@@ -48,8 +48,8 @@ data, can then store or record these values.</p>
 <h1 id="the-span-lifecycle" class="section-header"><a href="#the-span-lifecycle">The Span Lifecycle</a></h1><h2 id="entering-a-span" class="section-header"><a href="#entering-a-span">Entering a Span</a></h2>
 <p>A thread of execution is said to <em>enter</em> a span when it begins executing,
 and <em>exit</em> the span when it switches to another context. Spans may be
-entered through the <a href="struct.Span.html#method.enter"><code>enter</code></a> and <a href="struct.Span.html#method.in_scope"><code>in_scope</code></a> methods.</p>
-<p>The <code>enter</code> method enters a span, returning a <a href="struct.Entered.html">guard</a> that exits the span
+entered through the <a href="struct.Span.html#method.enter"><code>enter</code></a>, <a href="struct.Span.html#method.entered"><code>entered</code></a>, and <a href="struct.Span.html#method.in_scope"><code>in_scope</code></a> methods.</p>
+<p>The <a href="struct.Span.html#method.enter"><code>enter</code></a> method enters a span, returning a <a href="struct.Entered.html">guard</a> that exits the span
 when dropped</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -72,8 +72,22 @@ when dropped</p>
      <a href="struct.Span.html#in-asynchronous-code">the method documentation</a>
      for details.
  </pre></div>
-<p><code>in_scope</code> takes a closure or function pointer and executes it inside the
-span.</p>
+<p>The <a href="struct.Span.html#method.entered"><code>entered</code></a> method is analogous to <a href="struct.Span.html#method.enter"><code>enter</code></a>, but moves the span into
+the returned guard, rather than borrowing it. This allows creating and
+entering a span in a single expression:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// Create a span and enter it, returning a guard:</span>
+<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="string">&quot;my_span&quot;</span>).<span class="ident">entered</span>();
+
+<span class="comment">// We are now inside the span! Like `enter()`, the guard returned by</span>
+<span class="comment">// `entered()` will exit the span when it is dropped...</span>
+
+<span class="comment">// ...but, it can also be exited explicitly, returning the `Span`</span>
+<span class="comment">// struct:</span>
+<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">exit</span>();</pre></div>
+<p>Finally, <a href="struct.Span.html#method.in_scope"><code>in_scope</code></a> takes a closure or function pointer and executes it
+inside the span:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">let</span> <span class="ident">my_var</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">5</span>;
@@ -244,6 +258,8 @@ on every iteration.</p>
 created.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Entered.html" title="tracing::span::Entered struct">Entered</a></td><td class="docblock-short"><p>A guard representing a span which has been entered and is currently
 executing.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.EnteredSpan.html" title="tracing::span::EnteredSpan struct">EnteredSpan</a></td><td class="docblock-short"><p>An owned version of <a href="../../tracing/span/struct.Entered.html" title="Entered"><code>Entered</code></a>, a guard representing a span which has been
+entered and is currently executing.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Id.html" title="tracing::span::Id struct">Id</a></td><td class="docblock-short"><p>Identifies a span within the context of a subscriber.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Record.html" title="tracing::span::Record struct">Record</a></td><td class="docblock-short"><p>A set of fields recorded by a span.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Span.html" title="tracing::span::Span struct">Span</a></td><td class="docblock-short"><p>A handle representing a span, with the capability to enter the span if it

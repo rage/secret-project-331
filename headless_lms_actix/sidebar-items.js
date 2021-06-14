@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main","The entrypoint to the application."]],"mod":[["controllers","Handlers for HTTP requests to `/api/v0`."],["domain",""],["models","Functions and structs for interacting with the database."],["utils","Commonly used utils."]]});
+initSidebarItems({"fn":[["main","The entrypoint to the application."]],"mod":[["controllers","Handlers for HTTP requests to `/api/v0`."],["domain",""],["models","Functions and structs for interacting with the database."],["utils","Commonly used utils."]],"type":[["OAuthClient",""]]});

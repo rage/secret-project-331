@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.2.0/src/sync/barrier.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>barrier.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/sync/barrier.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>barrier.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -139,19 +139,23 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">watch</span>;
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
 
-<span class="doccomment">/// A barrier enables multiple threads to synchronize the beginning of some computation.</span>
+<span class="doccomment">/// A barrier enables multiple tasks to synchronize the beginning of some computation.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # #[tokio::main]</span>
 <span class="doccomment">/// # async fn main() {</span>
 <span class="doccomment">/// use tokio::sync::Barrier;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// use futures::future::join_all;</span>
 <span class="doccomment">/// use std::sync::Arc;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let mut handles = Vec::with_capacity(10);</span>
@@ -160,17 +164,25 @@
 <span class="doccomment">///     let c = barrier.clone();</span>
 <span class="doccomment">///     // The same messages will be printed together.</span>
 <span class="doccomment">///     // You will NOT see any interleaving.</span>
-<span class="doccomment">///     handles.push(async move {</span>
+<span class="doccomment">///     handles.push(tokio::spawn(async move {</span>
 <span class="doccomment">///         println!(&quot;before wait&quot;);</span>
-<span class="doccomment">///         let wr = c.wait().await;</span>
+<span class="doccomment">///         let wait_result = c.wait().await;</span>
 <span class="doccomment">///         println!(&quot;after wait&quot;);</span>
-<span class="doccomment">///         wr</span>
-<span class="doccomment">///     });</span>
+<span class="doccomment">///         wait_result</span>
+<span class="doccomment">///     }));</span>
 <span class="doccomment">/// }</span>
-<span class="doccomment">/// // Will not resolve until all &quot;before wait&quot; messages have been printed</span>
-<span class="doccomment">/// let wrs = join_all(handles).await;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // Will not resolve until all &quot;after wait&quot; messages have been printed</span>
+<span class="doccomment">/// let mut num_leaders = 0;</span>
+<span class="doccomment">/// for handle in handles {</span>
+<span class="doccomment">///     let wait_result = handle.await.unwrap();</span>
+<span class="doccomment">///     if wait_result.is_leader() {</span>
+<span class="doccomment">///         num_leaders += 1;</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// // Exactly one barrier will resolve as the &quot;leader&quot;</span>
-<span class="doccomment">/// assert_eq!(wrs.into_iter().filter(|wr| wr.is_leader()).count(), 1);</span>
+<span class="doccomment">/// assert_eq!(num_leaders, 1);</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
@@ -188,10 +200,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Barrier</span> {
-    <span class="doccomment">/// Creates a new barrier that can block a given number of threads.</span>
+    <span class="doccomment">/// Creates a new barrier that can block a given number of tasks.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// A barrier will block `n`-1 threads which call [`Barrier::wait`] and then wake up all</span>
-    <span class="doccomment">/// threads at once when the `n`th thread calls `wait`.</span>
+    <span class="doccomment">/// A barrier will block `n`-1 tasks which call [`Barrier::wait`] and then wake up all</span>
+    <span class="doccomment">/// tasks at once when the `n`th task calls `wait`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="kw-2">mut</span> <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Barrier</span> {
         <span class="kw">let</span> (<span class="ident">waker</span>, <span class="ident">wait</span>) <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">watch</span>::<span class="ident">channel</span>(<span class="number">0</span>);
 
@@ -215,11 +227,11 @@
 
     <span class="doccomment">/// Does not resolve until all tasks have rendezvoused here.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Barriers are re-usable after all threads have rendezvoused once, and can</span>
+    <span class="doccomment">/// Barriers are re-usable after all tasks have rendezvoused once, and can</span>
     <span class="doccomment">/// be used continuously.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// A single (arbitrary) future will receive a [`BarrierWaitResult`] that returns `true` from</span>
-    <span class="doccomment">/// [`BarrierWaitResult::is_leader`] when returning from this function, and all other threads</span>
+    <span class="doccomment">/// [`BarrierWaitResult::is_leader`] when returning from this function, and all other tasks</span>
     <span class="doccomment">/// will receive a result that will return `false` from `is_leader`.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BarrierWaitResult</span> {
         <span class="comment">// NOTE: we are taking a _synchronous_ lock here.</span>
@@ -265,14 +277,14 @@
     }
 }
 
-<span class="doccomment">/// A `BarrierWaitResult` is returned by `wait` when all threads in the `Barrier` have rendezvoused.</span>
+<span class="doccomment">/// A `BarrierWaitResult` is returned by `wait` when all tasks in the `Barrier` have rendezvoused.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BarrierWaitResult</span>(<span class="ident">bool</span>);
 
 <span class="kw">impl</span> <span class="ident">BarrierWaitResult</span> {
-    <span class="doccomment">/// Returns `true` if this thread from wait is the &quot;leader thread&quot;.</span>
+    <span class="doccomment">/// Returns `true` if this task from wait is the &quot;leader task&quot;.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Only one thread will have `true` returned from their result, all other threads will have</span>
+    <span class="doccomment">/// Only one task will have `true` returned from their result, all other tasks will have</span>
     <span class="doccomment">/// `false` returned.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_leader</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="number">0</span>

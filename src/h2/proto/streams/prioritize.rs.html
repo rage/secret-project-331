@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/h2-0.3.0/src/proto/streams/prioritize.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>prioritize.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/h2-0.3.3/src/proto/streams/prioritize.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>prioritize.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../h2/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -872,6 +872,20 @@
 <span id="869">869</span>
 <span id="870">870</span>
 <span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">store</span>::<span class="ident">Resolve</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
@@ -893,7 +907,7 @@
 <span class="doccomment">/// This is because &quot;idle&quot; stream IDs – those which have been initiated but</span>
 <span class="doccomment">/// have yet to receive frames – will be implicitly closed on receipt of a</span>
 <span class="doccomment">/// frame on a higher stream ID. If these queues was not ordered by stream</span>
-<span class="doccomment">/// IDs, some mechanism would be necessary to ensure that the lowest-numberedh]</span>
+<span class="doccomment">/// IDs, some mechanism would be necessary to ensure that the lowest-numbered]</span>
 <span class="doccomment">/// idle stream is opened first.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Prioritize</span> {
@@ -1420,43 +1434,57 @@
 
         <span class="comment">// First check if there are any data chunks to take back</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">frame</span>) <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">take_last_data_frame</span>() {
-            <span class="ident">tracing</span>::<span class="macro">trace</span><span class="macro">!</span>(
-                <span class="question-mark">?</span><span class="ident">frame</span>,
-                <span class="ident">sz</span> <span class="op">=</span> <span class="ident">frame</span>.<span class="ident">payload</span>().<span class="ident">inner</span>.<span class="ident">get_ref</span>().<span class="ident">remaining</span>(),
-                <span class="string">&quot;reclaimed&quot;</span>
-            );
+            <span class="self">self</span>.<span class="ident">reclaim_frame_inner</span>(<span class="ident">buffer</span>, <span class="ident">store</span>, <span class="ident">frame</span>)
+        } <span class="kw">else</span> {
+            <span class="bool-val">false</span>
+        }
+    }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">eos</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">frame</span>.<span class="ident">payload</span>().<span class="ident">stream</span>;
+    <span class="kw">fn</span> <span class="ident">reclaim_frame_inner</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">buffer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">Frame</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">store</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Store</span>,
+        <span class="ident">frame</span>: <span class="ident">frame</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">Prioritized</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+    <span class="kw">where</span>
+        <span class="ident">B</span>: <span class="ident">Buf</span>,
+    {
+        <span class="ident">tracing</span>::<span class="macro">trace</span><span class="macro">!</span>(
+            <span class="question-mark">?</span><span class="ident">frame</span>,
+            <span class="ident">sz</span> <span class="op">=</span> <span class="ident">frame</span>.<span class="ident">payload</span>().<span class="ident">inner</span>.<span class="ident">get_ref</span>().<span class="ident">remaining</span>(),
+            <span class="string">&quot;reclaimed&quot;</span>
+        );
 
-            <span class="kw">match</span> <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">in_flight_data_frame</span>, <span class="ident">InFlightData</span>::<span class="ident">Nothing</span>) {
-                <span class="ident">InFlightData</span>::<span class="ident">Nothing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;wasn&#39;t expecting a frame to reclaim&quot;</span>),
-                <span class="ident">InFlightData</span>::<span class="ident">Drop</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">tracing</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;not reclaiming frame for cancelled stream&quot;</span>);
-                    <span class="kw">return</span> <span class="bool-val">false</span>;
-                }
-                <span class="ident">InFlightData</span>::<span class="ident">DataFrame</span>(<span class="ident">k</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">k</span>, <span class="ident">key</span>);
-                }
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">eos</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">frame</span>.<span class="ident">payload</span>().<span class="ident">stream</span>;
+
+        <span class="kw">match</span> <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">in_flight_data_frame</span>, <span class="ident">InFlightData</span>::<span class="ident">Nothing</span>) {
+            <span class="ident">InFlightData</span>::<span class="ident">Nothing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;wasn&#39;t expecting a frame to reclaim&quot;</span>),
+            <span class="ident">InFlightData</span>::<span class="ident">Drop</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">tracing</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;not reclaiming frame for cancelled stream&quot;</span>);
+                <span class="kw">return</span> <span class="bool-val">false</span>;
+            }
+            <span class="ident">InFlightData</span>::<span class="ident">DataFrame</span>(<span class="ident">k</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">k</span>, <span class="ident">key</span>);
+            }
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">frame</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">prioritized</span><span class="op">|</span> {
+            <span class="comment">// TODO: Ensure fully written</span>
+            <span class="ident">eos</span> <span class="op">=</span> <span class="ident">prioritized</span>.<span class="ident">end_of_stream</span>;
+            <span class="ident">prioritized</span>.<span class="ident">inner</span>.<span class="ident">into_inner</span>()
+        });
+
+        <span class="kw">if</span> <span class="ident">frame</span>.<span class="ident">payload</span>().<span class="ident">has_remaining</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">store</span>.<span class="ident">resolve</span>(<span class="ident">key</span>);
+
+            <span class="kw">if</span> <span class="ident">eos</span> {
+                <span class="ident">frame</span>.<span class="ident">set_end_stream</span>(<span class="bool-val">true</span>);
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">frame</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">prioritized</span><span class="op">|</span> {
-                <span class="comment">// TODO: Ensure fully written</span>
-                <span class="ident">eos</span> <span class="op">=</span> <span class="ident">prioritized</span>.<span class="ident">end_of_stream</span>;
-                <span class="ident">prioritized</span>.<span class="ident">inner</span>.<span class="ident">into_inner</span>()
-            });
+            <span class="self">self</span>.<span class="ident">push_back_frame</span>(<span class="ident">frame</span>.<span class="ident">into</span>(), <span class="ident">buffer</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stream</span>);
 
-            <span class="kw">if</span> <span class="ident">frame</span>.<span class="ident">payload</span>().<span class="ident">has_remaining</span>() {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">store</span>.<span class="ident">resolve</span>(<span class="ident">key</span>);
-
-                <span class="kw">if</span> <span class="ident">eos</span> {
-                    <span class="ident">frame</span>.<span class="ident">set_end_stream</span>(<span class="bool-val">true</span>);
-                }
-
-                <span class="self">self</span>.<span class="ident">push_back_frame</span>(<span class="ident">frame</span>.<span class="ident">into</span>(), <span class="ident">buffer</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stream</span>);
-
-                <span class="kw">return</span> <span class="bool-val">true</span>;
-            }
+            <span class="kw">return</span> <span class="bool-val">true</span>;
         }
 
         <span class="bool-val">false</span>

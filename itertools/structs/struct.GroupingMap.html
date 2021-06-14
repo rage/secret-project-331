@@ -68,7 +68,7 @@ and the current element as arguments, and stores the results in a new map.</p>
 </div><h4 id="method.fold_first" class="method"><code>pub fn <a href="#method.fold_first" class="fnname">fold_first</a>&lt;FO&gt;(self, operation: FO) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html" title="struct std::collections::hash::map::HashMap">HashMap</a>&lt;K, V&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;FO: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnMut.html" title="trait core::ops::function::FnMut">FnMut</a>(V, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>K, V) -&gt; V,&nbsp;</span></code><a class="srclink" href="../../src/itertools/grouping_map.rs.html#177-186" title="goto source code">[src]</a></h4><div class="docblock"><p>Groups elements from the <code>GroupingMap</code> source by key and applies <code>operation</code> to the elements
 of each group sequentially, passing the previously accumulated value, a reference to the key
 and the current element as arguments, and stores the results in a new map.</p>
-<p>This is similar to <a href="#tymethod.fold"><code>fold</code></a> but the initial value of the accumulator is the first element of the group.</p>
+<p>This is similar to <a href="../../itertools/structs/struct.GroupingMap.html#method.fold"><code>fold</code></a> but the initial value of the accumulator is the first element of the group.</p>
 <p><code>operation</code> is a function that is invoked on each element with the following parameters:</p>
 <ul>
 <li>the current value of the accumulator of the group;</li>
@@ -202,7 +202,7 @@ that gives the minimum from the specified function.</p>
 each group.</p>
 <p>If several elements are equally maximum, the last element is picked.
 If several elements are equally minimum, the first element is picked.</p>
-<p>See <a href="../trait.Itertools.html#method.minmax">.minmax()</a> for the non-grouping version.</p>
+<p>See <a href="../../itertools/trait.Itertools.html#method.minmax">.minmax()</a> for the non-grouping version.</p>
 <p>Differences from the non grouping version:</p>
 <ul>
 <li>It never produces a <code>MinMaxResult::NoElements</code></li>

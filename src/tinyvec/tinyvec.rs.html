@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tinyvec-1.1.1/src/tinyvec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tinyvec.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tinyvec-1.2.0/src/tinyvec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tinyvec.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tinyvec/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1500,12 +1500,58 @@
 <span id="1497">1497</span>
 <span id="1498">1498</span>
 <span id="1499">1499</span>
+<span id="1500">1500</span>
+<span id="1501">1501</span>
+<span id="1502">1502</span>
+<span id="1503">1503</span>
+<span id="1504">1504</span>
+<span id="1505">1505</span>
+<span id="1506">1506</span>
+<span id="1507">1507</span>
+<span id="1508">1508</span>
+<span id="1509">1509</span>
+<span id="1510">1510</span>
+<span id="1511">1511</span>
+<span id="1512">1512</span>
+<span id="1513">1513</span>
+<span id="1514">1514</span>
+<span id="1515">1515</span>
+<span id="1516">1516</span>
+<span id="1517">1517</span>
+<span id="1518">1518</span>
+<span id="1519">1519</span>
+<span id="1520">1520</span>
+<span id="1521">1521</span>
+<span id="1522">1522</span>
+<span id="1523">1523</span>
+<span id="1524">1524</span>
+<span id="1525">1525</span>
+<span id="1526">1526</span>
+<span id="1527">1527</span>
+<span id="1528">1528</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">vec</span>::{<span class="self">self</span>, <span class="ident">Vec</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">tinyvec_macros</span>::<span class="ident">impl_mirrored</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
@@ -2617,20 +2663,10 @@
   <span class="attribute">#[<span class="ident">inline</span>]</span>
   <span class="attribute">#[<span class="ident">must_use</span>]</span>
   <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-    <span class="kw">if</span> <span class="ident">slice</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">A</span>::<span class="ident">CAPACITY</span> {
-      <span class="ident">TinyVec</span>::<span class="ident">Heap</span>(<span class="ident">slice</span>.<span class="ident">into</span>())
-    } <span class="kw">else</span> {
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arr</span> <span class="op">=</span> <span class="ident">ArrayVec</span>::<span class="ident">new</span>();
-      <span class="comment">// We do not use ArrayVec::extend_from_slice, because it looks like LLVM</span>
-      <span class="comment">// fails to deduplicate all the length-checking logic between the</span>
-      <span class="comment">// above if and the contents of that method, thus producing much</span>
-      <span class="comment">// slower code. Unlike many of the other optimizations in this</span>
-      <span class="comment">// crate, this one is worth keeping an eye on. I see no reason, for</span>
-      <span class="comment">// any element type, that these should produce different code. But</span>
-      <span class="comment">// they do. (rustc 1.51.0)</span>
-      <span class="ident">arr</span>.<span class="ident">set_len</span>(<span class="ident">slice</span>.<span class="ident">len</span>());
-      <span class="ident">arr</span>.<span class="ident">as_mut_slice</span>().<span class="ident">clone_from_slice</span>(<span class="ident">slice</span>);
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">arr</span>) <span class="op">=</span> <span class="ident">ArrayVec</span>::<span class="ident">try_from</span>(<span class="ident">slice</span>) {
       <span class="ident">TinyVec</span>::<span class="ident">Inline</span>(<span class="ident">arr</span>)
+    } <span class="kw">else</span> {
+      <span class="ident">TinyVec</span>::<span class="ident">Heap</span>(<span class="ident">slice</span>.<span class="ident">into</span>())
     }
   }
 }
@@ -2821,11 +2857,17 @@
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_inline_in_public_items</span>)]</span>
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\n    &quot;</span>)<span class="question-mark">?</span>;
+    }
     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,{}&quot;</span>, <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() { <span class="string">&quot;\n    &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> })<span class="question-mark">?</span>;
       }
       <span class="ident">Binary</span>::<span class="ident">fmt</span>(<span class="ident">elem</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,\n&quot;</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
   }
@@ -2838,11 +2880,17 @@
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_inline_in_public_items</span>)]</span>
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\n    &quot;</span>)<span class="question-mark">?</span>;
+    }
     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,{}&quot;</span>, <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() { <span class="string">&quot;\n    &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> })<span class="question-mark">?</span>;
       }
       <span class="ident">Debug</span>::<span class="ident">fmt</span>(<span class="ident">elem</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,\n&quot;</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
   }
@@ -2855,11 +2903,17 @@
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_inline_in_public_items</span>)]</span>
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\n    &quot;</span>)<span class="question-mark">?</span>;
+    }
     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,{}&quot;</span>, <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() { <span class="string">&quot;\n    &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> })<span class="question-mark">?</span>;
       }
       <span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="ident">elem</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,\n&quot;</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
   }
@@ -2872,11 +2926,17 @@
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_inline_in_public_items</span>)]</span>
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\n    &quot;</span>)<span class="question-mark">?</span>;
+    }
     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,{}&quot;</span>, <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() { <span class="string">&quot;\n    &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> })<span class="question-mark">?</span>;
       }
       <span class="ident">LowerExp</span>::<span class="ident">fmt</span>(<span class="ident">elem</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,\n&quot;</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
   }
@@ -2889,11 +2949,17 @@
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_inline_in_public_items</span>)]</span>
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\n    &quot;</span>)<span class="question-mark">?</span>;
+    }
     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,{}&quot;</span>, <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() { <span class="string">&quot;\n    &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> })<span class="question-mark">?</span>;
       }
       <span class="ident">LowerHex</span>::<span class="ident">fmt</span>(<span class="ident">elem</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,\n&quot;</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
   }
@@ -2906,11 +2972,17 @@
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_inline_in_public_items</span>)]</span>
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\n    &quot;</span>)<span class="question-mark">?</span>;
+    }
     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,{}&quot;</span>, <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() { <span class="string">&quot;\n    &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> })<span class="question-mark">?</span>;
       }
       <span class="ident">Octal</span>::<span class="ident">fmt</span>(<span class="ident">elem</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,\n&quot;</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
   }
@@ -2923,11 +2995,17 @@
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_inline_in_public_items</span>)]</span>
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\n    &quot;</span>)<span class="question-mark">?</span>;
+    }
     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,{}&quot;</span>, <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() { <span class="string">&quot;\n    &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> })<span class="question-mark">?</span>;
       }
       <span class="ident">Pointer</span>::<span class="ident">fmt</span>(<span class="ident">elem</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,\n&quot;</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
   }
@@ -2940,11 +3018,17 @@
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_inline_in_public_items</span>)]</span>
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\n    &quot;</span>)<span class="question-mark">?</span>;
+    }
     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,{}&quot;</span>, <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() { <span class="string">&quot;\n    &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> })<span class="question-mark">?</span>;
       }
       <span class="ident">UpperExp</span>::<span class="ident">fmt</span>(<span class="ident">elem</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,\n&quot;</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
   }
@@ -2957,11 +3041,17 @@
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">missing_inline_in_public_items</span>)]</span>
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\n    &quot;</span>)<span class="question-mark">?</span>;
+    }
     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,{}&quot;</span>, <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() { <span class="string">&quot;\n    &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; &quot;</span> })<span class="question-mark">?</span>;
       }
       <span class="ident">UpperHex</span>::<span class="ident">fmt</span>(<span class="ident">elem</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+    }
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,\n&quot;</span>)<span class="question-mark">?</span>;
     }
     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
   }

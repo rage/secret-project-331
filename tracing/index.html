@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A scoped, structured logging and diagnostics system."><meta name="keywords" content="rust, rustlang, rust-lang, tracing"><title>tracing - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../tracing/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png' alt='logo'></div></a><p class="location">Crate tracing</p><div class="block version"><p>Version 0.1.23</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all tracing's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="tracing" data-ty="mod" data-relpath="../"></div></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">tracing</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/tracing/lib.rs.html#1-1038" title="goto source code">[src]</a></span></h1><div class="docblock"><p>A scoped, structured logging and diagnostics system.</p>
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../tracing/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png' alt='logo'></div></a><p class="location">Crate tracing</p><div class="block version"><p>Version 0.1.26</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all tracing's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="tracing" data-ty="mod" data-relpath="../"></div></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">tracing</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/tracing/lib.rs.html#1-1056" title="goto source code">[src]</a></span></h1><div class="docblock"><p>A scoped, structured logging and diagnostics system.</p>
 <h1 id="overview" class="section-header"><a href="#overview">Overview</a></h1>
 <p><code>tracing</code> is a framework for instrumenting Rust programs to collect
 structured, event-based diagnostic information.</p>
@@ -133,6 +133,16 @@ fields using <code>fmt::Debug</code>.</p>
     <span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="string">&quot;inside my_function!&quot;</span>);
     <span class="comment">// ...</span>
 }</pre></div>
+<p>For functions which don’t have built-in tracing support and can’t have
+the <code>#[instrument]</code> attribute applied (such as from an external crate,
+the <a href="../tracing/struct.Span.html"><code>Span</code> struct</a> has a <a href="../tracing/struct.Span.html#method.in_scope"><code>in_scope()</code> method</a>
+which can be used to easily wrap synchonous code in a span.</p>
+<p>For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">tracing</span>::<span class="ident">info_span</span>;
+
+<span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="macro">info_span</span><span class="macro">!</span>(<span class="string">&quot;json.parse&quot;</span>).<span class="ident">in_scope</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">serde_json</span>::<span class="ident">from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>))<span class="question-mark">?</span>;</pre></div>
 <p>You can find more examples showing how to use this crate <a href="https://github.com/tokio-rs/tracing/tree/master/examples">here</a>.</p>
 <h3 id="events-1" class="section-header"><a href="#events-1">Events</a></h3>
 <p><a href="../tracing/event/struct.Event.html" title="Event"><code>Event</code></a>s are recorded using the <a href="macro.event.html"><code>event!</code></a> macro:</p>
@@ -141,8 +151,8 @@ fields using <code>fmt::Debug</code>.</p>
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">event</span>, <span class="ident">Level</span>};
 <span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="string">&quot;something has happened!&quot;</span>);</pre></div>
 <h2 id="using-the-macros" class="section-header"><a href="#using-the-macros">Using the Macros</a></h2>
-<p>The <a href="macro.span.html"><code>span!</code></a> and <a href="macro.event.html"><code>event!</code></a> macros use fairly similar syntax, with some
-exceptions.</p>
+<p>The <a href="macro.span.html"><code>span!</code></a> and <a href="macro.event.html"><code>event!</code></a> macros as well as the <code>#[instrument]</code> attribute
+use fairly similar syntax, with some exceptions.</p>
 <h3 id="configuring-attributes" class="section-header"><a href="#configuring-attributes">Configuring Attributes</a></h3>
 <p>Both macros require a <a href="struct.Level.html"><code>Level</code></a> specifying the verbosity of the span or
 event. Optionally, the <a href="struct.Metadata.html#method.target">target</a> and <a href="span/struct.Attributes.html#method.parent">parent span</a> may be overridden. If the
@@ -334,8 +344,7 @@ use <code>tracing</code> can begin with a simple drop-in replacement.</p>
     <span class="comment">//</span>
     <span class="comment">// local variables (`yaks`) can be used as field values</span>
     <span class="comment">// without an assignment, similar to struct initializers.</span>
-    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;shaving_yaks&quot;</span>, <span class="ident">yaks</span>);
-    <span class="kw">let</span> <span class="ident">_enter</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">enter</span>();
+    <span class="kw">let</span> <span class="ident">_span</span> <span class="op">=</span> <span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;shaving_yaks&quot;</span>, <span class="ident">yaks</span>).<span class="ident">entered</span>();
 
     <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;shaving yaks&quot;</span>);
 
@@ -540,7 +549,7 @@ which may add to the compile time of crates that do not already use it.</p>
 <p><code>std</code>: Depend on the Rust standard library (enabled by default).</p>
 <p><code>no_std</code> users may disable this feature with <code>default-features = false</code>:</p>
 <pre><code class="language-toml">[dependencies]
-tracing = { version = &quot;0.1.23&quot;, default-features = false }
+tracing = { version = &quot;0.1.26&quot;, default-features = false }
 </code></pre>
 </li>
 </ul>

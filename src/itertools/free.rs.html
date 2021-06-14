@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/itertools-0.10.0/src/free.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>free.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/itertools-0.10.1/src/free.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>free.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../itertools/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -242,12 +242,10 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Free functions that create iterator adaptors or call iterator methods.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! The benefit of free functions is that they accept any `IntoIterator` as</span>
+<span class="doccomment">//! The benefit of free functions is that they accept any [`IntoIterator`] as</span>
 <span class="doccomment">//! argument, so the resulting code may be easier to read.</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_alloc&quot;</span>)]</span>
@@ -284,7 +282,7 @@
 
 <span class="doccomment">/// Iterate `iterable` with a running index.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `.enumerate()`.</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::enumerate`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::enumerate;</span>
@@ -301,7 +299,7 @@
 
 <span class="doccomment">/// Iterate `iterable` in reverse.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `.rev()`.</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::rev`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::rev;</span>
@@ -319,7 +317,7 @@
 
 <span class="doccomment">/// Iterate `i` and `j` in lock step.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `i.zip(j)`.</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::zip`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::zip;</span>
@@ -338,7 +336,7 @@
 
 <span class="doccomment">/// Create an iterator that first iterates `i` and then `j`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `i.chain(j)`.</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::chain`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::chain;</span>
@@ -356,7 +354,7 @@
 
 <span class="doccomment">/// Create an iterator that clones each element from &amp;T to T</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `i.cloned()`.</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::cloned`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::cloned;</span>
@@ -372,7 +370,7 @@
 
 <span class="doccomment">/// Perform a fold operation over the iterable.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `i.fold(init, f)`</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::fold`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::fold;</span>
@@ -388,7 +386,7 @@
 
 <span class="doccomment">/// Test whether the predicate holds for all elements in the iterable.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `i.all(f)`</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::all`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::all;</span>
@@ -404,7 +402,7 @@
 
 <span class="doccomment">/// Test whether the predicate holds for any elements in the iterable.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `i.any(f)`</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::any`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::any;</span>
@@ -420,7 +418,7 @@
 
 <span class="doccomment">/// Return the maximum value of the iterable.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `i.max()`.</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::max`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::max;</span>
@@ -436,7 +434,7 @@
 
 <span class="doccomment">/// Return the minimum value of the iterable.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `i.min()`.</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::min`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::min;</span>
@@ -453,7 +451,7 @@
 
 <span class="doccomment">/// Combine all iterator elements into one String, seperated by `sep`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of `iterable.join(sep)`.</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Itertools::join`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::join;</span>
@@ -470,9 +468,7 @@
 
 <span class="doccomment">/// Sort all iterator elements into a new iterator in ascending order.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `IntoIterator` enabled version of [`iterable.sorted()`][1].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [1]: trait.Itertools.html#method.sorted</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Itertools::sorted`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use itertools::sorted;</span>

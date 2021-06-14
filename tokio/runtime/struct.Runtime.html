@@ -22,7 +22,7 @@ result in an error.</p>
 <h1 id="sharing" class="section-header"><a href="#sharing">Sharing</a></h1>
 <p>The Tokio runtime implements <code>Sync</code> and <code>Send</code> to allow you to wrap it
 in a <code>Arc</code>. Most fn take <code>&amp;self</code> to allow you to call them concurrently
-accross multiple threads.</p>
+across multiple threads.</p>
 <p>Calls to <code>shutdown</code> and <code>shutdown_timeout</code> require exclusive ownership of
 the runtime type and this can be achieved via <code>Arc::try_unwrap</code> when only
 one strong count reference is left over.</p>
@@ -86,7 +86,7 @@ until it completes.</p>
 });</pre></div>
 </div><h4 id="method.block_on" class="method"><code>pub fn <a href="#method.block_on" class="fnname">block_on</a>&lt;F:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/future/future/trait.Future.html" title="trait core::future::future::Future">Future</a>&gt;(&amp;self, future: F) -&gt; F::<a class="type" href="https://doc.rust-lang.org/nightly/core/future/future/trait.Future.html#associatedtype.Output" title="type core::future::future::Future::Output">Output</a></code><a class="srclink" href="../../src/tokio/runtime/mod.rs.html#446-454" title="goto source code">[src]</a></h4><div class="docblock"><p>Run a future to completion on the Tokio runtime. This is the
 runtime’s entry point.</p>
-<p>This runs the given future on the runtime, blocking until it is
+<p>This runs the given future on the current thread, blocking until it is
 complete, and yielding its resolved result. Any tasks or timers
 which the future spawns internally will be executed on the runtime.</p>
 <h1 id="multi-thread-scheduler" class="section-header"><a href="#multi-thread-scheduler">Multi thread scheduler</a></h1>

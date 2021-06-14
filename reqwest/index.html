@@ -7,7 +7,7 @@
 <p>It handles many of the things that most people just expect an HTTP client
 to do for them.</p>
 <ul>
-<li>Async and <a href="blocking">blocking</a> Clients</li>
+<li>Async and <a href="../reqwest/blocking/index.html">blocking</a> Clients</li>
 <li>Plain bodies, <a href="#json">JSON</a>, <a href="#forms">urlencoded</a>, <a href="multipart">multipart</a></li>
 <li>Customizable <a href="#redirect-policies">redirect policy</a></li>
 <li>HTTP <a href="#proxies">Proxies</a></li>
@@ -15,7 +15,7 @@ to do for them.</p>
 <li>Cookies</li>
 </ul>
 <p>The <a href="./struct.Client.html"><code>reqwest::Client</code></a> is asynchronous. For applications wishing
-to only make a few HTTP requests, the <a href="blocking"><code>reqwest::blocking</code></a> API
+to only make a few HTTP requests, the <a href="../reqwest/blocking/index.html"><code>reqwest::blocking</code></a> API
 may be more convenient.</p>
 <p>Additional learning resources include:</p>
 <ul>
@@ -136,7 +136,8 @@ while using root certificates from the <code>rustls-native-certs</code> crate.</
 threadpool using <code>getaddrinfo</code>.</li>
 </ul>
 </div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
-<table><tr class="module-item"><td><a class="mod" href="header/index.html" title="reqwest::header mod">header</a></td><td class="docblock-short"><p>HTTP header types</p>
+<table><tr class="module-item"><td><a class="mod" href="blocking/index.html" title="reqwest::blocking mod">blocking</a></td><td class="docblock-short"><p>A blocking Client API.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="header/index.html" title="reqwest::header mod">header</a></td><td class="docblock-short"><p>HTTP header types</p>
 </td></tr><tr class="module-item"><td><a class="mod" href="redirect/index.html" title="reqwest::redirect mod">redirect</a></td><td class="docblock-short"><p>Redirect Handling</p>
 </td></tr></table><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
 <table><tr class="module-item"><td><a class="struct" href="struct.Body.html" title="reqwest::Body struct">Body</a></td><td class="docblock-short"><p>An asynchronous request body.</p>

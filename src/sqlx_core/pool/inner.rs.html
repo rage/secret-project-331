@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.1/src/pool/inner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inner.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.5/src/pool/inner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inner.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -432,6 +432,52 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">connection</span>::{<span class="ident">Floating</span>, <span class="ident">Idle</span>, <span class="ident">Live</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connection</span>::<span class="ident">ConnectOptions</span>;
@@ -442,25 +488,46 @@
 <span class="kw">use</span> <span class="ident">crossbeam_queue</span>::{<span class="ident">ArrayQueue</span>, <span class="ident">SegQueue</span>};
 <span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">task</span>::{<span class="ident">Poll</span>, <span class="ident">Waker</span>};
 <span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">future</span>;
-<span class="kw">use</span> <span class="ident">sqlx_rt</span>::{<span class="ident">sleep</span>, <span class="ident">spawn</span>, <span class="ident">timeout</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">AtomicU32</span>, <span class="ident">Ordering</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Weak</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::<span class="ident">Context</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Instant</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
+
+<span class="kw">type</span> <span class="ident">Waiters</span> <span class="op">=</span> <span class="ident">SegQueue</span><span class="op">&lt;</span><span class="ident">Weak</span><span class="op">&lt;</span><span class="ident">WaiterInner</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">connect_options</span>: <span class="op">&lt;</span><span class="ident">DB</span>::<span class="ident">Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span>::<span class="ident">Options</span>,
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">idle_conns</span>: <span class="ident">ArrayQueue</span><span class="op">&lt;</span><span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">waiters</span>: <span class="ident">SegQueue</span><span class="op">&lt;</span><span class="ident">Weak</span><span class="op">&lt;</span><span class="ident">Waiter</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">waiters</span>: <span class="ident">Waiters</span>,
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">size</span>: <span class="ident">AtomicU32</span>,
     <span class="ident">is_closed</span>: <span class="ident">AtomicBool</span>,
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">options</span>: <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new_arc</span>(
+        <span class="ident">options</span>: <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+        <span class="ident">connect_options</span>: <span class="op">&lt;</span><span class="ident">DB</span>::<span class="ident">Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span>::<span class="ident">Options</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="self">Self</span> {
+            <span class="ident">connect_options</span>,
+            <span class="ident">idle_conns</span>: <span class="ident">ArrayQueue</span>::<span class="ident">new</span>(<span class="ident">options</span>.<span class="ident">max_connections</span> <span class="kw">as</span> <span class="ident">usize</span>),
+            <span class="ident">waiters</span>: <span class="ident">SegQueue</span>::<span class="ident">new</span>(),
+            <span class="ident">size</span>: <span class="ident">AtomicU32</span>::<span class="ident">new</span>(<span class="number">0</span>),
+            <span class="ident">is_closed</span>: <span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>),
+            <span class="ident">options</span>,
+        };
+
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">pool</span>);
+
+        <span class="ident">spawn_reaper</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>);
+
+        <span class="ident">pool</span>
+    }
+
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">size</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">Acquire</span>)
     }
@@ -529,12 +596,7 @@
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;BUG: connection queue overflow in release()&quot;</span>);
         }
 
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">pop</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="ident">waker</span>.<span class="ident">upgrade</span>() {
-                <span class="ident">waker</span>.<span class="ident">wake</span>();
-                <span class="kw">break</span>;
-            }
-        }
+        <span class="ident">wake_one</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">waiters</span>);
     }
 
     <span class="doccomment">/// Try to atomically increment the pool size for a new connection.</span>
@@ -548,68 +610,16 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">size</span>();
 
         <span class="kw">while</span> <span class="ident">size</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">max_connections</span> {
-            <span class="kw">let</span> <span class="ident">new_size</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">size</span>.<span class="ident">compare_and_swap</span>(<span class="ident">size</span>, <span class="ident">size</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>);
-
-            <span class="kw">if</span> <span class="ident">new_size</span> <span class="op">=</span><span class="op">=</span> <span class="ident">size</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">DecrementSizeGuard</span>::<span class="ident">new</span>(<span class="self">self</span>));
+            <span class="kw">match</span> <span class="self">self</span>
+                .<span class="ident">size</span>
+                .<span class="ident">compare_exchange</span>(<span class="ident">size</span>, <span class="ident">size</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>, <span class="ident">Ordering</span>::<span class="ident">Acquire</span>)
+            {
+                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">DecrementSizeGuard</span>::<span class="ident">new</span>(<span class="self">self</span>)),
+                <span class="prelude-val">Err</span>(<span class="ident">new_size</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">new_size</span>,
             }
-
-            <span class="ident">size</span> <span class="op">=</span> <span class="ident">new_size</span>;
         }
 
         <span class="prelude-val">None</span>
-    }
-
-    <span class="doccomment">/// Wait for a connection, if either `size` drops below `max_connections` so we can</span>
-    <span class="doccomment">/// open a new connection, or if an idle connection is returned to the pool.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if `deadline` elapses before we are woken.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">wait_for_conn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">deadline</span>: <span class="ident">Instant</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">PoolClosed</span>);
-        }
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">waiter</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-
-        <span class="ident">timeout</span>(
-            <span class="ident">deadline_as_timeout</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="ident">deadline</span>)<span class="question-mark">?</span>,
-            <span class="comment">// `poll_fn` gets us easy access to a `Waker` that we can push to our queue</span>
-            <span class="ident">future</span>::<span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">waiter</span> <span class="op">=</span> <span class="ident">waiter</span>.<span class="ident">get_or_insert_with</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">waiter</span> <span class="op">=</span> <span class="ident">Waiter</span>::<span class="ident">new</span>(<span class="ident">cx</span>);
-                    <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">push</span>(<span class="ident">Arc</span>::<span class="ident">downgrade</span>(<span class="kw-2">&amp;</span><span class="ident">waiter</span>));
-                    <span class="ident">waiter</span>
-                });
-
-                <span class="kw">if</span> <span class="ident">waiter</span>.<span class="ident">is_woken</span>() {
-                    <span class="ident">Poll</span>::<span class="ident">Ready</span>(())
-                } <span class="kw">else</span> {
-                    <span class="ident">Poll</span>::<span class="ident">Pending</span>
-                }
-            }),
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">PoolTimedOut</span>)
-    }
-
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new_arc</span>(
-        <span class="ident">options</span>: <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-        <span class="ident">connect_options</span>: <span class="op">&lt;</span><span class="ident">DB</span>::<span class="ident">Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span>::<span class="ident">Options</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">connect_options</span>,
-            <span class="ident">idle_conns</span>: <span class="ident">ArrayQueue</span>::<span class="ident">new</span>(<span class="ident">options</span>.<span class="ident">max_connections</span> <span class="kw">as</span> <span class="ident">usize</span>),
-            <span class="ident">waiters</span>: <span class="ident">SegQueue</span>::<span class="ident">new</span>(),
-            <span class="ident">size</span>: <span class="ident">AtomicU32</span>::<span class="ident">new</span>(<span class="number">0</span>),
-            <span class="ident">is_closed</span>: <span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>),
-            <span class="ident">options</span>,
-        };
-
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">pool</span>);
-
-        <span class="ident">spawn_reaper</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>);
-
-        <span class="ident">pool</span>
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">needless_lifetimes</span>)]</span>
@@ -617,11 +627,15 @@
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
         <span class="kw">let</span> <span class="ident">deadline</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">connect_timeout</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">waited</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">fair</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backoff</span> <span class="op">=</span> <span class="number">0.01</span>;
+
+        <span class="comment">// the strong ref of the `Weak&lt;Waiter&gt;` that we push to the queue</span>
+        <span class="comment">// initialized during the `timeout()` call below</span>
+        <span class="comment">// as long as we own this, we keep our place in line</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">waiter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waiter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
         <span class="comment">// Unless the pool has been closed ...</span>
         <span class="kw">while</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_closed</span>() {
-            <span class="comment">// Don&#39;t cut in line</span>
+            <span class="comment">// Don&#39;t cut in line unless no one is waiting</span>
             <span class="kw">if</span> <span class="ident">waited</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">is_empty</span>() {
                 <span class="comment">// Attempt to immediately acquire a connection. This will return Some</span>
                 <span class="comment">// if there is an idle connection in our channel.</span>
@@ -630,28 +644,41 @@
                         <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">live</span>);
                     }
                 }
-            }
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">guard</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">try_increment_size</span>() {
-                <span class="comment">// pool has slots available; open a new connection</span>
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">connection</span>(<span class="ident">deadline</span>, <span class="ident">guard</span>).<span class="kw">await</span> {
-                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">conn</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">conn</span>),
-                    <span class="comment">// [size] is internally decremented on _retry_ and _error_</span>
-                    <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="comment">// If the connection is refused wait in exponentially</span>
-                        <span class="comment">// increasing steps for the server to come up, capped by</span>
-                        <span class="comment">// two seconds.</span>
-                        <span class="ident">sqlx_rt</span>::<span class="ident">sleep</span>(<span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>::<span class="ident">from_secs_f64</span>(<span class="ident">backoff</span>)).<span class="kw">await</span>;
-                        <span class="ident">backoff</span> <span class="op">=</span> <span class="ident">f64</span>::<span class="ident">min</span>(<span class="ident">backoff</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="number">2.0</span>);
-                        <span class="kw">continue</span>;
-                    }
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                <span class="comment">// check if we can open a new connection</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">guard</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">try_increment_size</span>() {
+                    <span class="comment">// pool has slots available; open a new connection</span>
+                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">connection</span>(<span class="ident">deadline</span>, <span class="ident">guard</span>).<span class="kw">await</span>;
                 }
             }
 
-            <span class="comment">// Wait for a connection to become available (or we are allowed to open a new one)</span>
-            <span class="comment">// Returns an error if `deadline` passes</span>
-            <span class="self">self</span>.<span class="ident">wait_for_conn</span>(<span class="ident">deadline</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">waiter</span>) <span class="op">=</span> <span class="ident">waiter</span> {
+                <span class="comment">// return the waiter to the queue, note that this does put it to the back</span>
+                <span class="comment">// of the queue when it should ideally stay at the front</span>
+                <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">push</span>(<span class="ident">Arc</span>::<span class="ident">downgrade</span>(<span class="kw-2">&amp;</span><span class="ident">waiter</span>.<span class="ident">inner</span>));
+            }
+
+            <span class="ident">sqlx_rt</span>::<span class="ident">timeout</span>(
+                <span class="comment">// Returns an error if `deadline` passes</span>
+                <span class="ident">deadline_as_timeout</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="ident">deadline</span>)<span class="question-mark">?</span>,
+                <span class="comment">// `poll_fn` gets us easy access to a `Waker` that we can push to our queue</span>
+                <span class="ident">future</span>::<span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">waiter</span> <span class="op">=</span> <span class="ident">waiter</span>.<span class="ident">get_or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Waiter</span>::<span class="ident">push_new</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">waiters</span>));
+
+                    <span class="kw">if</span> <span class="ident">waiter</span>.<span class="ident">is_woken</span>() {
+                        <span class="ident">waiter</span>.<span class="ident">actually_woke</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="ident">Poll</span>::<span class="ident">Ready</span>(())
+                    } <span class="kw">else</span> {
+                        <span class="ident">Poll</span>::<span class="ident">Pending</span>
+                    }
+                }),
+            )
+            .<span class="kw">await</span>
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">PoolTimedOut</span>)<span class="question-mark">?</span>;
+
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">waiter</span>) <span class="op">=</span> <span class="ident">waiter</span> {
+                <span class="ident">waiter</span>.<span class="ident">reset</span>();
+            }
 
             <span class="ident">waited</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
@@ -663,39 +690,51 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>,
         <span class="ident">deadline</span>: <span class="ident">Instant</span>,
         <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">PoolClosed</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">deadline_as_timeout</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="ident">deadline</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backoff</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">10</span>);
+        <span class="kw">let</span> <span class="ident">max_backoff</span> <span class="op">=</span> <span class="ident">deadline_as_timeout</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="ident">deadline</span>)<span class="question-mark">?</span> <span class="op">/</span> <span class="number">5</span>;
 
-        <span class="comment">// result here is `Result&lt;Result&lt;C, Error&gt;, TimeoutError&gt;`</span>
-        <span class="kw">match</span> <span class="ident">sqlx_rt</span>::<span class="ident">timeout</span>(<span class="ident">timeout</span>, <span class="self">self</span>.<span class="ident">connect_options</span>.<span class="ident">connect</span>()).<span class="kw">await</span> {
-            <span class="comment">// successfully established connection</span>
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">raw</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">callback</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">after_connect</span> {
-                    <span class="ident">callback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="ident">deadline_as_timeout</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="ident">deadline</span>)<span class="question-mark">?</span>;
+
+            <span class="comment">// result here is `Result&lt;Result&lt;C, Error&gt;, TimeoutError&gt;`</span>
+            <span class="comment">// if this block does not return, sleep for the backoff timeout and try again</span>
+            <span class="kw">match</span> <span class="ident">sqlx_rt</span>::<span class="ident">timeout</span>(<span class="ident">timeout</span>, <span class="self">self</span>.<span class="ident">connect_options</span>.<span class="ident">connect</span>()).<span class="kw">await</span> {
+                <span class="comment">// successfully established connection</span>
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">raw</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">callback</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">after_connect</span> {
+                        <span class="ident">callback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                    }
+
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Floating</span>::<span class="ident">new_live</span>(<span class="ident">raw</span>, <span class="ident">guard</span>));
                 }
 
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Floating</span>::<span class="ident">new_live</span>(<span class="ident">raw</span>, <span class="ident">guard</span>)))
+                <span class="comment">// an IO error while connecting is assumed to be the system starting up</span>
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Io</span>(<span class="ident">e</span>))) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">ConnectionRefused</span> <span class="op">=</span><span class="op">&gt;</span> (),
+
+                <span class="comment">// TODO: Handle other database &quot;boot period&quot;s</span>
+
+                <span class="comment">// [postgres] the database system is starting up</span>
+                <span class="comment">// TODO: Make this check actually check if this is postgres</span>
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Database</span>(<span class="ident">error</span>))) <span class="kw">if</span> <span class="ident">error</span>.<span class="ident">code</span>().<span class="ident">as_deref</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;57P03&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> (),
+
+                <span class="comment">// Any other error while connection should immediately</span>
+                <span class="comment">// terminate and bubble the error up</span>
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+
+                <span class="comment">// timed out</span>
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">PoolTimedOut</span>),
             }
 
-            <span class="comment">// an IO error while connecting is assumed to be the system starting up</span>
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Io</span>(<span class="ident">e</span>))) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">ConnectionRefused</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-
-            <span class="comment">// TODO: Handle other database &quot;boot period&quot;s</span>
-
-            <span class="comment">// [postgres] the database system is starting up</span>
-            <span class="comment">// TODO: Make this check actually check if this is postgres</span>
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Database</span>(<span class="ident">error</span>))) <span class="kw">if</span> <span class="ident">error</span>.<span class="ident">code</span>().<span class="ident">as_deref</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;57P03&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-
-            <span class="comment">// Any other error while connection should immediately</span>
-            <span class="comment">// terminate and bubble the error up</span>
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-
-            <span class="comment">// timed out</span>
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">PoolTimedOut</span>),
+            <span class="comment">// If the connection is refused wait in exponentially</span>
+            <span class="comment">// increasing steps for the server to come up,</span>
+            <span class="comment">// capped by a factor of the remaining time until the deadline</span>
+            <span class="ident">sqlx_rt</span>::<span class="ident">sleep</span>(<span class="ident">backoff</span>).<span class="kw">await</span>;
+            <span class="ident">backoff</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">backoff</span> <span class="op">*</span> <span class="number">2</span>, <span class="ident">max_backoff</span>);
         }
     }
 }
@@ -769,35 +808,48 @@
 
     <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>);
 
-    <span class="ident">spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-        <span class="kw">while</span> <span class="op">!</span><span class="ident">pool</span>.<span class="ident">is_closed</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">Acquire</span>) {
-            <span class="comment">// reap at most the current size minus the minimum idle</span>
-            <span class="kw">let</span> <span class="ident">max_reaped</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">size</span>().<span class="ident">saturating_sub</span>(<span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">min_connections</span>);
-
-            <span class="comment">// collect connections to reap</span>
-            <span class="kw">let</span> (<span class="ident">reap</span>, <span class="ident">keep</span>) <span class="op">=</span> (<span class="number">0</span>..<span class="ident">max_reaped</span>)
-                <span class="comment">// only connections waiting in the queue</span>
-                .<span class="ident">filter_map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">pool</span>.<span class="ident">pop_idle</span>())
-                .<span class="ident">partition</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="ident">conn</span><span class="op">|</span> {
-                    <span class="ident">is_beyond_idle</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>.<span class="ident">options</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">is_beyond_lifetime</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>.<span class="ident">options</span>)
-                });
-
-            <span class="kw">for</span> <span class="ident">conn</span> <span class="kw">in</span> <span class="ident">keep</span> {
-                <span class="comment">// return these connections to the pool first</span>
-                <span class="kw">let</span> <span class="ident">is_ok</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">idle_conns</span>.<span class="ident">push</span>(<span class="ident">conn</span>.<span class="ident">into_leakable</span>()).<span class="ident">is_ok</span>();
-
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">is_ok</span> {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;BUG: connection queue overflow in spawn_reaper&quot;</span>);
-                }
+    <span class="ident">sqlx_rt</span>::<span class="ident">spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
+        <span class="kw">while</span> <span class="op">!</span><span class="ident">pool</span>.<span class="ident">is_closed</span>() {
+            <span class="comment">// only reap idle connections when no tasks are waiting</span>
+            <span class="kw">if</span> <span class="ident">pool</span>.<span class="ident">waiters</span>.<span class="ident">is_empty</span>() {
+                <span class="ident">do_reap</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span>;
             }
 
-            <span class="kw">for</span> <span class="ident">conn</span> <span class="kw">in</span> <span class="ident">reap</span> {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">close</span>().<span class="kw">await</span>;
-            }
-
-            <span class="ident">sleep</span>(<span class="ident">period</span>).<span class="kw">await</span>;
+            <span class="ident">sqlx_rt</span>::<span class="ident">sleep</span>(<span class="ident">period</span>).<span class="kw">await</span>;
         }
     });
+}
+
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">do_reap</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) {
+    <span class="comment">// reap at most the current size minus the minimum idle</span>
+    <span class="kw">let</span> <span class="ident">max_reaped</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">size</span>().<span class="ident">saturating_sub</span>(<span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">min_connections</span>);
+
+    <span class="comment">// collect connections to reap</span>
+    <span class="kw">let</span> (<span class="ident">reap</span>, <span class="ident">keep</span>) <span class="op">=</span> (<span class="number">0</span>..<span class="ident">max_reaped</span>)
+        <span class="comment">// only connections waiting in the queue</span>
+        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">pool</span>.<span class="ident">pop_idle</span>())
+        .<span class="ident">partition</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="ident">conn</span><span class="op">|</span> {
+            <span class="ident">is_beyond_idle</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>.<span class="ident">options</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">is_beyond_lifetime</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>.<span class="ident">options</span>)
+        });
+
+    <span class="kw">for</span> <span class="ident">conn</span> <span class="kw">in</span> <span class="ident">keep</span> {
+        <span class="comment">// return valid connections to the pool first</span>
+        <span class="ident">pool</span>.<span class="ident">release</span>(<span class="ident">conn</span>.<span class="ident">into_live</span>());
+    }
+
+    <span class="kw">for</span> <span class="ident">conn</span> <span class="kw">in</span> <span class="ident">reap</span> {
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">close</span>().<span class="kw">await</span>;
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">wake_one</span>(<span class="ident">waiters</span>: <span class="kw-2">&amp;</span><span class="ident">Waiters</span>) {
+    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">weak</span>) <span class="op">=</span> <span class="ident">waiters</span>.<span class="ident">pop</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waiter</span>) <span class="op">=</span> <span class="ident">weak</span>.<span class="ident">upgrade</span>() {
+            <span class="kw">if</span> <span class="ident">waiter</span>.<span class="ident">wake</span>() {
+                <span class="kw">return</span>;
+            }
+        }
+    }
 }
 
 <span class="doccomment">/// RAII guard returned by `Pool::try_increment_size()` and others.</span>
@@ -806,7 +858,7 @@
 <span class="doccomment">/// (where the pool thinks it has more connections than it does).</span>
 <span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">crate</span>::<span class="ident">pool</span>) <span class="kw">struct</span> <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">size</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AtomicU32</span>,
-    <span class="ident">waiters</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SegQueue</span><span class="op">&lt;</span><span class="ident">Weak</span><span class="op">&lt;</span><span class="ident">Waiter</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">waiters</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Waiters</span>,
     <span class="ident">dropped</span>: <span class="ident">bool</span>,
 }
 
@@ -834,34 +886,74 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">dropped</span>, <span class="string">&quot;double-dropped!&quot;</span>);
         <span class="self">self</span>.<span class="ident">dropped</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>.<span class="ident">size</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">pop</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="ident">waker</span>.<span class="ident">upgrade</span>() {
-                <span class="ident">waker</span>.<span class="ident">wake</span>();
-            }
-        }
+        <span class="ident">wake_one</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">waiters</span>);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">Waiter</span> {
+<span class="kw">struct</span> <span class="ident">WaiterInner</span> {
     <span class="ident">woken</span>: <span class="ident">AtomicBool</span>,
     <span class="ident">waker</span>: <span class="ident">Waker</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Waiter</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">WaiterInner</span> {
+    <span class="doccomment">/// Wake this waiter if it has not previously been woken.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return `true` if this waiter was newly woken, or `false` if it was already woken.</span>
+    <span class="kw">fn</span> <span class="ident">wake</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="comment">// if we were the thread to flip this boolean from false to true</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">woken</span>
+            .<span class="ident">compare_exchange</span>(<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>, <span class="ident">Ordering</span>::<span class="ident">Acquire</span>)
+        {
+            <span class="self">self</span>.<span class="ident">waker</span>.<span class="ident">wake_by_ref</span>();
+            <span class="kw">return</span> <span class="bool-val">true</span>;
+        }
+
+        <span class="bool-val">false</span>
+    }
+}
+
+<span class="kw">struct</span> <span class="ident">Waiter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">inner</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">WaiterInner</span><span class="op">&gt;</span>,
+    <span class="ident">queue</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Waiters</span>,
+    <span class="ident">actually_woke</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Waiter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">push_new</span>(<span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">queue</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Waiters</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">WaiterInner</span> {
             <span class="ident">woken</span>: <span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>),
             <span class="ident">waker</span>: <span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>(),
-        })
-    }
+        });
 
-    <span class="kw">fn</span> <span class="ident">wake</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">woken</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">Release</span>);
-        <span class="self">self</span>.<span class="ident">waker</span>.<span class="ident">wake_by_ref</span>();
+        <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Arc</span>::<span class="ident">downgrade</span>(<span class="kw-2">&amp;</span><span class="ident">inner</span>));
+
+        <span class="self">Self</span> {
+            <span class="ident">inner</span>,
+            <span class="ident">queue</span>,
+            <span class="ident">actually_woke</span>: <span class="bool-val">false</span>,
+        }
     }
 
     <span class="kw">fn</span> <span class="ident">is_woken</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">woken</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">Acquire</span>)
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">woken</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">Acquire</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">inner</span>
+            .<span class="ident">woken</span>
+            .<span class="ident">compare_exchange</span>(<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>, <span class="ident">Ordering</span>::<span class="ident">Acquire</span>)
+            .<span class="ident">ok</span>();
+        <span class="self">self</span>.<span class="ident">actually_woke</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Waiter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="comment">// if we didn&#39;t actually wake to get a connection, wake the next task instead</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_woken</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">actually_woke</span> {
+            <span class="ident">wake_one</span>(<span class="self">self</span>.<span class="ident">queue</span>);
+        }
     }
 }
 </pre></div>

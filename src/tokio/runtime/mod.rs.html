@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.2.0/src/runtime/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/runtime/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -817,7 +817,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The Tokio runtime implements `Sync` and `Send` to allow you to wrap it</span>
     <span class="doccomment">/// in a `Arc`. Most fn take `&amp;self` to allow you to call them concurrently</span>
-    <span class="doccomment">/// accross multiple threads.</span>
+    <span class="doccomment">/// across multiple threads.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Calls to `shutdown` and `shutdown_timeout` require exclusive ownership of</span>
     <span class="doccomment">/// the runtime type and this can be achieved via `Arc::try_unwrap` when only</span>
@@ -972,7 +972,7 @@
         <span class="doccomment">/// Run a future to completion on the Tokio runtime. This is the</span>
         <span class="doccomment">/// runtime&#39;s entry point.</span>
         <span class="doccomment">///</span>
-        <span class="doccomment">/// This runs the given future on the runtime, blocking until it is</span>
+        <span class="doccomment">/// This runs the given future on the current thread, blocking until it is</span>
         <span class="doccomment">/// complete, and yielding its resolved result. Any tasks or timers</span>
         <span class="doccomment">/// which the future spawns internally will be executed on the runtime.</span>
         <span class="doccomment">///</span>
@@ -1093,7 +1093,7 @@
         <span class="doccomment">/// ```</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shutdown_timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) {
             <span class="comment">// Wakeup and shutdown all the worker threads</span>
-            <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">spawner</span>.<span class="ident">shutdown</span>();
+            <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">shutdown</span>();
             <span class="self">self</span>.<span class="ident">blocking_pool</span>.<span class="ident">shutdown</span>(<span class="prelude-val">Some</span>(<span class="ident">duration</span>));
         }
 

@@ -22,7 +22,7 @@ struct type, if the query has at least one output column that is not <code>Void<
 </pre></div>
 <p><strong>The method you want to call depends on how many rows you’re expecting.</strong></p>
 <table><thead><tr><th>Number of Rows</th><th>Method to Call*</th><th>Returns</th><th>Notes</th></tr></thead><tbody>
-<tr><td>None†</td><td><code>.execute(...).await</code></td><td>`sqlx::Result<a href="DB::QueryResult">DB::QueryResult</a></td><td>For <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> without <code>RETURNING</code>.</td></tr>
+<tr><td>None†</td><td><code>.execute(...).await</code></td><td><code>sqlx::Result&lt;DB::QueryResult&gt;</code></td><td>For <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> without <code>RETURNING</code>.</td></tr>
 <tr><td>Zero or One</td><td><code>.fetch_optional(...).await</code></td><td><code>sqlx::Result&lt;Option&lt;{adhoc struct}&gt;&gt;</code></td><td>Extra rows are ignored.</td></tr>
 <tr><td>Exactly One</td><td><code>.fetch_one(...).await</code></td><td><code>sqlx::Result&lt;{adhoc struct}&gt;</code></td><td>Errors if no rows were returned. Extra rows are ignored. Aggregate queries, use this.</td></tr>
 <tr><td>At Least One</td><td><code>.fetch(...)</code></td><td><code>impl Stream&lt;Item = sqlx::Result&lt;{adhoc struct}&gt;&gt;</code></td><td>Call <code>.try_next().await</code> to get each row result.</td></tr>
@@ -191,7 +191,7 @@ but it is compatible with the forced not-null and forced nullable annotations:</
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">transparent</span>)
+<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">struct</span> <span class="ident">MyInt4</span>(<span class="ident">i32</span>);
 
 <span class="kw">let</span> <span class="ident">my_int</span> <span class="op">=</span> <span class="ident">MyInt4</span>(<span class="number">1</span>);
@@ -228,7 +228,7 @@ again.</p>
 <p>To ensure that your <code>sqlx-data.json</code> file is kept up-to-date, both with the queries in your
 project and your database schema itself, run
 <code>cargo install sqlx-cli &amp;&amp; cargo sqlx prepare --check</code> in your Continuous Integration script.</p>
-<p>See <a href="https://crates.io/crate/sqlx-cli">the README for <code>sqlx-cli</code></a> for more information.</p>
+<p>See <a href="https://crates.io/crates/sqlx-cli">the README for <code>sqlx-cli</code></a> for more information.</p>
 <h2 id="see-also" class="section-header"><a href="#see-also">See Also</a></h2>
 <ul>
 <li><a href="../sqlx/macro.query_as.html" title="query_as!">query_as!</a> if you want to use a struct you can name,</li>

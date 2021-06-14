@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.1.0/src/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../whoami/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.1.2/src/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../whoami/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -524,6 +524,41 @@
 <span id="523">523</span>
 <span id="524">524</span>
 <span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// WhoAmI</span>
 <span class="comment">// Copyright © 2017-2021 Jeron Aldaron Lau.</span>
@@ -606,9 +641,9 @@
         <span class="ident">result</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">PassWd</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
     <span class="kw">fn</span> <span class="ident">geteuid</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span>;
-    <span class="kw">fn</span> <span class="ident">strlen</span>(<span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
     <span class="kw">fn</span> <span class="ident">gethostname</span>(<span class="ident">name</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">len</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
 }
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">link</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;CoreFoundation&quot;</span>, <span class="ident">kind</span> <span class="op">=</span> <span class="string">&quot;framework&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">link</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;SystemConfiguration&quot;</span>, <span class="ident">kind</span> <span class="op">=</span> <span class="string">&quot;framework&quot;</span>)]</span>
@@ -631,12 +666,47 @@
     <span class="kw">fn</span> <span class="ident">CFRelease</span>(<span class="ident">cf</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>);
 }
 
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">strlen</span>(<span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">cast</span>();
+    <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">cs</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="ident">cs</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">offset</span>(<span class="number">1</span>);
+    }
+    <span class="ident">len</span>
+}
+
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">strlen_gecos</span>(<span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">cast</span>();
+    <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">cs</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">cs</span> <span class="op">!</span><span class="op">=</span> <span class="string">b&#39;,&#39;</span> {
+        <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="ident">cs</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">offset</span>(<span class="number">1</span>);
+    }
+    <span class="ident">len</span>
+}
+
 <span class="comment">// Convert an OsString into a String</span>
 <span class="kw">fn</span> <span class="ident">string_from_os</span>(<span class="ident">string</span>: <span class="ident">OsString</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="kw">match</span> <span class="ident">string</span>.<span class="ident">into_string</span>() {
         <span class="prelude-val">Ok</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">string</span>,
         <span class="prelude-val">Err</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">string</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>(),
     }
+}
+
+<span class="kw">fn</span> <span class="ident">os_from_cstring_gecos</span>(<span class="ident">string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
+    <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">is_null</span>() {
+        <span class="kw">return</span> <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into</span>();
+    }
+
+    <span class="comment">// Get a byte slice of the c string.</span>
+    <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+        <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">strlen_gecos</span>(<span class="ident">string</span>);
+        <span class="ident">std</span>::<span class="ident">slice</span>::<span class="ident">from_raw_parts</span>(<span class="ident">string</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>, <span class="ident">length</span>)
+    };
+
+    <span class="comment">// Turn byte slice into Rust String.</span>
+    <span class="ident">OsString</span>::<span class="ident">from_vec</span>(<span class="ident">slice</span>.<span class="ident">to_vec</span>())
 }
 
 <span class="kw">fn</span> <span class="ident">os_from_cstring</span>(<span class="ident">string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OsString</span> {
@@ -707,7 +777,7 @@
 
     <span class="comment">// Extract names.</span>
     <span class="kw">if</span> <span class="ident">real</span> {
-        <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">os_from_cstring</span>(<span class="ident">passwd</span>.<span class="ident">pw_gecos</span>);
+        <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">os_from_cstring_gecos</span>(<span class="ident">passwd</span>.<span class="ident">pw_gecos</span>);
         <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">is_empty</span>() {
             <span class="prelude-val">Err</span>(<span class="ident">os_from_cstring</span>(<span class="ident">passwd</span>.<span class="ident">pw_name</span>))
         } <span class="kw">else</span> {

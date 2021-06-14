@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/standback-0.2.15/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/standback-0.2.17/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../standback/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -593,704 +593,320 @@
 <span id="590">590</span>
 <span id="591">591</span>
 <span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
-<span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
-<span id="637">637</span>
-<span id="638">638</span>
-<span id="639">639</span>
-<span id="640">640</span>
-<span id="641">641</span>
-<span id="642">642</span>
-<span id="643">643</span>
-<span id="644">644</span>
-<span id="645">645</span>
-<span id="646">646</span>
-<span id="647">647</span>
-<span id="648">648</span>
-<span id="649">649</span>
-<span id="650">650</span>
-<span id="651">651</span>
-<span id="652">652</span>
-<span id="653">653</span>
-<span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
-<span id="657">657</span>
-<span id="658">658</span>
-<span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
-<span id="662">662</span>
-<span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
-<span id="670">670</span>
-<span id="671">671</span>
-<span id="672">672</span>
-<span id="673">673</span>
-<span id="674">674</span>
-<span id="675">675</span>
-<span id="676">676</span>
-<span id="677">677</span>
-<span id="678">678</span>
-<span id="679">679</span>
-<span id="680">680</span>
-<span id="681">681</span>
-<span id="682">682</span>
-<span id="683">683</span>
-<span id="684">684</span>
-<span id="685">685</span>
-<span id="686">686</span>
-<span id="687">687</span>
-<span id="688">688</span>
-<span id="689">689</span>
-<span id="690">690</span>
-<span id="691">691</span>
-<span id="692">692</span>
-<span id="693">693</span>
-<span id="694">694</span>
-<span id="695">695</span>
-<span id="696">696</span>
-<span id="697">697</span>
-<span id="698">698</span>
-<span id="699">699</span>
-<span id="700">700</span>
-<span id="701">701</span>
-<span id="702">702</span>
-<span id="703">703</span>
-<span id="704">704</span>
-<span id="705">705</span>
-<span id="706">706</span>
-<span id="707">707</span>
-<span id="708">708</span>
-<span id="709">709</span>
-<span id="710">710</span>
-<span id="711">711</span>
-<span id="712">712</span>
-<span id="713">713</span>
-<span id="714">714</span>
-<span id="715">715</span>
-<span id="716">716</span>
-<span id="717">717</span>
-<span id="718">718</span>
-<span id="719">719</span>
-<span id="720">720</span>
-<span id="721">721</span>
-<span id="722">722</span>
-<span id="723">723</span>
-<span id="724">724</span>
-<span id="725">725</span>
-<span id="726">726</span>
-<span id="727">727</span>
-<span id="728">728</span>
-<span id="729">729</span>
-<span id="730">730</span>
-<span id="731">731</span>
-<span id="732">732</span>
-<span id="733">733</span>
-<span id="734">734</span>
-<span id="735">735</span>
-<span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
-<span id="749">749</span>
-<span id="750">750</span>
-<span id="751">751</span>
-<span id="752">752</span>
-<span id="753">753</span>
-<span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
-<span id="758">758</span>
-<span id="759">759</span>
-<span id="760">760</span>
-<span id="761">761</span>
-<span id="762">762</span>
-<span id="763">763</span>
-<span id="764">764</span>
-<span id="765">765</span>
-<span id="766">766</span>
-<span id="767">767</span>
-<span id="768">768</span>
-<span id="769">769</span>
-<span id="770">770</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>, <span class="ident">unstable_name_collisions</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
-
-<span class="doccomment">//! Standback backports a number of methods, structs, and macros that have been</span>
-<span class="doccomment">//! stabilized in the Rust standard library since 1.31.0. This allows crate</span>
-<span class="doccomment">//! authors to depend on Standback rather than forcing downstream users to</span>
-<span class="doccomment">//! upgrade their compiler (or not use the new feature at all).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Due to a variety of restrictions in the Rust, it is not possible to</span>
-<span class="doccomment">//! implement everything that has been stabilized.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Usage</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! If you are using methods on already-existing structs, you should use the</span>
-<span class="doccomment">//! following:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! use standback::prelude::*;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Additionally, if you are using newly stabilized structs, types, or anything</span>
-<span class="doccomment">//! else that would normally have to be imported, use `standback` instead of</span>
-<span class="doccomment">//! `std`:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! use standback::mem::take;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! It is _highly_ recommended to use `#![allow(unstable_name_collisions)]`, as</span>
-<span class="doccomment">//! that&#39;s the whole point of this crate. Just be extra-careful to not do it for</span>
-<span class="doccomment">//! anything that _can&#39;t_ be backported.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # `#![no_std]` support</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! By default, there standard library is used where necessary. If support for</span>
-<span class="doccomment">//! `#![no_std]` is required, use `default-features = false`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! An allocator is not required for any backported item. If any require an</span>
-<span class="doccomment">//! allocator in the future, it will be gated under an `alloc` feature.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Methods on existing structs</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The following methods and constants are available via the prelude:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! // 1.50</span>
-<span class="doccomment">//! bool::then</span>
-<span class="doccomment">//! btree_map::Entry::or_insert_with_key</span>
-<span class="doccomment">//! hash_map::Entry::or_insert_with_key</span>
-<span class="doccomment">//! f32::clamp</span>
-<span class="doccomment">//! f64::clamp</span>
-<span class="doccomment">//! Ord::clamp</span>
-<span class="doccomment">//! RefCell::take</span>
-<span class="doccomment">//! slice::fill</span>
-<span class="doccomment">//! UnsafeCell::get_mut</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.49</span>
-<span class="doccomment">//! slice::select_nth_unstable</span>
-<span class="doccomment">//! slice::select_nth_unstable_by</span>
-<span class="doccomment">//! slice::select_nth_unstable_by_key</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.48</span>
-<span class="doccomment">//! slice::as_ptr_range</span>
-<span class="doccomment">//! slice::as_mut_ptr_range</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.47</span>
-<span class="doccomment">//! Range::is_empty</span>
-<span class="doccomment">//! Result::as_deref</span>
-<span class="doccomment">//! Result::as_deref_mut</span>
-<span class="doccomment">//! Vec::leak</span>
-<span class="doccomment">//! f32::TAU</span>
-<span class="doccomment">//! f64::TAU</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.46</span>
-<span class="doccomment">//! i8::leading_ones</span>
-<span class="doccomment">//! i8::trailing_ones</span>
-<span class="doccomment">//! i16::leading_ones</span>
-<span class="doccomment">//! i16::trailing_ones</span>
-<span class="doccomment">//! i32::leading_ones</span>
-<span class="doccomment">//! i32::trailing_ones</span>
-<span class="doccomment">//! i64::leading_ones</span>
-<span class="doccomment">//! i64::trailing_ones</span>
-<span class="doccomment">//! i128::leading_ones</span>
-<span class="doccomment">//! i128::trailing_ones</span>
-<span class="doccomment">//! isize::leading_ones</span>
-<span class="doccomment">//! isize::trailing_ones</span>
-<span class="doccomment">//! u8::leading_ones</span>
-<span class="doccomment">//! u8::trailing_ones</span>
-<span class="doccomment">//! u16::leading_ones</span>
-<span class="doccomment">//! u16::trailing_ones</span>
-<span class="doccomment">//! u32::leading_ones</span>
-<span class="doccomment">//! u32::trailing_ones</span>
-<span class="doccomment">//! u64::leading_ones</span>
-<span class="doccomment">//! u64::trailing_ones</span>
-<span class="doccomment">//! u128::leading_ones</span>
-<span class="doccomment">//! u128::trailing_ones</span>
-<span class="doccomment">//! usize::leading_ones</span>
-<span class="doccomment">//! usize::trailing_ones</span>
-<span class="doccomment">//! Option::zip</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.45</span>
-<span class="doccomment">//! i8::saturating_abs</span>
-<span class="doccomment">//! i8::saturating_neg</span>
-<span class="doccomment">//! i16::saturating_abs</span>
-<span class="doccomment">//! i16::saturating_neg</span>
-<span class="doccomment">//! i32::saturating_abs</span>
-<span class="doccomment">//! i32::saturating_neg</span>
-<span class="doccomment">//! i64::saturating_abs</span>
-<span class="doccomment">//! i64::saturating_neg</span>
-<span class="doccomment">//! i128::saturating_abs</span>
-<span class="doccomment">//! i128::saturating_neg</span>
-<span class="doccomment">//! isize::saturating_abs</span>
-<span class="doccomment">//! isize::saturating_neg</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.44</span>
-<span class="doccomment">//! PathBuf::with_capacity</span>
-<span class="doccomment">//! PathBuf::capacity</span>
-<span class="doccomment">//! PathBuf::clear</span>
-<span class="doccomment">//! PathBuf::reserve</span>
-<span class="doccomment">//! PathBuf::reserve_exact</span>
-<span class="doccomment">//! PathBuf::shrink_to_fit</span>
-<span class="doccomment">//! Layout::align_to</span>
-<span class="doccomment">//! Layout::pad_to_align</span>
-<span class="doccomment">//! Layout::array</span>
-<span class="doccomment">//! Layout::extend</span>
-<span class="doccomment">//! f32::to_int_unchecked</span>
-<span class="doccomment">//! f64::to_int_unchecked</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.43</span>
-<span class="doccomment">//! f32::RADIX</span>
-<span class="doccomment">//! f32::MANTISSA_DIGITS</span>
-<span class="doccomment">//! f32::DIGITS</span>
-<span class="doccomment">//! f32::EPSILON</span>
-<span class="doccomment">//! f32::MIN</span>
-<span class="doccomment">//! f32::MIN_POSITIVE</span>
-<span class="doccomment">//! f32::MAX</span>
-<span class="doccomment">//! f32::MIN_EXP</span>
-<span class="doccomment">//! f32::MAX_EXP</span>
-<span class="doccomment">//! f32::MIN_10_EXP</span>
-<span class="doccomment">//! f32::MAX_10_EXP</span>
-<span class="doccomment">//! f32::NAN</span>
-<span class="doccomment">//! f32::INFINITY</span>
-<span class="doccomment">//! f32::NEG_INFINITY</span>
-<span class="doccomment">//! f64::RADIX</span>
-<span class="doccomment">//! f64::MANTISSA_DIGITS</span>
-<span class="doccomment">//! f64::DIGITS</span>
-<span class="doccomment">//! f64::EPSILON</span>
-<span class="doccomment">//! f64::MIN</span>
-<span class="doccomment">//! f64::MIN_POSITIVE</span>
-<span class="doccomment">//! f64::MAX</span>
-<span class="doccomment">//! f64::MIN_EXP</span>
-<span class="doccomment">//! f64::MAX_EXP</span>
-<span class="doccomment">//! f64::MIN_10_EXP</span>
-<span class="doccomment">//! f64::MAX_10_EXP</span>
-<span class="doccomment">//! f64::NAN</span>
-<span class="doccomment">//! f64::INFINITY</span>
-<span class="doccomment">//! f64::NEG_INFINITY</span>
-<span class="doccomment">//! u8::MIN</span>
-<span class="doccomment">//! u8::MAX</span>
-<span class="doccomment">//! u16::MIN</span>
-<span class="doccomment">//! u16::MAX</span>
-<span class="doccomment">//! u32::MIN</span>
-<span class="doccomment">//! u32::MAX</span>
-<span class="doccomment">//! u64::MIN</span>
-<span class="doccomment">//! u64::MAX</span>
-<span class="doccomment">//! u128::MIN</span>
-<span class="doccomment">//! u128::MAX</span>
-<span class="doccomment">//! usize::MIN</span>
-<span class="doccomment">//! usize::MAX</span>
-<span class="doccomment">//! i8::MIN</span>
-<span class="doccomment">//! i8::MAX</span>
-<span class="doccomment">//! i16::MIN</span>
-<span class="doccomment">//! i16::MAX</span>
-<span class="doccomment">//! i32::MIN</span>
-<span class="doccomment">//! i32::MAX</span>
-<span class="doccomment">//! i64::MIN</span>
-<span class="doccomment">//! i64::MAX</span>
-<span class="doccomment">//! i128::MIN</span>
-<span class="doccomment">//! i128::MAX</span>
-<span class="doccomment">//! isize::MIN</span>
-<span class="doccomment">//! isize::MAX</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.42</span>
-<span class="doccomment">//! CondVar::wait_while</span>
-<span class="doccomment">//! CondVar::wait_timeout_while</span>
-<span class="doccomment">//! ManuallyDrop::take</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.41</span>
-<span class="doccomment">//! Result::map_or</span>
-<span class="doccomment">//! Result::map_or_else</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.40</span>
-<span class="doccomment">//! Option::as_deref</span>
-<span class="doccomment">//! Option::as_deref_mut</span>
-<span class="doccomment">//! f32::to_be_bytes</span>
-<span class="doccomment">//! f32::to_le_bytes</span>
-<span class="doccomment">//! f32::to_ne_bytes</span>
-<span class="doccomment">//! f64::to_be_bytes</span>
-<span class="doccomment">//! f64::to_le_bytes</span>
-<span class="doccomment">//! f64::to_ne_bytes</span>
-<span class="doccomment">//! f32::from_be_bytes</span>
-<span class="doccomment">//! f32::from_le_bytes</span>
-<span class="doccomment">//! f32::from_ne_bytes</span>
-<span class="doccomment">//! f64::from_be_bytes</span>
-<span class="doccomment">//! f64::from_le_bytes</span>
-<span class="doccomment">//! f64::from_ne_bytes</span>
-<span class="doccomment">//! slice::repeat</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.39</span>
-<span class="doccomment">//! // None :(</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.38</span>
-<span class="doccomment">//! &lt;*const T&gt;::cast</span>
-<span class="doccomment">//! &lt;*mut T&gt;::cast</span>
-<span class="doccomment">//! Duration::as_secs_f32</span>
-<span class="doccomment">//! Duration::as_secs_f64</span>
-<span class="doccomment">//! Duration::div_f32</span>
-<span class="doccomment">//! Duration::div_f64</span>
-<span class="doccomment">//! Duration::from_secs_f32</span>
-<span class="doccomment">//! Duration::from_secs_f64</span>
-<span class="doccomment">//! Duration::mul_f32</span>
-<span class="doccomment">//! Duration::mul_f64</span>
-<span class="doccomment">//! i8::rem_euclid</span>
-<span class="doccomment">//! i8::checked_rem_euclid</span>
-<span class="doccomment">//! i8::wrapping_rem_euclid</span>
-<span class="doccomment">//! i8::overflowing_rem_euclid</span>
-<span class="doccomment">//! i8::div_euclid</span>
-<span class="doccomment">//! i8::checked_div_euclid</span>
-<span class="doccomment">//! i8::wrapping_div_euclid</span>
-<span class="doccomment">//! i8::overflowing_div_euclid</span>
-<span class="doccomment">//! i16::rem_euclid</span>
-<span class="doccomment">//! i16::checked_rem_euclid</span>
-<span class="doccomment">//! i16::wrapping_rem_euclid</span>
-<span class="doccomment">//! i16::overflowing_rem_euclid</span>
-<span class="doccomment">//! i16::div_euclid</span>
-<span class="doccomment">//! i16::checked_div_euclid</span>
-<span class="doccomment">//! i16::wrapping_div_euclid</span>
-<span class="doccomment">//! i16::overflowing_div_euclid</span>
-<span class="doccomment">//! i32::rem_euclid</span>
-<span class="doccomment">//! i32::checked_rem_euclid</span>
-<span class="doccomment">//! i32::wrapping_rem_euclid</span>
-<span class="doccomment">//! i32::overflowing_rem_euclid</span>
-<span class="doccomment">//! i32::div_euclid</span>
-<span class="doccomment">//! i32::checked_div_euclid</span>
-<span class="doccomment">//! i32::wrapping_div_euclid</span>
-<span class="doccomment">//! i32::overflowing_div_euclid</span>
-<span class="doccomment">//! i64::rem_euclid</span>
-<span class="doccomment">//! i64::checked_rem_euclid</span>
-<span class="doccomment">//! i64::wrapping_rem_euclid</span>
-<span class="doccomment">//! i64::overflowing_rem_euclid</span>
-<span class="doccomment">//! i64::div_euclid</span>
-<span class="doccomment">//! i64::checked_div_euclid</span>
-<span class="doccomment">//! i64::wrapping_div_euclid</span>
-<span class="doccomment">//! i64::overflowing_div_euclid</span>
-<span class="doccomment">//! i128::rem_euclid</span>
-<span class="doccomment">//! i128::checked_rem_euclid</span>
-<span class="doccomment">//! i128::wrapping_rem_euclid</span>
-<span class="doccomment">//! i128::overflowing_rem_euclid</span>
-<span class="doccomment">//! i128::div_euclid</span>
-<span class="doccomment">//! i128::checked_div_euclid</span>
-<span class="doccomment">//! i128::wrapping_div_euclid</span>
-<span class="doccomment">//! i128::overflowing_div_euclid</span>
-<span class="doccomment">//! isize::rem_euclid</span>
-<span class="doccomment">//! isize::checked_rem_euclid</span>
-<span class="doccomment">//! isize::wrapping_rem_euclid</span>
-<span class="doccomment">//! isize::overflowing_rem_euclid</span>
-<span class="doccomment">//! isize::div_euclid</span>
-<span class="doccomment">//! isize::checked_div_euclid</span>
-<span class="doccomment">//! isize::wrapping_div_euclid</span>
-<span class="doccomment">//! isize::overflowing_div_euclid</span>
-<span class="doccomment">//! u8::rem_euclid</span>
-<span class="doccomment">//! u8::checked_rem_euclid</span>
-<span class="doccomment">//! u8::wrapping_rem_euclid</span>
-<span class="doccomment">//! u8::overflowing_rem_euclid</span>
-<span class="doccomment">//! u8::div_euclid</span>
-<span class="doccomment">//! u8::checked_div_euclid</span>
-<span class="doccomment">//! u8::wrapping_div_euclid</span>
-<span class="doccomment">//! u8::overflowing_div_euclid</span>
-<span class="doccomment">//! u16::rem_euclid</span>
-<span class="doccomment">//! u16::checked_rem_euclid</span>
-<span class="doccomment">//! u16::wrapping_rem_euclid</span>
-<span class="doccomment">//! u16::overflowing_rem_euclid</span>
-<span class="doccomment">//! u16::div_euclid</span>
-<span class="doccomment">//! u16::checked_div_euclid</span>
-<span class="doccomment">//! u16::wrapping_div_euclid</span>
-<span class="doccomment">//! u16::overflowing_div_euclid</span>
-<span class="doccomment">//! u32::rem_euclid</span>
-<span class="doccomment">//! u32::checked_rem_euclid</span>
-<span class="doccomment">//! u32::wrapping_rem_euclid</span>
-<span class="doccomment">//! u32::overflowing_rem_euclid</span>
-<span class="doccomment">//! u32::div_euclid</span>
-<span class="doccomment">//! u32::checked_div_euclid</span>
-<span class="doccomment">//! u32::wrapping_div_euclid</span>
-<span class="doccomment">//! u32::overflowing_div_euclid</span>
-<span class="doccomment">//! u64::rem_euclid</span>
-<span class="doccomment">//! u64::checked_rem_euclid</span>
-<span class="doccomment">//! u64::wrapping_rem_euclid</span>
-<span class="doccomment">//! u64::overflowing_rem_euclid</span>
-<span class="doccomment">//! u64::div_euclid</span>
-<span class="doccomment">//! u64::checked_div_euclid</span>
-<span class="doccomment">//! u64::wrapping_div_euclid</span>
-<span class="doccomment">//! u64::overflowing_div_euclid</span>
-<span class="doccomment">//! u128::rem_euclid</span>
-<span class="doccomment">//! u128::checked_rem_euclid</span>
-<span class="doccomment">//! u128::wrapping_rem_euclid</span>
-<span class="doccomment">//! u128::overflowing_rem_euclid</span>
-<span class="doccomment">//! u128::div_euclid</span>
-<span class="doccomment">//! u128::checked_div_euclid</span>
-<span class="doccomment">//! u128::wrapping_div_euclid</span>
-<span class="doccomment">//! u128::overflowing_div_euclid</span>
-<span class="doccomment">//! usize::rem_euclid</span>
-<span class="doccomment">//! usize::checked_rem_euclid</span>
-<span class="doccomment">//! usize::wrapping_rem_euclid</span>
-<span class="doccomment">//! usize::overflowing_rem_euclid</span>
-<span class="doccomment">//! usize::div_euclid</span>
-<span class="doccomment">//! usize::checked_div_euclid</span>
-<span class="doccomment">//! usize::wrapping_div_euclid</span>
-<span class="doccomment">//! usize::overflowing_div_euclid</span>
-<span class="doccomment">//! f32::rem_euclid</span>
-<span class="doccomment">//! f32::div_euclid</span>
-<span class="doccomment">//! f64::rem_euclid</span>
-<span class="doccomment">//! f64::div_euclid</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.37</span>
-<span class="doccomment">//! Cell::from_mut</span>
-<span class="doccomment">//! Cell&lt;[T]&gt;::as_slice_of_cells</span>
-<span class="doccomment">//! DoubleEndedIterator::nth_back</span>
-<span class="doccomment">//! Option::xor</span>
-<span class="doccomment">//! slice::copy_within</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.36</span>
-<span class="doccomment">//! Iterator::copied</span>
-<span class="doccomment">//! mem::MaybeUninit</span>
-<span class="doccomment">//! task::Context</span>
-<span class="doccomment">//! task::RawWaker</span>
-<span class="doccomment">//! task::RawWakerVTable</span>
-<span class="doccomment">//! task::Waker</span>
-<span class="doccomment">//! task::Poll</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.35</span>
-<span class="doccomment">//! RefCell::replace_with</span>
-<span class="doccomment">//! ptr::hash</span>
-<span class="doccomment">//! Range::contains</span>
-<span class="doccomment">//! RangeFrom::contains</span>
-<span class="doccomment">//! RangeTo::contains</span>
-<span class="doccomment">//! RangeInclusive::contains</span>
-<span class="doccomment">//! RangeToInclusive::contains</span>
-<span class="doccomment">//! Option::copied</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.34</span>
-<span class="doccomment">//! slice::sort_by_cached_key</span>
-<span class="doccomment">//! i8::checked_pow</span>
-<span class="doccomment">//! i8::saturating_pow</span>
-<span class="doccomment">//! i8::wrapping_pow</span>
-<span class="doccomment">//! i8::overflowing_pow</span>
-<span class="doccomment">//! i16::checked_pow</span>
-<span class="doccomment">//! i16::saturating_pow</span>
-<span class="doccomment">//! i16::wrapping_pow</span>
-<span class="doccomment">//! i16::overflowing_pow</span>
-<span class="doccomment">//! i32::checked_pow</span>
-<span class="doccomment">//! i32::saturating_pow</span>
-<span class="doccomment">//! i32::wrapping_pow</span>
-<span class="doccomment">//! i32::overflowing_pow</span>
-<span class="doccomment">//! i64::checked_pow</span>
-<span class="doccomment">//! i64::saturating_pow</span>
-<span class="doccomment">//! i64::wrapping_pow</span>
-<span class="doccomment">//! i64::overflowing_pow</span>
-<span class="doccomment">//! i128::checked_pow</span>
-<span class="doccomment">//! i128::saturating_pow</span>
-<span class="doccomment">//! i128::wrapping_pow</span>
-<span class="doccomment">//! i128::overflowing_pow</span>
-<span class="doccomment">//! isize::checked_pow</span>
-<span class="doccomment">//! isize::saturating_pow</span>
-<span class="doccomment">//! isize::wrapping_pow</span>
-<span class="doccomment">//! isize::overflowing_pow</span>
-<span class="doccomment">//! u8::checked_pow</span>
-<span class="doccomment">//! u8::saturating_pow</span>
-<span class="doccomment">//! u8::wrapping_pow</span>
-<span class="doccomment">//! u8::overflowing_pow</span>
-<span class="doccomment">//! u16::checked_pow</span>
-<span class="doccomment">//! u16::saturating_pow</span>
-<span class="doccomment">//! u16::wrapping_pow</span>
-<span class="doccomment">//! u16::overflowing_pow</span>
-<span class="doccomment">//! u32::checked_pow</span>
-<span class="doccomment">//! u32::saturating_pow</span>
-<span class="doccomment">//! u32::wrapping_pow</span>
-<span class="doccomment">//! u32::overflowing_pow</span>
-<span class="doccomment">//! u64::checked_pow</span>
-<span class="doccomment">//! u64::saturating_pow</span>
-<span class="doccomment">//! u64::wrapping_pow</span>
-<span class="doccomment">//! u64::overflowing_pow</span>
-<span class="doccomment">//! u128::checked_pow</span>
-<span class="doccomment">//! u128::saturating_pow</span>
-<span class="doccomment">//! u128::wrapping_pow</span>
-<span class="doccomment">//! u128::overflowing_pow</span>
-<span class="doccomment">//! usize::checked_pow</span>
-<span class="doccomment">//! usize::saturating_pow</span>
-<span class="doccomment">//! usize::wrapping_pow</span>
-<span class="doccomment">//! usize::overflowing_pow</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.33</span>
-<span class="doccomment">//! os::unix::fs::FileExt::read_exact_at</span>
-<span class="doccomment">//! os::unix::fs::FileExt::write_all_at</span>
-<span class="doccomment">//! Option::transpose</span>
-<span class="doccomment">//! Result::transpose</span>
-<span class="doccomment">//! VecDeque::resize_with</span>
-<span class="doccomment">//! Duration::as_millis</span>
-<span class="doccomment">//! Duration::as_micros</span>
-<span class="doccomment">//! Duration::as_nanos</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // 1.32</span>
-<span class="doccomment">//! i8::to_be_bytes</span>
-<span class="doccomment">//! i8::to_le_bytes</span>
-<span class="doccomment">//! i8::to_ne_bytes</span>
-<span class="doccomment">//! i8::from_be_bytes</span>
-<span class="doccomment">//! i8::from_le_bytes</span>
-<span class="doccomment">//! i8::from_ne_bytes</span>
-<span class="doccomment">//! i16::to_be_bytes</span>
-<span class="doccomment">//! i16::to_le_bytes</span>
-<span class="doccomment">//! i16::to_ne_bytes</span>
-<span class="doccomment">//! i16::from_be_bytes</span>
-<span class="doccomment">//! i16::from_le_bytes</span>
-<span class="doccomment">//! i16::from_ne_bytes</span>
-<span class="doccomment">//! i32::to_be_bytes</span>
-<span class="doccomment">//! i32::to_le_bytes</span>
-<span class="doccomment">//! i32::to_ne_bytes</span>
-<span class="doccomment">//! i32::from_be_bytes</span>
-<span class="doccomment">//! i32::from_le_bytes</span>
-<span class="doccomment">//! i32::from_ne_bytes</span>
-<span class="doccomment">//! i64::to_be_bytes</span>
-<span class="doccomment">//! i64::to_le_bytes</span>
-<span class="doccomment">//! i64::to_ne_bytes</span>
-<span class="doccomment">//! i64::from_be_bytes</span>
-<span class="doccomment">//! i64::from_le_bytes</span>
-<span class="doccomment">//! i64::from_ne_bytes</span>
-<span class="doccomment">//! i128::to_be_bytes</span>
-<span class="doccomment">//! i128::to_le_bytes</span>
-<span class="doccomment">//! i128::to_ne_bytes</span>
-<span class="doccomment">//! i128::from_be_bytes</span>
-<span class="doccomment">//! i128::from_le_bytes</span>
-<span class="doccomment">//! i128::from_ne_bytes</span>
-<span class="doccomment">//! isize::to_be_bytes</span>
-<span class="doccomment">//! isize::to_le_bytes</span>
-<span class="doccomment">//! isize::to_ne_bytes</span>
-<span class="doccomment">//! isize::from_be_bytes</span>
-<span class="doccomment">//! isize::from_le_bytes</span>
-<span class="doccomment">//! isize::from_ne_bytes</span>
-<span class="doccomment">//! u8::to_be_bytes</span>
-<span class="doccomment">//! u8::to_le_bytes</span>
-<span class="doccomment">//! u8::to_ne_bytes</span>
-<span class="doccomment">//! u8::from_be_bytes</span>
-<span class="doccomment">//! u8::from_le_bytes</span>
-<span class="doccomment">//! u8::from_ne_bytes</span>
-<span class="doccomment">//! u16::to_be_bytes</span>
-<span class="doccomment">//! u16::to_le_bytes</span>
-<span class="doccomment">//! u16::to_ne_bytes</span>
-<span class="doccomment">//! u16::from_be_bytes</span>
-<span class="doccomment">//! u16::from_le_bytes</span>
-<span class="doccomment">//! u16::from_ne_bytes</span>
-<span class="doccomment">//! u32::to_be_bytes</span>
-<span class="doccomment">//! u32::to_le_bytes</span>
-<span class="doccomment">//! u32::to_ne_bytes</span>
-<span class="doccomment">//! u32::from_be_bytes</span>
-<span class="doccomment">//! u32::from_le_bytes</span>
-<span class="doccomment">//! u32::from_ne_bytes</span>
-<span class="doccomment">//! u64::to_be_bytes</span>
-<span class="doccomment">//! u64::to_le_bytes</span>
-<span class="doccomment">//! u64::to_ne_bytes</span>
-<span class="doccomment">//! u64::from_be_bytes</span>
-<span class="doccomment">//! u64::from_le_bytes</span>
-<span class="doccomment">//! u64::from_ne_bytes</span>
-<span class="doccomment">//! u128::to_be_bytes</span>
-<span class="doccomment">//! u128::to_le_bytes</span>
-<span class="doccomment">//! u128::to_ne_bytes</span>
-<span class="doccomment">//! u128::from_be_bytes</span>
-<span class="doccomment">//! u128::from_le_bytes</span>
-<span class="doccomment">//! u128::from_ne_bytes</span>
-<span class="doccomment">//! usize::to_be_bytes</span>
-<span class="doccomment">//! usize::to_le_bytes</span>
-<span class="doccomment">//! usize::to_ne_bytes</span>
-<span class="doccomment">//! usize::from_be_bytes</span>
-<span class="doccomment">//! usize::from_le_bytes</span>
-<span class="doccomment">//! usize::from_ne_bytes</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Other APIs implemented</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! future::pending // 1.48, requires rustc 1.36</span>
-<span class="doccomment">//! future::ready // 1.48, requires rustc 1.36</span>
-<span class="doccomment">//! char::UNICODE_VERSION // 1.45</span>
-<span class="doccomment">//! f32::LOG10_2 // 1.43</span>
-<span class="doccomment">//! f32::LOG2_10 // 1.43</span>
-<span class="doccomment">//! f64::LOG10_2 // 1.43</span>
-<span class="doccomment">//! f64::LOG2_10 // 1.43</span>
-<span class="doccomment">//! iter::once_with // 1.43</span>
-<span class="doccomment">//! mem::take // 1.40</span>
-<span class="doccomment">//! iterator::Copied // 1.36</span>
-<span class="doccomment">//! array::TryFromSliceError // 1.36</span>
-<span class="doccomment">//! iter::from_fn // 1.34</span>
-<span class="doccomment">//! iter::successors // 1.34</span>
-<span class="doccomment">//! convert::TryFrom // 1.34</span>
-<span class="doccomment">//! convert::TryInto // 1.34</span>
-<span class="doccomment">//! num::TryFromIntError // 1.34</span>
-<span class="doccomment">//! convert::identity // 1.33</span>
-<span class="doccomment">//! pin::Pin // 1.33</span>
-<span class="doccomment">//! marker::Unpin // 1.33</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Macros</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Macros should not be imported directly, but rather through the prelude.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! todo! // 1.39</span>
-<span class="doccomment">//! matches! // 1.42</span>
-<span class="doccomment">//! ```</span>
-
 <span class="attribute">#![<span class="ident">deny</span>(<span class="ident">rust_2018_idioms</span>, <span class="ident">unused_qualifications</span>)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(
+    <span class="ident">non_camel_case_types</span>,
+    <span class="ident">unstable_name_collisions</span>,
+    <span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>
+)]</span>
+
+<span class="doccomment">/*!
+Standback backports a number of methods, structs, and macros that have been stabilized in the Rust
+standard library since 1.31.0. This allows crate authors to depend on Standback rather than forcing
+downstream users to upgrade their compiler (or not use the new feature at all).
+
+Due to a variety of restrictions in the Rust, it is not possible to implement everything that has
+been stabilized.
+
+# Usage
+
+For most cases, importing the prelude should suffice.
+
+```rust,no_run
+use standback::prelude::*;
+```
+
+If you are using anything that would normally have to be imported, just use the `standback` crate
+instead of `core`, `alloc`, or `std`.
+
+```rust,no_run
+use standback::mem::take;
+```
+
+It is _highly_ recommended to use `#![allow(unstable_name_collisions)]`, as that&#39;s the whole point
+of this crate. Just be extra-careful to not do it for anything that _can&#39;t_ be backported.
+
+# `#![no_std]` support
+
+By default, there standard library is used where necessary. If support for `#![no_std]` is required,
+use `default-features = false`.
+
+An allocator is not required for any backported item. If any require an allocator in the future, it
+will be gated under an `alloc` feature.
+
+# Inherent and trait methods, associated constants
+
+The following methods and constants are available via the prelude. For brevity, `i*` is `i8`, `i16`,
+`i32`, `i64`, `i128`, and `isize`; `u*` is `u8`, `u16`, `u32`, `u64`, `u128`, and `usize`.
+
+## 1.51
+
+```text
+Arc::decrement_strong_count
+Arc::increment_strong_count
+Peekable::next_if_eq
+Peekable::next_if
+Seek::stream_position
+slice::fill_with
+slice::split_inclusive_mut
+slice::split_inclusive
+slice::strip_prefix
+slice::strip_suffix
+task::Wake // requires rustc 1.33
+i*::unsigned_abs
+Poll::map_ok
+Poll::map_err
+```
+
+## 1.50
+
+```text
+bool::then
+btree_map::Entry::or_insert_with_key
+hash_map::Entry::or_insert_with_key
+{f32, f64}::clamp
+Ord::clamp
+RefCell::take
+slice::fill
+UnsafeCell::get_mut
+```
+
+## 1.49
+
+```text
+slice::select_nth_unstable
+slice::select_nth_unstable_by
+slice::select_nth_unstable_by_key
+```
+
+## 1.48
+
+```text
+slice::as_ptr_range
+slice::as_mut_ptr_range
+```
+
+## 1.47
+
+```text
+Range::is_empty
+Result::as_deref
+Result::as_deref_mut
+Vec::leak
+f32::TAU
+f64::TAU
+```
+
+## 1.46
+
+```text
+{i*, u*}::leading_ones
+{i*, u*}::trailing_ones
+Option::zip
+```
+
+## 1.45
+
+```text
+i*::saturating_abs
+i*::saturating_neg
+```
+
+## 1.44
+
+```text
+PathBuf::with_capacity
+PathBuf::capacity
+PathBuf::clear
+PathBuf::reserve
+PathBuf::reserve_exact
+PathBuf::shrink_to_fit
+Layout::align_to
+Layout::pad_to_align
+Layout::array
+Layout::extend
+{f32, f64}::to_int_unchecked
+```
+
+## 1.43
+
+```text
+{f32, f64}::RADIX
+{f32, f64}::MANTISSA_DIGITS
+{f32, f64}::DIGITS
+{f32, f64}::EPSILON
+{f32, f64}::MIN
+{f32, f64}::MIN_POSITIVE
+{f32, f64}::MAX
+{f32, f64}::MIN_EXP
+{f32, f64}::MAX_EXP
+{f32, f64}::MIN_10_EXP
+{f32, f64}::MAX_10_EXP
+{f32, f64}::NAN
+{f32, f64}::INFINITY
+{f32, f64}::NEG_INFINITY
+{i*, u*}::MIN
+{i*, u*}::MAX
+```
+
+## 1.42
+
+```text
+CondVar::wait_while
+CondVar::wait_timeout_while
+ManuallyDrop::take
+```
+
+## 1.41
+
+```text
+Result::map_or
+Result::map_or_else
+```
+
+## 1.40
+
+```text
+Option::as_deref
+Option::as_deref_mut
+{f32, f64}::to_be_bytes
+{f32, f64}::to_le_bytes
+{f32, f64}::to_ne_bytes
+{f32, f64}::from_be_bytes
+{f32, f64}::from_le_bytes
+{f32, f64}::from_ne_bytes
+slice::repeat
+```
+
+## 1.39
+
+None :(
+
+## 1.38
+
+```text
+&lt;*const T&gt;::cast
+&lt;*mut T&gt;::cast
+Duration::as_secs_f32
+Duration::as_secs_f64
+Duration::div_f32
+Duration::div_f64
+Duration::from_secs_f32
+Duration::from_secs_f64
+Duration::mul_f32
+Duration::mul_f64
+{i*, u*}::rem_euclid
+{i*, u*}::checked_rem_euclid
+{i*, u*}::wrapping_rem_euclid
+{i*, u*}::overflowing_rem_euclid
+{i*, u*}::div_euclid
+{i*, u*}::checked_div_euclid
+{i*, u*}::wrapping_div_euclid
+{i*, u*}::overflowing_div_euclid
+{f32, f64}::rem_euclid
+{f32, f64}::div_euclid
+```
+
+## 1.37
+
+```text
+Cell::from_mut
+Cell&lt;[T]&gt;::as_slice_of_cells
+DoubleEndedIterator::nth_back
+Option::xor
+slice::copy_within
+```
+
+## 1.36
+
+```text
+Iterator::copied
+mem::MaybeUninit
+task::Context
+task::RawWaker
+task::RawWakerVTable
+task::Waker
+task::Poll
+```
+
+## 1.35
+
+```text
+RefCell::replace_with
+ptr::hash
+Range::contains
+RangeFrom::contains
+RangeTo::contains
+RangeInclusive::contains
+RangeToInclusive::contains
+Option::copied
+```
+
+## 1.34
+
+```text
+slice::sort_by_cached_key
+{i*, u*}::checked_pow
+{i*, u*}::saturating_pow
+{i*, u*}::wrapping_pow
+{i*, u*}::overflowing_pow
+```
+
+## 1.33
+
+```text
+os::unix::fs::FileExt::read_exact_at
+os::unix::fs::FileExt::write_all_at
+Option::transpose
+Result::transpose
+VecDeque::resize_with
+Duration::as_millis
+Duration::as_micros
+Duration::as_nanos
+```
+
+## 1.32
+
+```text
+{i*, u*}::to_be_bytes
+{i*, u*}::to_le_bytes
+{i*, u*}::to_ne_bytes
+{i*, u*}::from_be_bytes
+{i*, u*}::from_le_bytes
+{i*, u*}::from_ne_bytes
+```
+
+# Free functions and constants
+
+```text
+future::pending // 1.48, requires rustc 1.36
+future::ready // 1.48, requires rustc 1.36
+char::UNICODE_VERSION // 1.45
+{f32, f64}::consts::LOG10_2 // 1.43
+{f32, f64}::consts::LOG2_10 // 1.43
+iter::once_with // 1.43
+mem::take // 1.40
+iterator::Copied // 1.36
+array::TryFromSliceError // 1.36
+iter::from_fn // 1.34
+iter::successors // 1.34
+convert::TryFrom // 1.34
+convert::TryInto // 1.34
+num::TryFromIntError // 1.34
+convert::identity // 1.33
+pin::Pin // 1.33
+marker::Unpin // 1.33
+```
+
+# Macros
+
+```text
+matches! // 1.42
+todo! // 1.39
+```
+*/</span>
 
 <span class="comment">// A few traits to make sealing other traits simpler.</span>
 <span class="kw">mod</span> <span class="ident">traits</span> {
@@ -1352,8 +968,14 @@
 <span class="kw">mod</span> <span class="ident">v1_49</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_50</span>)]</span>
 <span class="kw">mod</span> <span class="ident">v1_50</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_51</span>)]</span>
+<span class="kw">mod</span> <span class="ident">v1_51</span>;
 
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_39</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">unimplemented</span> <span class="kw">as</span> <span class="ident">todo</span>;
+
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_42</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">matches</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_32</span>)]</span>
@@ -1415,115 +1037,136 @@
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_50</span>::{
         <span class="ident">Bool_v1_50</span>, <span class="ident">Float_v1_50</span>, <span class="ident">Ord_v1_50</span>, <span class="ident">RefCell_v1_50</span>, <span class="ident">Slice_v1_50</span>, <span class="ident">UnsafeCell_v1_50</span>,
     };
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_39</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">unimplemented</span> <span class="kw">as</span> <span class="ident">todo</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">__standback_before_1_51</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_51</span>::{<span class="ident">Arc_v1_51</span>, <span class="ident">Seek_v1_51</span>};
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_51</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_51</span>::{<span class="ident">Integer_v1_51</span>, <span class="ident">Peekable_v1_51</span>, <span class="ident">Poll_v1_51</span>, <span class="ident">Slice_v1_51</span>};
 }
-
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mem</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_40</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_40</span>::<span class="ident">take</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_40</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">take</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_36</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">MaybeUninit</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_36</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_36</span>::<span class="ident">MaybeUninit</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_36</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">MaybeUninit</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_40</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_40</span>::<span class="ident">take</span>;
 }
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">convert</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_33</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_33</span>::<span class="ident">identity</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_33</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::<span class="ident">identity</span>;
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_34</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_34</span>::<span class="ident">Infallible</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_34</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::<span class="ident">Infallible</span>;
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_34</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_34</span>::{<span class="ident">TryFrom</span>, <span class="ident">TryInto</span>};
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_34</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::{<span class="ident">TryFrom</span>, <span class="ident">TryInto</span>};
-}
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">num</span> {
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_33</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_33</span>::<span class="ident">identity</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_34</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_34</span>::<span class="ident">TryFromIntError</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_34</span>::<span class="ident">Infallible</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_34</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_34</span>::{<span class="ident">TryFrom</span>, <span class="ident">TryInto</span>};
+}
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">num</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_34</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">num</span>::<span class="ident">TryFromIntError</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_34</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_34</span>::<span class="ident">TryFromIntError</span>;
 }
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">iter</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_36</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_36</span>::<span class="ident">Copied</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_36</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">Copied</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_34</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::{<span class="ident">from_fn</span>, <span class="ident">successors</span>};
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_43</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::{<span class="ident">once_with</span>, <span class="ident">OnceWith</span>};
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_34</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_34</span>::{<span class="ident">from_fn</span>, <span class="ident">successors</span>};
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_34</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::{<span class="ident">from_fn</span>, <span class="ident">successors</span>};
-
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_36</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_36</span>::<span class="ident">Copied</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_43</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_43</span>::{<span class="ident">once_with</span>, <span class="ident">OnceWith</span>};
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_43</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::{<span class="ident">once_with</span>, <span class="ident">OnceWith</span>};
 }
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">marker</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_33</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_33</span>::<span class="ident">Unpin</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_33</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">Unpin</span>;
-}
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pin</span> {
+
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_33</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_33</span>::<span class="ident">Pin</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_33</span>::<span class="ident">Unpin</span>;
+}
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pin</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_33</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_33</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_33</span>::<span class="ident">Pin</span>;
 }
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">task</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_36</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_36</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">RawWaker</span>, <span class="ident">RawWakerVTable</span>, <span class="ident">Waker</span>};
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_36</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">RawWaker</span>, <span class="ident">RawWakerVTable</span>, <span class="ident">Waker</span>};
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">__standback_since_1_51</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::<span class="ident">Wake</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_36</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_36</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">RawWaker</span>, <span class="ident">RawWakerVTable</span>, <span class="ident">Waker</span>};
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">__standback_before_1_51</span>, <span class="ident">__standback_since_1_33</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_51</span>::<span class="ident">Wake</span>;
 }
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ptr</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_35</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_35</span>::<span class="ident">hash</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_35</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ptr</span>::<span class="ident">hash</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_35</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_35</span>::<span class="ident">hash</span>;
 }
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">array</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_36</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_36</span>::<span class="ident">TryFromSliceError</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_36</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">array</span>::<span class="ident">TryFromSliceError</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_36</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_36</span>::<span class="ident">TryFromSliceError</span>;
 }
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">f32</span> {
     <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">consts</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_43</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_43</span>::<span class="ident">f32</span>::{<span class="ident">LOG10_2</span>, <span class="ident">LOG2_10</span>};
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_47</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">f32</span>::<span class="ident">consts</span>::<span class="ident">TAU</span>;
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_43</span>)]</span>
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">f32</span>::<span class="ident">consts</span>::{<span class="ident">LOG10_2</span>, <span class="ident">LOG2_10</span>};
 
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_43</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_43</span>::<span class="ident">f32</span>::{<span class="ident">LOG10_2</span>, <span class="ident">LOG2_10</span>};
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_47</span>)]</span>
         <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_47</span>::<span class="ident">f32</span>::<span class="ident">TAU</span>;
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_47</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">f32</span>::<span class="ident">consts</span>::<span class="ident">TAU</span>;
     }
 }
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">f64</span> {
     <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">consts</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_43</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_43</span>::<span class="ident">f64</span>::{<span class="ident">LOG10_2</span>, <span class="ident">LOG2_10</span>};
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_47</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">TAU</span>;
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_43</span>)]</span>
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::{<span class="ident">LOG10_2</span>, <span class="ident">LOG2_10</span>};
 
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_43</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_43</span>::<span class="ident">f64</span>::{<span class="ident">LOG10_2</span>, <span class="ident">LOG2_10</span>};
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_47</span>)]</span>
         <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_47</span>::<span class="ident">f64</span>::<span class="ident">TAU</span>;
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_47</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">TAU</span>;
     }
 }
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">char</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_38</span>)]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">UNICODE_VERSION</span>: (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>) <span class="op">=</span> (<span class="number">11</span>, <span class="number">0</span>, <span class="number">0</span>);
@@ -1534,13 +1177,14 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_45</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">char</span>::<span class="ident">UNICODE_VERSION</span>;
 }
-
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_36</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">future</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_48</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_48</span>::<span class="ident">future</span>::{<span class="ident">pending</span>, <span class="ident">ready</span>, <span class="ident">Pending</span>, <span class="ident">Ready</span>};
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_since_1_48</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::{<span class="ident">pending</span>, <span class="ident">ready</span>, <span class="ident">Pending</span>, <span class="ident">Ready</span>};
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__standback_before_1_48</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">v1_48</span>::<span class="ident">future</span>::{<span class="ident">pending</span>, <span class="ident">ready</span>, <span class="ident">Pending</span>, <span class="ident">Ready</span>};
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="standback" data-search-js="../../search-index.js"></div>

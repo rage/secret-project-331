@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.32/src/x509/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.34/src/x509/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1516,6 +1516,105 @@
 <span id="1513">1513</span>
 <span id="1514">1514</span>
 <span id="1515">1515</span>
+<span id="1516">1516</span>
+<span id="1517">1517</span>
+<span id="1518">1518</span>
+<span id="1519">1519</span>
+<span id="1520">1520</span>
+<span id="1521">1521</span>
+<span id="1522">1522</span>
+<span id="1523">1523</span>
+<span id="1524">1524</span>
+<span id="1525">1525</span>
+<span id="1526">1526</span>
+<span id="1527">1527</span>
+<span id="1528">1528</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
+<span id="1556">1556</span>
+<span id="1557">1557</span>
+<span id="1558">1558</span>
+<span id="1559">1559</span>
+<span id="1560">1560</span>
+<span id="1561">1561</span>
+<span id="1562">1562</span>
+<span id="1563">1563</span>
+<span id="1564">1564</span>
+<span id="1565">1565</span>
+<span id="1566">1566</span>
+<span id="1567">1567</span>
+<span id="1568">1568</span>
+<span id="1569">1569</span>
+<span id="1570">1570</span>
+<span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
+<span id="1599">1599</span>
+<span id="1600">1600</span>
+<span id="1601">1601</span>
+<span id="1602">1602</span>
+<span id="1603">1603</span>
+<span id="1604">1604</span>
+<span id="1605">1605</span>
+<span id="1606">1606</span>
+<span id="1607">1607</span>
+<span id="1608">1608</span>
+<span id="1609">1609</span>
+<span id="1610">1610</span>
+<span id="1611">1611</span>
+<span id="1612">1612</span>
+<span id="1613">1613</span>
+<span id="1614">1614</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The standard defining the format of public key certificates.</span>
 <span class="doccomment">//!</span>
@@ -1526,7 +1625,7 @@
 <span class="doccomment">//! Internet protocols, including SSL/TLS, which is the basis for HTTPS,</span>
 <span class="doccomment">//! the secure protocol for browsing the web.</span>
 
-<span class="kw">use</span> <span class="ident">ffi</span>;
+<span class="kw">use</span> <span class="ident">cfg_if</span>::<span class="ident">cfg_if</span>;
 <span class="kw">use</span> <span class="ident">foreign_types</span>::{<span class="ident">ForeignType</span>, <span class="ident">ForeignTypeRef</span>};
 <span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_int</span>, <span class="ident">c_long</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
@@ -1539,19 +1638,21 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">slice</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>;
 
-<span class="kw">use</span> <span class="ident">asn1</span>::{<span class="ident">Asn1BitStringRef</span>, <span class="ident">Asn1IntegerRef</span>, <span class="ident">Asn1ObjectRef</span>, <span class="ident">Asn1StringRef</span>, <span class="ident">Asn1TimeRef</span>};
-<span class="kw">use</span> <span class="ident">bio</span>::<span class="ident">MemBioSlice</span>;
-<span class="kw">use</span> <span class="ident">conf</span>::<span class="ident">ConfRef</span>;
-<span class="kw">use</span> <span class="ident">error</span>::<span class="ident">ErrorStack</span>;
-<span class="kw">use</span> <span class="ident">ex_data</span>::<span class="ident">Index</span>;
-<span class="kw">use</span> <span class="ident">hash</span>::{<span class="ident">DigestBytes</span>, <span class="ident">MessageDigest</span>};
-<span class="kw">use</span> <span class="ident">nid</span>::<span class="ident">Nid</span>;
-<span class="kw">use</span> <span class="ident">pkey</span>::{<span class="ident">HasPrivate</span>, <span class="ident">HasPublic</span>, <span class="ident">PKey</span>, <span class="ident">PKeyRef</span>, <span class="ident">Public</span>};
-<span class="kw">use</span> <span class="ident">ssl</span>::<span class="ident">SslRef</span>;
-<span class="kw">use</span> <span class="ident">stack</span>::{<span class="ident">Stack</span>, <span class="ident">StackRef</span>, <span class="ident">Stackable</span>};
-<span class="kw">use</span> <span class="ident">string</span>::<span class="ident">OpensslString</span>;
-<span class="kw">use</span> <span class="ident">util</span>::{<span class="ident">ForeignTypeExt</span>, <span class="ident">ForeignTypeRefExt</span>};
-<span class="kw">use</span> {<span class="ident">cvt</span>, <span class="ident">cvt_n</span>, <span class="ident">cvt_p</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">asn1</span>::{
+    <span class="ident">Asn1BitStringRef</span>, <span class="ident">Asn1IntegerRef</span>, <span class="ident">Asn1ObjectRef</span>, <span class="ident">Asn1StringRef</span>, <span class="ident">Asn1TimeRef</span>, <span class="ident">Asn1Type</span>,
+};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">bio</span>::<span class="ident">MemBioSlice</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">conf</span>::<span class="ident">ConfRef</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">ErrorStack</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ex_data</span>::<span class="ident">Index</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">hash</span>::{<span class="ident">DigestBytes</span>, <span class="ident">MessageDigest</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">nid</span>::<span class="ident">Nid</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pkey</span>::{<span class="ident">HasPrivate</span>, <span class="ident">HasPublic</span>, <span class="ident">PKey</span>, <span class="ident">PKeyRef</span>, <span class="ident">Public</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ssl</span>::<span class="ident">SslRef</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">stack</span>::{<span class="ident">Stack</span>, <span class="ident">StackRef</span>, <span class="ident">Stackable</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">string</span>::<span class="ident">OpensslString</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::{<span class="ident">ForeignTypeExt</span>, <span class="ident">ForeignTypeRefExt</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">cvt</span>, <span class="ident">cvt_n</span>, <span class="ident">cvt_p</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl102</span>, <span class="ident">libressl261</span>))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">verify</span>;
@@ -1966,6 +2067,24 @@
         }
     }
 
+    <span class="doccomment">/// Returns this certificate&#39;s [`authority information access`] entries, if they exist.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This corresponds to [`X509_get_ext_d2i`] called with `NID_info_access`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`X509_get_ext_d2i`]: https://www.openssl.org/docs/man1.1.0/crypto/X509_get_ext_d2i.html</span>
+    <span class="doccomment">/// [`authority information access`]: https://tools.ietf.org/html/rfc5280#section-4.2.2.1</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authority_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Stack</span><span class="op">&lt;</span><span class="ident">AccessDescription</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">X509_get_ext_d2i</span>(
+                <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">ffi</span>::<span class="ident">NID_info_access</span>,
+                <span class="ident">ptr</span>::<span class="ident">null_mut</span>(),
+                <span class="ident">ptr</span>::<span class="ident">null_mut</span>(),
+            );
+            <span class="ident">Stack</span>::<span class="ident">from_ptr_opt</span>(<span class="ident">stack</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>)
+        }
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">public_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PKey</span><span class="op">&lt;</span><span class="ident">Public</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">pkey</span> <span class="op">=</span> <span class="ident">cvt_p</span>(<span class="ident">ffi</span>::<span class="ident">X509_get_pubkey</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()))<span class="question-mark">?</span>;
@@ -2195,7 +2314,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">X509</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">serial</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serial_number</span>().<span class="ident">to_bn</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">bn</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">bn</span>.<span class="ident">to_hex_str</span>() {
                 <span class="prelude-val">Ok</span>(<span class="ident">hex</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">hex</span>.<span class="ident">to_string</span>(),
@@ -2266,7 +2385,7 @@
     <span class="doccomment">/// See the extension module for builder types which will construct certain common extensions.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">conf</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ConfRef</span><span class="op">&gt;</span>,
-        <span class="ident">context</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&gt;</span>,
+        <span class="ident">context</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
@@ -2292,7 +2411,7 @@
     <span class="doccomment">/// See the extension module for builder types which will construct certain common extensions.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_nid</span>(
         <span class="ident">conf</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ConfRef</span><span class="op">&gt;</span>,
-        <span class="ident">context</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&gt;</span>,
+        <span class="ident">context</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">name</span>: <span class="ident">Nid</span>,
         <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
@@ -2343,6 +2462,33 @@
         }
     }
 
+    <span class="doccomment">/// Add a field entry by str with a specific type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This corresponds to [`X509_NAME_add_entry_by_txt`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`X509_NAME_add_entry_by_txt`]: https://www.openssl.org/docs/man1.1.0/crypto/X509_NAME_add_entry_by_txt.html</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_entry_by_text_with_type</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">ty</span>: <span class="ident">Asn1Type</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">field</span> <span class="op">=</span> <span class="ident">CString</span>::<span class="ident">new</span>(<span class="ident">field</span>).<span class="ident">unwrap</span>();
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">value</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">c_int</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+            <span class="ident">cvt</span>(<span class="ident">ffi</span>::<span class="ident">X509_NAME_add_entry_by_txt</span>(
+                <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">field</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                <span class="ident">ty</span>.<span class="ident">as_raw</span>(),
+                <span class="ident">value</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">value</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">c_int</span>,
+                <span class="op">-</span><span class="number">1</span>,
+                <span class="number">0</span>,
+            ))
+            .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ())
+        }
+    }
+
     <span class="doccomment">/// Add a field entry by NID.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This corresponds to [`X509_NAME_add_entry_by_NID`].</span>
@@ -2355,6 +2501,32 @@
                 <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>(),
                 <span class="ident">field</span>.<span class="ident">as_raw</span>(),
                 <span class="ident">ffi</span>::<span class="ident">MBSTRING_UTF8</span>,
+                <span class="ident">value</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                <span class="ident">value</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">c_int</span>,
+                <span class="op">-</span><span class="number">1</span>,
+                <span class="number">0</span>,
+            ))
+            .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ())
+        }
+    }
+
+    <span class="doccomment">/// Add a field entry by NID with a specific type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This corresponds to [`X509_NAME_add_entry_by_NID`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`X509_NAME_add_entry_by_NID`]: https://www.openssl.org/docs/man1.1.0/crypto/X509_NAME_add_entry_by_NID.html</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_entry_by_nid_with_type</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">field</span>: <span class="ident">Nid</span>,
+        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">ty</span>: <span class="ident">Asn1Type</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> {
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">value</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">c_int</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+            <span class="ident">cvt</span>(<span class="ident">ffi</span>::<span class="ident">X509_NAME_add_entry_by_NID</span>(
+                <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">field</span>.<span class="ident">as_raw</span>(),
+                <span class="ident">ty</span>.<span class="ident">as_raw</span>(),
                 <span class="ident">value</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
                 <span class="ident">value</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">c_int</span>,
                 <span class="op">-</span><span class="number">1</span>,
@@ -2420,7 +2592,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">X509NameRef</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="ident">formatter</span>.<span class="ident">debug_list</span>().<span class="ident">entries</span>(<span class="self">self</span>.<span class="ident">entries</span>()).<span class="ident">finish</span>()
     }
 }
@@ -2500,7 +2672,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">X509NameEntryRef</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="ident">formatter</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;{:?} = {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">object</span>(), <span class="self">self</span>.<span class="ident">data</span>()))
     }
 }
@@ -2747,7 +2919,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">X509VerifyResult</span>(<span class="ident">c_int</span>);
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">X509VerifyResult</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;X509VerifyResult&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;code&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>)
             .<span class="ident">field</span>(<span class="string">&quot;error&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">error_string</span>())
@@ -2756,7 +2928,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">X509VerifyResult</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="self">self</span>.<span class="ident">error_string</span>())
     }
 }
@@ -2861,7 +3033,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">GeneralNameRef</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">email</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">email</span>() {
             <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="ident">email</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dnsname</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">dnsname</span>() {
@@ -2879,6 +3051,32 @@
 
 <span class="kw">impl</span> <span class="ident">Stackable</span> <span class="kw">for</span> <span class="ident">GeneralName</span> {
     <span class="kw">type</span> <span class="ident">StackType</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">stack_st_GENERAL_NAME</span>;
+}
+
+<span class="macro">foreign_type_and_impl_send_sync</span><span class="macro">!</span> {
+    <span class="kw">type</span> <span class="ident">CType</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">ACCESS_DESCRIPTION</span>;
+    <span class="kw">fn</span> <span class="ident">drop</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">ACCESS_DESCRIPTION_free</span>;
+
+    <span class="doccomment">/// `AccessDescription` of certificate authority information.</span>
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AccessDescription</span>;
+    <span class="doccomment">/// Reference to `AccessDescription`.</span>
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AccessDescriptionRef</span>;
+}
+
+<span class="kw">impl</span> <span class="ident">AccessDescriptionRef</span> {
+    <span class="doccomment">/// Returns the access method OID.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Asn1ObjectRef</span> {
+        <span class="kw">unsafe</span> { <span class="ident">Asn1ObjectRef</span>::<span class="ident">from_ptr</span>((<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">method</span>) }
+    }
+
+    <span class="comment">// Returns the access location.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">location</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">GeneralNameRef</span> {
+        <span class="kw">unsafe</span> { <span class="ident">GeneralNameRef</span>::<span class="ident">from_ptr</span>((<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">location</span>) }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Stackable</span> <span class="kw">for</span> <span class="ident">AccessDescription</span> {
+    <span class="kw">type</span> <span class="ident">StackType</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">stack_st_ACCESS_DESCRIPTION</span>;
 }
 
 <span class="macro">foreign_type_and_impl_send_sync</span><span class="macro">!</span> {

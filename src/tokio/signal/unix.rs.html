@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.2.0/src/signal/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/signal/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -477,7 +477,6 @@
 <span id="474">474</span>
 <span id="475">475</span>
 <span id="476">476</span>
-<span id="477">477</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Unix-specific types for signal handling.</span>
 <span class="doccomment">//!</span>
@@ -487,10 +486,9 @@
 <span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">signal</span>::<span class="ident">registry</span>::{<span class="ident">globals</span>, <span class="ident">EventId</span>, <span class="ident">EventInfo</span>, <span class="ident">Globals</span>, <span class="ident">Init</span>, <span class="ident">Storage</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::<span class="ident">error</span>::<span class="ident">TryRecvError</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::{<span class="ident">channel</span>, <span class="ident">Receiver</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">signal</span>::<span class="ident">RxFuture</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">watch</span>;
 
-<span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">c_int</span>;
 <span class="kw">use</span> <span class="ident">mio</span>::<span class="ident">net</span>::<span class="ident">UnixStream</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">Write</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -542,7 +540,7 @@
 
 <span class="doccomment">/// Represents the specific kind of signal to listen for.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SignalKind</span>(<span class="ident">c_int</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SignalKind</span>(<span class="ident">libc</span>::<span class="ident">c_int</span>);
 
 <span class="kw">impl</span> <span class="ident">SignalKind</span> {
     <span class="doccomment">/// Allows for listening to any valid OS signal.</span>
@@ -555,8 +553,14 @@
     <span class="doccomment">/// // let signum = libc::OS_SPECIFIC_SIGNAL;</span>
     <span class="doccomment">/// let kind = SignalKind::from_raw(signum);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">signum</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">signum</span>)
+    <span class="comment">// Use `std::os::raw::c_int` on public API to prevent leaking a non-stable</span>
+    <span class="comment">// type alias from libc.</span>
+    <span class="comment">// `libc::c_int` and `std::os::raw::c_int` are currently the same type, and are</span>
+    <span class="comment">// unlikely to change to other types, but technically libc can change this</span>
+    <span class="comment">// in the future minor version.</span>
+    <span class="comment">// See https://github.com/tokio-rs/tokio/issues/3767 for more.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">signum</span>: <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>(<span class="ident">signum</span> <span class="kw">as</span> <span class="ident">libc</span>::<span class="ident">c_int</span>)
     }
 
     <span class="doccomment">/// Represents the SIGALRM signal.</span>
@@ -689,7 +693,7 @@
 <span class="doccomment">/// 2. Wake up the driver by writing a byte to a pipe</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Those two operations should both be async-signal safe.</span>
-<span class="kw">fn</span> <span class="ident">action</span>(<span class="ident">globals</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Globals</span><span class="op">&gt;</span>, <span class="ident">signal</span>: <span class="ident">c_int</span>) {
+<span class="kw">fn</span> <span class="ident">action</span>(<span class="ident">globals</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Globals</span><span class="op">&gt;</span>, <span class="ident">signal</span>: <span class="ident">libc</span>::<span class="ident">c_int</span>) {
     <span class="ident">globals</span>.<span class="ident">record_event</span>(<span class="ident">signal</span> <span class="kw">as</span> <span class="ident">EventId</span>);
 
     <span class="comment">// Send a wakeup, ignore any errors (anything reasonably possible is</span>
@@ -703,7 +707,8 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// This will register the signal handler if it hasn&#39;t already been registered,</span>
 <span class="doccomment">/// returning any error along the way if that fails.</span>
-<span class="kw">fn</span> <span class="ident">signal_enable</span>(<span class="ident">signal</span>: <span class="ident">c_int</span>, <span class="ident">handle</span>: <span class="ident">Handle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">signal_enable</span>(<span class="ident">signal</span>: <span class="ident">SignalKind</span>, <span class="ident">handle</span>: <span class="kw-2">&amp;</span><span class="ident">Handle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">signal</span>.<span class="number">0</span>;
     <span class="kw">if</span> <span class="ident">signal</span> <span class="op">&lt;</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">signal_hook_registry</span>::<span class="ident">FORBIDDEN</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>) {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">new</span>(
             <span class="ident">ErrorKind</span>::<span class="ident">Other</span>,
@@ -806,7 +811,7 @@
 <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;streams do nothing unless polled&quot;</span>]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Signal</span> {
-    <span class="ident">rx</span>: <span class="ident">Receiver</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
+    <span class="ident">inner</span>: <span class="ident">RxFuture</span>,
 }
 
 <span class="doccomment">/// Creates a new stream which will receive notifications when the current</span>
@@ -832,21 +837,21 @@
 <span class="doccomment">/// * If the signal is one of</span>
 <span class="doccomment">///   [`signal_hook::FORBIDDEN`](fn@signal_hook_registry::register#panics)</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signal</span>(<span class="ident">kind</span>: <span class="ident">SignalKind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Signal</span><span class="op">&gt;</span> {
-    <span class="ident">signal_with_handle</span>(<span class="ident">kind</span>, <span class="ident">Handle</span>::<span class="ident">current</span>())
+    <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">signal_with_handle</span>(<span class="ident">kind</span>, <span class="kw-2">&amp;</span><span class="ident">Handle</span>::<span class="ident">current</span>())<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">Signal</span> {
+        <span class="ident">inner</span>: <span class="ident">RxFuture</span>::<span class="ident">new</span>(<span class="ident">rx</span>),
+    })
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">signal_with_handle</span>(<span class="ident">kind</span>: <span class="ident">SignalKind</span>, <span class="ident">handle</span>: <span class="ident">Handle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Signal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">kind</span>.<span class="number">0</span>;
-
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">signal_with_handle</span>(
+    <span class="ident">kind</span>: <span class="ident">SignalKind</span>,
+    <span class="ident">handle</span>: <span class="kw-2">&amp;</span><span class="ident">Handle</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">watch</span>::<span class="ident">Receiver</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// Turn the signal delivery on once we are ready for it</span>
-    <span class="ident">signal_enable</span>(<span class="ident">signal</span>, <span class="ident">handle</span>)<span class="question-mark">?</span>;
+    <span class="ident">signal_enable</span>(<span class="ident">kind</span>, <span class="ident">handle</span>)<span class="question-mark">?</span>;
 
-    <span class="comment">// One wakeup in a queue is enough, no need for us to buffer up any</span>
-    <span class="comment">// more.</span>
-    <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">channel</span>(<span class="number">1</span>);
-    <span class="ident">globals</span>().<span class="ident">register_listener</span>(<span class="ident">signal</span> <span class="kw">as</span> <span class="ident">EventId</span>, <span class="ident">tx</span>);
-
-    <span class="prelude-val">Ok</span>(<span class="ident">Signal</span> { <span class="ident">rx</span> })
+    <span class="prelude-val">Ok</span>(<span class="ident">globals</span>().<span class="ident">register_listener</span>(<span class="ident">kind</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">EventId</span>))
 }
 
 <span class="kw">impl</span> <span class="ident">Signal</span> {
@@ -874,8 +879,7 @@
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">future</span>::<span class="ident">poll_fn</span>;
-        <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">poll_recv</span>(<span class="ident">cx</span>)).<span class="kw">await</span>
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">recv</span>().<span class="kw">await</span>
     }
 
     <span class="doccomment">/// Polls to receive the next signal notification event, outside of an</span>
@@ -913,28 +917,18 @@
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">poll_recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">rx</span>.<span class="ident">poll_recv</span>(<span class="ident">cx</span>)
-    }
-
-    <span class="doccomment">/// Try to receive a signal notification without blocking or registering a waker.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">try_recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">TryRecvError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">rx</span>.<span class="ident">try_recv</span>()
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_recv</span>(<span class="ident">cx</span>)
     }
 }
 
 <span class="comment">// Work around for abstracting streams internally</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait</span> <span class="ident">InternalStream</span>: <span class="ident">Unpin</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait</span> <span class="ident">InternalStream</span> {
     <span class="kw">fn</span> <span class="ident">poll_recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">try_recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">TryRecvError</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">InternalStream</span> <span class="kw">for</span> <span class="ident">Signal</span> {
     <span class="kw">fn</span> <span class="ident">poll_recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">poll_recv</span>(<span class="ident">cx</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">try_recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">TryRecvError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">try_recv</span>()
     }
 }
 
@@ -948,12 +942,16 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">signal_enable_error_on_invalid_input</span>() {
-        <span class="ident">signal_enable</span>(<span class="op">-</span><span class="number">1</span>, <span class="ident">Handle</span>::<span class="ident">default</span>()).<span class="ident">unwrap_err</span>();
+        <span class="ident">signal_enable</span>(<span class="ident">SignalKind</span>::<span class="ident">from_raw</span>(<span class="op">-</span><span class="number">1</span>), <span class="kw-2">&amp;</span><span class="ident">Handle</span>::<span class="ident">default</span>()).<span class="ident">unwrap_err</span>();
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">signal_enable_error_on_forbidden_input</span>() {
-        <span class="ident">signal_enable</span>(<span class="ident">signal_hook_registry</span>::<span class="ident">FORBIDDEN</span>[<span class="number">0</span>], <span class="ident">Handle</span>::<span class="ident">default</span>()).<span class="ident">unwrap_err</span>();
+        <span class="ident">signal_enable</span>(
+            <span class="ident">SignalKind</span>::<span class="ident">from_raw</span>(<span class="ident">signal_hook_registry</span>::<span class="ident">FORBIDDEN</span>[<span class="number">0</span>]),
+            <span class="kw-2">&amp;</span><span class="ident">Handle</span>::<span class="ident">default</span>(),
+        )
+        .<span class="ident">unwrap_err</span>();
     }
 }
 </pre></div>

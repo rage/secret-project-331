@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.14.4/src/proto/h2/ping.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ping.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.14.9/src/proto/h2/ping.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ping.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../hyper/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -517,6 +517,44 @@
 <span id="514">514</span>
 <span id="515">515</span>
 <span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// HTTP2 Ping usage</span>
 <span class="doccomment">///</span>
@@ -571,9 +609,15 @@
         <span class="ident">bdp</span>: <span class="ident">wnd</span>,
         <span class="ident">max_bandwidth</span>: <span class="number">0.0</span>,
         <span class="ident">rtt</span>: <span class="number">0.0</span>,
+        <span class="ident">ping_delay</span>: <span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">100</span>),
+        <span class="ident">stable_count</span>: <span class="number">0</span>,
     });
 
-    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">bdp</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="number">0</span>);
+    <span class="kw">let</span> (<span class="ident">bytes</span>, <span class="ident">next_bdp_at</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">bdp</span>.<span class="ident">is_some</span>() {
+        (<span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Instant</span>::<span class="ident">now</span>()))
+    } <span class="kw">else</span> {
+        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
+    };
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>)]</span>
     <span class="kw">let</span> <span class="ident">keep_alive</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">keep_alive_interval</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">interval</span><span class="op">|</span> <span class="ident">KeepAlive</span> {
@@ -595,6 +639,7 @@
         <span class="ident">is_keep_alive_timed_out</span>: <span class="bool-val">false</span>,
         <span class="ident">ping_pong</span>,
         <span class="ident">ping_sent_at</span>: <span class="prelude-val">None</span>,
+        <span class="ident">next_bdp_at</span>,
     }));
 
     (
@@ -645,6 +690,9 @@
     <span class="doccomment">/// If `Some`, bdp is enabled, and this tracks how many bytes have been</span>
     <span class="doccomment">/// read during the current sample.</span>
     <span class="ident">bytes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// We delay a variable amount of time between BDP pings. This allows us</span>
+    <span class="doccomment">/// to send less pings as the bandwidth stabilizes.</span>
+    <span class="ident">next_bdp_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Instant</span><span class="op">&gt;</span>,
 
     <span class="comment">// keep-alive</span>
     <span class="doccomment">/// If `Some`, keep-alive is enabled, and the Instant is how long ago</span>
@@ -663,6 +711,12 @@
     <span class="ident">max_bandwidth</span>: <span class="ident">f64</span>,
     <span class="doccomment">/// Round trip time in seconds</span>
     <span class="ident">rtt</span>: <span class="ident">f64</span>,
+    <span class="doccomment">/// Delay the next ping by this amount.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This will change depending on how stable the current bandwidth is.</span>
+    <span class="ident">ping_delay</span>: <span class="ident">Duration</span>,
+    <span class="doccomment">/// The count of ping round trips where BDP has stayed the same.</span>
+    <span class="ident">stable_count</span>: <span class="ident">u32</span>,
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>)]</span>
@@ -727,6 +781,17 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>)]</span>
         <span class="ident">locked</span>.<span class="ident">update_last_read_at</span>();
 
+        <span class="comment">// are we ready to send another bdp ping?</span>
+        <span class="comment">// if not, we don&#39;t need to record bytes either</span>
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">next_bdp_at</span>) <span class="op">=</span> <span class="ident">locked</span>.<span class="ident">next_bdp_at</span> {
+            <span class="kw">if</span> <span class="ident">Instant</span>::<span class="ident">now</span>() <span class="op">&lt;</span> <span class="kw-2">*</span><span class="ident">next_bdp_at</span> {
+                <span class="kw">return</span>;
+            } <span class="kw">else</span> {
+                <span class="ident">locked</span>.<span class="ident">next_bdp_at</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            }
+        }
+
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">locked</span>.<span class="ident">bytes</span> {
             <span class="kw-2">*</span><span class="ident">bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span>;
         } <span class="kw">else</span> {
@@ -785,6 +850,7 @@
 
 <span class="kw">impl</span> <span class="ident">Ponger</span> {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">Ponged</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">locked</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>)]</span>
         <span class="kw">let</span> <span class="ident">is_idle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">is_idle</span>();
@@ -802,13 +868,13 @@
             <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>;
         }
 
-        <span class="kw">let</span> (<span class="ident">bytes</span>, <span class="ident">rtt</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">locked</span>.<span class="ident">ping_pong</span>.<span class="ident">poll_pong</span>(<span class="ident">cx</span>) {
+        <span class="kw">match</span> <span class="ident">locked</span>.<span class="ident">ping_pong</span>.<span class="ident">poll_pong</span>(<span class="ident">cx</span>) {
             <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">_pong</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">rtt</span> <span class="op">=</span> <span class="ident">locked</span>
+                <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">locked</span>
                     .<span class="ident">ping_sent_at</span>
-                    .<span class="ident">expect</span>(<span class="string">&quot;pong received implies ping_sent_at&quot;</span>)
-                    .<span class="ident">elapsed</span>();
+                    .<span class="ident">expect</span>(<span class="string">&quot;pong received implies ping_sent_at&quot;</span>);
                 <span class="ident">locked</span>.<span class="ident">ping_sent_at</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="kw">let</span> <span class="ident">rtt</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">start</span>;
                 <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;recv pong&quot;</span>);
 
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>)]</span>
@@ -819,19 +885,20 @@
                     }
                 }
 
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bdp</span>.<span class="ident">is_some</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">bdp</span>) <span class="op">=</span>  <span class="self">self</span>.<span class="ident">bdp</span> {
                     <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">locked</span>.<span class="ident">bytes</span>.<span class="ident">expect</span>(<span class="string">&quot;bdp enabled implies bytes&quot;</span>);
                     <span class="ident">locked</span>.<span class="ident">bytes</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">0</span>); <span class="comment">// reset</span>
                     <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;received BDP ack; bytes = {}, rtt = {:?}&quot;</span>, <span class="ident">bytes</span>, <span class="ident">rtt</span>);
-                    (<span class="ident">bytes</span>, <span class="ident">rtt</span>)
-                } <span class="kw">else</span> {
-                    <span class="comment">// no bdp, done!</span>
-                    <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>;
+
+                    <span class="kw">let</span> <span class="ident">update</span> <span class="op">=</span> <span class="ident">bdp</span>.<span class="ident">calculate</span>(<span class="ident">bytes</span>, <span class="ident">rtt</span>);
+                    <span class="ident">locked</span>.<span class="ident">next_bdp_at</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">now</span> <span class="op">+</span> <span class="ident">bdp</span>.<span class="ident">ping_delay</span>);
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">update</span>) <span class="op">=</span> <span class="ident">update</span> {
+                        <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">Ponged</span>::<span class="ident">SizeUpdate</span>(<span class="ident">update</span>))
+                    }
                 }
             }
             <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;pong error: {}&quot;</span>, <span class="ident">e</span>);
-                <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>;
             }
             <span class="ident">Poll</span>::<span class="ident">Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>)]</span>
@@ -844,19 +911,11 @@
                         }
                     }
                 }
-
-                <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>;
             }
-        };
-
-        <span class="ident">drop</span>(<span class="ident">locked</span>);
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bdp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bdp</span>.<span class="ident">as_mut</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">bdp</span><span class="op">|</span> <span class="ident">bdp</span>.<span class="ident">calculate</span>(<span class="ident">bytes</span>, <span class="ident">rtt</span>)) {
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">Ponged</span>::<span class="ident">SizeUpdate</span>(<span class="ident">bdp</span>))
-        } <span class="kw">else</span> {
-            <span class="comment">// XXX: this doesn&#39;t register a waker...?</span>
-            <span class="ident">Poll</span>::<span class="ident">Pending</span>
         }
+
+        <span class="comment">// XXX: this doesn&#39;t register a waker...?</span>
+        <span class="ident">Poll</span>::<span class="ident">Pending</span>
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>)]</span>
@@ -906,6 +965,7 @@
     <span class="kw">fn</span> <span class="ident">calculate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="ident">usize</span>, <span class="ident">rtt</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">WindowSize</span><span class="op">&gt;</span> {
         <span class="comment">// No need to do any math if we&#39;re at the limit.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bdp</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">=</span><span class="op">=</span> <span class="ident">BDP_LIMIT</span> {
+            <span class="self">self</span>.<span class="ident">stabilize_delay</span>();
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
@@ -925,6 +985,7 @@
 
         <span class="kw">if</span> <span class="ident">bw</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">max_bandwidth</span> {
             <span class="comment">// not a faster bandwidth, so don&#39;t update</span>
+            <span class="self">self</span>.<span class="ident">stabilize_delay</span>();
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">max_bandwidth</span> <span class="op">=</span> <span class="ident">bw</span>;
@@ -935,9 +996,24 @@
         <span class="kw">if</span> <span class="ident">bytes</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">bdp</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="number">2</span> <span class="op">/</span> <span class="number">3</span> {
             <span class="self">self</span>.<span class="ident">bdp</span> <span class="op">=</span> (<span class="ident">bytes</span> <span class="op">*</span> <span class="number">2</span>).<span class="ident">min</span>(<span class="ident">BDP_LIMIT</span>) <span class="kw">as</span> <span class="ident">WindowSize</span>;
             <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;BDP increased to {}&quot;</span>, <span class="self">self</span>.<span class="ident">bdp</span>);
+
+            <span class="self">self</span>.<span class="ident">stable_count</span> <span class="op">=</span> <span class="number">0</span>;
+            <span class="self">self</span>.<span class="ident">ping_delay</span> <span class="op">/</span><span class="op">=</span> <span class="number">2</span>;
             <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">bdp</span>)
         } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">stabilize_delay</span>();
             <span class="prelude-val">None</span>
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">stabilize_delay</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ping_delay</span> <span class="op">&lt;</span> <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">10</span>) {
+            <span class="self">self</span>.<span class="ident">stable_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">stable_count</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
+                <span class="self">self</span>.<span class="ident">ping_delay</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">4</span>;
+                <span class="self">self</span>.<span class="ident">stable_count</span> <span class="op">=</span> <span class="number">0</span>;
+            }
         }
     }
 }

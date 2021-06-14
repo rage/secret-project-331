@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-util-0.3.13/src/io/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-util-0.3.15/src/io/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../futures_util/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -827,6 +827,25 @@
 <span id="824">824</span>
 <span id="825">825</span>
 <span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Asynchronous I/O.</span>
 <span class="doccomment">//!</span>
@@ -851,18 +870,18 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">compat</span>::<span class="ident">Compat</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">future</span>::<span class="ident">assert_future</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">stream</span>::<span class="ident">assert_stream</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">ptr</span>, <span class="ident">pin</span>::<span class="ident">Pin</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">pin</span>::<span class="ident">Pin</span>, <span class="ident">ptr</span>};
 
 <span class="comment">// Re-export some types from `std::io` so that users don&#39;t have to deal</span>
 <span class="comment">// with conflicts when `use`ing `futures::io` and `std::io`.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">IoSlice</span>, <span class="ident">IoSliceMut</span>, <span class="prelude-ty">Result</span>, <span class="ident">SeekFrom</span>};
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;read-initializer&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;read-initializer&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Initializer</span>;
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">IoSlice</span>, <span class="ident">IoSliceMut</span>, <span class="prelude-ty">Result</span>, <span class="ident">SeekFrom</span>};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">futures_io</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">AsyncSeek</span>, <span class="ident">AsyncBufRead</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">futures_io</span>::{<span class="ident">AsyncBufRead</span>, <span class="ident">AsyncRead</span>, <span class="ident">AsyncSeek</span>, <span class="ident">AsyncWrite</span>};
 
 <span class="comment">// used by `BufReader` and `BufWriter`</span>
 <span class="comment">// https://github.com/rust-lang/rust/blob/master/src/libstd/sys_common/io.rs#L1</span>
@@ -956,7 +975,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">sink</span>::{<span class="ident">sink</span>, <span class="ident">Sink</span>};
 
 <span class="kw">mod</span> <span class="ident">split</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">split</span>::{<span class="ident">ReadHalf</span>, <span class="ident">WriteHalf</span>, <span class="ident">ReuniteError</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">split</span>::{<span class="ident">ReadHalf</span>, <span class="ident">ReuniteError</span>, <span class="ident">WriteHalf</span>};
 
 <span class="kw">mod</span> <span class="ident">take</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">take</span>::<span class="ident">Take</span>;
@@ -1036,7 +1055,8 @@
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">read</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Read</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">Read</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">buf</span>))
     }
@@ -1047,7 +1067,8 @@
     <span class="doccomment">/// The returned future will resolve to the number of bytes read once the read</span>
     <span class="doccomment">/// operation is completed.</span>
     <span class="kw">fn</span> <span class="ident">read_vectored</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bufs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">IoSliceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadVectored</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">ReadVectored</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">bufs</span>))
     }
@@ -1089,11 +1110,9 @@
     <span class="doccomment">/// assert_eq!(result.unwrap_err().kind(), io::ErrorKind::UnexpectedEof);</span>
     <span class="doccomment">/// # });</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">read_exact</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadExact</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">fn</span> <span class="ident">read_exact</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadExact</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">ReadExact</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">buf</span>))
     }
@@ -1117,11 +1136,9 @@
     <span class="doccomment">/// assert_eq!(output, vec![1, 2, 3, 4]);</span>
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">read_to_end</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadToEnd</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">fn</span> <span class="ident">read_to_end</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadToEnd</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">ReadToEnd</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">buf</span>))
     }
@@ -1145,11 +1162,9 @@
     <span class="doccomment">/// assert_eq!(buffer, String::from(&quot;1234&quot;));</span>
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">read_to_string</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">String</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadToString</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">fn</span> <span class="ident">read_to_string</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadToString</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">ReadToString</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">buf</span>))
     }
@@ -1184,7 +1199,8 @@
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">split</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ReadHalf</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">WriteHalf</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Sized</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Sized</span>,
     {
         <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">w</span>) <span class="op">=</span> <span class="ident">split</span>::<span class="ident">split</span>(<span class="self">self</span>);
         (<span class="ident">assert_read</span>(<span class="ident">r</span>), <span class="ident">assert_write</span>(<span class="ident">w</span>))
@@ -1210,7 +1226,8 @@
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">take</span>(<span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Take</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Sized</span>,
     {
         <span class="ident">assert_read</span>(<span class="ident">Take</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">limit</span>))
     }
@@ -1224,7 +1241,8 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-compat&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-compat&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">compat</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compat</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Unpin</span>,
     {
         <span class="ident">Compat</span>::<span class="ident">new</span>(<span class="self">self</span>)
     }
@@ -1257,14 +1275,16 @@
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Flush</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">Flush</span>::<span class="ident">new</span>(<span class="self">self</span>))
     }
 
     <span class="doccomment">/// Creates a future which will entirely close this `AsyncWrite`.</span>
     <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Close</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">Close</span>::<span class="ident">new</span>(<span class="self">self</span>))
     }
@@ -1274,7 +1294,8 @@
     <span class="doccomment">/// The returned future will resolve to the number of bytes written once the write</span>
     <span class="doccomment">/// operation is completed.</span>
     <span class="kw">fn</span> <span class="ident">write</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Write</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">Write</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">buf</span>))
     }
@@ -1285,7 +1306,8 @@
     <span class="doccomment">/// The returned future will resolve to the number of bytes written once the write</span>
     <span class="doccomment">/// operation is completed.</span>
     <span class="kw">fn</span> <span class="ident">write_vectored</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bufs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">IoSlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WriteVectored</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">WriteVectored</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">bufs</span>))
     }
@@ -1311,7 +1333,8 @@
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">write_all</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WriteAll</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">WriteAll</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">buf</span>))
     }
@@ -1377,7 +1400,8 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-compat&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-compat&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">compat_write</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compat</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Unpin</span>,
     {
         <span class="ident">Compat</span>::<span class="ident">new</span>(<span class="self">self</span>)
     }
@@ -1411,7 +1435,8 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sink&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sink&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">into_sink</span><span class="op">&lt;</span><span class="ident">Item</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IntoSink</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Item</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Sized</span>,
     {
         <span class="kw">crate</span>::<span class="ident">sink</span>::<span class="ident">assert_sink</span>::<span class="op">&lt;</span><span class="ident">Item</span>, <span class="ident">Error</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">IntoSink</span>::<span class="ident">new</span>(<span class="self">self</span>))
     }
@@ -1427,9 +1452,21 @@
     <span class="doccomment">/// In the case of an error the buffer and the object will be discarded, with</span>
     <span class="doccomment">/// the error yielded.</span>
     <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Seek</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">Seek</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">pos</span>))
+    }
+
+    <span class="doccomment">/// Creates a future which will return the current seek position from the</span>
+    <span class="doccomment">/// start of the stream.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to `self.seek(SeekFrom::Current(0))`.</span>
+    <span class="kw">fn</span> <span class="ident">stream_position</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Seek</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    {
+        <span class="self">self</span>.<span class="ident">seek</span>(<span class="ident">SeekFrom</span>::<span class="ident">Current</span>(<span class="number">0</span>))
     }
 }
 
@@ -1461,7 +1498,8 @@
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">fill_buf</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FillBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">FillBuf</span>::<span class="ident">new</span>(<span class="self">self</span>))
     }
@@ -1484,7 +1522,8 @@
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">consume_unpin</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">amt</span>: <span class="ident">usize</span>)
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="self">self</span>).<span class="ident">consume</span>(<span class="ident">amt</span>)
     }
@@ -1530,12 +1569,9 @@
     <span class="doccomment">/// assert_eq!(buf, b&quot;&quot;);</span>
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">read_until</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">byte</span>: <span class="ident">u8</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadUntil</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">fn</span> <span class="ident">read_until</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">byte</span>: <span class="ident">u8</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadUntil</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">ReadUntil</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">byte</span>, <span class="ident">buf</span>))
     }
@@ -1592,7 +1628,8 @@
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">read_line</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ReadLine</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Unpin</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Unpin</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">ReadLine</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">buf</span>))
     }
@@ -1630,7 +1667,8 @@
     <span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(()) }).unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">lines</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Lines</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Sized</span>,
     {
         <span class="ident">assert_stream</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">Lines</span>::<span class="ident">new</span>(<span class="self">self</span>))
     }

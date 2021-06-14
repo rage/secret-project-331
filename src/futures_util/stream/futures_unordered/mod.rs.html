@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-util-0.3.13/src/stream/futures_unordered/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-util-0.3.15/src/stream/futures_unordered/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../futures_util/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -634,17 +634,40 @@
 <span id="631">631</span>
 <span id="632">632</span>
 <span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An unbounded set of futures.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module is only available when the `std` or `alloc` feature of this</span>
 <span class="doccomment">//! library is activated, and it is activated by default.</span>
 
-<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">stream</span>::{<span class="ident">FusedStream</span>, <span class="ident">Stream</span>};
-<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
-<span class="kw">use</span> <span class="ident">futures_task</span>::{<span class="ident">FutureObj</span>, <span class="ident">LocalFutureObj</span>, <span class="ident">Spawn</span>, <span class="ident">LocalSpawn</span>, <span class="ident">SpawnError</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">task</span>::<span class="ident">AtomicWaker</span>;
+<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Weak</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cell</span>::<span class="ident">UnsafeCell</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">FromIterator</span>;
@@ -653,20 +676,22 @@
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ptr</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::<span class="ident">Ordering</span>::{<span class="ident">AcqRel</span>, <span class="ident">Acquire</span>, <span class="ident">Relaxed</span>, <span class="ident">Release</span>, <span class="ident">SeqCst</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicPtr</span>, <span class="ident">AtomicBool</span>};
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Weak</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">AtomicPtr</span>};
+<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
+<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">stream</span>::{<span class="ident">FusedStream</span>, <span class="ident">Stream</span>};
+<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+<span class="kw">use</span> <span class="ident">futures_task</span>::{<span class="ident">FutureObj</span>, <span class="ident">LocalFutureObj</span>, <span class="ident">LocalSpawn</span>, <span class="ident">Spawn</span>, <span class="ident">SpawnError</span>};
 
 <span class="kw">mod</span> <span class="ident">abort</span>;
 
 <span class="kw">mod</span> <span class="ident">iter</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">iter</span>::{<span class="ident">Iter</span>, <span class="ident">IterMut</span>, <span class="ident">IterPinMut</span>, <span class="ident">IterPinRef</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">iter</span>::{<span class="ident">IntoIter</span>, <span class="ident">Iter</span>, <span class="ident">IterMut</span>, <span class="ident">IterPinMut</span>, <span class="ident">IterPinRef</span>};
 
 <span class="kw">mod</span> <span class="ident">task</span>;
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">task</span>::<span class="ident">Task</span>;
 
 <span class="kw">mod</span> <span class="ident">ready_to_run_queue</span>;
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">ready_to_run_queue</span>::{<span class="ident">ReadyToRunQueue</span>, <span class="ident">Dequeue</span>};
-
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">ready_to_run_queue</span>::{<span class="ident">Dequeue</span>, <span class="ident">ReadyToRunQueue</span>};
 
 <span class="doccomment">/// A set of futures which may complete in any order.</span>
 <span class="doccomment">///</span>
@@ -700,18 +725,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">Unpin</span> <span class="kw">for</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span> <span class="ident">Spawn</span> <span class="kw">for</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">FutureObj</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, ()<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">spawn_obj</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">future_obj</span>: <span class="ident">FutureObj</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, ()<span class="op">&gt;</span>)
-        <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SpawnError</span><span class="op">&gt;</span>
-    {
+    <span class="kw">fn</span> <span class="ident">spawn_obj</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">future_obj</span>: <span class="ident">FutureObj</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, ()<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SpawnError</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">push</span>(<span class="ident">future_obj</span>);
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">LocalSpawn</span> <span class="kw">for</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">LocalFutureObj</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, ()<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">spawn_local_obj</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">future_obj</span>: <span class="ident">LocalFutureObj</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, ()<span class="op">&gt;</span>)
-        <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SpawnError</span><span class="op">&gt;</span>
-    {
+    <span class="kw">fn</span> <span class="ident">spawn_local_obj</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">future_obj</span>: <span class="ident">LocalFutureObj</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, ()<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SpawnError</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">push</span>(<span class="ident">future_obj</span>);
         <span class="prelude-val">Ok</span>(())
     }
@@ -828,24 +849,26 @@
     }
 
     <span class="doccomment">/// Returns an iterator that allows inspecting each future in the set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Fut</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">Fut</span>: <span class="ident">Unpin</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Fut</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">Fut</span>: <span class="ident">Unpin</span>,
+    {
         <span class="ident">Iter</span>(<span class="ident">Pin</span>::<span class="ident">new</span>(<span class="self">self</span>).<span class="ident">iter_pin_ref</span>())
     }
 
     <span class="doccomment">/// Returns an iterator that allows inspecting each future in the set.</span>
-    <span class="kw">fn</span> <span class="ident">iter_pin_ref</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterPinRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Fut</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_pin_ref</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterPinRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Fut</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">task</span>, <span class="ident">len</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">atomic_load_head_and_len_all</span>();
+        <span class="kw">let</span> <span class="ident">pending_next_all</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pending_next_all</span>();
 
-        <span class="ident">IterPinRef</span> {
-            <span class="ident">task</span>,
-            <span class="ident">len</span>,
-            <span class="ident">pending_next_all</span>: <span class="self">self</span>.<span class="ident">pending_next_all</span>(),
-            <span class="ident">_marker</span>: <span class="ident">PhantomData</span>,
-        }
+        <span class="ident">IterPinRef</span> { <span class="ident">task</span>, <span class="ident">len</span>, <span class="ident">pending_next_all</span>, <span class="ident">_marker</span>: <span class="ident">PhantomData</span> }
     }
 
     <span class="doccomment">/// Returns an iterator that allows modifying each future in the set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Fut</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">Fut</span>: <span class="ident">Unpin</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Fut</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">Fut</span>: <span class="ident">Unpin</span>,
+    {
         <span class="ident">IterMut</span>(<span class="ident">Pin</span>::<span class="ident">new</span>(<span class="self">self</span>).<span class="ident">iter_pin_mut</span>())
     }
 
@@ -854,19 +877,9 @@
         <span class="comment">// `head_all` can be accessed directly and we don&#39;t need to spin on</span>
         <span class="comment">// `Task::next_all` since we have exclusive access to the set.</span>
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">head_all</span>.<span class="ident">get_mut</span>();
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">task</span>.<span class="ident">is_null</span>() {
-            <span class="number">0</span>
-        } <span class="kw">else</span> {
-            <span class="kw">unsafe</span> {
-                <span class="kw-2">*</span>(<span class="kw-2">*</span><span class="ident">task</span>).<span class="ident">len_all</span>.<span class="ident">get</span>()
-            }
-        };
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">task</span>.<span class="ident">is_null</span>() { <span class="number">0</span> } <span class="kw">else</span> { <span class="kw">unsafe</span> { <span class="kw-2">*</span>(<span class="kw-2">*</span><span class="ident">task</span>).<span class="ident">len_all</span>.<span class="ident">get</span>() } };
 
-        <span class="ident">IterPinMut</span> {
-            <span class="ident">task</span>,
-            <span class="ident">len</span>,
-            <span class="ident">_marker</span>: <span class="ident">PhantomData</span>
-        }
+        <span class="ident">IterPinMut</span> { <span class="ident">task</span>, <span class="ident">len</span>, <span class="ident">_marker</span>: <span class="ident">PhantomData</span> }
     }
 
     <span class="doccomment">/// Returns the current head node and number of futures in the list of all</span>
@@ -886,7 +899,7 @@
         (<span class="ident">task</span>, <span class="ident">len</span>)
     }
 
-    <span class="doccomment">/// Releases the task. It destorys the future inside and either drops</span>
+    <span class="doccomment">/// Releases the task. It destroys the future inside and either drops</span>
     <span class="doccomment">/// the `Arc&lt;Task&gt;` or transfers ownership to the ready to run queue.</span>
     <span class="doccomment">/// The task this method is called on must have been unlinked before.</span>
     <span class="kw">fn</span> <span class="ident">release_task</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">task</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Task</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
@@ -1032,9 +1045,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Fut</span>::<span class="ident">Output</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>)
-        <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    {
+    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// Variable to determine how many times it is allowed to poll underlying</span>
         <span class="comment">// futures without yielding.</span>
         <span class="comment">//</span>
@@ -1106,14 +1117,11 @@
 
                     <span class="comment">// Double check that the call to `release_task` really</span>
                     <span class="comment">// happened. Calling it required the task to be unlinked.</span>
-                    <span class="macro">debug_assert_eq</span><span class="macro">!</span>(
-                        <span class="ident">task</span>.<span class="ident">next_all</span>.<span class="ident">load</span>(<span class="ident">Relaxed</span>),
-                        <span class="self">self</span>.<span class="ident">pending_next_all</span>()
-                    );
+                    <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">task</span>.<span class="ident">next_all</span>.<span class="ident">load</span>(<span class="ident">Relaxed</span>), <span class="self">self</span>.<span class="ident">pending_next_all</span>());
                     <span class="kw">unsafe</span> {
                         <span class="macro">debug_assert</span><span class="macro">!</span>((<span class="kw-2">*</span><span class="ident">task</span>.<span class="ident">prev_all</span>.<span class="ident">get</span>()).<span class="ident">is_null</span>());
                     }
-                    <span class="kw">continue</span>
+                    <span class="kw">continue</span>;
                 }
             };
 
@@ -1153,10 +1161,7 @@
                 }
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bomb</span> <span class="op">=</span> <span class="ident">Bomb</span> {
-                <span class="ident">task</span>: <span class="prelude-val">Some</span>(<span class="ident">task</span>),
-                <span class="ident">queue</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>,
-            };
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bomb</span> <span class="op">=</span> <span class="ident">Bomb</span> { <span class="ident">task</span>: <span class="prelude-val">Some</span>(<span class="ident">task</span>), <span class="ident">queue</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span> };
 
             <span class="comment">// Poll the underlying future with the appropriate waker</span>
             <span class="comment">// implementation. This is where a large bit of the unsafety</span>
@@ -1192,11 +1197,9 @@
                         <span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">wake_by_ref</span>();
                         <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>;
                     }
-                    <span class="kw">continue</span>
+                    <span class="kw">continue</span>;
                 }
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">output</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="ident">output</span>))
-                }
+                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">output</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="ident">output</span>)),
             }
         }
     }
@@ -1213,19 +1216,33 @@
     }
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Clears the set, removing all futures.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">clear_head_all</span>();
+
+        <span class="comment">// we just cleared all the tasks, and we have &amp;mut self, so this is safe.</span>
+        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">ready_to_run_queue</span>.<span class="ident">clear</span>() };
+
+        <span class="self">self</span>.<span class="ident">is_terminated</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Relaxed</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">clear_head_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">while</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">head_all</span>.<span class="ident">get_mut</span>().<span class="ident">is_null</span>() {
+            <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">head_all</span>.<span class="ident">get_mut</span>();
+            <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">unlink</span>(<span class="ident">head</span>) };
+            <span class="self">self</span>.<span class="ident">release_task</span>(<span class="ident">task</span>);
+        }
+    }
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="comment">// When a `FuturesUnordered` is dropped we want to drop all futures</span>
         <span class="comment">// associated with it. At the same time though there may be tons of</span>
         <span class="comment">// wakers flying around which contain `Task&lt;Fut&gt;` references</span>
         <span class="comment">// inside them. We&#39;ll let those naturally get deallocated.</span>
-        <span class="kw">unsafe</span> {
-            <span class="kw">while</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">head_all</span>.<span class="ident">get_mut</span>().<span class="ident">is_null</span>() {
-                <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">head_all</span>.<span class="ident">get_mut</span>();
-                <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">unlink</span>(<span class="ident">head</span>);
-                <span class="self">self</span>.<span class="ident">release_task</span>(<span class="ident">task</span>);
-            }
-        }
+        <span class="self">self</span>.<span class="ident">clear_head_all</span>();
 
         <span class="comment">// Note that at this point we could still have a bunch of tasks in the</span>
         <span class="comment">// ready to run queue. None of those tasks, however, have futures</span>
@@ -1242,13 +1259,48 @@
     }
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Fut</span>: <span class="ident">Unpin</span><span class="op">&gt;</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Fut</span>;
+    <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Fut</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">IntoIter</span> {
+        <span class="self">self</span>.<span class="ident">iter</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Fut</span>: <span class="ident">Unpin</span><span class="op">&gt;</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Fut</span>;
+    <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Fut</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">IntoIter</span> {
+        <span class="self">self</span>.<span class="ident">iter_mut</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span>: <span class="ident">Unpin</span><span class="op">&gt;</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Fut</span>;
+    <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">IntoIter</span> {
+        <span class="comment">// `head_all` can be accessed directly and we don&#39;t need to spin on</span>
+        <span class="comment">// `Task::next_all` since we have exclusive access to the set.</span>
+        <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">head_all</span>.<span class="ident">get_mut</span>();
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">task</span>.<span class="ident">is_null</span>() { <span class="number">0</span> } <span class="kw">else</span> { <span class="kw">unsafe</span> { <span class="kw-2">*</span>(<span class="kw-2">*</span><span class="ident">task</span>).<span class="ident">len_all</span>.<span class="ident">get</span>() } };
+
+        <span class="ident">IntoIter</span> { <span class="ident">len</span>, <span class="ident">inner</span>: <span class="self">self</span> }
+    }
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">FromIterator</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from_iter</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Fut</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">acc</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">new</span>();
-        <span class="ident">iter</span>.<span class="ident">into_iter</span>().<span class="ident">fold</span>(<span class="ident">acc</span>, <span class="op">|</span><span class="ident">acc</span>, <span class="ident">item</span><span class="op">|</span> { <span class="ident">acc</span>.<span class="ident">push</span>(<span class="ident">item</span>); <span class="ident">acc</span> })
+        <span class="ident">iter</span>.<span class="ident">into_iter</span>().<span class="ident">fold</span>(<span class="ident">acc</span>, <span class="op">|</span><span class="ident">acc</span>, <span class="ident">item</span><span class="op">|</span> {
+            <span class="ident">acc</span>.<span class="ident">push</span>(<span class="ident">item</span>);
+            <span class="ident">acc</span>
+        })
     }
 }
 

@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["tracing_futures"] = [{"text":"impl&lt;T&gt; PinnedDrop for <a class=\"struct\" href=\"tracing_futures/struct.Instrumented.html\" title=\"struct tracing_futures::Instrumented\">Instrumented</a>&lt;T&gt;","synthetic":false,"types":["tracing_futures::Instrumented"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/const_fn-0.4.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/const_fn-0.4.8/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../const_fn/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -234,6 +234,24 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An attribute for easy generation of const functions with conditional</span>
 <span class="doccomment">//! compilations.</span>
@@ -243,7 +261,7 @@
 <span class="doccomment">//! ```rust</span>
 <span class="doccomment">//! use const_fn::const_fn;</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! // function is `const` on specified version and later compiler (including beta and nightly)</span>
+<span class="doccomment">//! // function is `const` on specified version and later compiler (including beta, nightly, and dev build)</span>
 <span class="doccomment">//! #[const_fn(&quot;1.36&quot;)]</span>
 <span class="doccomment">//! pub const fn version() {</span>
 <span class="doccomment">//!     /* ... */</span>
@@ -270,6 +288,20 @@
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
+<span class="doccomment">//! ## Use this crate as an optional dependency</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If no arguments are passed, `consf_fn` will always make the function `const`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Therefore, you can use `const_fn` as an optional dependency by combination with `cfg_attr`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! // function is `const` if `cfg(feature = &quot;...&quot;)` is true</span>
+<span class="doccomment">//! #[cfg_attr(feature = &quot;...&quot;, const_fn::const_fn)]</span>
+<span class="doccomment">//! pub fn optional() {</span>
+<span class="doccomment">//!     /* ... */</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//! # Alternatives</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This crate is proc-macro, but is very lightweight, and has no dependencies.</span>
@@ -286,7 +318,7 @@
 ))]</span>
 <span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>)]</span>
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">future_incompatible</span>, <span class="ident">rust_2018_idioms</span>, <span class="ident">single_use_lifetimes</span>, <span class="ident">unreachable_pub</span>)]</span>
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">clippy</span>::<span class="ident">all</span>, <span class="ident">clippy</span>::<span class="ident">default_trait_access</span>)]</span>
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">clippy</span>::<span class="ident">default_trait_access</span>)]</span>
 
 <span class="comment">// older compilers require explicit `extern crate`.</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_extern_crates</span>)]</span>
@@ -300,12 +332,14 @@
 <span class="kw">mod</span> <span class="ident">iter</span>;
 <span class="kw">mod</span> <span class="ident">to_tokens</span>;
 
-<span class="kw">use</span> <span class="ident">proc_macro</span>::{<span class="ident">Delimiter</span>, <span class="ident">TokenStream</span>, <span class="ident">TokenTree</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
+
+<span class="kw">use</span> <span class="ident">proc_macro</span>::{<span class="ident">Delimiter</span>, <span class="ident">TokenStream</span>, <span class="ident">TokenTree</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Func</span>, <span class="ident">LitStr</span>},
     <span class="ident">error</span>::<span class="ident">Error</span>,
+    <span class="ident">iter</span>::<span class="ident">TokenIter</span>,
     <span class="ident">to_tokens</span>::<span class="ident">ToTokens</span>,
     <span class="ident">utils</span>::{<span class="ident">cfg_attrs</span>, <span class="ident">parse_as_empty</span>, <span class="ident">tt_span</span>},
 };
@@ -348,7 +382,9 @@
             <span class="ident">tokens</span>
         }
         <span class="ident">Arg</span>::<span class="ident">Version</span>(<span class="ident">req</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">major</span> <span class="op">&gt;</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">minor</span> <span class="op">&gt;</span> <span class="ident">VERSION</span>.<span class="ident">minor</span> {
+            <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">major</span> <span class="op">&gt;</span> <span class="number">1</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">minor</span> <span class="op">+</span> (<span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">const_fn_assume_incomplete_release</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&gt;</span> <span class="ident">VERSION</span>.<span class="ident">minor</span>
+            {
                 <span class="ident">func</span>.<span class="ident">print_const</span> <span class="op">=</span> <span class="bool-val">false</span>;
             }
             <span class="ident">func</span>.<span class="ident">to_token_stream</span>()
@@ -375,7 +411,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">parse_arg</span>(<span class="ident">tokens</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Arg</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">tokens</span>.<span class="ident">into_iter</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">TokenIter</span>::<span class="ident">new</span>(<span class="ident">tokens</span>);
 
     <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>();
     <span class="kw">let</span> <span class="ident">next_span</span> <span class="op">=</span> <span class="ident">tt_span</span>(<span class="ident">next</span>.<span class="ident">as_ref</span>());

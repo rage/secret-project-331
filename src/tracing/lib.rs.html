@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tracing-0.1.23/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tracing-0.1.26/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1039,6 +1039,24 @@
 <span id="1036">1036</span>
 <span id="1037">1037</span>
 <span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A scoped, structured logging and diagnostics system.</span>
 <span class="doccomment">//!</span>
@@ -1215,6 +1233,25 @@
 <span class="doccomment">//! # fn main() {}</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
+<span class="doccomment">//! For functions which don&#39;t have built-in tracing support and can&#39;t have</span>
+<span class="doccomment">//! the `#[instrument]` attribute applied (such as from an external crate,</span>
+<span class="doccomment">//! the [`Span` struct][`Span`] has a [`in_scope()` method][`in_scope`]</span>
+<span class="doccomment">//! which can be used to easily wrap synchonous code in a span.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! For example:</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use tracing::info_span;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # fn doc() -&gt; Result&lt;(), ()&gt; {</span>
+<span class="doccomment">//! # mod serde_json {</span>
+<span class="doccomment">//! #    pub(crate) fn from_slice(buf: &amp;[u8]) -&gt; Result&lt;(), ()&gt; { Ok(()) }</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! # let buf: [u8; 0] = [];</span>
+<span class="doccomment">//! let json = info_span!(&quot;json.parse&quot;).in_scope(|| serde_json::from_slice(&amp;buf))?;</span>
+<span class="doccomment">//! # let _ = json; // suppress unused variable warning</span>
+<span class="doccomment">//! # Ok(())</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! You can find more examples showing how to use this crate [here][examples].</span>
 <span class="doccomment">//!</span>
@@ -1234,8 +1271,8 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Using the Macros</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! The [`span!`] and [`event!`] macros use fairly similar syntax, with some</span>
-<span class="doccomment">//! exceptions.</span>
+<span class="doccomment">//! The [`span!`] and [`event!`] macros as well as the `#[instrument]` attribute</span>
+<span class="doccomment">//! use fairly similar syntax, with some exceptions.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ### Configuring Attributes</span>
 <span class="doccomment">//!</span>
@@ -1537,8 +1574,7 @@
 <span class="doccomment">//!     //</span>
 <span class="doccomment">//!     // local variables (`yaks`) can be used as field values</span>
 <span class="doccomment">//!     // without an assignment, similar to struct initializers.</span>
-<span class="doccomment">//!     let span = span!(Level::TRACE, &quot;shaving_yaks&quot;, yaks);</span>
-<span class="doccomment">//!     let _enter = span.enter();</span>
+<span class="doccomment">//!     let _span = span!(Level::TRACE, &quot;shaving_yaks&quot;, yaks).entered();</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     info!(&quot;shaving yaks&quot;);</span>
 <span class="doccomment">//!</span>
@@ -1826,7 +1862,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//!   ```toml</span>
 <span class="doccomment">//!   [dependencies]</span>
-<span class="doccomment">//!   tracing = { version = &quot;0.1.23&quot;, default-features = false }</span>
+<span class="doccomment">//!   tracing = { version = &quot;0.1.26&quot;, default-features = false }</span>
 <span class="doccomment">//!   ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! &lt;div class=&quot;information&quot;&gt;</span>
@@ -1882,7 +1918,7 @@
 <span class="doccomment">//! [flags]: #crate-feature-flags</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>), <span class="ident">deny</span>(<span class="ident">broken_intra_doc_links</span>))]</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/tracing/0.1.23&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/tracing/0.1.26&quot;</span>)]</span>
 <span class="attribute">#![<span class="ident">doc</span>(
     <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png&quot;</span>,
     <span class="ident">issue_tracker_base_url</span> <span class="op">=</span> <span class="string">&quot;https://github.com/tokio-rs/tracing/issues/&quot;</span>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.2.0/src/coop.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>coop.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/coop.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>coop.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -286,74 +286,37 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>), <span class="ident">allow</span>(<span class="ident">dead_code</span>))]</span>
 
-<span class="doccomment">//! Opt-in yield points for improved cooperative scheduling.</span>
+<span class="doccomment">//! Yield points for improved cooperative scheduling.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! A single call to [`poll`] on a top-level task may potentially do a lot of</span>
-<span class="doccomment">//! work before it returns `Poll::Pending`. If a task runs for a long period of</span>
-<span class="doccomment">//! time without yielding back to the executor, it can starve other tasks</span>
-<span class="doccomment">//! waiting on that executor to execute them, or drive underlying resources.</span>
-<span class="doccomment">//! Since Rust does not have a runtime, it is difficult to forcibly preempt a</span>
-<span class="doccomment">//! long-running task. Instead, this module provides an opt-in mechanism for</span>
-<span class="doccomment">//! futures to collaborate with the executor to avoid starvation.</span>
+<span class="doccomment">//! Documentation for this can be found in the [`tokio::task`] module.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Consider a future like this one:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # use tokio_stream::{Stream, StreamExt};</span>
-<span class="doccomment">//! async fn drop_all&lt;I: Stream + Unpin&gt;(mut input: I) {</span>
-<span class="doccomment">//!     while let Some(_) = input.next().await {}</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! It may look harmless, but consider what happens under heavy load if the</span>
-<span class="doccomment">//! input stream is _always_ ready. If we spawn `drop_all`, the task will never</span>
-<span class="doccomment">//! yield, and will starve other tasks and resources on the same executor. With</span>
-<span class="doccomment">//! opt-in yield points, this problem is alleviated:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```ignore</span>
-<span class="doccomment">//! # use tokio_stream::{Stream, StreamExt};</span>
-<span class="doccomment">//! async fn drop_all&lt;I: Stream + Unpin&gt;(mut input: I) {</span>
-<span class="doccomment">//!     while let Some(_) = input.next().await {</span>
-<span class="doccomment">//!         tokio::coop::proceed().await;</span>
-<span class="doccomment">//!     }</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The `proceed` future will coordinate with the executor to make sure that</span>
-<span class="doccomment">//! every so often control is yielded back to the executor so it can run other</span>
-<span class="doccomment">//! tasks.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Placing yield points</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Voluntary yield points should be placed _after_ at least some work has been</span>
-<span class="doccomment">//! done. If they are not, a future sufficiently deep in the task hierarchy may</span>
-<span class="doccomment">//! end up _never_ getting to run because of the number of yield points that</span>
-<span class="doccomment">//! inevitably appear before it is reached. In general, you will want yield</span>
-<span class="doccomment">//! points to only appear in &quot;leaf&quot; futures -- those that do not themselves poll</span>
-<span class="doccomment">//! other futures. By doing this, you avoid double-counting each iteration of</span>
-<span class="doccomment">//! the outer future against the cooperating budget.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`poll`]: method@std::future::Future::poll</span>
+<span class="doccomment">//! [`tokio::task`]: crate::task.</span>
 
-<span class="comment">// NOTE: The doctests in this module are ignored since the whole module is (currently) private.</span>
+<span class="comment">// ```ignore</span>
+<span class="comment">// # use tokio_stream::{Stream, StreamExt};</span>
+<span class="comment">// async fn drop_all&lt;I: Stream + Unpin&gt;(mut input: I) {</span>
+<span class="comment">//     while let Some(_) = input.next().await {</span>
+<span class="comment">//         tokio::coop::proceed().await;</span>
+<span class="comment">//     }</span>
+<span class="comment">// }</span>
+<span class="comment">// ```</span>
+<span class="comment">//</span>
+<span class="comment">// The `proceed` future will coordinate with the executor to make sure that</span>
+<span class="comment">// every so often control is yielded back to the executor so it can run other</span>
+<span class="comment">// tasks.</span>
+<span class="comment">//</span>
+<span class="comment">// # Placing yield points</span>
+<span class="comment">//</span>
+<span class="comment">// Voluntary yield points should be placed _after_ at least some work has been</span>
+<span class="comment">// done. If they are not, a future sufficiently deep in the task hierarchy may</span>
+<span class="comment">// end up _never_ getting to run because of the number of yield points that</span>
+<span class="comment">// inevitably appear before it is reached. In general, you will want yield</span>
+<span class="comment">// points to only appear in &quot;leaf&quot; futures -- those that do not themselves poll</span>
+<span class="comment">// other futures. By doing this, you avoid double-counting each iteration of</span>
+<span class="comment">// the outer future against the cooperating budget.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 
@@ -400,6 +363,13 @@
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">budget</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span> {
     <span class="ident">with_budget</span>(<span class="ident">Budget</span>::<span class="ident">initial</span>(), <span class="ident">f</span>)
+}
+
+<span class="doccomment">/// Run the given closure with an unconstrained task budget. When the function returns, the budget</span>
+<span class="doccomment">/// is reset to the value prior to calling the function.</span>
+<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">with_unconstrained</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span> {
+    <span class="ident">with_budget</span>(<span class="ident">Budget</span>::<span class="ident">unconstrained</span>(), <span class="ident">f</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.32/src/pkcs7.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pkcs7.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.34/src/pkcs7.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pkcs7.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -408,19 +408,88 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">bio</span>::{<span class="ident">MemBio</span>, <span class="ident">MemBioSlice</span>};
-<span class="kw">use</span> <span class="ident">error</span>::<span class="ident">ErrorStack</span>;
-<span class="kw">use</span> <span class="ident">ffi</span>;
-<span class="kw">use</span> <span class="ident">foreign_types</span>::<span class="ident">ForeignTypeRef</span>;
+<span class="kw">use</span> <span class="ident">bitflags</span>::<span class="ident">bitflags</span>;
+<span class="kw">use</span> <span class="ident">foreign_types</span>::{<span class="ident">ForeignType</span>, <span class="ident">ForeignTypeRef</span>};
 <span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">c_int</span>;
-<span class="kw">use</span> <span class="ident">pkey</span>::{<span class="ident">HasPrivate</span>, <span class="ident">PKeyRef</span>};
-<span class="kw">use</span> <span class="ident">stack</span>::<span class="ident">StackRef</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
-<span class="kw">use</span> <span class="ident">symm</span>::<span class="ident">Cipher</span>;
-<span class="kw">use</span> <span class="ident">x509</span>::<span class="ident">store</span>::<span class="ident">X509StoreRef</span>;
-<span class="kw">use</span> <span class="ident">x509</span>::{<span class="ident">X509Ref</span>, <span class="ident">X509</span>};
-<span class="kw">use</span> {<span class="ident">cvt</span>, <span class="ident">cvt_p</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">bio</span>::{<span class="ident">MemBio</span>, <span class="ident">MemBioSlice</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">ErrorStack</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pkey</span>::{<span class="ident">HasPrivate</span>, <span class="ident">PKeyRef</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">stack</span>::{<span class="ident">Stack</span>, <span class="ident">StackRef</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">symm</span>::<span class="ident">Cipher</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">x509</span>::<span class="ident">store</span>::<span class="ident">X509StoreRef</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">x509</span>::{<span class="ident">X509Ref</span>, <span class="ident">X509</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">cvt</span>, <span class="ident">cvt_p</span>};
 
 <span class="macro">foreign_type_and_impl_send_sync</span><span class="macro">!</span> {
     <span class="kw">type</span> <span class="ident">CType</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">PKCS7</span>;
@@ -691,16 +760,46 @@
 
         <span class="prelude-val">Ok</span>(())
     }
+
+    <span class="doccomment">/// Retrieve the signer&#39;s certificates from the PKCS#7 structure without verifying them.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This corresponds to [`PKCS7_get0_signers`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`PKCS7_get0_signers`]: https://www.openssl.org/docs/man1.0.2/crypto/PKCS7_verify.html</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signers</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">certs</span>: <span class="kw-2">&amp;</span><span class="ident">StackRef</span><span class="op">&lt;</span><span class="ident">X509</span><span class="op">&gt;</span>,
+        <span class="ident">flags</span>: <span class="ident">Pkcs7Flags</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Stack</span><span class="op">&lt;</span><span class="ident">X509</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">cvt_p</span>(<span class="ident">ffi</span>::<span class="ident">PKCS7_get0_signers</span>(
+                <span class="self">self</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">certs</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">flags</span>.<span class="ident">bits</span>,
+            ))<span class="question-mark">?</span>;
+
+            <span class="comment">// The returned stack is owned by the caller, but the certs inside are not! Our stack interface can&#39;t deal</span>
+            <span class="comment">// with that, so instead we just manually bump the refcount of the certs so that the whole stack is properly</span>
+            <span class="comment">// owned.</span>
+            <span class="kw">let</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">Stack</span>::<span class="op">&lt;</span><span class="ident">X509</span><span class="op">&gt;</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+            <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stack</span> {
+                <span class="ident">mem</span>::<span class="ident">forget</span>(<span class="ident">cert</span>.<span class="ident">to_owned</span>());
+            }
+
+            <span class="prelude-val">Ok</span>(<span class="ident">stack</span>)
+        }
+    }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">pkcs7</span>::{<span class="ident">Pkcs7</span>, <span class="ident">Pkcs7Flags</span>};
-    <span class="kw">use</span> <span class="ident">pkey</span>::<span class="ident">PKey</span>;
-    <span class="kw">use</span> <span class="ident">stack</span>::<span class="ident">Stack</span>;
-    <span class="kw">use</span> <span class="ident">symm</span>::<span class="ident">Cipher</span>;
-    <span class="kw">use</span> <span class="ident">x509</span>::<span class="ident">store</span>::<span class="ident">X509StoreBuilder</span>;
-    <span class="kw">use</span> <span class="ident">x509</span>::<span class="ident">X509</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">hash</span>::<span class="ident">MessageDigest</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pkcs7</span>::{<span class="ident">Pkcs7</span>, <span class="ident">Pkcs7Flags</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pkey</span>::<span class="ident">PKey</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">stack</span>::<span class="ident">Stack</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">symm</span>::<span class="ident">Cipher</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">x509</span>::<span class="ident">store</span>::<span class="ident">X509StoreBuilder</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">x509</span>::<span class="ident">X509</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">encrypt_decrypt_test</span>() {
@@ -806,6 +905,41 @@
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">output</span>, <span class="ident">message</span>.<span class="ident">as_bytes</span>());
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">content</span>.<span class="ident">is_none</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">signers</span>() {
+        <span class="kw">let</span> <span class="ident">cert</span> <span class="op">=</span> <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../test/cert.pem&quot;</span>);
+        <span class="kw">let</span> <span class="ident">cert</span> <span class="op">=</span> <span class="ident">X509</span>::<span class="ident">from_pem</span>(<span class="ident">cert</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cert_digest</span> <span class="op">=</span> <span class="ident">cert</span>.<span class="ident">digest</span>(<span class="ident">MessageDigest</span>::<span class="ident">sha256</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">certs</span> <span class="op">=</span> <span class="ident">Stack</span>::<span class="ident">new</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;foo&quot;</span>;
+        <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="ident">Pkcs7Flags</span>::<span class="ident">STREAM</span>;
+        <span class="kw">let</span> <span class="ident">pkey</span> <span class="op">=</span> <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../test/key.pem&quot;</span>);
+        <span class="kw">let</span> <span class="ident">pkey</span> <span class="op">=</span> <span class="ident">PKey</span>::<span class="ident">private_key_from_pem</span>(<span class="ident">pkey</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">store_builder</span> <span class="op">=</span> <span class="ident">X509StoreBuilder</span>::<span class="ident">new</span>().<span class="ident">expect</span>(<span class="string">&quot;should succeed&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">root_ca</span> <span class="op">=</span> <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../test/root-ca.pem&quot;</span>);
+        <span class="kw">let</span> <span class="ident">root_ca</span> <span class="op">=</span> <span class="ident">X509</span>::<span class="ident">from_pem</span>(<span class="ident">root_ca</span>).<span class="ident">unwrap</span>();
+        <span class="ident">store_builder</span>.<span class="ident">add_cert</span>(<span class="ident">root_ca</span>).<span class="ident">expect</span>(<span class="string">&quot;should succeed&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">pkcs7</span> <span class="op">=</span>
+            <span class="ident">Pkcs7</span>::<span class="ident">sign</span>(<span class="kw-2">&amp;</span><span class="ident">cert</span>, <span class="kw-2">&amp;</span><span class="ident">pkey</span>, <span class="kw-2">&amp;</span><span class="ident">certs</span>, <span class="ident">message</span>.<span class="ident">as_bytes</span>(), <span class="ident">flags</span>).<span class="ident">expect</span>(<span class="string">&quot;should succeed&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">signed</span> <span class="op">=</span> <span class="ident">pkcs7</span>
+            .<span class="ident">to_smime</span>(<span class="ident">message</span>.<span class="ident">as_bytes</span>(), <span class="ident">flags</span>)
+            .<span class="ident">expect</span>(<span class="string">&quot;should succeed&quot;</span>);
+
+        <span class="kw">let</span> (<span class="ident">pkcs7_decoded</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Pkcs7</span>::<span class="ident">from_smime</span>(<span class="ident">signed</span>.<span class="ident">as_slice</span>()).<span class="ident">expect</span>(<span class="string">&quot;should succeed&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">empty_certs</span> <span class="op">=</span> <span class="ident">Stack</span>::<span class="ident">new</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">signer_certs</span> <span class="op">=</span> <span class="ident">pkcs7_decoded</span>
+            .<span class="ident">signers</span>(<span class="kw-2">&amp;</span><span class="ident">empty_certs</span>, <span class="ident">flags</span>)
+            .<span class="ident">expect</span>(<span class="string">&quot;should succeed&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">empty_certs</span>.<span class="ident">len</span>(), <span class="number">0</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">signer_certs</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">signer_digest</span> <span class="op">=</span> <span class="ident">signer_certs</span>[<span class="number">0</span>].<span class="ident">digest</span>(<span class="ident">MessageDigest</span>::<span class="ident">sha256</span>()).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">cert_digest</span>, <span class="kw-2">*</span><span class="ident">signer_digest</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

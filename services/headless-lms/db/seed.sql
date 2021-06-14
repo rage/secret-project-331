@@ -46,13 +46,53 @@ VALUES (
     'eb5e96df-4a47-4a6e-995b-6af03f8173ad',
     '8f605161-125b-449b-a443-c62ffc1b077f'
   );
-INSERT INTO pages (id, course_id, content, url_path, title)
+INSERT INTO pages (
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
 VALUES (
     'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '[{"name": "core/paragraph", "isValid": true, "clientId": "fdc9354b-4f84-4561-b5fc-b7e77fc07bad", "attributes": {"content": "Everything is a big topic.", "dropCap": false}, "innerBlocks": []}, {"name": "moocfi/exercise", "isValid": true, "clientId": "022157e6-d10c-4f87-9eb3-ee8a17c4f249", "attributes": {"id": "34e47a8e-d573-43be-8f23-79128cbb29b8"}, "innerBlocks": []}]'::jsonb,
     '/',
-    'Welcome to Introduction to Everything'
+    'Welcome to Introduction to Everything',
+    1
+  );
+INSERT INTO pages (
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
+VALUES (
+    'de5590c6-97b3-40f1-b2e1-2195645da509',
+    'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
+    '[{"name": "core/snd-paragraph", "isValid": true, "clientId": "e6f023d2-eb6c-436c-996c-13982df9cfa9", "attributes": {"content": "First chapters second page.", "dropCap": false}, "innerBlocks": []}, {"name": "moocfi/snd-exercise", "isValid": true, "clientId": "9cda760e-2309-4782-bd67-57b5d1d4a791", "attributes": {"id": "4b8d6878-89dc-4224-aaa6-488a6dab5d95"}, "innerBlocks": []}]'::jsonb,
+    '/',
+    'In the second page of first chapter...',
+    2
+  );
+INSERT INTO pages (
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
+VALUES (
+    'aeac9212-b1d8-4a59-b5fb-1656606e9f5c',
+    'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
+    '[{"name": "core/snd-paragraph", "isValid": true, "clientId": "376b8be3-bd9f-493f-a85c-59dd2aaae818bad", "attributes": {"content": "Everything is a big topic.", "dropCap": false}, "innerBlocks": []}, {"name": "moocfi/snd-exercise", "isValid": true, "clientId": "06b3113c-8bef-49ed-b0b0-9ecc33375662", "attributes": {"id": "d313dc8f-c12d-4237-8730-bca936931fc9"}, "innerBlocks": []}]'::jsonb,
+    '/',
+    'In the second part...',
+    1
   );
 INSERT INTO exercises (id, course_id, "name", page_id)
 VALUES (
@@ -83,6 +123,13 @@ VALUES (
     'The Basics',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     1
+  );
+INSERT INTO chapters(id, name, course_id, chapter_number)
+VALUES (
+    'e9f24363-81ca-425b-ade2-80cc33105e75',
+    'The Intermediaries',
+    'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
+    2
   );
 INSERT INTO users (id)
 VALUES ('0589dc46-71a9-4220-baf2-d2f0dc77ef9a');
@@ -170,6 +217,21 @@ VALUES (
     '0589dc46-71a9-4220-baf2-d2f0dc77ef9a',
     '25800692-0d99-4f29-b741-92d69b0900b9'
   );
+UPDATE chapters
+SET front_page_id = 'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d'
+where id = 'd332f3d9-39a5-4a18-80f4-251727693c37';
+UPDATE chapters
+SET front_page_id = 'aeac9212-b1d8-4a59-b5fb-1656606e9f5c'
+where id = 'e9f24363-81ca-425b-ade2-80cc33105e75';
+UPDATE pages
+SET chapter_id = 'd332f3d9-39a5-4a18-80f4-251727693c37'
+where id = 'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d';
+UPDATE pages
+SET chapter_id = 'e9f24363-81ca-425b-ade2-80cc33105e75'
+where id = 'aeac9212-b1d8-4a59-b5fb-1656606e9f5c';
+UPDATE pages
+SET chapter_id = 'd332f3d9-39a5-4a18-80f4-251727693c37'
+where id = 'de5590c6-97b3-40f1-b2e1-2195645da509';
 INSERT INTO roles (user_id, organization_id, course_id, role)
 VALUES (
     '0589dc46-71a9-4220-baf2-d2f0dc77ef9a',

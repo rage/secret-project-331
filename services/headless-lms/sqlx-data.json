@@ -224,12 +224,17 @@
           "ordinal": 8,
           "name": "chapter_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true]
+      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "2435b3f81b4db4a7dcc1a040f0f69d0e804f1ed1d5ef53b1306d64e40f23d019": {
@@ -280,12 +285,17 @@
           "ordinal": 8,
           "name": "chapter_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true]
+      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "28d85f709ff96819aec1e135cef78a3f2674c747c3b1140c7857c85f5facff56": {
@@ -413,12 +423,17 @@
           "ordinal": 8,
           "name": "chapter_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true]
+      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "45a3380b45f6c12e86e8ed31d0e2c7490f2487c08d6cedc711cecabc0fbf6af7": {
@@ -643,12 +658,17 @@
           "ordinal": 8,
           "name": "chapter_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true]
+      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "62a325f62a3c1386c8de90c87c94577bd0c290f37608057f9f6a1f4f24420c95": {
@@ -1059,12 +1079,17 @@
           "ordinal": 8,
           "name": "chapter_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true]
+      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "8325e1b18c07ff6234f3328ccdedce0f62d782501e98ee4598d473453836ff59": {
@@ -1788,12 +1813,17 @@
           "ordinal": 8,
           "name": "chapter_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true]
+      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "d051aa458a65a72e1f01fac5ae56bce865c4a353cbf2ecf932da859332e4d2ba": {
@@ -1941,12 +1971,17 @@
           "ordinal": 8,
           "name": "chapter_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Text", "Text"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true]
+      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "de76984bac431ab8e341d3ffe8d0c90658c9950c0933d2632976a2c8567a620c": {
@@ -1957,6 +1992,63 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "e7a109e7681d15ca3414e94e7a5c2691dc20f6eb7a8ee1c8ffa9b181591f7756": {
+    "query": "\nSELECT p.url_path,\n  p.title,\n  c.chapter_number\nFROM chapters c\n  LEFT JOIN pages p on c.id = p.chapter_id\nWHERE chapter_number = (\n    SELECT MIN(chapter_number)\n    FROM chapters\n    WHERE chapter_number > $1\n      AND deleted_at IS NULL\n  );\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Int4"]
+      },
+      "nullable": [false, false, true]
+    }
+  },
+  "eac8dc243eab5523b735c1760b19645ac836e6afe07ca5cda115989031c02d36": {
+    "query": "\nSELECT p.id as page_id,\n  p.order_number as order_number,\n  c.id as chapter_id,\n  c.chapter_number as chapter_number\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.id = $1;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 2,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
     }
   },
   "eafba529f9f59d8e18f5202cf980792f7242e8e46682e4191e0dc632cf656ed9": {
@@ -2007,12 +2099,17 @@
           "ordinal": 8,
           "name": "chapter_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
       },
-      "nullable": [false, false, false, false, false, false, false, true, true]
+      "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
   "eb1eeea17ea1b5dd169f8db54cd61c8e77627ffc4c82a40705e454c7148f54a3": {
@@ -2360,6 +2457,32 @@
         "Left": ["Varchar", "Uuid"]
       },
       "nullable": [false, false, false, false, false, true, false]
+    }
+  },
+  "fb2aa2eb0888bc902a8136081cbcc293641f2fddd4f796addbbf89f834b452e8": {
+    "query": "\nSELECT p.url_path,\n  p.title,\n  c.chapter_number\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE order_number = (\n    SELECT MIN(order_number)\n    FROM pages\n    WHERE order_number > $1\n      AND deleted_at IS NULL\n  );\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Int4"]
+      },
+      "nullable": [false, false, true]
     }
   },
   "fca8672f757656db6332543f9d4351224a1218c4387310e9447e70dad48af7cf": {

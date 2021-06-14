@@ -391,15 +391,16 @@ async fn upsert_exercises_and_exercise_items(
         let exercise: Exercise = sqlx::query_as!(
             Exercise,
             r#"
-INSERT INTO exercises(id, course_id, name, page_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO exercises(id, course_id, name, order_number, page_id)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (id) DO UPDATE
-SET course_id=$2, name=$3, page_id=$4, deleted_at=NULL
+SET course_id=$2, name=$3, order_number=$4, page_id=$5, deleted_at=NULL
 RETURNING *;
         "#,
             safe_for_db_exercise_id,
             page.course_id,
             exercise_update.name,
+            exercise_update.order_number,
             page.id
         )
         .fetch_one(&mut *connection)

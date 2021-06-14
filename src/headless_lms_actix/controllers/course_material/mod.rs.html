@@ -27,6 +27,8 @@
 <span id="24">24</span>
 <span id="25">25</span>
 <span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/course-material`.
@@ -38,19 +40,21 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">chapters</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">courses</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercises</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pages</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">submissions</span>;
 
 <span class="kw">use</span> <span class="ident">actix_web</span>::<span class="ident">web</span>::{<span class="self">self</span>, <span class="ident">ServiceConfig</span>};
 
 <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">chapters</span>::<span class="ident">_add_chapters_routes</span>, <span class="ident">courses</span>::<span class="ident">_add_courses_routes</span>, <span class="ident">exercises</span>::<span class="ident">_add_exercises_routes</span>,
-    <span class="ident">submissions</span>::<span class="ident">_add_submissions_routes</span>,
+    <span class="ident">pages</span>::<span class="ident">_add_pages_routes</span>, <span class="ident">submissions</span>::<span class="ident">_add_submissions_routes</span>,
 };
 
 <span class="doccomment">/// Add controllers from all the submodules.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_course_material_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/courses&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_courses_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/exercises&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_exercises_routes</span>))
+        .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/pages&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_pages_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/chapters&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_chapters_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/submissions&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_submissions_routes</span>));
 }

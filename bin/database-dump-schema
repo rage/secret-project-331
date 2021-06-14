@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
+COMMAND="pg_dump"
+ARGUMENTS=(--schema-only postgres://headless-lms@localhost:54328/headless_lms_dev "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

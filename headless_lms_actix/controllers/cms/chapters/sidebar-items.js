@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_chapters_routes","Add a route for each controller in this module."],["delete_chapter","DELETE `/api/v0/cms/courses-parts/:chapter_id` - Delete a course part."],["post_new_chapter","POST `/api/v0/cms/chapters` - Create a new course part."],["update_chapter","PUT `/api/v0/cms/chapters/:chapter_id` - Update course part."]]});
+initSidebarItems({"fn":[["_add_chapters_routes","Add a route for each controller in this module."]]});

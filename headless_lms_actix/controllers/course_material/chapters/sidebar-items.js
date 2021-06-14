@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_chapters_routes","Add a route for each controller in this module."],["get_chapters_exercises","GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in course part."],["get_chapters_pages","GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in course part."]]});
+initSidebarItems({"fn":[["_add_chapters_routes","Add a route for each controller in this module."]]});

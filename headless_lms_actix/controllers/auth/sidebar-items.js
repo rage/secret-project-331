@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["add_auth_routes",""],["logged_in","GET `/api/v0/auth/logged-in` Logs in to TMC."],["login","POST `/api/v0/auth/login` Logs in to TMC."],["logout","POST `/api/v0/auth/logout` Logs out."]],"struct":[["CurrentUser",""],["Login",""]]});
+initSidebarItems({"fn":[["add_auth_routes",""],["logged_in","GET `/api/v0/auth/logged-in` Logs in to TMC."],["login","POST `/api/v0/auth/login` Logs in to TMC."],["logout","POST `/api/v0/auth/logout` Logs out."]],"struct":[["Login",""]]});

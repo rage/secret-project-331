@@ -20,6 +20,7 @@ use actix_web::{
 };
 use derive_more::Display;
 use http_api_problem::{HttpApiProblem, StatusCode};
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 use self::{
@@ -86,6 +87,8 @@ impl From<anyhow::Error> for ApplicationError {
         if let Some(sqlx::Error::RowNotFound) = err.downcast_ref::<sqlx::Error>() {
             return Self::NotFound;
         }
+
+        log::error!("Internal server error: {}", err.chain().join("\n    "));
         Self::InternalServerError(err.to_string())
     }
 }

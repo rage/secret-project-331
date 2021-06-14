@@ -1,13 +1,10 @@
-use std::time::Duration;
-
 use crate::{
-    models::{exercise_items::get_exercise_item_by_id, gradings::update_grading},
+    models::{exercise_items::get_exercise_item_by_id, gradings::grade_submission},
     utils::pagination::Pagination,
 };
 
 use super::{
     courses::Course,
-    exercise_items::ExerciseItem,
     exercises::{Exercise, GradingProgress},
     gradings::{new_grading, Grading},
 };
@@ -21,6 +18,7 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NewSubmission {
     pub exercise_item_id: Uuid,
+    pub course_instance_id: Uuid,
     pub data_json: Option<serde_json::Value>,
 }
 
@@ -32,6 +30,7 @@ pub struct Submission {
     pub deleted_at: Option<DateTime<Utc>>,
     pub exercise_id: Uuid,
     pub course_id: Uuid,
+    pub course_instance_id: Uuid,
     pub exercise_item_id: Uuid,
     pub data_json: Option<serde_json::Value>,
     pub grading_id: Option<Uuid>,
@@ -131,15 +130,16 @@ pub async fn insert_submission(
         Submission,
         r#"
   INSERT INTO
-    submissions(exercise_item_id, data_json, exercise_id, course_id, user_id)
-  VALUES($1, $2, $3, $4, $5)
+    submissions(exercise_item_id, data_json, exercise_id, course_id, user_id, course_instance_id)
+  VALUES($1, $2, $3, $4, $5, $6)
   RETURNING *
           "#,
         new_submission.exercise_item_id,
         new_submission.data_json,
         exercise.id,
         exercise.course_id,
-        user_id
+        user_id,
+        new_submission.course_instance_id
     )
     .fetch_one(&mut connection)
     .await?;
@@ -160,33 +160,6 @@ pub async fn insert_submission(
         submission: updated_submission,
         grading: updated_grading,
     })
-}
-
-pub async fn grade_submission(
-    pool: &PgPool,
-    submission: Submission,
-    exercise_item: ExerciseItem,
-    exercise: Exercise,
-    grading: Grading,
-) -> Result<Grading> {
-    let client = reqwest::Client::new();
-    let res = client
-        .post("http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/grade")
-        .timeout(Duration::from_secs(120))
-        .json(&GradingRequest {
-            exercise_spec: exercise_item.private_spec,
-            submission_data: submission.data_json,
-        })
-        .send()
-        .await?;
-    let status = res.status();
-    if !status.is_success() {
-        // failed
-    }
-    let obj = res.json::<GradingResult>().await?;
-    println!("{:#?}", &obj);
-    let updated_grading = update_grading(&pool, grading, obj, exercise).await?;
-    Ok(updated_grading)
 }
 
 pub async fn get_course_daily_submission_counts(

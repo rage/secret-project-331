@@ -12,4 +12,5 @@ pub mod organizations;
 pub mod pages;
 pub mod roles;
 pub mod submissions;
+pub mod user_exercise_states;
 pub mod users;

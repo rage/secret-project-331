@@ -20,6 +20,60 @@ Then write your migration in `services/headless-lms/migrations/<>.up.sql` and wr
 
 Run migrations with `bin/sqlx-migrate-run` or `bin/sqlx-migrate-revert`. Once done with the migration, test the migration by running the migration, then reverting it, and finally running it again.
 
+## Using postgres enums in SQLx queries
+
+SQLx isn't able to automatically use postgres enums in its queries; it needs a type hint. For example, given the following postgres enum
+```postgres
+CREATE TYPE user_role AS ENUM ('admin', 'assistant', 'teacher', 'reviewer');
+```
+and corresponding Rust enum
+```rust
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[sqlx(type_name = "user_role", rename_all = "snake_case")]
+pub enum UserRole {
+    Admin,
+    Assistant,
+    Teacher,
+    Reviewer,
+}
+```
+you could use `sqlx::query!` like this
+```rust
+let role: UserRole = sqlx::query!(r#"SELECT role AS "role: UserRole" FROM roles"#)
+    .fetch_one(&mut connection) //               ^^^^^^^^^^^^^^^^^^^
+    .await?
+    .role;
+```
+The same syntax can be used with `sqlx::query_as!`
+```rust
+    let roles = sqlx::query_as!(
+        Role,
+        r#"SELECT organization_id, course_id, role AS "role: UserRole" FROM roles WHERE user_id = $1"#, user_id
+        //                                         ^^^^^^^^^^^^^^^^^^^
+    )
+    .fetch_all(&mut connection)
+    .await?;
+```
+
+Here, `Role` is a struct with various fields, including a `role: UserRole` field.
+### Adding new tables
+
+Use the following as a template for new tables. It includes common fields that most tables should have, a trigger for automatically updating the updated\_at field, and a comment for explaining what the table is for.
+
+```sql
+CREATE TABLE table_templates (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE
+);
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON table_templates FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+COMMENT ON TABLE table_templates IS 'An example';
+```
+
+When you come up with the table name, make sure to make it plural. If you want to look at other examples, you can observe the create statements for other tables by running `bin/database-dump-schema`.
+
 ## Setup development with a local Postgres
 
 Usually you don't need this as you can use the Postgres started by either `bin/dev` or `bin/dev-only-db`.
@@ -31,6 +85,21 @@ Usually you don't need this as you can use the Postgres started by either `bin/d
 5. Run `bin/sqlx-migrate-run`
 6. (Optional) `bin/seed-local`
 7. If migrations succeed, run `bin/dev`
+
+## New struct/enum
+
+When creating a new struct or enum, it's common to derive a set of often used traits to make the struct easier to work with, even if the traits aren't strictly needed right now.
+
+```rust
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+struct MyNewStruct {
+    some_field: u32,
+}
+```
+
+Not all of the traits can be derived for every struct. In those cases, it's fine to simply leave those out.
 
 ## New endpoint
 

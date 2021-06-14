@@ -9,7 +9,7 @@ use super::{
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -25,24 +25,24 @@ pub struct UserExerciseState {
     activity_progress: ActivityProgress,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserProgress {
-    score_given: i32,
-    score_maximum: i32,
-    total_exercises: i32,
-    completed_exercises: i32,
+    score_given: Option<f32>,
+    score_maximum: Option<i64>,
+    total_exercises: Option<i64>,
+    completed_exercises: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserMetrics {
-    score_given: i32,
-    completed_exercises: i32,
+    score_given: Option<f32>,
+    completed_exercises: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct CourseMetrics {
-    total_exercises: i32,
-    score_maximum: i32,
+    total_exercises: Option<i64>,
+    score_maximum: Option<i64>,
 }
 
 pub async fn get_course_metrics(pool: &PgPool, course_id: &Uuid) -> Result<CourseMetrics> {
@@ -52,7 +52,7 @@ pub async fn get_course_metrics(pool: &PgPool, course_id: &Uuid) -> Result<Cours
         r#"
 SELECT
 COUNT(id) as total_exercises,
-SUM(score_maximum) as score_maximum
+COALESCE(0, SUM(score_maximum)) as score_maximum
 FROM exercises
 WHERE course_id = $1;
         "#,
@@ -93,8 +93,8 @@ pub async fn get_user_progress(
     course_id: &Uuid,
     user_id: &Uuid,
 ) -> Result<UserProgress> {
-    let course_metrics = get_course_metrics(course_id).await?;
-    let user_metrics = get_user_metrics(user_id, course_id).await?;
+    let course_metrics = get_course_metrics(pool, course_id).await?;
+    let user_metrics = get_user_metrics(pool, user_id, course_id).await?;
     let result = UserProgress {
         score_given: user_metrics.score_given,
         completed_exercises: user_metrics.completed_exercises,

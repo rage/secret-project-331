@@ -25,6 +25,90 @@ pub struct UserExerciseState {
     activity_progress: ActivityProgress,
 }
 
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+pub struct UserProgress {
+    score_given: i32,
+    score_maximum: i32,
+    total_exercises: i32,
+    completed_exercises: i32
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+pub struct UserMetrics {
+    score_given: i32,
+    completed_exercises: i32
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+pub struct CourseMetrics {
+    total_exericises: i32,
+    score_maximum: i32
+}
+
+pub async fn get_course_metrics(
+    pool: &PgPool,
+    course_id: &Uuid
+) -> Result<CourseMetrics> {
+    let mut connection = pool.acquire().await?;
+    let res = sqlx::query_as!(
+        CourseMetrics,
+        r#"
+SELECT
+COUNT(id) as total_exercises,
+SUM(score_maximum) as score_maximum
+FROM exercises
+WHERE course_id = $1;
+        "#,
+        course_id
+
+    )
+    .fetch_one(&mut connection)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_user_metrics(
+    pool: &PgPool,
+    course_id: &Uuid,
+    user_id: &Uuid
+) -> Result<UserMetrics> {
+    let mut connection = pool.acquire().await?;
+    let res = sqlx::query_as!(
+        UserMetrics,
+        r#"
+SELECT
+    COUNT(ues.exercise_id) as completed_exercises,
+    COALESCE(0, SUM(ues.score_given)) as score_given
+FROM user_exercise_states ues
+         LEFT JOIN exercises e on e.id = ues.exercise_id
+WHERE e.course_id = $1
+  AND ues.user_id = $2;
+        "#,
+        course_id,
+        user_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_user_progress(
+    pool: &PgPool,
+    course_id: &Uuid,
+    user_id: &Uuid
+) -> UserProgress {
+    // TODO
+    let course_metrics = get_course_metrics(course_id).await?;
+    let user_metrics = get_user_metrics(user_id, course_id).await?;
+    let result = UserProgress {
+        score_given: user_metrics.score_given,
+        completed_exercises: user_metrics.completed_exercises,
+        score_maximum: course_metrics.score_maximum,
+        total_exercises: course_metrics.total_exercises
+    };
+    Ok(result)
+}
+
 pub async fn get_or_create_user_exercise_state(
     pool: &PgPool,
     user_id: &Uuid,

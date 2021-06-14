@@ -1,12 +1,11 @@
-use std::env;
-
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use dotenv::dotenv;
 use sqlx::PgPool;
+use std::env;
 use uuid::Uuid;
 
-#[actix_web::main]
+#[tokio::main]
 async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "info,actix_web=info");
     dotenv().ok();
@@ -39,18 +38,17 @@ async fn main() -> Result<()> {
         r#"
 SELECT
     id, variant_status as "variant_status: VariantStatus", starts_at, ends_at
-FROM course_instances;
+FROM course_instances
+WHERE deleted_at IS NOT NULL;
 "#
     )
     .fetch_all(&mut transaction)
     .await?;
 
     for course_instance in course_instances {
-        println!("{:#?}", course_instance);
         if course_instance.variant_status == VariantStatus::Upcoming {
             if let Some(starts_at) = course_instance.starts_at {
                 if starts_at <= Utc::now() {
-                    println!("{}", course_instance.id);
                     sqlx::query!(
                         r#"
 UPDATE course_instances
@@ -67,7 +65,6 @@ WHERE id = $2;
         } else if course_instance.variant_status == VariantStatus::Active {
             if let Some(ends_at) = course_instance.ends_at {
                 if ends_at <= Utc::now() {
-                    println!("{}", course_instance.id);
                     sqlx::query!(
                         r#"
 UPDATE course_instances

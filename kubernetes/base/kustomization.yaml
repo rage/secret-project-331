@@ -7,3 +7,4 @@ resources:
 - headless-lms/deployment.yml
 - main-frontend/deployment.yml
 - ingress.yml
+- ../../services/headless-lms/job/update-course-variant-statuses.yml

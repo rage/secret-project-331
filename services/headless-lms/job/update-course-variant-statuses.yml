@@ -14,7 +14,7 @@ spec:
           restartPolicy: OnFailure
           containers:
           - name: update-course-variant-statuses
-            image: busybox
+            image: headless-lms
             imagePullPolicy: IfNotPresent
             command:
             - cargo

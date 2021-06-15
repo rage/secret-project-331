@@ -2,7 +2,7 @@
 extern crate tracing;
 
 use actix_session::CookieSession;
-use actix_web::{error, middleware::Logger, web, App, HttpResponse, HttpServer};
+use actix_web::{error, web, App, HttpResponse, HttpServer};
 use anyhow::Result;
 use dotenv::dotenv;
 use headless_lms_actix::{controllers::configure_controllers, OAuthClient};
@@ -10,14 +10,22 @@ use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
 use sqlx::PgPool;
 use std::{env, sync::Arc};
+use tracing_actix_web::TracingLogger;
+use tracing_error::ErrorLayer;
+use tracing_log::LogTracer;
+use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
 use url::Url;
 
 /// The entrypoint to the application.
 #[actix_web::main]
 async fn main() -> Result<()> {
-    std::env::set_var("RUST_LOG", "info,actix_web=info");
     dotenv().ok();
-    tracing_subscriber::fmt::init();
+    let subscriber = tracing_subscriber::Registry::default()
+        .with(tracing_subscriber::fmt::layer())
+        .with(ErrorLayer::default())
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")));
+    tracing::subscriber::set_global_default(subscriber)?;
+    LogTracer::init()?;
 
     // read environment variables
     let database_url = env::var("DATABASE_URL")
@@ -59,9 +67,7 @@ async fn main() -> Result<()> {
 
         App::new()
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
-            .wrap(Logger::new(
-                "\"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %a %Dms",
-            ))
+            .wrap(TracingLogger::default())
             .app_data(json_config)
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())

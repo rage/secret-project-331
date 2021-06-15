@@ -43,10 +43,10 @@ Represents error messages that are sent in responses.
 */
 #[derive(Debug, Display, Serialize, Deserialize)]
 pub enum ApplicationError {
-    #[display(fmt = "Internal server error: {}", _0)]
+    #[display(fmt = "Internal server error")]
     InternalServerError(String),
 
-    #[display(fmt = "Bad request: {}", _0)]
+    #[display(fmt = "Bad request")]
     BadRequest(String),
 
     #[display(fmt = "Not found")]

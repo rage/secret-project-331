@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/git/checkouts/actix-web-d7e170007873c2f2/370a56f/src/request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-3.3.2/src/request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -713,65 +713,6 @@
 <span id="712">712</span>
 <span id="713">713</span>
 <span id="714">714</span>
-<span id="715">715</span>
-<span id="716">716</span>
-<span id="717">717</span>
-<span id="718">718</span>
-<span id="719">719</span>
-<span id="720">720</span>
-<span id="721">721</span>
-<span id="722">722</span>
-<span id="723">723</span>
-<span id="724">724</span>
-<span id="725">725</span>
-<span id="726">726</span>
-<span id="727">727</span>
-<span id="728">728</span>
-<span id="729">729</span>
-<span id="730">730</span>
-<span id="731">731</span>
-<span id="732">732</span>
-<span id="733">733</span>
-<span id="734">734</span>
-<span id="735">735</span>
-<span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
-<span id="749">749</span>
-<span id="750">750</span>
-<span id="751">751</span>
-<span id="752">752</span>
-<span id="753">753</span>
-<span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
-<span id="758">758</span>
-<span id="759">759</span>
-<span id="760">760</span>
-<span id="761">761</span>
-<span id="762">762</span>
-<span id="763">763</span>
-<span id="764">764</span>
-<span id="765">765</span>
-<span id="766">766</span>
-<span id="767">767</span>
-<span id="768">768</span>
-<span id="769">769</span>
-<span id="770">770</span>
-<span id="771">771</span>
-<span id="772">772</span>
-<span id="773">773</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::{<span class="ident">Ref</span>, <span class="ident">RefCell</span>, <span class="ident">RefMut</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
@@ -781,9 +722,8 @@
 <span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">Error</span>, <span class="ident">Extensions</span>, <span class="ident">HttpMessage</span>, <span class="ident">Message</span>, <span class="ident">Payload</span>, <span class="ident">RequestHead</span>};
 <span class="kw">use</span> <span class="ident">actix_router</span>::{<span class="ident">Path</span>, <span class="ident">Url</span>};
 <span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">future</span>::{<span class="ident">ok</span>, <span class="ident">Ready</span>};
-<span class="kw">use</span> <span class="ident">smallvec</span>::<span class="ident">SmallVec</span>;
+<span class="kw">use</span> <span class="ident">tinyvec</span>::<span class="ident">TinyVec</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app_service</span>::<span class="ident">AppInitServiceState</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">config</span>::<span class="ident">AppConfig</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">UrlGenerationError</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">extract</span>::<span class="ident">FromRequest</span>;
@@ -792,19 +732,16 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="doccomment">/// An HTTP Request</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HttpRequest</span> {
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// `Rc&lt;HttpRequestInner&gt;` is used exclusively and NO `Weak&lt;HttpRequestInner&gt;`</span>
-    <span class="doccomment">/// is allowed anywhere in the code. Weak pointer is purposely ignored when</span>
-    <span class="doccomment">/// doing `Rc`&#39;s ref counter check. Expect panics if this invariant is violated.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">inner</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpRequestInner</span><span class="op">&gt;</span>,
-}
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HttpRequest</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpRequestInner</span><span class="op">&gt;</span>);
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">HttpRequestInner</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">head</span>: <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">RequestHead</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">path</span>: <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">app_data</span>: <span class="ident">SmallVec</span><span class="op">&lt;</span>[<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>; <span class="number">4</span>]<span class="op">&gt;</span>,
-    <span class="ident">app_state</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">AppInitServiceState</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">payload</span>: <span class="ident">Payload</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">app_data</span>: <span class="ident">TinyVec</span><span class="op">&lt;</span>[<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>; <span class="number">4</span>]<span class="op">&gt;</span>,
+    <span class="ident">rmap</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span>,
+    <span class="ident">config</span>: <span class="ident">AppConfig</span>,
+    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">HttpRequestPool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">HttpRequest</span> {
@@ -812,20 +749,24 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">path</span>: <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span>,
         <span class="ident">head</span>: <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">RequestHead</span><span class="op">&gt;</span>,
-        <span class="ident">app_state</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">AppInitServiceState</span><span class="op">&gt;</span>,
+        <span class="ident">payload</span>: <span class="ident">Payload</span>,
+        <span class="ident">rmap</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span>,
+        <span class="ident">config</span>: <span class="ident">AppConfig</span>,
         <span class="ident">app_data</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>,
+        <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">HttpRequestPool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpRequest</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">SmallVec</span>::<span class="op">&lt;</span>[<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>; <span class="number">4</span>]<span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">TinyVec</span>::<span class="op">&lt;</span>[<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>; <span class="number">4</span>]<span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">app_data</span>);
 
-        <span class="ident">HttpRequest</span> {
-            <span class="ident">inner</span>: <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">HttpRequestInner</span> {
-                <span class="ident">head</span>,
-                <span class="ident">path</span>,
-                <span class="ident">app_state</span>,
-                <span class="ident">app_data</span>: <span class="ident">data</span>,
-            }),
-        }
+        <span class="ident">HttpRequest</span>(<span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">HttpRequestInner</span> {
+            <span class="ident">head</span>,
+            <span class="ident">path</span>,
+            <span class="ident">payload</span>,
+            <span class="ident">rmap</span>,
+            <span class="ident">config</span>,
+            <span class="ident">app_data</span>: <span class="ident">data</span>,
+            <span class="ident">pool</span>,
+        }))
     }
 }
 
@@ -833,14 +774,14 @@
     <span class="doccomment">/// This method returns reference to the request head</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">RequestHead</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">head</span>
     }
 
     <span class="doccomment">/// This method returns mutable reference to the request head.</span>
     <span class="doccomment">/// panics if multiple references of http request exists.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">head_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RequestHead</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Rc</span>::<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span>).<span class="ident">unwrap</span>().<span class="ident">head</span>
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Rc</span>::<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">head</span>
     }
 
     <span class="doccomment">/// Request&#39;s uri.</span>
@@ -893,12 +834,12 @@
     <span class="doccomment">/// access the matched value for that segment.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">path</span>
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">path</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">match_info_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Rc</span>::<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span>).<span class="ident">unwrap</span>().<span class="ident">path</span>
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Rc</span>::<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">path</span>
     }
 
     <span class="doccomment">/// The resource definition pattern that matched the path. Useful for logging and metrics.</span>
@@ -909,7 +850,7 @@
     <span class="doccomment">/// Returns a None when no resource is fully matched, including default services.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_pattern</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">resource_map</span>().<span class="ident">match_pattern</span>(<span class="self">self</span>.<span class="ident">path</span>())
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">rmap</span>.<span class="ident">match_pattern</span>(<span class="self">self</span>.<span class="ident">path</span>())
     }
 
     <span class="doccomment">/// The resource name that matched the path. Useful for logging and metrics.</span>
@@ -917,7 +858,7 @@
     <span class="doccomment">/// Returns a None when no resource is fully matched, including default services.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">resource_map</span>().<span class="ident">match_name</span>(<span class="self">self</span>.<span class="ident">path</span>())
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">rmap</span>.<span class="ident">match_name</span>(<span class="self">self</span>.<span class="ident">path</span>())
     }
 
     <span class="doccomment">/// Request extensions</span>
@@ -959,7 +900,7 @@
         <span class="ident">U</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">I</span><span class="op">&gt;</span>,
         <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">resource_map</span>().<span class="ident">url_for</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>, <span class="ident">elements</span>)
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">rmap</span>.<span class="ident">url_for</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>, <span class="ident">elements</span>)
     }
 
     <span class="doccomment">/// Generate url for named resource</span>
@@ -974,7 +915,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="doccomment">/// Get a reference to a `ResourceMap` of current application.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resource_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ResourceMap</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">app_state</span>().<span class="ident">rmap</span>()
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">rmap</span>
     }
 
     <span class="doccomment">/// Peer socket address</span>
@@ -994,13 +935,13 @@
     <span class="doccomment">/// borrowed.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">ConnectionInfo</span><span class="op">&gt;</span> {
-        <span class="ident">ConnectionInfo</span>::<span class="ident">get</span>(<span class="self">self</span>.<span class="ident">head</span>(), <span class="self">self</span>.<span class="ident">app_config</span>())
+        <span class="ident">ConnectionInfo</span>::<span class="ident">get</span>(<span class="self">self</span>.<span class="ident">head</span>(), <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">app_config</span>())
     }
 
     <span class="doccomment">/// App config</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">AppConfig</span> {
-        <span class="self">self</span>.<span class="ident">app_state</span>().<span class="ident">config</span>()
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">config</span>
     }
 
     <span class="doccomment">/// Get an application data object stored with `App::data` or `App::app_data`</span>
@@ -1012,18 +953,13 @@
     <span class="doccomment">/// let opt_t = req.app_data::&lt;Data&lt;T&gt;&gt;();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_data</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">container</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">app_data</span>.<span class="ident">iter</span>().<span class="ident">rev</span>() {
+        <span class="kw">for</span> <span class="ident">container</span> <span class="kw">in</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">app_data</span>.<span class="ident">iter</span>().<span class="ident">rev</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="ident">container</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">data</span>);
             }
         }
 
         <span class="prelude-val">None</span>
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">app_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">AppInitServiceState</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">app_state</span>
     }
 }
 
@@ -1039,13 +975,13 @@
     <span class="doccomment">/// Request extensions</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">extensions</span>()
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">head</span>.<span class="ident">extensions</span>()
     }
 
     <span class="doccomment">/// Mutable reference to a the request&#39;s extensions</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">extensions_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">extensions_mut</span>()
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">head</span>.<span class="ident">extensions_mut</span>()
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -1057,19 +993,11 @@
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">HttpRequest</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="comment">// if possible, contribute to current worker&#39;s HttpRequest allocation pool</span>
-
-        <span class="comment">// This relies on no Weak&lt;HttpRequestInner&gt; exists anywhere.(There is none)</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="ident">Rc</span>::<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span>) {
-            <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">app_state</span>.<span class="ident">pool</span>().<span class="ident">is_available</span>() {
-                <span class="comment">// clear additional app_data and keep the root one for reuse.</span>
-                <span class="ident">inner</span>.<span class="ident">app_data</span>.<span class="ident">truncate</span>(<span class="number">1</span>);
-                <span class="comment">// inner is borrowed mut here. get head&#39;s Extension mutably</span>
-                <span class="comment">// to reduce borrow check</span>
-                <span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">extensions</span>.<span class="ident">get_mut</span>().<span class="ident">clear</span>();
-
-                <span class="comment">// a re-borrow of pool is necessary here.</span>
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>();
-                <span class="self">self</span>.<span class="ident">app_state</span>().<span class="ident">pool</span>().<span class="ident">push</span>(<span class="ident">req</span>);
+        <span class="kw">if</span> <span class="ident">Rc</span>::<span class="ident">strong_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">pool</span>.<span class="number">0</span>.<span class="ident">borrow_mut</span>();
+            <span class="kw">if</span> <span class="ident">v</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">128</span> {
+                <span class="self">self</span>.<span class="ident">extensions_mut</span>().<span class="ident">clear</span>();
+                <span class="ident">v</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>());
             }
         }
     }
@@ -1111,8 +1039,8 @@
         <span class="macro">writeln</span><span class="macro">!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;\nHttpRequest {:?} {}:{}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">version</span>,
-            <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">method</span>,
+            <span class="self">self</span>.<span class="number">0</span>.<span class="ident">head</span>.<span class="ident">version</span>,
+            <span class="self">self</span>.<span class="number">0</span>.<span class="ident">head</span>.<span class="ident">method</span>,
             <span class="self">self</span>.<span class="ident">path</span>()
         )<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">query_string</span>().<span class="ident">is_empty</span>() {
@@ -1138,50 +1066,25 @@
 <span class="doccomment">/// Request objects are added when they are dropped (see `&lt;HttpRequest as Drop&gt;::drop`) and re-used</span>
 <span class="doccomment">/// in `&lt;AppInitService as Service&gt;::call` when there are available objects in the list.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The pool&#39;s default capacity is 128 items.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">HttpRequestPool</span> {
-    <span class="ident">inner</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpRequestInner</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">cap</span>: <span class="ident">usize</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HttpRequestPool</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">with_capacity</span>(<span class="number">128</span>)
-    }
-}
+<span class="doccomment">/// The pool&#39;s initial capacity is 128 items.</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">HttpRequestPool</span>(<span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpRequestInner</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">HttpRequestPool</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">cap</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">HttpRequestPool</span> {
-            <span class="ident">inner</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">cap</span>)),
-            <span class="ident">cap</span>,
-        }
+    <span class="doccomment">/// Allocates a slab of memory for pool use.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">HttpRequestPool</span> {
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">HttpRequestPool</span>(<span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="number">128</span>)));
+        <span class="ident">Box</span>::<span class="ident">leak</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">pool</span>))
     }
 
     <span class="doccomment">/// Re-use a previously allocated (but now completed/discarded) HttpRequest object.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpRequest</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>
-            .<span class="ident">borrow_mut</span>()
-            .<span class="ident">pop</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">HttpRequest</span> { <span class="ident">inner</span> })
-    }
-
-    <span class="doccomment">/// Check if the pool still has capacity for request storage.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_available</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow_mut</span>().<span class="ident">len</span>() <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">cap</span>
-    }
-
-    <span class="doccomment">/// Push a request to pool.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpRequestInner</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">req</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_request</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpRequest</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">borrow_mut</span>().<span class="ident">pop</span>().<span class="ident">map</span>(<span class="ident">HttpRequest</span>)
     }
 
     <span class="doccomment">/// Clears all allocated HttpRequest objects.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow_mut</span>().<span class="ident">clear</span>()
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">borrow_mut</span>().<span class="ident">clear</span>()
     }
 }
 
@@ -1198,9 +1101,8 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_debug</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;text/plain&quot;</span>))
-            .<span class="ident">to_http_request</span>();
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span>
+            <span class="ident">TestRequest</span>::<span class="ident">with_header</span>(<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="ident">to_http_request</span>();
         <span class="kw">let</span> <span class="ident">dbg</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">req</span>);
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dbg</span>.<span class="ident">contains</span>(<span class="string">&quot;HttpRequest&quot;</span>));
     }
@@ -1214,16 +1116,16 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_request_cookies</span>() {
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>()
-            .<span class="ident">append_header</span>((<span class="ident">header</span>::<span class="ident">COOKIE</span>, <span class="string">&quot;cookie1=value1&quot;</span>))
-            .<span class="ident">append_header</span>((<span class="ident">header</span>::<span class="ident">COOKIE</span>, <span class="string">&quot;cookie2=value2&quot;</span>))
+            .<span class="ident">header</span>(<span class="ident">header</span>::<span class="ident">COOKIE</span>, <span class="string">&quot;cookie1=value1&quot;</span>)
+            .<span class="ident">header</span>(<span class="ident">header</span>::<span class="ident">COOKIE</span>, <span class="string">&quot;cookie2=value2&quot;</span>)
             .<span class="ident">to_http_request</span>();
         {
             <span class="kw">let</span> <span class="ident">cookies</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">cookies</span>().<span class="ident">unwrap</span>();
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookies</span>.<span class="ident">len</span>(), <span class="number">2</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookies</span>[<span class="number">0</span>].<span class="ident">name</span>(), <span class="string">&quot;cookie1&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookies</span>[<span class="number">0</span>].<span class="ident">value</span>(), <span class="string">&quot;value1&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookies</span>[<span class="number">1</span>].<span class="ident">name</span>(), <span class="string">&quot;cookie2&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookies</span>[<span class="number">1</span>].<span class="ident">value</span>(), <span class="string">&quot;value2&quot;</span>);
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookies</span>[<span class="number">0</span>].<span class="ident">name</span>(), <span class="string">&quot;cookie2&quot;</span>);
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookies</span>[<span class="number">0</span>].<span class="ident">value</span>(), <span class="string">&quot;value2&quot;</span>);
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookies</span>[<span class="number">1</span>].<span class="ident">name</span>(), <span class="string">&quot;cookie1&quot;</span>);
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookies</span>[<span class="number">1</span>].<span class="ident">value</span>(), <span class="string">&quot;value1&quot;</span>);
         }
 
         <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">cookie</span>(<span class="string">&quot;cookie1&quot;</span>);
@@ -1252,8 +1154,7 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/user/test.html&quot;</span>));
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/test/unknown&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">HOST</span>, <span class="string">&quot;www.rust-lang.org&quot;</span>))
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_header</span>(<span class="ident">header</span>::<span class="ident">HOST</span>, <span class="string">&quot;www.rust-lang.org&quot;</span>)
             .<span class="ident">rmap</span>(<span class="ident">rmap</span>)
             .<span class="ident">to_http_request</span>();
 
@@ -1283,7 +1184,7 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">rmap</span>.<span class="ident">has_resource</span>(<span class="string">&quot;/index.html&quot;</span>));
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/test&quot;</span>)
-            .<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">HOST</span>, <span class="string">&quot;www.rust-lang.org&quot;</span>))
+            .<span class="ident">header</span>(<span class="ident">header</span>::<span class="ident">HOST</span>, <span class="string">&quot;www.rust-lang.org&quot;</span>)
             .<span class="ident">rmap</span>(<span class="ident">rmap</span>)
             .<span class="ident">to_http_request</span>();
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">url_for_static</span>(<span class="string">&quot;index&quot;</span>);
@@ -1330,27 +1231,8 @@
     }
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_drop_http_request_pool</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(
-            <span class="op">|</span><span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
-                <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()
-                    .<span class="ident">insert_header</span>((<span class="string">&quot;pool_cap&quot;</span>, <span class="ident">req</span>.<span class="ident">app_state</span>().<span class="ident">pool</span>().<span class="ident">cap</span>))
-                    .<span class="ident">finish</span>()
-            },
-        )))
-        .<span class="kw">await</span>;
-
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-
-        <span class="ident">drop</span>(<span class="ident">srv</span>);
-
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="string">&quot;pool_cap&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;128&quot;</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_data</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">app_data</span>(<span class="number">10usize</span>).<span class="ident">service</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">app_data</span>(<span class="number">10usize</span>).<span class="ident">service</span>(
             <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
                 <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">app_data</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">is_some</span>() {
                     <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()
@@ -1362,10 +1244,10 @@
         .<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">app_data</span>(<span class="number">10u32</span>).<span class="ident">service</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">app_data</span>(<span class="number">10u32</span>).<span class="ident">service</span>(
             <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
                 <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">app_data</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">is_some</span>() {
                     <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()
@@ -1377,7 +1259,7 @@
         .<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">BAD_REQUEST</span>);
     }
 
@@ -1389,7 +1271,7 @@
             <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">body</span>(<span class="ident">num</span>.<span class="ident">to_string</span>())
         }
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
             <span class="ident">App</span>::<span class="ident">new</span>()
                 .<span class="ident">app_data</span>(<span class="number">88usize</span>)
                 .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">route</span>(<span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">echo_usize</span>)))
@@ -1420,7 +1302,7 @@
             <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">body</span>(<span class="ident">num</span>.<span class="ident">to_string</span>())
         }
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
             <span class="ident">App</span>::<span class="ident">new</span>()
                 .<span class="ident">app_data</span>(<span class="number">88usize</span>)
                 .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">route</span>(<span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">echo_usize</span>)))
@@ -1460,7 +1342,7 @@
         <span class="kw">let</span> <span class="ident">tracker</span> <span class="op">=</span> <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">Tracker</span> { <span class="ident">dropped</span>: <span class="bool-val">false</span> }));
         {
             <span class="kw">let</span> <span class="ident">tracker2</span> <span class="op">=</span> <span class="ident">Rc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="ident">tracker</span>);
-            <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">data</span>(<span class="number">10u32</span>).<span class="ident">service</span>(
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">data</span>(<span class="number">10u32</span>).<span class="ident">service</span>(
                 <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
                     <span class="ident">req</span>.<span class="ident">extensions_mut</span>().<span class="ident">insert</span>(<span class="ident">Foo</span> {
                         <span class="ident">tracker</span>: <span class="ident">Rc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="ident">tracker2</span>),
@@ -1471,7 +1353,7 @@
             .<span class="kw">await</span>;
 
             <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
-            <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+            <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
         }
 
@@ -1480,7 +1362,7 @@
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">extract_path_pattern</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
             <span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">service</span>(
                 <span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/user/{id}&quot;</span>)
                     .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/profile&quot;</span>).<span class="ident">route</span>(<span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(
@@ -1502,17 +1384,17 @@
         .<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">get</span>().<span class="ident">uri</span>(<span class="string">&quot;/user/22/profile&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">get</span>().<span class="ident">uri</span>(<span class="string">&quot;/user/22/not-exist&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
     }
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">extract_path_pattern_complex</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
             <span class="ident">App</span>::<span class="ident">new</span>()
                 .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/user&quot;</span>).<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">scope</span>(<span class="string">&quot;/{id}&quot;</span>).<span class="ident">service</span>(
                     <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;&quot;</span>).<span class="ident">to</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
@@ -1534,15 +1416,15 @@
         .<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">get</span>().<span class="ident">uri</span>(<span class="string">&quot;/user/test&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">get</span>().<span class="ident">uri</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">get</span>().<span class="ident">uri</span>(<span class="string">&quot;/not-exist&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
     }
 }

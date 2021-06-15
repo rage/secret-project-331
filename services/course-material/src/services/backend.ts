@@ -78,11 +78,11 @@ export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[
 
 export interface CourseMaterialExercise {
   exercise: Exercise
-  current_exercise_item: CurrentExerciseItem
+  current_exercise_task: CurrentExerciseTask
   exercise_status?: ExerciseStatus
 }
 
-export interface CurrentExerciseItem {
+export interface CurrentExerciseTask {
   id: string
   exercise_id: string
   exercise_type: string

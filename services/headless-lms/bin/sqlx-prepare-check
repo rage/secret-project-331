@@ -2,7 +2,7 @@
 set -euo pipefail
 
 COMMAND="cargo"
-ARGUMENTS=(sqlx prepare --check)
+ARGUMENTS=(sqlx prepare --check -- --bin headless-lms-actix)
 
 BASEDIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 echo "> cd $BASEDIR"

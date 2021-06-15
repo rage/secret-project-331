@@ -126,7 +126,7 @@ VALUES (
     'de5590c6-97b3-40f1-b2e1-2195645da509',
     3
   );
-INSERT INTO exercise_items (
+INSERT INTO exercise_tasks (
     id,
     exercise_id,
     exercise_type,
@@ -142,7 +142,7 @@ VALUES (
     '[{"id": "1c206384-8373-40be-bcbd-2940c0eb5205", "name": "a", "correct": false}, {"id": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af", "name": "b", "correct": true}, {"id": "af5cdeb3-7d69-4c32-9f44-d8e2aece3d02", "name": "c", "correct": false}]'::jsonb,
     '[{"id": "1c206384-8373-40be-bcbd-2940c0eb5205", "name": "a"}, {"id": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af", "name": "b"}, {"id": "af5cdeb3-7d69-4c32-9f44-d8e2aece3d02", "name": "c"}]'::jsonb
   );
-INSERT INTO exercise_items(
+INSERT INTO exercise_tasks(
     id,
     exercise_id,
     exercise_type,
@@ -158,7 +158,7 @@ VALUES(
     '[{"id": "6f8bcf7e-8c58-42c2-a5f2-a414d5409d2f", "name": "a", "correct": false}, {"id": "a3e19dd3-20c6-4221-a2b8-fd6c243c9d8b", "name": "b", "correct": true}, {"id": "eb46f814-6449-40f4-8f22-36e3eb35866b", "name": "c", "correct": false}]'::jsonb,
     '[{"id": "6f8bcf7e-8c58-42c2-a5f2-a414d5409d2f", "name": "a"}, {"id": "a3e19dd3-20c6-4221-a2b8-fd6c243c9d8b", "name": "b"}, {"id": "eb46f814-6449-40f4-8f22-36e3eb35866b", "name": "c"}]'::jsonb
   );
-INSERT INTO exercise_items(
+INSERT INTO exercise_tasks(
     id,
     exercise_id,
     exercise_type,
@@ -174,7 +174,7 @@ VALUES(
     '[{"id": "fcfe514b-85b2-4424-a57b-258a6444a09f", "name": "a", "correct": false}, {"id": "1f2a9ab5-aa7b-4574-a554-f94e33716e71", "name": "b", "correct": true}, {"id": "bc10f7b1-ae12-4a9f-beef-07794813c73d", "name": "c", "correct": false}]'::jsonb,
     '[{"id": "fcfe514b-85b2-4424-a57b-258a6444a09f", "name": "a"}, {"id": "1f2a9ab5-aa7b-4574-a554-f94e33716e71", "name": "b"}, {"id": "bc10f7b1-ae12-4a9f-beef-07794813c73d", "name": "c"}]'::jsonb
   );
-INSERT INTO exercise_items(
+INSERT INTO exercise_tasks(
     id,
     exercise_id,
     exercise_type,
@@ -216,7 +216,7 @@ INSERT INTO submissions (
     updated_at,
     exercise_id,
     course_id,
-    exercise_item_id,
+    exercise_task_id,
     user_id,
     course_instance_id
   )
@@ -236,7 +236,7 @@ INSERT INTO submissions (
     updated_at,
     exercise_id,
     course_id,
-    exercise_item_id,
+    exercise_task_id,
     user_id,
     course_instance_id
   )
@@ -256,7 +256,7 @@ INSERT INTO submissions (
     updated_at,
     exercise_id,
     course_id,
-    exercise_item_id,
+    exercise_task_id,
     user_id,
     course_instance_id
   )
@@ -276,7 +276,7 @@ INSERT INTO submissions (
     updated_at,
     exercise_id,
     course_id,
-    exercise_item_id,
+    exercise_task_id,
     user_id,
     course_instance_id
   )

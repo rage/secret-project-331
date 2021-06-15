@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     models::chapters::Chapter,
-    models::exercise_items::ExerciseItem,
+    models::exercise_tasks::ExerciseTask,
     utils::document_schema_processor::{denormalize, normalize_from_json, NormalizedDocument},
 };
 use anyhow::Result;
@@ -69,12 +69,12 @@ pub struct PageUpdateExercise {
     // The id will be validated so that the client can't change it on us.
     pub id: Uuid,
     pub name: String,
-    pub exercise_items: Vec<PageUpdateExerciseItem>,
     pub order_number: i32,
+    pub exercise_tasks: Vec<PageUpdateExerciseTask>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct PageUpdateExerciseItem {
+pub struct PageUpdateExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
@@ -83,7 +83,7 @@ pub struct PageUpdateExerciseItem {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct PageUpdateExerciseItemWithExerciseId {
+pub struct PageUpdateExerciseTaskWithExerciseId {
     pub id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
@@ -93,7 +93,7 @@ pub struct PageUpdateExerciseItemWithExerciseId {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct PageExerciseItem {
+pub struct PageExerciseTask {
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
@@ -130,7 +130,7 @@ struct Exercise {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
-struct ExerciseWithExerciseItems {
+struct ExerciseWithExerciseTasks {
     id: Uuid,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
@@ -139,7 +139,7 @@ struct ExerciseWithExerciseItems {
     name: String,
     deadline: Option<DateTime<Utc>>,
     page_id: Uuid,
-    exercise_items: Vec<ExerciseItem>,
+    exercise_tasks: Vec<ExerciseTask>,
     score_maximum: i32,
 }
 
@@ -219,24 +219,24 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
     .fetch_all(&mut connection)
     .await?;
 
-    let exercise_items: Vec<PageUpdateExerciseItemWithExerciseId> = sqlx::query_as!(
-        PageUpdateExerciseItemWithExerciseId,
-        "SELECT id, exercise_type, assignment, public_spec, private_spec, exercise_id FROM exercise_items WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
+    let exercise_tasks: Vec<PageUpdateExerciseTaskWithExerciseId> = sqlx::query_as!(
+        PageUpdateExerciseTaskWithExerciseId,
+        "SELECT id, exercise_type, assignment, public_spec, private_spec, exercise_id FROM exercise_tasks WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
         page_id
     )
     .fetch_all(&mut connection)
     .await?;
 
-    let mut exercise_items_by_exercise: HashMap<Uuid, Vec<PageUpdateExerciseItem>> = exercise_items
+    let mut exercise_tasks_by_exercise: HashMap<Uuid, Vec<PageUpdateExerciseTask>> = exercise_tasks
         .into_iter()
-        .into_group_map_by(|ei| ei.exercise_id)
+        .into_group_map_by(|et| et.exercise_id)
         .into_iter()
         .map(|(key, value)| {
             (
                 key,
                 value
                     .into_iter()
-                    .map(|i| PageUpdateExerciseItem {
+                    .map(|i| PageUpdateExerciseTask {
                         id: i.id,
                         exercise_type: i.exercise_type,
                         assignment: i.assignment,
@@ -248,25 +248,25 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
         })
         .collect();
 
-    let exercises_with_items: Vec<PageUpdateExercise> = exercises
+    let exercises_with_tasks: Vec<PageUpdateExercise> = exercises
         .into_iter()
         .map(|e| {
-            let items = match exercise_items_by_exercise.remove(&e.id) {
-                Some(ei) => ei,
+            let exercise_tasks = match exercise_tasks_by_exercise.remove(&e.id) {
+                Some(et) => et,
                 None => Vec::new(),
             };
             PageUpdateExercise {
                 id: e.id,
                 name: e.name,
-                exercise_items: items,
                 order_number: e.order_number,
+                exercise_tasks,
             }
         })
         .collect();
     // This is for cms so we need to put exercises back inside the content
     let normalized_document = NormalizedDocument {
         content: serde_json::from_value(page.content)?,
-        exercises: exercises_with_items,
+        exercises: exercises_with_tasks,
     };
 
     let denormalized_content = denormalize(normalized_document)?;
@@ -276,7 +276,7 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
     Ok(page)
 }
 
-// This has 3 stages: updating page, updating exercises, updating exercise items.
+// This has 3 stages: updating page, updating exercises, updating exercise tasks.
 // This is currently implemented with multiple sql queries, but it could be optimized
 // with data-modifying common table expressions if necessary.
 pub async fn update_page(pool: &PgPool, page_id: Uuid, page_update: PageUpdate) -> Result<Page> {
@@ -307,7 +307,7 @@ RETURNING *
     .await?;
 
     let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_items(&exercises, &page, &mut tx).await?;
+        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx).await?;
 
     let denormalized_content = denormalize(NormalizedDocument {
         content: serde_json::from_value(new_content)?,
@@ -345,7 +345,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
 }
 
 /// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.
-async fn upsert_exercises_and_exercise_items(
+async fn upsert_exercises_and_exercise_tasks(
     exercises: &[PageUpdateExercise],
     page: &Page,
     connection: &mut PgConnection,
@@ -365,7 +365,7 @@ async fn upsert_exercises_and_exercise_items(
 
     sqlx::query!(
         r#"
-        UPDATE exercise_items SET deleted_at = now() WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
+        UPDATE exercise_tasks SET deleted_at = now() WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
             "#,
         page.id
     )
@@ -382,9 +382,9 @@ async fn upsert_exercises_and_exercise_items(
     .fetch_all(&mut *connection)
     .await?;
 
-    let existing_exercise_item_ids = sqlx::query!(
+    let existing_exercise_task_ids = sqlx::query!(
             r#"
-    SELECT exercise_items.id from exercise_items JOIN exercises e ON (e.id = exercise_items.exercise_id) WHERE page_id = $1
+    SELECT exercise_tasks.id from exercise_tasks JOIN exercises e ON (e.id = exercise_tasks.exercise_id) WHERE page_id = $1
         "#,
             page.id
         )
@@ -394,7 +394,7 @@ async fn upsert_exercises_and_exercise_items(
     let mut result_exercises: Vec<PageUpdateExercise> = Vec::new();
     let mut changed_ids: HashMap<Uuid, Uuid> = HashMap::new();
     for exercise_update in exercises.iter() {
-        let mut exercise_exercise_items: Vec<PageUpdateExerciseItem> = Vec::new();
+        let mut exercise_exercise_tasks: Vec<PageUpdateExerciseTask> = Vec::new();
         let safe_for_db_exercise_id = if existing_exercise_ids
             .iter()
             .any(|o| o.id == exercise_update.id)
@@ -423,43 +423,43 @@ RETURNING *;
         )
         .fetch_one(&mut *connection)
         .await?;
-        for item_update in exercise_update.exercise_items.iter() {
-            let safe_for_db_exercise_item_id = if existing_exercise_item_ids
+        for task_update in exercise_update.exercise_tasks.iter() {
+            let safe_for_db_exercise_task_id = if existing_exercise_task_ids
                 .iter()
-                .any(|o| o.id == item_update.id)
+                .any(|o| o.id == task_update.id)
             {
-                item_update.id
+                task_update.id
             } else {
-                // No need to add this to changed ids because exercise item ids
+                // No need to add this to changed ids because exercise task ids
                 // are not supposed to appear in the content json.
                 Uuid::new_v4()
             };
             // Upsert
-            let exercise_item: PageUpdateExerciseItem = sqlx::query_as!(
-                PageUpdateExerciseItem,
+            let exercise_task: PageUpdateExerciseTask = sqlx::query_as!(
+                PageUpdateExerciseTask,
                 r#"
-INSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
+INSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
 VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO UPDATE
 SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
 RETURNING id, exercise_type, assignment, public_spec, private_spec;
         "#,
-                safe_for_db_exercise_item_id,
+                safe_for_db_exercise_task_id,
                 safe_for_db_exercise_id,
-                item_update.exercise_type,
-                item_update.assignment,
-                item_update.public_spec,
-                item_update.private_spec,
+                task_update.exercise_type,
+                task_update.assignment,
+                task_update.public_spec,
+                task_update.private_spec,
             )
             .fetch_one(&mut *connection)
             .await?;
-            exercise_exercise_items.push(exercise_item);
+            exercise_exercise_tasks.push(exercise_task);
         }
         result_exercises.push(PageUpdateExercise {
             id: exercise.id,
             name: exercise.name,
-            exercise_items: exercise_exercise_items,
             order_number: exercise.order_number,
+            exercise_tasks: exercise_exercise_tasks,
         })
     }
 
@@ -513,7 +513,7 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
     .await?;
 
     let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_items(&exercises, &page, &mut tx).await?;
+        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx).await?;
 
     let denormalized_content = denormalize(NormalizedDocument {
         content: serde_json::from_value(new_content)?,
@@ -579,7 +579,7 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
 
     sqlx::query!(
         r#"
-  UPDATE exercise_items
+  UPDATE exercise_tasks
   SET deleted_at = now()
   WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
           "#,

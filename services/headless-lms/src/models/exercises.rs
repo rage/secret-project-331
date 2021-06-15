@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgPool};
 use uuid::Uuid;
 
-use crate::models::exercise_items::get_random_exercise_item;
+use crate::models::exercise_tasks::get_random_exercise_task;
 
-use super::exercise_items::CourseMaterialExerciseItem;
+use super::exercise_tasks::CourseMaterialExerciseTask;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Exercise {
@@ -25,7 +25,7 @@ pub struct Exercise {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
-    pub current_exercise_item: CourseMaterialExerciseItem,
+    pub current_exercise_task: CourseMaterialExerciseTask,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
 }
@@ -129,14 +129,14 @@ pub async fn get_course_material_exercise(
     )
     .fetch_one(connection)
     .await?;
-    // Exercise item contains the actual assignment and activity
-    // What exercise item to give for the student depends on the
-    // exercise -- for now we'll give a random exercise item to the student
+    // Exercise task contains the actual assignment and activity
+    // What exercise task to give for the student depends on the
+    // exercise -- for now we'll give a random exercise task to the student
     // this could be changed by creating a policy in the exercise.
-    let current_exercise_item = get_random_exercise_item(&pool, exercise_id).await?;
+    let current_exercise_task = get_random_exercise_task(&pool, exercise_id).await?;
     return Ok(CourseMaterialExercise {
         exercise,
-        current_exercise_item,
+        current_exercise_task,
         exercise_status: Some(ExerciseStatus {
             score_given: None,
             activity_progress: ActivityProgress::Initialized,

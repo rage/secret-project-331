@@ -8,6 +8,7 @@ use super::{
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
+use futures::future;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
@@ -45,18 +46,20 @@ pub struct CourseMetrics {
     score_maximum: Option<i64>,
 }
 
-pub async fn get_course_metrics(pool: &PgPool, course_id: &Uuid) -> Result<CourseMetrics> {
+pub async fn get_course_metrics(pool: &PgPool, course_instance_id: &Uuid) -> Result<CourseMetrics> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         CourseMetrics,
         r#"
-SELECT
-COUNT(id) as total_exercises,
-COALESCE(0, SUM(score_maximum)) as score_maximum
-FROM exercises
-WHERE course_id = $1;
+SELECT COUNT(e.id) as total_exercises,
+  COALESCE(0, SUM(e.score_maximum)) as score_maximum
+FROM course_instances ci
+  LEFT JOIN courses c on ci.course_id = c.id
+  LEFT JOIN exercises e on c.id = e.course_id
+WHERE e.deleted_at IS NULL
+  AND ci.id = $1;
         "#,
-        course_id
+        course_instance_id
     )
     .fetch_one(&mut connection)
     .await?;
@@ -65,22 +68,23 @@ WHERE course_id = $1;
 
 pub async fn get_user_metrics(
     pool: &PgPool,
-    course_id: &Uuid,
+    course_instance_id: &Uuid,
     user_id: &Uuid,
 ) -> Result<UserMetrics> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         UserMetrics,
         r#"
-SELECT
-    COUNT(ues.exercise_id) as completed_exercises,
-    COALESCE(0, SUM(ues.score_given)) as score_given
+SELECT COUNT(ues.exercise_id) as completed_exercises,
+  COALESCE(0, SUM(ues.score_given)) as score_given
 FROM user_exercise_states ues
-         LEFT JOIN exercises e on e.id = ues.exercise_id
-WHERE e.course_id = $1
-  AND ues.user_id = $2;
+  LEFT JOIN exercises e on e.id = ues.exercise_id
+WHERE ues.course_instance_id = $1
+  AND ues.user_id = $2
+  AND ues.deleted_at IS NULL
+  AND ues.activity_progress IN ('submitted', 'completed');
         "#,
-        course_id,
+        course_instance_id,
         user_id
     )
     .fetch_one(&mut connection)
@@ -90,11 +94,14 @@ WHERE e.course_id = $1
 
 pub async fn get_user_progress(
     pool: &PgPool,
-    course_id: &Uuid,
+    course_instance_id: &Uuid,
     user_id: &Uuid,
 ) -> Result<UserProgress> {
-    let course_metrics = get_course_metrics(pool, course_id).await?;
-    let user_metrics = get_user_metrics(pool, user_id, course_id).await?;
+    let (course_metrics, user_metrics) = future::try_join(
+        get_course_metrics(pool, course_instance_id),
+        get_user_metrics(pool, user_id, course_instance_id),
+    )
+    .await?;
     let result = UserProgress {
         score_given: user_metrics.score_given,
         completed_exercises: user_metrics.completed_exercises,

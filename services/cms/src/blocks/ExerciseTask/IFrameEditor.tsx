@@ -1,9 +1,11 @@
-import { Dispatch, useRef } from "react"
+import { PropsWithChildren, useRef } from "react"
 import { Alert } from "@material-ui/lab"
 import styled from "@emotion/styled"
 import React from "react"
+import { ExerciseTaskAttributes } from "."
+import { BlockEditProps } from "@wordpress/blocks"
 import { css } from "@emotion/css"
-import useMessageChannel from "../../../hooks/useMessageChannel"
+import useMessageChannel from "../../hooks/useMessageChannel"
 
 // React memo to prevent iFrame re-render, try with console log from example exercise?
 const Iframe = React.memo(styled.iframe`
@@ -18,13 +20,13 @@ const Iframe = React.memo(styled.iframe`
   border-bottom: 1px solid black;
 `)
 
-interface ExerciseItemIframeProps {
+interface IFrameEditorProps {
+  props: PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>
   url: string
-  public_spec: unknown
-  setAnswer: Dispatch<unknown>
+  exerciseTaskid: string
 }
 
-const ExerciseItemIframe: React.FC<ExerciseItemIframeProps> = ({ url, public_spec, setAnswer }) => {
+const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const messageChannel = useMessageChannel()
@@ -34,8 +36,9 @@ const ExerciseItemIframe: React.FC<ExerciseItemIframeProps> = ({ url, public_spe
   }
 
   if (!url) {
-    return <Alert severity="error">Cannot render exercise item, missing url.</Alert>
+    return <Alert severity="error">Cannot render exercise task, missing url.</Alert>
   }
+
   return (
     <Iframe
       className={css`
@@ -57,7 +60,10 @@ const ExerciseItemIframe: React.FC<ExerciseItemIframeProps> = ({ url, public_spe
             iframeRef.current.height = Number(data.data).toString() + "px"
           } else if (data.message === "current-state-2") {
             console.log("Parent: setting answer")
-            setAnswer(data.data)
+            props.setAttributes({
+              public_spec: JSON.stringify(data.data.public_spec),
+              private_spec: JSON.stringify(data.data.private_spec),
+            })
           } else {
             console.error("Iframe received an unknown message from message port")
           }
@@ -66,13 +72,16 @@ const ExerciseItemIframe: React.FC<ExerciseItemIframeProps> = ({ url, public_spe
         // If the url is not relative, the argument will be ignored
         const iframeOrigin = new URL(url, document.location.toString()).origin
         if (iframeRef.current && iframeRef.current.contentWindow) {
-          // The iframe will use port 2 for communication
-          iframeRef.current.contentWindow.postMessage("communication-port", iframeOrigin, [
-            messageChannel.port2,
-          ])
+          setTimeout(() => {
+            // The iframe will use port 2 for communication
+            iframeRef.current.contentWindow.postMessage("communication-port", iframeOrigin, [
+              messageChannel.port2,
+            ])
+          }, 1)
+
           messageChannel.port1.postMessage({
             message: "content",
-            data: public_spec,
+            data: JSON.parse(props.attributes.private_spec),
           })
         } else {
           console.error(
@@ -85,4 +94,4 @@ const ExerciseItemIframe: React.FC<ExerciseItemIframeProps> = ({ url, public_spe
   )
 }
 
-export default ExerciseItemIframe
+export default IFrameEditor

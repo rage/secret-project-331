@@ -1,5 +1,5 @@
 use crate::{
-    models::{exercise_items::get_exercise_item_by_id, gradings::grade_submission},
+    models::{exercise_tasks::get_exercise_task_by_id, gradings::grade_submission},
     utils::pagination::Pagination,
 };
 
@@ -17,7 +17,7 @@ use uuid::Uuid;
 // Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NewSubmission {
-    pub exercise_item_id: Uuid,
+    pub exercise_task_id: Uuid,
     pub course_instance_id: Uuid,
     pub data_json: Option<serde_json::Value>,
 }
@@ -31,7 +31,7 @@ pub struct Submission {
     pub exercise_id: Uuid,
     pub course_id: Uuid,
     pub course_instance_id: Uuid,
-    pub exercise_item_id: Uuid,
+    pub exercise_task_id: Uuid,
     pub data_json: Option<serde_json::Value>,
     pub grading_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
@@ -130,11 +130,11 @@ pub async fn insert_submission(
         Submission,
         r#"
   INSERT INTO
-    submissions(exercise_item_id, data_json, exercise_id, course_id, user_id, course_instance_id)
+    submissions(exercise_task_id, data_json, exercise_id, course_id, user_id, course_instance_id)
   VALUES($1, $2, $3, $4, $5, $6)
   RETURNING *
           "#,
-        new_submission.exercise_item_id,
+        new_submission.exercise_task_id,
         new_submission.data_json,
         exercise.id,
         exercise.course_id,
@@ -143,7 +143,7 @@ pub async fn insert_submission(
     )
     .fetch_one(&mut connection)
     .await?;
-    let exercise_item = get_exercise_item_by_id(pool, submission.exercise_item_id).await?;
+    let exercise_task = get_exercise_task_by_id(pool, submission.exercise_task_id).await?;
     let grading = new_grading(pool, &submission).await?;
     let updated_submission = sqlx::query_as!(
         Submission,
@@ -154,7 +154,7 @@ pub async fn insert_submission(
     .fetch_one(&mut connection)
     .await?;
     let updated_grading =
-        grade_submission(pool, submission.clone(), exercise_item, exercise, grading).await?;
+        grade_submission(pool, submission.clone(), exercise_task, exercise, grading).await?;
 
     Ok(SubmissionResult {
         submission: updated_submission,

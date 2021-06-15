@@ -1,12 +1,12 @@
 import { atom, atomFamily, selector, selectorFamily } from "recoil"
 import {
-  ExerciseItem,
-  ExerciseWithExerciseItems,
+  ExerciseTask,
+  ExerciseWithExerciseTasks,
   PageUpdateExercise,
-  PageUpdateExerciseItem,
+  PageUpdateExerciseTask,
 } from "../services/services.types"
 
-export const exercisesAtoms = atomFamily<ExerciseWithExerciseItems | PageUpdateExercise, any>({
+export const exercisesAtoms = atomFamily<ExerciseWithExerciseTasks | PageUpdateExercise, any>({
   key: "exercises",
   default: null,
 })
@@ -17,7 +17,7 @@ export const exercisesState = atom<Array<string>>({
 })
 
 export const exerciseFamilySelector = selectorFamily<
-  ExerciseWithExerciseItems | PageUpdateExercise,
+  ExerciseWithExerciseTasks | PageUpdateExercise,
   string
 >({
   key: "individual-exercises-access",
@@ -29,7 +29,7 @@ export const exerciseFamilySelector = selectorFamily<
     },
   set:
     (id) =>
-    ({ set, get }, exercise: ExerciseWithExerciseItems | PageUpdateExercise) => {
+    ({ set, get }, exercise: ExerciseWithExerciseTasks | PageUpdateExercise) => {
       set(exercisesAtoms(id), exercise)
       if (!get(exercisesState).includes(id)) {
         set(exercisesState, (prev) => [...prev, id])
@@ -37,8 +37,8 @@ export const exerciseFamilySelector = selectorFamily<
     },
 })
 
-export const exerciseItemFamilySelector = selectorFamily<
-  ExerciseItem | PageUpdateExerciseItem,
+export const exerciseTaskFamilySelector = selectorFamily<
+  ExerciseTask | PageUpdateExerciseTask,
   [string, string]
 >({
   key: "individual-exercises-items-access",
@@ -46,26 +46,26 @@ export const exerciseItemFamilySelector = selectorFamily<
     (id) =>
     ({ get }) => {
       const atom = get(exercisesAtoms(id[0]))
-      return atom.exercise_items.find((item) => item.id === id[1])
+      return atom.exercise_tasks.find((task) => task.id === id[1])
     },
   set:
     (id) =>
-    ({ set }, exerciseItemSpec: any) => {
+    ({ set }, exerciseTaskSpec: any) => {
       set(exercisesAtoms(id[0]), (prev) => {
         return {
           ...prev,
-          exercise_items: prev.exercise_items.map((ei) => {
-            if (ei.id !== exerciseItemSpec.id) {
-              return ei
+          exercise_tasks: prev.exercise_tasks.map((et) => {
+            if (et.id !== exerciseTaskSpec.id) {
+              return et
             }
-            return exerciseItemSpec
+            return exerciseTaskSpec
           }),
         }
       })
     },
 })
 
-export const allExercises = selector<ExerciseWithExerciseItems[] | PageUpdateExercise[]>({
+export const allExercises = selector<ExerciseWithExerciseTasks[] | PageUpdateExercise[]>({
   key: "all-exercises",
   get: ({ get }) => {
     const ids = get(exercisesState)

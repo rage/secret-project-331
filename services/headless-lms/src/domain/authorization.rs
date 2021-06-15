@@ -18,7 +18,7 @@ pub enum Action {
 pub enum Resource {
     Chapter(Uuid),
     Course(Uuid),
-    ExerciseItem(Uuid),
+    ExerciseTask(Uuid),
     Exercise(Uuid),
     Grading(Uuid),
     Organization(Uuid),
@@ -49,8 +49,8 @@ pub async fn authorize(
             None,
         ),
         Resource::Course(course_id) => (Some(course_id), None),
-        Resource::ExerciseItem(id) => (
-            Some(crate::models::exercise_items::get_course_id(pool, id).await?),
+        Resource::ExerciseTask(id) => (
+            Some(crate::models::exercise_tasks::get_course_id(pool, id).await?),
             None,
         ),
         Resource::Exercise(id) => (

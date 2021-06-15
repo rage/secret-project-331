@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::models::submissions::GradingRequest;
 
 use super::{
-    exercise_items::ExerciseItem,
+    exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     submissions::{GradingResult, Submission},
 };
@@ -22,7 +22,7 @@ pub struct Grading {
     pub submission_id: Uuid,
     pub course_id: Uuid,
     pub exercise_id: Uuid,
-    pub exercise_item_id: Uuid,
+    pub exercise_task_id: Uuid,
     pub grading_priority: i32,
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,
@@ -58,14 +58,14 @@ pub async fn new_grading(pool: &PgPool, submission: &Submission) -> Result<Gradi
         Grading,
         r#"
 INSERT INTO
-  gradings(submission_id, course_id, exercise_id, exercise_item_id, grading_started_at)
+  gradings(submission_id, course_id, exercise_id, exercise_task_id, grading_started_at)
 VALUES($1, $2, $3, $4, now())
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         "#,
         submission.id,
         submission.course_id,
         submission.exercise_id,
-        submission.exercise_item_id
+        submission.exercise_task_id
     )
     .fetch_one(&mut connection)
     .await?;
@@ -75,7 +75,7 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
 pub async fn grade_submission(
     pool: &PgPool,
     submission: Submission,
-    exercise_item: ExerciseItem,
+    exercise_task: ExerciseTask,
     exercise: Exercise,
     grading: Grading,
 ) -> Result<Grading> {
@@ -84,7 +84,7 @@ pub async fn grade_submission(
         .post("http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/grade")
         .timeout(Duration::from_secs(120))
         .json(&GradingRequest {
-            exercise_spec: exercise_item.private_spec,
+            exercise_spec: exercise_task.private_spec,
             submission_data: submission.data_json,
         })
         .send()
@@ -132,7 +132,7 @@ UPDATE gradings
     grading_completed_at = $7,
     score_given = $8
 WHERE id = $1
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         "#,
         grading.id,
         grading_result.grading_progress as GradingProgress,

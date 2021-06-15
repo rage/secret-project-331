@@ -1,5 +1,5 @@
 use crate::models::pages::PageUpdateExercise;
-use crate::models::pages::PageUpdateExerciseItem;
+use crate::models::pages::PageUpdateExerciseTask;
 
 use anyhow::anyhow;
 use anyhow::Result;
@@ -41,7 +41,7 @@ pub struct GuternbergExerciseAttributes {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct GuternbergExerciseItemAttributes {
+pub struct GuternbergExerciseTaskAttributes {
     pub id: Uuid,
     pub exercise_type: String,
     pub public_spec: Option<String>,
@@ -63,30 +63,30 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
             }
             let exercise_attributes: GuternbergExerciseAttributes =
                 serde_json::from_value(block.attributes)?;
-            let exercise_items: Result<Vec<PageUpdateExerciseItem>> = block
+            let exercise_tasks: Result<Vec<PageUpdateExerciseTask>> = block
                 .inner_blocks
                 .into_iter()
                 .map(|inner_block| {
-                    if inner_block.name != "moocfi/exercise-item" {
+                    if inner_block.name != "moocfi/exercise-task" {
                         return Err(anyhow!(
-                            "Exercise block is only allowed to have exercise items blocks inside"
+                            "Exercise block is only allowed to have exercise tasks blocks inside"
                         ));
                     }
-                    let exercise_item_attributes: GuternbergExerciseItemAttributes =
+                    let exercise_task_attributes: GuternbergExerciseTaskAttributes =
                         serde_json::from_value(inner_block.attributes)?;
                     let mut public_spec = None;
-                    if let Some(spec_value) = exercise_item_attributes.public_spec {
+                    if let Some(spec_value) = exercise_task_attributes.public_spec {
                         public_spec = Some(serde_json::from_str(&spec_value)?)
                     }
 
                     let mut private_spec = None;
-                    if let Some(spec_value) = exercise_item_attributes.private_spec {
+                    if let Some(spec_value) = exercise_task_attributes.private_spec {
                         private_spec = Some(serde_json::from_str(&spec_value)?)
                     }
 
-                    Ok(PageUpdateExerciseItem {
-                        id: exercise_item_attributes.id,
-                        exercise_type: exercise_item_attributes.exercise_type,
+                    Ok(PageUpdateExerciseTask {
+                        id: exercise_task_attributes.id,
+                        exercise_type: exercise_task_attributes.exercise_type,
                         public_spec,
                         private_spec,
                         assignment: serde_json::to_value(inner_block.inner_blocks)?,
@@ -97,7 +97,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
             let exercise = PageUpdateExercise {
                 id: exercise_attributes.id,
                 name: exercise_attributes.name,
-                exercise_items: exercise_items?,
+                exercise_tasks: exercise_tasks?,
             };
             let id = exercise.id;
             exercises.push(exercise);
@@ -132,26 +132,26 @@ pub fn denormalize(input: NormalizedDocument) -> Result<Vec<GutenbergBlock>> {
                 .find(|exercise| exercise.id == saved_attributes.id)
                 .ok_or_else(|| anyhow!("Could not find exercise that was in gutenberg schema"))?;
             let inner_blocks: Result<Vec<GutenbergBlock>> = exercise
-                .exercise_items
+                .exercise_tasks
                 .iter()
-                .map(|exercise_item| {
-                    let exercise_type = &exercise_item.exercise_type;
+                .map(|exercise_task| {
+                    let exercise_type = &exercise_task.exercise_type;
                     let item_inner_blocks: Vec<GutenbergBlock> =
-                        serde_json::from_value(exercise_item.assignment.clone())?;
+                        serde_json::from_value(exercise_task.assignment.clone())?;
                     let mut public_spec = None;
-                    if let Some(spec_content) = &exercise_item.public_spec {
+                    if let Some(spec_content) = &exercise_task.public_spec {
                         public_spec = Some(serde_json::to_string(spec_content)?)
                     }
                     let mut private_spec = None;
-                    if let Some(spec_content) = &exercise_item.private_spec {
+                    if let Some(spec_content) = &exercise_task.private_spec {
                         private_spec = Some(serde_json::to_string(spec_content)?)
                     }
                     Ok(GutenbergBlock {
                         client_id: Uuid::new_v4().to_string(), // this was discarded on normalizing but any random value should do
-                        name: "moocfi/exercise-item".to_string(),
+                        name: "moocfi/exercise-task".to_string(),
                         is_valid: true,
-                        attributes: serde_json::to_value(GuternbergExerciseItemAttributes {
-                            id: exercise_item.id,
+                        attributes: serde_json::to_value(GuternbergExerciseTaskAttributes {
+                            id: exercise_task.id,
                             exercise_type: exercise_type.to_string(),
                             public_spec,
                             private_spec,
@@ -245,9 +245,9 @@ mod tests {
                 inner_blocks: vec![
                     GutenbergBlock {
                         client_id: "b7538d47-a904-4079-a73d-0fa15fa4664b".to_string(),
-                        name: "moocfi/exercise-item".to_string(),
+                        name: "moocfi/exercise-task".to_string(),
                         is_valid: true,
-                        attributes: serde_json::to_value(GuternbergExerciseItemAttributes {
+                        attributes: serde_json::to_value(GuternbergExerciseTaskAttributes {
                             id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
                             exercise_type: "example-exercise".to_string(),
                             public_spec: Some("{}".to_string()),
@@ -258,9 +258,9 @@ mod tests {
                     },
                     GutenbergBlock {
                         client_id: "11b9a005-c552-4542-b6c0-a2e5a53c5b8f".to_string(),
-                        name: "moocfi/exercise-item".to_string(),
+                        name: "moocfi/exercise-task".to_string(),
                         is_valid: true,
-                        attributes: serde_json::to_value(GuternbergExerciseItemAttributes {
+                        attributes: serde_json::to_value(GuternbergExerciseTaskAttributes {
                             id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                             exercise_type: "example-exercise".to_string(),
                             public_spec: Some("{}".to_string()),
@@ -290,15 +290,15 @@ mod tests {
             &PageUpdateExercise {
                 id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                 name: "Best exercise".to_string(),
-                exercise_items: vec![
-                    PageUpdateExerciseItem {
+                exercise_tasks: vec![
+                    PageUpdateExerciseTask {
                         id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
                         exercise_type: "example-exercise".to_string(),
                         public_spec: serde_json::from_str("{}").unwrap(),
                         private_spec: serde_json::from_str("{}").unwrap(),
                         assignment: serde_json::from_str("[]").unwrap(),
                     },
-                    PageUpdateExerciseItem {
+                    PageUpdateExerciseTask {
                         id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                         exercise_type: "example-exercise".to_string(),
                         public_spec: serde_json::from_str("{}").unwrap(),
@@ -350,15 +350,15 @@ mod tests {
         let exercises = vec![PageUpdateExercise {
             id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
             name: "Best exercise".to_string(),
-            exercise_items: vec![
-                PageUpdateExerciseItem {
+            exercise_tasks: vec![
+                PageUpdateExerciseTask {
                     id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
                     exercise_type: "example-exercise".to_string(),
                     public_spec: serde_json::from_str("{}").unwrap(),
                     private_spec: serde_json::from_str("{}").unwrap(),
                     assignment: serde_json::from_str("[]").unwrap(),
                 },
-                PageUpdateExerciseItem {
+                PageUpdateExerciseTask {
                     id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                     exercise_type: "example-exercise".to_string(),
                     public_spec: serde_json::from_str("{}").unwrap(),
@@ -413,16 +413,16 @@ mod tests {
         );
         let inner_blocks = &exercise_block.inner_blocks;
         assert_eq!(inner_blocks.len(), 2);
-        let exercise_item_block = inner_blocks
+        let exercise_task_block = inner_blocks
             .iter()
             .skip(1)
             .next()
             .expect("Array ended too soon");
 
-        assert_eq!(exercise_item_block.name, "moocfi/exercise-item".to_string());
+        assert_eq!(exercise_task_block.name, "moocfi/exercise-task".to_string());
         assert_eq!(
-            exercise_item_block.attributes,
-            serde_json::to_value(GuternbergExerciseItemAttributes {
+            exercise_task_block.attributes,
+            serde_json::to_value(GuternbergExerciseTaskAttributes {
                 id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                 exercise_type: "example-exercise".to_string(),
                 public_spec: Some("{}".to_string()),
@@ -432,7 +432,7 @@ mod tests {
         );
 
         assert_eq!(
-            exercise_item_block.inner_blocks,
+            exercise_task_block.inner_blocks,
             vec![GutenbergBlock {
                 client_id: "58333a81-6ee9-4638-8587-9f902bb9936f".to_string(),
                 name: "test/example-block".to_string(),

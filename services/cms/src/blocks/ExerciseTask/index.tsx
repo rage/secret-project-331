@@ -1,19 +1,19 @@
 import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
-import ExerciseItemEditor from "./ExerciseItemEditor"
-import ExerciseItemSave from "./ExerciseItemSave"
+import ExerciseTaskEditor from "./ExerciseTaskEditor"
+import ExerciseTaskSave from "./ExerciseTaskSave"
 import { v4 } from "uuid"
 import { ComponentType } from "react"
 
-export interface ExerciseItemAttributes {
+export interface ExerciseTaskAttributes {
   id: string
   exercise_type: string
   public_spec: string
   private_spec: string
 }
 
-const ExerciseItemConfiguration: BlockConfiguration<ExerciseItemAttributes> = {
-  title: "ExerciseItem",
-  description: "An exercise item",
+const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
+  title: "ExerciseTask",
+  description: "An exercise task",
   category: "embed",
   parent: ["moocfi/exercise"],
   attributes: {
@@ -34,20 +34,20 @@ const ExerciseItemConfiguration: BlockConfiguration<ExerciseItemAttributes> = {
       default: null,
     },
   },
-  edit: enforceExerciseItemIdDefined(ExerciseItemEditor),
-  save: ExerciseItemSave,
+  edit: enforceExerciseTaskIdDefined(ExerciseTaskEditor),
+  save: ExerciseTaskSave,
 }
 
 /**
  * Wrapper to set attributes.exercise_id before rendering
  * @param WrappedComponent
  */
-function enforceExerciseItemIdDefined(
-  WrappedComponent: ComponentType<BlockEditProps<ExerciseItemAttributes>>,
-): ComponentType<BlockEditProps<ExerciseItemAttributes>> {
+function enforceExerciseTaskIdDefined(
+  WrappedComponent: ComponentType<BlockEditProps<ExerciseTaskAttributes>>,
+): ComponentType<BlockEditProps<ExerciseTaskAttributes>> {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
-  const InnerComponent = (props: BlockEditProps<ExerciseItemAttributes>) => {
+  const InnerComponent = (props: BlockEditProps<ExerciseTaskAttributes>) => {
     if (!props.attributes.id) {
       const id = v4()
       props.setAttributes({ id: id })
@@ -60,4 +60,4 @@ function enforceExerciseItemIdDefined(
   return InnerComponent
 }
 
-export default ExerciseItemConfiguration
+export default ExerciseTaskConfiguration

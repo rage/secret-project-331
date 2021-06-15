@@ -5,7 +5,7 @@ import { Block, fetchExerciseById } from "../../../services/backend"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 import HelpIcon from "@material-ui/icons/Help"
-import ExerciseItemIframe from "./ExerciseItemIframe"
+import ExerciseTaskIframe from "./ExerciseTaskIframe"
 import { defaultContainerWidth } from "../../../styles/constants"
 import { useState } from "react"
 import DebugModal from "../../DebugModal"
@@ -34,10 +34,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     return <GenericLoading />
   }
 
-  const currentType = data.current_exercise_item.exercise_type
+  const currentType = data.current_exercise_task.exercise_type
   const url = exericseTypeToIframeUrl[currentType]
 
-  const currentExerciseItemAssignment = data.current_exercise_item
+  const currentExerciseTaskAssignment = data.current_exercise_task
     .assignment as unknown as Block<unknown>[]
 
   return (
@@ -88,10 +88,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           {data.exercise_status?.score_given ?? 0}/{data.exercise.score_maximum}
         </div>
       </div>
-      {currentExerciseItemAssignment && <ContentRenderer data={currentExerciseItemAssignment} />}
+      {currentExerciseTaskAssignment && <ContentRenderer data={currentExerciseTaskAssignment} />}
       {url ? (
-        <ExerciseItemIframe
-          public_spec={data.current_exercise_item.public_spec}
+        <ExerciseTaskIframe
+          public_spec={data.current_exercise_task.public_spec}
           url={`${url}?width=${defaultContainerWidth}`}
           setAnswer={setAnswer}
         />

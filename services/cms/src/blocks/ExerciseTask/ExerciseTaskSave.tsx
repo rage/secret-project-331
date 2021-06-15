@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const ExerciseItemSave: React.FC = () => {
+const ExerciseTaskSave: React.FC = () => {
   return (
     <div>
       <InnerBlocks.Content />
@@ -8,4 +8,4 @@ const ExerciseItemSave: React.FC = () => {
   )
 }
 
-export default ExerciseItemSave
+export default ExerciseTaskSave

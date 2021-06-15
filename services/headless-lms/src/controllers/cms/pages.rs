@@ -10,7 +10,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
-GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise items by id.
+GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
 
 # Example
 
@@ -48,7 +48,7 @@ async fn get_page(
 /**
 POST `/api/v0/cms/pages` - Create a new page.
 
-Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
+Please note that this endpoint will change all the exercise and exercise task ids you've created. Make sure the use the updated ids from the response object.
 
 If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
@@ -107,7 +107,7 @@ async fn post_new_page(
 /**
 PUT `/api/v0/cms/pages/:page_id` - Update a page by id.
 
-Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
+Please note that this endpoint will change all the exercise and exercise task ids you've created. Make sure the use the updated ids from the response object.
 
 If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
@@ -160,7 +160,7 @@ async fn update_page(
 }
 
 /**
-DELETE `/api/v0/cms/pages/:page_id` - Delete a page, related exercises, and related exercise items by id.
+DELETE `/api/v0/cms/pages/:page_id` - Delete a page, related exercises, and related exercise tasks by id.
 
 
 # Example

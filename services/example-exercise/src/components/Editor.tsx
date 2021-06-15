@@ -58,12 +58,12 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port }) => {
               const newState = state.filter((e) => e.id !== o.id)
               setState(newState)
             }}
-            onChange={(item) => {
+            onChange={(task) => {
               const newState = state.map((e) => {
                 if (e.id !== o.id) {
                   return e
                 }
-                return item
+                return task
               })
               setState(newState)
             }}

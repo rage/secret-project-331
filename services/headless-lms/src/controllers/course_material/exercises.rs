@@ -27,7 +27,7 @@ expose the correct answers to the user.
     "deleted_at": null,
     "score_maximum": 1
   },
-  "current_exercise_item": {
+  "current_exercise_task": {
     "id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
     "created_at": "2021-04-28T10:49:47.328126",
     "updated_at": "2021-04-28T10:49:47.328126",

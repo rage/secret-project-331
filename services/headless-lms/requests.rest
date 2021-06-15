@@ -145,6 +145,7 @@ Content-Type: application/json
 
 {
   "exercise_item_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+  "course_instance_id": "25800692-0d99-4f29-b741-92d69b0900b9",
   "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
 }
 
@@ -161,6 +162,10 @@ GET http://project-331.local/api/v0/cms/courses/8f605161-125b-449b-a443-c62ffc1b
 http://project-331.local/api/v0/cms/courses
 
 
-####
+###
+GET http://project-331.local/api/v0/course-material/pages/f3b0d699-c9be-4d56-bd0a-9d40e5547e4d/next-page
 
+###
 GET http://project-331.local/api/v0/course-material/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/exercises
+###
+GET http://project-331.local/api/v0/course-material/chapters/b25f849a-5b7b-4718-b0d7-88f435e2393d/exercises

@@ -5,6 +5,7 @@ This documents all endpoints. Select a module below for a namespace.
 
 */
 
+pub mod auth;
 pub mod cms;
 pub mod course_material;
 pub mod files;
@@ -22,8 +23,8 @@ use http_api_problem::{HttpApiProblem, StatusCode};
 use serde::{Deserialize, Serialize};
 
 use self::{
-    cms::add_cms_routes, course_material::add_course_material_routes, files::_add_files_routes,
-    main_frontend::add_main_frontend_routes,
+    auth::add_auth_routes, cms::add_cms_routes, course_material::add_course_material_routes,
+    files::_add_files_routes, main_frontend::add_main_frontend_routes,
 };
 
 /**
@@ -106,5 +107,6 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/course-material").configure(add_course_material_routes))
         .service(web::scope("/cms").configure(add_cms_routes))
         .service(web::scope("/files").configure(_add_files_routes))
-        .service(web::scope("/main-frontend").configure(add_main_frontend_routes));
+        .service(web::scope("/main-frontend").configure(add_main_frontend_routes))
+        .service(web::scope("/auth").configure(add_auth_routes));
 }

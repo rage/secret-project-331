@@ -23,6 +23,7 @@ pub struct Page {
     title: String,
     deleted_at: Option<DateTime<Utc>>,
     content: serde_json::Value,
+    order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -96,6 +97,21 @@ pub struct PageExerciseItem {
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct NextPage {
+    url_path: String,
+    title: String,
+    chapter_number: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+pub struct NextPageMetadata {
+    page_id: Uuid,
+    order_number: i32,
+    chapter_id: Uuid,
+    chapter_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -322,6 +338,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
         id: page.id,
         title: page.title,
         url_path: page.url_path,
+        order_number: page.order_number,
         chapter_id: page.chapter_id,
     });
 }
@@ -527,6 +544,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
         id: page.id,
         title: page.title,
         url_path: page.url_path,
+        order_number: page.order_number,
         chapter_id: page.chapter_id,
     });
 }
@@ -632,4 +650,95 @@ WHERE page_id IN (
         })
         .collect();
     Ok(chapter_pages_with_exercises)
+}
+
+pub async fn get_next_page(pool: &PgPool, pages_id: Uuid) -> Result<Option<NextPage>> {
+    let page_metadata = get_page_metadata(pool, pages_id).await?;
+    let next_page = get_next_page_by_order_number(pool, page_metadata.order_number).await?;
+
+    match next_page {
+        Some(next_page) => Ok(Some(next_page)),
+        None => {
+            let first_page =
+                get_next_page_by_chapter_number(pool, page_metadata.chapter_number).await?;
+            Ok(first_page)
+        }
+    }
+}
+
+async fn get_page_metadata(pool: &PgPool, page_id: Uuid) -> Result<NextPageMetadata> {
+    let mut connection = pool.acquire().await?;
+    let page_metadata = sqlx::query_as!(
+        NextPageMetadata,
+        r#"
+SELECT p.id as page_id,
+  p.order_number as order_number,
+  c.id as chapter_id,
+  c.chapter_number as chapter_number
+FROM pages p
+  LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE p.id = $1;
+        "#,
+        page_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    Ok(page_metadata)
+}
+
+async fn get_next_page_by_order_number(
+    pool: &PgPool,
+    order_number: i32,
+) -> Result<Option<NextPage>> {
+    let mut connection = pool.acquire().await?;
+    let next_page = sqlx::query_as!(
+        NextPage,
+        r#"
+SELECT p.url_path,
+  p.title,
+  c.chapter_number
+FROM pages p
+  LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE order_number = (
+    SELECT MIN(order_number)
+    FROM pages
+    WHERE order_number > $1
+      AND deleted_at IS NULL
+  );
+        "#,
+        order_number
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    Ok(Some(next_page))
+}
+
+async fn get_next_page_by_chapter_number(
+    pool: &PgPool,
+    chapter_number: i32,
+) -> Result<Option<NextPage>> {
+    let mut connection = pool.acquire().await?;
+    let next_page = sqlx::query_as!(
+        NextPage,
+        r#"
+SELECT p.url_path,
+  p.title,
+  c.chapter_number
+FROM chapters c
+  LEFT JOIN pages p on c.id = p.chapter_id
+WHERE chapter_number = (
+    SELECT MIN(chapter_number)
+    FROM chapters
+    WHERE chapter_number > $1
+      AND deleted_at IS NULL
+  );
+        "#,
+        chapter_number
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    Ok(Some(next_page))
 }

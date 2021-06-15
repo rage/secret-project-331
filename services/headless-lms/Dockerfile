@@ -4,7 +4,7 @@ FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest
 # create dummy main.rs file so that cargo will download dependencies
 # we also are setting the timestamp to a old value because cargo will only
 # build new sources if the timestamp older than the previous build.
-RUN mkdir src && touch -a -m -t 199901010101.00 src/lib.rs && chown -R user /app
+RUN mkdir src && touch -a -m -t 199901010101.00 src/main.rs && echo "fn main() {}" > src/main.rs && chown -R user /app
 
 USER user
 ENV CARGO_HOME=/home/user/.cargo \
@@ -16,7 +16,7 @@ COPY --chown=user Cargo.toml .
 COPY --chown=user Cargo.lock .
 
 # Compile dependencies
-RUN cargo build && rm src/lib.rs
+RUN cargo build && rm src/main.rs
 
 COPY --chown=user . .
 # Compile the program

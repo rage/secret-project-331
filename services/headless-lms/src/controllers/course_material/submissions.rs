@@ -18,7 +18,7 @@ POST http://project-331.local/api/v0/course-material/submissions HTTP/1.1
 Content-Type: application/json
 
 {
-  "exercise_item_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+  "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
   "course_instance_id": "25800692-0d99-4f29-b741-92d69b0900b9",
   "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
 }
@@ -36,7 +36,7 @@ Response:
     "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
     "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
     "course_instance_id": "25800692-0d99-4f29-b741-92d69b0900b9",
-    "exercise_item_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+    "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
     "data_json": {
       "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af"
     },
@@ -51,7 +51,7 @@ Response:
     "submission_id": "e5c53d36-cb0a-4df4-8571-17a13d36f488",
     "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
     "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
-    "exercise_item_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+    "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
     "grading_priority": 100,
     "score_given": 1.0,
     "grading_progress": "FullyGraded",
@@ -72,12 +72,12 @@ async fn post_submission(
     payload: web::Json<NewSubmission>,
 ) -> ApplicationResult<Json<SubmissionResult>> {
     let user_id = Uuid::new_v4();
-    let exercise_item_id = payload.0.exercise_item_id;
-    let exercise_item =
-        crate::models::exercise_items::get_exercise_item_by_id(pool.get_ref(), exercise_item_id)
+    let exercise_task_id = payload.0.exercise_task_id;
+    let exercise_task =
+        crate::models::exercise_tasks::get_exercise_task_by_id(pool.get_ref(), exercise_task_id)
             .await?;
     let exercise =
-        crate::models::exercises::get_exercise_by_id(pool.get_ref(), exercise_item.exercise_id)
+        crate::models::exercises::get_exercise_by_id(pool.get_ref(), exercise_task.exercise_id)
             .await?;
     crate::models::users::upsert_user_id(pool.get_ref(), user_id, None).await?;
     let submission =

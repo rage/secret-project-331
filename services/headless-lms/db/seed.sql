@@ -120,7 +120,7 @@ VALUES (
     'Best exercise',
     'f3b0d699-c9be-4d56-bd0a-9d40e5547e4d'
   );
-INSERT INTO exercise_items (
+INSERT INTO exercise_tasks (
     id,
     exercise_id,
     exercise_type,
@@ -162,7 +162,7 @@ INSERT INTO submissions (
     updated_at,
     exercise_id,
     course_id,
-    exercise_item_id,
+    exercise_task_id,
     user_id,
     course_instance_id
   )
@@ -182,7 +182,7 @@ INSERT INTO submissions (
     updated_at,
     exercise_id,
     course_id,
-    exercise_item_id,
+    exercise_task_id,
     user_id,
     course_instance_id
   )
@@ -202,7 +202,7 @@ INSERT INTO submissions (
     updated_at,
     exercise_id,
     course_id,
-    exercise_item_id,
+    exercise_task_id,
     user_id,
     course_instance_id
   )
@@ -222,7 +222,7 @@ INSERT INTO submissions (
     updated_at,
     exercise_id,
     course_id,
-    exercise_item_id,
+    exercise_task_id,
     user_id,
     course_instance_id
   )

@@ -5,7 +5,7 @@ import { ExerciseAttributes } from "."
 import { InnerBlocks } from "@wordpress/block-editor"
 import { css } from "@emotion/css"
 
-const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-item"]
+const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem;

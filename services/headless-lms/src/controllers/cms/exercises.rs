@@ -28,7 +28,7 @@ GET `/api/v0/cms/exercises/:exercise_id/submissions` - Returns an exercise's sub
             "deleted_at": null,
             "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
             "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-            "exercise_item_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+            "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
             "data_json": null,
             "grading_id": null,
             "metadata": null,

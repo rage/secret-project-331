@@ -26,19 +26,19 @@ export interface Page extends DatabaseItem {
  * `${API_URL}/api/v0/cms/pages/${page_id}`
  */
 export interface PageWithExercises extends DatabaseItem, Page {
-  exercises: Array<ExerciseWithExerciseItems>
+  exercises: Array<ExerciseWithExerciseTasks>
 }
 
-export interface ExerciseWithExerciseItems extends DatabaseItem {
+export interface ExerciseWithExerciseTasks extends DatabaseItem {
   course_id: string
   deleted_at: string | null
   name: string
   deadline: string | null
   page_id: string
-  exercise_items: Array<ExerciseItem>
+  exercise_tasks: Array<ExerciseTask>
 }
 
-export interface ExerciseItem extends DatabaseItem {
+export interface ExerciseTask extends DatabaseItem {
   exercise_id: string
   exercise_type: string
   assignment: Array<unknown> | null
@@ -62,10 +62,10 @@ export interface PageUpdate {
 export interface PageUpdateExercise {
   id: string
   name: string
-  exercise_items: Array<PageUpdateExerciseItem>
+  exercise_tasks: Array<PageUpdateExerciseTask>
 }
 
-export interface PageUpdateExerciseItem {
+export interface PageUpdateExerciseTask {
   id: string
   exercise_type: string
   assignment: Array<unknown>

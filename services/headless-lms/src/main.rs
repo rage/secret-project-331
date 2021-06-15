@@ -1,23 +1,16 @@
-pub mod controllers;
-pub mod domain;
-pub mod models;
-pub mod utils;
-
 #[macro_use]
 extern crate log;
 
 use actix_session::CookieSession;
 use actix_web::{error, middleware::Logger, web, App, HttpResponse, HttpServer};
 use anyhow::Result;
-use controllers::configure_controllers;
 use dotenv::dotenv;
+use headless_lms_actix::{controllers::configure_controllers, OAuthClient};
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
 use sqlx::PgPool;
 use std::{env, sync::Arc};
 use url::Url;
-
-type OAuthClient = Arc<BasicClient>;
 
 /// The entrypoint to the application.
 #[actix_web::main]

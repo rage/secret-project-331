@@ -36,6 +36,7 @@ pub struct PageWithExercises {
     content: serde_json::Value,
     url_path: String,
     title: String,
+    order_number: i32,
     deleted_at: Option<DateTime<Utc>>,
     exercises: Vec<Exercise>,
 }
@@ -627,14 +628,16 @@ WHERE page_id IN (
     let mut page_to_exercises: HashMap<Uuid, Vec<Exercise>> = pages_exercises
         .into_iter()
         .into_group_map_by(|exercise| exercise.page_id);
-    let chapter_pages_with_exercises = chapter_pages
+    let mut chapter_pages_with_exercises: Vec<PageWithExercises> = chapter_pages
         .into_iter()
         .map(|page| {
             let page_id = page.id;
-            let exercises = match page_to_exercises.remove(&page_id) {
+            let mut exercises = match page_to_exercises.remove(&page_id) {
                 Some(ex) => ex,
                 None => Vec::new(),
             };
+
+            exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
             PageWithExercises {
                 id: page.id,
                 created_at: page.created_at,
@@ -644,11 +647,15 @@ WHERE page_id IN (
                 content: page.content,
                 url_path: page.url_path,
                 title: page.title,
+                order_number: page.order_number,
                 deleted_at: page.deleted_at,
                 exercises,
             }
         })
         .collect();
+
+    chapter_pages_with_exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+
     Ok(chapter_pages_with_exercises)
 }
 

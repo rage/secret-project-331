@@ -2,6 +2,7 @@ import { useQuery } from "react-query"
 import { fetchChaptersExercises } from "../../../services/backend"
 import React from "react"
 import GenericLoading from "../../GenericLoading"
+import PageWithExercises from "./PageWithExercises"
 
 const ExerciseList: React.FC<{ chapterId: string }> = ({ chapterId }) => {
   const { isLoading, error, data } = useQuery(`chapter-${chapterId}-exercises`, () =>
@@ -16,7 +17,16 @@ const ExerciseList: React.FC<{ chapterId: string }> = ({ chapterId }) => {
     return <GenericLoading />
   }
 
-  return <pre>{JSON.stringify(data, undefined, 2)}</pre>
+  return (
+    <>
+      <h3>List of all chapters exercises in every page</h3>
+      {data.map((page) => (
+        <div key={page.id}>
+          <PageWithExercises page={page} />
+        </div>
+      ))}
+    </>
+  )
 }
 
 export default ExerciseList

@@ -451,7 +451,7 @@
 <span id="448">448</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">PageUpdateExercise</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">PageUpdateExerciseItem</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">PageUpdateExerciseTask</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="ident">anyhow</span>;
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
@@ -493,7 +493,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GuternbergExerciseItemAttributes</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GuternbergExerciseTaskAttributes</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -515,30 +515,30 @@
             }
             <span class="kw">let</span> <span class="ident">exercise_attributes</span>: <span class="ident">GuternbergExerciseAttributes</span> <span class="op">=</span>
                 <span class="ident">serde_json</span>::<span class="ident">from_value</span>(<span class="ident">block</span>.<span class="ident">attributes</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">exercise_items</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseItem</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">block</span>
+            <span class="kw">let</span> <span class="ident">exercise_tasks</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseTask</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">block</span>
                 .<span class="ident">inner_blocks</span>
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">inner_block</span><span class="op">|</span> {
-                    <span class="kw">if</span> <span class="ident">inner_block</span>.<span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;moocfi/exercise-item&quot;</span> {
+                    <span class="kw">if</span> <span class="ident">inner_block</span>.<span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;moocfi/exercise-task&quot;</span> {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(
-                            <span class="string">&quot;Exercise block is only allowed to have exercise items blocks inside&quot;</span>
+                            <span class="string">&quot;Exercise block is only allowed to have exercise tasks blocks inside&quot;</span>
                         ));
                     }
-                    <span class="kw">let</span> <span class="ident">exercise_item_attributes</span>: <span class="ident">GuternbergExerciseItemAttributes</span> <span class="op">=</span>
+                    <span class="kw">let</span> <span class="ident">exercise_task_attributes</span>: <span class="ident">GuternbergExerciseTaskAttributes</span> <span class="op">=</span>
                         <span class="ident">serde_json</span>::<span class="ident">from_value</span>(<span class="ident">inner_block</span>.<span class="ident">attributes</span>)<span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">public_spec</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spec_value</span>) <span class="op">=</span> <span class="ident">exercise_item_attributes</span>.<span class="ident">public_spec</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spec_value</span>) <span class="op">=</span> <span class="ident">exercise_task_attributes</span>.<span class="ident">public_spec</span> {
                         <span class="ident">public_spec</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">spec_value</span>)<span class="question-mark">?</span>)
                     }
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">private_spec</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spec_value</span>) <span class="op">=</span> <span class="ident">exercise_item_attributes</span>.<span class="ident">private_spec</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spec_value</span>) <span class="op">=</span> <span class="ident">exercise_task_attributes</span>.<span class="ident">private_spec</span> {
                         <span class="ident">private_spec</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">spec_value</span>)<span class="question-mark">?</span>)
                     }
 
-                    <span class="prelude-val">Ok</span>(<span class="ident">PageUpdateExerciseItem</span> {
-                        <span class="ident">id</span>: <span class="ident">exercise_item_attributes</span>.<span class="ident">id</span>,
-                        <span class="ident">exercise_type</span>: <span class="ident">exercise_item_attributes</span>.<span class="ident">exercise_type</span>,
+                    <span class="prelude-val">Ok</span>(<span class="ident">PageUpdateExerciseTask</span> {
+                        <span class="ident">id</span>: <span class="ident">exercise_task_attributes</span>.<span class="ident">id</span>,
+                        <span class="ident">exercise_type</span>: <span class="ident">exercise_task_attributes</span>.<span class="ident">exercise_type</span>,
                         <span class="ident">public_spec</span>,
                         <span class="ident">private_spec</span>,
                         <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">inner_block</span>.<span class="ident">inner_blocks</span>)<span class="question-mark">?</span>,
@@ -549,7 +549,7 @@
             <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">PageUpdateExercise</span> {
                 <span class="ident">id</span>: <span class="ident">exercise_attributes</span>.<span class="ident">id</span>,
                 <span class="ident">name</span>: <span class="ident">exercise_attributes</span>.<span class="ident">name</span>,
-                <span class="ident">exercise_items</span>: <span class="ident">exercise_items</span><span class="question-mark">?</span>,
+                <span class="ident">exercise_tasks</span>: <span class="ident">exercise_tasks</span><span class="question-mark">?</span>,
             };
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">id</span>;
             <span class="ident">exercises</span>.<span class="ident">push</span>(<span class="ident">exercise</span>);
@@ -584,26 +584,26 @@
                 .<span class="ident">find</span>(<span class="op">|</span><span class="ident">exercise</span><span class="op">|</span> <span class="ident">exercise</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">saved_attributes</span>.<span class="ident">id</span>)
                 .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;Could not find exercise that was in gutenberg schema&quot;</span>))<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">inner_blocks</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercise</span>
-                .<span class="ident">exercise_items</span>
+                .<span class="ident">exercise_tasks</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">exercise_item</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">exercise_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">exercise_item</span>.<span class="ident">exercise_type</span>;
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">exercise_task</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">exercise_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>;
                     <span class="kw">let</span> <span class="ident">item_inner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span>
-                        <span class="ident">serde_json</span>::<span class="ident">from_value</span>(<span class="ident">exercise_item</span>.<span class="ident">assignment</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
+                        <span class="ident">serde_json</span>::<span class="ident">from_value</span>(<span class="ident">exercise_task</span>.<span class="ident">assignment</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">public_spec</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spec_content</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">exercise_item</span>.<span class="ident">public_spec</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spec_content</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">public_spec</span> {
                         <span class="ident">public_spec</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="ident">spec_content</span>)<span class="question-mark">?</span>)
                     }
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">private_spec</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spec_content</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">exercise_item</span>.<span class="ident">private_spec</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spec_content</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">private_spec</span> {
                         <span class="ident">private_spec</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="ident">spec_content</span>)<span class="question-mark">?</span>)
                     }
                     <span class="prelude-val">Ok</span>(<span class="ident">GutenbergBlock</span> {
                         <span class="ident">client_id</span>: <span class="ident">Uuid</span>::<span class="ident">new_v4</span>().<span class="ident">to_string</span>(), <span class="comment">// this was discarded on normalizing but any random value should do</span>
-                        <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise-item&quot;</span>.<span class="ident">to_string</span>(),
+                        <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise-task&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-                        <span class="ident">attributes</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseItemAttributes</span> {
-                            <span class="ident">id</span>: <span class="ident">exercise_item</span>.<span class="ident">id</span>,
+                        <span class="ident">attributes</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseTaskAttributes</span> {
+                            <span class="ident">id</span>: <span class="ident">exercise_task</span>.<span class="ident">id</span>,
                             <span class="ident">exercise_type</span>: <span class="ident">exercise_type</span>.<span class="ident">to_string</span>(),
                             <span class="ident">public_spec</span>,
                             <span class="ident">private_spec</span>,
@@ -697,9 +697,9 @@
                 <span class="ident">inner_blocks</span>: <span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">GutenbergBlock</span> {
                         <span class="ident">client_id</span>: <span class="string">&quot;b7538d47-a904-4079-a73d-0fa15fa4664b&quot;</span>.<span class="ident">to_string</span>(),
-                        <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise-item&quot;</span>.<span class="ident">to_string</span>(),
+                        <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise-task&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-                        <span class="ident">attributes</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseItemAttributes</span> {
+                        <span class="ident">attributes</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseTaskAttributes</span> {
                             <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;f0aa52bf-16f4-4f5a-a5cc-a15b1510220c&quot;</span>).<span class="ident">unwrap</span>(),
                             <span class="ident">exercise_type</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                             <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;{}&quot;</span>.<span class="ident">to_string</span>()),
@@ -710,9 +710,9 @@
                     },
                     <span class="ident">GutenbergBlock</span> {
                         <span class="ident">client_id</span>: <span class="string">&quot;11b9a005-c552-4542-b6c0-a2e5a53c5b8f&quot;</span>.<span class="ident">to_string</span>(),
-                        <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise-item&quot;</span>.<span class="ident">to_string</span>(),
+                        <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise-task&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-                        <span class="ident">attributes</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseItemAttributes</span> {
+                        <span class="ident">attributes</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseTaskAttributes</span> {
                             <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;0b39498e-fb6c-43c7-b5e0-9fbc510d0e60&quot;</span>).<span class="ident">unwrap</span>(),
                             <span class="ident">exercise_type</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                             <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;{}&quot;</span>.<span class="ident">to_string</span>()),
@@ -742,15 +742,15 @@
             <span class="kw-2">&amp;</span><span class="ident">PageUpdateExercise</span> {
                 <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;20dff562-0657-4e8e-b34e-65be68e96a81&quot;</span>).<span class="ident">unwrap</span>(),
                 <span class="ident">name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">exercise_items</span>: <span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">PageUpdateExerciseItem</span> {
+                <span class="ident">exercise_tasks</span>: <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">PageUpdateExerciseTask</span> {
                         <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;f0aa52bf-16f4-4f5a-a5cc-a15b1510220c&quot;</span>).<span class="ident">unwrap</span>(),
                         <span class="ident">exercise_type</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="ident">public_spec</span>: <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="string">&quot;{}&quot;</span>).<span class="ident">unwrap</span>(),
                         <span class="ident">private_spec</span>: <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="string">&quot;{}&quot;</span>).<span class="ident">unwrap</span>(),
                         <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="string">&quot;[]&quot;</span>).<span class="ident">unwrap</span>(),
                     },
-                    <span class="ident">PageUpdateExerciseItem</span> {
+                    <span class="ident">PageUpdateExerciseTask</span> {
                         <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;0b39498e-fb6c-43c7-b5e0-9fbc510d0e60&quot;</span>).<span class="ident">unwrap</span>(),
                         <span class="ident">exercise_type</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="ident">public_spec</span>: <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="string">&quot;{}&quot;</span>).<span class="ident">unwrap</span>(),
@@ -802,15 +802,15 @@
         <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PageUpdateExercise</span> {
             <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;20dff562-0657-4e8e-b34e-65be68e96a81&quot;</span>).<span class="ident">unwrap</span>(),
             <span class="ident">name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">exercise_items</span>: <span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">PageUpdateExerciseItem</span> {
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">PageUpdateExerciseTask</span> {
                     <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;f0aa52bf-16f4-4f5a-a5cc-a15b1510220c&quot;</span>).<span class="ident">unwrap</span>(),
                     <span class="ident">exercise_type</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                     <span class="ident">public_spec</span>: <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="string">&quot;{}&quot;</span>).<span class="ident">unwrap</span>(),
                     <span class="ident">private_spec</span>: <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="string">&quot;{}&quot;</span>).<span class="ident">unwrap</span>(),
                     <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="string">&quot;[]&quot;</span>).<span class="ident">unwrap</span>(),
                 },
-                <span class="ident">PageUpdateExerciseItem</span> {
+                <span class="ident">PageUpdateExerciseTask</span> {
                     <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;0b39498e-fb6c-43c7-b5e0-9fbc510d0e60&quot;</span>).<span class="ident">unwrap</span>(),
                     <span class="ident">exercise_type</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                     <span class="ident">public_spec</span>: <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="string">&quot;{}&quot;</span>).<span class="ident">unwrap</span>(),
@@ -865,16 +865,16 @@
         );
         <span class="kw">let</span> <span class="ident">inner_blocks</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">exercise_block</span>.<span class="ident">inner_blocks</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">inner_blocks</span>.<span class="ident">len</span>(), <span class="number">2</span>);
-        <span class="kw">let</span> <span class="ident">exercise_item_block</span> <span class="op">=</span> <span class="ident">inner_blocks</span>
+        <span class="kw">let</span> <span class="ident">exercise_task_block</span> <span class="op">=</span> <span class="ident">inner_blocks</span>
             .<span class="ident">iter</span>()
             .<span class="ident">skip</span>(<span class="number">1</span>)
             .<span class="ident">next</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;Array ended too soon&quot;</span>);
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">exercise_item_block</span>.<span class="ident">name</span>, <span class="string">&quot;moocfi/exercise-item&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">exercise_task_block</span>.<span class="ident">name</span>, <span class="string">&quot;moocfi/exercise-task&quot;</span>.<span class="ident">to_string</span>());
         <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">exercise_item_block</span>.<span class="ident">attributes</span>,
-            <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseItemAttributes</span> {
+            <span class="ident">exercise_task_block</span>.<span class="ident">attributes</span>,
+            <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseTaskAttributes</span> {
                 <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;0b39498e-fb6c-43c7-b5e0-9fbc510d0e60&quot;</span>).<span class="ident">unwrap</span>(),
                 <span class="ident">exercise_type</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;{}&quot;</span>.<span class="ident">to_string</span>()),
@@ -884,7 +884,7 @@
         );
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">exercise_item_block</span>.<span class="ident">inner_blocks</span>,
+            <span class="ident">exercise_task_block</span>.<span class="ident">inner_blocks</span>,
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">GutenbergBlock</span> {
                 <span class="ident">client_id</span>: <span class="string">&quot;58333a81-6ee9-4638-8587-9f902bb9936f&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">name</span>: <span class="string">&quot;test/example-block&quot;</span>.<span class="ident">to_string</span>(),

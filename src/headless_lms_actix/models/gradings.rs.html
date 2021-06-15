@@ -163,7 +163,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">submissions</span>::<span class="ident">GradingRequest</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">exercise_items</span>::<span class="ident">ExerciseItem</span>,
+    <span class="ident">exercise_tasks</span>::<span class="ident">ExerciseTask</span>,
     <span class="ident">exercises</span>::{<span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
     <span class="ident">submissions</span>::{<span class="ident">GradingResult</span>, <span class="ident">Submission</span>},
 };
@@ -176,7 +176,7 @@
     <span class="kw">pub</span> <span class="ident">submission_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_item_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">grading_priority</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
@@ -212,14 +212,14 @@
         <span class="ident">Grading</span>,
         <span class="string">r#&quot;
 INSERT INTO
-  gradings(submission_id, course_id, exercise_id, exercise_item_id, grading_started_at)
+  gradings(submission_id, course_id, exercise_id, exercise_task_id, grading_started_at)
 VALUES($1, $2, $3, $4, now())
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         &quot;#</span>,
         <span class="ident">submission</span>.<span class="ident">id</span>,
         <span class="ident">submission</span>.<span class="ident">course_id</span>,
         <span class="ident">submission</span>.<span class="ident">exercise_id</span>,
-        <span class="ident">submission</span>.<span class="ident">exercise_item_id</span>
+        <span class="ident">submission</span>.<span class="ident">exercise_task_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -229,7 +229,7 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grade_submission</span>(
     <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>,
     <span class="ident">submission</span>: <span class="ident">Submission</span>,
-    <span class="ident">exercise_item</span>: <span class="ident">ExerciseItem</span>,
+    <span class="ident">exercise_task</span>: <span class="ident">ExerciseTask</span>,
     <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
     <span class="ident">grading</span>: <span class="ident">Grading</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span> {
@@ -238,7 +238,7 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
         .<span class="ident">post</span>(<span class="string">&quot;http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/grade&quot;</span>)
         .<span class="ident">timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">120</span>))
         .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">GradingRequest</span> {
-            <span class="ident">exercise_spec</span>: <span class="ident">exercise_item</span>.<span class="ident">private_spec</span>,
+            <span class="ident">exercise_spec</span>: <span class="ident">exercise_task</span>.<span class="ident">private_spec</span>,
             <span class="ident">submission_data</span>: <span class="ident">submission</span>.<span class="ident">data_json</span>,
         })
         .<span class="ident">send</span>()
@@ -286,7 +286,7 @@ UPDATE gradings
     grading_completed_at = $7,
     score_given = $8
 WHERE id = $1
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         &quot;#</span>,
         <span class="ident">grading</span>.<span class="ident">id</span>,
         <span class="ident">grading_result</span>.<span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,

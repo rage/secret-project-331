@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-3.3.2/src/handler.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handler.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/git/checkouts/actix-web-d7e170007873c2f2/370a56f/src/handler.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handler.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -205,93 +205,7 @@
 <span id="204">204</span>
 <span id="205">205</span>
 <span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">Infallible</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
@@ -299,7 +213,7 @@
 
 <span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">Error</span>, <span class="ident">Response</span>};
 <span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">Service</span>, <span class="ident">ServiceFactory</span>};
-<span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">future</span>::{<span class="ident">ok</span>, <span class="ident">Ready</span>};
+<span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">future</span>::{<span class="ident">ready</span>, <span class="ident">Ready</span>};
 <span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">ready</span>;
 <span class="kw">use</span> <span class="ident">pin_project</span>::<span class="ident">pin_project</span>;
 
@@ -308,20 +222,25 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">responder</span>::<span class="ident">Responder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">service</span>::{<span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>};
 
-<span class="doccomment">/// Async handler converter factory</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Factory</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>
+<span class="doccomment">///  A request handler is an async function that accepts zero or more parameters that can be</span>
+<span class="doccomment">///  extracted from a request (ie, [`impl FromRequest`](crate::FromRequest)) and returns a type that can be converted into</span>
+<span class="doccomment">///  an [`HttpResponse`](crate::HttpResponse) (ie, [`impl Responder`](crate::Responder)).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If you got the error `the trait Handler&lt;_, _, _&gt; is not implemented`, then your function is not</span>
+<span class="doccomment">/// a valid handler. See [Request Handlers](https://actix.rs/docs/handlers/) for more information.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>
 <span class="kw">where</span>
-    <span class="ident">R</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">O</span>: <span class="ident">Responder</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
 {
     <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">param</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">Factory</span><span class="op">&lt;</span>(), <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">F</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Handler</span><span class="op">&lt;</span>(), <span class="ident">R</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">F</span>
 <span class="kw">where</span>
     <span class="ident">F</span>: <span class="ident">Fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">R</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">O</span>: <span class="ident">Responder</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
 {
     <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span> {
         (<span class="self">self</span>)()
@@ -329,226 +248,137 @@
 }
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>
+<span class="doccomment">/// Extract arguments from request, run factory function and make response.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HandlerService</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Factory</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">R</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">O</span>: <span class="ident">Responder</span>,
+    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">FromRequest</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
 {
     <span class="ident">hnd</span>: <span class="ident">F</span>,
-    <span class="ident">_t</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span>)<span class="op">&gt;</span>,
+    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">R</span>)<span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">HandlerService</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Factory</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">R</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">O</span>: <span class="ident">Responder</span>,
+    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">FromRequest</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
 {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">hnd</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Handler</span> {
+        <span class="self">Self</span> {
             <span class="ident">hnd</span>,
-            <span class="ident">_t</span>: <span class="ident">PhantomData</span>,
+            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">HandlerService</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Factory</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">R</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">O</span>: <span class="ident">Responder</span>,
+    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">FromRequest</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
 {
     <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Handler</span> {
+        <span class="self">Self</span> {
             <span class="ident">hnd</span>: <span class="self">self</span>.<span class="ident">hnd</span>.<span class="ident">clone</span>(),
-            <span class="ident">_t</span>: <span class="ident">PhantomData</span>,
+            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">Service</span> <span class="kw">for</span> <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HandlerService</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Factory</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">R</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">O</span>: <span class="ident">Responder</span>,
+    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">FromRequest</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
 {
-    <span class="kw">type</span> <span class="ident">Request</span> <span class="op">=</span> (<span class="ident">T</span>, <span class="ident">HttpRequest</span>);
     <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">HandlerServiceResponse</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">O</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
+    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="self">Self</span>;
+    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Service</span>, ()<span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
+        <span class="ident">ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">clone</span>()))
+    }
+}
+
+<span class="doccomment">/// HandlerService is both it&#39;s ServiceFactory and Service Type.</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HandlerService</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">FromRequest</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
+{
+    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">HandlerServiceFuture</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()))
     }
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, (<span class="ident">param</span>, <span class="ident">req</span>): (<span class="ident">T</span>, <span class="ident">HttpRequest</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
-        <span class="ident">HandlerServiceResponse</span> {
-            <span class="ident">fut</span>: <span class="self">self</span>.<span class="ident">hnd</span>.<span class="ident">call</span>(<span class="ident">param</span>),
-            <span class="ident">fut2</span>: <span class="prelude-val">None</span>,
-            <span class="ident">req</span>: <span class="prelude-val">Some</span>(<span class="ident">req</span>),
-        }
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
+        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
+        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>);
+        <span class="ident">HandlerServiceFuture</span>::<span class="ident">Extract</span>(<span class="ident">fut</span>, <span class="prelude-val">Some</span>(<span class="ident">req</span>), <span class="self">self</span>.<span class="ident">hnd</span>.<span class="ident">clone</span>())
     }
 }
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">pin_project</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HandlerServiceResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>
+<span class="attribute">#[<span class="ident">pin_project</span>(<span class="ident">project</span> <span class="op">=</span> <span class="ident">HandlerProj</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HandlerServiceFuture</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">R</span><span class="op">&gt;</span>,
-    <span class="ident">R</span>: <span class="ident">Responder</span>,
+    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">FromRequest</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
 {
-    <span class="attribute">#[<span class="ident">pin</span>]</span>
-    <span class="ident">fut</span>: <span class="ident">T</span>,
-    <span class="attribute">#[<span class="ident">pin</span>]</span>
-    <span class="ident">fut2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Future</span><span class="op">&gt;</span>,
-    <span class="ident">req</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpRequest</span><span class="op">&gt;</span>,
+    <span class="ident">Extract</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">T</span>::<span class="ident">Future</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpRequest</span><span class="op">&gt;</span>, <span class="ident">F</span>),
+    <span class="ident">Handle</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">R</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpRequest</span><span class="op">&gt;</span>),
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">HandlerServiceResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">HandlerServiceFuture</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">R</span><span class="op">&gt;</span>,
-    <span class="ident">R</span>: <span class="ident">Responder</span>,
+    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">FromRequest</span>,
+    <span class="ident">R</span>: <span class="ident">Future</span>,
+    <span class="ident">R</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span>, <span class="ident">Infallible</span><span class="op">&gt;</span>;
+    <span class="comment">// Error type in this future is a placeholder type.</span>
+    <span class="comment">// all instances of error must be converted to ServiceResponse and return in Ok.</span>
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">fut</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">fut2</span>.<span class="ident">as_pin_mut</span>() {
-            <span class="kw">return</span> <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">res</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ServiceResponse</span>::<span class="ident">new</span>(<span class="ident">this</span>.<span class="ident">req</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(), <span class="ident">res</span>)))
+        <span class="kw">loop</span> {
+            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>() {
+                <span class="ident">HandlerProj</span>::<span class="ident">Extract</span>(<span class="ident">fut</span>, <span class="ident">req</span>, <span class="ident">handle</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">match</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)) {
+                        <span class="prelude-val">Ok</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">handle</span>.<span class="ident">call</span>(<span class="ident">item</span>);
+                            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">HandlerServiceFuture</span>::<span class="ident">Handle</span>(<span class="ident">fut</span>, <span class="ident">req</span>.<span class="ident">take</span>());
+                            <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">set</span>(<span class="ident">state</span>);
+                        }
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">into</span>().<span class="ident">into</span>();
+                            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+                            <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ServiceResponse</span>::<span class="ident">new</span>(<span class="ident">req</span>, <span class="ident">res</span>)));
+                        }
+                    };
                 }
-                <span class="ident">Poll</span>::<span class="ident">Pending</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>,
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">into</span>().<span class="ident">into</span>();
-                    <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ServiceResponse</span>::<span class="ident">new</span>(<span class="ident">this</span>.<span class="ident">req</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(), <span class="ident">res</span>)))
+                <span class="ident">HandlerProj</span>::<span class="ident">Handle</span>(<span class="ident">fut</span>, <span class="ident">req</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>));
+                    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
+                    <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ServiceResponse</span>::<span class="ident">new</span>(<span class="ident">req</span>, <span class="ident">res</span>)));
                 }
-            };
-        }
-
-        <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">res</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">respond_to</span>(<span class="ident">this</span>.<span class="ident">req</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
-                <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>().<span class="ident">fut2</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">fut</span>));
-                <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
-            }
-            <span class="ident">Poll</span>::<span class="ident">Pending</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>,
-        }
-    }
-}
-
-<span class="doccomment">/// Extract arguments from request</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Extract</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromRequest</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">service</span>: <span class="ident">S</span>,
-    <span class="ident">_t</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromRequest</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Extract</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">service</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Extract</span> {
-            <span class="ident">service</span>,
-            <span class="ident">_t</span>: <span class="ident">PhantomData</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromRequest</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span> <span class="kw">for</span> <span class="ident">Extract</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span>
-            <span class="ident">Request</span> <span class="op">=</span> (<span class="ident">T</span>, <span class="ident">HttpRequest</span>),
-            <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>,
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>,
-        <span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-{
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Request</span> <span class="op">=</span> <span class="ident">ServiceRequest</span>;
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> (<span class="ident">Error</span>, <span class="ident">ServiceRequest</span>);
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">ExtractService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Service</span>, ()<span class="op">&gt;</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
-        <span class="ident">ok</span>(<span class="ident">ExtractService</span> {
-            <span class="ident">_t</span>: <span class="ident">PhantomData</span>,
-            <span class="ident">service</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">clone</span>(),
-        })
-    }
-}
-
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExtractService</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromRequest</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">service</span>: <span class="ident">S</span>,
-    <span class="ident">_t</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromRequest</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Service</span> <span class="kw">for</span> <span class="ident">ExtractService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span>
-            <span class="ident">Request</span> <span class="op">=</span> (<span class="ident">T</span>, <span class="ident">HttpRequest</span>),
-            <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>,
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>,
-        <span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-{
-    <span class="kw">type</span> <span class="ident">Request</span> <span class="op">=</span> <span class="ident">ServiceRequest</span>;
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> (<span class="ident">Error</span>, <span class="ident">ServiceRequest</span>);
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">ExtractResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()))
-    }
-
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
-        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>);
-
-        <span class="ident">ExtractResponse</span> {
-            <span class="ident">fut</span>,
-            <span class="ident">req</span>,
-            <span class="ident">fut_s</span>: <span class="prelude-val">None</span>,
-            <span class="ident">service</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">clone</span>(),
-        }
-    }
-}
-
-<span class="attribute">#[<span class="ident">pin_project</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExtractResponse</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromRequest</span>, <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&gt;</span> {
-    <span class="ident">req</span>: <span class="ident">HttpRequest</span>,
-    <span class="ident">service</span>: <span class="ident">S</span>,
-    <span class="attribute">#[<span class="ident">pin</span>]</span>
-    <span class="ident">fut</span>: <span class="ident">T</span>::<span class="ident">Future</span>,
-    <span class="attribute">#[<span class="ident">pin</span>]</span>
-    <span class="ident">fut_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="ident">Future</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromRequest</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ExtractResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span>
-        <span class="ident">Request</span> <span class="op">=</span> (<span class="ident">T</span>, <span class="ident">HttpRequest</span>),
-        <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>,
-        <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>,
-    <span class="op">&gt;</span>,
-{
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span>, (<span class="ident">Error</span>, <span class="ident">ServiceRequest</span>)<span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">fut</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">fut_s</span>.<span class="ident">as_pin_mut</span>() {
-            <span class="kw">return</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">panic</span><span class="macro">!</span>());
-        }
-
-        <span class="kw">match</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)) {
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">ServiceRequest</span>::<span class="ident">new</span>(<span class="ident">this</span>.<span class="ident">req</span>.<span class="ident">clone</span>());
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>((<span class="ident">e</span>.<span class="ident">into</span>(), <span class="ident">req</span>)))
-            }
-            <span class="prelude-val">Ok</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">this</span>.<span class="ident">service</span>.<span class="ident">call</span>((<span class="ident">item</span>, <span class="ident">this</span>.<span class="ident">req</span>.<span class="ident">clone</span>())));
-                <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>().<span class="ident">fut_s</span>.<span class="ident">set</span>(<span class="ident">fut</span>);
-                <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
             }
         }
     }
@@ -556,10 +386,10 @@
 
 <span class="doccomment">/// FromRequest trait impl for tuples</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">factory_tuple</span> ({ $((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>:<span class="ident">tt</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ident</span>)),<span class="op">+</span>} <span class="op">=</span><span class="op">&gt;</span> {
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Func</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span> <span class="ident">Res</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">Factory</span><span class="op">&lt;</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>), <span class="ident">Res</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Func</span>
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Func</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span> <span class="ident">Res</span><span class="op">&gt;</span> <span class="ident">Handler</span><span class="op">&lt;</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>), <span class="ident">Res</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Func</span>
     <span class="kw">where</span> <span class="ident">Func</span>: <span class="ident">Fn</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-          <span class="ident">Res</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">O</span><span class="op">&gt;</span>,
-          <span class="ident">O</span>: <span class="ident">Responder</span>,
+          <span class="ident">Res</span>: <span class="ident">Future</span>,
+          <span class="ident">Res</span>::<span class="ident">Output</span>: <span class="ident">Responder</span>,
     {
         <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">param</span>: ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span> {
             (<span class="self">self</span>)($(<span class="ident">param</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>,)<span class="op">+</span>)
@@ -571,16 +401,16 @@
 <span class="kw">mod</span> <span class="ident">m</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>));
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>));
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>));
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>));
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>));
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>));
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>), (<span class="number">6</span>, <span class="ident">G</span>));
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>), (<span class="number">6</span>, <span class="ident">G</span>), (<span class="number">7</span>, <span class="ident">H</span>));
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>), (<span class="number">6</span>, <span class="ident">G</span>), (<span class="number">7</span>, <span class="ident">H</span>), (<span class="number">8</span>, <span class="ident">I</span>));
-<span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>), (<span class="number">6</span>, <span class="ident">G</span>), (<span class="number">7</span>, <span class="ident">H</span>), (<span class="number">8</span>, <span class="ident">I</span>), (<span class="number">9</span>, <span class="ident">J</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>), (<span class="number">6</span>, <span class="ident">G</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>), (<span class="number">6</span>, <span class="ident">G</span>), (<span class="number">7</span>, <span class="ident">H</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>), (<span class="number">6</span>, <span class="ident">G</span>), (<span class="number">7</span>, <span class="ident">H</span>), (<span class="number">8</span>, <span class="ident">I</span>));
+    <span class="macro">factory_tuple</span><span class="macro">!</span>((<span class="number">0</span>, <span class="ident">A</span>), (<span class="number">1</span>, <span class="ident">B</span>), (<span class="number">2</span>, <span class="ident">C</span>), (<span class="number">3</span>, <span class="ident">D</span>), (<span class="number">4</span>, <span class="ident">E</span>), (<span class="number">5</span>, <span class="ident">F</span>), (<span class="number">6</span>, <span class="ident">G</span>), (<span class="number">7</span>, <span class="ident">H</span>), (<span class="number">8</span>, <span class="ident">I</span>), (<span class="number">9</span>, <span class="ident">J</span>));
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-search-js="../../search-index.js"></div>

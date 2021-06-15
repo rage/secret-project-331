@@ -135,7 +135,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Resource</span> {
     <span class="ident">Chapter</span>(<span class="ident">Uuid</span>),
     <span class="ident">Course</span>(<span class="ident">Uuid</span>),
-    <span class="ident">ExerciseItem</span>(<span class="ident">Uuid</span>),
+    <span class="ident">ExerciseTask</span>(<span class="ident">Uuid</span>),
     <span class="ident">Exercise</span>(<span class="ident">Uuid</span>),
     <span class="ident">Grading</span>(<span class="ident">Uuid</span>),
     <span class="ident">Organization</span>(<span class="ident">Uuid</span>),
@@ -166,8 +166,8 @@
             <span class="prelude-val">None</span>,
         ),
         <span class="ident">Resource</span>::<span class="ident">Course</span>(<span class="ident">course_id</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="prelude-val">Some</span>(<span class="ident">course_id</span>), <span class="prelude-val">None</span>),
-        <span class="ident">Resource</span>::<span class="ident">ExerciseItem</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> (
-            <span class="prelude-val">Some</span>(<span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">exercise_items</span>::<span class="ident">get_course_id</span>(<span class="ident">pool</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>),
+        <span class="ident">Resource</span>::<span class="ident">ExerciseTask</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> (
+            <span class="prelude-val">Some</span>(<span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">exercise_tasks</span>::<span class="ident">get_course_id</span>(<span class="ident">pool</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>),
             <span class="prelude-val">None</span>,
         ),
         <span class="ident">Resource</span>::<span class="ident">Exercise</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> (

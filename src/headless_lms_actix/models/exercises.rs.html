@@ -153,9 +153,9 @@
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Acquire</span>, <span class="ident">PgPool</span>};
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">exercise_items</span>::<span class="ident">get_random_exercise_item</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">exercise_tasks</span>::<span class="ident">get_random_exercise_task</span>;
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">exercise_items</span>::<span class="ident">CourseMaterialExerciseItem</span>;
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">exercise_tasks</span>::<span class="ident">CourseMaterialExerciseTask</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Exercise</span> {
@@ -173,7 +173,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialExercise</span> {
     <span class="kw">pub</span> <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
-    <span class="kw">pub</span> <span class="ident">current_exercise_item</span>: <span class="ident">CourseMaterialExerciseItem</span>,
+    <span class="kw">pub</span> <span class="ident">current_exercise_task</span>: <span class="ident">CourseMaterialExerciseTask</span>,
     <span class="doccomment">/// None for logged out users.</span>
     <span class="kw">pub</span> <span class="ident">exercise_status</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseStatus</span><span class="op">&gt;</span>,
 }
@@ -277,14 +277,14 @@ As close as possible LTI&#39;s grading progress for compatibility: https://www.i
     )
     .<span class="ident">fetch_one</span>(<span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// Exercise item contains the actual assignment and activity</span>
-    <span class="comment">// What exercise item to give for the student depends on the</span>
-    <span class="comment">// exercise -- for now we&#39;ll give a random exercise item to the student</span>
+    <span class="comment">// Exercise task contains the actual assignment and activity</span>
+    <span class="comment">// What exercise task to give for the student depends on the</span>
+    <span class="comment">// exercise -- for now we&#39;ll give a random exercise task to the student</span>
     <span class="comment">// this could be changed by creating a policy in the exercise.</span>
-    <span class="kw">let</span> <span class="ident">current_exercise_item</span> <span class="op">=</span> <span class="ident">get_random_exercise_item</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">current_exercise_task</span> <span class="op">=</span> <span class="ident">get_random_exercise_task</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">CourseMaterialExercise</span> {
         <span class="ident">exercise</span>,
-        <span class="ident">current_exercise_item</span>,
+        <span class="ident">current_exercise_task</span>,
         <span class="ident">exercise_status</span>: <span class="prelude-val">Some</span>(<span class="ident">ExerciseStatus</span> {
             <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
             <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>::<span class="ident">Initialized</span>,

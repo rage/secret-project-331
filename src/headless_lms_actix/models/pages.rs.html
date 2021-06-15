@@ -745,7 +745,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">models</span>::<span class="ident">chapters</span>::<span class="ident">Chapter</span>,
-    <span class="ident">models</span>::<span class="ident">exercise_items</span>::<span class="ident">ExerciseItem</span>,
+    <span class="ident">models</span>::<span class="ident">exercise_tasks</span>::<span class="ident">ExerciseTask</span>,
     <span class="ident">utils</span>::<span class="ident">document_schema_processor</span>::{<span class="ident">denormalize</span>, <span class="ident">normalize_from_json</span>, <span class="ident">NormalizedDocument</span>},
 };
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
@@ -811,11 +811,11 @@
     <span class="comment">// The id will be validated so that the client can&#39;t change it on us.</span>
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseItem</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseTask</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageUpdateExerciseItem</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageUpdateExerciseTask</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
@@ -824,7 +824,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageUpdateExerciseItemWithExerciseId</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageUpdateExerciseTaskWithExerciseId</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
@@ -834,7 +834,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageExerciseItem</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageExerciseTask</span> {
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json</span>::<span class="ident">Value</span>,
     <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
@@ -870,7 +870,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ExerciseWithExerciseItems</span> {
+<span class="kw">struct</span> <span class="ident">ExerciseWithExerciseTasks</span> {
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
@@ -879,7 +879,7 @@
     <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseItem</span><span class="op">&gt;</span>,
+    <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseTask</span><span class="op">&gt;</span>,
     <span class="ident">score_maximum</span>: <span class="ident">i32</span>,
 }
 
@@ -959,24 +959,24 @@
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">exercise_items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseItemWithExerciseId</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
-        <span class="ident">PageUpdateExerciseItemWithExerciseId</span>,
-        <span class="string">&quot;SELECT id, exercise_type, assignment, public_spec, private_spec, exercise_id FROM exercise_items WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);&quot;</span>,
+    <span class="kw">let</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseTaskWithExerciseId</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+        <span class="ident">PageUpdateExerciseTaskWithExerciseId</span>,
+        <span class="string">&quot;SELECT id, exercise_type, assignment, public_spec, private_spec, exercise_id FROM exercise_tasks WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);&quot;</span>,
         <span class="ident">page_id</span>
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_items_by_exercise</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseItem</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercise_items</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_tasks_by_exercise</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseTask</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercise_tasks</span>
         .<span class="ident">into_iter</span>()
-        .<span class="ident">into_group_map_by</span>(<span class="op">|</span><span class="ident">ei</span><span class="op">|</span> <span class="ident">ei</span>.<span class="ident">exercise_id</span>)
+        .<span class="ident">into_group_map_by</span>(<span class="op">|</span><span class="ident">et</span><span class="op">|</span> <span class="ident">et</span>.<span class="ident">exercise_id</span>)
         .<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> {
             (
                 <span class="ident">key</span>,
                 <span class="ident">value</span>
                     .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">PageUpdateExerciseItem</span> {
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">PageUpdateExerciseTask</span> {
                         <span class="ident">id</span>: <span class="ident">i</span>.<span class="ident">id</span>,
                         <span class="ident">exercise_type</span>: <span class="ident">i</span>.<span class="ident">exercise_type</span>,
                         <span class="ident">assignment</span>: <span class="ident">i</span>.<span class="ident">assignment</span>,
@@ -988,24 +988,24 @@
         })
         .<span class="ident">collect</span>();
 
-    <span class="kw">let</span> <span class="ident">exercises_with_items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExercise</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercises</span>
+    <span class="kw">let</span> <span class="ident">exercises_with_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExercise</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercises</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">items</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">exercise_items_by_exercise</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">e</span>.<span class="ident">id</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">ei</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ei</span>,
+            <span class="kw">let</span> <span class="ident">exercise_tasks</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">exercise_tasks_by_exercise</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">e</span>.<span class="ident">id</span>) {
+                <span class="prelude-val">Some</span>(<span class="ident">et</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">et</span>,
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vec</span>::<span class="ident">new</span>(),
             };
             <span class="ident">PageUpdateExercise</span> {
                 <span class="ident">id</span>: <span class="ident">e</span>.<span class="ident">id</span>,
                 <span class="ident">name</span>: <span class="ident">e</span>.<span class="ident">name</span>,
-                <span class="ident">exercise_items</span>: <span class="ident">items</span>,
+                <span class="ident">exercise_tasks</span>,
             }
         })
         .<span class="ident">collect</span>();
     <span class="comment">// This is for cms so we need to put exercises back inside the content</span>
     <span class="kw">let</span> <span class="ident">normalized_document</span> <span class="op">=</span> <span class="ident">NormalizedDocument</span> {
         <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">from_value</span>(<span class="ident">page</span>.<span class="ident">content</span>)<span class="question-mark">?</span>,
-        <span class="ident">exercises</span>: <span class="ident">exercises_with_items</span>,
+        <span class="ident">exercises</span>: <span class="ident">exercises_with_tasks</span>,
     };
 
     <span class="kw">let</span> <span class="ident">denormalized_content</span> <span class="op">=</span> <span class="ident">denormalize</span>(<span class="ident">normalized_document</span>)<span class="question-mark">?</span>;
@@ -1015,7 +1015,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">page</span>)
 }
 
-<span class="comment">// This has 3 stages: updating page, updating exercises, updating exercise items.</span>
+<span class="comment">// This has 3 stages: updating page, updating exercises, updating exercise tasks.</span>
 <span class="comment">// This is currently implemented with multiple sql queries, but it could be optimized</span>
 <span class="comment">// with data-modifying common table expressions if necessary.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_page</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>, <span class="ident">page_update</span>: <span class="ident">PageUpdate</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
@@ -1046,7 +1046,7 @@ RETURNING *
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> (<span class="ident">result_exercises</span>, <span class="ident">new_content</span>) <span class="op">=</span>
-        <span class="ident">upsert_exercises_and_exercise_items</span>(<span class="kw-2">&amp;</span><span class="ident">exercises</span>, <span class="kw-2">&amp;</span><span class="ident">page</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">upsert_exercises_and_exercise_tasks</span>(<span class="kw-2">&amp;</span><span class="ident">exercises</span>, <span class="kw-2">&amp;</span><span class="ident">page</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">denormalized_content</span> <span class="op">=</span> <span class="ident">denormalize</span>(<span class="ident">NormalizedDocument</span> {
         <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">from_value</span>(<span class="ident">new_content</span>)<span class="question-mark">?</span>,
@@ -1084,7 +1084,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
 }
 
 <span class="doccomment">/// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_exercises_and_exercise_items</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_exercises_and_exercise_tasks</span>(
     <span class="ident">exercises</span>: <span class="kw-2">&amp;</span>[<span class="ident">PageUpdateExercise</span>],
     <span class="ident">page</span>: <span class="kw-2">&amp;</span><span class="ident">Page</span>,
     <span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
@@ -1104,7 +1104,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
 
     <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
         <span class="string">r#&quot;
-        UPDATE exercise_items SET deleted_at = now() WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
+        UPDATE exercise_tasks SET deleted_at = now() WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
             &quot;#</span>,
         <span class="ident">page</span>.<span class="ident">id</span>
     )
@@ -1121,9 +1121,9 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">connection</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">existing_exercise_item_ids</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="ident">existing_exercise_task_ids</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
             <span class="string">r#&quot;
-    SELECT exercise_items.id from exercise_items JOIN exercises e ON (e.id = exercise_items.exercise_id) WHERE page_id = $1
+    SELECT exercise_tasks.id from exercise_tasks JOIN exercises e ON (e.id = exercise_tasks.exercise_id) WHERE page_id = $1
         &quot;#</span>,
             <span class="ident">page</span>.<span class="ident">id</span>
         )
@@ -1133,7 +1133,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExercise</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changed_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">exercise_update</span> <span class="kw">in</span> <span class="ident">exercises</span>.<span class="ident">iter</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_exercise_items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseItem</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExerciseTask</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">safe_for_db_exercise_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">existing_exercise_ids</span>
             .<span class="ident">iter</span>()
             .<span class="ident">any</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">exercise_update</span>.<span class="ident">id</span>)
@@ -1161,42 +1161,42 @@ RETURNING *;
         )
         .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">connection</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">item_update</span> <span class="kw">in</span> <span class="ident">exercise_update</span>.<span class="ident">exercise_items</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="ident">safe_for_db_exercise_item_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">existing_exercise_item_ids</span>
+        <span class="kw">for</span> <span class="ident">task_update</span> <span class="kw">in</span> <span class="ident">exercise_update</span>.<span class="ident">exercise_tasks</span>.<span class="ident">iter</span>() {
+            <span class="kw">let</span> <span class="ident">safe_for_db_exercise_task_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">existing_exercise_task_ids</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">any</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">item_update</span>.<span class="ident">id</span>)
+                .<span class="ident">any</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">task_update</span>.<span class="ident">id</span>)
             {
-                <span class="ident">item_update</span>.<span class="ident">id</span>
+                <span class="ident">task_update</span>.<span class="ident">id</span>
             } <span class="kw">else</span> {
-                <span class="comment">// No need to add this to changed ids because exercise item ids</span>
+                <span class="comment">// No need to add this to changed ids because exercise task ids</span>
                 <span class="comment">// are not supposed to appear in the content json.</span>
                 <span class="ident">Uuid</span>::<span class="ident">new_v4</span>()
             };
             <span class="comment">// Upsert</span>
-            <span class="kw">let</span> <span class="ident">exercise_item</span>: <span class="ident">PageUpdateExerciseItem</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
-                <span class="ident">PageUpdateExerciseItem</span>,
+            <span class="kw">let</span> <span class="ident">exercise_task</span>: <span class="ident">PageUpdateExerciseTask</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+                <span class="ident">PageUpdateExerciseTask</span>,
                 <span class="string">r#&quot;
-INSERT INTO exercise_items(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
+INSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
 VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO UPDATE
 SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
 RETURNING id, exercise_type, assignment, public_spec, private_spec;
         &quot;#</span>,
-                <span class="ident">safe_for_db_exercise_item_id</span>,
+                <span class="ident">safe_for_db_exercise_task_id</span>,
                 <span class="ident">safe_for_db_exercise_id</span>,
-                <span class="ident">item_update</span>.<span class="ident">exercise_type</span>,
-                <span class="ident">item_update</span>.<span class="ident">assignment</span>,
-                <span class="ident">item_update</span>.<span class="ident">public_spec</span>,
-                <span class="ident">item_update</span>.<span class="ident">private_spec</span>,
+                <span class="ident">task_update</span>.<span class="ident">exercise_type</span>,
+                <span class="ident">task_update</span>.<span class="ident">assignment</span>,
+                <span class="ident">task_update</span>.<span class="ident">public_spec</span>,
+                <span class="ident">task_update</span>.<span class="ident">private_spec</span>,
             )
             .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">connection</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">exercise_exercise_items</span>.<span class="ident">push</span>(<span class="ident">exercise_item</span>);
+            <span class="ident">exercise_exercise_tasks</span>.<span class="ident">push</span>(<span class="ident">exercise_task</span>);
         }
         <span class="ident">result_exercises</span>.<span class="ident">push</span>(<span class="ident">PageUpdateExercise</span> {
             <span class="ident">id</span>: <span class="ident">exercise</span>.<span class="ident">id</span>,
             <span class="ident">name</span>: <span class="ident">exercise</span>.<span class="ident">name</span>,
-            <span class="ident">exercise_items</span>: <span class="ident">exercise_exercise_items</span>,
+            <span class="ident">exercise_tasks</span>: <span class="ident">exercise_exercise_tasks</span>,
         })
     }
 
@@ -1250,7 +1250,7 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> (<span class="ident">result_exercises</span>, <span class="ident">new_content</span>) <span class="op">=</span>
-        <span class="ident">upsert_exercises_and_exercise_items</span>(<span class="kw-2">&amp;</span><span class="ident">exercises</span>, <span class="kw-2">&amp;</span><span class="ident">page</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">upsert_exercises_and_exercise_tasks</span>(<span class="kw-2">&amp;</span><span class="ident">exercises</span>, <span class="kw-2">&amp;</span><span class="ident">page</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">denormalized_content</span> <span class="op">=</span> <span class="ident">denormalize</span>(<span class="ident">NormalizedDocument</span> {
         <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">from_value</span>(<span class="ident">new_content</span>)<span class="question-mark">?</span>,
@@ -1316,7 +1316,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
 
     <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
         <span class="string">r#&quot;
-  UPDATE exercise_items
+  UPDATE exercise_tasks
   SET deleted_at = now()
   WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)
           &quot;#</span>,

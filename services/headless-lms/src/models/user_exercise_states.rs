@@ -78,7 +78,6 @@ pub async fn get_user_metrics(
 SELECT COUNT(ues.exercise_id) as completed_exercises,
   COALESCE(0, SUM(ues.score_given)) as score_given
 FROM user_exercise_states ues
-  LEFT JOIN exercises e on e.id = ues.exercise_id
 WHERE ues.course_instance_id = $1
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL

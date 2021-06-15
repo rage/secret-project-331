@@ -1,9 +1,9 @@
 use anyhow::Result;
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use dotenv::dotenv;
+use headless_lms_actix::models::course_instances::{CourseInstance, VariantStatus};
 use sqlx::PgPool;
 use std::env;
-use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -15,23 +15,6 @@ async fn main() -> Result<()> {
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
     let db_pool = PgPool::connect(&database_url).await?;
     let mut transaction = db_pool.begin().await?;
-
-    #[derive(Debug, PartialEq, Eq, sqlx::Type)]
-    #[sqlx(type_name = "variant_status", rename_all = "snake_case")]
-    enum VariantStatus {
-        Draft,
-        Upcoming,
-        Active,
-        Ended,
-    }
-
-    #[derive(Debug)]
-    struct CourseInstance {
-        id: Uuid,
-        variant_status: VariantStatus,
-        starts_at: Option<DateTime<Utc>>,
-        ends_at: Option<DateTime<Utc>>,
-    }
 
     let course_instances = sqlx::query_as!(
         CourseInstance,

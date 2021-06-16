@@ -148,16 +148,13 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sqlx</span>::<span class="ident">PgPool</span>;
+<span class="kw">use</span> <span class="ident">sqlx</span>::<span class="ident">PgConnection</span>;
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">submissions</span>::<span class="ident">GradingRequest</span>;
@@ -197,17 +194,15 @@
     <span class="ident">CanAddPointsAndCanRemovePoints</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(<span class="string">r#&quot;SELECT course_id from gradings where id = $1&quot;#</span>, <span class="ident">id</span>)
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
+        .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>
         .<span class="ident">course_id</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_grading</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>, <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">Submission</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_grading</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">Submission</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">Grading</span>,
         <span class="string">r#&quot;
@@ -221,13 +216,13 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
         <span class="ident">submission</span>.<span class="ident">exercise_id</span>,
         <span class="ident">submission</span>.<span class="ident">exercise_task_id</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">grading</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grade_submission</span>(
-    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>,
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">submission</span>: <span class="ident">Submission</span>,
     <span class="ident">exercise_task</span>: <span class="ident">ExerciseTask</span>,
     <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
@@ -249,17 +244,16 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
     }
     <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">GradingResult</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Received a grading result: {:#?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>);
-    <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span> <span class="ident">update_grading</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>, <span class="ident">grading</span>, <span class="ident">obj</span>, <span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span> <span class="ident">update_grading</span>(<span class="ident">conn</span>, <span class="ident">grading</span>, <span class="ident">obj</span>, <span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">updated_grading</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_grading</span>(
-    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>,
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">grading</span>: <span class="ident">Grading</span>,
     <span class="ident">grading_result</span>: <span class="ident">GradingResult</span>,
     <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">grading_completed_at</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">grading_result</span>.<span class="ident">grading_progress</span>.<span class="ident">is_complete</span>() {
         <span class="prelude-val">Some</span>(<span class="ident">Utc</span>::<span class="ident">now</span>())
     } <span class="kw">else</span> {
@@ -297,7 +291,7 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
         <span class="ident">grading_completed_at</span>,
         <span class="ident">score_given_rounded</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(<span class="ident">grading</span>)

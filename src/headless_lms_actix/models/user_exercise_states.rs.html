@@ -411,8 +411,6 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">gradings</span>::<span class="ident">UserPointsUpdateStrategy</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">f32</span>;
@@ -425,7 +423,7 @@
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sqlx</span>::<span class="ident">PgPool</span>;
+<span class="kw">use</span> <span class="ident">sqlx</span>::<span class="ident">PgConnection</span>;
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
@@ -442,12 +440,11 @@
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_create_user_exercise_state</span>(
-    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>,
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">user_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
     <span class="ident">exercise_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
     <span class="ident">course_instance_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">UserExerciseState</span>,
         <span class="string">r#&quot;
@@ -468,7 +465,7 @@ RETURNING user_id,
         <span class="ident">exercise_id</span>,
         <span class="ident">course_instance_id</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
@@ -566,11 +563,10 @@ before the user has given the peer reviews that they&#39;re required to give.
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_user_exercise_state</span>(
-    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">PgPool</span>,
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">grading</span>: <span class="kw-2">&amp;</span><span class="ident">Grading</span>,
     <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">Submission</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">Submission</span> {
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
@@ -578,7 +574,7 @@ before the user has given the peer reviews that they&#39;re required to give.
         ..
     } <span class="op">=</span> <span class="ident">submission</span>;
     <span class="kw">let</span> <span class="ident">current_state</span> <span class="op">=</span>
-        <span class="ident">get_or_create_user_exercise_state</span>(<span class="ident">pool</span>, <span class="ident">user_id</span>, <span class="ident">exercise_id</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">get_or_create_user_exercise_state</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">exercise_id</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">info</span><span class="macro">!</span>(
         <span class="string">&quot;Using user points updating strategy {:?}&quot;</span>,
@@ -618,7 +614,7 @@ RETURNING user_id,
         <span class="ident">new_grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
         <span class="ident">new_activity_progress</span> <span class="kw">as</span> <span class="ident">ActivityProgress</span>,
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }

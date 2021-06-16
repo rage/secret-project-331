@@ -120,6 +120,12 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
@@ -223,6 +229,12 @@ Represents error messages that are sent in responses.
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">uuid</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ApplicationError</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">uuid</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationError</span> {
         <span class="self">Self</span>::<span class="ident">BadRequest</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">sqlx</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ApplicationError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">sqlx</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationError</span> {
+        <span class="self">Self</span>::<span class="ident">InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
     }
 }
 

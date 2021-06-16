@@ -1,7 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, PgPool};
+use sqlx::PgConnection;
 use uuid::Uuid;
 
 use super::{
@@ -27,37 +27,35 @@ pub struct CourseStructure {
     pub chapters: Vec<Chapter>,
 }
 
-pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn all_courses(conn: &mut PgConnection) -> Result<Vec<Course>> {
     let courses = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE deleted_at IS NULL;"#)
-        .fetch_all(connection)
+        .fetch_all(conn)
         .await?;
     Ok(courses)
 }
 
-pub async fn get_course(pool: &PgPool, course_id: Uuid) -> Result<Course> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn get_course(conn: &mut PgConnection, course_id: Uuid) -> Result<Course> {
     let course = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE id = $1;"#, course_id)
-        .fetch_one(connection)
+        .fetch_one(conn)
         .await?;
     Ok(course)
 }
 
-pub async fn get_organization_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let organization_id = sqlx::query!("SELECT organization_id FROM courses WHERE id = $1", id)
-        .fetch_one(&mut connection)
+        .fetch_one(conn)
         .await?
         .organization_id;
     Ok(organization_id)
 }
 
-pub async fn get_course_structure(pool: &PgPool, course_id: Uuid) -> Result<CourseStructure> {
-    let course = get_course(pool, course_id).await?;
-    let pages = course_pages(pool, course_id).await?;
-    let chapters = course_chapters(pool, course_id).await?;
+pub async fn get_course_structure(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> Result<CourseStructure> {
+    let course = get_course(conn, course_id).await?;
+    let pages = course_pages(conn, course_id).await?;
+    let chapters = course_chapters(conn, course_id).await?;
     Ok(CourseStructure {
         course,
         pages,
@@ -65,15 +63,16 @@ pub async fn get_course_structure(pool: &PgPool, course_id: Uuid) -> Result<Cour
     })
 }
 
-pub async fn organization_courses(pool: &PgPool, organization_id: &Uuid) -> Result<Vec<Course>> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn organization_courses(
+    conn: &mut PgConnection,
+    organization_id: &Uuid,
+) -> Result<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
         r#"SELECT * FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;"#,
         organization_id
     )
-    .fetch_all(connection)
+    .fetch_all(conn)
     .await?;
     Ok(courses)
 }
@@ -86,8 +85,7 @@ pub struct NewCourse {
     organization_id: Uuid,
 }
 
-pub async fn insert_course(pool: &PgPool, course: NewCourse) -> Result<Course> {
-    let mut connection = pool.acquire().await?;
+pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result<Course> {
     let res = sqlx::query_as!(
         Course,
         r#"
@@ -100,7 +98,7 @@ pub async fn insert_course(pool: &PgPool, course: NewCourse) -> Result<Course> {
         course.slug,
         course.organization_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
@@ -112,11 +110,10 @@ pub struct CourseUpdate {
 }
 
 pub async fn update_course(
-    pool: &sqlx::Pool<sqlx::Postgres>,
+    conn: &mut PgConnection,
     course_id: Uuid,
     course_update: CourseUpdate,
 ) -> Result<Course> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         Course,
         r#"
@@ -129,13 +126,12 @@ WHERE
         course_update.name,
         course_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn delete_course(pool: &sqlx::Pool<sqlx::Postgres>, course_id: Uuid) -> Result<Course> {
-    let mut connection = pool.acquire().await?;
+pub async fn delete_course(conn: &mut PgConnection, course_id: Uuid) -> Result<Course> {
     let deleted = sqlx::query_as!(
         Course,
         r#"
@@ -147,7 +143,7 @@ RETURNING *
     "#,
         course_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(deleted)
 }

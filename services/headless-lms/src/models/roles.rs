@@ -1,6 +1,6 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::PgConnection;
 use sqlx::Type;
 use uuid::Uuid;
 
@@ -38,13 +38,12 @@ impl Role {
     }
 }
 
-pub async fn get_roles(pool: &PgPool, user_id: Uuid) -> Result<Vec<Role>> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_roles(conn: &mut PgConnection, user_id: Uuid) -> Result<Vec<Role>> {
     let roles = sqlx::query_as!(
         Role,
         r#"SELECT organization_id, course_id, role AS "role: UserRole" FROM roles WHERE user_id = $1"#, user_id
     )
-    .fetch_all(&mut connection)
+    .fetch_all(conn)
     .await?;
     Ok(roles)
 }

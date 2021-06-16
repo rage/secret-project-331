@@ -51,11 +51,10 @@ async fn get_exercise(
     pool: web::Data<PgPool>,
     request_exercise_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<CourseMaterialExercise>> {
-    let exercise = crate::models::exercises::get_course_material_exercise(
-        pool.get_ref(),
-        *request_exercise_id,
-    )
-    .await?;
+    let mut conn = pool.acquire().await?;
+    let exercise =
+        crate::models::exercises::get_course_material_exercise(&mut conn, *request_exercise_id)
+            .await?;
     Ok(Json(exercise))
 }
 

@@ -1,10 +1,9 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::PgConnection;
 use uuid::Uuid;
 
-// private fields to guarantee that this struct can only be created through FromRequest
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct User {
     pub id: Uuid,
@@ -14,8 +13,11 @@ pub struct User {
     pub upstream_id: Option<i32>,
 }
 
-pub async fn upsert_user_id(pool: &PgPool, id: Uuid, upstream_id: Option<i32>) -> Result<User> {
-    let mut connection = pool.acquire().await?;
+pub async fn upsert_user_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    upstream_id: Option<i32>,
+) -> Result<User> {
     let user = sqlx::query_as!(
         User,
         r#"
@@ -28,19 +30,21 @@ RETURNING *;
         id,
         upstream_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(user)
 }
 
-pub async fn find_by_upstream_id(pool: &PgPool, upstream_id: i32) -> Result<Option<User>> {
-    let mut connection = pool.acquire().await?;
+pub async fn find_by_upstream_id(
+    conn: &mut PgConnection,
+    upstream_id: i32,
+) -> Result<Option<User>> {
     let user = sqlx::query_as!(
         User,
         "SELECT * FROM users WHERE upstream_id = $1",
         upstream_id
     )
-    .fetch_optional(&mut connection)
+    .fetch_optional(conn)
     .await?;
     Ok(user)
 }

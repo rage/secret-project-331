@@ -9,7 +9,7 @@ use std::env;
 async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "info,actix_web=info");
     dotenv().ok();
-    env_logger::init();
+    tracing_subscriber::fmt().init();
 
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());

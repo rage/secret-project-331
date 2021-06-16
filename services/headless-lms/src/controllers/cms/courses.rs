@@ -62,8 +62,9 @@ async fn get_course_structure(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<CourseStructure>> {
+    let mut conn = pool.acquire().await?;
     let course_structure =
-        crate::models::courses::get_course_structure(pool.get_ref(), *request_course_id).await?;
+        crate::models::courses::get_course_structure(&mut conn, *request_course_id).await?;
     Ok(Json(course_structure))
 }
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
@@ -100,8 +101,9 @@ async fn upload_image(
     request: HttpRequest,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<ImageUploadResult>> {
+    let mut conn = pool.acquire().await?;
     // TODO: add max image size
-    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
     let headers = request.headers();
     let content_type_option = headers.get(header::CONTENT_TYPE);
     if content_type_option.is_none() {

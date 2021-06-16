@@ -103,6 +103,12 @@ impl From<uuid::Error> for ApplicationError {
     }
 }
 
+impl From<sqlx::Error> for ApplicationError {
+    fn from(err: sqlx::Error) -> ApplicationError {
+        Self::InternalServerError(err.to_string())
+    }
+}
+
 /**
 Used as the result types for all controllers.
 Only put information here that you want to be visible to users.

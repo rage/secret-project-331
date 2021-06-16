@@ -1,7 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::PgConnection;
 use uuid::Uuid;
 
 use super::pages::PageWithExercises;
@@ -46,21 +46,19 @@ pub struct ChapterUpdate {
     pub front_front_page_id: Option<Uuid>,
 }
 
-pub async fn get_course_id(pool: &PgPool, chapter_id: Uuid) -> Result<Uuid> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id from chapters where id = $1", chapter_id)
-        .fetch_one(&mut connection)
+        .fetch_one(conn)
         .await?
         .course_id;
     Ok(course_id)
 }
 
 pub async fn update_chapter(
-    pool: &sqlx::Pool<sqlx::Postgres>,
+    conn: &mut PgConnection,
     course_id: Uuid,
     chapter_update: ChapterUpdate,
 ) -> Result<Chapter> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         Chapter,
         r#"
@@ -75,25 +73,23 @@ WHERE
         chapter_update.chapter_number,
         course_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn course_chapters(pool: &PgPool, course_id: Uuid) -> Result<Vec<Chapter>> {
-    let mut connection = pool.acquire().await?;
+pub async fn course_chapters(conn: &mut PgConnection, course_id: Uuid) -> Result<Vec<Chapter>> {
     let chapters = sqlx::query_as!(
         Chapter,
         "SELECT * FROM chapters WHERE course_id = $1 AND deleted_at IS NULL;",
         course_id
     )
-    .fetch_all(&mut connection)
+    .fetch_all(conn)
     .await?;
     Ok(chapters)
 }
 
-pub async fn insert_chapter(pool: &PgPool, chapter: NewChapter) -> Result<Chapter> {
-    let mut connection = pool.acquire().await?;
+pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> Result<Chapter> {
     let res = sqlx::query_as!(
         Chapter,
         r#"
@@ -106,16 +102,12 @@ pub async fn insert_chapter(pool: &PgPool, chapter: NewChapter) -> Result<Chapte
         chapter.course_id,
         chapter.chapter_number
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn delete_chapter(
-    pool: &sqlx::Pool<sqlx::Postgres>,
-    chapter_id: Uuid,
-) -> Result<Chapter> {
-    let mut connection = pool.acquire().await?;
+pub async fn delete_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Chapter> {
     let deleted = sqlx::query_as!(
         Chapter,
         r#"
@@ -127,7 +119,7 @@ RETURNING *
     "#,
         chapter_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(deleted)
 }

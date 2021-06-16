@@ -1,7 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, PgPool};
+use sqlx::PgConnection;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -14,14 +14,12 @@ pub struct Organization {
     deleted_at: Option<DateTime<Utc>>,
 }
 
-pub async fn all_organizations(pool: &PgPool) -> Result<Vec<Organization>> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn all_organizations(conn: &mut PgConnection) -> Result<Vec<Organization>> {
     let courses = sqlx::query_as!(
         Organization,
         "SELECT * FROM organizations WHERE deleted_at IS NULL;"
     )
-    .fetch_all(connection)
+    .fetch_all(conn)
     .await?;
     Ok(courses)
 }

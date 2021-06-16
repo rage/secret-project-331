@@ -45,10 +45,15 @@ async fn get_exercise_submissions(
     request_exercise_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
 ) -> ApplicationResult<Json<ExerciseSubmissions>> {
+    let mut conn = pool.acquire().await?;
     let submission_count =
-        crate::models::submissions::exercise_submission_count(&pool, &*request_exercise_id);
-    let submissions =
-        crate::models::submissions::exercise_submissions(&pool, &*request_exercise_id, &pagination);
+        crate::models::submissions::exercise_submission_count(&mut conn, &request_exercise_id);
+    let mut conn = pool.acquire().await?;
+    let submissions = crate::models::submissions::exercise_submissions(
+        &mut conn,
+        &request_exercise_id,
+        &pagination,
+    );
     let (submission_count, submissions) = future::try_join(submission_count, submissions).await?;
 
     let total_pages = pagination.total_pages(submission_count);

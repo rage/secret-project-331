@@ -3,7 +3,7 @@ use std::time::Duration;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::models::submissions::GradingRequest;
@@ -43,17 +43,15 @@ pub enum UserPointsUpdateStrategy {
     CanAddPointsAndCanRemovePoints,
 }
 
-pub async fn get_course_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!(r#"SELECT course_id from gradings where id = $1"#, id)
-        .fetch_one(&mut connection)
+        .fetch_one(conn)
         .await?
         .course_id;
     Ok(course_id)
 }
 
-pub async fn new_grading(pool: &PgPool, submission: &Submission) -> Result<Grading> {
-    let mut connection = pool.acquire().await?;
+pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> Result<Grading> {
     let grading = sqlx::query_as!(
         Grading,
         r#"
@@ -67,13 +65,13 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
         submission.exercise_id,
         submission.exercise_task_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(grading)
 }
 
 pub async fn grade_submission(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     submission: Submission,
     exercise_task: ExerciseTask,
     exercise: Exercise,
@@ -95,17 +93,16 @@ pub async fn grade_submission(
     }
     let obj = res.json::<GradingResult>().await?;
     info!("Received a grading result: {:#?}", &obj);
-    let updated_grading = update_grading(&pool, grading, obj, exercise).await?;
+    let updated_grading = update_grading(conn, grading, obj, exercise).await?;
     Ok(updated_grading)
 }
 
 pub async fn update_grading(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     grading: Grading,
     grading_result: GradingResult,
     exercise: Exercise,
 ) -> Result<Grading> {
-    let mut connection = pool.acquire().await?;
     let grading_completed_at = if grading_result.grading_progress.is_complete() {
         Some(Utc::now())
     } else {
@@ -143,7 +140,7 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
         grading_completed_at,
         score_given_rounded
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
 
     Ok(grading)

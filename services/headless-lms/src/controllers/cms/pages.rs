@@ -40,8 +40,8 @@ async fn get_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
-    let page =
-        crate::models::pages::get_page_with_exercises(pool.get_ref(), *request_page_id).await?;
+    let mut conn = pool.acquire().await?;
+    let page = crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(page))
 }
 
@@ -100,8 +100,9 @@ async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
+    let mut conn = pool.acquire().await?;
     let new_page = payload.0;
-    let page = crate::models::pages::insert_page(pool.get_ref(), new_page).await?;
+    let page = crate::models::pages::insert_page(&mut conn, new_page).await?;
     Ok(Json(page))
 }
 
@@ -155,9 +156,9 @@ async fn update_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
+    let mut conn = pool.acquire().await?;
     let page_update = payload.0;
-    let page =
-        crate::models::pages::update_page(pool.get_ref(), *request_page_id, page_update).await?;
+    let page = crate::models::pages::update_page(&mut conn, *request_page_id, page_update).await?;
     Ok(Json(page))
 }
 
@@ -193,8 +194,9 @@ async fn delete_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
+    let mut conn = pool.acquire().await?;
     let deleted_page =
-        crate::models::pages::delete_page_and_exercises(pool.get_ref(), *request_page_id).await?;
+        crate::models::pages::delete_page_and_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(deleted_page))
 }
 

@@ -46,8 +46,9 @@ async fn post_new_chapter(
     pool: web::Data<PgPool>,
     payload: web::Json<NewChapter>,
 ) -> ApplicationResult<Json<Chapter>> {
+    let mut conn = pool.acquire().await?;
     let new_course = payload.0;
-    let chapter = crate::models::chapters::insert_chapter(&pool, new_course).await?;
+    let chapter = crate::models::chapters::insert_chapter(&mut conn, new_course).await?;
     Ok(Json(chapter))
 }
 
@@ -73,9 +74,10 @@ async fn delete_chapter(
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Chapter>> {
+    let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
 
-    let chapter = crate::models::chapters::delete_chapter(pool.get_ref(), course_id).await?;
+    let chapter = crate::models::chapters::delete_chapter(&mut conn, course_id).await?;
     Ok(Json(chapter))
 }
 
@@ -116,11 +118,12 @@ async fn update_chapter(
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Chapter>> {
+    let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
 
     let course_update = payload.0;
     let chapter =
-        crate::models::chapters::update_chapter(pool.get_ref(), course_id, course_update).await?;
+        crate::models::chapters::update_chapter(&mut conn, course_id, course_update).await?;
     Ok(Json(chapter))
 }
 

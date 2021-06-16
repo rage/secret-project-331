@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Action",""],["Resource",""]],"fn":[["authorize",""],["has_permission",""]]});
+initSidebarItems({"constant":[["SESSION_KEY",""]],"enum":[["Action",""],["Resource",""]],"fn":[["authorize",""],["forget","Forgets authentication from the current session, if any."],["has_permission",""],["remember","Stores the user as authenticated in the given session."]],"struct":[["AuthUser","Extractor for an authenticated user."]]});

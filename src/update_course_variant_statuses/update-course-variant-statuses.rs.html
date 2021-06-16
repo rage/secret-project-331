@@ -83,7 +83,7 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="ident">env</span>::<span class="ident">set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,actix_web=info&quot;</span>);
     <span class="ident">dotenv</span>().<span class="ident">ok</span>();
-    <span class="ident">env_logger</span>::<span class="ident">init</span>();
+    <span class="ident">tracing_subscriber</span>::<span class="ident">fmt</span>().<span class="ident">init</span>();
 
     <span class="kw">let</span> <span class="ident">database_url</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;DATABASE_URL&quot;</span>)
         .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;postgres://localhost/headless_lms_dev&quot;</span>.<span class="ident">to_string</span>());

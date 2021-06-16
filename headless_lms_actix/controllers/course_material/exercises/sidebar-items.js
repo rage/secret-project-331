@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_exercises_routes","Add a route for each controller in this module."]]});
+initSidebarItems({"fn":[["_add_exercises_routes","Add a route for each controller in this module."],["get_exercise","GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes relevant context so that doing the exercise is possible based on the response."]]});

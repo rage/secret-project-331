@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Action",""],["Resource",""]],"fn":[["authorize",""]]});
+initSidebarItems({"enum":[["Action",""],["Resource",""]],"fn":[["authorize",""],["has_permission",""]]});

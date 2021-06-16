@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_exercises_routes","Add a route for each controller in this module."]],"struct":[["ExerciseSubmissions",""]]});
+initSidebarItems({"fn":[["_add_exercises_routes","Add a route for each controller in this module."],["get_exercise_submissions","GET `/api/v0/cms/exercises/:exercise_id/submissions` - Returns an exercise’s submissions."]],"struct":[["ExerciseSubmissions",""]]});

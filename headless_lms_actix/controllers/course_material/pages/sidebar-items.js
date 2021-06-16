@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_pages_routes",""]]});
+initSidebarItems({"fn":[["_add_pages_routes",""],["get_next_page","GET /api/v0/course-material/pages/:page_id/next-page - returns next pages info. If current page is the last page of the chapter, returns next chapters first page."]]});

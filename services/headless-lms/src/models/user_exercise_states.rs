@@ -55,7 +55,7 @@ SELECT COUNT(e.id) as total_exercises,
   COALESCE(0, SUM(e.score_maximum)) as score_maximum
 FROM course_instances ci
   LEFT JOIN courses c on ci.course_id = c.id
-  LEFT JOIN exercises e on c.id = e.course_id
+  LEFT JOIN exercises e on ci.course_id = e.course_id
 WHERE e.deleted_at IS NULL
   AND ci.id = $1;
         "#,

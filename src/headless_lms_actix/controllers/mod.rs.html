@@ -207,7 +207,7 @@ Represents error messages that are sent in responses.
             <span class="kw">return</span> <span class="self">Self</span>::<span class="ident">NotFound</span>;
         }
 
-        <span class="ident">log</span>::<span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Internal server error: {}&quot;</span>, <span class="ident">err</span>.<span class="ident">chain</span>().<span class="ident">join</span>(<span class="string">&quot;\n    &quot;</span>));
+        <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Internal server error: {}&quot;</span>, <span class="ident">err</span>.<span class="ident">chain</span>().<span class="ident">join</span>(<span class="string">&quot;\n    &quot;</span>));
         <span class="self">Self</span>::<span class="ident">InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
     }
 }

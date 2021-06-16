@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-3.3.2/src/types/payload.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>payload.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.0-beta.5/src/types/payload.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>payload.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -527,103 +527,52 @@
 <span id="526">526</span>
 <span id="527">527</span>
 <span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="doccomment">//! Payload/Bytes/String extractors</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+<span class="doccomment">//! Basic binary and string payload extractors.</span>
 
-<span class="kw">use</span> <span class="ident">actix_http</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorBadRequest</span>, <span class="ident">PayloadError</span>};
-<span class="kw">use</span> <span class="ident">actix_http</span>::<span class="ident">HttpMessage</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{
+    <span class="ident">future</span>::<span class="ident">Future</span>,
+    <span class="ident">pin</span>::<span class="ident">Pin</span>,
+    <span class="ident">str</span>,
+    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+};
+
+<span class="kw">use</span> <span class="ident">actix_http</span>::<span class="ident">error</span>::{<span class="ident">ErrorBadRequest</span>, <span class="ident">PayloadError</span>};
+<span class="kw">use</span> <span class="ident">actix_utils</span>::<span class="ident">future</span>::{<span class="ident">ready</span>, <span class="ident">Either</span>, <span class="ident">Ready</span>};
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
-<span class="kw">use</span> <span class="ident">encoding_rs</span>::<span class="ident">UTF_8</span>;
-<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">stream</span>::<span class="ident">Stream</span>;
-<span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">future</span>::{<span class="ident">err</span>, <span class="ident">ok</span>, <span class="ident">Either</span>, <span class="ident">FutureExt</span>, <span class="ident">LocalBoxFuture</span>, <span class="ident">Ready</span>};
-<span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">StreamExt</span>;
+<span class="kw">use</span> <span class="ident">encoding_rs</span>::{<span class="ident">Encoding</span>, <span class="ident">UTF_8</span>};
+<span class="kw">use</span> <span class="ident">futures_core</span>::{<span class="ident">ready</span>, <span class="ident">stream</span>::<span class="ident">Stream</span>};
 <span class="kw">use</span> <span class="ident">mime</span>::<span class="ident">Mime</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">extract</span>::<span class="ident">FromRequest</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::<span class="ident">header</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">request</span>::<span class="ident">HttpRequest</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">dev</span>, <span class="ident">web</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">dev</span>, <span class="ident">http</span>::<span class="ident">header</span>, <span class="ident">web</span>, <span class="ident">Error</span>, <span class="ident">FromRequest</span>, <span class="ident">HttpMessage</span>, <span class="ident">HttpRequest</span>};
 
-<span class="doccomment">/// Payload extractor returns request &#39;s payload stream.</span>
+<span class="doccomment">/// Extract a request&#39;s raw payload stream.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
+<span class="doccomment">/// See [`PayloadConfig`] for important notes when using this advanced extractor.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use actix_web::{web, error, App, Error, HttpResponse};</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">/// ```</span>
 <span class="doccomment">/// use std::future::Future;</span>
-<span class="doccomment">/// use futures_core::stream::Stream;</span>
-<span class="doccomment">/// use futures_util::StreamExt;</span>
-<span class="doccomment">/// /// extract binary data from request</span>
-<span class="doccomment">/// async fn index(mut body: web::Payload) -&gt; Result&lt;HttpResponse, Error&gt;</span>
-<span class="doccomment">/// {</span>
+<span class="doccomment">/// use futures_util::stream::StreamExt as _;</span>
+<span class="doccomment">/// use actix_web::{post, web};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // `body: web::Payload` parameter extracts raw payload stream from request</span>
+<span class="doccomment">/// #[post(&quot;/&quot;)]</span>
+<span class="doccomment">/// async fn index(mut body: web::Payload) -&gt; actix_web::Result&lt;String&gt; {</span>
+<span class="doccomment">///     // for demonstration only; in a normal case use the `Bytes` extractor</span>
+<span class="doccomment">///     // collect payload stream into a bytes object</span>
 <span class="doccomment">///     let mut bytes = web::BytesMut::new();</span>
 <span class="doccomment">///     while let Some(item) = body.next().await {</span>
 <span class="doccomment">///         bytes.extend_from_slice(&amp;item?);</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     format!(&quot;Body {:?}!&quot;, bytes);</span>
-<span class="doccomment">///     Ok(HttpResponse::Ok().finish())</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     let app = App::new().service(</span>
-<span class="doccomment">///         web::resource(&quot;/index.html&quot;).route(</span>
-<span class="doccomment">///             web::get().to(index))</span>
-<span class="doccomment">///     );</span>
+<span class="doccomment">///     Ok(format!(&quot;Request Body Bytes:\n{:?}&quot;, bytes))</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Payload</span>(<span class="kw">pub</span> <span class="kw">crate</span>::<span class="ident">dev</span>::<span class="ident">Payload</span>);
 
 <span class="kw">impl</span> <span class="ident">Payload</span> {
-    <span class="doccomment">/// Deconstruct to a inner value</span>
+    <span class="doccomment">/// Unwrap to inner Payload type.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">dev</span>::<span class="ident">Payload</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }
@@ -633,43 +582,12 @@
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>)
     }
 }
 
-<span class="doccomment">/// Get request&#39;s payload stream</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use actix_web::{web, error, App, Error, HttpResponse};</span>
-<span class="doccomment">/// use std::future::Future;</span>
-<span class="doccomment">/// use futures_core::stream::Stream;</span>
-<span class="doccomment">/// use futures_util::StreamExt;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// /// extract binary data from request</span>
-<span class="doccomment">/// async fn index(mut body: web::Payload) -&gt; Result&lt;HttpResponse, Error&gt;</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     let mut bytes = web::BytesMut::new();</span>
-<span class="doccomment">///     while let Some(item) = body.next().await {</span>
-<span class="doccomment">///         bytes.extend_from_slice(&amp;item?);</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     format!(&quot;Body {:?}!&quot;, bytes);</span>
-<span class="doccomment">///     Ok(HttpResponse::Ok().finish())</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     let app = App::new().service(</span>
-<span class="doccomment">///         web::resource(&quot;/index.html&quot;).route(</span>
-<span class="doccomment">///             web::get().to(index))</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
+<span class="doccomment">/// See [here](#usage) for example of usage as an extractor.</span>
 <span class="kw">impl</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">Payload</span> {
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">PayloadConfig</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
@@ -677,55 +595,56 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dev</span>::<span class="ident">Payload</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
-        <span class="ident">ok</span>(<span class="ident">Payload</span>(<span class="ident">payload</span>.<span class="ident">take</span>()))
+        <span class="ident">ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">Payload</span>(<span class="ident">payload</span>.<span class="ident">take</span>())))
     }
 }
 
-<span class="doccomment">/// Request binary data from a request&#39;s payload.</span>
+<span class="doccomment">/// Extract binary data from a request&#39;s payload.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Loads request&#39;s payload and construct Bytes instance.</span>
+<span class="doccomment">/// Collects request payload stream into a [Bytes] instance.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// [**PayloadConfig**](struct.PayloadConfig.html) allows to configure</span>
-<span class="doccomment">/// extraction process.</span>
+<span class="doccomment">/// Use [`PayloadConfig`] to configure extraction process.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use bytes::Bytes;</span>
-<span class="doccomment">/// use actix_web::{web, App};</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use actix_web::{post, web};</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// /// extract binary data from request</span>
-<span class="doccomment">/// async fn index(body: Bytes) -&gt; String {</span>
+<span class="doccomment">/// #[post(&quot;/&quot;)]</span>
+<span class="doccomment">/// async fn index(body: web::Bytes) -&gt; String {</span>
 <span class="doccomment">///     format!(&quot;Body {:?}!&quot;, body)</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     let app = App::new().service(</span>
-<span class="doccomment">///         web::resource(&quot;/index.html&quot;).route(</span>
-<span class="doccomment">///             web::get().to(index))</span>
-<span class="doccomment">///     );</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">impl</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">Bytes</span> {
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">PayloadConfig</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Either</span><span class="op">&lt;</span>
-        <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">BytesExtractFut</span>, <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dev</span>::<span class="ident">Payload</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
         <span class="comment">// allow both Config and Data&lt;Config&gt;</span>
         <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="ident">PayloadConfig</span>::<span class="ident">from_req</span>(<span class="ident">req</span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">check_mimetype</span>(<span class="ident">req</span>) {
-            <span class="kw">return</span> <span class="ident">Either</span>::<span class="ident">Right</span>(<span class="ident">err</span>(<span class="ident">e</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">check_mimetype</span>(<span class="ident">req</span>) {
+            <span class="kw">return</span> <span class="ident">Either</span>::<span class="ident">right</span>(<span class="ident">ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)));
         }
 
-        <span class="kw">let</span> <span class="ident">limit</span> <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">limit</span>;
-        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">HttpMessageBody</span>::<span class="ident">new</span>(<span class="ident">req</span>, <span class="ident">payload</span>).<span class="ident">limit</span>(<span class="ident">limit</span>);
-        <span class="ident">Either</span>::<span class="ident">Left</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>(<span class="ident">fut</span>.<span class="kw">await</span><span class="question-mark">?</span>) }.<span class="ident">boxed_local</span>())
+        <span class="ident">Either</span>::<span class="ident">left</span>(<span class="ident">BytesExtractFut</span> {
+            <span class="ident">body_fut</span>: <span class="ident">HttpMessageBody</span>::<span class="ident">new</span>(<span class="ident">req</span>, <span class="ident">payload</span>).<span class="ident">limit</span>(<span class="ident">cfg</span>.<span class="ident">limit</span>),
+        })
+    }
+}
+
+<span class="doccomment">/// Future for `Bytes` extractor.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BytesExtractFut</span> {
+    <span class="ident">body_fut</span>: <span class="ident">HttpMessageBody</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">BytesExtractFut</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+        <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">body_fut</span>).<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
     }
 }
 
@@ -733,79 +652,86 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Text extractor automatically decode body according to the request&#39;s charset.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// [**PayloadConfig**](struct.PayloadConfig.html) allows to configure</span>
+<span class="doccomment">/// [**PayloadConfig**](PayloadConfig) allows to configure</span>
 <span class="doccomment">/// extraction process.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use actix_web::{post, web, FromRequest};</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use actix_web::{web, App, FromRequest};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// /// extract text data from request</span>
+<span class="doccomment">/// // extract text data from request</span>
+<span class="doccomment">/// #[post(&quot;/&quot;)]</span>
 <span class="doccomment">/// async fn index(text: String) -&gt; String {</span>
 <span class="doccomment">///     format!(&quot;Body {}!&quot;, text)</span>
 <span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     let app = App::new().service(</span>
-<span class="doccomment">///         web::resource(&quot;/index.html&quot;)</span>
-<span class="doccomment">///             .app_data(String::configure(|cfg| {  // &lt;- limit size of the payload</span>
-<span class="doccomment">///                 cfg.limit(4096)</span>
-<span class="doccomment">///             }))</span>
-<span class="doccomment">///             .route(web::get().to(index))  // &lt;- register handler with extractor params</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
 <span class="kw">impl</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">String</span> {
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">PayloadConfig</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Either</span><span class="op">&lt;</span>
-        <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">StringExtractFut</span>, <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dev</span>::<span class="ident">Payload</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
         <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="ident">PayloadConfig</span>::<span class="ident">from_req</span>(<span class="ident">req</span>);
 
         <span class="comment">// check content-type</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">check_mimetype</span>(<span class="ident">req</span>) {
-            <span class="kw">return</span> <span class="ident">Either</span>::<span class="ident">Right</span>(<span class="ident">err</span>(<span class="ident">e</span>));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">check_mimetype</span>(<span class="ident">req</span>) {
+            <span class="kw">return</span> <span class="ident">Either</span>::<span class="ident">right</span>(<span class="ident">ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)));
         }
 
         <span class="comment">// check charset</span>
         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">encoding</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">enc</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">enc</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Either</span>::<span class="ident">Right</span>(<span class="ident">err</span>(<span class="ident">e</span>.<span class="ident">into</span>())),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Either</span>::<span class="ident">right</span>(<span class="ident">ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">into</span>()))),
         };
         <span class="kw">let</span> <span class="ident">limit</span> <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">limit</span>;
-        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">HttpMessageBody</span>::<span class="ident">new</span>(<span class="ident">req</span>, <span class="ident">payload</span>).<span class="ident">limit</span>(<span class="ident">limit</span>);
+        <span class="kw">let</span> <span class="ident">body_fut</span> <span class="op">=</span> <span class="ident">HttpMessageBody</span>::<span class="ident">new</span>(<span class="ident">req</span>, <span class="ident">payload</span>).<span class="ident">limit</span>(<span class="ident">limit</span>);
 
-        <span class="ident">Either</span>::<span class="ident">Left</span>(
-            <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">fut</span>.<span class="kw">await</span><span class="question-mark">?</span>;
-
-                <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="ident">body</span>.<span class="ident">as_ref</span>())
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ErrorBadRequest</span>(<span class="string">&quot;Can not decode body&quot;</span>))<span class="question-mark">?</span>
-                        .<span class="ident">to_owned</span>())
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">encoding</span>
-                        .<span class="ident">decode_without_bom_handling_and_without_replacement</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into_owned</span>())
-                        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ErrorBadRequest</span>(<span class="string">&quot;Can not decode body&quot;</span>))<span class="question-mark">?</span>)
-                }
-            }
-            .<span class="ident">boxed_local</span>(),
-        )
+        <span class="ident">Either</span>::<span class="ident">left</span>(<span class="ident">StringExtractFut</span> { <span class="ident">body_fut</span>, <span class="ident">encoding</span> })
     }
 }
 
-<span class="doccomment">/// Configuration for request&#39;s payload.</span>
+<span class="doccomment">/// Future for `String` extractor.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StringExtractFut</span> {
+    <span class="ident">body_fut</span>: <span class="ident">HttpMessageBody</span>,
+    <span class="ident">encoding</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">StringExtractFut</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span>;
+
+        <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">body_fut</span>).<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">out</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">out</span><span class="question-mark">?</span>;
+            <span class="ident">bytes_to_string</span>(<span class="ident">body</span>, <span class="ident">encoding</span>)
+        })
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">bytes_to_string</span>(<span class="ident">body</span>: <span class="ident">Bytes</span>, <span class="ident">encoding</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">=</span><span class="op">=</span> <span class="ident">UTF_8</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="ident">body</span>.<span class="ident">as_ref</span>())
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ErrorBadRequest</span>(<span class="string">&quot;Can not decode body&quot;</span>))<span class="question-mark">?</span>
+            .<span class="ident">to_owned</span>())
+    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">encoding</span>
+            .<span class="ident">decode_without_bom_handling_and_without_replacement</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into_owned</span>())
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ErrorBadRequest</span>(<span class="string">&quot;Can not decode body&quot;</span>))<span class="question-mark">?</span>)
+    }
+}
+
+<span class="doccomment">/// Configuration for request payloads.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Applies to the built-in `Bytes` and `String` extractors. Note that the Payload extractor does</span>
+<span class="doccomment">/// Applies to the built-in `Bytes` and `String` extractors. Note that the `Payload` extractor does</span>
 <span class="doccomment">/// not automatically check conformance with this configuration to allow more flexibility when</span>
 <span class="doccomment">/// building extractors on top of `Payload`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// By default, the payload size limit is 256kB and there is no mime type condition.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// To use this, add an instance of it to your app or service through one of the</span>
+<span class="doccomment">/// `.app_data()` methods.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PayloadConfig</span> {
     <span class="ident">limit</span>: <span class="ident">usize</span>,
@@ -813,21 +739,21 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PayloadConfig</span> {
-    <span class="doccomment">/// Create `PayloadConfig` instance and set max size of payload.</span>
+    <span class="doccomment">/// Create new instance with a size limit (in bytes) and no mime type condition.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">limit</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">default</span>();
-        <span class="ident">cfg</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="ident">limit</span>;
-        <span class="ident">cfg</span>
+        <span class="self">Self</span> {
+            <span class="ident">limit</span>,
+            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+        }
     }
 
-    <span class="doccomment">/// Change max size of payload. By default max size is 256Kb</span>
+    <span class="doccomment">/// Set maximum accepted payload size in bytes. The default limit is 256kB.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="ident">limit</span>;
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Set required mime-type of the request. By default mime type is not</span>
-    <span class="doccomment">/// enforced.</span>
+    <span class="doccomment">/// Set required mime type of the request. By default mime type is not enforced.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mimetype</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mt</span>: <span class="ident">Mime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">mimetype</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">mt</span>);
         <span class="self">self</span>
@@ -854,7 +780,7 @@
     }
 
     <span class="doccomment">/// Extract payload config from app data. Check both `T` and `Data&lt;T&gt;`, in that order, and fall</span>
-    <span class="doccomment">/// back to the default payload config.</span>
+    <span class="doccomment">/// back to the default payload config if neither is found.</span>
     <span class="kw">fn</span> <span class="ident">from_req</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span> {
         <span class="ident">req</span>.<span class="ident">app_data</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>()
             .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">app_data</span>::<span class="op">&lt;</span><span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">as_ref</span>()))
@@ -862,11 +788,13 @@
     }
 }
 
-<span class="comment">// Allow shared refs to default.</span>
+<span class="doccomment">/// Allow shared refs used as defaults.</span>
 <span class="kw">const</span> <span class="ident">DEFAULT_CONFIG</span>: <span class="ident">PayloadConfig</span> <span class="op">=</span> <span class="ident">PayloadConfig</span> {
-    <span class="ident">limit</span>: <span class="number">262_144</span>, <span class="comment">// 2^18 bytes (~256kB)</span>
+    <span class="ident">limit</span>: <span class="ident">DEFAULT_CONFIG_LIMIT</span>,
     <span class="ident">mimetype</span>: <span class="prelude-val">None</span>,
 };
+
+<span class="kw">const</span> <span class="ident">DEFAULT_CONFIG_LIMIT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">262_144</span>; <span class="comment">// 2^18 bytes (~256kB)</span>
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PayloadConfig</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
@@ -874,110 +802,95 @@
     }
 }
 
-<span class="doccomment">/// Future that resolves to a complete http message body.</span>
+<span class="doccomment">/// Future that resolves to a complete HTTP body payload.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Load http message body.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// By default only 256Kb payload reads to a memory, then</span>
-<span class="doccomment">/// `PayloadError::Overflow` get returned. Use `MessageBody::limit()`</span>
-<span class="doccomment">/// method to change upper limit.</span>
+<span class="doccomment">/// By default only 256kB payload is accepted before `PayloadError::Overflow` is returned.</span>
+<span class="doccomment">/// Use `MessageBody::limit()` method to change upper limit.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HttpMessageBody</span> {
     <span class="ident">limit</span>: <span class="ident">usize</span>,
     <span class="ident">length</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress&quot;</span>)]</span>
-    <span class="ident">stream</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">dev</span>::<span class="ident">Decompress</span><span class="op">&lt;</span><span class="ident">dev</span>::<span class="ident">Payload</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">stream</span>: <span class="ident">dev</span>::<span class="ident">Decompress</span><span class="op">&lt;</span><span class="ident">dev</span>::<span class="ident">Payload</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress&quot;</span>))]</span>
-    <span class="ident">stream</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">dev</span>::<span class="ident">Payload</span><span class="op">&gt;</span>,
+    <span class="ident">stream</span>: <span class="ident">dev</span>::<span class="ident">Payload</span>,
+    <span class="ident">buf</span>: <span class="ident">BytesMut</span>,
     <span class="ident">err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PayloadError</span><span class="op">&gt;</span>,
-    <span class="ident">fut</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">HttpMessageBody</span> {
     <span class="doccomment">/// Create `MessageBody` for request.</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">borrow_interior_mutable_const</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dev</span>::<span class="ident">Payload</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpMessageBody</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">length</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">err</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">l</span>.<span class="ident">to_str</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() {
-                    <span class="ident">len</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>)
-                } <span class="kw">else</span> {
-                    <span class="kw">return</span> <span class="self">Self</span>::<span class="ident">err</span>(<span class="ident">PayloadError</span>::<span class="ident">UnknownLength</span>);
-                }
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="self">Self</span>::<span class="ident">err</span>(<span class="ident">PayloadError</span>::<span class="ident">UnknownLength</span>);
+            <span class="kw">match</span> <span class="ident">l</span>.<span class="ident">to_str</span>() {
+                <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() {
+                    <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">if</span> <span class="ident">l</span> <span class="op">&gt;</span> <span class="ident">DEFAULT_CONFIG_LIMIT</span> {
+                            <span class="ident">err</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PayloadError</span>::<span class="ident">Overflow</span>);
+                        }
+                        <span class="ident">length</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>)
+                    }
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">err</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PayloadError</span>::<span class="ident">UnknownLength</span>),
+                },
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">err</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PayloadError</span>::<span class="ident">UnknownLength</span>),
             }
         }
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress&quot;</span>)]</span>
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">dev</span>::<span class="ident">Decompress</span>::<span class="ident">from_headers</span>(<span class="ident">payload</span>.<span class="ident">take</span>(), <span class="ident">req</span>.<span class="ident">headers</span>()));
+        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">dev</span>::<span class="ident">Decompress</span>::<span class="ident">from_headers</span>(<span class="ident">payload</span>.<span class="ident">take</span>(), <span class="ident">req</span>.<span class="ident">headers</span>());
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress&quot;</span>))]</span>
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">payload</span>.<span class="ident">take</span>());
+        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="ident">take</span>();
 
         <span class="ident">HttpMessageBody</span> {
             <span class="ident">stream</span>,
-            <span class="ident">limit</span>: <span class="number">262_144</span>,
-            <span class="ident">length</span>: <span class="ident">len</span>,
-            <span class="ident">fut</span>: <span class="prelude-val">None</span>,
-            <span class="ident">err</span>: <span class="prelude-val">None</span>,
+            <span class="ident">limit</span>: <span class="ident">DEFAULT_CONFIG_LIMIT</span>,
+            <span class="ident">length</span>,
+            <span class="ident">buf</span>: <span class="ident">BytesMut</span>::<span class="ident">with_capacity</span>(<span class="number">8192</span>),
+            <span class="ident">err</span>,
         }
     }
 
-    <span class="doccomment">/// Change max size of payload. By default max size is 256Kb</span>
+    <span class="doccomment">/// Change max size of payload. By default max size is 256kB</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">length</span> {
+            <span class="self">self</span>.<span class="ident">err</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">l</span> <span class="op">&gt;</span> <span class="ident">limit</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">PayloadError</span>::<span class="ident">Overflow</span>)
+            } <span class="kw">else</span> {
+                <span class="prelude-val">None</span>
+            };
+        }
         <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="ident">limit</span>;
         <span class="self">self</span>
-    }
-
-    <span class="kw">fn</span> <span class="ident">err</span>(<span class="ident">e</span>: <span class="ident">PayloadError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">HttpMessageBody</span> {
-            <span class="ident">stream</span>: <span class="prelude-val">None</span>,
-            <span class="ident">limit</span>: <span class="number">262_144</span>,
-            <span class="ident">fut</span>: <span class="prelude-val">None</span>,
-            <span class="ident">err</span>: <span class="prelude-val">Some</span>(<span class="ident">e</span>),
-            <span class="ident">length</span>: <span class="prelude-val">None</span>,
-        }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">HttpMessageBody</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">fut</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">fut</span> {
-            <span class="kw">return</span> <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="ident">fut</span>).<span class="ident">poll</span>(<span class="ident">cx</span>);
-        }
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_mut</span>();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">err</span>.<span class="ident">take</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">err</span>.<span class="ident">take</span>() {
             <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">length</span>.<span class="ident">take</span>() {
-            <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">limit</span> {
-                <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">PayloadError</span>::<span class="ident">Overflow</span>));
-            }
-        }
-
-        <span class="comment">// future</span>
-        <span class="kw">let</span> <span class="ident">limit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">limit</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">fut</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
-            <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">BytesMut</span>::<span class="ident">with_capacity</span>(<span class="number">8192</span>);
-
-                <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item</span>) <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">next</span>().<span class="kw">await</span> {
-                    <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">item</span><span class="question-mark">?</span>;
-                    <span class="kw">if</span> <span class="ident">body</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">chunk</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">limit</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PayloadError</span>::<span class="ident">Overflow</span>);
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">stream</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>));
+            <span class="kw">match</span> <span class="ident">res</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">chunk</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">chunk</span><span class="question-mark">?</span>;
+                    <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">chunk</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">this</span>.<span class="ident">limit</span> {
+                        <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">PayloadError</span>::<span class="ident">Overflow</span>));
                     } <span class="kw">else</span> {
-                        <span class="ident">body</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">chunk</span>);
+                        <span class="ident">this</span>.<span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">chunk</span>);
                     }
                 }
-                <span class="prelude-val">Ok</span>(<span class="ident">body</span>.<span class="ident">freeze</span>())
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">this</span>.<span class="ident">buf</span>.<span class="ident">split</span>().<span class="ident">freeze</span>())),
             }
-            .<span class="ident">boxed_local</span>(),
-        );
-        <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
+        }
     }
 }
 
@@ -996,14 +909,13 @@
         <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="ident">PayloadConfig</span>::<span class="ident">default</span>().<span class="ident">mimetype</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>);
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">cfg</span>.<span class="ident">check_mimetype</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="ident">is_err</span>());
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_header</span>(
-            <span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>,
-            <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>,
-        )
-        .<span class="ident">to_http_request</span>();
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>()
+            .<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .<span class="ident">to_http_request</span>();
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">cfg</span>.<span class="ident">check_mimetype</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="ident">is_err</span>());
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_header</span>(<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;application/json&quot;</span>)
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>()
+            .<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;application/json&quot;</span>))
             .<span class="ident">to_http_request</span>();
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">cfg</span>.<span class="ident">check_mimetype</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="ident">is_ok</span>());
     }
@@ -1018,13 +930,11 @@
             <span class="string">&quot;payload is probably json string&quot;</span>
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
             <span class="ident">App</span>::<span class="ident">new</span>()
                 .<span class="ident">service</span>(
                     <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/bytes-app-data&quot;</span>)
-                        .<span class="ident">app_data</span>(
-                            <span class="ident">PayloadConfig</span>::<span class="ident">default</span>().<span class="ident">mimetype</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>),
-                        )
+                        .<span class="ident">app_data</span>(<span class="ident">PayloadConfig</span>::<span class="ident">default</span>().<span class="ident">mimetype</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>))
                         .<span class="ident">route</span>(<span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">bytes_handler</span>)),
                 )
                 .<span class="ident">service</span>(
@@ -1034,9 +944,7 @@
                 )
                 .<span class="ident">service</span>(
                     <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/string-app-data&quot;</span>)
-                        .<span class="ident">app_data</span>(
-                            <span class="ident">PayloadConfig</span>::<span class="ident">default</span>().<span class="ident">mimetype</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>),
-                        )
+                        .<span class="ident">app_data</span>(<span class="ident">PayloadConfig</span>::<span class="ident">default</span>().<span class="ident">mimetype</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>))
                         .<span class="ident">route</span>(<span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">string_handler</span>)),
                 )
                 .<span class="ident">service</span>(
@@ -1048,49 +956,50 @@
         .<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/bytes-app-data&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">BAD_REQUEST</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/bytes-data&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">BAD_REQUEST</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/string-app-data&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">BAD_REQUEST</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/string-data&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">BAD_REQUEST</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/bytes-app-data&quot;</span>)
-            .<span class="ident">header</span>(<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>)
+            .<span class="ident">insert_header</span>(<span class="ident">header</span>::<span class="ident">ContentType</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>))
             .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/bytes-data&quot;</span>)
-            .<span class="ident">header</span>(<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>)
+            .<span class="ident">insert_header</span>(<span class="ident">header</span>::<span class="ident">ContentType</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>))
             .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/string-app-data&quot;</span>)
-            .<span class="ident">header</span>(<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>)
+            .<span class="ident">insert_header</span>(<span class="ident">header</span>::<span class="ident">ContentType</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>))
             .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/string-data&quot;</span>)
-            .<span class="ident">header</span>(<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>)
+            .<span class="ident">insert_header</span>(<span class="ident">header</span>::<span class="ident">ContentType</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>))
             .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
     }
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_bytes</span>() {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_header</span>(<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;11&quot;</span>)
+        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>()
+            .<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;11&quot;</span>))
             .<span class="ident">set_payload</span>(<span class="ident">Bytes</span>::<span class="ident">from_static</span>(<span class="string">b&quot;hello=world&quot;</span>))
             .<span class="ident">to_http_parts</span>();
 
@@ -1100,7 +1009,8 @@
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_string</span>() {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_header</span>(<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;11&quot;</span>)
+        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>()
+            .<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;11&quot;</span>))
             .<span class="ident">set_payload</span>(<span class="ident">Bytes</span>::<span class="ident">from_static</span>(<span class="string">b&quot;hello=world&quot;</span>))
             .<span class="ident">to_http_parts</span>();
 
@@ -1110,21 +1020,23 @@
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_message_body</span>() {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_header</span>(<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;xxxx&quot;</span>)
+        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>()
+            .<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;xxxx&quot;</span>))
             .<span class="ident">to_srv_request</span>()
             .<span class="ident">into_parts</span>();
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpMessageBody</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pl</span>).<span class="kw">await</span>;
         <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>() {
-            <span class="ident">PayloadError</span>::<span class="ident">UnknownLength</span> <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident">PayloadError</span>::<span class="ident">UnknownLength</span> <span class="op">=</span><span class="op">&gt;</span> {}
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;error&quot;</span>),
         }
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_header</span>(<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;1000000&quot;</span>)
+        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>()
+            .<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;1000000&quot;</span>))
             .<span class="ident">to_srv_request</span>()
             .<span class="ident">into_parts</span>();
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpMessageBody</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pl</span>).<span class="kw">await</span>;
         <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>() {
-            <span class="ident">PayloadError</span>::<span class="ident">Overflow</span> <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident">PayloadError</span>::<span class="ident">Overflow</span> <span class="op">=</span><span class="op">&gt;</span> {}
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;error&quot;</span>),
         }
 
@@ -1139,7 +1051,7 @@
             .<span class="ident">to_http_parts</span>();
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpMessageBody</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pl</span>).<span class="ident">limit</span>(<span class="number">5</span>).<span class="kw">await</span>;
         <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>() {
-            <span class="ident">PayloadError</span>::<span class="ident">Overflow</span> <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident">PayloadError</span>::<span class="ident">Overflow</span> <span class="op">=</span><span class="op">&gt;</span> {}
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;error&quot;</span>),
         }
     }

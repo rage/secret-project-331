@@ -252,6 +252,13 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -283,6 +290,7 @@ Response:
 }
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -320,6 +328,7 @@ Response:
 }
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_course</span>(
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">payload</span>: <span class="ident">web</span>::<span class="ident">Json</span><span class="op">&lt;</span><span class="ident">NewCourse</span><span class="op">&gt;</span>,
@@ -357,6 +366,7 @@ Response:
 }
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_course</span>(
     <span class="ident">payload</span>: <span class="ident">web</span>::<span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseUpdate</span><span class="op">&gt;</span>,
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -385,6 +395,7 @@ DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 }
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_course</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -410,6 +421,7 @@ GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submis
 ]
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_daily_submission_counts</span>(
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -440,6 +452,7 @@ GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns
 ]
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_weekday_hour_submission_counts</span>(
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -466,6 +479,7 @@ GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns 
   }
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_submission_counts_by_exercise</span>(
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

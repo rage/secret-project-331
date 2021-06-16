@@ -71,6 +71,7 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/exercises`.</span>
 
@@ -120,6 +121,7 @@ expose the correct answers to the user.
 }
 ```
  */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise</span>(
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">request_exercise_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

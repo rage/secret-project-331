@@ -113,6 +113,9 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/files`.
@@ -158,6 +161,8 @@ Response headers:
 ```
 
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">async_yields_async</span>)]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">redirect_to_storage_service</span>(<span class="ident">tail</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpResponse</span> {
     <span class="kw">let</span> <span class="ident">prefix</span> <span class="op">=</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;/api/v0/files/uploads/&quot;</span>);
     <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="ident">prefix</span>.<span class="ident">join</span>(<span class="ident">tail</span>.<span class="ident">into_inner</span>());
@@ -180,6 +185,7 @@ Result:
 
 The file.
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">req</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">serve_upload</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="comment">// TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.</span>
     <span class="kw">let</span> <span class="ident">base_folder</span> <span class="op">=</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;uploads&quot;</span>);

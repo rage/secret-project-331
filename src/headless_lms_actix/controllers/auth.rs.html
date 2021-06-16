@@ -101,6 +101,10 @@
 <span id="98"> 98</span>
 <span id="99"> 99</span>
 <span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/login`.
@@ -133,6 +137,7 @@ Handlers for HTTP requests to `/api/v0/login`.
 <span class="doccomment">/**
 POST `/api/v0/auth/login` Logs in to TMC.
 **/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">session</span>, <span class="ident">pool</span>, <span class="ident">client</span>, <span class="ident">payload</span>))]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">login</span>(
     <span class="ident">session</span>: <span class="ident">Session</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -184,6 +189,8 @@ POST `/api/v0/auth/login` Logs in to TMC.
 <span class="doccomment">/**
 POST `/api/v0/auth/logout` Logs out.
 **/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">session</span>))]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">async_yields_async</span>)]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">logout</span>(<span class="ident">session</span>: <span class="ident">Session</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpResponse</span> {
     <span class="ident">session</span>.<span class="ident">remove</span>(<span class="string">&quot;session&quot;</span>);
     <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">finish</span>()
@@ -192,6 +199,7 @@ POST `/api/v0/auth/logout` Logs out.
 <span class="doccomment">/**
 GET `/api/v0/auth/logged-in` Logs in to TMC.
 **/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">session</span>))]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">logged_in</span>(<span class="ident">session</span>: <span class="ident">Session</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Json</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">logged_in</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">entries</span>().<span class="ident">get</span>(<span class="string">&quot;session&quot;</span>).<span class="ident">is_some</span>();
     <span class="ident">Json</span>(<span class="ident">logged_in</span>)

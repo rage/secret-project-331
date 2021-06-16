@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.0-beta.4/src/boxed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>boxed.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_service/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.0-beta.5/src/boxed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>boxed.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_service/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -134,31 +134,69 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">boxed</span>::<span class="ident">Box</span>;
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">future</span>::<span class="ident">Future</span>,
-    <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
-    <span class="ident">pin</span>::<span class="ident">Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
-};
+<span class="doccomment">//! Trait object forms of services and service factories.</span>
+
+<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">boxed</span>::<span class="ident">Box</span>, <span class="ident">rc</span>::<span class="ident">Rc</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">future</span>::<span class="ident">Future</span>, <span class="ident">pin</span>::<span class="ident">Pin</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Service</span>, <span class="ident">ServiceFactory</span>};
 
+<span class="doccomment">/// A boxed future without a Send bound or lifetime parameters.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">BoxService</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span>, <span class="ident">Future</span> <span class="op">=</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">service_object</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="kw">type</span>: <span class="macro-nonterminal">tt</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>: <span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="doccomment">/// Type alias for service trait object.</span>
+        <span class="kw">pub</span> <span class="kw">type</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">type</span><span class="op">&lt;</span>
+            <span class="kw">dyn</span> <span class="macro-nonterminal">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span>, <span class="ident">Future</span> <span class="op">=</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="op">&gt;</span>;
 
+        <span class="doccomment">/// Create service trait object.</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">service</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">S</span>::<span class="ident">Response</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+        <span class="kw">where</span>
+            <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+            <span class="ident">Req</span>: <span class="lifetime">&#39;static</span>,
+            <span class="ident">S</span>::<span class="ident">Future</span>: <span class="lifetime">&#39;static</span>,
+        {
+            <span class="macro-nonterminal">$</span><span class="kw">type</span>::<span class="macro-nonterminal">new</span>(<span class="ident">ServiceWrapper</span>::<span class="ident">new</span>(<span class="ident">service</span>))
+        }
+    };
+}
+
+<span class="macro">service_object</span><span class="macro">!</span>(<span class="ident">BoxService</span>, <span class="ident">Box</span>, <span class="ident">service</span>);
+<span class="macro">service_object</span><span class="macro">!</span>(<span class="ident">RcService</span>, <span class="ident">Rc</span>, <span class="ident">rc_service</span>);
+
+<span class="kw">struct</span> <span class="ident">ServiceWrapper</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="ident">inner</span>: <span class="ident">S</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ServiceWrapper</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> { <span class="ident">inner</span> }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ServiceWrapper</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
+    <span class="ident">S</span>::<span class="ident">Future</span>: <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+
+    <span class="kw">crate</span>::<span class="macro">forward_ready</span><span class="macro">!</span>(<span class="ident">inner</span>);
+
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
+        <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">call</span>(<span class="ident">req</span>))
+    }
+}
+
+<span class="doccomment">/// Wrapper for a service factory trait object that will produce a boxed trait object service.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoxServiceFactory</span><span class="op">&lt;</span><span class="ident">Cfg</span>, <span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span>, <span class="ident">InitErr</span><span class="op">&gt;</span>(<span class="ident">Inner</span><span class="op">&lt;</span><span class="ident">Cfg</span>, <span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span>, <span class="ident">InitErr</span><span class="op">&gt;</span>);
 
-<span class="doccomment">/// Create boxed service factory</span>
+<span class="doccomment">/// Create service factory trait object.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">factory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>(
     <span class="ident">factory</span>: <span class="ident">SF</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>::<span class="ident">Config</span>, <span class="ident">Req</span>, <span class="ident">SF</span>::<span class="ident">Response</span>, <span class="ident">SF</span>::<span class="ident">Error</span>, <span class="ident">SF</span>::<span class="ident">InitError</span><span class="op">&gt;</span>
@@ -171,20 +209,7 @@
     <span class="ident">SF</span>::<span class="ident">Error</span>: <span class="lifetime">&#39;static</span>,
     <span class="ident">SF</span>::<span class="ident">InitError</span>: <span class="lifetime">&#39;static</span>,
 {
-    <span class="ident">BoxServiceFactory</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FactoryWrapper</span> {
-        <span class="ident">factory</span>,
-        <span class="ident">_t</span>: <span class="ident">PhantomData</span>,
-    }))
-}
-
-<span class="doccomment">/// Create boxed service</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">service</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">service</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxService</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">S</span>::<span class="ident">Response</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">Req</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S</span>::<span class="ident">Future</span>: <span class="lifetime">&#39;static</span>,
-{
-    <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ServiceWrapper</span>(<span class="ident">service</span>, <span class="ident">PhantomData</span>))
+    <span class="ident">BoxServiceFactory</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FactoryWrapper</span>(<span class="ident">factory</span>)))
 }
 
 <span class="kw">type</span> <span class="ident">Inner</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span>, <span class="ident">InitErr</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span>
@@ -209,9 +234,9 @@
 {
     <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">InitErr</span>;
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">C</span>;
     <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">BoxService</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">InitErr</span>;
 
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Service</span>, <span class="ident">InitErr</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
@@ -220,12 +245,9 @@
     }
 }
 
-<span class="kw">struct</span> <span class="ident">FactoryWrapper</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span>, <span class="ident">Cfg</span><span class="op">&gt;</span> {
-    <span class="ident">factory</span>: <span class="ident">SF</span>,
-    <span class="ident">_t</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">Req</span>, <span class="ident">Cfg</span>)<span class="op">&gt;</span>,
-}
+<span class="kw">struct</span> <span class="ident">FactoryWrapper</span><span class="op">&lt;</span><span class="ident">SF</span><span class="op">&gt;</span>(<span class="ident">SF</span>);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span>, <span class="ident">Cfg</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span>, <span class="ident">InitErr</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FactoryWrapper</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span>, <span class="ident">Cfg</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span>, <span class="ident">Cfg</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span>, <span class="ident">InitErr</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FactoryWrapper</span><span class="op">&lt;</span><span class="ident">SF</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">Req</span>: <span class="lifetime">&#39;static</span>,
     <span class="ident">Res</span>: <span class="lifetime">&#39;static</span>,
@@ -238,48 +260,14 @@
 {
     <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">InitErr</span>;
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">Cfg</span>;
     <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">BoxService</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">InitErr</span>;
     <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Service</span>, <span class="self">Self</span>::<span class="ident">InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">Cfg</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
-        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">new_service</span>(<span class="ident">cfg</span>);
-        <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="kw">async</span> {
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">fut</span>.<span class="kw">await</span>;
-            <span class="ident">res</span>.<span class="ident">map</span>(<span class="ident">ServiceWrapper</span>::<span class="ident">boxed</span>)
-        })
-    }
-}
-
-<span class="kw">struct</span> <span class="ident">ServiceWrapper</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">S</span>, <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>);
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">ServiceWrapper</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">Req</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S</span>::<span class="ident">Future</span>: <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">fn</span> <span class="ident">boxed</span>(<span class="ident">service</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxService</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">S</span>::<span class="ident">Response</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ServiceWrapper</span>(<span class="ident">service</span>, <span class="ident">PhantomData</span>))
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ServiceWrapper</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">S</span>::<span class="ident">Future</span>: <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">poll_ready</span>(<span class="ident">ctx</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
-        <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">call</span>(<span class="ident">req</span>))
+        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">new_service</span>(<span class="ident">cfg</span>);
+        <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="kw">async</span> { <span class="ident">f</span>.<span class="kw">await</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ServiceWrapper</span>::<span class="ident">new</span>(<span class="ident">s</span>)) <span class="kw">as</span> <span class="kw">_</span>) })
     }
 }
 </pre></div>

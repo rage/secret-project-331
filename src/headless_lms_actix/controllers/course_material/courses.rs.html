@@ -118,6 +118,9 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">chapters</span>::<span class="ident">Chapter</span>;
@@ -148,6 +151,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
 }
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_page_by_path</span>(
     <span class="ident">params</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -185,6 +189,7 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 ]
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_pages</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -212,6 +217,7 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
 ]
 ```
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,

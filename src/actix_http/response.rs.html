@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.0.0-beta.2/src/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_http/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.0.0-beta.5/src/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_http/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1135,6 +1135,40 @@
 <span id="1134">1134</span>
 <span id="1135">1135</span>
 <span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
+<span id="1148">1148</span>
+<span id="1149">1149</span>
+<span id="1150">1150</span>
+<span id="1151">1151</span>
+<span id="1152">1152</span>
+<span id="1153">1153</span>
+<span id="1154">1154</span>
+<span id="1155">1155</span>
+<span id="1156">1156</span>
+<span id="1157">1157</span>
+<span id="1158">1158</span>
+<span id="1159">1159</span>
+<span id="1160">1160</span>
+<span id="1161">1161</span>
+<span id="1162">1162</span>
+<span id="1163">1163</span>
+<span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
+<span id="1167">1167</span>
+<span id="1168">1168</span>
+<span id="1169">1169</span>
+<span id="1170">1170</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! HTTP responses.</span>
 
@@ -1143,7 +1177,6 @@
     <span class="ident">convert</span>::<span class="ident">TryInto</span>,
     <span class="ident">fmt</span>,
     <span class="ident">future</span>::<span class="ident">Future</span>,
-    <span class="ident">ops</span>,
     <span class="ident">pin</span>::<span class="ident">Pin</span>,
     <span class="ident">str</span>,
     <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
@@ -1154,13 +1187,17 @@
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">body</span>::{<span class="ident">Body</span>, <span class="ident">BodyStream</span>, <span class="ident">MessageBody</span>, <span class="ident">ResponseBody</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">cookie</span>::{<span class="ident">Cookie</span>, <span class="ident">CookieJar</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">extensions</span>::<span class="ident">Extensions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">header</span>::{<span class="ident">IntoHeaderPair</span>, <span class="ident">IntoHeaderValue</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::<span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::<span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">HeaderName</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::{<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">HttpError</span>, <span class="ident">HeaderMap</span>, <span class="ident">StatusCode</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">message</span>::{<span class="ident">BoxedResponseHead</span>, <span class="ident">ConnectionType</span>, <span class="ident">ResponseHead</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">cookie</span>::{<span class="ident">Cookie</span>, <span class="ident">CookieJar</span>},
+    <span class="ident">http</span>::<span class="ident">header</span>::<span class="ident">HeaderValue</span>,
+};
 
 <span class="doccomment">/// An HTTP Response</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span> <span class="op">=</span> <span class="ident">Body</span><span class="op">&gt;</span> {
@@ -1170,13 +1207,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Create http response builder with specific status.</span>
+    <span class="doccomment">/// Create HTTP response builder with specific status.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="ident">status</span>: <span class="ident">StatusCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResponseBuilder</span> {
         <span class="ident">ResponseBuilder</span>::<span class="ident">new</span>(<span class="ident">status</span>)
     }
 
-    <span class="doccomment">/// Create http response builder</span>
+    <span class="doccomment">/// Create HTTP response builder</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_from</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ResponseBuilder</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">source</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResponseBuilder</span> {
         <span class="ident">source</span>.<span class="ident">into</span>()
@@ -1235,7 +1272,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="doccomment">/// Mutable reference to a http message part of the response</span>
+    <span class="doccomment">/// Mutable reference to a HTTP message part of the response</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResponseHead</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">head</span>
     }
@@ -1271,6 +1308,7 @@
     }
 
     <span class="doccomment">/// Get an iterator for the cookies set by this response</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookies</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CookieIter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="ident">CookieIter</span> {
@@ -1279,6 +1317,7 @@
     }
 
     <span class="doccomment">/// Add a cookie to this response</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_cookie</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cookie</span>: <span class="kw-2">&amp;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">HttpError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">headers</span>;
@@ -1291,6 +1330,7 @@
 
     <span class="doccomment">/// Remove all cookies with the given name from this response. Returns</span>
     <span class="doccomment">/// the number of cookies removed.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_cookie</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">headers</span>;
@@ -1436,10 +1476,12 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CookieIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">iter</span>: <span class="ident">header</span>::<span class="ident">GetAll</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">CookieIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
@@ -1454,13 +1496,13 @@
     }
 }
 
-<span class="doccomment">/// An HTTP response builder</span>
+<span class="doccomment">/// An HTTP response builder.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type can be used to construct an instance of `Response` through a</span>
-<span class="doccomment">/// builder-like pattern.</span>
+<span class="doccomment">/// This type can be used to construct an instance of `Response` through a builder-like pattern.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResponseBuilder</span> {
     <span class="ident">head</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoxedResponseHead</span><span class="op">&gt;</span>,
     <span class="ident">err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpError</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="ident">cookies</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CookieJar</span><span class="op">&gt;</span>,
 }
 
@@ -1471,6 +1513,7 @@
         <span class="ident">ResponseBuilder</span> {
             <span class="ident">head</span>: <span class="prelude-val">Some</span>(<span class="ident">BoxedResponseHead</span>::<span class="ident">new</span>(<span class="ident">status</span>)),
             <span class="ident">err</span>: <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
             <span class="ident">cookies</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -1486,12 +1529,12 @@
 
     <span class="doccomment">/// Insert a header, replacing any that were set with an equivalent field name.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use actix_http::Response;</span>
-    <span class="doccomment">/// use actix_http::http::header::ContentType;</span>
+    <span class="doccomment">/// use actix_http::http::header;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Response::Ok()</span>
-    <span class="doccomment">///     .insert_header(ContentType(mime::APPLICATION_JSON))</span>
+    <span class="doccomment">///     .insert_header((header::CONTENT_TYPE, mime::APPLICATION_JSON))</span>
     <span class="doccomment">///     .insert_header((&quot;X-TEST&quot;, &quot;value&quot;))</span>
     <span class="doccomment">///     .finish();</span>
     <span class="doccomment">/// ```</span>
@@ -1513,12 +1556,12 @@
 
     <span class="doccomment">/// Append a header, keeping any that were set with an equivalent field name.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use actix_http::Response;</span>
-    <span class="doccomment">/// use actix_http::http::header::ContentType;</span>
+    <span class="doccomment">/// use actix_http::http::header;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Response::Ok()</span>
-    <span class="doccomment">///     .append_header(ContentType(mime::APPLICATION_JSON))</span>
+    <span class="doccomment">///     .append_header((header::CONTENT_TYPE, mime::APPLICATION_JSON))</span>
     <span class="doccomment">///     .append_header((&quot;X-TEST&quot;, &quot;value1&quot;))</span>
     <span class="doccomment">///     .append_header((&quot;X-TEST&quot;, &quot;value2&quot;))</span>
     <span class="doccomment">///     .finish();</span>
@@ -1626,7 +1669,8 @@
     <span class="doccomment">/// Disable chunked transfer encoding for HTTP/1.1 streaming responses.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_chunking</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">len</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="ident">len</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">itoa</span>::<span class="ident">Buffer</span>::<span class="ident">new</span>();
+        <span class="self">self</span>.<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>, <span class="ident">buf</span>.<span class="ident">format</span>(<span class="ident">len</span>)));
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parts</span>) <span class="op">=</span> <span class="ident">parts</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">head</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">err</span>) {
             <span class="ident">parts</span>.<span class="ident">no_chunking</span>(<span class="bool-val">true</span>);
@@ -1653,7 +1697,7 @@
 
     <span class="doccomment">/// Set a cookie</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use actix_http::{http, Request, Response};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// fn index(req: Request) -&gt; Response {</span>
@@ -1669,6 +1713,7 @@
     <span class="doccomment">///         .finish()</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cookie</span>: <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cookies</span>.<span class="ident">is_none</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jar</span> <span class="op">=</span> <span class="ident">CookieJar</span>::<span class="ident">new</span>();
@@ -1682,7 +1727,7 @@
 
     <span class="doccomment">/// Remove cookie</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use actix_http::{http, Request, Response, HttpMessage};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// fn index(req: Request) -&gt; Response {</span>
@@ -1695,6 +1740,7 @@
     <span class="doccomment">///     builder.finish()</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cookie</span>: <span class="kw-2">&amp;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cookies</span>.<span class="ident">is_none</span>() {
             <span class="self">self</span>.<span class="ident">cookies</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CookieJar</span>::<span class="ident">new</span>())
@@ -1762,8 +1808,11 @@
             <span class="kw">return</span> <span class="ident">Response</span>::<span class="ident">from</span>(<span class="ident">Error</span>::<span class="ident">from</span>(<span class="ident">e</span>)).<span class="ident">into_body</span>();
         }
 
+        <span class="comment">// allow unused mut when cookies feature is disabled</span>
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_mut</span>)]</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;cannot reuse response builder&quot;</span>);
 
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">jar</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cookies</span> {
             <span class="kw">for</span> <span class="ident">cookie</span> <span class="kw">in</span> <span class="ident">jar</span>.<span class="ident">delta</span>() {
                 <span class="kw">match</span> <span class="ident">HeaderValue</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>()) {
@@ -1795,12 +1844,8 @@
     <span class="doccomment">/// Set a json body and generate `Response`</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// `ResponseBuilder` can not be used after this call.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">json</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Response</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">ops</span>::<span class="ident">Deref</span>,
-        <span class="ident">T</span>::<span class="ident">Target</span>: <span class="ident">Serialize</span>,
-    {
-        <span class="kw">match</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw">impl</span> <span class="ident">Serialize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Response</span> {
+        <span class="kw">match</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">contains</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parts</span>) <span class="op">=</span> <span class="ident">parts</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">head</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">err</span>) {
                     <span class="ident">parts</span>.<span class="ident">headers</span>.<span class="ident">contains_key</span>(<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>)
@@ -1809,7 +1854,7 @@
                 };
 
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">contains</span> {
-                    <span class="self">self</span>.<span class="ident">insert_header</span>(<span class="ident">header</span>::<span class="ident">ContentType</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>));
+                    <span class="self">self</span>.<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>));
                 }
 
                 <span class="self">self</span>.<span class="ident">body</span>(<span class="ident">Body</span>::<span class="ident">from</span>(<span class="ident">body</span>))
@@ -1831,6 +1876,7 @@
         <span class="ident">ResponseBuilder</span> {
             <span class="ident">head</span>: <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">take</span>(),
             <span class="ident">err</span>: <span class="self">self</span>.<span class="ident">err</span>.<span class="ident">take</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
             <span class="ident">cookies</span>: <span class="self">self</span>.<span class="ident">cookies</span>.<span class="ident">take</span>(),
         }
     }
@@ -1850,21 +1896,28 @@
 <span class="doccomment">/// Convert `Response` to a `ResponseBuilder`. Body get dropped.</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResponseBuilder</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResponseBuilder</span> {
-        <span class="comment">// If this response has cookies, load them into a jar</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jar</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CookieJar</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">res</span>.<span class="ident">cookies</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">j</span>) <span class="op">=</span> <span class="ident">jar</span> {
-                <span class="ident">j</span>.<span class="ident">add_original</span>(<span class="ident">c</span>.<span class="ident">into_owned</span>());
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">CookieJar</span>::<span class="ident">new</span>();
-                <span class="ident">j</span>.<span class="ident">add_original</span>(<span class="ident">c</span>.<span class="ident">into_owned</span>());
-                <span class="ident">jar</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>);
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
+        <span class="kw">let</span> <span class="ident">jar</span> <span class="op">=</span> {
+            <span class="comment">// If this response has cookies, load them into a jar</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jar</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CookieJar</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+            <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">res</span>.<span class="ident">cookies</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">j</span>) <span class="op">=</span> <span class="ident">jar</span> {
+                    <span class="ident">j</span>.<span class="ident">add_original</span>(<span class="ident">c</span>.<span class="ident">into_owned</span>());
+                } <span class="kw">else</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">CookieJar</span>::<span class="ident">new</span>();
+                    <span class="ident">j</span>.<span class="ident">add_original</span>(<span class="ident">c</span>.<span class="ident">into_owned</span>());
+                    <span class="ident">jar</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>);
+                }
             }
-        }
+
+            <span class="ident">jar</span>
+        };
 
         <span class="ident">ResponseBuilder</span> {
             <span class="ident">head</span>: <span class="prelude-val">Some</span>(<span class="ident">res</span>.<span class="ident">head</span>),
             <span class="ident">err</span>: <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
             <span class="ident">cookies</span>: <span class="ident">jar</span>,
         }
     }
@@ -1873,22 +1926,6 @@
 <span class="doccomment">/// Convert `ResponseHead` to a `ResponseBuilder`</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ResponseHead</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResponseBuilder</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">head</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ResponseHead</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResponseBuilder</span> {
-        <span class="comment">// If this response has cookies, load them into a jar</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jar</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CookieJar</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-
-        <span class="kw">let</span> <span class="ident">cookies</span> <span class="op">=</span> <span class="ident">CookieIter</span> {
-            <span class="ident">iter</span>: <span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">get_all</span>(<span class="ident">header</span>::<span class="ident">SET_COOKIE</span>),
-        };
-        <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">cookies</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">j</span>) <span class="op">=</span> <span class="ident">jar</span> {
-                <span class="ident">j</span>.<span class="ident">add_original</span>(<span class="ident">c</span>.<span class="ident">into_owned</span>());
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">CookieJar</span>::<span class="ident">new</span>();
-                <span class="ident">j</span>.<span class="ident">add_original</span>(<span class="ident">c</span>.<span class="ident">into_owned</span>());
-                <span class="ident">jar</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>);
-            }
-        }
-
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">BoxedResponseHead</span>::<span class="ident">new</span>(<span class="ident">head</span>.<span class="ident">status</span>);
         <span class="ident">msg</span>.<span class="ident">version</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">version</span>;
         <span class="ident">msg</span>.<span class="ident">reason</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">reason</span>;
@@ -1899,9 +1936,32 @@
 
         <span class="ident">msg</span>.<span class="ident">no_chunking</span>(<span class="op">!</span><span class="ident">head</span>.<span class="ident">chunked</span>());
 
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
+        <span class="kw">let</span> <span class="ident">jar</span> <span class="op">=</span> {
+            <span class="comment">// If this response has cookies, load them into a jar</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jar</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CookieJar</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+            <span class="kw">let</span> <span class="ident">cookies</span> <span class="op">=</span> <span class="ident">CookieIter</span> {
+                <span class="ident">iter</span>: <span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">get_all</span>(<span class="ident">header</span>::<span class="ident">SET_COOKIE</span>),
+            };
+
+            <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">cookies</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">j</span>) <span class="op">=</span> <span class="ident">jar</span> {
+                    <span class="ident">j</span>.<span class="ident">add_original</span>(<span class="ident">c</span>.<span class="ident">into_owned</span>());
+                } <span class="kw">else</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">CookieJar</span>::<span class="ident">new</span>();
+                    <span class="ident">j</span>.<span class="ident">add_original</span>(<span class="ident">c</span>.<span class="ident">into_owned</span>());
+                    <span class="ident">jar</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>);
+                }
+            }
+
+            <span class="ident">jar</span>
+        };
+
         <span class="ident">ResponseBuilder</span> {
             <span class="ident">head</span>: <span class="prelude-val">Some</span>(<span class="ident">msg</span>),
             <span class="ident">err</span>: <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
             <span class="ident">cookies</span>: <span class="ident">jar</span>,
         }
     }
@@ -2004,7 +2064,9 @@
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">body</span>::<span class="ident">Body</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::<span class="ident">header</span>::{<span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>, <span class="ident">COOKIE</span>, <span class="ident">SET_COOKIE</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::<span class="ident">header</span>::{<span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>, <span class="ident">COOKIE</span>};
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">http</span>::<span class="ident">header</span>::<span class="ident">SET_COOKIE</span>, <span class="ident">HttpMessage</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_debug</span>() {
@@ -2016,10 +2078,9 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dbg</span>.<span class="ident">contains</span>(<span class="string">&quot;Response&quot;</span>));
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_response_cookies</span>() {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">httpmessage</span>::<span class="ident">HttpMessage</span>;
-
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">test</span>::<span class="ident">TestRequest</span>::<span class="ident">default</span>()
             .<span class="ident">append_header</span>((<span class="ident">COOKIE</span>, <span class="string">&quot;cookie1=value1&quot;</span>))
             .<span class="ident">append_header</span>((<span class="ident">COOKIE</span>, <span class="string">&quot;cookie2=value2&quot;</span>))
@@ -2055,6 +2116,7 @@
         );
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_update_response_cookies</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">Response</span>::<span class="prelude-val">Ok</span>()
@@ -2112,7 +2174,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_json</span>() {
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">Response</span>::<span class="ident">build</span>(<span class="ident">StatusCode</span>::<span class="ident">OK</span>).<span class="ident">json</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;v1&quot;</span>, <span class="string">&quot;v2&quot;</span>, <span class="string">&quot;v3&quot;</span>]);
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">Response</span>::<span class="prelude-val">Ok</span>().<span class="ident">json</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;v1&quot;</span>, <span class="string">&quot;v2&quot;</span>, <span class="string">&quot;v3&quot;</span>]);
+        <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ct</span>, <span class="ident">HeaderValue</span>::<span class="ident">from_static</span>(<span class="string">&quot;application/json&quot;</span>));
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">body</span>().<span class="ident">get_ref</span>(), <span class="string">b&quot;[\&quot;v1\&quot;,\&quot;v2\&quot;,\&quot;v3\&quot;]&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">Response</span>::<span class="prelude-val">Ok</span>().<span class="ident">json</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;v1&quot;</span>, <span class="string">&quot;v2&quot;</span>, <span class="string">&quot;v3&quot;</span>]);
         <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ct</span>, <span class="ident">HeaderValue</span>::<span class="ident">from_static</span>(<span class="string">&quot;application/json&quot;</span>));
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">body</span>().<span class="ident">get_ref</span>(), <span class="string">b&quot;[\&quot;v1\&quot;,\&quot;v2\&quot;,\&quot;v3\&quot;]&quot;</span>);
@@ -2206,6 +2273,7 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">body</span>().<span class="ident">get_ref</span>(), <span class="string">b&quot;test&quot;</span>);
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_into_builder</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resp</span>: <span class="ident">Response</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">into</span>();
@@ -2237,7 +2305,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">response_builder_header_insert_typed</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response</span>::<span class="prelude-val">Ok</span>();
-        <span class="ident">res</span>.<span class="ident">insert_header</span>(<span class="ident">header</span>::<span class="ident">ContentType</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_OCTET_STREAM</span>));
+        <span class="ident">res</span>.<span class="ident">insert_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime</span>::<span class="ident">APPLICATION_OCTET_STREAM</span>));
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">finish</span>();
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(
@@ -2262,8 +2330,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">response_builder_header_append_typed</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response</span>::<span class="prelude-val">Ok</span>();
-        <span class="ident">res</span>.<span class="ident">append_header</span>(<span class="ident">header</span>::<span class="ident">ContentType</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_OCTET_STREAM</span>));
-        <span class="ident">res</span>.<span class="ident">append_header</span>(<span class="ident">header</span>::<span class="ident">ContentType</span>(<span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>));
+        <span class="ident">res</span>.<span class="ident">append_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime</span>::<span class="ident">APPLICATION_OCTET_STREAM</span>));
+        <span class="ident">res</span>.<span class="ident">append_header</span>((<span class="ident">header</span>::<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime</span>::<span class="ident">APPLICATION_JSON</span>));
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">finish</span>();
 
         <span class="kw">let</span> <span class="ident">headers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get_all</span>(<span class="string">&quot;Content-Type&quot;</span>).<span class="ident">cloned</span>().<span class="ident">collect</span>();

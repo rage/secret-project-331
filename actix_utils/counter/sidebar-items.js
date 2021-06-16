@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Counter","Simple counter with ability to notify task on reaching specific number"],["CounterGuard",""]]});
+initSidebarItems({"struct":[["Counter","Simple counter with ability to notify task on reaching specific number"],["CounterGuard","An RAII structure that keeps the underlying counter incremented until this guard is dropped."]]});

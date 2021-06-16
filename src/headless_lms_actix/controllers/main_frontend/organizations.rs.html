@@ -74,6 +74,8 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/organizations`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -102,6 +104,7 @@ GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 ]
 ```
  */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_organizations</span>(
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -125,6 +128,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
 ]
 ```
  */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_courses</span>(
     <span class="ident">request_organization_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,

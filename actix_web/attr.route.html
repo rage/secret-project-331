@@ -6,6 +6,7 @@
 <h1 id="attributes" class="section-header"><a href="#attributes">Attributes</a></h1>
 <ul>
 <li><code>&quot;path&quot;</code> - Raw literal string with path for which to register handler.</li>
+<li><code>name=&quot;resource_name&quot;</code> - Specifies resource name for the handler. If not set, the function name of handler is used.</li>
 <li><code>method=&quot;HTTP_METHOD&quot;</code> - Registers HTTP method to provide guard for. Upper-case string, “GET”, “POST” for example.</li>
 <li><code>guard=&quot;function_name&quot;</code> - Registers function as guard using <code>actix_web::guard::fn_guard</code></li>
 <li><code>wrap=&quot;Middleware&quot;</code> - Registers a resource middleware.</li>

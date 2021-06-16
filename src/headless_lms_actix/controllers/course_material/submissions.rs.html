@@ -99,6 +99,7 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
+<span id="99">99</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/submissions`.</span>
 
@@ -169,6 +170,7 @@ Response:
 }
 ```
  */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_submission</span>(
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">payload</span>: <span class="ident">web</span>::<span class="ident">Json</span><span class="op">&lt;</span><span class="ident">NewSubmission</span><span class="op">&gt;</span>,

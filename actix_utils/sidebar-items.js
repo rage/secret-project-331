@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["counter",""],["dispatcher","Framed dispatcher service and related utilities."],["mpsc","A multi-producer, single-consumer, futures-aware, FIFO queue."],["task",""],["timeout","Service that applies a timeout to requests."]]});
+initSidebarItems({"mod":[["counter","Task-notifying counter."],["future","Asynchronous values."]]});

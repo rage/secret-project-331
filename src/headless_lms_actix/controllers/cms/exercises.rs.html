@@ -74,6 +74,7 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
+<span id="74">74</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/exercises`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -116,6 +117,7 @@ GET `/api/v0/cms/exercises/:exercise_id/submissions` - Returns an exercise&#39;s
 }
 ```
  */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_submissions</span>(
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">request_exercise_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

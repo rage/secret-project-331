@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-3.3.2/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.0-beta.5/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -352,16 +352,6 @@
 <span id="351">351</span>
 <span id="352">352</span>
 <span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">net</span>::<span class="ident">SocketAddr</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
@@ -370,7 +360,7 @@
 <span class="kw">use</span> <span class="ident">actix_router</span>::<span class="ident">ResourceDef</span>;
 <span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">boxed</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">ServiceFactory</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">data</span>::{<span class="ident">Data</span>, <span class="ident">DataFactory</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">data</span>::<span class="ident">Data</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">guard</span>::<span class="ident">Guard</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">resource</span>::<span class="ident">Resource</span>;
@@ -382,8 +372,7 @@
 };
 
 <span class="kw">type</span> <span class="ident">Guards</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-<span class="kw">type</span> <span class="ident">HttpNewService</span> <span class="op">=</span>
-    <span class="ident">boxed</span>::<span class="ident">BoxServiceFactory</span><span class="op">&lt;</span>(), <span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>, <span class="ident">Error</span>, ()<span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">HttpNewService</span> <span class="op">=</span> <span class="ident">boxed</span>::<span class="ident">BoxServiceFactory</span><span class="op">&lt;</span>(), <span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>, <span class="ident">Error</span>, ()<span class="op">&gt;</span>;
 
 <span class="doccomment">/// Application configuration</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AppService</span> {
@@ -396,20 +385,14 @@
         <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Guards</span><span class="op">&gt;</span>,
         <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     )<span class="op">&gt;</span>,
-    <span class="ident">service_data</span>: <span class="ident">Rc</span><span class="op">&lt;</span>[<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">DataFactory</span><span class="op">&gt;</span>]<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">AppService</span> {
-    <span class="doccomment">/// Crate server settings instance</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">config</span>: <span class="ident">AppConfig</span>,
-        <span class="ident">default</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpNewService</span><span class="op">&gt;</span>,
-        <span class="ident">service_data</span>: <span class="ident">Rc</span><span class="op">&lt;</span>[<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">DataFactory</span><span class="op">&gt;</span>]<span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="doccomment">/// Crate server settings instance.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">config</span>: <span class="ident">AppConfig</span>, <span class="ident">default</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpNewService</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">AppService</span> {
             <span class="ident">config</span>,
             <span class="ident">default</span>,
-            <span class="ident">service_data</span>,
             <span class="ident">root</span>: <span class="bool-val">true</span>,
             <span class="ident">services</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
         }
@@ -440,7 +423,6 @@
             <span class="ident">default</span>: <span class="self">self</span>.<span class="ident">default</span>.<span class="ident">clone</span>(),
             <span class="ident">services</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">root</span>: <span class="bool-val">false</span>,
-            <span class="ident">service_data</span>: <span class="self">self</span>.<span class="ident">service_data</span>.<span class="ident">clone</span>(),
         }
     }
 
@@ -454,15 +436,7 @@
         <span class="self">self</span>.<span class="ident">default</span>.<span class="ident">clone</span>()
     }
 
-    <span class="doccomment">/// Set global route data</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_service_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">extensions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Extensions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">for</span> <span class="ident">f</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">service_data</span>.<span class="ident">iter</span>() {
-            <span class="ident">f</span>.<span class="ident">create</span>(<span class="ident">extensions</span>);
-        }
-        <span class="op">!</span><span class="self">self</span>.<span class="ident">service_data</span>.<span class="ident">is_empty</span>()
-    }
-
-    <span class="doccomment">/// Register http service</span>
+    <span class="doccomment">/// Register HTTP service.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_service</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">rdef</span>: <span class="ident">ResourceDef</span>,
@@ -470,58 +444,57 @@
         <span class="ident">factory</span>: <span class="ident">F</span>,
         <span class="ident">nested</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">ServiceRequest</span><span class="op">&gt;</span>,
         <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
+                <span class="ident">ServiceRequest</span>,
                 <span class="ident">Config</span> <span class="op">=</span> (),
-                <span class="ident">Request</span> <span class="op">=</span> <span class="ident">ServiceRequest</span>,
                 <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>,
                 <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>,
                 <span class="ident">InitError</span> <span class="op">=</span> (),
             <span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">push</span>((
-            <span class="ident">rdef</span>,
-            <span class="ident">boxed</span>::<span class="ident">factory</span>(<span class="ident">factory</span>.<span class="ident">into_factory</span>()),
-            <span class="ident">guards</span>,
-            <span class="ident">nested</span>,
-        ));
+        <span class="self">self</span>.<span class="ident">services</span>
+            .<span class="ident">push</span>((<span class="ident">rdef</span>, <span class="ident">boxed</span>::<span class="ident">factory</span>(<span class="ident">factory</span>.<span class="ident">into_factory</span>()), <span class="ident">guards</span>, <span class="ident">nested</span>));
     }
 }
 
-<span class="doccomment">/// Application connection config</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AppConfig</span>(<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">AppConfigInner</span><span class="op">&gt;</span>);
-
-<span class="kw">struct</span> <span class="ident">AppConfigInner</span> {
+<span class="doccomment">/// Application connection config.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AppConfig</span> {
     <span class="ident">secure</span>: <span class="ident">bool</span>,
     <span class="ident">host</span>: <span class="ident">String</span>,
     <span class="ident">addr</span>: <span class="ident">SocketAddr</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">AppConfig</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">secure</span>: <span class="ident">bool</span>, <span class="ident">addr</span>: <span class="ident">SocketAddr</span>, <span class="ident">host</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">AppConfig</span>(<span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">AppConfigInner</span> { <span class="ident">secure</span>, <span class="ident">addr</span>, <span class="ident">host</span> }))
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">secure</span>: <span class="ident">bool</span>, <span class="ident">host</span>: <span class="ident">String</span>, <span class="ident">addr</span>: <span class="ident">SocketAddr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">AppConfig</span> { <span class="ident">secure</span>, <span class="ident">host</span>, <span class="ident">addr</span> }
+    }
+
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">__priv_test_new</span>(<span class="ident">secure</span>: <span class="ident">bool</span>, <span class="ident">host</span>: <span class="ident">String</span>, <span class="ident">addr</span>: <span class="ident">SocketAddr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">AppConfig</span>::<span class="ident">new</span>(<span class="ident">secure</span>, <span class="ident">host</span>, <span class="ident">addr</span>)
     }
 
     <span class="doccomment">/// Server host name.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Host name is used by application router as a hostname for url generation.</span>
-    <span class="doccomment">/// Check [ConnectionInfo](./struct.ConnectionInfo.html#method.host)</span>
+    <span class="doccomment">/// Check [ConnectionInfo](super::dev::ConnectionInfo::host())</span>
     <span class="doccomment">/// documentation for more information.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default host name is set to a &quot;localhost&quot; value.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">host</span>
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">host</span>
     }
 
     <span class="doccomment">/// Returns true if connection is secure(https)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secure</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">secure</span>
+        <span class="self">self</span>.<span class="ident">secure</span>
     }
 
     <span class="doccomment">/// Returns the socket address of the local half of this TCP connection</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SocketAddr</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">addr</span>
+        <span class="self">self</span>.<span class="ident">addr</span>
     }
 }
 
@@ -529,53 +502,66 @@
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">AppConfig</span>::<span class="ident">new</span>(
             <span class="bool-val">false</span>,
-            <span class="string">&quot;127.0.0.1:8080&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
             <span class="string">&quot;localhost:8080&quot;</span>.<span class="ident">to_owned</span>(),
+            <span class="string">&quot;127.0.0.1:8080&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
         )
     }
 }
 
-<span class="doccomment">/// Service config is used for external configuration.</span>
-<span class="doccomment">/// Part of application configuration could be offloaded</span>
-<span class="doccomment">/// to set of external methods. This could help with</span>
-<span class="doccomment">/// modularization of big application configuration.</span>
+<span class="doccomment">/// Enables parts of app configuration to be declared separately from the app itself. Helpful for</span>
+<span class="doccomment">/// modularizing large applications.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Merge a `ServiceConfig` into an app using [`App::configure`](crate::App::configure). Scope and</span>
+<span class="doccomment">/// resources services have similar methods.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use actix_web::{web, App, HttpResponse};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // this function could be located in different module</span>
+<span class="doccomment">/// fn config(cfg: &amp;mut web::ServiceConfig) {</span>
+<span class="doccomment">///     cfg.service(web::resource(&quot;/test&quot;)</span>
+<span class="doccomment">///         .route(web::get().to(|| HttpResponse::Ok()))</span>
+<span class="doccomment">///         .route(web::head().to(|| HttpResponse::MethodNotAllowed()))</span>
+<span class="doccomment">///     );</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // merge `/test` routes from config function to App</span>
+<span class="doccomment">/// App::new().configure(config);</span>
+<span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ServiceConfig</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">services</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">AppServiceFactory</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">DataFactory</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">external</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ResourceDef</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">extensions</span>: <span class="ident">Extensions</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">app_data</span>: <span class="ident">Extensions</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ServiceConfig</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">services</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">data</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">external</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">extensions</span>: <span class="ident">Extensions</span>::<span class="ident">new</span>(),
+            <span class="ident">app_data</span>: <span class="ident">Extensions</span>::<span class="ident">new</span>(),
         }
     }
 
-    <span class="doccomment">/// Set application data. Application data could be accessed</span>
-    <span class="doccomment">/// by using `Data&lt;T&gt;` extractor where `T` is data type.</span>
+    <span class="doccomment">/// Add shared app data item.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is same as `App::data()` method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Data</span>::<span class="ident">new</span>(<span class="ident">data</span>)));
+    <span class="doccomment">/// Counterpart to [`App::data()`](crate::App::data).</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">app_data</span>(<span class="ident">Data</span>::<span class="ident">new</span>(<span class="ident">data</span>));
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Set arbitrary data item.</span>
+    <span class="doccomment">/// Add arbitrary app data item.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is same as `App::data()` method.</span>
+    <span class="doccomment">/// Counterpart to [`App::app_data()`](crate::App::app_data).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_data</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ext</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="ident">ext</span>);
+        <span class="self">self</span>.<span class="ident">app_data</span>.<span class="ident">insert</span>(<span class="ident">ext</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Configure route for a specific path.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is same as `App::route()` method.</span>
+    <span class="doccomment">/// Counterpart to [`App::route()`](crate::App::route).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">route</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">mut</span> <span class="ident">route</span>: <span class="ident">Route</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">service</span>(
             <span class="ident">Resource</span>::<span class="ident">new</span>(<span class="ident">path</span>)
@@ -584,9 +570,9 @@
         )
     }
 
-    <span class="doccomment">/// Register http service.</span>
+    <span class="doccomment">/// Register HTTP service factory.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is same as `App::service()` method.</span>
+    <span class="doccomment">/// Counterpart to [`App::service()`](crate::App::service).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">service</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">HttpServiceFactory</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -598,11 +584,11 @@
 
     <span class="doccomment">/// Register an external resource.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// External resources are useful for URL generation purposes only</span>
-    <span class="doccomment">/// and are never considered for matching at request time. Calls to</span>
-    <span class="doccomment">/// `HttpRequest::url_for()` will work as expected.</span>
+    <span class="doccomment">/// External resources are useful for URL generation purposes only and are never considered for</span>
+    <span class="doccomment">/// matching at request time. Calls to [`HttpRequest::url_for()`](crate::HttpRequest::url_for)</span>
+    <span class="doccomment">/// will work as expected.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is same as `App::external_service()` method.</span>
+    <span class="doccomment">/// Counterpart to [`App::external_resource()`](crate::App::external_resource).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">external_resource</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">N</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
@@ -632,12 +618,12 @@
             <span class="ident">cfg</span>.<span class="ident">app_data</span>(<span class="number">15u8</span>);
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">configure</span>(<span class="ident">cfg</span>).<span class="ident">service</span>(
-            <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="kw">_</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">configure</span>(<span class="ident">cfg</span>).<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(
+            <span class="op">|</span><span class="kw">_</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
                 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">app_data</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(), <span class="number">15u8</span>);
                 <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()
-            }),
-        ))
+            },
+        )))
         .<span class="kw">await</span>;
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -655,7 +641,7 @@
     <span class="comment">//         });</span>
     <span class="comment">//     };</span>
 
-    <span class="comment">//     let mut srv =</span>
+    <span class="comment">//     let srv =</span>
     <span class="comment">//         init_service(App::new().configure(cfg).service(</span>
     <span class="comment">//             web::resource(&quot;/&quot;).to(|_: web::Data&lt;usize&gt;| HttpResponse::Ok()),</span>
     <span class="comment">//         ));</span>
@@ -666,7 +652,7 @@
     <span class="comment">//     let cfg2 = |cfg: &amp;mut ServiceConfig| {</span>
     <span class="comment">//         cfg.data_factory(|| Ok::&lt;_, ()&gt;(10u32));</span>
     <span class="comment">//     };</span>
-    <span class="comment">//     let mut srv = init_service(</span>
+    <span class="comment">//     let srv = init_service(</span>
     <span class="comment">//         App::new()</span>
     <span class="comment">//             .service(web::resource(&quot;/&quot;).to(|_: web::Data&lt;usize&gt;| HttpResponse::Ok()))</span>
     <span class="comment">//             .configure(cfg2),</span>
@@ -678,26 +664,22 @@
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_external_resource</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
             <span class="ident">App</span>::<span class="ident">new</span>()
                 .<span class="ident">configure</span>(<span class="op">|</span><span class="ident">cfg</span><span class="op">|</span> {
-                    <span class="ident">cfg</span>.<span class="ident">external_resource</span>(
-                        <span class="string">&quot;youtube&quot;</span>,
-                        <span class="string">&quot;https://youtube.com/watch/{video_id}&quot;</span>,
-                    );
+                    <span class="ident">cfg</span>.<span class="ident">external_resource</span>(<span class="string">&quot;youtube&quot;</span>, <span class="string">&quot;https://youtube.com/watch/{video_id}&quot;</span>);
                 })
                 .<span class="ident">route</span>(
                     <span class="string">&quot;/test&quot;</span>,
                     <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="op">|</span><span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
-                        <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">body</span>(
-                            <span class="ident">req</span>.<span class="ident">url_for</span>(<span class="string">&quot;youtube&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;12345&quot;</span>]).<span class="ident">unwrap</span>().<span class="ident">to_string</span>(),
-                        )
+                        <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()
+                            .<span class="ident">body</span>(<span class="ident">req</span>.<span class="ident">url_for</span>(<span class="string">&quot;youtube&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;12345&quot;</span>]).<span class="ident">unwrap</span>().<span class="ident">to_string</span>())
                     }),
                 ),
         )
         .<span class="kw">await</span>;
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
         <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">read_body</span>(<span class="ident">resp</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">body</span>, <span class="ident">Bytes</span>::<span class="ident">from_static</span>(<span class="string">b&quot;https://youtube.com/watch/12345&quot;</span>));
@@ -705,24 +687,22 @@
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_service</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">configure</span>(<span class="op">|</span><span class="ident">cfg</span><span class="op">|</span> {
-            <span class="ident">cfg</span>.<span class="ident">service</span>(
-                <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">route</span>(<span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">HttpResponse</span>::<span class="ident">Created</span>)),
-            )
-            .<span class="ident">route</span>(<span class="string">&quot;/index.html&quot;</span>, <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>));
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">configure</span>(<span class="op">|</span><span class="ident">cfg</span><span class="op">|</span> {
+            <span class="ident">cfg</span>.<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">route</span>(<span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">HttpResponse</span>::<span class="ident">Created</span>)))
+                .<span class="ident">route</span>(<span class="string">&quot;/index.html&quot;</span>, <span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>));
         }))
         .<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/test&quot;</span>)
             .<span class="ident">method</span>(<span class="ident">Method</span>::<span class="ident">GET</span>)
             .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">CREATED</span>);
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/index.html&quot;</span>)
             .<span class="ident">method</span>(<span class="ident">Method</span>::<span class="ident">GET</span>)
             .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
     }
 }

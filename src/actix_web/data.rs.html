@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-3.3.2/src/data.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>data.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.0-beta.5/src/data.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>data.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -298,16 +298,6 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">any</span>::<span class="ident">type_name</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Deref</span>;
@@ -315,14 +305,17 @@
 
 <span class="kw">use</span> <span class="ident">actix_http</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorInternalServerError</span>};
 <span class="kw">use</span> <span class="ident">actix_http</span>::<span class="ident">Extensions</span>;
-<span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">future</span>::{<span class="ident">err</span>, <span class="ident">ok</span>, <span class="ident">LocalBoxFuture</span>, <span class="ident">Ready</span>};
+<span class="kw">use</span> <span class="ident">actix_utils</span>::<span class="ident">future</span>::{<span class="ident">err</span>, <span class="ident">ok</span>, <span class="ident">Ready</span>};
+<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">future</span>::<span class="ident">LocalBoxFuture</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">dev</span>::<span class="ident">Payload</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">extract</span>::<span class="ident">FromRequest</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">request</span>::<span class="ident">HttpRequest</span>;
 
-<span class="doccomment">/// Application data factory</span>
+<span class="doccomment">/// Data factory.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait</span> <span class="ident">DataFactory</span> {
+    <span class="doccomment">/// Return true if modifications were made to extensions map.</span>
     <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">extensions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Extensions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
 }
 
@@ -337,7 +330,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Application data can be accessed by using `Data&lt;T&gt;` extractor where `T` is data type.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// **Note**: http server accepts an application factory rather than an application instance. HTTP</span>
+<span class="doccomment">/// **Note**: HTTP server accepts an application factory rather than an application instance. HTTP</span>
 <span class="doccomment">/// server constructs an application instance for each thread, thus application data must be</span>
 <span class="doccomment">/// constructed multiple times. If you want to share data between different threads, a shareable</span>
 <span class="doccomment">/// object should be used, e.g. `Send + Sync`. Application data does not need to be `Send`</span>
@@ -346,7 +339,7 @@
 <span class="doccomment">/// If route data is not set for a handler, using `Data&lt;T&gt;` extractor would cause *Internal</span>
 <span class="doccomment">/// Server Error* response.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// ```</span>
 <span class="doccomment">/// use std::sync::Mutex;</span>
 <span class="doccomment">/// use actix_web::{web, App, HttpResponse, Responder};</span>
 <span class="doccomment">///</span>
@@ -412,6 +405,18 @@
     }
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Serialize</span>,
+{
+    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="prelude-val">Ok</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">serde</span>::<span class="ident">Serializer</span>,
+    {
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
+    }
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
@@ -437,28 +442,24 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">DataFactory</span> <span class="kw">for</span> <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">extensions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Extensions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">extensions</span>.<span class="ident">contains</span>::<span class="op">&lt;</span><span class="ident">Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>() {
-            <span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="ident">Data</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>()));
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+        <span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="ident">Data</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>()));
+        <span class="bool-val">true</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_service</span>::<span class="ident">Service</span>;
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
-
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::<span class="ident">StatusCode</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">test</span>::{<span class="self">self</span>, <span class="ident">init_service</span>, <span class="ident">TestRequest</span>};
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">web</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{
+        <span class="ident">dev</span>::<span class="ident">Service</span>,
+        <span class="ident">http</span>::<span class="ident">StatusCode</span>,
+        <span class="ident">test</span>::{<span class="ident">init_service</span>, <span class="ident">TestRequest</span>},
+        <span class="ident">web</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>,
+    };
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_data_extractor</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">data</span>(<span class="string">&quot;TEST&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">service</span>(
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">data</span>(<span class="string">&quot;TEST&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">service</span>(
             <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="ident">data</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">|</span> {
                 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">data</span>.<span class="ident">to_lowercase</span>(), <span class="string">&quot;test&quot;</span>);
                 <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()
@@ -470,33 +471,54 @@
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span>
-            <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">data</span>(<span class="number">10u32</span>).<span class="ident">service</span>(
-                <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="kw">_</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()),
-            ))
-            .<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+            <span class="ident">App</span>::<span class="ident">new</span>()
+                .<span class="ident">data</span>(<span class="number">10u32</span>)
+                .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="kw">_</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>())),
+        )
+        .<span class="kw">await</span>;
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">INTERNAL_SERVER_ERROR</span>);
+
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+            <span class="ident">App</span>::<span class="ident">new</span>()
+                .<span class="ident">data</span>(<span class="number">10u32</span>)
+                .<span class="ident">data</span>(<span class="number">13u32</span>)
+                .<span class="ident">app_data</span>(<span class="number">12u64</span>)
+                .<span class="ident">app_data</span>(<span class="number">15u64</span>)
+                .<span class="ident">default_service</span>(<span class="ident">web</span>::<span class="ident">to</span>(<span class="op">|</span><span class="ident">n</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
+                    <span class="comment">// in each case, the latter insertion should be preserved</span>
+                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">app_data</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(), <span class="number">15</span>);
+                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">n</span>.<span class="ident">into_inner</span>(), <span class="number">13</span>);
+                    <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()
+                })),
+        )
+        .<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
     }
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_app_data_extractor</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span>
-            <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">app_data</span>(<span class="ident">Data</span>::<span class="ident">new</span>(<span class="number">10usize</span>)).<span class="ident">service</span>(
-                <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="kw">_</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()),
-            ))
-            .<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+            <span class="ident">App</span>::<span class="ident">new</span>()
+                .<span class="ident">app_data</span>(<span class="ident">Data</span>::<span class="ident">new</span>(<span class="number">10usize</span>))
+                .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="kw">_</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>())),
+        )
+        .<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span>
-            <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">app_data</span>(<span class="ident">Data</span>::<span class="ident">new</span>(<span class="number">10u32</span>)).<span class="ident">service</span>(
-                <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="kw">_</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()),
-            ))
-            .<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+            <span class="ident">App</span>::<span class="ident">new</span>()
+                .<span class="ident">app_data</span>(<span class="ident">Data</span>::<span class="ident">new</span>(<span class="number">10u32</span>))
+                .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="kw">_</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>())),
+        )
+        .<span class="kw">await</span>;
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">INTERNAL_SERVER_ERROR</span>);
@@ -504,7 +526,7 @@
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_route_data_extractor</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
             <span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">service</span>(
                 <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>)
                     .<span class="ident">data</span>(<span class="number">10usize</span>)
@@ -518,7 +540,7 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
 
         <span class="comment">// different type</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
             <span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">service</span>(
                 <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>)
                     .<span class="ident">data</span>(<span class="number">10u32</span>)
@@ -533,62 +555,20 @@
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_override_data</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">data</span>(<span class="number">1usize</span>).<span class="ident">service</span>(
-            <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">data</span>(<span class="number">10usize</span>).<span class="ident">route</span>(<span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(
-                <span class="op">|</span><span class="ident">data</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">|</span> {
-                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">data</span>, <span class="number">10</span>);
-                    <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()
-                },
-            )),
-        ))
-        .<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span>
+            <span class="ident">init_service</span>(<span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">data</span>(<span class="number">1usize</span>).<span class="ident">service</span>(
+                <span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">data</span>(<span class="number">10usize</span>).<span class="ident">route</span>(<span class="ident">web</span>::<span class="ident">get</span>().<span class="ident">to</span>(
+                    <span class="op">|</span><span class="ident">data</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">|</span> {
+                        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">data</span>, <span class="number">10</span>);
+                        <span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>()
+                    },
+                )),
+            ))
+            .<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">default</span>().<span class="ident">to_request</span>();
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_data_drop</span>() {
-        <span class="kw">struct</span> <span class="ident">TestData</span>(<span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AtomicUsize</span><span class="op">&gt;</span>);
-
-        <span class="kw">impl</span> <span class="ident">TestData</span> {
-            <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AtomicUsize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
-                <span class="self">Self</span>(<span class="ident">inner</span>)
-            }
-        }
-
-        <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">TestData</span> {
-            <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
-                <span class="self">Self</span>(<span class="ident">inner</span>)
-            }
-        }
-
-        <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">TestData</span> {
-            <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
-            }
-        }
-
-        <span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>));
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">TestData</span>::<span class="ident">new</span>(<span class="ident">num</span>.<span class="ident">clone</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">num</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>), <span class="number">1</span>);
-
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">test</span>::<span class="ident">start</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">clone</span>();
-
-            <span class="ident">App</span>::<span class="ident">new</span>()
-                .<span class="ident">data</span>(<span class="ident">data</span>)
-                .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="ident">_data</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">TestData</span><span class="op">&gt;</span><span class="op">|</span> <span class="kw">async</span> { <span class="string">&quot;ok&quot;</span> }))
-        });
-
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">srv</span>.<span class="ident">get</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">send</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">status</span>().<span class="ident">is_success</span>());
-        <span class="ident">srv</span>.<span class="ident">stop</span>().<span class="kw">await</span>;
-
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">num</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>), <span class="number">0</span>);
     }
 
     <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>

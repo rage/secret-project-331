@@ -495,18 +495,25 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
     let mut tx = pool.begin().await?;
     // For sharing the transaction between functions
     // let transaction_holder = RefCell::new(transaction);
+
+    let next_order_number = match new_page.chapter_id {
+        Some(id) => get_next_page_order_number_in_chapter(pool, id).await?,
+        None => 1,
+    };
+
     let page = sqlx::query_as!(
         Page,
         r#"
   INSERT INTO
-    pages(course_id, content, url_path, title, chapter_id)
-  VALUES($1, $2, $3, $4, $5)
+    pages(course_id, content, url_path, title, order_number, chapter_id)
+  VALUES($1, $2, $3, $4, $5, $6)
   RETURNING *
           "#,
         new_page.course_id,
         content_as_json,
         new_page.url_path.trim(),
         new_page.title.trim(),
+        next_order_number,
         new_page.chapter_id
     )
     .fetch_one(&mut tx)
@@ -748,4 +755,23 @@ WHERE chapter_number = (
     .await?;
 
     Ok(Some(next_page))
+}
+
+async fn get_next_page_order_number_in_chapter(pool: &PgPool, chapter_id: Uuid) -> Result<i32> {
+    let mut connection = pool.acquire().await?;
+    let next_order_number = sqlx::query!(
+        "
+select max(p.order_number) as order_number
+from pages p
+where p.chapter_id = $1;
+",
+        chapter_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    match next_order_number.order_number {
+        Some(order_number) => Ok(order_number + 1),
+        None => Ok(1),
+    }
 }

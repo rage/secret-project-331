@@ -2,7 +2,7 @@
 set -euo pipefail
 
 COMMAND="cargo"
-ARGUMENTS=(sqlx prepare "$@")
+ARGUMENTS=(sqlx prepare "$@" --merged)
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 eval "$COMMAND" "${ARGUMENTS[@]}"

@@ -30,7 +30,7 @@ pub struct CourseStructure {
 pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
     let mut transaction = pool.begin().await?;
     let connection = transaction.acquire().await?;
-    let courses = sqlx::query_as!(Course, "SELECT * FROM courses WHERE deleted_at IS NULL;")
+    let courses = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE deleted_at IS NULL;"#)
         .fetch_all(connection)
         .await?;
     Ok(courses)
@@ -39,7 +39,7 @@ pub async fn all_courses(pool: &PgPool) -> Result<Vec<Course>> {
 pub async fn get_course(pool: &PgPool, course_id: Uuid) -> Result<Course> {
     let mut transaction = pool.begin().await?;
     let connection = transaction.acquire().await?;
-    let course = sqlx::query_as!(Course, "SELECT * FROM courses WHERE id = $1;", course_id)
+    let course = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE id = $1;"#, course_id)
         .fetch_one(connection)
         .await?;
     Ok(course)
@@ -70,7 +70,7 @@ pub async fn organization_courses(pool: &PgPool, organization_id: &Uuid) -> Resu
     let connection = transaction.acquire().await?;
     let courses = sqlx::query_as!(
         Course,
-        "SELECT * FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;",
+        r#"SELECT * FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;"#,
         organization_id
     )
     .fetch_all(connection)

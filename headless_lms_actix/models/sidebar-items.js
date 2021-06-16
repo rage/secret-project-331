@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["chapters",""],["courses",""],["exercise_tasks",""],["exercises",""],["gradings",""],["organizations",""],["pages",""],["roles",""],["submissions",""],["user_exercise_states",""],["users",""]]});
+initSidebarItems({"mod":[["chapters",""],["course_instances",""],["courses",""],["exercise_tasks",""],["exercises",""],["gradings",""],["organizations",""],["pages",""],["roles",""],["submissions",""],["user_exercise_states",""],["users",""]]});

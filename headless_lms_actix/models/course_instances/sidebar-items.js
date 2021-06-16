@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["VariantStatus",""]],"struct":[["CourseInstance",""]]});

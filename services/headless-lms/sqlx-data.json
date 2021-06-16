@@ -3170,6 +3170,26 @@
       ]
     }
   },
+  "fefaaa5c5e1de08eb78712713351fe1623b3a9b9a9e416bfd8135c4d571cb4fb": {
+    "query": "\nselect max(p.order_number) as order_number\nfrom pages p\nwhere p.course_id = $1\n  and p.chapter_id is null\n  and p.deleted_at is null;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        null
+      ]
+    }
+  },
   "ff39bc12de82fe0cc229f9ca8fc7d7fbd67fdbe3e5a28346b5a0cca311d86900": {
     "query": "\n        UPDATE exercise_tasks SET deleted_at = now() WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)\n            ",
     "describe": {

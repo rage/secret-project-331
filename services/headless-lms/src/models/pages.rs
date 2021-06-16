@@ -498,7 +498,7 @@ pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
 
     let next_order_number = match new_page.chapter_id {
         Some(id) => get_next_page_order_number_in_chapter(pool, id).await?,
-        None => 1,
+        None => get_next_order_number_for_courses_top_level_pages(pool, new_page.course_id).await?,
     };
 
     let page = sqlx::query_as!(
@@ -773,6 +773,30 @@ where p.chapter_id = $1
 
     match next_order_number.order_number {
         Some(order_number) => Ok(order_number + 1),
-        None => Ok(1),
+        None => Ok(0),
+    }
+}
+
+async fn get_next_order_number_for_courses_top_level_pages(
+    pool: &PgPool,
+    course_id: Uuid,
+) -> Result<i32> {
+    let mut connection = pool.acquire().await?;
+    let next_order_number = sqlx::query!(
+        "
+select max(p.order_number) as order_number
+from pages p
+where p.course_id = $1
+  and p.chapter_id is null
+  and p.deleted_at is null;
+",
+        course_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+
+    match next_order_number.order_number {
+        Some(order_number) => Ok(order_number + 1),
+        None => Ok(0),
     }
 }

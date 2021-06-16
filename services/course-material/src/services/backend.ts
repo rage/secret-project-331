@@ -115,10 +115,10 @@ export const fetchExerciseById = async (id: string): Promise<CourseMaterialExerc
   return data
 }
 
-export interface ChaptersPagesWithExercises {
+export interface ChapterPagesWithExercises {
   id: string
-  created_at: Date
-  updated_at: Date
+  created_at: string
+  updated_at: string
   course_id: string
   chapter_id: string
   content: any
@@ -130,7 +130,7 @@ export interface ChaptersPagesWithExercises {
 
 export const fetchChaptersExercises = async (
   chapterId: string,
-): Promise<ChaptersPagesWithExercises[]> => {
+): Promise<ChapterPagesWithExercises[]> => {
   const data = (
     await axios.get(`/api/v0/course-material/chapters/${chapterId}/exercises`, {
       responseType: "json",

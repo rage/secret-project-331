@@ -48,7 +48,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         margin-bottom: 1rem;
         padding-top: 2rem;
       `}
+      id={id}
     >
+      {/* <a id={id}></a> */}
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

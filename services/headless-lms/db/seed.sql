@@ -74,7 +74,7 @@ VALUES (
     'de5590c6-97b3-40f1-b2e1-2195645da509',
     'd86cf910-4d26-40e9-8c9c-1cc35294fdbb',
     '[{"name": "core/paragraph", "isValid": true, "clientId": "e6f023d2-eb6c-436c-996c-13982df9cfa9", "attributes": {"content": "First chapters second page.", "dropCap": false}, "innerBlocks": []}, {"name": "moocfi/exercise", "isValid": true, "clientId": "9cda760e-2309-4782-bd67-57b5d1d4a791", "attributes": {"id": "4b8d6878-89dc-4224-aaa6-488a6dab5d95"}, "innerBlocks": []},{"name": "moocfi/exercise", "isValid": true, "clientId": "62b33173-785f-46f3-9c41-899b7483475d", "attributes": {"id": "a5f201f1-53df-4cfa-90c5-ffa2241a527d"}, "innerBlocks": []},{"name": "moocfi/exercise", "isValid": true, "clientId": "be51aabc-8a06-462a-8ca0-dc3230b2fe77", "attributes": {"id": "e88371c1-aceb-4226-9d7a-a559830646e3"}, "innerBlocks": []}]'::jsonb,
-    '/page-2',
+    '/chapter-1/page-2',
     'page 2',
     2
   );

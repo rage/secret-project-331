@@ -36,6 +36,7 @@ pub async fn login(
     client: web::Data<OAuthClient>,
     payload: web::Json<Login>,
 ) -> ApplicationResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
     // login to TMC
@@ -64,12 +65,12 @@ pub async fn login(
     let upstream_id = current_user.id;
 
     // create new user if one doesn't exist yet
-    let existing_user = crate::models::users::find_by_upstream_id(&pool, upstream_id)
+    let existing_user = crate::models::users::find_by_upstream_id(&mut conn, upstream_id)
         .await
         .context("Error while trying to find user")?;
     if existing_user.is_none() {
         let new_id = Uuid::new_v4();
-        crate::models::users::upsert_user_id(&pool, new_id, Some(upstream_id)).await?;
+        crate::models::users::upsert_user_id(&mut conn, new_id, Some(upstream_id)).await?;
     }
 
     session

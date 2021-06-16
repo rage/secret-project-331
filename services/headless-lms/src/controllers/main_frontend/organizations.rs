@@ -29,7 +29,8 @@ GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 async fn get_all_organizations(
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Organization>>> {
-    let courses = crate::models::organizations::all_organizations(pool.get_ref()).await?;
+    let mut conn = pool.acquire().await?;
+    let courses = crate::models::organizations::all_organizations(&mut conn).await?;
     Ok(Json(courses))
 }
 
@@ -54,9 +55,9 @@ async fn get_organization_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
     let courses =
-        crate::models::courses::organization_courses(pool.get_ref(), &*request_organization_id)
-            .await?;
+        crate::models::courses::organization_courses(&mut conn, &*request_organization_id).await?;
     Ok(Json(courses))
 }
 

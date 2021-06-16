@@ -32,6 +32,7 @@ async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
+    let mut conn = pool.acquire().await?;
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
         raw_page_path
@@ -39,7 +40,7 @@ async fn get_course_page_by_path(
         format!("/{}", raw_page_path)
     };
 
-    let page = crate::models::pages::get_page_by_path(pool.get_ref(), course_slug, &path).await?;
+    let page = crate::models::pages::get_page_by_path(&mut conn, course_slug, &path).await?;
     Ok(Json(page))
 }
 
@@ -70,8 +71,9 @@ async fn get_course_pages(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Page>>> {
+    let mut conn = pool.acquire().await?;
     let pages: Vec<Page> =
-        crate::models::pages::course_pages(pool.get_ref(), *request_course_id).await?;
+        crate::models::pages::course_pages(&mut conn, *request_course_id).await?;
     Ok(Json(pages))
 }
 
@@ -98,8 +100,9 @@ async fn get_chapters(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Chapter>>> {
+    let mut conn = pool.acquire().await?;
     let chapters: Vec<Chapter> =
-        crate::models::chapters::course_chapters(pool.get_ref(), *request_course_id).await?;
+        crate::models::chapters::course_chapters(&mut conn, *request_course_id).await?;
     Ok(Json(chapters))
 }
 

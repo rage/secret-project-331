@@ -763,7 +763,8 @@ async fn get_next_page_order_number_in_chapter(pool: &PgPool, chapter_id: Uuid) 
         "
 select max(p.order_number) as order_number
 from pages p
-where p.chapter_id = $1;
+where p.chapter_id = $1
+  and p.deleted_at is null;
 ",
         chapter_id
     )

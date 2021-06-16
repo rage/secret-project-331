@@ -25,6 +25,7 @@ GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 ]
 ```
  */
+#[instrument(skip(pool))]
 async fn get_all_organizations(
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Vec<Organization>>> {
@@ -48,6 +49,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
 ]
 ```
  */
+#[instrument(skip(pool))]
 async fn get_organization_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

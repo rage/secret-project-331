@@ -41,6 +41,7 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn post_new_chapter(
     pool: web::Data<PgPool>,
     payload: web::Json<NewChapter>,
@@ -67,6 +68,7 @@ DELETE `/api/v0/cms/courses-parts/:chapter_id` - Delete a course part.
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn delete_chapter(
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
@@ -108,6 +110,7 @@ Response:
 }
 ```
 */
+#[instrument(skip(payload, pool))]
 async fn update_chapter(
     payload: web::Json<ChapterUpdate>,
     request_chapter_id: web::Path<String>,

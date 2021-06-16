@@ -42,6 +42,8 @@ Response headers:
 ```
 
 */
+#[instrument]
+#[allow(clippy::async_yields_async)]
 async fn redirect_to_storage_service(tail: web::Path<String>) -> HttpResponse {
     let prefix = Path::new("/api/v0/files/uploads/");
     let path: PathBuf = prefix.join(tail.into_inner());
@@ -64,6 +66,7 @@ Result:
 
 The file.
 */
+#[instrument(skip(req))]
 async fn serve_upload(req: HttpRequest) -> ApplicationResult<HttpResponse> {
     // TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
     let base_folder = Path::new("uploads");

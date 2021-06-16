@@ -4,7 +4,7 @@ pub mod models;
 pub mod utils;
 
 #[macro_use]
-extern crate log;
+extern crate tracing;
 
 use oauth2::basic::BasicClient;
 use std::sync::Arc;

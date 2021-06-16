@@ -35,7 +35,7 @@ Response:
 }
 ```
 */
-
+#[instrument(skip(pool))]
 async fn get_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -95,6 +95,7 @@ Response:
 ```
 
 */
+#[instrument(skip(pool))]
 async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
@@ -148,6 +149,7 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn update_page(
     payload: web::Json<PageUpdate>,
     request_page_id: web::Path<Uuid>,
@@ -186,6 +188,7 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn delete_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

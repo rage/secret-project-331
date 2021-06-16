@@ -28,6 +28,7 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_course(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -65,6 +66,7 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn post_new_course(
     pool: web::Data<PgPool>,
     payload: web::Json<NewCourse>,
@@ -102,6 +104,7 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn update_course(
     payload: web::Json<CourseUpdate>,
     request_course_id: web::Path<Uuid>,
@@ -130,6 +133,7 @@ DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn delete_course(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -155,6 +159,7 @@ GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submis
 ]
 ```
 */
+#[instrument(skip(pool))]
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
@@ -185,6 +190,7 @@ GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns
 ]
 ```
 */
+#[instrument(skip(pool))]
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
@@ -211,6 +217,7 @@ GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns 
   }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,

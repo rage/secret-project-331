@@ -88,7 +88,7 @@ impl From<anyhow::Error> for ApplicationError {
             return Self::NotFound;
         }
 
-        log::error!("Internal server error: {}", err.chain().join("\n    "));
+        error!("Internal server error: {}", err.chain().join("\n    "));
         Self::InternalServerError(err.to_string())
     }
 }

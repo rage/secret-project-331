@@ -46,6 +46,7 @@ expose the correct answers to the user.
 }
 ```
  */
+#[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
     request_exercise_id: web::Path<Uuid>,

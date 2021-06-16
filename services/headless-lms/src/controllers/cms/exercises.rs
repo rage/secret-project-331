@@ -39,6 +39,7 @@ GET `/api/v0/cms/exercises/:exercise_id/submissions` - Returns an exercise's sub
 }
 ```
  */
+#[instrument(skip(pool))]
 async fn get_exercise_submissions(
     pool: web::Data<PgPool>,
     request_exercise_id: web::Path<Uuid>,

@@ -57,6 +57,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 ]
 ```
 */
+#[instrument(skip(pool))]
 async fn get_chapters_pages(
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -118,6 +119,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of
 ]
 ```
 */
+#[instrument(skip(pool))]
 async fn get_chapters_exercises(
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

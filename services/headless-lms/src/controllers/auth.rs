@@ -29,6 +29,7 @@ struct CurrentUser {
 /**
 POST `/api/v0/auth/login` Logs in to TMC.
 **/
+#[instrument(skip(session, pool, client, payload))]
 pub async fn login(
     session: Session,
     pool: web::Data<PgPool>,
@@ -80,6 +81,8 @@ pub async fn login(
 /**
 POST `/api/v0/auth/logout` Logs out.
 **/
+#[instrument(skip(session))]
+#[allow(clippy::async_yields_async)]
 pub async fn logout(session: Session) -> HttpResponse {
     session.remove("session");
     HttpResponse::Ok().finish()
@@ -88,6 +91,7 @@ pub async fn logout(session: Session) -> HttpResponse {
 /**
 GET `/api/v0/auth/logged-in` Logs in to TMC.
 **/
+#[instrument(skip(session))]
 pub async fn logged_in(session: Session) -> Json<bool> {
     let logged_in = session.entries().get("session").is_some();
     Json(logged_in)

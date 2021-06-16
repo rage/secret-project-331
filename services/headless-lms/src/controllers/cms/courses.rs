@@ -57,6 +57,7 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_course_structure(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -92,6 +93,7 @@ Response:
 }
 ```
 */
+#[instrument(skip(payload))]
 async fn upload_image(
     request_course_id: web::Path<Uuid>,
     payload: web::Payload,

@@ -51,6 +51,9 @@ pub enum ApplicationError {
 
     #[display(fmt = "Not found")]
     NotFound,
+
+    #[display(fmt = "Unauthorized")]
+    Unauthorized,
 }
 
 impl std::error::Error for ApplicationError {}
@@ -78,6 +81,7 @@ impl error::ResponseError for ApplicationError {
             ApplicationError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApplicationError::BadRequest(_) => StatusCode::BAD_REQUEST,
             ApplicationError::NotFound => StatusCode::NOT_FOUND,
+            ApplicationError::Unauthorized => StatusCode::UNAUTHORIZED,
         }
     }
 }

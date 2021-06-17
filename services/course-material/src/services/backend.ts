@@ -1,36 +1,51 @@
 import axios from "axios"
+import { DateTime } from "luxon"
+import { DateTimeToISOString, ISOStringToDateTime } from "../utils/dateUtil"
+
+const axiosClient = axios.create({
+  baseURL: "/api/v0/course-material",
+})
+
+axiosClient.interceptors.response.use((response) => {
+  ISOStringToDateTime(response.data)
+  return response
+})
+
+axiosClient.interceptors.request.use((data) => {
+  DateTimeToISOString(data)
+  return data
+})
 
 export interface Course {
   id: string
-  created_at: string
-  updated_at: string
+  created_at: DateTime
+  updated_at: DateTime
   name: string
-  deleted_at: string | null
+  deleted_at: DateTime | null
   slug: string
 }
 
 export const fetchCourses = async (): Promise<Array<Course>> => {
-  const data = (await axios.get("/api/v0/course-material/courses", { responseType: "json" })).data
+  const data = (await axiosClient.get("/courses", { responseType: "json" })).data
   return data
 }
 
 export interface Organization {
   id: string
-  created_at: string
-  updated_at: string
+  created_at: DateTime
+  updated_at: DateTime
   name: string
-  deleted_at: string | null
+  deleted_at: DateTime | null
 }
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const data = (await axios.get("/api/v0/course-material/organizations", { responseType: "json" }))
-    .data
+  const data = (await axiosClient.get("/organizations", { responseType: "json" })).data
   return data
 }
 
 export const fetchOrganizationCourses = async (organizationId: string): Promise<Array<Course>> => {
   const data = (
-    await axios.get(`/api/v0/course-material/organizations/${organizationId}/courses`, {
+    await axiosClient.get(`/organizations/${organizationId}/courses`, {
       responseType: "json",
     })
   ).data
@@ -39,13 +54,13 @@ export const fetchOrganizationCourses = async (organizationId: string): Promise<
 
 export interface CoursePage {
   id: string
-  created_at: Date
-  updated_at: Date
+  created_at: DateTime
+  updated_at: DateTime
   course_id: string
   content: Block<unknown>[]
   url_path: string
   title: string
-  deleted_at: string | null
+  deleted_at: DateTime | null
   chapter_id: string
 }
 
@@ -62,7 +77,7 @@ export const fetchCoursePageByPath = async (
   path: string,
 ): Promise<CoursePage> => {
   const data = (
-    await axios.get(`/api/v0/course-material/courses/${courseSlug}/page-by-path/${path}`, {
+    await axiosClient.get(`/courses/${courseSlug}/page-by-path/${path}`, {
       responseType: "json",
     })
   ).data
@@ -71,7 +86,9 @@ export const fetchCoursePageByPath = async (
 
 export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[]> => {
   const data = (
-    await axios.get(`/api/v0/course-material/courses/${courseId}/pages`, { responseType: "json" })
+    await axiosClient.get(`/courses/${courseId}/pages`, {
+      responseType: "json",
+    })
   ).data
   return data
 }
@@ -92,13 +109,13 @@ export interface CurrentExerciseTask {
 
 export interface Exercise {
   id: string
-  created_at: string
-  updated_at: string
+  created_at: DateTime
+  updated_at: DateTime
   name: string
   course_id: string
   page_id: string
   deadline: null
-  deleted_at: string | null
+  deleted_at: DateTime | null
   score_maximum: number
 }
 
@@ -109,22 +126,20 @@ export interface ExerciseStatus {
 }
 
 export const fetchExerciseById = async (id: string): Promise<CourseMaterialExercise> => {
-  const data = (
-    await axios.get(`/api/v0/course-material/exercises/${id}`, { responseType: "json" })
-  ).data
+  const data = (await axiosClient.get(`/exercises/${id}`, { responseType: "json" })).data
   return data
 }
 
 export interface ChapterPagesWithExercises {
   id: string
-  created_at: string
-  updated_at: string
+  created_at: DateTime
+  updated_at: DateTime
   course_id: string
   chapter_id: string
   content: any
   url_path: string
   title: string
-  deleted_at: Date
+  deleted_at: DateTime
   exercises: Exercise[]
 }
 
@@ -132,7 +147,7 @@ export const fetchChaptersExercises = async (
   chapterId: string,
 ): Promise<ChapterPagesWithExercises[]> => {
   const data = (
-    await axios.get(`/api/v0/course-material/chapters/${chapterId}/exercises`, {
+    await axiosClient.get(`/chapters/${chapterId}/exercises`, {
       responseType: "json",
     })
   ).data

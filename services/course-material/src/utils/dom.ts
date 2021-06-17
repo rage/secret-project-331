@@ -1,4 +1,4 @@
-export function tryToScrollToSelector(selector: string) {
+export function tryToScrollToSelector(selector: string): void {
   if (typeof window === "undefined") {
     return
   }

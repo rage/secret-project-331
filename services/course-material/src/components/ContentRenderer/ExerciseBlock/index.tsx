@@ -50,7 +50,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       `}
       id={id}
     >
-      {/* <a id={id}></a> */}
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}

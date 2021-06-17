@@ -1,12 +1,12 @@
 import { useQuery } from "react-query"
-import { fetchChaptersExercises } from "../../../services/backend"
 import React from "react"
 import GenericLoading from "../../GenericLoading"
 import PageWithExercises from "./PageWithExercises"
+import { fetchChaptersPagesWithExercises } from "../../../services/backend"
 
 const ExerciseList: React.FC<{ chapterId: string }> = ({ chapterId }) => {
   const { isLoading, error, data } = useQuery(`chapter-${chapterId}-exercises`, () =>
-    fetchChaptersExercises(chapterId),
+    fetchChaptersPagesWithExercises(chapterId),
   )
 
   if (error) {

@@ -128,7 +128,7 @@ export interface ChapterPagesWithExercises {
   exercises: Exercise[]
 }
 
-export const fetchChaptersExercises = async (
+export const fetchChaptersPagesWithExercises = async (
   chapterId: string,
 ): Promise<ChapterPagesWithExercises[]> => {
   const data = (

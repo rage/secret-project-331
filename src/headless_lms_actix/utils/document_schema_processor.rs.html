@@ -449,6 +449,14 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">PageUpdateExercise</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">PageUpdateExerciseTask</span>;
@@ -490,6 +498,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GuternbergExerciseAttributes</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -509,7 +518,8 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageUpdateExercise</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">input</span>
         .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">block</span><span class="op">|</span> {
+        .<span class="ident">enumerate</span>()
+        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">block</span>)<span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">block</span>.<span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;moocfi/exercise&quot;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">block</span>);
             }
@@ -549,6 +559,7 @@
             <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">PageUpdateExercise</span> {
                 <span class="ident">id</span>: <span class="ident">exercise_attributes</span>.<span class="ident">id</span>,
                 <span class="ident">name</span>: <span class="ident">exercise_attributes</span>.<span class="ident">name</span>,
+                <span class="ident">order_number</span>: <span class="ident">i</span> <span class="kw">as</span> <span class="ident">i32</span>,
                 <span class="ident">exercise_tasks</span>: <span class="ident">exercise_tasks</span><span class="question-mark">?</span>,
             };
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">id</span>;
@@ -615,6 +626,7 @@
             <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">GuternbergExerciseAttributes</span> {
                 <span class="ident">id</span>: <span class="ident">exercise</span>.<span class="ident">id</span>,
                 <span class="ident">name</span>: <span class="ident">exercise</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
+                <span class="ident">order_number</span>: <span class="ident">exercise</span>.<span class="ident">order_number</span>,
             };
             <span class="prelude-val">Ok</span>(<span class="ident">GutenbergBlock</span> {
                 <span class="ident">inner_blocks</span>: <span class="ident">inner_blocks</span><span class="question-mark">?</span>,
@@ -692,6 +704,7 @@
                 <span class="ident">attributes</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseAttributes</span> {
                     <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;20dff562-0657-4e8e-b34e-65be68e96a81&quot;</span>).<span class="ident">unwrap</span>(),
                     <span class="ident">name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">order_number</span>: <span class="number">0</span>,
                 })
                 .<span class="ident">unwrap</span>(),
                 <span class="ident">inner_blocks</span>: <span class="macro">vec</span><span class="macro">!</span>[
@@ -742,6 +755,7 @@
             <span class="kw-2">&amp;</span><span class="ident">PageUpdateExercise</span> {
                 <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;20dff562-0657-4e8e-b34e-65be68e96a81&quot;</span>).<span class="ident">unwrap</span>(),
                 <span class="ident">name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">order_number</span>: <span class="number">1</span>,
                 <span class="ident">exercise_tasks</span>: <span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">PageUpdateExerciseTask</span> {
                         <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;f0aa52bf-16f4-4f5a-a5cc-a15b1510220c&quot;</span>).<span class="ident">unwrap</span>(),
@@ -802,6 +816,7 @@
         <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">PageUpdateExercise</span> {
             <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;20dff562-0657-4e8e-b34e-65be68e96a81&quot;</span>).<span class="ident">unwrap</span>(),
             <span class="ident">name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">order_number</span>: <span class="number">1</span>,
             <span class="ident">exercise_tasks</span>: <span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">PageUpdateExerciseTask</span> {
                     <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;f0aa52bf-16f4-4f5a-a5cc-a15b1510220c&quot;</span>).<span class="ident">unwrap</span>(),
@@ -860,6 +875,7 @@
             <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">GuternbergExerciseAttributes</span> {
                 <span class="ident">id</span>: <span class="ident">Uuid</span>::<span class="ident">parse_str</span>(<span class="string">&quot;20dff562-0657-4e8e-b34e-65be68e96a81&quot;</span>).<span class="ident">unwrap</span>(),
                 <span class="ident">name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">order_number</span>: <span class="number">1</span>
             })
             .<span class="ident">unwrap</span>()
         );

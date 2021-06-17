@@ -491,14 +491,13 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> Result<P
     let normalized_document = normalize_from_json(new_page.content)?;
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content.clone())?;
+    let next_order_number = match new_page.chapter_id {
+        Some(id) => get_next_page_order_number_in_chapter(conn, id).await?,
+        None => get_next_order_number_for_courses_top_level_pages(conn, new_page.course_id).await?,
+    };
     let mut tx = conn.begin().await?;
     // For sharing the transaction between functions
     // let transaction_holder = RefCell::new(transaction);
-
-    let next_order_number = match new_page.chapter_id {
-        Some(id) => get_next_page_order_number_in_chapter(pool, id).await?,
-        None => get_next_order_number_for_courses_top_level_pages(pool, new_page.course_id).await?,
-    };
 
     let page = sqlx::query_as!(
         Page,
@@ -752,8 +751,10 @@ WHERE chapter_number = (
     Ok(Some(next_page))
 }
 
-async fn get_next_page_order_number_in_chapter(pool: &PgPool, chapter_id: Uuid) -> Result<i32> {
-    let mut connection = pool.acquire().await?;
+async fn get_next_page_order_number_in_chapter(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> Result<i32> {
     let next_order_number = sqlx::query!(
         "
 select max(p.order_number) as order_number
@@ -763,7 +764,7 @@ where p.chapter_id = $1
 ",
         chapter_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
 
     match next_order_number.order_number {
@@ -773,10 +774,9 @@ where p.chapter_id = $1
 }
 
 async fn get_next_order_number_for_courses_top_level_pages(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     course_id: Uuid,
 ) -> Result<i32> {
-    let mut connection = pool.acquire().await?;
     let next_order_number = sqlx::query!(
         "
 select max(p.order_number) as order_number
@@ -787,7 +787,7 @@ where p.course_id = $1
 ",
         course_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
 
     match next_order_number.order_number {

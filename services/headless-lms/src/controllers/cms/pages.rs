@@ -2,6 +2,7 @@
 
 use crate::{
     controllers::ApplicationResult,
+    domain::authorization::AuthUser,
     models::pages::{NewPage, Page, PageUpdate},
 };
 use actix_web::web::ServiceConfig;
@@ -39,6 +40,7 @@ Response:
 async fn get_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page = crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
@@ -99,6 +101,7 @@ Response:
 async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
@@ -155,6 +158,7 @@ async fn update_page(
     payload: web::Json<PageUpdate>,
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page_update = payload.0;
@@ -193,6 +197,7 @@ Response:
 async fn delete_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let deleted_page =

@@ -1,6 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 use crate::{
     controllers::ApplicationResult,
+    domain::authorization::AuthUser,
     models::{
         courses::{Course, CourseUpdate, NewCourse},
         submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
@@ -71,6 +72,7 @@ Response:
 async fn post_new_course(
     pool: web::Data<PgPool>,
     payload: web::Json<NewCourse>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Course>> {
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
@@ -111,6 +113,7 @@ async fn update_course(
     payload: web::Json<CourseUpdate>,
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Course>> {
     let mut conn = pool.acquire().await?;
     let course_update = payload.0;
@@ -139,6 +142,7 @@ DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 async fn delete_course(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Course>> {
     let mut conn = pool.acquire().await?;
     let course = crate::models::courses::delete_course(&mut conn, *request_course_id).await?;
@@ -166,6 +170,7 @@ GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submis
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Vec<SubmissionCount>>> {
     let mut conn = pool.acquire().await?;
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
@@ -197,6 +202,7 @@ GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Vec<SubmissionCountByWeekAndHour>>> {
     let mut conn = pool.acquire().await?;
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
@@ -224,6 +230,7 @@ GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns 
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Vec<SubmissionCountByExercise>>> {
     let mut conn = pool.acquire().await?;
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;

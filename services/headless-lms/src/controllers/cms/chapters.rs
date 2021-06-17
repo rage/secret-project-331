@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 use crate::{
     controllers::ApplicationResult,
+    domain::authorization::AuthUser,
     models::chapters::{Chapter, ChapterUpdate, NewChapter},
 };
 use actix_web::web::ServiceConfig;
@@ -45,6 +46,7 @@ Response:
 async fn post_new_chapter(
     pool: web::Data<PgPool>,
     payload: web::Json<NewChapter>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
@@ -73,6 +75,7 @@ DELETE `/api/v0/cms/courses-parts/:chapter_id` - Delete a course part.
 async fn delete_chapter(
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
@@ -117,6 +120,7 @@ async fn update_chapter(
     payload: web::Json<ChapterUpdate>,
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;

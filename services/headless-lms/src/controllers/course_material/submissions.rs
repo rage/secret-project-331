@@ -2,6 +2,7 @@
 
 use crate::{
     controllers::ApplicationResult,
+    domain::authorization::AuthUser,
     models::submissions::{NewSubmission, SubmissionResult},
 };
 use actix_web::web::ServiceConfig;
@@ -71,6 +72,7 @@ Response:
 async fn post_submission(
     pool: web::Data<PgPool>,
     payload: web::Json<NewSubmission>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<SubmissionResult>> {
     let mut conn = pool.acquire().await?;
     let user_id = Uuid::new_v4();

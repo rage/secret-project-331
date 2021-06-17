@@ -51,6 +51,9 @@ pub enum ApplicationError {
 
     #[display(fmt = "Not found")]
     NotFound,
+
+    #[display(fmt = "Unauthorized")]
+    Unauthorized,
 }
 
 impl std::error::Error for ApplicationError {}
@@ -78,6 +81,7 @@ impl error::ResponseError for ApplicationError {
             ApplicationError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApplicationError::BadRequest(_) => StatusCode::BAD_REQUEST,
             ApplicationError::NotFound => StatusCode::NOT_FOUND,
+            ApplicationError::Unauthorized => StatusCode::UNAUTHORIZED,
         }
     }
 }
@@ -88,7 +92,7 @@ impl From<anyhow::Error> for ApplicationError {
             return Self::NotFound;
         }
 
-        log::error!("Internal server error: {}", err.chain().join("\n    "));
+        error!("Internal server error: {}", err.chain().join("\n    "));
         Self::InternalServerError(err.to_string())
     }
 }
@@ -96,6 +100,12 @@ impl From<anyhow::Error> for ApplicationError {
 impl From<uuid::Error> for ApplicationError {
     fn from(err: uuid::Error) -> ApplicationError {
         Self::BadRequest(err.to_string())
+    }
+}
+
+impl From<sqlx::Error> for ApplicationError {
+    fn from(err: sqlx::Error) -> ApplicationError {
+        Self::InternalServerError(err.to_string())
     }
 }
 

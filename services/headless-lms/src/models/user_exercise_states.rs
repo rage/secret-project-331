@@ -10,7 +10,7 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use futures::future;
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, PgPool};
+use sqlx::{FromRow, PgConnection, PgPool};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -111,12 +111,11 @@ pub async fn get_user_progress(
 }
 
 pub async fn get_or_create_user_exercise_state(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     user_id: &Uuid,
     exercise_id: &Uuid,
     course_instance_id: &Uuid,
 ) -> Result<UserExerciseState> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
@@ -137,7 +136,7 @@ RETURNING user_id,
         exercise_id,
         course_instance_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
@@ -235,11 +234,10 @@ fn figure_out_new_activity_progress(
 }
 
 pub async fn update_user_exercise_state(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     grading: &Grading,
     submission: &Submission,
 ) -> Result<UserExerciseState> {
-    let mut connection = pool.acquire().await?;
     let Submission {
         user_id,
         exercise_id,
@@ -247,7 +245,7 @@ pub async fn update_user_exercise_state(
         ..
     } = submission;
     let current_state =
-        get_or_create_user_exercise_state(pool, user_id, exercise_id, course_instance_id).await?;
+        get_or_create_user_exercise_state(conn, user_id, exercise_id, course_instance_id).await?;
 
     info!(
         "Using user points updating strategy {:?}",
@@ -287,7 +285,7 @@ RETURNING user_id,
         new_grading_progress as GradingProgress,
         new_activity_progress as ActivityProgress,
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

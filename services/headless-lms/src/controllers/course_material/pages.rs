@@ -16,12 +16,13 @@ use uuid::Uuid;
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_next_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Option<NextPage>>> {
-    let next_page_data =
-        crate::models::pages::get_next_page(pool.get_ref(), *request_page_id).await?;
+    let mut conn = pool.acquire().await?;
+    let next_page_data = crate::models::pages::get_next_page(&mut conn, *request_page_id).await?;
     Ok(Json(next_page_data))
 }
 

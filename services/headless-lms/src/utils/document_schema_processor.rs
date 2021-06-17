@@ -38,6 +38,7 @@ pub struct NormalizedMoocfiExerciseAttributes {
 pub struct GuternbergExerciseAttributes {
     pub id: Uuid,
     pub name: String,
+    pub order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -57,7 +58,8 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
     let mut exercises: Vec<PageUpdateExercise> = Vec::new();
     let res: Result<Vec<GutenbergBlock>> = input
         .into_iter()
-        .map(|block| {
+        .enumerate()
+        .map(|(i, block)| {
             if block.name != "moocfi/exercise" {
                 return Ok(block);
             }
@@ -97,6 +99,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
             let exercise = PageUpdateExercise {
                 id: exercise_attributes.id,
                 name: exercise_attributes.name,
+                order_number: i as i32,
                 exercise_tasks: exercise_tasks?,
             };
             let id = exercise.id;
@@ -163,6 +166,7 @@ pub fn denormalize(input: NormalizedDocument) -> Result<Vec<GutenbergBlock>> {
             let attributes = GuternbergExerciseAttributes {
                 id: exercise.id,
                 name: exercise.name.clone(),
+                order_number: exercise.order_number,
             };
             Ok(GutenbergBlock {
                 inner_blocks: inner_blocks?,
@@ -240,6 +244,7 @@ mod tests {
                 attributes: serde_json::to_value(GuternbergExerciseAttributes {
                     id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                     name: "Best exercise".to_string(),
+                    order_number: 0,
                 })
                 .unwrap(),
                 inner_blocks: vec![
@@ -290,6 +295,7 @@ mod tests {
             &PageUpdateExercise {
                 id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                 name: "Best exercise".to_string(),
+                order_number: 1,
                 exercise_tasks: vec![
                     PageUpdateExerciseTask {
                         id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
@@ -350,6 +356,7 @@ mod tests {
         let exercises = vec![PageUpdateExercise {
             id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
             name: "Best exercise".to_string(),
+            order_number: 1,
             exercise_tasks: vec![
                 PageUpdateExerciseTask {
                     id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
@@ -408,6 +415,7 @@ mod tests {
             serde_json::to_value(GuternbergExerciseAttributes {
                 id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                 name: "Best exercise".to_string(),
+                order_number: 1
             })
             .unwrap()
         );

@@ -9,7 +9,7 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, FromRow, PgConnection, PgPool};
+use sqlx::{Acquire, FromRow, PgConnection};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -36,6 +36,7 @@ pub struct PageWithExercises {
     content: serde_json::Value,
     url_path: String,
     title: String,
+    order_number: i32,
     deleted_at: Option<DateTime<Utc>>,
     exercises: Vec<Exercise>,
 }
@@ -68,6 +69,7 @@ pub struct PageUpdateExercise {
     // The id will be validated so that the client can't change it on us.
     pub id: Uuid,
     pub name: String,
+    pub order_number: i32,
     pub exercise_tasks: Vec<PageUpdateExerciseTask>,
 }
 
@@ -124,6 +126,7 @@ struct Exercise {
     deadline: Option<DateTime<Utc>>,
     page_id: Uuid,
     score_maximum: i32,
+    order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -140,51 +143,48 @@ struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
-pub async fn get_course_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM pages WHERE id = $1", id)
-        .fetch_one(&mut connection)
+        .fetch_one(conn)
         .await?
         .course_id;
     Ok(course_id)
 }
 
-pub async fn course_pages(pool: &PgPool, course_id: Uuid) -> Result<Vec<Page>> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> Result<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
         "SELECT * FROM pages WHERE course_id = $1 AND deleted_at IS NULL;",
         course_id
     )
-    .fetch_all(connection)
+    .fetch_all(conn)
     .await?;
     Ok(pages)
 }
 
-pub async fn chapter_pages(pool: &PgPool, chapter_id: Uuid) -> Result<Vec<Page>> {
-    let mut connection = pool.acquire().await?;
+pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
         "SELECT * FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL;",
         chapter_id
     )
-    .fetch_all(&mut connection)
+    .fetch_all(conn)
     .await?;
     Ok(pages)
 }
 
-pub async fn get_page(pool: &PgPool, page_id: Uuid) -> Result<Page> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> Result<Page> {
     let pages = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
-        .fetch_one(connection)
+        .fetch_one(conn)
         .await?;
     Ok(pages)
 }
 
-pub async fn get_page_by_path(pool: &PgPool, course_slug: String, url_path: &str) -> Result<Page> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_page_by_path(
+    conn: &mut PgConnection,
+    course_slug: String,
+    url_path: &str,
+) -> Result<Page> {
     let page = sqlx::query_as!(
         Page,
         "SELECT pages.* FROM pages
@@ -196,16 +196,14 @@ pub async fn get_page_by_path(pool: &PgPool, course_slug: String, url_path: &str
         course_slug,
         url_path
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(page)
 }
 
-pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Page> {
-    let mut connection = pool.acquire().await?;
-
+pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> Result<Page> {
     let mut page = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
-        .fetch_one(&mut connection)
+        .fetch_one(&mut *conn)
         .await?;
 
     let exercises: Vec<Exercise> = sqlx::query_as!(
@@ -213,7 +211,7 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
         "SELECT * FROM exercises WHERE page_id = $1;",
         page_id
     )
-    .fetch_all(&mut connection)
+    .fetch_all(&mut *conn)
     .await?;
 
     let exercise_tasks: Vec<PageUpdateExerciseTaskWithExerciseId> = sqlx::query_as!(
@@ -221,7 +219,7 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
         "SELECT id, exercise_type, assignment, public_spec, private_spec, exercise_id FROM exercise_tasks WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
         page_id
     )
-    .fetch_all(&mut connection)
+    .fetch_all(&mut *conn)
     .await?;
 
     let mut exercise_tasks_by_exercise: HashMap<Uuid, Vec<PageUpdateExerciseTask>> = exercise_tasks
@@ -255,6 +253,7 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
             PageUpdateExercise {
                 id: e.id,
                 name: e.name,
+                order_number: e.order_number,
                 exercise_tasks,
             }
         })
@@ -275,11 +274,15 @@ pub async fn get_page_with_exercises(pool: &PgPool, page_id: Uuid) -> Result<Pag
 // This has 3 stages: updating page, updating exercises, updating exercise tasks.
 // This is currently implemented with multiple sql queries, but it could be optimized
 // with data-modifying common table expressions if necessary.
-pub async fn update_page(pool: &PgPool, page_id: Uuid, page_update: PageUpdate) -> Result<Page> {
+pub async fn update_page(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    page_update: PageUpdate,
+) -> Result<Page> {
     let normalized_document = normalize_from_json(page_update.content)?;
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content)?;
-    let mut tx = pool.begin().await?;
+    let mut tx = conn.begin().await?;
     // Updating page
     let page = sqlx::query_as!(
         Page,
@@ -344,7 +347,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
 async fn upsert_exercises_and_exercise_tasks(
     exercises: &[PageUpdateExercise],
     page: &Page,
-    connection: &mut PgConnection,
+    conn: &mut PgConnection,
 ) -> Result<(Vec<PageUpdateExercise>, serde_json::Value)> {
     // All related exercises and items should be deleted if not included in the update
     // We accomplish this by deleting everyting first in the transaction and then
@@ -356,7 +359,7 @@ async fn upsert_exercises_and_exercise_tasks(
             "#,
         page.id
     )
-    .execute(&mut *connection)
+    .execute(&mut *conn)
     .await?;
 
     sqlx::query!(
@@ -365,7 +368,7 @@ async fn upsert_exercises_and_exercise_tasks(
             "#,
         page.id
     )
-    .execute(&mut *connection)
+    .execute(&mut *conn)
     .await?;
 
     // We need existing exercise ids to check which ids are client generated and need to be replaced.
@@ -375,7 +378,7 @@ async fn upsert_exercises_and_exercise_tasks(
         "#,
         page.id
     )
-    .fetch_all(&mut *connection)
+    .fetch_all(&mut *conn)
     .await?;
 
     let existing_exercise_task_ids = sqlx::query!(
@@ -384,7 +387,7 @@ async fn upsert_exercises_and_exercise_tasks(
         "#,
             page.id
         )
-        .fetch_all(&mut *connection)
+        .fetch_all(&mut *conn)
         .await?;
     // for returning the inserted values
     let mut result_exercises: Vec<PageUpdateExercise> = Vec::new();
@@ -405,18 +408,19 @@ async fn upsert_exercises_and_exercise_tasks(
         let exercise: Exercise = sqlx::query_as!(
             Exercise,
             r#"
-INSERT INTO exercises(id, course_id, name, page_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO exercises(id, course_id, name, order_number, page_id)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (id) DO UPDATE
-SET course_id=$2, name=$3, page_id=$4, deleted_at=NULL
+SET course_id=$2, name=$3, order_number=$4, page_id=$5, deleted_at=NULL
 RETURNING *;
         "#,
             safe_for_db_exercise_id,
             page.course_id,
             exercise_update.name,
+            exercise_update.order_number,
             page.id
         )
-        .fetch_one(&mut *connection)
+        .fetch_one(&mut *conn)
         .await?;
         for task_update in exercise_update.exercise_tasks.iter() {
             let safe_for_db_exercise_task_id = if existing_exercise_task_ids
@@ -446,13 +450,14 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
                 task_update.public_spec,
                 task_update.private_spec,
             )
-            .fetch_one(&mut *connection)
+            .fetch_one(&mut *conn)
             .await?;
             exercise_exercise_tasks.push(exercise_task);
         }
         result_exercises.push(PageUpdateExercise {
             id: exercise.id,
             name: exercise.name,
+            order_number: exercise.order_number,
             exercise_tasks: exercise_exercise_tasks,
         })
     }
@@ -464,7 +469,7 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
         new_content,
         page.id
     )
-    .execute(connection)
+    .execute(conn)
     .await?;
     Ok((result_exercises, new_content))
 }
@@ -482,25 +487,31 @@ fn update_ids_in_content(
     Ok(serde_json::from_str(&content_str)?)
 }
 
-pub async fn insert_page(pool: &PgPool, new_page: NewPage) -> Result<Page> {
+pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> Result<Page> {
     let normalized_document = normalize_from_json(new_page.content)?;
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content.clone())?;
-    let mut tx = pool.begin().await?;
+    let next_order_number = match new_page.chapter_id {
+        Some(id) => get_next_page_order_number_in_chapter(conn, id).await?,
+        None => get_next_order_number_for_courses_top_level_pages(conn, new_page.course_id).await?,
+    };
+    let mut tx = conn.begin().await?;
     // For sharing the transaction between functions
     // let transaction_holder = RefCell::new(transaction);
+
     let page = sqlx::query_as!(
         Page,
         r#"
   INSERT INTO
-    pages(course_id, content, url_path, title, chapter_id)
-  VALUES($1, $2, $3, $4, $5)
+    pages(course_id, content, url_path, title, order_number, chapter_id)
+  VALUES($1, $2, $3, $4, $5, $6)
   RETURNING *
           "#,
         new_page.course_id,
         content_as_json,
         new_page.url_path.trim(),
         new_page.title.trim(),
+        next_order_number,
         new_page.chapter_id
     )
     .fetch_one(&mut tx)
@@ -544,8 +555,8 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
     });
 }
 
-pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<Page> {
-    let mut trx = pool.begin().await?;
+pub async fn delete_page_and_exercises(conn: &mut PgConnection, page_id: Uuid) -> Result<Page> {
+    let mut tx = conn.begin().await?;
     let page = sqlx::query_as!(
         Page,
         r#"
@@ -557,7 +568,7 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
           "#,
         page_id,
     )
-    .fetch_one(&mut trx)
+    .fetch_one(&mut tx)
     .await?;
 
     sqlx::query!(
@@ -568,7 +579,7 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
           "#,
         page_id,
     )
-    .execute(&mut trx)
+    .execute(&mut tx)
     .await?;
 
     sqlx::query!(
@@ -579,18 +590,17 @@ pub async fn delete_page_and_exercises(pool: &PgPool, page_id: Uuid) -> Result<P
           "#,
         page_id,
     )
-    .execute(&mut trx)
+    .execute(&mut tx)
     .await?;
 
-    trx.commit().await?;
+    tx.commit().await?;
     Ok(page)
 }
 
 pub async fn get_chapters_pages_with_exercises(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     chapters_id: Uuid,
 ) -> Result<Vec<PageWithExercises>> {
-    let mut connection = pool.acquire().await?;
     let chapter_pages = sqlx::query_as!(
         Page,
         r#"
@@ -601,7 +611,7 @@ WHERE chapter_id = $1
         "#,
         chapters_id
     )
-    .fetch_all(&mut connection)
+    .fetch_all(&mut *conn)
     .await?;
     let page_ids: Vec<Uuid> = chapter_pages.iter().map(|page| page.id).collect();
     let pages_exercises = sqlx::query_as!(
@@ -616,20 +626,22 @@ WHERE page_id IN (
         "#,
         &page_ids
     )
-    .fetch_all(&mut connection)
+    .fetch_all(&mut *conn)
     .await?;
 
     let mut page_to_exercises: HashMap<Uuid, Vec<Exercise>> = pages_exercises
         .into_iter()
         .into_group_map_by(|exercise| exercise.page_id);
-    let chapter_pages_with_exercises = chapter_pages
+    let mut chapter_pages_with_exercises: Vec<PageWithExercises> = chapter_pages
         .into_iter()
         .map(|page| {
             let page_id = page.id;
-            let exercises = match page_to_exercises.remove(&page_id) {
+            let mut exercises = match page_to_exercises.remove(&page_id) {
                 Some(ex) => ex,
                 None => Vec::new(),
             };
+
+            exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
             PageWithExercises {
                 id: page.id,
                 created_at: page.created_at,
@@ -639,30 +651,33 @@ WHERE page_id IN (
                 content: page.content,
                 url_path: page.url_path,
                 title: page.title,
+                order_number: page.order_number,
                 deleted_at: page.deleted_at,
                 exercises,
             }
         })
         .collect();
+
+    chapter_pages_with_exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+
     Ok(chapter_pages_with_exercises)
 }
 
-pub async fn get_next_page(pool: &PgPool, pages_id: Uuid) -> Result<Option<NextPage>> {
-    let page_metadata = get_page_metadata(pool, pages_id).await?;
-    let next_page = get_next_page_by_order_number(pool, page_metadata.order_number).await?;
+pub async fn get_next_page(conn: &mut PgConnection, pages_id: Uuid) -> Result<Option<NextPage>> {
+    let page_metadata = get_page_metadata(conn, pages_id).await?;
+    let next_page = get_next_page_by_order_number(conn, page_metadata.order_number).await?;
 
     match next_page {
         Some(next_page) => Ok(Some(next_page)),
         None => {
             let first_page =
-                get_next_page_by_chapter_number(pool, page_metadata.chapter_number).await?;
+                get_next_page_by_chapter_number(conn, page_metadata.chapter_number).await?;
             Ok(first_page)
         }
     }
 }
 
-async fn get_page_metadata(pool: &PgPool, page_id: Uuid) -> Result<NextPageMetadata> {
-    let mut connection = pool.acquire().await?;
+async fn get_page_metadata(conn: &mut PgConnection, page_id: Uuid) -> Result<NextPageMetadata> {
     let page_metadata = sqlx::query_as!(
         NextPageMetadata,
         r#"
@@ -676,17 +691,16 @@ WHERE p.id = $1;
         "#,
         page_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
 
     Ok(page_metadata)
 }
 
 async fn get_next_page_by_order_number(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     order_number: i32,
 ) -> Result<Option<NextPage>> {
-    let mut connection = pool.acquire().await?;
     let next_page = sqlx::query_as!(
         NextPage,
         r#"
@@ -704,17 +718,16 @@ WHERE order_number = (
         "#,
         order_number
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
 
     Ok(Some(next_page))
 }
 
 async fn get_next_page_by_chapter_number(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     chapter_number: i32,
 ) -> Result<Option<NextPage>> {
-    let mut connection = pool.acquire().await?;
     let next_page = sqlx::query_as!(
         NextPage,
         r#"
@@ -732,8 +745,53 @@ WHERE chapter_number = (
         "#,
         chapter_number
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
 
     Ok(Some(next_page))
+}
+
+async fn get_next_page_order_number_in_chapter(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> Result<i32> {
+    let next_order_number = sqlx::query!(
+        "
+select max(p.order_number) as order_number
+from pages p
+where p.chapter_id = $1
+  and p.deleted_at is null;
+",
+        chapter_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    match next_order_number.order_number {
+        Some(order_number) => Ok(order_number + 1),
+        None => Ok(0),
+    }
+}
+
+async fn get_next_order_number_for_courses_top_level_pages(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> Result<i32> {
+    let next_order_number = sqlx::query!(
+        "
+select max(p.order_number) as order_number
+from pages p
+where p.course_id = $1
+  and p.chapter_id is null
+  and p.deleted_at is null;
+",
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    match next_order_number.order_number {
+        Some(order_number) => Ok(order_number + 1),
+        None => Ok(0),
+    }
 }

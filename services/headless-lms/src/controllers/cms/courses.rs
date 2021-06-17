@@ -1,6 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/courses`.
 use crate::{
     controllers::{ApplicationError, ApplicationResult},
+    domain::authorization::AuthUser,
     models::courses::CourseStructure,
     utils::file_store::{course_image_path, local_file_store::LocalFileStore},
 };
@@ -57,12 +58,15 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_course_structure(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<CourseStructure>> {
+    let mut conn = pool.acquire().await?;
     let course_structure =
-        crate::models::courses::get_course_structure(pool.get_ref(), *request_course_id).await?;
+        crate::models::courses::get_course_structure(&mut conn, *request_course_id).await?;
     Ok(Json(course_structure))
 }
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
@@ -92,14 +96,17 @@ Response:
 }
 ```
 */
+#[instrument(skip(payload))]
 async fn upload_image(
     request_course_id: web::Path<Uuid>,
     payload: web::Payload,
     request: HttpRequest,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<ImageUploadResult>> {
+    let mut conn = pool.acquire().await?;
     // TODO: add max image size
-    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
     let headers = request.headers();
     let content_type_option = headers.get(header::CONTENT_TYPE);
     if content_type_option.is_none() {

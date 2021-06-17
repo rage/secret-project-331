@@ -167,10 +167,14 @@
 <span id="164">164</span>
 <span id="165">165</span>
 <span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers</span>::{<span class="ident">ApplicationError</span>, <span class="ident">ApplicationResult</span>},
+    <span class="ident">domain</span>::<span class="ident">authorization</span>::<span class="ident">AuthUser</span>,
     <span class="ident">models</span>::<span class="ident">courses</span>::<span class="ident">CourseStructure</span>,
     <span class="ident">utils</span>::<span class="ident">file_store</span>::{<span class="ident">course_image_path</span>, <span class="ident">local_file_store</span>::<span class="ident">LocalFileStore</span>},
 };
@@ -231,6 +235,7 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_structure</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseStructure</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_structure</span> <span class="op">=</span>
@@ -270,6 +275,7 @@ Response:
     <span class="ident">payload</span>: <span class="ident">web</span>::<span class="ident">Payload</span>,
     <span class="ident">request</span>: <span class="ident">HttpRequest</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">ImageUploadResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// TODO: add max image size</span>

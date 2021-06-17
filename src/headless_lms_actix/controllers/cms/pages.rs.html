@@ -216,11 +216,17 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/pages`.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers</span>::<span class="ident">ApplicationResult</span>,
+    <span class="ident">domain</span>::<span class="ident">authorization</span>::<span class="ident">AuthUser</span>,
     <span class="ident">models</span>::<span class="ident">pages</span>::{<span class="ident">NewPage</span>, <span class="ident">Page</span>, <span class="ident">PageUpdate</span>},
 };
 <span class="kw">use</span> <span class="ident">actix_web</span>::<span class="ident">web</span>::<span class="ident">ServiceConfig</span>;
@@ -258,6 +264,7 @@ Response:
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page</span>(
     <span class="ident">request_page_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">get_page_with_exercises</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -318,6 +325,7 @@ Response:
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_page</span>(
     <span class="ident">payload</span>: <span class="ident">web</span>::<span class="ident">Json</span><span class="op">&lt;</span><span class="ident">NewPage</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">new_page</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
@@ -374,6 +382,7 @@ Response:
     <span class="ident">payload</span>: <span class="ident">web</span>::<span class="ident">Json</span><span class="op">&lt;</span><span class="ident">PageUpdate</span><span class="op">&gt;</span>,
     <span class="ident">request_page_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">page_update</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
@@ -412,6 +421,7 @@ Response:
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_page</span>(
     <span class="ident">request_page_id</span>: <span class="ident">web</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web</span>::<span class="ident">Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">deleted_page</span> <span class="op">=</span>

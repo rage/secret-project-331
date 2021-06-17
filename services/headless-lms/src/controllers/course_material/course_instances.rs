@@ -28,7 +28,7 @@ async fn get_user_progress_page(
         &user.id,
     )
     .await?;
-    Ok(Json(user_course_progress))
+    Ok(Json(Some(user_course_progress)))
 }
 
 pub fn _add_user_progress_routes(cfg: &mut ServiceConfig) {

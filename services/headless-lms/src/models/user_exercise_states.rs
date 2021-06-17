@@ -95,7 +95,7 @@ pub async fn get_user_progress(
     pool: &PgPool,
     course_instance_id: &Uuid,
     user_id: &Uuid,
-) -> Result<Option<UserProgress>> {
+) -> Result<UserProgress> {
     let (course_metrics, user_metrics) = future::try_join(
         get_course_metrics(pool, course_instance_id),
         get_user_metrics(pool, user_id, course_instance_id),

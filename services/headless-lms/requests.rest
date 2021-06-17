@@ -166,4 +166,6 @@ http://project-331.local/api/v0/cms/courses
 GET http://project-331.local/api/v0/course-material/pages/f3b0d699-c9be-4d56-bd0a-9d40e5547e4d/next-page
 
 ###
+GET http://project-331.local/api/v0/course-material/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/exercises
+###
 GET http://project-331.local/api/v0/course-material/chapters/b25f849a-5b7b-4718-b0d7-88f435e2393d/exercises

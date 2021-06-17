@@ -19,6 +19,7 @@ pub struct Exercise {
     pub deadline: Option<DateTime<Utc>>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_maximum: i32,
+    pub order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

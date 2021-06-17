@@ -36,6 +36,7 @@ pub struct PageWithExercises {
     content: serde_json::Value,
     url_path: String,
     title: String,
+    order_number: i32,
     deleted_at: Option<DateTime<Utc>>,
     exercises: Vec<Exercise>,
 }
@@ -68,6 +69,7 @@ pub struct PageUpdateExercise {
     // The id will be validated so that the client can't change it on us.
     pub id: Uuid,
     pub name: String,
+    pub order_number: i32,
     pub exercise_tasks: Vec<PageUpdateExerciseTask>,
 }
 
@@ -124,6 +126,7 @@ struct Exercise {
     deadline: Option<DateTime<Utc>>,
     page_id: Uuid,
     score_maximum: i32,
+    order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -250,6 +253,7 @@ pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> 
             PageUpdateExercise {
                 id: e.id,
                 name: e.name,
+                order_number: e.order_number,
                 exercise_tasks,
             }
         })
@@ -404,15 +408,16 @@ async fn upsert_exercises_and_exercise_tasks(
         let exercise: Exercise = sqlx::query_as!(
             Exercise,
             r#"
-INSERT INTO exercises(id, course_id, name, page_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO exercises(id, course_id, name, order_number, page_id)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (id) DO UPDATE
-SET course_id=$2, name=$3, page_id=$4, deleted_at=NULL
+SET course_id=$2, name=$3, order_number=$4, page_id=$5, deleted_at=NULL
 RETURNING *;
         "#,
             safe_for_db_exercise_id,
             page.course_id,
             exercise_update.name,
+            exercise_update.order_number,
             page.id
         )
         .fetch_one(&mut *conn)
@@ -452,6 +457,7 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
         result_exercises.push(PageUpdateExercise {
             id: exercise.id,
             name: exercise.name,
+            order_number: exercise.order_number,
             exercise_tasks: exercise_exercise_tasks,
         })
     }
@@ -485,21 +491,27 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> Result<P
     let normalized_document = normalize_from_json(new_page.content)?;
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content.clone())?;
+    let next_order_number = match new_page.chapter_id {
+        Some(id) => get_next_page_order_number_in_chapter(conn, id).await?,
+        None => get_next_order_number_for_courses_top_level_pages(conn, new_page.course_id).await?,
+    };
     let mut tx = conn.begin().await?;
     // For sharing the transaction between functions
     // let transaction_holder = RefCell::new(transaction);
+
     let page = sqlx::query_as!(
         Page,
         r#"
   INSERT INTO
-    pages(course_id, content, url_path, title, chapter_id)
-  VALUES($1, $2, $3, $4, $5)
+    pages(course_id, content, url_path, title, order_number, chapter_id)
+  VALUES($1, $2, $3, $4, $5, $6)
   RETURNING *
           "#,
         new_page.course_id,
         content_as_json,
         new_page.url_path.trim(),
         new_page.title.trim(),
+        next_order_number,
         new_page.chapter_id
     )
     .fetch_one(&mut tx)
@@ -620,14 +632,16 @@ WHERE page_id IN (
     let mut page_to_exercises: HashMap<Uuid, Vec<Exercise>> = pages_exercises
         .into_iter()
         .into_group_map_by(|exercise| exercise.page_id);
-    let chapter_pages_with_exercises = chapter_pages
+    let mut chapter_pages_with_exercises: Vec<PageWithExercises> = chapter_pages
         .into_iter()
         .map(|page| {
             let page_id = page.id;
-            let exercises = match page_to_exercises.remove(&page_id) {
+            let mut exercises = match page_to_exercises.remove(&page_id) {
                 Some(ex) => ex,
                 None => Vec::new(),
             };
+
+            exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
             PageWithExercises {
                 id: page.id,
                 created_at: page.created_at,
@@ -637,11 +651,15 @@ WHERE page_id IN (
                 content: page.content,
                 url_path: page.url_path,
                 title: page.title,
+                order_number: page.order_number,
                 deleted_at: page.deleted_at,
                 exercises,
             }
         })
         .collect();
+
+    chapter_pages_with_exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+
     Ok(chapter_pages_with_exercises)
 }
 
@@ -731,4 +749,49 @@ WHERE chapter_number = (
     .await?;
 
     Ok(Some(next_page))
+}
+
+async fn get_next_page_order_number_in_chapter(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> Result<i32> {
+    let next_order_number = sqlx::query!(
+        "
+select max(p.order_number) as order_number
+from pages p
+where p.chapter_id = $1
+  and p.deleted_at is null;
+",
+        chapter_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    match next_order_number.order_number {
+        Some(order_number) => Ok(order_number + 1),
+        None => Ok(0),
+    }
+}
+
+async fn get_next_order_number_for_courses_top_level_pages(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> Result<i32> {
+    let next_order_number = sqlx::query!(
+        "
+select max(p.order_number) as order_number
+from pages p
+where p.course_id = $1
+  and p.chapter_id is null
+  and p.deleted_at is null;
+",
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    match next_order_number.order_number {
+        Some(order_number) => Ok(order_number + 1),
+        None => Ok(0),
+    }
 }

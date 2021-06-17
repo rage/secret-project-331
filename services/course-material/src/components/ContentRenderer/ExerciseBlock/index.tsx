@@ -48,6 +48,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         margin-bottom: 1rem;
         padding-top: 2rem;
       `}
+      id={id}
     >
       <div
         className={css`

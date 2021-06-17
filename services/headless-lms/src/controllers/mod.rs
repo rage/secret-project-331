@@ -5,6 +5,7 @@ This documents all endpoints. Select a module below for a namespace.
 
 */
 
+pub mod auth;
 pub mod cms;
 pub mod course_material;
 pub mod files;
@@ -19,11 +20,12 @@ use actix_web::{
 };
 use derive_more::Display;
 use http_api_problem::{HttpApiProblem, StatusCode};
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 use self::{
-    cms::add_cms_routes, course_material::add_course_material_routes, files::_add_files_routes,
-    main_frontend::add_main_frontend_routes,
+    auth::add_auth_routes, cms::add_cms_routes, course_material::add_course_material_routes,
+    files::_add_files_routes, main_frontend::add_main_frontend_routes,
 };
 
 /**
@@ -49,6 +51,9 @@ pub enum ApplicationError {
 
     #[display(fmt = "Not found")]
     NotFound,
+
+    #[display(fmt = "Unauthorized")]
+    Unauthorized,
 }
 
 impl std::error::Error for ApplicationError {}
@@ -76,6 +81,7 @@ impl error::ResponseError for ApplicationError {
             ApplicationError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApplicationError::BadRequest(_) => StatusCode::BAD_REQUEST,
             ApplicationError::NotFound => StatusCode::NOT_FOUND,
+            ApplicationError::Unauthorized => StatusCode::UNAUTHORIZED,
         }
     }
 }
@@ -85,6 +91,8 @@ impl From<anyhow::Error> for ApplicationError {
         if let Some(sqlx::Error::RowNotFound) = err.downcast_ref::<sqlx::Error>() {
             return Self::NotFound;
         }
+
+        error!("Internal server error: {}", err.chain().join("\n    "));
         Self::InternalServerError(err.to_string())
     }
 }
@@ -92,6 +100,12 @@ impl From<anyhow::Error> for ApplicationError {
 impl From<uuid::Error> for ApplicationError {
     fn from(err: uuid::Error) -> ApplicationError {
         Self::BadRequest(err.to_string())
+    }
+}
+
+impl From<sqlx::Error> for ApplicationError {
+    fn from(err: sqlx::Error) -> ApplicationError {
+        Self::InternalServerError(err.to_string())
     }
 }
 
@@ -106,5 +120,6 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/course-material").configure(add_course_material_routes))
         .service(web::scope("/cms").configure(add_cms_routes))
         .service(web::scope("/files").configure(_add_files_routes))
-        .service(web::scope("/main-frontend").configure(add_main_frontend_routes));
+        .service(web::scope("/main-frontend").configure(add_main_frontend_routes))
+        .service(web::scope("/auth").configure(add_auth_routes));
 }

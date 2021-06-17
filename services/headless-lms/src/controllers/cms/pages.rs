@@ -10,7 +10,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
-GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise items by id.
+GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
 
 # Example
 
@@ -35,20 +35,20 @@ Response:
 }
 ```
 */
-
+#[instrument(skip(pool))]
 async fn get_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
-    let page =
-        crate::models::pages::get_page_with_exercises(pool.get_ref(), *request_page_id).await?;
+    let mut conn = pool.acquire().await?;
+    let page = crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(page))
 }
 
 /**
 POST `/api/v0/cms/pages` - Create a new page.
 
-Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
+Please note that this endpoint will change all the exercise and exercise task ids you've created. Make sure the use the updated ids from the response object.
 
 If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
@@ -95,19 +95,21 @@ Response:
 ```
 
 */
+#[instrument(skip(pool))]
 async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
+    let mut conn = pool.acquire().await?;
     let new_page = payload.0;
-    let page = crate::models::pages::insert_page(pool.get_ref(), new_page).await?;
+    let page = crate::models::pages::insert_page(&mut conn, new_page).await?;
     Ok(Json(page))
 }
 
 /**
 PUT `/api/v0/cms/pages/:page_id` - Update a page by id.
 
-Please note that this endpoint will change all the exercise and exercise item ids you've created. Make sure the use the updated ids from the response object.
+Please note that this endpoint will change all the exercise and exercise task ids you've created. Make sure the use the updated ids from the response object.
 
 If optional property front_page_of_chapter_id is set, this page will become the front page of the specified course part.
 
@@ -148,19 +150,20 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn update_page(
     payload: web::Json<PageUpdate>,
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
+    let mut conn = pool.acquire().await?;
     let page_update = payload.0;
-    let page =
-        crate::models::pages::update_page(pool.get_ref(), *request_page_id, page_update).await?;
+    let page = crate::models::pages::update_page(&mut conn, *request_page_id, page_update).await?;
     Ok(Json(page))
 }
 
 /**
-DELETE `/api/v0/cms/pages/:page_id` - Delete a page, related exercises, and related exercise items by id.
+DELETE `/api/v0/cms/pages/:page_id` - Delete a page, related exercises, and related exercise tasks by id.
 
 
 # Example
@@ -186,12 +189,14 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn delete_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Page>> {
+    let mut conn = pool.acquire().await?;
     let deleted_page =
-        crate::models::pages::delete_page_and_exercises(pool.get_ref(), *request_page_id).await?;
+        crate::models::pages::delete_page_and_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(deleted_page))
 }
 

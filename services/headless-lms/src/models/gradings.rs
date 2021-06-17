@@ -1,10 +1,15 @@
+use std::time::Duration;
+
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::PgConnection;
 use uuid::Uuid;
 
+use crate::models::submissions::GradingRequest;
+
 use super::{
+    exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     submissions::{GradingResult, Submission},
 };
@@ -17,7 +22,7 @@ pub struct Grading {
     pub submission_id: Uuid,
     pub course_id: Uuid,
     pub exercise_id: Uuid,
-    pub exercise_item_id: Uuid,
+    pub exercise_task_id: Uuid,
     pub grading_priority: i32,
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,
@@ -31,49 +36,73 @@ pub struct Grading {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 pub enum UserPointsUpdateStrategy {
     CanAddPointsButCannotRemovePoints,
     CanAddPointsAndCanRemovePoints,
 }
 
-pub async fn get_course_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!(r#"SELECT course_id from gradings where id = $1"#, id)
-        .fetch_one(&mut connection)
+        .fetch_one(conn)
         .await?
         .course_id;
     Ok(course_id)
 }
 
-pub async fn new_grading(pool: &PgPool, submission: &Submission) -> Result<Grading> {
-    let mut connection = pool.acquire().await?;
+pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> Result<Grading> {
     let grading = sqlx::query_as!(
         Grading,
         r#"
 INSERT INTO
-  gradings(submission_id, course_id, exercise_id, exercise_item_id, grading_started_at)
+  gradings(submission_id, course_id, exercise_id, exercise_task_id, grading_started_at)
 VALUES($1, $2, $3, $4, now())
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         "#,
         submission.id,
         submission.course_id,
         submission.exercise_id,
-        submission.exercise_item_id
+        submission.exercise_task_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(grading)
 }
 
+pub async fn grade_submission(
+    conn: &mut PgConnection,
+    submission: Submission,
+    exercise_task: ExerciseTask,
+    exercise: Exercise,
+    grading: Grading,
+) -> Result<Grading> {
+    let client = reqwest::Client::new();
+    let res = client
+        .post("http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/grade")
+        .timeout(Duration::from_secs(120))
+        .json(&GradingRequest {
+            exercise_spec: exercise_task.private_spec,
+            submission_data: submission.data_json,
+        })
+        .send()
+        .await?;
+    let status = res.status();
+    if !status.is_success() {
+        anyhow::bail!("Grading failed");
+    }
+    let obj = res.json::<GradingResult>().await?;
+    info!("Received a grading result: {:#?}", &obj);
+    let updated_grading = update_grading(conn, grading, obj, exercise).await?;
+    Ok(updated_grading)
+}
+
 pub async fn update_grading(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     grading: Grading,
     grading_result: GradingResult,
     exercise: Exercise,
 ) -> Result<Grading> {
-    let mut connection = pool.acquire().await?;
     let grading_completed_at = if grading_result.grading_progress.is_complete() {
         Some(Utc::now())
     } else {
@@ -100,7 +129,7 @@ UPDATE gradings
     grading_completed_at = $7,
     score_given = $8
 WHERE id = $1
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_item_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         "#,
         grading.id,
         grading_result.grading_progress as GradingProgress,
@@ -111,7 +140,7 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
         grading_completed_at,
         score_given_rounded
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
 
     Ok(grading)

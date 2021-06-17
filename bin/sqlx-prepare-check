@@ -11,7 +11,7 @@ echo "> cd $RELATIVE_PATH"
 cd "$RELATIVE_PATH" || exit
 
 COMMAND="cargo"
-ARGUMENTS=(sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev prepare --check)
+ARGUMENTS=(sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev prepare --check --merged)
 
 BASEDIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 echo "> cd $BASEDIR"

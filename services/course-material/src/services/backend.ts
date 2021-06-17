@@ -46,6 +46,7 @@ export interface CoursePage {
   url_path: string
   title: string
   deleted_at: string | null
+  chapter_id: string
 }
 
 export interface Block<T> {
@@ -77,11 +78,11 @@ export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[
 
 export interface CourseMaterialExercise {
   exercise: Exercise
-  current_exercise_item: CurrentExerciseItem
+  current_exercise_task: CurrentExerciseTask
   exercise_status?: ExerciseStatus
 }
 
-export interface CurrentExerciseItem {
+export interface CurrentExerciseTask {
   id: string
   exercise_id: string
   exercise_type: string
@@ -110,6 +111,30 @@ export interface ExerciseStatus {
 export const fetchExerciseById = async (id: string): Promise<CourseMaterialExercise> => {
   const data = (
     await axios.get(`/api/v0/course-material/exercises/${id}`, { responseType: "json" })
+  ).data
+  return data
+}
+
+export interface ChapterPagesWithExercises {
+  id: string
+  created_at: string
+  updated_at: string
+  course_id: string
+  chapter_id: string
+  content: any
+  url_path: string
+  title: string
+  deleted_at: Date
+  exercises: Exercise[]
+}
+
+export const fetchChaptersExercises = async (
+  chapterId: string,
+): Promise<ChapterPagesWithExercises[]> => {
+  const data = (
+    await axios.get(`/api/v0/course-material/chapters/${chapterId}/exercises`, {
+      responseType: "json",
+    })
   ).data
   return data
 }

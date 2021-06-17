@@ -27,7 +27,7 @@ expose the correct answers to the user.
     "deleted_at": null,
     "score_maximum": 1
   },
-  "current_exercise_item": {
+  "current_exercise_task": {
     "id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
     "created_at": "2021-04-28T10:49:47.328126",
     "updated_at": "2021-04-28T10:49:47.328126",
@@ -46,15 +46,15 @@ expose the correct answers to the user.
 }
 ```
  */
+#[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
     request_exercise_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<CourseMaterialExercise>> {
-    let exercise = crate::models::exercises::get_course_material_exercise(
-        pool.get_ref(),
-        *request_exercise_id,
-    )
-    .await?;
+    let mut conn = pool.acquire().await?;
+    let exercise =
+        crate::models::exercises::get_course_material_exercise(&mut conn, *request_exercise_id)
+            .await?;
     Ok(Json(exercise))
 }
 

@@ -1,12 +1,12 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, PgPool};
+use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::models::exercise_items::get_random_exercise_item;
+use crate::models::exercise_tasks::get_random_exercise_task;
 
-use super::exercise_items::CourseMaterialExerciseItem;
+use super::exercise_tasks::CourseMaterialExerciseTask;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Exercise {
@@ -19,12 +19,13 @@ pub struct Exercise {
     pub deadline: Option<DateTime<Utc>>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_maximum: i32,
+    pub order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
-    pub current_exercise_item: CourseMaterialExerciseItem,
+    pub current_exercise_task: CourseMaterialExerciseTask,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
 }
@@ -34,7 +35,8 @@ Indicates what is the user's completion status for a exercise.
 
 As close as possible to LTI's activity progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress.
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[sqlx(type_name = "activity_progress", rename_all = "snake_case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
     Initialized,
@@ -83,58 +85,51 @@ pub struct ExerciseStatus {
     grading_progress: GradingProgress,
 }
 
-pub async fn get_exercise(pool: &PgPool, exercise_id: Uuid) -> Result<Exercise> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn get_exercise(conn: &mut PgConnection, exercise_id: Uuid) -> Result<Exercise> {
     let exercise = sqlx::query_as!(
         Exercise,
         "SELECT * FROM exercises WHERE id = $1;",
         exercise_id
     )
-    .fetch_one(connection)
+    .fetch_one(conn)
     .await?;
     Ok(exercise)
 }
 
-pub async fn get_exercise_by_id(pool: &PgPool, id: Uuid) -> Result<Exercise> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn get_exercise_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Exercise> {
     let exercise = sqlx::query_as!(Exercise, "SELECT * FROM exercises WHERE id = $1;", id)
-        .fetch_one(connection)
+        .fetch_one(conn)
         .await?;
     Ok(exercise)
 }
 
-pub async fn get_course_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = $1;", id)
-        .fetch_one(&mut connection)
+        .fetch_one(conn)
         .await?
         .course_id;
     Ok(course_id)
 }
 
 pub async fn get_course_material_exercise(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     exercise_id: Uuid,
 ) -> Result<CourseMaterialExercise> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
     let exercise = sqlx::query_as!(
         Exercise,
         "SELECT * FROM exercises WHERE id = $1;",
         exercise_id
     )
-    .fetch_one(connection)
+    .fetch_one(&mut *conn)
     .await?;
-    // Exercise item contains the actual assignment and activity
-    // What exercise item to give for the student depends on the
-    // exercise -- for now we'll give a random exercise item to the student
+    // Exercise task contains the actual assignment and activity
+    // What exercise task to give for the student depends on the
+    // exercise -- for now we'll give a random exercise task to the student
     // this could be changed by creating a policy in the exercise.
-    let current_exercise_item = get_random_exercise_item(&pool, exercise_id).await?;
+    let current_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
     return Ok(CourseMaterialExercise {
         exercise,
-        current_exercise_item,
+        current_exercise_task,
         exercise_status: Some(ExerciseStatus {
             score_given: None,
             activity_progress: ActivityProgress::Initialized,

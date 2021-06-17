@@ -1,26 +1,24 @@
-use std::time::Duration;
-
 use crate::{
-    models::{exercise_items::get_exercise_item_by_id, gradings::update_grading},
+    models::{exercise_tasks::get_exercise_task_by_id, gradings::grade_submission},
     utils::pagination::Pagination,
 };
 
 use super::{
     courses::Course,
-    exercise_items::ExerciseItem,
     exercises::{Exercise, GradingProgress},
     gradings::{new_grading, Grading},
 };
 use anyhow::Result;
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, PgPool};
+use sqlx::PgConnection;
 use uuid::Uuid;
 
 // Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NewSubmission {
-    pub exercise_item_id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub course_instance_id: Uuid,
     pub data_json: Option<serde_json::Value>,
 }
 
@@ -32,7 +30,8 @@ pub struct Submission {
     pub deleted_at: Option<DateTime<Utc>>,
     pub exercise_id: Uuid,
     pub course_id: Uuid,
-    pub exercise_item_id: Uuid,
+    pub course_instance_id: Uuid,
+    pub exercise_task_id: Uuid,
     pub data_json: Option<serde_json::Value>,
     pub grading_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
@@ -80,34 +79,29 @@ pub struct SubmissionResult {
     grading: Grading,
 }
 
-pub async fn get_course_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM submissions WHERE id = $1", id)
-        .fetch_one(&mut connection)
+        .fetch_one(conn)
         .await?
         .course_id;
     Ok(course_id)
 }
 
-pub async fn exercise_submission_count(pool: &PgPool, exercise_id: &Uuid) -> Result<i64> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn exercise_submission_count(conn: &mut PgConnection, exercise_id: &Uuid) -> Result<i64> {
     let count = sqlx::query!(
         "SELECT COUNT(*) as count FROM submissions WHERE exercise_id = $1",
         exercise_id,
     )
-    .fetch_one(connection)
+    .fetch_one(conn)
     .await?;
     Ok(count.count.unwrap_or(0))
 }
 
 pub async fn exercise_submissions(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     exercise_id: &Uuid,
     pagination: &Pagination,
 ) -> Result<Vec<Submission>> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
     let submissions = sqlx::query_as!(
         Submission,
         "SELECT * FROM submissions WHERE exercise_id = $1 LIMIT $2 OFFSET $3;",
@@ -115,46 +109,46 @@ pub async fn exercise_submissions(
         pagination.limit(),
         pagination.offset(),
     )
-    .fetch_all(connection)
+    .fetch_all(conn)
     .await?;
     Ok(submissions)
 }
 
 pub async fn insert_submission(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     new_submission: NewSubmission,
     user_id: Uuid,
     exercise: Exercise,
 ) -> Result<SubmissionResult> {
-    let mut connection = pool.acquire().await?;
     let submission = sqlx::query_as!(
         Submission,
         r#"
   INSERT INTO
-    submissions(exercise_item_id, data_json, exercise_id, course_id, user_id)
-  VALUES($1, $2, $3, $4, $5)
+    submissions(exercise_task_id, data_json, exercise_id, course_id, user_id, course_instance_id)
+  VALUES($1, $2, $3, $4, $5, $6)
   RETURNING *
           "#,
-        new_submission.exercise_item_id,
+        new_submission.exercise_task_id,
         new_submission.data_json,
         exercise.id,
         exercise.course_id,
-        user_id
+        user_id,
+        new_submission.course_instance_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(&mut *conn)
     .await?;
-    let exercise_item = get_exercise_item_by_id(pool, submission.exercise_item_id).await?;
-    let grading = new_grading(pool, &submission).await?;
+    let exercise_task = get_exercise_task_by_id(conn, submission.exercise_task_id).await?;
+    let grading = new_grading(conn, &submission).await?;
     let updated_submission = sqlx::query_as!(
         Submission,
         "UPDATE submissions SET grading_id = $1 WHERE id = $2 RETURNING *",
         grading.id,
         submission.id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(&mut *conn)
     .await?;
     let updated_grading =
-        grade_submission(pool, submission.clone(), exercise_item, exercise, grading).await?;
+        grade_submission(conn, submission.clone(), exercise_task, exercise, grading).await?;
 
     Ok(SubmissionResult {
         submission: updated_submission,
@@ -162,38 +156,10 @@ pub async fn insert_submission(
     })
 }
 
-pub async fn grade_submission(
-    pool: &PgPool,
-    submission: Submission,
-    exercise_item: ExerciseItem,
-    exercise: Exercise,
-    grading: Grading,
-) -> Result<Grading> {
-    let client = reqwest::Client::new();
-    let res = client
-        .post("http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/grade")
-        .timeout(Duration::from_secs(120))
-        .json(&GradingRequest {
-            exercise_spec: exercise_item.private_spec,
-            submission_data: submission.data_json,
-        })
-        .send()
-        .await?;
-    let status = res.status();
-    if !status.is_success() {
-        // failed
-    }
-    let obj = res.json::<GradingResult>().await?;
-    println!("{:#?}", &obj);
-    let updated_grading = update_grading(&pool, grading, obj, exercise).await?;
-    Ok(updated_grading)
-}
-
 pub async fn get_course_daily_submission_counts(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     course: &Course,
 ) -> Result<Vec<SubmissionCount>> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         SubmissionCount,
         r#"
@@ -205,16 +171,15 @@ ORDER BY date;
           "#,
         course.id
     )
-    .fetch_all(&mut connection)
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }
 
 pub async fn get_course_submission_counts_by_weekday_and_hour(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     course: &Course,
 ) -> Result<Vec<SubmissionCountByWeekAndHour>> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         SubmissionCountByWeekAndHour,
         r#"
@@ -226,16 +191,15 @@ ORDER BY isodow, hour;
           "#,
         course.id
     )
-    .fetch_all(&mut connection)
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }
 
 pub async fn get_course_submission_counts_by_exercise(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     course: &Course,
 ) -> Result<Vec<SubmissionCountByExercise>> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         SubmissionCountByExercise,
         r#"
@@ -250,7 +214,7 @@ SELECT counts.*, exercises.name exercise_name
           "#,
         course.id
     )
-    .fetch_all(&mut connection)
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

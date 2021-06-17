@@ -28,7 +28,7 @@ GET `/api/v0/cms/exercises/:exercise_id/submissions` - Returns an exercise's sub
             "deleted_at": null,
             "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
             "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-            "exercise_item_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+            "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
             "data_json": null,
             "grading_id": null,
             "metadata": null,
@@ -39,15 +39,21 @@ GET `/api/v0/cms/exercises/:exercise_id/submissions` - Returns an exercise's sub
 }
 ```
  */
+#[instrument(skip(pool))]
 async fn get_exercise_submissions(
     pool: web::Data<PgPool>,
     request_exercise_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
 ) -> ApplicationResult<Json<ExerciseSubmissions>> {
+    let mut conn = pool.acquire().await?;
     let submission_count =
-        crate::models::submissions::exercise_submission_count(&pool, &*request_exercise_id);
-    let submissions =
-        crate::models::submissions::exercise_submissions(&pool, &*request_exercise_id, &pagination);
+        crate::models::submissions::exercise_submission_count(&mut conn, &request_exercise_id);
+    let mut conn = pool.acquire().await?;
+    let submissions = crate::models::submissions::exercise_submissions(
+        &mut conn,
+        &request_exercise_id,
+        &pagination,
+    );
     let (submission_count, submissions) = future::try_join(submission_count, submissions).await?;
 
     let total_pages = pagination.total_pages(submission_count);

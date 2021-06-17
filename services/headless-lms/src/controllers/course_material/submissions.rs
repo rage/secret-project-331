@@ -13,34 +13,75 @@ use uuid::Uuid;
 POST `/api/v0/course-material/submissions` - Post a new submission.
 
 # Example
+```http
+POST http://project-331.local/api/v0/course-material/submissions HTTP/1.1
+Content-Type: application/json
+
+{
+  "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+  "course_instance_id": "25800692-0d99-4f29-b741-92d69b0900b9",
+  "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
+}
+```
+
+Response:
+
 ```json
-[
-  {
-    "id": "7b14908b-56e5-4b36-9ae6-c44cafacbe83",
-    "slug": "hy",
-    "created_at": "2021-03-08T21:50:51.065821",
-    "updated_at": "2021-03-08T21:50:51.065821",
-    "name": "Helsingin yliopisto",
+{
+  "submission": {
+    "id": "e5c53d36-cb0a-4df4-8571-17a13d36f488",
+    "created_at": "2021-06-10T15:28:16.793335Z",
+    "updated_at": "2021-06-10T15:28:16.845037Z",
+    "deleted_at": null,
+    "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
+    "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
+    "course_instance_id": "25800692-0d99-4f29-b741-92d69b0900b9",
+    "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+    "data_json": {
+      "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af"
+    },
+    "grading_id": "6bd767fb-97ce-47d6-8e34-b105cf1e035b",
+    "metadata": null,
+    "user_id": "0278dd58-30b9-4037-bba9-d1b9bb5f1d66"
+  },
+  "grading": {
+    "id": "6bd767fb-97ce-47d6-8e34-b105cf1e035b",
+    "created_at": "2021-06-10T15:28:16.829438Z",
+    "updated_at": "2021-06-10T15:28:17.165327Z",
+    "submission_id": "e5c53d36-cb0a-4df4-8571-17a13d36f488",
+    "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
+    "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
+    "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+    "grading_priority": 100,
+    "score_given": 1.0,
+    "grading_progress": "FullyGraded",
+    "user_points_update_strategy": "CanAddPointsButCannotRemovePoints",
+    "unscaled_score_maximum": 1.0,
+    "unscaled_max_points": 1,
+    "grading_started_at": "2021-06-10T15:28:16.829438Z",
+    "grading_completed_at": "2021-06-10T15:28:17.147231Z",
+    "feedback_json": null,
+    "feedback_text": "Good job!",
     "deleted_at": null
   }
-]
+}
 ```
  */
+#[instrument(skip(pool))]
 async fn post_submission(
     pool: web::Data<PgPool>,
     payload: web::Json<NewSubmission>,
 ) -> ApplicationResult<Json<SubmissionResult>> {
+    let mut conn = pool.acquire().await?;
     let user_id = Uuid::new_v4();
-    let exercise_item_id = payload.0.exercise_item_id;
-    let exercise_item =
-        crate::models::exercise_items::get_exercise_item_by_id(pool.get_ref(), exercise_item_id)
-            .await?;
+    let exercise_task_id = payload.0.exercise_task_id;
+    let exercise_task =
+        crate::models::exercise_tasks::get_exercise_task_by_id(&mut conn, exercise_task_id).await?;
     let exercise =
-        crate::models::exercises::get_exercise_by_id(pool.get_ref(), exercise_item.exercise_id)
-            .await?;
-    crate::models::users::upsert_user_id(pool.get_ref(), &user_id).await?;
+        crate::models::exercises::get_exercise_by_id(&mut conn, exercise_task.exercise_id).await?;
+    crate::models::users::upsert_user_id(&mut conn, user_id, None).await?;
     let submission =
-        crate::models::submissions::insert_submission(pool.get_ref(), payload.0, user_id, exercise)
+        crate::models::submissions::insert_submission(&mut conn, payload.0, user_id, exercise)
             .await?;
     Ok(Json(submission))
 }

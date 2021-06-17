@@ -3,6 +3,8 @@
   value:
   - configMapRef:
       name: postgres-configuration
+  - secretRef:
+      name: headless-lms-secrets
 - op: add
   path: "/spec/template/spec/containers/0/env"
   value:

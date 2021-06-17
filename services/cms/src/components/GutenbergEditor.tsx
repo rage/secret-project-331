@@ -21,7 +21,6 @@ import "@wordpress/format-library/build-style/style.css"
 // import "@wordpress/editor/build-style/style.css"
 // import "@wordpress/edit-post/build-style/style.css"
 
-import React, { useEffect } from "react"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -36,16 +35,18 @@ import {
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
 import { BlockInstance, registerBlockType } from "@wordpress/blocks"
+import { addFilter } from "@wordpress/hooks"
 
 /**
  * Internal dependencies
  */
+import React, { useEffect } from "react"
 import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
 import { blockTypeMap } from "../blocks"
-import { addFilter } from "@wordpress/hooks"
-import { replaceMediaUpload } from "./OpenMediaGalleryMediaUpload"
-import mediaUpload from "../services/backend/mediaUpload"
+import { mediaUploadGallery } from "./media/OpenMediaGalleryMediaUpload"
+import mediaUploadBuilder, { MediaUploadProps } from "../services/backend/media/mediaUpload"
+import useQueryParameter from "../hooks/useQueryParameter"
 
 interface GutenbergEditor {
   content: BlockInstance[]
@@ -53,30 +54,29 @@ interface GutenbergEditor {
 }
 
 const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
+  const pageId = useQueryParameter("id")
   const { content, onContentChange } = props
 
   const handleChanges = (page: BlockInstance[]): void => {
-    console.log(page)
     onContentChange(page)
   }
   const handleInput = (page: BlockInstance[]): void => {
-    console.log(page)
     onContentChange(page)
   }
 
   useEffect(() => {
-    addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", replaceMediaUpload)
+    addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
     registerCoreBlocks()
     blockTypeMap.forEach(([blockName, block]) => {
       registerBlockType(blockName, block)
     })
   }, [])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const editorSettings: Partial<EditorSettings & EditorBlockListSettings & { mediaUpload: any }> =
-    {}
+  const editorSettings: Partial<
+    EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
+  > = {}
   // Enables uploading media
-  editorSettings.mediaUpload = mediaUpload
+  editorSettings.mediaUpload = mediaUploadBuilder(pageId)
 
   return (
     <div className="editor">

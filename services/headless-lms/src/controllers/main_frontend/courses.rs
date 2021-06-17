@@ -28,11 +28,13 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_course(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Course>> {
-    let course = crate::models::courses::get_course(&pool, *request_course_id).await?;
+    let mut conn = pool.acquire().await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
     Ok(Json(course))
 }
 
@@ -65,12 +67,14 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn post_new_course(
     pool: web::Data<PgPool>,
     payload: web::Json<NewCourse>,
 ) -> ApplicationResult<Json<Course>> {
+    let mut conn = pool.acquire().await?;
     let new_course = payload.0;
-    let course = crate::models::courses::insert_course(&pool, new_course).await?;
+    let course = crate::models::courses::insert_course(&mut conn, new_course).await?;
     Ok(Json(course))
 }
 
@@ -102,15 +106,16 @@ Response:
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn update_course(
     payload: web::Json<CourseUpdate>,
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Course>> {
+    let mut conn = pool.acquire().await?;
     let course_update = payload.0;
     let course =
-        crate::models::courses::update_course(pool.get_ref(), *request_course_id, course_update)
-            .await?;
+        crate::models::courses::update_course(&mut conn, *request_course_id, course_update).await?;
     Ok(Json(course))
 }
 
@@ -130,11 +135,13 @@ DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 }
 ```
 */
+#[instrument(skip(pool))]
 async fn delete_course(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ApplicationResult<Json<Course>> {
-    let course = crate::models::courses::delete_course(pool.get_ref(), *request_course_id).await?;
+    let mut conn = pool.acquire().await?;
+    let course = crate::models::courses::delete_course(&mut conn, *request_course_id).await?;
     Ok(Json(course))
 }
 
@@ -155,14 +162,15 @@ GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submis
 ]
 ```
 */
+#[instrument(skip(pool))]
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<Vec<SubmissionCount>>> {
-    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
+    let mut conn = pool.acquire().await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
     let res =
-        crate::models::submissions::get_course_daily_submission_counts(pool.get_ref(), &course)
-            .await?;
+        crate::models::submissions::get_course_daily_submission_counts(&mut conn, &course).await?;
     Ok(Json(res))
 }
 
@@ -185,14 +193,15 @@ GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns
 ]
 ```
 */
+#[instrument(skip(pool))]
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<Vec<SubmissionCountByWeekAndHour>>> {
-    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
+    let mut conn = pool.acquire().await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
     let res = crate::models::submissions::get_course_submission_counts_by_weekday_and_hour(
-        pool.get_ref(),
-        &course,
+        &mut conn, &course,
     )
     .await?;
     Ok(Json(res))
@@ -211,16 +220,16 @@ GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns 
   }
 ```
 */
+#[instrument(skip(pool))]
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
 ) -> ApplicationResult<Json<Vec<SubmissionCountByExercise>>> {
-    let course = crate::models::courses::get_course(pool.get_ref(), *request_course_id).await?;
-    let res = crate::models::submissions::get_course_submission_counts_by_exercise(
-        pool.get_ref(),
-        &course,
-    )
-    .await?;
+    let mut conn = pool.acquire().await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
+    let res =
+        crate::models::submissions::get_course_submission_counts_by_exercise(&mut conn, &course)
+            .await?;
     Ok(Json(res))
 }
 

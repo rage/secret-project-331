@@ -2,7 +2,7 @@
 Handlers for HTTP requests to `/api/v0/login`.
 */
 
-use crate::{controllers::ApplicationResult, OAuthClient};
+use crate::{controllers::ApplicationResult, domain::authorization, OAuthClient};
 use actix_session::Session;
 use actix_web::{
     web::{self, Json, ServiceConfig},
@@ -29,12 +29,14 @@ struct CurrentUser {
 /**
 POST `/api/v0/auth/login` Logs in to TMC.
 **/
+#[instrument(skip(session, pool, client, payload))]
 pub async fn login(
     session: Session,
     pool: web::Data<PgPool>,
     client: web::Data<OAuthClient>,
     payload: web::Json<Login>,
 ) -> ApplicationResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
     // login to TMC
@@ -62,32 +64,36 @@ pub async fn login(
     let current_user: CurrentUser = res.json().await.context("Unexpected response from TMC")?;
     let upstream_id = current_user.id;
 
-    // create new user if one doesn't exist yet
-    let existing_user = crate::models::users::find_by_upstream_id(&pool, upstream_id)
+    // fetch existing user or create new one
+    let user = match crate::models::users::find_by_upstream_id(&mut conn, upstream_id)
         .await
-        .context("Error while trying to find user")?;
-    if existing_user.is_none() {
-        let new_id = Uuid::new_v4();
-        crate::models::users::upsert_user_id(&pool, new_id, Some(upstream_id)).await?;
-    }
+        .context("Error while trying to find user")?
+    {
+        Some(existing_user) => existing_user,
+        None => {
+            let new_id = Uuid::new_v4();
+            crate::models::users::upsert_user_id(&mut conn, new_id, Some(upstream_id)).await?
+        }
+    };
 
-    session
-        .insert("session", upstream_id)
-        .map_err(|_| anyhow::anyhow!("Failed to insert to session"))?;
+    authorization::remember(&session, user)?;
     Ok(HttpResponse::Ok().finish())
 }
 
 /**
 POST `/api/v0/auth/logout` Logs out.
 **/
+#[instrument(skip(session))]
+#[allow(clippy::async_yields_async)]
 pub async fn logout(session: Session) -> HttpResponse {
-    session.remove("session");
+    authorization::forget(&session);
     HttpResponse::Ok().finish()
 }
 
 /**
 GET `/api/v0/auth/logged-in` Logs in to TMC.
 **/
+#[instrument(skip(session))]
 pub async fn logged_in(session: Session) -> Json<bool> {
     let logged_in = session.entries().get("session").is_some();
     Json(logged_in)

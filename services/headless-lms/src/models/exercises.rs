@@ -1,7 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, PgPool};
+use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::models::exercise_tasks::get_random_exercise_task;
@@ -85,55 +85,48 @@ pub struct ExerciseStatus {
     grading_progress: GradingProgress,
 }
 
-pub async fn get_exercise(pool: &PgPool, exercise_id: Uuid) -> Result<Exercise> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn get_exercise(conn: &mut PgConnection, exercise_id: Uuid) -> Result<Exercise> {
     let exercise = sqlx::query_as!(
         Exercise,
         "SELECT * FROM exercises WHERE id = $1;",
         exercise_id
     )
-    .fetch_one(connection)
+    .fetch_one(conn)
     .await?;
     Ok(exercise)
 }
 
-pub async fn get_exercise_by_id(pool: &PgPool, id: Uuid) -> Result<Exercise> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
+pub async fn get_exercise_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Exercise> {
     let exercise = sqlx::query_as!(Exercise, "SELECT * FROM exercises WHERE id = $1;", id)
-        .fetch_one(connection)
+        .fetch_one(conn)
         .await?;
     Ok(exercise)
 }
 
-pub async fn get_course_id(pool: &PgPool, id: Uuid) -> Result<Uuid> {
-    let mut connection = pool.acquire().await?;
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = $1;", id)
-        .fetch_one(&mut connection)
+        .fetch_one(conn)
         .await?
         .course_id;
     Ok(course_id)
 }
 
 pub async fn get_course_material_exercise(
-    pool: &PgPool,
+    conn: &mut PgConnection,
     exercise_id: Uuid,
 ) -> Result<CourseMaterialExercise> {
-    let mut transaction = pool.begin().await?;
-    let connection = transaction.acquire().await?;
     let exercise = sqlx::query_as!(
         Exercise,
         "SELECT * FROM exercises WHERE id = $1;",
         exercise_id
     )
-    .fetch_one(connection)
+    .fetch_one(&mut *conn)
     .await?;
     // Exercise task contains the actual assignment and activity
     // What exercise task to give for the student depends on the
     // exercise -- for now we'll give a random exercise task to the student
     // this could be changed by creating a policy in the exercise.
-    let current_exercise_task = get_random_exercise_task(&pool, exercise_id).await?;
+    let current_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
     return Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task,

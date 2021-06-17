@@ -153,6 +153,33 @@ We add the routes by calling the route method instead of using the route annotat
 7. Write the logic of what the endpoint does in `src/models/foo.rs` and if needed, in other models as well if more complex endpoint.
 8. If needed, create a seed at `headless-lms/db/seed.sql` and seed your database.
 9. Using `headless-lms/request.rest` ensure that your endpoint works and document manually the request/response above the function in `src/controllers/bogus/foo.rs`.
+
+### Requiring authentication
+
+Authentication is handled by the `domain::authorization::AuthUser` extractor type. If you want an endpoint to only be accessible by authenticated users, simply add a parameter of the type `AuthUser` to that endpoint. The user's ID and other information can then be accessed through the parameter. If an unauthenticated user attempts to access the endpoint, they will receive an authorization error.
+
+```rust
+use crate::domain::authorization::AuthUser;
+
+pub async fn private_endpoint(user: AuthUser) -> String {
+    format!("Hello, {}!", user.id)
+}
+```
+
+If you're making an endpoint where you want to do different things depending on whether the user is logged in or not, you can add an `Option<AuthUser>` parameter. The endpoint can still be accessed by everyone, but the argument will contain the user's details if they are authenticated.
+
+```rust
+use crate::domain::authorization::AuthUser;
+
+pub async fn some_endpoint(user: Option<AuthUser>) -> String {
+    if let Some(user) = user {
+        format!("Hello, {}!", user.id)
+    } else {
+        "Hello, guest!".to_string()
+    }
+}
+```
+
 ## Sqlx
 
 Passing enum values as parameters to SQL queries: https://docs.rs/sqlx/0.5.5/sqlx/macro.query.html#type-overrides-bind-parameters-postgres-only

@@ -2,19 +2,25 @@ import axios from "axios"
 import { DateTime } from "luxon"
 import { DateTimeToISOString, ISOStringToDateTime } from "../utils/dateUtil"
 
-const axiosClient = axios.create({
+const courseMaterialClient = axios.create({
   baseURL: "/api/v0/course-material",
 })
 
-axiosClient.interceptors.response.use((response) => {
-  ISOStringToDateTime(response.data)
-  return response
-})
+courseMaterialClient.interceptors.response.use(
+  (response) => {
+    ISOStringToDateTime(response.data)
+    return response
+  },
+  (err) => console.error(err),
+)
 
-axiosClient.interceptors.request.use((data) => {
-  DateTimeToISOString(data)
-  return data
-})
+courseMaterialClient.interceptors.request.use(
+  (data) => {
+    DateTimeToISOString(data)
+    return data
+  },
+  (err) => console.error(err),
+)
 
 export interface Course {
   id: string
@@ -26,7 +32,7 @@ export interface Course {
 }
 
 export const fetchCourses = async (): Promise<Array<Course>> => {
-  const data = (await axiosClient.get("/courses", { responseType: "json" })).data
+  const data = (await courseMaterialClient.get("/courses", { responseType: "json" })).data
   return data
 }
 
@@ -39,13 +45,13 @@ export interface Organization {
 }
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const data = (await axiosClient.get("/organizations", { responseType: "json" })).data
+  const data = (await courseMaterialClient.get("/organizations", { responseType: "json" })).data
   return data
 }
 
 export const fetchOrganizationCourses = async (organizationId: string): Promise<Array<Course>> => {
   const data = (
-    await axiosClient.get(`/organizations/${organizationId}/courses`, {
+    await courseMaterialClient.get(`/organizations/${organizationId}/courses`, {
       responseType: "json",
     })
   ).data
@@ -77,7 +83,7 @@ export const fetchCoursePageByPath = async (
   path: string,
 ): Promise<CoursePage> => {
   const data = (
-    await axiosClient.get(`/courses/${courseSlug}/page-by-path/${path}`, {
+    await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path/${path}`, {
       responseType: "json",
     })
   ).data
@@ -86,7 +92,7 @@ export const fetchCoursePageByPath = async (
 
 export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[]> => {
   const data = (
-    await axiosClient.get(`/courses/${courseId}/pages`, {
+    await courseMaterialClient.get(`/courses/${courseId}/pages`, {
       responseType: "json",
     })
   ).data
@@ -126,7 +132,7 @@ export interface ExerciseStatus {
 }
 
 export const fetchExerciseById = async (id: string): Promise<CourseMaterialExercise> => {
-  const data = (await axiosClient.get(`/exercises/${id}`, { responseType: "json" })).data
+  const data = (await courseMaterialClient.get(`/exercises/${id}`, { responseType: "json" })).data
   return data
 }
 
@@ -147,7 +153,7 @@ export const fetchChaptersExercises = async (
   chapterId: string,
 ): Promise<ChapterPagesWithExercises[]> => {
   const data = (
-    await axiosClient.get(`/chapters/${chapterId}/exercises`, {
+    await courseMaterialClient.get(`/chapters/${chapterId}/exercises`, {
       responseType: "json",
     })
   ).data

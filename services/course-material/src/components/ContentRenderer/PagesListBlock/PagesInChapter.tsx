@@ -17,11 +17,14 @@ const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
 
   return (
     <>
-      {data.map((page) => (
-        <div key={page.id} id={page.id}>
-          {page.title}
-        </div>
-      ))}
+      <h3>Pages in this chapter</h3>
+      <ol>
+        {data.map((page) => (
+          <li key={page.id} id={page.id}>
+            {page.title}
+          </li>
+        ))}
+      </ol>
     </>
   )
 }

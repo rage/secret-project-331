@@ -1,5 +1,20 @@
 # Notes on headless lms
 
+- [Notes on headless lms](#notes-on-headless-lms)
+  - [sqlx prepare](#sqlx-prepare)
+  - [Sqlx data types](#sqlx-data-types)
+  - [New migrations](#new-migrations)
+  - [Using postgres enums in SQLx queries](#using-postgres-enums-in-sqlx-queries)
+    - [Adding new tables](#adding-new-tables)
+  - [Setup development with a local Postgres](#setup-development-with-a-local-postgres)
+  - [New struct/enum](#new-structenum)
+  - [New endpoint](#new-endpoint)
+    - [Requiring authentication](#requiring-authentication)
+    - [Adding documentation to an endpoint](#adding-documentation-to-an-endpoint)
+  - [Sqlx](#sqlx)
+    - [Formatting inline SQL in Visual Studio Code](#formatting-inline-sql-in-visual-studio-code)
+
+## sqlx prepare
 Creating new SQL queries in headless-lms using Sqlx requires running `bin/sqlx-prepare` so that it builds.
 
 ## Sqlx data types
@@ -179,6 +194,39 @@ pub async fn some_endpoint(user: Option<AuthUser>) -> String {
     }
 }
 ```
+
+### Adding documentation to an endpoint
+
+When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint
+and an example response data from it. For an example
+
+```
+/**
+GET `/:course_slug/page-by-path/...` - Returns a course page by path
+# Example
+
+GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
+
+"```json
+{
+  "id": "d32cc3cd-adfe-456a-a25f-032ee02db4c2",
+  "created_at": "2021-03-12T09:20:16.381347",
+  "updated_at": "2021-03-19T15:12:33.603977",
+  "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
+  "content": [],
+  "url_path": "/part-2/hello-world",
+  "title": "Hello world!",
+  "deleted_at": null,
+  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
+}
+```"
+*/
+```
+
+Easiest way to get the example response data and double check that endpoint works as itended is to write request to an **requests.rest** file and run the request. Before this, if needed, remember to update **seed.sql** file so that the needed data exists in a database.
+
+After this the docs are ready to go. Docs are created automatically upon mergin your feature branch to master.
+
 
 ## Sqlx
 

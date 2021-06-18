@@ -113,20 +113,86 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
 
 pub async fn get_course_material_exercise(
     conn: &mut PgConnection,
+    user_id: Option<Uuid>,
     exercise_id: Uuid,
 ) -> Result<CourseMaterialExercise> {
-    let exercise = sqlx::query_as!(
-        Exercise,
-        "SELECT * FROM exercises WHERE id = $1;",
-        exercise_id
+    let exercise = get_exercise_by_id(conn, exercise_id).await?;
+
+    let current_course_instance_id = sqlx::query!(
+        "
+SELECT course_instance_id AS id
+FROM course_instance_enrollments
+WHERE course_id = $1
+  AND current = TRUE
+  AND deleted_at IS NULL
+",
+        exercise.course_id
     )
     .fetch_one(&mut *conn)
-    .await?;
-    // Exercise task contains the actual assignment and activity
-    // What exercise task to give for the student depends on the
-    // exercise -- for now we'll give a random exercise task to the student
-    // this could be changed by creating a policy in the exercise.
-    let current_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
+    .await?
+    .id;
+
+    let selected_exercise_task_id = if let Some(user_id) = user_id {
+        sqlx::query!(
+            r#"
+SELECT selected_exercise_task_id AS "id!"
+FROM user_exercise_states
+WHERE user_id = $1
+AND exercise_id = $2
+AND course_instance_id = $3
+"#,
+            user_id,
+            exercise.id,
+            current_course_instance_id
+        )
+        .fetch_optional(&mut *conn)
+        .await?
+        .map(|r| r.id)
+    } else {
+        None
+    };
+
+    // if a task has been previously selected, use it, otherwise select a random one and save it as the selected one
+    let current_exercise_task = if let Some(selected_exercise_task_id) = selected_exercise_task_id {
+        let selected_exercise_task = sqlx::query_as!(
+            CourseMaterialExerciseTask,
+            "
+SELECT id,
+  exercise_id,
+  exercise_type,
+  assignment,
+  public_spec
+FROM exercise_tasks
+WHERE id = $1
+",
+            selected_exercise_task_id
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+        selected_exercise_task
+    } else {
+        // Exercise task contains the actual assignment and activity
+        // What exercise task to give for the student depends on the
+        // exercise -- for now we'll give a random exercise task to the student
+        // this could be changed by creating a policy in the exercise.
+        let randomly_selected = get_random_exercise_task(conn, exercise_id).await?;
+        sqlx::query!(
+            "
+UPDATE user_exercise_states
+SET selected_exercise_task_id = $1
+WHERE user_id = $2
+  AND exercise_id = $3
+  AND course_instance_id = $4
+",
+            randomly_selected.id,
+            user_id,
+            exercise.id,
+            current_course_instance_id,
+        )
+        .execute(&mut *conn)
+        .await?;
+        randomly_selected
+    };
     return Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task,

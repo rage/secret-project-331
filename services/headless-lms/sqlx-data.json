@@ -1037,6 +1037,22 @@
       "nullable": [false, false, false, false, true, false, true, false, false, false]
     }
   },
+  "6db193b0026add4654a016e9cafa1d14df780aa3d1e541a1f21de213171a9bdd": {
+    "query": "\nSELECT selected_exercise_task_id AS \"id!\"\nFROM user_exercise_states\nWHERE user_id = $1\nAND exercise_id = $2\nAND course_instance_id = $3\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id!",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [true]
+    }
+  },
   "766a0d121d9fae40d872a1b4a5756610cdefb07f81fbfa11e4f112d11e9b2702": {
     "query": "\nSELECT\n    id, variant_status as \"variant_status: VariantStatus\", starts_at, ends_at\nFROM course_instances\nWHERE deleted_at IS NOT NULL;\n",
     "describe": {
@@ -1320,6 +1336,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [false]
+    }
+  },
+  "8c1504ed0360e29b32edb01377c2e75d8d4654a2ed5b2c1ff57ca0be5f911eb9": {
+    "query": "\nUPDATE user_exercise_states\nSET selected_exercise_task_id = $1\nWHERE user_id = $2\n  AND exercise_id = $3\n  AND course_instance_id = $4\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "95dd409bd722442fe75d3b3aba428f811687752e1df10dc30ad7a1ce0250e76d": {
@@ -2292,6 +2318,22 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
+  "dd30673a92bd0ce4545828b430cc0acc9e74943f1d40398a9bbf20ee0ef7ab03": {
+    "query": "\nSELECT course_instance_id AS id\nFROM course_instance_enrollments\nWHERE course_id = $1\n  AND current = TRUE\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "de76984bac431ab8e341d3ffe8d0c90658c9950c0933d2632976a2c8567a620c": {
     "query": "\n        UPDATE exercises SET deleted_at = now() WHERE page_id = $1\n            ",
     "describe": {
@@ -2300,6 +2342,42 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "e16771ee038e235b7e5a5abe6d0ff76f08b7ab9a5fc671665ad3f111c2f0585d": {
+    "query": "\nSELECT id,\n  exercise_id,\n  exercise_type,\n  assignment,\n  public_spec\nFROM exercise_tasks\nWHERE id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "exercise_type",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "assignment",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 4,
+          "name": "public_spec",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true]
     }
   },
   "e2fe96906db5d05fa1a8b0aabc25e9027c386b349f11d4c26bcf7db1864af6cf": {

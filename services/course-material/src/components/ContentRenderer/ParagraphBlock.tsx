@@ -4,8 +4,8 @@ import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
-import { InlineMath, BlockMath } from 'react-katex'
-import ReactDOMServer from 'react-dom/server'
+import { InlineMath, BlockMath } from "react-katex"
+import ReactDOMServer from "react-dom/server"
 interface ParagraphBlockAttributes {
   content: string
   dropCap: boolean
@@ -25,10 +25,10 @@ const convertToLatex = (content: string) => {
   let type = 0
 
   for (let i = 0; i < content.length; i++) {
-    if (content[i] === '$' && type === 0) {
+    if (content[i] === "$" && type === 0) {
       // Latex block started
       if (i + 1 < content.length) {
-        if (content[i + 1] === '$') {
+        if (content[i + 1] === "$") {
           type = 2
           i++
         } else {
@@ -40,13 +40,13 @@ const convertToLatex = (content: string) => {
       // Save it to the buffer
       if (buffer.length > 0) {
         result += buffer
-        buffer = ''
+        buffer = ""
       }
-    } else if (content[i] === '$' && type > 0) {
+    } else if (content[i] === "$" && type > 0) {
       // Latex block ended
       // Skip next '$'
       if (type === 2) {
-        i++;
+        i++
       }
 
       // Save it to the buffer
@@ -56,7 +56,7 @@ const convertToLatex = (content: string) => {
         } else if (type === 2) {
           result += ReactDOMServer.renderToString(<BlockMath math={buffer} />)
         }
-        buffer = ''
+        buffer = ""
       }
 
       // No longer in the latex block

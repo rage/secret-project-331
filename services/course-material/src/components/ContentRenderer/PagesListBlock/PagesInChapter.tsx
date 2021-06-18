@@ -7,7 +7,7 @@ import GenericLoading from "../../GenericLoading"
 
 const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
   const coursePath = useRouter().asPath
-  const { isLoading, error, data } = useQuery(`chapter-${chapterId}-pages`, () =>
+  const { isLoading, error, data } = useQuery(`chapter-${chapterId}-pages-with-exercises`, () =>
     fetchChaptersPagesWithExercises(chapterId),
   )
   if (error) {

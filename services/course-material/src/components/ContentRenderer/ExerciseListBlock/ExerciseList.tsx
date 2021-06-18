@@ -5,7 +5,7 @@ import PageWithExercises from "./PageWithExercises"
 import { fetchChaptersPagesWithExercises } from "../../../services/backend"
 
 const ExerciseList: React.FC<{ chapterId: string }> = ({ chapterId }) => {
-  const { isLoading, error, data } = useQuery(`chapter-${chapterId}-exercises`, () =>
+  const { isLoading, error, data } = useQuery(`chapter-${chapterId}-pages-with-exercises`, () =>
     fetchChaptersPagesWithExercises(chapterId),
   )
 

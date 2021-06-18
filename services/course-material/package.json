@@ -25,6 +25,7 @@
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-is": "^17.0.1",
+    "react-katex": "^2.0.2",
     "react-query": "^3.13.4",
     "recoil": "^0.2.0",
     "sanitize-html": "^2.3.3",

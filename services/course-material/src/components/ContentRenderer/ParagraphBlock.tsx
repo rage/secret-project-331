@@ -4,13 +4,75 @@ import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
-
+import { InlineMath, BlockMath } from 'react-katex'
+import ReactDOMServer from 'react-dom/server'
 interface ParagraphBlockAttributes {
   content: string
   dropCap: boolean
   textColor?: string
   backgroundColor?: string
   fontSize?: string
+}
+
+/**
+ *
+ * @param content HTML-content from the server
+ * @returns HTML as string in which the latex symbols '$' has been replaced with latex
+ */
+const convertToLatex = (content: string) => {
+  let result = ""
+  let buffer = ""
+  let type = 0
+
+  for (let i = 0; i < content.length; i++) {
+    if (content[i] === '$' && type === 0) {
+      // Latex block started
+      if (i + 1 < content.length) {
+        if (content[i + 1] === '$') {
+          type = 2
+          i++
+        } else {
+          type = 1
+        }
+      } else {
+        type = 1
+      }
+      // Save it to the buffer
+      if (buffer.length > 0) {
+        result += buffer
+        buffer = ''
+      }
+    } else if (content[i] === '$' && type > 0) {
+      // Latex block ended
+      // Skip next '$'
+      if (type === 2) {
+        i++;
+      }
+
+      // Save it to the buffer
+      if (buffer.length > 0) {
+        if (type === 1) {
+          result += ReactDOMServer.renderToString(<InlineMath math={buffer} />)
+        } else if (type === 2) {
+          result += ReactDOMServer.renderToString(<BlockMath math={buffer} />)
+        }
+        buffer = ''
+      }
+
+      // No longer in the latex block
+      // '$' needed to scan is zero.
+      type = 0
+    } else {
+      buffer += content[i]
+    }
+  }
+
+  // In case there's still remaining data in the buffer
+  if (buffer.length > 0) {
+    result += buffer
+  }
+
+  return result
 }
 
 const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({ data }) => {
@@ -35,7 +97,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
         font-size: ${fontSize};
         ${backgroundColor && `padding: 1.25em 2.375em;`}
       `}
-      dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.content) }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(convertToLatex(attributes.content)) }}
     />
   )
 }

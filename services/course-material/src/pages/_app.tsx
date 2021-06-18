@@ -9,6 +9,7 @@ import muiTheme from "../utils/muiTheme"
 import { CssBaseline } from "@material-ui/core"
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
+import "katex/dist/katex.min.css"
 import { Global, css } from "@emotion/react"
 
 const queryClient = new QueryClient({

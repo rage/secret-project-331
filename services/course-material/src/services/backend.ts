@@ -1,33 +1,11 @@
-import axios from "axios"
-import { DateTime } from "luxon"
-import { DateTimeToISOString, ISOStringToDateTime } from "../utils/dateUtil"
-
-const courseMaterialClient = axios.create({
-  baseURL: "/api/v0/course-material",
-})
-
-courseMaterialClient.interceptors.response.use(
-  (response) => {
-    ISOStringToDateTime(response.data)
-    return response
-  },
-  (err) => console.error(err),
-)
-
-courseMaterialClient.interceptors.request.use(
-  (data) => {
-    DateTimeToISOString(data)
-    return data
-  },
-  (err) => console.error(err),
-)
+import { courseMaterialClient } from "./courseMaterialClient"
 
 export interface Course {
   id: string
-  created_at: DateTime
-  updated_at: DateTime
+  created_at: Date
+  updated_at: Date
   name: string
-  deleted_at: DateTime | null
+  deleted_at: Date | null
   slug: string
 }
 
@@ -38,10 +16,10 @@ export const fetchCourses = async (): Promise<Array<Course>> => {
 
 export interface Organization {
   id: string
-  created_at: DateTime
-  updated_at: DateTime
+  created_at: Date
+  updated_at: Date
   name: string
-  deleted_at: DateTime | null
+  deleted_at: Date | null
 }
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
@@ -60,13 +38,13 @@ export const fetchOrganizationCourses = async (organizationId: string): Promise<
 
 export interface CoursePage {
   id: string
-  created_at: DateTime
-  updated_at: DateTime
+  created_at: Date
+  updated_at: Date
   course_id: string
   content: Block<unknown>[]
   url_path: string
   title: string
-  deleted_at: DateTime | null
+  deleted_at: Date | null
   chapter_id: string
 }
 
@@ -115,13 +93,13 @@ export interface CurrentExerciseTask {
 
 export interface Exercise {
   id: string
-  created_at: DateTime
-  updated_at: DateTime
+  created_at: Date
+  updated_at: Date
   name: string
   course_id: string
   page_id: string
   deadline: null
-  deleted_at: DateTime | null
+  deleted_at: Date | null
   score_maximum: number
 }
 
@@ -138,14 +116,14 @@ export const fetchExerciseById = async (id: string): Promise<CourseMaterialExerc
 
 export interface ChapterPagesWithExercises {
   id: string
-  created_at: DateTime
-  updated_at: DateTime
+  created_at: Date
+  updated_at: Date
   course_id: string
   chapter_id: string
   content: any
   url_path: string
   title: string
-  deleted_at: DateTime
+  deleted_at: Date
   exercises: Exercise[]
 }
 

@@ -1,30 +1,13 @@
-import axios from "axios"
-import { DateTimeToISOString, ISOStringToDateTime } from "../../../utils/dateUtil"
 import { NewPage, Page, PageUpdate } from "../../services.types"
-
-const cmsPagesClient = axios.create({ baseURL: "/api/v0/cms/pages" })
-
-cmsPagesClient.interceptors.response.use(
-  (response) => {
-    ISOStringToDateTime(response.data)
-    return response
-  },
-  (err) => console.error(err),
-)
-cmsPagesClient.interceptors.request.use((data) => {
-  DateTimeToISOString(data)
-  return data
-})
+import { cmsClient } from "../cmsClient"
 
 export const fetchPageWithId = async (pageId: string): Promise<Page> => {
-  const data = (await cmsPagesClient.get(`/${pageId}`, { responseType: "json" })).data
+  const data = (await cmsClient.get(`/pages/${pageId}`, { responseType: "json" })).data
   return data
 }
 
 export const postNewPage = async (data: NewPage): Promise<Page> => {
-  const url = `/api/v0/cms/pages`
-
-  const response = await cmsPagesClient.post("", data, {
+  const response = await cmsClient.post("/pages", data, {
     headers: { "Content-Type": "application/json" },
   })
   return response.data
@@ -37,10 +20,8 @@ export const updateExistingPage = async ({
   title,
   chapter_id,
 }: PageUpdate): Promise<Page> => {
-  const url = `/api/v0/cms/pages/${page_id}`
-
-  const response = await cmsPagesClient.put(
-    `/${page_id}`,
+  const response = await cmsClient.put(
+    `/pages/${page_id}`,
     { content, url_path, title, chapter_id },
     {
       headers: { "Content-Type": "application/json" },
@@ -50,8 +31,6 @@ export const updateExistingPage = async ({
 }
 
 export const deletePage = async (page_id: string): Promise<Page> => {
-  const url = `/api/v0/cms/pages/${page_id}`
-
-  const response = await cmsPagesClient.delete(`/${page_id}`)
+  const response = await cmsClient.delete(`/pages/${page_id}`)
   return response.data
 }

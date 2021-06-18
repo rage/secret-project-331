@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::models::submissions::GradingRequest;
+use crate::models::{
+    exercise_service_info::get_service_info_by_exercise_type, submissions::GradingRequest,
+};
 
 use super::{
     exercise_tasks::ExerciseTask,
@@ -78,8 +80,10 @@ pub async fn grade_submission(
     grading: Grading,
 ) -> Result<Grading> {
     let client = reqwest::Client::new();
+    let exercise_service_info =
+        get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let res = client
-        .post("http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/grade")
+        .post(exercise_service_info.grade_endpoint_path)
         .timeout(Duration::from_secs(120))
         .json(&GradingRequest {
             exercise_spec: exercise_task.private_spec,

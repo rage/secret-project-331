@@ -3,7 +3,7 @@ use headless_lms_actix::models::course_instances::VariantStatus;
 use headless_lms_actix::models::roles::UserRole;
 use headless_lms_actix::models::{
     chapters, course_instances, courses, exercise_tasks, exercises, organizations, pages, roles,
-    submissions, users,
+    submissions, users, exercise_services
 };
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
 use sqlx::{Connection, PgConnection};
@@ -33,6 +33,11 @@ async fn main() -> Result<()> {
         "uh-cs",
     )
     .await?;
+
+    let _example_exercise_exercise_service = exercise_services::insert_exercise_service(&mut conn,        "Example Exercise",
+    "example-exercise",
+    "http://project-331.local/example-exercise/api/service-info",
+    "http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info").await?;
 
     // uh-cs intro
     let intro_course = courses::insert(

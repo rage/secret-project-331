@@ -64,8 +64,23 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
     onContentChange(page)
   }
 
+  function modifyLinkDestinationDefault(settings, name) {
+    if (name !== "core/image") {
+      return settings
+    }
+
+    settings.attributes.linkDestination.default = "media"
+
+    return settings
+  }
+  addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
+  addFilter(
+    "blocks.registerBlockType",
+    "moocfi/cms/modify-linkDestination-default",
+    modifyLinkDestinationDefault,
+  )
+
   useEffect(() => {
-    addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
     registerCoreBlocks()
     blockTypeMap.forEach(([blockName, block]) => {
       registerBlockType(blockName, block)

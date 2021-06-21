@@ -4,7 +4,6 @@ export interface MediaUploadProps {
   allowedTypes: string[]
   filesList: ArrayLike<File>
   onError: (error: { code: UploadMediaErrorCode; message: string; file: File }) => void
-  // onError: (message: string) => void
   onFileChange: (files: MediaItem[]) => void
 }
 

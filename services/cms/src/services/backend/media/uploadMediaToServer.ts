@@ -1,19 +1,7 @@
 /**
  * External dependencies
  */
-import {
-  compact,
-  flatMap,
-  forEach,
-  get,
-  has,
-  includes,
-  map,
-  noop,
-  omit,
-  some,
-  startsWith,
-} from "lodash"
+import { compact, forEach, get, has, includes, noop, some, startsWith } from "lodash"
 
 /**
  * WordPress dependencies
@@ -21,31 +9,7 @@ import {
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
 import { __, sprintf } from "@wordpress/i18n"
 import { uploadFile } from "."
-import { UploadMediaOptions, MediaItem } from "@wordpress/media-utils"
-
-/**
- * Browsers may use unexpected mime types, and they differ from browser to browser.
- * This function computes a flexible array of mime types from the mime type structured provided by the server.
- * Converts { jpg|jpeg|jpe: "image/jpeg" } into [ "image/jpeg", "image/jpg", "image/jpeg", "image/jpe" ]
- * The computation of this array instead of directly using the object,
- * solves the problem in chrome where mp3 files have audio/mp3 as mime type instead of audio/mpeg.
- * https://bugs.chromium.org/p/chromium/issues/detail?id=227004
- *
- * @param {?Object} wpMimeTypesObject Mime type object received from the server.
- *                                    Extensions are keys separated by '|' and values are mime types associated with an extension.
- *
- * @return {?Array} An array of mime types or the parameter passed if it was "falsy".
- */
-function getMimeTypesArray(wpMimeTypesObject) {
-  if (!wpMimeTypesObject) {
-    return wpMimeTypesObject
-  }
-  return flatMap(wpMimeTypesObject, (mime, extensionsString) => {
-    const [type] = mime.split("/")
-    const extensions = extensionsString.split("|")
-    return [mime, ...map(extensions, (extension) => `${type}/${extension}`)]
-  })
-}
+import { UploadMediaOptions, MediaItem, UploadMediaErrorCode } from "@wordpress/media-utils"
 
 /**
  *	Media Upload is used by audio, image, gallery, video, and file blocks to
@@ -60,7 +24,6 @@ function getMimeTypesArray(wpMimeTypesObject) {
  * @param {?number}  $0.maxUploadFileSize  Maximum upload size in bytes allowed for the site.
  * @param {Function} $0.onError            Function called when an error happens.
  * @param {Function} $0.onFileChange       Function called each time a file or a temporary representation of the file is available.
- * @param {?Object}  $0.wpAllowedMimeTypes List of allowed mime types and file extensions.
  */
 export async function uploadMedia({
   allowedTypes,
@@ -69,14 +32,15 @@ export async function uploadMedia({
   maxUploadFileSize,
   onError = noop,
   onFileChange,
-  wpAllowedMimeTypes = null,
   pageId,
-}: UploadMediaOptions & { pageId: string }): Promise<void> {
+}: UploadMediaOptions & {
+  pageId: string
+}): Promise<void> {
   // Cast filesList to array
   const files = [...(filesList as File[])]
 
   const filesSet = []
-  const setAndUpdateFiles = (idx, value) => {
+  const setAndUpdateFiles = (idx: number, value: Partial<MediaItem>) => {
     revokeBlobURL(get(filesSet, [idx, "url"]))
     filesSet[idx] = value
     onFileChange(compact(filesSet))
@@ -97,33 +61,15 @@ export async function uploadMedia({
     })
   }
 
-  // Allowed types for the current WP_User
-  const allowedMimeTypesForUser = getMimeTypesArray(wpAllowedMimeTypes)
-  const isAllowedMimeTypeForUser = (fileType) => {
-    return includes(allowedMimeTypesForUser, fileType)
-  }
-
   // Build the error message including the filename
-  const triggerError = (error) => {
-    error.message = [error.file.name, ": ", error.message]
-
+  const triggerError = (error: { code: UploadMediaErrorCode; message: string; file: File }) => {
+    error.message = [error.file.name, ": ", error.message].join()
     onError(error)
   }
 
   const validFiles = []
 
   for (const mediaFile of files) {
-    // Verify if user is allowed to upload this mime type.
-    // Defer to the server when type not detected.
-    if (allowedMimeTypesForUser && mediaFile.type && !isAllowedMimeTypeForUser(mediaFile.type)) {
-      triggerError({
-        code: "MIME_TYPE_NOT_ALLOWED_FOR_USER",
-        message: __("Sorry, this file type is not permitted for security reasons."),
-        file: mediaFile,
-      })
-      continue
-    }
-
     // Check if the block supports this mime type.
     // Defer to the server when type not detected.
     if (mediaFile.type && !isAllowedType(mediaFile.type)) {
@@ -168,14 +114,14 @@ export async function uploadMedia({
     try {
       const savedMedia = await createMediaFromFile(mediaFile, additionalData, pageId)
       const mediaObject = {
-        ...omit(savedMedia, ["alt_text", "source_url"]),
         alt: savedMedia.alt,
-        caption: get(savedMedia, ["caption", "raw"], ""),
+        caption: savedMedia.caption,
         title: savedMedia.title,
         url: savedMedia.url,
       }
       setAndUpdateFiles(idx, mediaObject)
     } catch (error) {
+      console.log(error)
       // Reset to empty on failure.
       setAndUpdateFiles(idx, null)
       let message
@@ -203,15 +149,16 @@ export async function uploadMedia({
  *
  * @return {Promise} Media Object Promise.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
 function createMediaFromFile(
   file: File,
-  additionalData: Record<string, any> | null,
+  // We shall not fight against Gutenberg any.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  additionalData: Record<string, any>,
   pageId: string,
 ): Promise<MediaItem> {
   // Create upload payload
   const data = new window.FormData()
   data.append("file", file, file.name || file.type.replace("/", "."))
   forEach(additionalData, (value, key) => data.append(key, value))
-  return uploadFile({ imageData: data, pageId })
+  return uploadFile({ uploadData: data, pageId })
 }

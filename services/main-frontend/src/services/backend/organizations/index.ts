@@ -1,15 +1,14 @@
-import axios from "axios"
+import { mainFrontendClient } from "../../mainFrontendClient"
 import { Course, Organization } from "../../services.types"
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const url = `/api/v0/main-frontend/organizations`
-  const data = (await axios.get(url, { responseType: "json" })).data
+  const data = (await mainFrontendClient.get("/organizations", { responseType: "json" })).data
   return data
 }
 
 export const fetchOrganizationCourses = async (organizationId: string): Promise<Array<Course>> => {
   const data = (
-    await axios.get(`/api/v0/main-frontend/organizations/${organizationId}/courses`, {
+    await mainFrontendClient.get(`/organizations/${organizationId}/courses`, {
       responseType: "json",
     })
   ).data

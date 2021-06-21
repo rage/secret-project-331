@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_add_user_progress_routes",""],["get_user_progress_page","GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information."]]});

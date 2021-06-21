@@ -18,7 +18,7 @@ async fn get_or_init_db() -> String {
     let _ = tracing_subscriber::fmt().try_init();
 
     // store initialized pool and return connection
-    guard.insert(db.clone());
+    guard.replace(db.clone());
     db
 }
 

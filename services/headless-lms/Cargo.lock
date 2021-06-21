@@ -1437,6 +1437,7 @@ dependencies = [
  "sqlx",
  "tempdir",
  "tokio 1.6.1",
+ "tokio-stream",
  "tokio-util 0.6.7",
  "tracing",
  "tracing-actix-web",

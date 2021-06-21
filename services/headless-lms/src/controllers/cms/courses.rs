@@ -3,7 +3,7 @@ use crate::{
     controllers::{ApplicationError, ApplicationResult},
     domain::authorization::AuthUser,
     models::courses::CourseStructure,
-    utils::file_store::{course_image_path, local_file_store::LocalFileStore},
+    utils::file_store::{course_image_path, local_file_store::LocalFileStore, FileStore},
 };
 use actix_web::{
     http::header,
@@ -145,7 +145,7 @@ async fn upload_image(
         .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
 
     local_file_store
-        .upload_stream(&path, payload, content_type_string)
+        .upload_stream(&path, payload.into_inner(), content_type_string)
         .await?;
 
     Ok(Json(ImageUploadResult {

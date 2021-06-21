@@ -4,20 +4,35 @@ pub mod local_file_store;
 
 use std::path::{Path, PathBuf};
 
+use actix_http::Payload;
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
+use bytes::Bytes;
+use futures::Stream;
 
 use crate::models::courses::Course;
 use std::str::FromStr;
 /**
 Allows storing files to a file storage backend.
 */
-#[async_trait]
+#[async_trait(?Send)]
 pub trait FileStore {
     /// Upload a file that's in memory to a path.
     async fn upload(&self, path: &Path, contents: Vec<u8>, mime_type: String) -> Result<()>;
+    /// Upload a file without loading the whole file to memory
+    async fn upload_stream(
+        &self,
+        path: &Path,
+        mut contents: Payload,
+        mime_type: String,
+    ) -> Result<()>;
     /// Download a file to memory.
     async fn download(&self, path: &Path) -> Result<Vec<u8>>;
+    /// Download a file without loading the whole file to memory.
+    async fn download_stream(
+        &self,
+        path: &Path,
+    ) -> Result<Box<dyn Stream<Item = std::io::Result<Bytes>>>>;
     /// Get a url that can be used to download the file without authentication for a while.
     async fn get_download_url(&self, path: &Path) -> Result<String>;
     /// Delete a file.

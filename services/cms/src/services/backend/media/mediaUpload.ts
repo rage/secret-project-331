@@ -1,16 +1,18 @@
-import { MediaItem, UploadMediaErrorCode } from "@wordpress/media-utils"
+import { MediaItem } from "@wordpress/media-utils"
 import { uploadMedia } from "./uploadMediaToServer"
 export interface MediaUploadProps {
   allowedTypes: string[]
   filesList: ArrayLike<File>
-  onError: (error: { code: UploadMediaErrorCode; message: string; file: File }) => void
+  // Below commented probably the future onError function. ?
+  //onError: (error: { code: UploadMediaErrorCode; message: string; file: File }) => void
+  onError: (message: string) => void
   onFileChange: (files: MediaItem[]) => void
 }
 
 export function mediaUploadBuilder(pageId: string): (props: MediaUploadProps) => Promise<void> {
   const mediaUpload = async (props: MediaUploadProps): Promise<void> => {
-    console.log("Media upload", props)
-    const maxUploadFileSize = 1000000
+    // 5 MB = 5242880 B
+    const maxUploadFileSize = 5242880
     await uploadMedia({ ...props, maxUploadFileSize, pageId })
   }
   return mediaUpload

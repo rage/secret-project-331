@@ -212,21 +212,6 @@ async fn delete_page(
     Ok(Json(deleted_page))
 }
 
-// #[instrument(skip(pool))]
-// async fn upload_image_for_course_from_page(
-//     request_page_id: web::Path<Uuid>,
-//     pool: web::Data<PgPool>,
-// ) -> HttpResponse {
-//     // let mut conn = pool.acquire().await?;
-//     // let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
-//     let prefix = Path::new("/api/v0/cms/courses");
-//     let path: PathBuf = prefix.join(request_page_id.to_string()).join("images");
-//     let path_string = path.to_string_lossy().to_string();
-//     HttpResponse::TemporaryRedirect()
-//         .append_header(("location", path_string))
-//         .finish()
-// }
-
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 struct ImageUploadResult {
@@ -289,16 +274,16 @@ async fn upload_media_for_course(
         LocalFileStore::new("uploads".into(), "/api/v0/images".to_string()).await?;
 
     // TODO: add max size
-    // TODO: Error handling
-    // TODO: Support other Gutenberg media blocks and create LocalFileStorage endpoints based on mime type
-    // Double check that all Gutenberg blocks really calls this endpoint as multipart/form-data per each file uploaded
+    // TODO: Enhance error handling
+    // TODO: Support other (File & Audio) Gutenberg media blocks and create LocalFileStorage endpoints based on mime type
+    // Double check that all Gutenberg blocks we use really calls this endpoint as multipart/form-data for each file uploaded if multiple
     match payload.next().await.unwrap() {
         Ok(field) => {
             let mime = field.content_type().clone();
 
             let extension = match (mime.type_(), mime.subtype()) {
-                (mime::IMAGE, mime::JPEG) => ".jpg",
-                (mime::IMAGE, mime::PNG) => ".png",
+                // (mime::IMAGE, mime::JPEG) => ".jpg",
+                // (mime::IMAGE, mime::PNG) => ".png",
                 (mime::IMAGE, mime::SVG) => ".svg",
                 (mime::IMAGE, mime::GIF) => ".gif",
                 (mime::IMAGE, mime::BMP) => ".bmp",

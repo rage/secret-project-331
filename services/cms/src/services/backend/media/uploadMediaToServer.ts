@@ -33,8 +33,13 @@ export async function uploadMedia({
   onError = noop,
   onFileChange,
   pageId,
-}: UploadMediaOptions & {
+}: Omit<UploadMediaOptions, "onError"> & {
+  // We need to omit the UploadMediaOptions onError function,
+  // because it seems to not be supported yet or the types definition is not up-to-date
+  // Blocks still seem to use one param:
+  // https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/image/edit.js#L113-L116
   pageId: string
+  onError: (message: string) => void
 }): Promise<void> {
   // Cast filesList to array
   const files = [...(filesList as File[])]
@@ -63,8 +68,10 @@ export async function uploadMedia({
 
   // Build the error message including the filename
   const triggerError = (error: { code: UploadMediaErrorCode; message: string; file: File }) => {
-    error.message = [error.file.name, ": ", error.message].join()
-    onError(error)
+    // error.message = [error.file.name, ": ", error.message].join("")
+    // onError(error)
+    const message = [error.file.name, ": ", error.message].join("")
+    onError(message)
   }
 
   const validFiles = []
@@ -134,7 +141,7 @@ export async function uploadMedia({
           mediaFile.name,
         )
       }
-      onError({
+      triggerError({
         code: "GENERAL",
         message,
         file: mediaFile,

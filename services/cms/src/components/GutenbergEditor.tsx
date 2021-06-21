@@ -74,6 +74,7 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
     return settings
   }
   addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
+  // Filter used so that the image block works.
   addFilter(
     "blocks.registerBlockType",
     "moocfi/cms/modify-linkDestination-default",

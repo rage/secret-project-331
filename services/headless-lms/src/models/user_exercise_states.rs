@@ -8,8 +8,9 @@ use super::{
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
+use futures::future;
 use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
+use sqlx::{FromRow, PgConnection, PgPool};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -23,6 +24,89 @@ pub struct UserExerciseState {
     score_given: Option<f32>,
     grading_progress: GradingProgress,
     activity_progress: ActivityProgress,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+pub struct UserProgress {
+    score_given: Option<f32>,
+    score_maximum: Option<i64>,
+    total_exercises: Option<i64>,
+    completed_exercises: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+pub struct UserMetrics {
+    score_given: Option<f32>,
+    completed_exercises: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+pub struct CourseMetrics {
+    total_exercises: Option<i64>,
+    score_maximum: Option<i64>,
+}
+
+pub async fn get_course_metrics(pool: &PgPool, course_instance_id: &Uuid) -> Result<CourseMetrics> {
+    let mut connection = pool.acquire().await?;
+    let res = sqlx::query_as!(
+        CourseMetrics,
+        r#"
+SELECT COUNT(e.id) as total_exercises,
+  COALESCE(0, SUM(e.score_maximum)) as score_maximum
+FROM course_instances ci
+  LEFT JOIN exercises e on ci.course_id = e.course_id
+WHERE e.deleted_at IS NULL
+  AND ci.id = $1;
+        "#,
+        course_instance_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_user_metrics(
+    pool: &PgPool,
+    course_instance_id: &Uuid,
+    user_id: &Uuid,
+) -> Result<UserMetrics> {
+    let mut connection = pool.acquire().await?;
+    let res = sqlx::query_as!(
+        UserMetrics,
+        r#"
+SELECT COUNT(ues.exercise_id) as completed_exercises,
+  COALESCE(0, SUM(ues.score_given)) as score_given
+FROM user_exercise_states ues
+WHERE ues.course_instance_id = $1
+  AND ues.user_id = $2
+  AND ues.deleted_at IS NULL
+  AND ues.activity_progress IN ('submitted', 'completed');
+        "#,
+        course_instance_id,
+        user_id
+    )
+    .fetch_one(&mut connection)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_user_progress(
+    pool: &PgPool,
+    course_instance_id: &Uuid,
+    user_id: &Uuid,
+) -> Result<UserProgress> {
+    let (course_metrics, user_metrics) = future::try_join(
+        get_course_metrics(pool, course_instance_id),
+        get_user_metrics(pool, user_id, course_instance_id),
+    )
+    .await?;
+    let result = UserProgress {
+        score_given: user_metrics.score_given,
+        completed_exercises: user_metrics.completed_exercises,
+        score_maximum: course_metrics.score_maximum,
+        total_exercises: course_metrics.total_exercises,
+    };
+    Ok(result)
 }
 
 pub async fn get_or_create_user_exercise_state(

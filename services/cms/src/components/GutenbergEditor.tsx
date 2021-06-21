@@ -47,6 +47,7 @@ import { blockTypeMap } from "../blocks"
 import { mediaUploadGallery } from "./media/OpenMediaGalleryMediaUpload"
 import mediaUploadBuilder, { MediaUploadProps } from "../services/backend/media/mediaUpload"
 import useQueryParameter from "../hooks/useQueryParameter"
+import { assign } from "lodash"
 
 interface GutenbergEditor {
   content: BlockInstance[]
@@ -64,12 +65,18 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
     onContentChange(page)
   }
 
-  function modifyLinkDestinationDefault(settings, name) {
+  function modifyBlockAttributes(settings, name) {
     if (name !== "core/image") {
       return settings
     }
 
     settings.attributes.linkDestination.default = "media"
+    settings.attributes = assign(settings.attributes, {
+      blurDataUrl: {
+        type: "string",
+        default: "",
+      },
+    })
 
     return settings
   }
@@ -78,7 +85,7 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
   addFilter(
     "blocks.registerBlockType",
     "moocfi/cms/modify-linkDestination-default",
-    modifyLinkDestinationDefault,
+    modifyBlockAttributes,
   )
 
   useEffect(() => {

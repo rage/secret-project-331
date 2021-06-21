@@ -3,6 +3,9 @@ pub mod domain;
 pub mod models;
 pub mod utils;
 
+#[cfg(test)]
+pub mod test_helper;
+
 #[macro_use]
 extern crate tracing;
 

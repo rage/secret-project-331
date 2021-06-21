@@ -33,6 +33,7 @@
     "@wordpress/deprecated": "^3.1.1",
     "@wordpress/format-library": "^2.1.2",
     "axios": "^0.21.1",
+    "date-fns": "^2.22.1",
     "express": "^4.17.1",
     "http-proxy-middleware": "^2.0.0",
     "i18next": "^20.3.1",
@@ -40,7 +41,6 @@
     "jszip": "^3.6.0",
     "jszip-utils": "^0.1.0",
     "lodash": "^4.17.21",
-    "luxon": "^1.27.0",
     "monaco-editor": "^0.24.0",
     "next": "^10.2.3",
     "react": "^16.14.0",
@@ -55,6 +55,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/date-fns": "^2.6.0",
     "@types/node": "^15.12.2",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",

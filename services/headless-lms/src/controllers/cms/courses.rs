@@ -1,4 +1,5 @@
 //! Controllers for requests starting with `/api/v0/cms/courses`.
+use crate::domain::authorization::AuthUser;
 use crate::{controllers::ApplicationResult, models::courses::CourseStructure};
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -51,6 +52,7 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
 async fn get_course_structure(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<CourseStructure>> {
     let mut conn = pool.acquire().await?;
     let course_structure =

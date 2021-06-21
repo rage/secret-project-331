@@ -1,6 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/exercises`.
 use crate::{
-    controllers::ApplicationResult, models::submissions::Submission, utils::pagination::Pagination,
+    controllers::ApplicationResult, domain::authorization::AuthUser,
+    models::submissions::Submission, utils::pagination::Pagination,
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use futures::future;
@@ -44,6 +45,7 @@ async fn get_exercise_submissions(
     pool: web::Data<PgPool>,
     request_exercise_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<ExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
     let submission_count =

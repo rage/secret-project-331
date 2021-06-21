@@ -1,5 +1,4 @@
-use super::{path_to_str, FileStore};
-use actix_multipart as mp;
+use super::{path_to_str, FileStore, GenericPayload};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -32,8 +31,44 @@ impl LocalFileStore {
             base_url,
         })
     }
+}
+#[async_trait(?Send)]
+impl FileStore for LocalFileStore {
+    async fn upload(&self, path: &Path, contents: Vec<u8>, _mime_type: String) -> Result<()> {
+        let full_path = self.base_path.join(path);
+        fs::write(full_path, contents).await?;
+        Ok(())
+    }
 
-    pub async fn upload_stream(&self, path: &Path, mut contents: mp::Field) -> Result<()> {
+    async fn download(&self, path: &Path) -> Result<Vec<u8>> {
+        let full_path = self.base_path.join(path);
+        Ok(fs::read(full_path).await?)
+    }
+
+    async fn delete(&self, path: &Path) -> Result<()> {
+        let full_path = self.base_path.join(path);
+        fs::remove_file(full_path).await?;
+        Ok(())
+    }
+
+    async fn get_download_url(&self, path: &Path) -> Result<String> {
+        let full_path = self.base_path.join(path);
+        if !full_path.exists() {
+            return Err(anyhow!("File does not exist"));
+        }
+        let path_str = path_to_str(path)?;
+        if self.base_url.ends_with('/') {
+            return Ok(format!("{}{}", self.base_url, path_str));
+        }
+        Ok(format!("{}/{}", self.base_url, path_str))
+    }
+
+    async fn upload_stream(
+        &self,
+        path: &Path,
+        mut contents: GenericPayload,
+        _mime_type: String,
+    ) -> Result<()> {
         let full_path = self.base_path.join(path);
         let parent_option = full_path.parent();
         if parent_option.is_none() {
@@ -65,46 +100,15 @@ impl LocalFileStore {
         Ok(())
     }
 
-    pub async fn download_stream(
+    async fn download_stream(
         &self,
         path: &Path,
-    ) -> Result<impl Stream<Item = std::io::Result<Bytes>>> {
+    ) -> Result<Box<dyn Stream<Item = std::io::Result<Bytes>>>> {
         let full_path = self.base_path.join(path);
         let file = fs::File::open(full_path).await?;
         let reader = io::BufReader::new(file);
         let stream = ReaderStream::new(reader);
-        Ok(stream)
-    }
-}
-#[async_trait]
-impl FileStore for LocalFileStore {
-    async fn upload(&self, path: &Path, contents: Vec<u8>, _mime_type: String) -> Result<()> {
-        let full_path = self.base_path.join(path);
-        fs::write(full_path, contents).await?;
-        Ok(())
-    }
-
-    async fn download(&self, path: &Path) -> Result<Vec<u8>> {
-        let full_path = self.base_path.join(path);
-        Ok(fs::read(full_path).await?)
-    }
-
-    async fn delete(&self, path: &Path) -> Result<()> {
-        let full_path = self.base_path.join(path);
-        fs::remove_file(full_path).await?;
-        Ok(())
-    }
-
-    async fn get_download_url(&self, path: &Path) -> Result<String> {
-        let full_path = self.base_path.join(path);
-        if !full_path.exists() {
-            return Err(anyhow!("File does not exist"));
-        }
-        let path_str = path_to_str(path)?;
-        if self.base_url.ends_with('/') {
-            return Ok(format!("{}{}", self.base_url, path_str));
-        }
-        Ok(format!("{}/{}", self.base_url, path_str))
+        Ok(Box::new(stream))
     }
 }
 

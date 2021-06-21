@@ -2,8 +2,9 @@
 
 use crate::{
     controllers::{ApplicationError, ApplicationResult},
+    domain::authorization::AuthUser,
     models::pages::{NewPage, Page, PageUpdate},
-    utils::file_store::{course_image_path, local_file_store::LocalFileStore},
+    utils::file_store::{course_image_path, local_file_store::LocalFileStore, FileStore},
 };
 
 use actix_multipart as mp;
@@ -14,7 +15,7 @@ use actix_web::{
 
 use actix_web::{web::ServiceConfig, HttpRequest};
 
-use futures::StreamExt;
+use futures::{StreamExt, TryStreamExt};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
@@ -51,6 +52,7 @@ Response:
 async fn get_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page = crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
@@ -111,6 +113,7 @@ Response:
 async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
@@ -167,6 +170,7 @@ async fn update_page(
     payload: web::Json<PageUpdate>,
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page_update = payload.0;
@@ -205,6 +209,7 @@ Response:
 async fn delete_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ApplicationResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let deleted_page =
@@ -282,8 +287,8 @@ async fn upload_media_for_course(
             let mime = field.content_type().clone();
 
             let extension = match (mime.type_(), mime.subtype()) {
-                // (mime::IMAGE, mime::JPEG) => ".jpg",
-                // (mime::IMAGE, mime::PNG) => ".png",
+                (mime::IMAGE, mime::JPEG) => ".jpg",
+                (mime::IMAGE, mime::PNG) => ".png",
                 (mime::IMAGE, mime::SVG) => ".svg",
                 (mime::IMAGE, mime::GIF) => ".gif",
                 (mime::IMAGE, mime::BMP) => ".bmp",
@@ -303,7 +308,11 @@ async fn upload_media_for_course(
             let path = course_image_path(&course, image_name)
                 .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
 
-            local_file_store.upload_stream(&path, field).await?;
+            let correct_type = field.map_err(|o| anyhow::anyhow!(o));
+
+            local_file_store
+                .upload_stream(&path, Box::pin(correct_type), mime.to_string())
+                .await?;
 
             return Ok(Json(ImageUploadResult {
                 url: format!("/api/v0/files/{}", path.to_string_lossy()),

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["GoogleCloudFileStore",""]]});
+initSidebarItems({"constant":[["BUFFER_SIZE",""]],"struct":[["GoogleCloudFileStore",""]]});

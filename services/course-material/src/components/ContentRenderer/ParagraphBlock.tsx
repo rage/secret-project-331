@@ -4,8 +4,8 @@ import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
-import { InlineMath, BlockMath } from "react-katex"
-import ReactDOMServer from "react-dom/server"
+import KaTex from "katex"
+
 interface ParagraphBlockAttributes {
   content: string
   dropCap: boolean
@@ -52,9 +52,14 @@ const convertToLatex = (content: string) => {
       // Save it to the buffer
       if (buffer.length > 0) {
         if (type === 1) {
-          result += ReactDOMServer.renderToString(<InlineMath math={buffer} />)
+          result += KaTex.renderToString(buffer, {
+            throwOnError: false,
+          })
         } else if (type === 2) {
-          result += ReactDOMServer.renderToString(<BlockMath math={buffer} />)
+          result += KaTex.renderToString(buffer, {
+            throwOnError: false,
+            displayMode: true,
+          })
         }
         buffer = ""
       }

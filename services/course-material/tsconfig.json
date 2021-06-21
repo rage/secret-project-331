@@ -28,7 +28,7 @@
   ],
   "include": [
     "next-env.d.ts",
-    "react-katex.d.ts",
+    "katex.d.ts",
     "**/*.ts",
     "**/*.tsx"
   ]

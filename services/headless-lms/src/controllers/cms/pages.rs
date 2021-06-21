@@ -1,11 +1,23 @@
 //! Controllers for requests starting with `/api/v0/cms/pages`.
 
 use crate::{
-    controllers::ApplicationResult,
+    controllers::{ApplicationError, ApplicationResult},
     models::pages::{NewPage, Page, PageUpdate},
+    utils::file_store::{course_image_path, local_file_store::LocalFileStore},
 };
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
+
+use actix_multipart as mp;
+use actix_web::{
+    http::header,
+    web::{self, Json},
+};
+
+use actix_web::{web::ServiceConfig, HttpRequest};
+
+use futures::StreamExt;
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -200,6 +212,125 @@ async fn delete_page(
     Ok(Json(deleted_page))
 }
 
+// #[instrument(skip(pool))]
+// async fn upload_image_for_course_from_page(
+//     request_page_id: web::Path<Uuid>,
+//     pool: web::Data<PgPool>,
+// ) -> HttpResponse {
+//     // let mut conn = pool.acquire().await?;
+//     // let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
+//     let prefix = Path::new("/api/v0/cms/courses");
+//     let path: PathBuf = prefix.join(request_page_id.to_string()).join("images");
+//     let path_string = path.to_string_lossy().to_string();
+//     HttpResponse::TemporaryRedirect()
+//         .append_header(("location", path_string))
+//         .finish()
+// }
+
+/// Result of a image upload. Tells where the uploaded image can be retrieved from.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+struct ImageUploadResult {
+    url: String,
+    alt: String,
+    caption: String,
+    title: String,
+}
+
+/**
+POST `/api/v0/cms/pages/:page_id/images` - Upload a image.
+
+Put the the contents of the image in the request body and add a content type header. such as image/jpeg.
+# Example
+
+Request:
+```http
+POST /api/v0/cms/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images HTTP/1.1
+Content-Type: image/png
+
+BINARY_DATA
+```
+
+Response:
+```json
+{
+    "url": "/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
+}
+```
+*/
+#[instrument(skip(payload))]
+async fn upload_media_for_course(
+    request_page_id: web::Path<Uuid>,
+    mut payload: mp::Multipart,
+    request: HttpRequest,
+    pool: web::Data<PgPool>,
+) -> ApplicationResult<Json<ImageUploadResult>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
+    let course = crate::models::courses::get_course(&mut conn, course_id).await?;
+    let headers = request.headers();
+
+    let content_type_option = headers.get(header::CONTENT_TYPE);
+    if content_type_option.is_none() {
+        return Err(ApplicationError::BadRequest(
+            "Please provide a Content-Type header".into(),
+        ));
+    }
+
+    let content_type = content_type_option.unwrap();
+    let content_type_string = String::from_utf8_lossy(content_type.as_bytes()).to_string();
+
+    if !content_type_string.contains("multipart/form-data") {
+        return Err(ApplicationError::BadRequest(
+            ["Unsupported type:", &content_type_string].join(" "),
+        ));
+    }
+
+    let local_file_store =
+        LocalFileStore::new("uploads".into(), "/api/v0/images".to_string()).await?;
+
+    // TODO: add max size
+    // TODO: Error handling
+    // TODO: Support other Gutenberg media blocks and create LocalFileStorage endpoints based on mime type
+    // Double check that all Gutenberg blocks really calls this endpoint as multipart/form-data per each file uploaded
+    match payload.next().await.unwrap() {
+        Ok(field) => {
+            let mime = field.content_type().clone();
+
+            let extension = match (mime.type_(), mime.subtype()) {
+                (mime::IMAGE, mime::JPEG) => ".jpg",
+                (mime::IMAGE, mime::PNG) => ".png",
+                (mime::IMAGE, mime::SVG) => ".svg",
+                (mime::IMAGE, mime::GIF) => ".gif",
+                (mime::IMAGE, mime::BMP) => ".bmp",
+                _ => return Err(ApplicationError::BadRequest("Unsupported mime type".into())),
+            };
+
+            // using a random string for the image name because
+            // a) we don't want the filename to be user controllable
+            // b) we don't want the filename to be too easily guessable (so no uuid)
+            let mut image_name: String = thread_rng()
+                .sample_iter(&Alphanumeric)
+                .take(30)
+                .map(char::from)
+                .collect();
+            image_name.push_str(extension);
+
+            let path = course_image_path(&course, image_name)
+                .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
+
+            local_file_store.upload_stream(&path, field).await?;
+
+            return Ok(Json(ImageUploadResult {
+                url: format!("/api/v0/files/{}", path.to_string_lossy()),
+                alt: "Alt text".to_string(),
+                caption: "Insert caption".to_string(),
+                title: "Image title".to_string(),
+            }));
+        }
+        Err(_) => todo!(),
+    }
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -211,5 +342,6 @@ pub fn _add_pages_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{page_id}", web::get().to(get_page))
         .route("", web::post().to(post_new_page))
         .route("/{page_id}", web::put().to(update_page))
-        .route("/{page_id}", web::delete().to(delete_page));
+        .route("/{page_id}", web::delete().to(delete_page))
+        .route("/{page_id}/upload", web::post().to(upload_media_for_course));
 }

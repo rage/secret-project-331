@@ -1,5 +1,5 @@
 use super::{path_to_str, FileStore};
-use actix_web::web::Payload;
+use actix_multipart as mp;
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -33,12 +33,7 @@ impl LocalFileStore {
         })
     }
 
-    pub async fn upload_stream(
-        &self,
-        path: &Path,
-        mut contents: Payload,
-        _mime_type: String,
-    ) -> Result<()> {
+    pub async fn upload_stream(&self, path: &Path, mut contents: mp::Field) -> Result<()> {
         let full_path = self.base_path.join(path);
         let parent_option = full_path.parent();
         if parent_option.is_none() {

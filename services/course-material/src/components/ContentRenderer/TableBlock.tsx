@@ -5,15 +5,6 @@ import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
 /* Still working on the tableBlock */
 
-type TableBlockType = {
-  tag: string
-  content: string
-}
-
-type TableBlockCell = {
-  [key: string]: TableBlockType
-}
-
 const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
   const innerBlocks: TableAttributes = data.innerBlocks[0].innerBlocks[0].attributes
   const caption: TableAttributes = data.innerBlocks[0].innerBlocks[0].caption

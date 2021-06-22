@@ -6,7 +6,7 @@ import { fetchChaptersPagesWithExercises } from "../../../services/backend"
 import GenericLoading from "../../GenericLoading"
 
 const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
-  const coursePath = useRouter().asPath
+  const courseSlug = useRouter().query.courseSlug
   const { isLoading, error, data } = useQuery(`chapter-${chapterId}-pages-with-exercises`, () =>
     fetchChaptersPagesWithExercises(chapterId),
   )
@@ -24,7 +24,7 @@ const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
       <ol>
         {data.map((page) => (
           <li key={page.id} id={page.id}>
-            <Link href={coursePath + page.url_path}>{page.title}</Link>
+            <Link href={"/" + courseSlug + page.url_path}>{page.title}</Link>
           </li>
         ))}
       </ol>

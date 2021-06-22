@@ -45,7 +45,7 @@ export interface CoursePage {
   url_path: string
   title: string
   deleted_at: Date | null
-  chapter_id: string
+  chapter_id: string | undefined
 }
 
 export interface Block<T> {
@@ -61,7 +61,7 @@ export const fetchCoursePageByPath = async (
   path: string,
 ): Promise<CoursePage> => {
   const data = (
-    await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path/${path}`, {
+    await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path${path}`, {
       responseType: "json",
     })
   ).data
@@ -136,4 +136,20 @@ export const fetchChaptersPagesWithExercises = async (
     })
   ).data
   return data
+}
+
+export interface PageRoutingData {
+  url_path: string
+  title: string
+  chapter_number: string | undefined
+}
+
+export const getNextPageRoutingData = async (currentPageId: string): Promise<PageRoutingData> => {
+  return (await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)).data
+}
+
+export const getPreviousPageRoutingData = async (
+  currentPageId: string,
+): Promise<PageRoutingData> => {
+  return (await courseMaterialClient.get(`/pages/${currentPageId}/previous-page`)).data
 }

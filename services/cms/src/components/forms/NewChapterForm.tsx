@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Button, TextField } from "@material-ui/core"
 import React, { useState } from "react"
-import { postNewChapter } from "../../services/backend/courses"
+import { postNewChapter } from "../../services/backend/chapters"
 
 const StyledTextField = styled(TextField)`
   margin: 0.3rem;

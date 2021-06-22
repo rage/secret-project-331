@@ -13,6 +13,7 @@ use actix_http::error::InternalError;
 use actix_web::web::{self, HttpResponse, ServiceConfig};
 use oauth2::basic::BasicClient;
 use std::sync::Arc;
+use tracing_actix_web::TracingLogger;
 
 pub type OAuthClient = Arc<BasicClient>;
 
@@ -28,7 +29,9 @@ pub fn configure(config: &mut ServiceConfig) {
             ));
             InternalError::from_response(err, response).into()
         });
-    config
-        .app_data(json_config)
-        .service(web::scope("/api/v0").configure(controllers::configure_controllers));
+    config.app_data(json_config).service(
+        web::scope("/api/v0")
+            .wrap(TracingLogger::default())
+            .configure(controllers::configure_controllers),
+    );
 }

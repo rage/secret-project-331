@@ -5,7 +5,6 @@ use headless_lms_actix::models::organizations::{self, Organization};
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use std::env;
 use tokio::sync::Mutex;
-use tracing_actix_web::TracingLogger;
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
@@ -16,7 +15,9 @@ pub async fn init_db() -> String {
         return db.clone();
     }
     dotenv::dotenv().ok();
-    let db = env::var("DATABASE_URL_TEST").expect("no DATABASE_URL_TEST");
+    let db = env::var("DATABASE_URL_TEST").unwrap_or_else(|_| {
+        "postgres://headless-lms@localhost:54328/headless_lms_test".to_string()
+    });
     if Postgres::database_exists(&db)
         .await
         .expect("failed to check test db existence")
@@ -53,7 +54,6 @@ pub async fn init_actix() -> (
     let app = App::new()
         .configure(headless_lms_actix::configure)
         .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
-        .wrap(TracingLogger::default())
         // .data(oauth_client.clone())
         .data(pool.clone());
     (actix_web::test::init_service(app).await, pool)

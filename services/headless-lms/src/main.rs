@@ -10,7 +10,6 @@ use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
 use sqlx::PgPool;
 use std::{env, sync::Arc};
-use tracing_actix_web::TracingLogger;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
@@ -56,7 +55,6 @@ async fn main() -> Result<()> {
         App::new()
             .configure(headless_lms_actix::configure)
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
-            .wrap(TracingLogger::default())
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())
     });

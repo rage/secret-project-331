@@ -123,6 +123,27 @@
       "nullable": []
     }
   },
+  "136f369cc798e92b4620cee20013ec066455939fc7d47f8db1a107317753d4a1": {
+    "query": "\nSELECT COUNT(e.id) as total_exercises,\n  COALESCE(0, SUM(e.score_maximum)) as score_maximum\nFROM course_instances ci\n  LEFT JOIN exercises e on ci.course_id = e.course_id\nWHERE e.deleted_at IS NULL\n  AND ci.id = $1;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "total_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_maximum",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [null, null]
+    }
+  },
   "13baaaa4365e9ec8bfafe2504080eafdc369bd22e4444cd8035647fcd31d0fe5": {
     "query": "\nSELECT id,\n  exercise_id,\n  exercise_type,\n  assignment,\n  public_spec\nFROM exercise_tasks\nWHERE id = $1\n                ",
     "describe": {
@@ -754,6 +775,16 @@
       "columns": [],
       "parameters": {
         "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
+  "4eaafbc10af94b2f70893bd6c2ba268a68e02752115cc553d13c892607ceb449": {
+    "query": "\nINSERT INTO organizations (slug, name)\nVALUES ($1, $2)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Varchar", "Varchar"]
       },
       "nullable": []
     }
@@ -1398,6 +1429,27 @@
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "8c5a2157f97a81b2ce7489c584aef3cc2c42a4aaedeadc828e0de7bf8afc8706": {
+    "query": "\nSELECT COUNT(ues.exercise_id) as completed_exercises,\n  COALESCE(0, SUM(ues.score_given)) as score_given\nFROM user_exercise_states ues\nWHERE ues.course_instance_id = $1\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL\n  AND ues.activity_progress IN ('submitted', 'completed');\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "completed_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [null, null]
     }
   },
   "95dd409bd722442fe75d3b3aba428f811687752e1df10dc30ad7a1ce0250e76d": {

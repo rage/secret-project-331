@@ -60,6 +60,7 @@ pub async fn init_actix() -> (
 }
 
 #[tokio::test]
+#[ignore = "db not set up in CI, still useful as an example test"]
 async fn gets_organizations() {
     let (actix, pool) = init_actix().await;
     let mut conn = pool.acquire().await.unwrap();

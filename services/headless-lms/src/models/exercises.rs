@@ -118,45 +118,49 @@ pub async fn get_course_material_exercise(
 ) -> Result<CourseMaterialExercise> {
     let exercise = get_exercise_by_id(conn, exercise_id).await?;
 
-    let current_course_instance_id = sqlx::query!(
-        "
+    // if the user is logged in, take the previously selected task or select a new one
+    let selected_exercise_task = if let Some(user_id) = user_id {
+        // user is logged in, see if they're enrolled on the course
+        let current_course_instance_id: Option<Uuid> = sqlx::query!(
+            r#"
 SELECT course_instance_id AS id
 FROM course_instance_enrollments
 WHERE course_id = $1
+  AND user_id = $2
   AND current = TRUE
   AND deleted_at IS NULL
-",
-        exercise.course_id
-    )
-    .fetch_one(&mut *conn)
-    .await?
-    .id;
-
-    let selected_exercise_task_id = if let Some(user_id) = user_id {
-        sqlx::query!(
-            r#"
-SELECT selected_exercise_task_id AS "id!"
-FROM user_exercise_states
-WHERE user_id = $1
-AND exercise_id = $2
-AND course_instance_id = $3
 "#,
-            user_id,
-            exercise.id,
-            current_course_instance_id
+            exercise.course_id,
+            user_id
         )
         .fetch_optional(&mut *conn)
         .await?
-        .map(|r| r.id)
-    } else {
-        None
-    };
+        .map(|r| r.id);
 
-    // if a task has been previously selected, use it, otherwise select a random one and save it as the selected one
-    let current_exercise_task = if let Some(selected_exercise_task_id) = selected_exercise_task_id {
-        let selected_exercise_task = sqlx::query_as!(
-            CourseMaterialExerciseTask,
-            "
+        if let Some(current_course_instance_id) = current_course_instance_id {
+            // user is enrolled on an instance of the given course, see if a task has already been selected
+            let selected_exercise_task_id: Option<Uuid> = sqlx::query!(
+                r#"
+SELECT selected_exercise_task_id AS "id!"
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+  AND deleted_at IS NULL
+            "#,
+                user_id,
+                exercise.id,
+                current_course_instance_id
+            )
+            .fetch_optional(&mut *conn)
+            .await?
+            .map(|r| r.id);
+
+            if let Some(selected_exercise_task_id) = selected_exercise_task_id {
+                // a task has previously been selected
+                sqlx::query_as!(
+                    CourseMaterialExerciseTask,
+                    "
 SELECT id,
   exercise_id,
   exercise_type,
@@ -164,42 +168,51 @@ SELECT id,
   public_spec
 FROM exercise_tasks
 WHERE id = $1
-",
-            selected_exercise_task_id
-        )
-        .fetch_one(&mut *conn)
-        .await?;
-        selected_exercise_task
-    } else {
-        // Exercise task contains the actual assignment and activity
-        // What exercise task to give for the student depends on the
-        // exercise -- for now we'll give a random exercise task to the student
-        // this could be changed by creating a policy in the exercise.
-        let randomly_selected = get_random_exercise_task(conn, exercise_id).await?;
-        sqlx::query!(
-            "
+                ",
+                    selected_exercise_task_id
+                )
+                .fetch_one(&mut *conn)
+                .await?
+            } else {
+                // no task has been selected
+                // Exercise task contains the actual assignment and activity
+                // What exercise task to give for the student depends on the
+                // exercise -- for now we'll give a random exercise task to the student
+                // this could be changed by creating a policy in the exercise.
+                let selected_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
+                sqlx::query!(
+                    "
 UPDATE user_exercise_states
 SET selected_exercise_task_id = $1
 WHERE user_id = $2
   AND exercise_id = $3
   AND course_instance_id = $4
 ",
-            randomly_selected.id,
-            user_id,
-            exercise.id,
-            current_course_instance_id,
-        )
-        .execute(&mut *conn)
-        .await?;
-        randomly_selected
+                    selected_exercise_task.id,
+                    user_id,
+                    exercise.id,
+                    current_course_instance_id,
+                )
+                .execute(&mut *conn)
+                .await?;
+                selected_exercise_task
+            }
+        } else {
+            // user is not enrolled on the course
+            get_random_exercise_task(conn, exercise_id).await?
+        }
+    } else {
+        // user is not logged in, get a random task
+        get_random_exercise_task(conn, exercise_id).await?
     };
-    return Ok(CourseMaterialExercise {
+
+    Ok(CourseMaterialExercise {
         exercise,
-        current_exercise_task,
+        current_exercise_task: selected_exercise_task,
         exercise_status: Some(ExerciseStatus {
             score_given: None,
             activity_progress: ActivityProgress::Initialized,
             grading_progress: GradingProgress::NotReady,
         }),
-    });
+    })
 }

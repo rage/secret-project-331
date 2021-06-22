@@ -7,7 +7,7 @@ CREATE TABLE course_instance_enrollments (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   deleted_at TIMESTAMPTZ,
-  PRIMARY KEY(user_id, course_id, course_instance_id)
+  PRIMARY KEY(user_id, course_instance_id)
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_instance_enrollments FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

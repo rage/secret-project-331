@@ -329,7 +329,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
 
     tx.commit().await?;
 
-    return Ok(Page {
+    Ok(Page {
         content: serde_json::to_value(denormalized_content)?,
         course_id: page.course_id,
         created_at: page.created_at,
@@ -340,7 +340,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
         url_path: page.url_path,
         order_number: page.order_number,
         chapter_id: page.chapter_id,
-    });
+    })
 }
 
 /// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.
@@ -541,7 +541,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
     }
 
     tx.commit().await?;
-    return Ok(Page {
+    Ok(Page {
         content: serde_json::to_value(denormalized_content)?,
         course_id: page.course_id,
         created_at: page.created_at,
@@ -552,7 +552,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
         url_path: page.url_path,
         order_number: page.order_number,
         chapter_id: page.chapter_id,
-    });
+    })
 }
 
 pub async fn delete_page_and_exercises(conn: &mut PgConnection, page_id: Uuid) -> Result<Page> {

@@ -54,11 +54,13 @@ const convertToLatex = (content: string) => {
         if (type === 1) {
           result += KaTex.renderToString(buffer, {
             throwOnError: false,
+            output: "mathml",
           })
         } else if (type === 2) {
           result += KaTex.renderToString(buffer, {
             throwOnError: false,
             displayMode: true,
+            output: "mathml",
           })
         }
         buffer = ""
@@ -102,7 +104,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
         font-size: ${fontSize};
         ${backgroundColor && `padding: 1.25em 2.375em;`}
       `}
-      dangerouslySetInnerHTML={{ __html: sanitizeHtml(convertToLatex(attributes.content)) }}
+      dangerouslySetInnerHTML={{ __html: convertToLatex(sanitizeHtml(attributes.content)) }}
     />
   )
 }

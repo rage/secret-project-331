@@ -1,5 +1,5 @@
-import axios from "axios"
 import { MediaItem } from "@wordpress/media-utils"
+import { cmsClient } from "../cmsClient"
 
 interface UploadFileProps {
   uploadData: FormData
@@ -7,8 +7,8 @@ interface UploadFileProps {
 }
 
 export const uploadFile = async ({ uploadData, pageId }: UploadFileProps): Promise<MediaItem> => {
-  const url = `/api/v0/cms/pages/${pageId}/upload`
+  const url = `/pages/${pageId}/upload`
 
-  const data = (await axios.post(url, uploadData)).data
-  return data
+  const res = await cmsClient.post(url, uploadData)
+  return res.data
 }

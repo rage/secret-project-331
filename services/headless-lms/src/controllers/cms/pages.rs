@@ -223,33 +223,13 @@ async fn delete_page(
     Ok(Json(deleted_page))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-enum UploadResult {
-    Image(ImageUploadResult),
-    Audio(AudioUploadResult),
-    File(FileUploadResult),
-}
-
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct ImageUploadResult {
+struct UploadResult {
     url: String,
-    alt: String,
-    caption: String,
-    title: String,
-}
-
-/// Result of a image upload. Tells where the uploaded image can be retrieved from.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct AudioUploadResult {
-    url: String,
-}
-
-/// Result of a image upload. Tells where the uploaded image can be retrieved from.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct FileUploadResult {
-    url: String,
-    title: String,
+    alt: Option<String>,
+    caption: Option<String>,
+    title: Option<String>,
 }
 
 /**
@@ -336,10 +316,12 @@ async fn upload_media_for_course(
 
             upload_media_to_local_storage("/api/v0/files".to_string(), &path, field).await?;
 
-            return Ok(Json(UploadResult::File(FileUploadResult {
+            return Ok(Json(UploadResult {
                 url: format!("/api/v0/files/{}", path.to_string_lossy()),
-                title: "File title".to_string(),
-            })));
+                title: Some("File title".to_string()),
+                alt: None,
+                caption: None,
+            }));
         }
         Err(_) => todo!(),
     }
@@ -370,12 +352,12 @@ async fn upload_image_for_course(
 
     upload_media_to_local_storage("/api/v0/images".to_string(), &path, field).await?;
 
-    return Ok(Json(UploadResult::Image(ImageUploadResult {
+    return Ok(Json(UploadResult {
         url: format!("/api/v0/files/{}", path.to_string_lossy()),
-        alt: "Alt text".to_string(),
-        caption: "Insert caption".to_string(),
-        title: "Image title".to_string(),
-    })));
+        alt: Some("Alt text".to_string()),
+        caption: Some("Insert caption".to_string()),
+        title: Some("Image title".to_string()),
+    }));
 }
 
 async fn upload_audio_for_course(
@@ -403,9 +385,12 @@ async fn upload_audio_for_course(
 
     upload_media_to_local_storage("/api/v0/audiios".to_string(), &path, field).await?;
 
-    return Ok(Json(UploadResult::Audio(AudioUploadResult {
+    return Ok(Json(UploadResult {
         url: format!("/api/v0/files/{}", path.to_string_lossy()),
-    })));
+        alt: None,
+        caption: None,
+        title: None,
+    }));
 }
 
 /**

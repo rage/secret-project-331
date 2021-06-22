@@ -6,7 +6,7 @@ export interface MediaUploadProps {
   // Below commented probably the future onError function. ?
   //onError: (error: { code: UploadMediaErrorCode; message: string; file: File }) => void
   onError: (message: string) => void
-  onFileChange: (files: MediaItem[]) => void
+  onFileChange: (files: Partial<MediaItem>[]) => void
 }
 
 export function mediaUploadBuilder(pageId: string): (props: MediaUploadProps) => Promise<void> {

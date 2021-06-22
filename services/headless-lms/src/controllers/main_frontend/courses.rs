@@ -4,6 +4,7 @@ use crate::{
     domain::authorization::AuthUser,
     models::{
         courses::{Course, CourseUpdate, NewCourse},
+        pages::{ContentBlock, NewPage},
         submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
     },
 };
@@ -77,6 +78,20 @@ async fn post_new_course(
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
     let course = crate::models::courses::insert_course(&mut conn, new_course).await?;
+    let initial_content = serde_json::to_value(vec![
+        ContentBlock::new_primitive("moocfi/course-grid".to_owned()),
+        ContentBlock::new_primitive("moocfi/course-progress".to_owned()),
+    ])
+    .expect("Initial data serialization should succeed.");
+    let front_page = NewPage {
+        chapter_id: None,
+        content: initial_content,
+        course_id: course.id,
+        front_page_of_chapter_id: None,
+        title: course.name.clone(),
+        url_path: String::from("/"),
+    };
+    let _page = crate::models::pages::insert_page(&mut conn, front_page).await?;
     Ok(Json(course))
 }
 

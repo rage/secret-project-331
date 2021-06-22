@@ -35,13 +35,9 @@ const convertToLatex = (data: string) => {
   for (let i = 0; i < content.length; i++) {
     if (content[i] === "$" && type === 0) {
       // Latex block started
-      if (i + 1 < content.length) {
-        if (content[i + 1] === "$") {
-          type = 2
-          i++
-        } else {
-          type = 1
-        }
+      if (i + 1 < content.length && content[i + 1] === "$") {
+        type = 2
+        i++
       } else {
         type = 1
       }

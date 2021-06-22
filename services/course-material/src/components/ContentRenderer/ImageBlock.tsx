@@ -1,16 +1,10 @@
 import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-interface ImageBlockAttributes {
-  alt: string
-  url: string
-  caption: string
-  height?: number
-  width?: number
-}
+import { ImageAttributes } from "../../types/GutenbergBlockAttributes"
 
-const ImageBlock: React.FC<BlockRendererProps<ImageBlockAttributes>> = ({ data }) => {
-  const attributes: ImageBlockAttributes = data.attributes
+const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
+  const attributes: ImageAttributes = data.attributes
   return (
     <figure
       className={css`

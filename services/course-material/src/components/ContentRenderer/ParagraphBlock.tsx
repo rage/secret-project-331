@@ -4,17 +4,11 @@ import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
+import { ParagraphAttributes } from "../../types/GutenbergBlockAttributes"
 
-interface ParagraphBlockAttributes {
-  content: string
-  dropCap: boolean
-  textColor?: string
-  backgroundColor?: string
-  fontSize?: string
-}
 
-const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({ data }) => {
-  const attributes: ParagraphBlockAttributes = data.attributes
+const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({ data }) => {
+  const attributes: ParagraphAttributes = data.attributes
 
   const textColor = colorMapper(attributes.textColor, "#000000")
 

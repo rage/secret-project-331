@@ -1,17 +1,11 @@
 import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { ButtonAttributes } from "../../types/GutenbergBlockAttributes"
 
-interface HeadingBlockAttributes {
-  level: string
-  content: string
-}
-interface HeadingBlockInnerBlock {
-  text: string
-}
 
-const HeadingBlock: React.FC<BlockRendererProps<HeadingBlockAttributes>> = ({ data }) => {
-  const innerBlocks: HeadingBlockInnerBlock = data.innerBlocks[0].attributes
+const ButtonBlock: React.FC<BlockRendererProps<ButtonAttributes>> = ({ data }) => {
+  const innerBlocks: ButtonAttributes = data.innerBlocks[0].attributes
   return (
     <button
       className={css`
@@ -23,4 +17,4 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingBlockAttributes>> = ({ da
   )
 }
 
-export default HeadingBlock
+export default ButtonBlock

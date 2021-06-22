@@ -1,13 +1,11 @@
 import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { CodeAttributes } from "../../types/GutenbergBlockAttributes"
 
-interface CodeBlockAttributes {
-  content: string
-}
 
-const CodeBlock: React.FC<BlockRendererProps<CodeBlockAttributes>> = ({ data }) => {
-  const attributes: CodeBlockAttributes = data.attributes
+const CodeBlock: React.FC<BlockRendererProps<CodeAttributes>> = ({ data }) => {
+  const attributes: CodeAttributes = data.attributes
   return (
     <pre
       className={css`

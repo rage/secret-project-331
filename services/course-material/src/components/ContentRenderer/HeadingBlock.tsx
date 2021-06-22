@@ -1,16 +1,12 @@
 import { BlockRendererProps } from "."
+import { HeadingAttributes } from "../../types/GutenbergBlockAttributes"
 
 import H1 from "./Headings/H1"
 import H2 from "./Headings/H2"
 import H3 from "./Headings/H3"
 
-interface HeadingBlockAttributes {
-  level: number
-  content: string
-  textColor: string
-}
 
-const HeadingBlock: React.FC<BlockRendererProps<HeadingBlockAttributes>> = ({ data }) => {
+const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data }) => {
   const attributes = data.attributes
   switch (attributes.level) {
     case 1:

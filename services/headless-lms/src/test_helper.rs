@@ -14,7 +14,8 @@ async fn get_or_init_db() -> String {
 
     // initialize logging and db
     dotenv::dotenv().ok();
-    let db = env::var("DATABASE_URL").expect("no DATABASE_URL");
+    let db = env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://headless-lms@localhost:54328/headless_lms_dev".to_string());
     let _ = tracing_subscriber::fmt().try_init();
 
     // store initialized pool and return connection

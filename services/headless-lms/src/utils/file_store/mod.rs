@@ -1,4 +1,5 @@
 //! Allows storing files to a file storage backend.
+pub mod file_utils;
 pub mod google_cloud_file_store;
 pub mod local_file_store;
 
@@ -57,6 +58,22 @@ pub fn course_image_path(course: &Course, image_name: String) -> Result<PathBuf>
     let path = PathBuf::from_str(&format!(
         "organizations/{}/courses/{}/images/{}",
         course.organization_id, course.id, image_name
+    ))?;
+    Ok(path)
+}
+
+pub fn course_audio_path(course: &Course, audio_name: String) -> Result<PathBuf> {
+    let path = PathBuf::from_str(&format!(
+        "organizations/{}/courses/{}/audios/{}",
+        course.organization_id, course.id, audio_name
+    ))?;
+    Ok(path)
+}
+
+pub fn course_file_path(course: &Course, file_name: String) -> Result<PathBuf> {
+    let path = PathBuf::from_str(&format!(
+        "organizations/{}/courses/{}/files/{}",
+        course.organization_id, course.id, file_name
     ))?;
     Ok(path)
 }

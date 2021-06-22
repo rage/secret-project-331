@@ -3,8 +3,14 @@
 use crate::{
     controllers::{ApplicationError, ApplicationResult},
     domain::authorization::AuthUser,
-    models::pages::{NewPage, Page, PageUpdate},
-    utils::file_store::{course_image_path, local_file_store::LocalFileStore, FileStore},
+    models::{
+        courses::Course,
+        pages::{NewPage, Page, PageUpdate},
+    },
+    utils::file_store::{
+        course_audio_path, course_file_path, course_image_path,
+        file_utils::{get_extension_from_filename, upload_media_to_local_storage},
+    },
 };
 
 use actix_multipart as mp;
@@ -15,7 +21,7 @@ use actix_web::{
 
 use actix_web::{web::ServiceConfig, HttpRequest};
 
-use futures::{StreamExt, TryStreamExt};
+use futures::StreamExt;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
@@ -217,12 +223,32 @@ async fn delete_page(
     Ok(Json(deleted_page))
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+enum UploadResult {
+    Image(ImageUploadResult),
+    Audio(AudioUploadResult),
+    File(FileUploadResult),
+}
+
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 struct ImageUploadResult {
     url: String,
     alt: String,
     caption: String,
+    title: String,
+}
+
+/// Result of a image upload. Tells where the uploaded image can be retrieved from.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+struct AudioUploadResult {
+    url: String,
+}
+
+/// Result of a image upload. Tells where the uploaded image can be retrieved from.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+struct FileUploadResult {
+    url: String,
     title: String,
 }
 
@@ -253,7 +279,7 @@ async fn upload_media_for_course(
     mut payload: mp::Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<ImageUploadResult>> {
+) -> ApplicationResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
     let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
     let course = crate::models::courses::get_course(&mut conn, course_id).await?;
@@ -275,54 +301,111 @@ async fn upload_media_for_course(
         ));
     }
 
-    let local_file_store =
-        LocalFileStore::new("uploads".into(), "/api/v0/images".to_string()).await?;
-
     // TODO: add max size
-    // TODO: Enhance error handling
-    // TODO: Support other (File & Audio) Gutenberg media blocks and create LocalFileStorage endpoints based on mime type
-    // Double check that all Gutenberg blocks we use really calls this endpoint as multipart/form-data for each file uploaded if multiple
+    // TODO: Enhance error handling e.g. payload Err
     match payload.next().await.unwrap() {
         Ok(field) => {
-            let mime = field.content_type().clone();
-
-            let extension = match (mime.type_(), mime.subtype()) {
-                (mime::IMAGE, mime::JPEG) => ".jpg",
-                (mime::IMAGE, mime::PNG) => ".png",
-                (mime::IMAGE, mime::SVG) => ".svg",
-                (mime::IMAGE, mime::GIF) => ".gif",
-                (mime::IMAGE, mime::BMP) => ".bmp",
-                _ => return Err(ApplicationError::BadRequest("Unsupported mime type".into())),
-            };
+            let mime = field.content_type();
 
             // using a random string for the image name because
             // a) we don't want the filename to be user controllable
             // b) we don't want the filename to be too easily guessable (so no uuid)
-            let mut image_name: String = thread_rng()
+            let mut file_name: String = thread_rng()
                 .sample_iter(&Alphanumeric)
                 .take(30)
                 .map(char::from)
                 .collect();
-            image_name.push_str(extension);
 
-            let path = course_image_path(&course, image_name)
+            if mime.type_() == mime::IMAGE {
+                return upload_image_for_course(file_name, field, &course).await;
+            } else if mime.type_() == mime::AUDIO {
+                return upload_audio_for_course(file_name, field, &course).await;
+            }
+
+            let field_content = field.content_disposition().unwrap();
+            let field_content_name = field_content.get_filename().unwrap();
+            let uploaded_file_extension = get_extension_from_filename(field_content_name);
+            if uploaded_file_extension.is_none() {
+                return Err(ApplicationError::InternalServerError(
+                    "Could not determine file extension".into(),
+                ));
+            }
+            file_name.push_str(uploaded_file_extension.unwrap());
+            let path = course_file_path(&course, file_name)
                 .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
 
-            let correct_type = field.map_err(|o| anyhow::anyhow!(o));
+            upload_media_to_local_storage("/api/v0/files".to_string(), &path, field).await?;
 
-            local_file_store
-                .upload_stream(&path, Box::pin(correct_type), mime.to_string())
-                .await?;
-
-            return Ok(Json(ImageUploadResult {
+            return Ok(Json(UploadResult::File(FileUploadResult {
                 url: format!("/api/v0/files/{}", path.to_string_lossy()),
-                alt: "Alt text".to_string(),
-                caption: "Insert caption".to_string(),
-                title: "Image title".to_string(),
-            }));
+                title: "File title".to_string(),
+            })));
         }
         Err(_) => todo!(),
     }
+}
+
+async fn upload_image_for_course(
+    mut file_name: String,
+    field: mp::Field,
+    course: &Course,
+) -> ApplicationResult<Json<UploadResult>> {
+    let extension = match field.content_type().to_string().as_str() {
+        "image/jpeg" => ".jpg",
+        "image/png" => ".png",
+        "image/svg+xml" => ".svg",
+        "image/tiff" => ".tiff",
+        "image/bmp" => ".bmp",
+        "image/webp" => ".webp",
+        "image/gif" => ".gif",
+        unsupported => {
+            return Err(ApplicationError::BadRequest(
+                ["Unsupported image Mime type: ", unsupported].join(""),
+            ))
+        }
+    };
+    file_name.push_str(extension);
+    let path = course_image_path(&course, file_name)
+        .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
+
+    upload_media_to_local_storage("/api/v0/images".to_string(), &path, field).await?;
+
+    return Ok(Json(UploadResult::Image(ImageUploadResult {
+        url: format!("/api/v0/files/{}", path.to_string_lossy()),
+        alt: "Alt text".to_string(),
+        caption: "Insert caption".to_string(),
+        title: "Image title".to_string(),
+    })));
+}
+
+async fn upload_audio_for_course(
+    mut file_name: String,
+    field: mp::Field,
+    course: &Course,
+) -> ApplicationResult<Json<UploadResult>> {
+    let extension = match field.content_type().to_string().as_str() {
+        "audio/aac" => ".aac",
+        "audio/mpeg" => ".mp3",
+        "audio/ogg" => ".oga",
+        "audio/opus" => ".opus",
+        "audio/wav" => ".wav",
+        "audio/webm" => ".weba",
+        "audio/midi" => ".midi",
+        unsupported => {
+            return Err(ApplicationError::BadRequest(
+                ["Unsupported audio Mime type: ", unsupported].join(""),
+            ))
+        }
+    };
+    file_name.push_str(extension);
+    let path = course_audio_path(&course, file_name)
+        .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
+
+    upload_media_to_local_storage("/api/v0/audiios".to_string(), &path, field).await?;
+
+    return Ok(Json(UploadResult::Audio(AudioUploadResult {
+        url: format!("/api/v0/files/{}", path.to_string_lossy()),
+    })));
 }
 
 /**

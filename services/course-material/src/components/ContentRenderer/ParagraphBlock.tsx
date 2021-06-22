@@ -16,10 +16,18 @@ interface ParagraphBlockAttributes {
 
 /**
  *
- * @param content HTML-content from the server
+ * @param data HTML-content from the server
  * @returns HTML as string in which the latex symbols '$' has been replaced with latex
  */
-const convertToLatex = (content: string) => {
+const convertToLatex = (data: string) => {
+  // Convert HTML-symbols back to special characters
+  const content = data
+    .replaceAll("&amp;", "&")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&quot;", '"')
+
+  // Start parsing
   let result = ""
   let buffer = ""
   let type = 0
@@ -104,7 +112,9 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
         font-size: ${fontSize};
         ${backgroundColor && `padding: 1.25em 2.375em;`}
       `}
-      dangerouslySetInnerHTML={{ __html: convertToLatex(sanitizeHtml(attributes.content)) }}
+      dangerouslySetInnerHTML={{
+        __html: convertToLatex(sanitizeHtml(attributes.content)),
+      }}
     />
   )
 }

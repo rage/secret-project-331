@@ -88,10 +88,9 @@ impl FileStore for GoogleCloudFileStore {
                 let with_combined_result = chunked_bytes_results
                     .into_iter()
                     .collect::<Result<Vec<_>, _>>();
-                let as_bytes = with_combined_result
-                    .map(|vec| Bytes::from(vec))
-                    .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err));
-                as_bytes
+                with_combined_result
+                    .map(Bytes::from)
+                    .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))
             });
         Ok(Box::new(stream_with_corrected_type))
     }

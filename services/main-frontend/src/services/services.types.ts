@@ -1,7 +1,7 @@
 interface DatabaseItem {
   id: string
-  created_at: string
-  updated_at: string
+  created_at: Date
+  updated_at: Date
 }
 
 /**
@@ -15,7 +15,7 @@ export interface Page extends DatabaseItem {
   content: unknown[]
   url_path: string
   title: string
-  deleted_at: string | null
+  deleted_at: Date | null
   course_part_id: string | null
 }
 
@@ -29,7 +29,7 @@ export interface PageWithExercises extends DatabaseItem, Page {
 
 export interface ExerciseWithExerciseTasks extends DatabaseItem {
   course_id: string
-  deleted_at: string | null
+  deleted_at: Date | null
   name: string
   deadline: string | null
   page_id: string
@@ -40,7 +40,7 @@ export interface ExerciseTask extends DatabaseItem {
   exercise_id: string
   exercise_type: string
   assignment: Array<unknown> | null
-  deleted_at: string | null
+  deleted_at: Date | null
   spec: string | null
   spec_file_id: string | null
 }
@@ -90,7 +90,7 @@ export interface NewPage {
  */
 export interface Organization extends DatabaseItem {
   name: string
-  deleted_at: string | null
+  deleted_at: Date | null
 }
 
 /**
@@ -99,7 +99,7 @@ export interface Organization extends DatabaseItem {
  */
 export interface Course extends DatabaseItem {
   name: string
-  deleted_at: string | null
+  deleted_at: Date | null
   slug: string
   organization_id: string
 }
@@ -135,7 +135,7 @@ export interface CourseOverview {
 export interface CoursePart extends DatabaseItem {
   name: string
   course_id: string
-  deleted_at: string | null
+  deleted_at: Date | null
   part_number: number
   page_id: string | null
 }

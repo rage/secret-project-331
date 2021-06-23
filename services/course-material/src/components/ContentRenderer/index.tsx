@@ -16,7 +16,6 @@ import VerseBlock from "./VerseBlock"
 import PullquoteBlock from "./PullquoteBlock"
 import CoverBlock from "./CoverBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
-import PagesListBlock from "./PagesListBlock"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -37,12 +36,12 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/html": CustomHTMLBlock,
   "core/verse": VerseBlock,
   "core/cover": CoverBlock,
+  "core/audio": AudioBlock,
   "core/pullquote": PullquoteBlock,
   "core/preformatted": PreformatterBlock,
   "core/columns": TableBlock,
   "moocfi/exercise": ExerciseBlock,
   "moocfi/exercises-in-chapter": ExerciseListBlock,
-  "moocfi/pages-in-chapter": PagesListBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

@@ -28,7 +28,7 @@ export async function uploadMedia({
 }): Promise<void> {
   const files = [...(filesList as File[])]
 
-  const filesSet = []
+  const filesSet: Partial<MediaItem>[] = []
   const setMediaFiles = (i: number, value: Partial<MediaItem> | null) => {
     revokeBlobURL(get(filesSet, [i, "url"]))
     filesSet[i] = value
@@ -52,20 +52,20 @@ export async function uploadMedia({
     onError(message)
   }
 
-  const validFiles = files.map((file) => {
+  const validFiles = files.flatMap((file) => {
     if (file.type && !isAllowedType(file.type)) {
       triggerError({
         message: "This file type is not supported here.",
         file,
       })
-      return
+      return []
     }
     if (maxUploadFileSize && file.size > maxUploadFileSize) {
       triggerError({
         message: "File exceeds maximum upload size.",
         file,
       })
-      return
+      return []
     }
 
     if (file.size <= 0) {
@@ -73,11 +73,11 @@ export async function uploadMedia({
         message: "File is empty.",
         file,
       })
-      return
+      return []
     }
     filesSet.push({ url: createBlobURL(file) })
     onFileChange(filesSet)
-    return file
+    return [file]
   })
 
   validFiles.forEach(async (file, i) => {

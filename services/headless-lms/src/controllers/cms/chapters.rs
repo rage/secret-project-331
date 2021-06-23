@@ -4,10 +4,7 @@ use std::str::FromStr;
 use crate::{
     controllers::ApplicationResult,
     domain::authorization::AuthUser,
-    models::{
-        chapters::{Chapter, ChapterUpdate, NewChapter},
-        pages::{ContentBlock, NewPage},
-    },
+    models::chapters::{Chapter, ChapterUpdate, NewChapter},
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -54,21 +51,6 @@ async fn post_new_chapter(
     let mut conn = pool.acquire().await?;
     let new_chapter = payload.0;
     let chapter = crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
-    let initial_content = serde_json::to_value(vec![
-        ContentBlock::new_primitive("moocfi/pages-in-chapter".to_owned()),
-        ContentBlock::new_primitive("moocfi/exercises-in-chapter".to_owned()),
-        ContentBlock::new_primitive("moocfi/chapter-progress".to_owned()),
-    ])
-    .expect("Initial data serialization should succeed.");
-    let new_page = NewPage {
-        chapter_id: Some(chapter.id),
-        content: initial_content,
-        course_id: chapter.course_id,
-        front_page_of_chapter_id: Some(chapter.id),
-        title: chapter.name.clone(),
-        url_path: format!("/chapter-{}", chapter.chapter_number),
-    };
-    let _page = crate::models::pages::insert_page(&mut conn, new_page).await?;
     Ok(Json(chapter))
 }
 

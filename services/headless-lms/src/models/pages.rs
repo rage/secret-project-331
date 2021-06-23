@@ -14,6 +14,7 @@ use sqlx::{Acquire, FromRow, PgConnection};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+// Gutenberg expects these fields to be in camelCase.
 #[serde(rename_all = "camelCase")]
 pub struct ContentBlock {
     pub client_id: Uuid,
@@ -24,7 +25,7 @@ pub struct ContentBlock {
 }
 
 impl ContentBlock {
-    pub fn new_primitive(name: String) -> Self {
+    pub fn empty_block_from_name(name: String) -> Self {
         ContentBlock {
             client_id: Uuid::new_v4(),
             name,

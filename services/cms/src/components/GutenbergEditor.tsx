@@ -33,14 +33,22 @@ import {
 } from "@wordpress/block-editor"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
-import { BlockInstance, registerBlockType } from "@wordpress/blocks"
+import {
+  BlockInstance,
+  getBlockType,
+  getBlockTypes,
+  registerBlockType,
+  unregisterBlockType,
+  /* @ts-ignore: type signature incorrect */
+  unregisterBlockVariation,
+} from "@wordpress/blocks"
 
 /**
  * Internal dependencies
  */
 import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
-import { blockTypeMap } from "../blocks"
+import { allowedEmbedBlocks, blockTypeMap, supportedCoreBlocks } from "../blocks"
 
 interface GutenbergEditor {
   content: BlockInstance[]
@@ -60,7 +68,22 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
   }
 
   useEffect(() => {
+    // Register all core blocks
     registerCoreBlocks()
+    // Register own blocks
+    // Unregister unwanted blocks
+    getBlockTypes().forEach((block) => {
+      if (supportedCoreBlocks.indexOf(block.name) === -1) {
+        unregisterBlockType(block.name)
+      }
+    })
+    /* @ts-ignore: type signature incorrect */
+    getBlockType("core/embed").variations.forEach((variation) => {
+      if (allowedEmbedBlocks.indexOf(variation.name) === -1) {
+        unregisterBlockVariation("core/embed", variation.name)
+      }
+    })
+
     blockTypeMap.forEach(([blockName, block]) => {
       registerBlockType(blockName, block)
     })

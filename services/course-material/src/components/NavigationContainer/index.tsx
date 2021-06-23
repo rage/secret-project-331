@@ -3,7 +3,7 @@ import { useContext } from "react"
 import PageContext from "../../contexts/PageContext"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import GenericLoading from "../GenericLoading"
-import NextPage from "./Nextpage"
+import NextPage from "./NextPage"
 
 const NavigationContainer: React.FC = () => {
   const currentPageId = useContext(PageContext)?.id

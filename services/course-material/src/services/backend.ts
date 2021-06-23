@@ -142,6 +142,7 @@ export interface PageRoutingData {
   url_path: string
   title: string
   chapter_number: string | undefined
+  chapter_id: string
 }
 
 export const getNextPageRoutingData = async (currentPageId: string): Promise<PageRoutingData> => {
@@ -152,4 +153,20 @@ export const getPreviousPageRoutingData = async (
   currentPageId: string,
 ): Promise<PageRoutingData> => {
   return (await courseMaterialClient.get(`/pages/${currentPageId}/previous-page`)).data
+}
+
+export interface ChapterPages {
+  id: string
+  created_at: Date
+  updated_at: Date
+  course_id: string
+  chapter_id: string
+  content: any
+  url_path: string
+  title: string
+  deleted_at: Date
+}
+
+export const fetchChaptersPages = async (chapterId: string): Promise<ChapterPages[]> => {
+  return (await courseMaterialClient.get(`/chapters/${chapterId}/pages-exclude-mainfrontpage`)).data
 }

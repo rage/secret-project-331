@@ -2,7 +2,9 @@ import { Button } from "@material-ui/core"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import React from "react"
+import { useContext } from "react"
 import { useQuery } from "react-query"
+import PageContext from "../../contexts/PageContext"
 import { getNextPageRoutingData } from "../../services/backend"
 import GenericLoading from "../GenericLoading"
 
@@ -11,6 +13,7 @@ const NextPage: React.FC<{ currentPageId: string }> = ({ currentPageId }) => {
     getNextPageRoutingData(currentPageId),
   )
   const router = useRouter()
+  const context = useContext(PageContext)
 
   const courseSlug = router.query.courseSlug
 
@@ -18,7 +21,7 @@ const NextPage: React.FC<{ currentPageId: string }> = ({ currentPageId }) => {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
 
-  if (isLoading || data === undefined) {
+  if (isLoading || data === undefined || !context) {
     return <GenericLoading />
   }
 
@@ -26,7 +29,11 @@ const NextPage: React.FC<{ currentPageId: string }> = ({ currentPageId }) => {
     <div>
       {data != null ? (
         <>
-          <p>Go to the next page</p>
+          {context.chapter_id != data.chapter_id ? (
+            <p>Go to the next chapter</p>
+          ) : (
+            <p>Go to the next page</p>
+          )}
           <Link href={"/" + courseSlug + data.url_path}>
             <Button>{data.title}</Button>
           </Link>

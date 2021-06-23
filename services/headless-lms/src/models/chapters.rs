@@ -112,7 +112,7 @@ pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> Res
     .await?;
 
     let chapter_frontpage_content = serde_json::to_value(vec![
-        ContentBlock::empty_block_from_name("moocfi/pages-in-chapter".to_owned()),
+        // ContentBlock::empty_block_from_name("moocfi/pages-in-chapter".to_owned()),
         ContentBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_owned()),
         ContentBlock::empty_block_from_name("moocfi/chapter-progress".to_owned()),
     ])

@@ -130,6 +130,7 @@ pub struct PageRoutingData {
     url_path: String,
     title: String,
     chapter_number: i32,
+    chapter_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -566,6 +567,20 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
         .await?;
     }
 
+    // if new_page.chapter_id.is_some() {
+    //     let amount =
+    //         (get_chapters_pages_exclude_main_frontpage(&mut tx, new_page.chapter_id.unwrap())
+    //             .await?)
+    //             .len();
+    //     if amount > 1 {
+    //         let result = insert_pages_in_chapter_block_into_chapter_frontpage(
+    //             &mut tx,
+    //             new_page.chapter_id.unwrap(),
+    //         )
+    //         .await?;
+    //     }
+    // }
+
     tx.commit().await?;
     return Ok(Page {
         content: serde_json::to_value(denormalized_content)?,
@@ -735,7 +750,8 @@ async fn get_next_page_by_order_number(
         "
 SELECT p.url_path as url_path,
   p.title as title,
-  c.chapter_number as chapter_number
+  c.chapter_number as chapter_number,
+  c.id as chapter_id
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.order_number = (
@@ -766,7 +782,8 @@ async fn get_next_page_by_chapter_number(
         "
 SELECT p.url_path as url_path,
   p.title as title,
-  c.chapter_number as chapter_number
+  c.chapter_number as chapter_number,
+  c.id as chapter_id
 FROM chapters c
   LEFT JOIN pages p on c.id = p.chapter_id
 WHERE c.chapter_number = (
@@ -832,3 +849,53 @@ where p.course_id = $1
         None => Ok(0),
     }
 }
+
+pub async fn get_chapters_pages_exclude_main_frontpage(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> Result<Vec<Page>> {
+    let all_pages = chapter_pages(conn, chapter_id).await?;
+
+    let main_frontpage = sqlx::query!(
+        r#"
+select c.front_page_id as "id!"
+from chapters c
+where c.id = $1;
+    "#,
+        chapter_id,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    let result: Vec<Page> = all_pages
+        .into_iter()
+        .filter(|page| page.id != main_frontpage.id)
+        .collect();
+
+    Ok(result)
+}
+
+// pub async fn insert_pages_in_chapter_block_into_chapter_frontpage(
+//     conn: &mut PgConnection,
+//     chapter_id: Uuid,
+// ) -> Result<Page> {
+//     let old_content = sqlx::query!(
+//         "
+// select p.content as content
+// from pages p
+// where p.id = (
+//     select c.front_page_id
+//     from chapters c
+//     where c.id = $1
+//   );
+//     ",
+//         chapter_id,
+//     )
+//     .fetch_one(conn)
+//     .await?;
+
+//     // let chapter_frontpage_content = serde_json::to_value(vec![
+//     //     ContentBlock::empty_block_from_name("moocfi/pages-in-chapter".to_owned()),
+//     //     old_content.content,
+//     // ]);
+// }

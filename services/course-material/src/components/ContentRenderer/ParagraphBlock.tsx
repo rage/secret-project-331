@@ -14,76 +14,21 @@ interface ParagraphBlockAttributes {
   fontSize?: string
 }
 
+const LATEX_REGEX = /\[latex\](.*)\[\/latex\]/
 /**
  *
  * @param data HTML-content from the server
- * @returns HTML as string in which the latex symbols '$' has been replaced with latex
+ * @returns HTML as string in which "[latex] ... [/latex]" will be replaced with katex
  */
 const convertToLatex = (data: string) => {
-  // Convert HTML-symbols back to special characters
-  const content = data
-    .replaceAll("&amp;", "&")
-    .replaceAll("&gt;", ">")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&quot;", '"')
-
-  // Start parsing
-  let result = ""
-  let buffer = ""
-  let type = 0
-
-  for (let i = 0; i < content.length; i++) {
-    if (content[i] === "$" && type === 0) {
-      // Latex block started
-      if (i + 1 < content.length && content[i + 1] === "$") {
-        type = 2
-        i++
-      } else {
-        type = 1
-      }
-      // Save it to the buffer
-      if (buffer.length > 0) {
-        result += buffer
-        buffer = ""
-      }
-    } else if (content[i] === "$" && type > 0) {
-      // Latex block ended
-      // Skip next '$'
-      if (type === 2) {
-        i++
-      }
-
-      // Save it to the buffer
-      if (buffer.length > 0) {
-        if (type === 1) {
-          result += KaTex.renderToString(buffer, {
-            throwOnError: false,
-            output: "mathml",
-          })
-        } else if (type === 2) {
-          result += KaTex.renderToString(buffer, {
-            throwOnError: false,
-            displayMode: true,
-            output: "mathml",
-          })
-        }
-        buffer = ""
-      }
-
-      // No longer in the latex block
-      // '$' needed to scan is zero.
-      type = 0
-    } else {
-      buffer += content[i]
-    }
-  }
-
-  // In case there's still remaining data in the buffer
-  if (buffer.length > 0) {
-    result += buffer
-  }
-
-  return result
+  return data.replaceAll(LATEX_REGEX, (_, latex) => {
+    // Convert ampersand back to special symbol. This is needed e.g. in matrices
+    const processed = latex.replaceAll("&amp;", "&")
+    return KaTex.renderToString(processed, {
+      throwOnError: false,
+      output: "mathml",
+    })
+  })
 }
 
 const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({ data }) => {

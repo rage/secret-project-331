@@ -11,8 +11,8 @@ export interface MediaUploadProps {
 
 export function mediaUploadBuilder(pageId: string): (props: MediaUploadProps) => Promise<void> {
   const mediaUpload = async (props: MediaUploadProps): Promise<void> => {
-    // 5 MB = 5242880 B
-    const maxUploadFileSize = 5242880
+    // 10 MB = 10485760 B
+    const maxUploadFileSize = 10485760
     await uploadMedia({ ...props, maxUploadFileSize, pageId })
   }
   return mediaUpload

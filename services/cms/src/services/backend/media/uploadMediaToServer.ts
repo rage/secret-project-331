@@ -2,12 +2,12 @@
  * External dependencies
  */
 import { compact, get, includes, noop, some, startsWith } from "lodash"
+import { uploadFile } from "."
 
 /**
  * WordPress dependencies
  */
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
-import { uploadFile } from "."
 import { UploadMediaOptions, MediaItem } from "@wordpress/media-utils"
 
 export async function uploadMedia({

@@ -72,7 +72,7 @@ impl FileStore for LocalFileStore {
         let full_path = self.base_path.join(path);
         let parent_option = full_path.parent();
         if parent_option.is_none() {
-            return Err(anyhow!("Image path did not have a parent folder"));
+            return Err(anyhow!("Media path did not have a parent folder"));
         }
         let parent = parent_option.unwrap();
         if parent.exists() {

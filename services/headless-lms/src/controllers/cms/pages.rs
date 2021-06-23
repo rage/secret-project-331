@@ -281,8 +281,24 @@ async fn upload_media_for_course(
         ));
     }
 
-    // TODO: add max size
-    // TODO: Enhance error handling e.g. payload Err
+    let content_length_option = headers.get(header::CONTENT_LENGTH);
+    if content_length_option.is_none() {
+        return Err(ApplicationError::BadRequest(
+            "Please provide a Content-Length in header".into(),
+        ));
+    }
+    let content_length = content_length_option.unwrap();
+    let content_length_number = String::from_utf8_lossy(content_length.as_bytes())
+        .to_string()
+        .parse::<i32>()
+        .unwrap();
+
+    if content_length_number > 10485760 {
+        return Err(ApplicationError::BadRequest(
+            "Content length over 10 MB".into(),
+        ));
+    }
+
     match payload.next().await.unwrap() {
         Ok(field) => {
             let mime = field.content_type();
@@ -323,7 +339,7 @@ async fn upload_media_for_course(
                 caption: None,
             }));
         }
-        Err(_) => todo!(),
+        Err(err) => Err(ApplicationError::InternalServerError(err.to_string())),
     }
 }
 
@@ -383,7 +399,7 @@ async fn upload_audio_for_course(
     let path = course_audio_path(&course, file_name)
         .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
 
-    upload_media_to_local_storage("/api/v0/audiios".to_string(), &path, field).await?;
+    upload_media_to_local_storage("/api/v0/audios".to_string(), &path, field).await?;
 
     return Ok(Json(UploadResult {
         url: format!("/api/v0/files/{}", path.to_string_lossy()),

@@ -2,7 +2,7 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use reqwest::IntoUrl;
 use serde::{Deserialize, Serialize};
-use sqlx::{PgConnection, Pool, Postgres};
+use sqlx::PgConnection;
 use std::time::Duration;
 use uuid::Uuid;
 

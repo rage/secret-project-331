@@ -8,6 +8,7 @@ This documents all endpoints. Select a module below for a category.
 pub mod chapters;
 pub mod course_instances;
 pub mod courses;
+pub mod exercise_service_info;
 pub mod exercises;
 pub mod pages;
 pub mod submissions;

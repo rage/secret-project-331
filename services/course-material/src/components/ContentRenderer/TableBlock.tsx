@@ -24,7 +24,7 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
       </tr>
       <tbody>
         {body.map((obj, index) => {
-          ; <tr key={index}>
+          ;<tr key={index}>
             {Object.values(obj).map((o, index) => {
               return <td key={index}>{o.content}</td>
             })}

@@ -6,7 +6,6 @@ import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
 import { ParagraphAttributes } from "../../types/GutenbergBlockAttributes"
 
-
 const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({ data }) => {
   const attributes: ParagraphAttributes = data.attributes
 

@@ -150,11 +150,38 @@
 <span id="147">147</span>
 <span id="148">148</span>
 <span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">controllers</span>::<span class="ident">ApplicationError</span>,
+    <span class="ident">models</span>::<span class="ident">pages</span>::{<span class="ident">ContentBlock</span>, <span class="ident">NewPage</span>},
+};
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sqlx</span>::<span class="ident">PgConnection</span>;
+<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Acquire</span>, <span class="ident">PgConnection</span>};
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::{
@@ -239,7 +266,9 @@
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_course</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">course</span>: <span class="ident">NewCourse</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">Course</span>,
         <span class="string">r#&quot;
     INSERT INTO
@@ -251,9 +280,26 @@
         <span class="ident">course</span>.<span class="ident">slug</span>,
         <span class="ident">course</span>.<span class="ident">organization_id</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+
+    <span class="kw">let</span> <span class="ident">course_front_page_content</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">ContentBlock</span>::<span class="ident">empty_block_from_name</span>(<span class="string">&quot;moocfi/course-grid&quot;</span>.<span class="ident">to_owned</span>()),
+        <span class="ident">ContentBlock</span>::<span class="ident">empty_block_from_name</span>(<span class="string">&quot;moocfi/course-progress&quot;</span>.<span class="ident">to_owned</span>()),
+    ])
+    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> <span class="ident">ApplicationError</span>::<span class="ident">InternalServerError</span>(<span class="ident">original_error</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_front_page</span> <span class="op">=</span> <span class="ident">NewPage</span> {
+        <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">content</span>: <span class="ident">course_front_page_content</span>,
+        <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">title</span>: <span class="ident">course</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
+        <span class="ident">url_path</span>: <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;/&quot;</span>),
+    };
+    <span class="kw">let</span> <span class="ident">_page</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">course_front_page</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">course</span>)
 }
 
 <span class="comment">// Represents the subset of page fields that one is allowed to update in a course</span>

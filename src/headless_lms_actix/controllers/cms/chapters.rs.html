@@ -198,8 +198,8 @@ Response:
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">chapters</span>::<span class="ident">insert_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">new_course</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">new_chapter</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
+    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">chapters</span>::<span class="ident">insert_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">new_chapter</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">chapter</span>))
 }
 

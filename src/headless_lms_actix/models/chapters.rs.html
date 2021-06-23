@@ -126,11 +126,39 @@
 <span id="123">123</span>
 <span id="124">124</span>
 <span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">controllers</span>::<span class="ident">ApplicationError</span>,
+    <span class="ident">models</span>::<span class="ident">pages</span>::{<span class="ident">ContentBlock</span>, <span class="ident">NewPage</span>},
+};
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sqlx</span>::<span class="ident">PgConnection</span>;
+<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Acquire</span>, <span class="ident">PgConnection</span>};
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">pages</span>::<span class="ident">PageWithExercises</span>;
@@ -219,7 +247,9 @@ WHERE
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_chapter</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter</span>: <span class="ident">NewChapter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
         <span class="ident">Chapter</span>,
         <span class="string">r#&quot;
     INSERT INTO
@@ -231,9 +261,27 @@ WHERE
         <span class="ident">chapter</span>.<span class="ident">course_id</span>,
         <span class="ident">chapter</span>.<span class="ident">chapter_number</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+
+    <span class="kw">let</span> <span class="ident">chapter_frontpage_content</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">ContentBlock</span>::<span class="ident">empty_block_from_name</span>(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.<span class="ident">to_owned</span>()),
+        <span class="ident">ContentBlock</span>::<span class="ident">empty_block_from_name</span>(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.<span class="ident">to_owned</span>()),
+        <span class="ident">ContentBlock</span>::<span class="ident">empty_block_from_name</span>(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.<span class="ident">to_owned</span>()),
+    ])
+    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> <span class="ident">ApplicationError</span>::<span class="ident">InternalServerError</span>(<span class="ident">original_error</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapter_frontpage</span> <span class="op">=</span> <span class="ident">NewPage</span> {
+        <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">id</span>),
+        <span class="ident">content</span>: <span class="ident">chapter_frontpage_content</span>,
+        <span class="ident">course_id</span>: <span class="ident">chapter</span>.<span class="ident">course_id</span>,
+        <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">id</span>),
+        <span class="ident">title</span>: <span class="ident">chapter</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
+        <span class="ident">url_path</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;/chapter-{}&quot;</span>, <span class="ident">chapter</span>.<span class="ident">chapter_number</span>),
+    };
+    <span class="kw">let</span> <span class="ident">_page</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">pages</span>::<span class="ident">insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">chapter_frontpage</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">chapter</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_chapter</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span> {

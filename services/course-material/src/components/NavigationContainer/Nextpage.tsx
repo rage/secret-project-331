@@ -18,16 +18,13 @@ const NextPage: React.FC<{ currentPageId: string }> = ({ currentPageId }) => {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
 
-  if (isLoading || !data) {
+  if (isLoading || data === undefined) {
     return <GenericLoading />
   }
 
-  const url = courseSlug + data.url_path
-  console.log(url)
-
   return (
     <div>
-      {data.url_path ? (
+      {data != null ? (
         <>
           <p>Go to the next page</p>
           <Link href={"/" + courseSlug + data.url_path}>

@@ -681,23 +681,6 @@ pub async fn get_next_page(
     }
 }
 
-pub async fn get_previous_page(
-    conn: &mut PgConnection,
-    pages_id: Uuid,
-) -> Result<Option<PageRoutingData>> {
-    let mut page_metadata = get_current_page_metadata(conn, pages_id).await?;
-    let previous_page = get_previous_page_by_order_number(conn, &mut page_metadata).await?;
-
-    match previous_page {
-        Some(previous_page) => Ok(Some(previous_page)),
-        None => {
-            let last_page_of_previous_chapter =
-                get_previous_chapters_last_page(conn, &mut page_metadata).await?;
-            Ok(last_page_of_previous_chapter)
-        }
-    }
-}
-
 async fn get_current_page_metadata(conn: &mut PgConnection, page_id: Uuid) -> Result<PageMetadata> {
     let page_metadata = sqlx::query_as!(
         PageMetadata,
@@ -824,74 +807,4 @@ where p.course_id = $1
         Some(order_number) => Ok(order_number + 1),
         None => Ok(0),
     }
-}
-
-async fn get_previous_page_by_order_number(
-    conn: &mut PgConnection,
-    current_page_metadata: &mut PageMetadata,
-) -> Result<Option<PageRoutingData>> {
-    let previous_page = sqlx::query_as!(
-        PageRoutingData,
-        "
-SELECT p.url_path as url_path,
-  p.title as title,
-  c.chapter_number as chapter_number
-FROM pages p
-  LEFT JOIN chapters c ON p.chapter_id = c.id
-WHERE order_number = (
-    SELECT MAX(pa.order_number)
-    FROM pages pa
-    WHERE pa.order_number < $1
-      AND pa.deleted_at IS NULL
-  )
-  AND p.course_id = $2;
-        ",
-        current_page_metadata.order_number,
-        current_page_metadata.course_id
-    )
-    .fetch_optional(conn)
-    .await?;
-
-    Ok(previous_page)
-}
-
-async fn get_previous_chapters_last_page(
-    conn: &mut PgConnection,
-    current_page_metadata: &mut PageMetadata,
-) -> Result<Option<PageRoutingData>> {
-    let result = sqlx::query_as!(
-        PageRoutingData,
-        "
-SELECT p.url_path as url_path,
-  p.title as title,
-  c.chapter_number as chapter_number
-FROM chapters c
-  LEFT JOIN pages p on c.id = p.chapter_id
-WHERE c.chapter_number = (
-    SELECT MAX(ca.chapter_number)
-    FROM chapters ca
-    WHERE ca.chapter_number < $1
-      AND ca.deleted_at IS NULL
-      AND ca.course_id = $2
-  )
-  AND p.order_number = (
-    SELECT MAX(pa.order_number)
-    FROM pages pa
-    WHERE chapter_number = (
-        SELECT MAX(cb.chapter_number)
-        FROM chapters cb
-        WHERE cb.chapter_number < $1
-          AND cb.deleted_at IS NULL
-          AND cb.course_id = $2
-      )
-  )
-  AND c.course_id = $2;
-        ",
-        current_page_metadata.chapter_number,
-        current_page_metadata.course_id,
-    )
-    .fetch_optional(conn)
-    .await?;
-
-    Ok(result)
 }

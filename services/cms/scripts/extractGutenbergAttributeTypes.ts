@@ -35,7 +35,7 @@ const blocks = require("@wordpress/blocks")
 import { addFilter } from "@wordpress/hooks"
 import { assign } from "lodash"
 
-addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAtrributes", modifyBlockAttributes)
+addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 
 function modifyBlockAttributes(settings, name) {
   if (name !== "core/image") {

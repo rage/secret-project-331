@@ -44,7 +44,6 @@ import React, { useEffect } from "react"
 import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
 import { blockTypeMap } from "../blocks"
-import { mediaUploadGallery } from "./media/OpenMediaGalleryMediaUpload"
 import mediaUploadBuilder, { MediaUploadProps } from "../services/backend/media/mediaUpload"
 import useQueryParameter from "../hooks/useQueryParameter"
 import { assign } from "lodash"
@@ -80,13 +79,9 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
 
     return settings
   }
-  addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
-  // Filter used so that the image block works.
-  addFilter(
-    "blocks.registerBlockType",
-    "moocfi/cms/modify-linkDestination-default",
-    modifyBlockAttributes,
-  )
+  // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
+  // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
+  addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 
   useEffect(() => {
     registerCoreBlocks()

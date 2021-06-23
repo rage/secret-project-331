@@ -3,7 +3,8 @@ import { uploadMedia } from "./uploadMediaToServer"
 export interface MediaUploadProps {
   allowedTypes: string[]
   filesList: ArrayLike<File>
-  // Below commented probably the future onError function. ?
+  // Below commented probably the future onError function for Gutenberg
+  // Blocks seem to want a message as string still.
   //onError: (error: { code: UploadMediaErrorCode; message: string; file: File }) => void
   onError: (message: string) => void
   onFileChange: (files: Partial<MediaItem>[]) => void

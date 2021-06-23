@@ -233,23 +233,37 @@ struct UploadResult {
 }
 
 /**
-POST `/api/v0/cms/pages/:page_id/images` - Upload a image.
+POST `/api/v0/cms/pages/:page_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
 
-Put the the contents of the image in the request body and add a content type header. such as image/jpeg.
+Put the the contents of the media in a form and add a content type header multipart/form-data.
 # Example
 
 Request:
 ```http
-POST /api/v0/cms/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images HTTP/1.1
-Content-Type: image/png
+POST /api/v0/cms/pages/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/upload HTTP/1.1
+Content-Type: multipart/form-data
 
 BINARY_DATA
 ```
 
-Response:
+Response image:
 ```json
 {
     "url": "/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
+    "alt": "Add image alt",
+    "caption": "Add caption",
+    "title": "Add image title",
+}
+Response audio:
+```json
+{
+    "url": "/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/audios/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
+}
+Response file:
+```json
+{
+    "url": "/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/files/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
+    "title": "Add file title",
 }
 ```
 */
@@ -334,7 +348,7 @@ async fn upload_media_for_course(
 
             return Ok(Json(UploadResult {
                 url: format!("/api/v0/files/{}", path.to_string_lossy()),
-                title: Some("File title".to_string()),
+                title: Some("Add file title".to_string()),
                 alt: None,
                 caption: None,
             }));
@@ -370,9 +384,9 @@ async fn upload_image_for_course(
 
     return Ok(Json(UploadResult {
         url: format!("/api/v0/files/{}", path.to_string_lossy()),
-        alt: Some("Alt text".to_string()),
-        caption: Some("Insert caption".to_string()),
-        title: Some("Image title".to_string()),
+        alt: Some("Add image alt".to_string()),
+        caption: Some("Add caption".to_string()),
+        title: Some("Add image title".to_string()),
     }));
 }
 

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { compact, get, includes, noop, some, startsWith } from "lodash"
-import { uploadFile } from "."
+import { uploadFileFromPage } from "."
 
 /**
  * WordPress dependencies
@@ -10,6 +10,8 @@ import { uploadFile } from "."
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
 import { UploadMediaOptions, MediaItem } from "@wordpress/media-utils"
 
+// This thingy should support multiple file uploads, but Gutenberg seem to call uploadMedia for each file separately
+// if user uploads many file, for example using the Gallery block.
 export async function uploadMedia({
   allowedTypes,
   filesList,
@@ -60,9 +62,10 @@ export async function uploadMedia({
       })
       return []
     }
+
     if (maxUploadFileSize && file.size > maxUploadFileSize) {
       triggerError({
-        message: "File exceeds maximum upload size.",
+        message: "File exceeds maximum upload size 10MB.",
         file,
       })
       return []
@@ -75,6 +78,7 @@ export async function uploadMedia({
       })
       return []
     }
+
     filesSet.push({ url: createBlobURL(file) })
     onFileChange(filesSet)
     return [file]
@@ -91,6 +95,14 @@ export async function uploadMedia({
       }
       setMediaFiles(i, mediaObject)
     } catch (error) {
+      /*
+        Issue #124, figure out this race condition.
+        setMediaFiles(index, null) should revoke the blob
+        and set the Image edit to MediaPlaceholder and be able to use noticeUi (???)
+        https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/image/edit.js#L290-L328
+
+        Or perhaps this could be fixed in some other way so that we can get the backend errors visible.
+      */
       setMediaFiles(i, null)
       const message = error.data.detail
       triggerError({ message, file })
@@ -100,6 +112,6 @@ export async function uploadMedia({
 
 function uploadMediaFromFile(file: File, pageId: string): Promise<MediaItem> {
   const data = new window.FormData()
-  data.append("file", file, file.name || file.type.replace("/", "."))
-  return uploadFile({ uploadData: data, pageId })
+  data.append("file", file, file.name || "unknown")
+  return uploadFileFromPage({ uploadData: data, pageId })
 }

@@ -6,7 +6,10 @@ interface UploadFileProps {
   pageId: string
 }
 
-export const uploadFile = async ({ uploadData, pageId }: UploadFileProps): Promise<MediaItem> => {
+export const uploadFileFromPage = async ({
+  uploadData,
+  pageId,
+}: UploadFileProps): Promise<MediaItem> => {
   const url = `/pages/${pageId}/upload`
 
   const res = await cmsClient.post(url, uploadData)

@@ -9,8 +9,32 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use sqlx::{Acquire, FromRow, PgConnection};
 use uuid::Uuid;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+// Gutenberg expects these fields to be in camelCase.
+#[serde(rename_all = "camelCase")]
+pub struct ContentBlock {
+    pub client_id: Uuid,
+    pub name: String,
+    pub is_valid: bool,
+    pub attributes: serde_json::Value,
+    pub inner_blocks: serde_json::Value,
+}
+
+impl ContentBlock {
+    pub fn empty_block_from_name(name: String) -> Self {
+        ContentBlock {
+            client_id: Uuid::new_v4(),
+            name,
+            is_valid: true,
+            attributes: json!({}),
+            inner_blocks: json!([]),
+        }
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Page {
@@ -44,13 +68,13 @@ pub struct PageWithExercises {
 // Represents the subset of page fields that are required to create a new page.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NewPage {
-    content: serde_json::Value,
-    url_path: String,
-    title: String,
-    course_id: Uuid,
-    chapter_id: Option<Uuid>,
+    pub content: serde_json::Value,
+    pub url_path: String,
+    pub title: String,
+    pub course_id: Uuid,
+    pub chapter_id: Option<Uuid>,
     /// If set, set this page to be the front page of this course part.
-    front_page_of_chapter_id: Option<Uuid>,
+    pub front_page_of_chapter_id: Option<Uuid>,
 }
 
 // Represents the subset of page fields that the user is allowed to modify.

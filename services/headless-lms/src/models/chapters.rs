@@ -1,7 +1,11 @@
+use crate::{
+    controllers::ApplicationError,
+    models::pages::{ContentBlock, NewPage},
+};
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
+use sqlx::{Acquire, PgConnection};
 use uuid::Uuid;
 
 use super::pages::PageWithExercises;
@@ -90,7 +94,9 @@ pub async fn course_chapters(conn: &mut PgConnection, course_id: Uuid) -> Result
 }
 
 pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> Result<Chapter> {
-    let res = sqlx::query_as!(
+    let mut tx = conn.begin().await?;
+
+    let chapter = sqlx::query_as!(
         Chapter,
         r#"
     INSERT INTO
@@ -102,9 +108,27 @@ pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> Res
         chapter.course_id,
         chapter.chapter_number
     )
-    .fetch_one(conn)
+    .fetch_one(&mut tx)
     .await?;
-    Ok(res)
+
+    let chapter_frontpage_content = serde_json::to_value(vec![
+        ContentBlock::empty_block_from_name("moocfi/pages-in-chapter".to_owned()),
+        ContentBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_owned()),
+        ContentBlock::empty_block_from_name("moocfi/chapter-progress".to_owned()),
+    ])
+    .map_err(|original_error| ApplicationError::InternalServerError(original_error.to_string()))?;
+    let chapter_frontpage = NewPage {
+        chapter_id: Some(chapter.id),
+        content: chapter_frontpage_content,
+        course_id: chapter.course_id,
+        front_page_of_chapter_id: Some(chapter.id),
+        title: chapter.name.clone(),
+        url_path: format!("/chapter-{}", chapter.chapter_number),
+    };
+    let _page = crate::models::pages::insert_page(&mut tx, chapter_frontpage).await?;
+
+    tx.commit().await?;
+    Ok(chapter)
 }
 
 pub async fn delete_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Chapter> {

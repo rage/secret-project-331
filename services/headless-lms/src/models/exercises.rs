@@ -85,6 +85,27 @@ pub struct ExerciseStatus {
     grading_progress: GradingProgress,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    name: &str,
+    course_id: Uuid,
+    page_id: Uuid,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO exercises (course_id, name, page_id)
+VALUES ($1, $2, $3)
+RETURNING id
+",
+        course_id,
+        name,
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_exercise(conn: &mut PgConnection, exercise_id: Uuid) -> Result<Exercise> {
     let exercise = sqlx::query_as!(
         Exercise,
@@ -157,7 +178,7 @@ WHERE user_id = $1
             .map(|r| r.id);
 
             if let Some(selected_exercise_task_id) = selected_exercise_task_id {
-                // a task has previously been selected
+                // a task has previously been selected, return it
                 sqlx::query_as!(
                     CourseMaterialExerciseTask,
                     "
@@ -182,23 +203,27 @@ WHERE id = $1
                 let selected_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
                 sqlx::query!(
                     "
-UPDATE user_exercise_states
-SET selected_exercise_task_id = $1
-WHERE user_id = $2
-  AND exercise_id = $3
-  AND course_instance_id = $4
+INSERT INTO user_exercise_states (
+    user_id,
+    exercise_id,
+    course_instance_id,
+    selected_exercise_task_id
+  )
+VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
+UPDATE
+SET selected_exercise_task_id = $4
 ",
-                    selected_exercise_task.id,
                     user_id,
-                    exercise.id,
+                    exercise_id,
                     current_course_instance_id,
+                    selected_exercise_task.id,
                 )
                 .execute(&mut *conn)
                 .await?;
                 selected_exercise_task
             }
         } else {
-            // user is not enrolled on the course
+            // user is not enrolled on the course, get a random task
             get_random_exercise_task(conn, exercise_id).await?
         }
     } else {
@@ -215,4 +240,100 @@ WHERE user_id = $2
             grading_progress: GradingProgress::NotReady,
         }),
     })
+}
+
+#[cfg(test)]
+mod test {
+    use serde_json::Value;
+
+    use super::*;
+    use crate::{
+        models::{
+            chapters, course_instance_enrollments, course_instances, courses, exercise_tasks,
+            organizations, pages, users,
+        },
+        test_helper::Conn,
+    };
+
+    #[tokio::test]
+    async fn selects_course_material_exercise_for_enrolled_student() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+
+        let user_id = users::insert(tx.as_mut()).await.unwrap();
+        let organization_id = organizations::insert("", "", tx.as_mut()).await.unwrap();
+        let course_id = courses::insert(tx.as_mut(), "", "", organization_id)
+            .await
+            .unwrap();
+        let course_instance_id = course_instances::insert(tx.as_mut(), course_id)
+            .await
+            .unwrap();
+        course_instance_enrollments::insert(
+            tx.as_mut(),
+            user_id,
+            course_id,
+            course_instance_id,
+            true,
+        )
+        .await
+        .unwrap();
+        let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
+            .await
+            .unwrap();
+        let page_id = pages::insert(tx.as_mut(), "", Value::Null, 0, "", course_id, chapter_id)
+            .await
+            .unwrap();
+        let exercise_id = super::insert(tx.as_mut(), "", course_id, page_id)
+            .await
+            .unwrap();
+        let exercise_task_id = exercise_tasks::insert(
+            tx.as_mut(),
+            exercise_id,
+            "",
+            Value::Null,
+            Value::Null,
+            Uuid::new_v4(),
+        )
+        .await
+        .unwrap();
+
+        let res = sqlx::query!(
+            "
+SELECT selected_exercise_task_id AS id
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+",
+            user_id,
+            exercise_id,
+            course_instance_id
+        )
+        .fetch_optional(tx.as_mut())
+        .await
+        .unwrap();
+        assert!(res.is_none());
+
+        let exercise = get_course_material_exercise(tx.as_mut(), Some(user_id), exercise_id)
+            .await
+            .unwrap();
+        assert_eq!(exercise.current_exercise_task.id, exercise_task_id);
+
+        let res = sqlx::query!(
+            "
+SELECT selected_exercise_task_id AS id
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+",
+            user_id,
+            exercise_id,
+            course_instance_id
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(res.id.unwrap(), exercise_task_id);
+    }
 }

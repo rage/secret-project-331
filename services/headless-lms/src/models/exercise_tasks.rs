@@ -27,6 +27,37 @@ pub struct ExerciseTask {
     pub spec_file_id: Option<Uuid>,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    exercise_type: &str,
+    assignment: serde_json::Value,
+    private_spec: serde_json::Value,
+    spec_file_id: Uuid,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO exercise_tasks (
+    exercise_id,
+    exercise_type,
+    assignment,
+    private_spec,
+    spec_file_id
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+",
+        exercise_id,
+        exercise_type,
+        assignment,
+        private_spec,
+        spec_file_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = (SELECT exercise_id FROM exercise_tasks WHERE id = $1)", id)
         .fetch_one(conn)

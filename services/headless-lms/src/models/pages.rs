@@ -143,6 +143,40 @@ struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    title: &str,
+    content: serde_json::Value,
+    order_number: i32,
+    url_path: &str,
+    course_id: Uuid,
+    chapter_id: Uuid,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO pages (
+    course_id,
+    content,
+    url_path,
+    title,
+    chapter_id,
+    order_number
+  )
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id
+",
+        course_id,
+        content,
+        url_path,
+        title,
+        chapter_id,
+        order_number
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM pages WHERE id = $1", id)
         .fetch_one(conn)

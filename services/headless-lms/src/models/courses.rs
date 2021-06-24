@@ -85,6 +85,27 @@ pub struct NewCourse {
     organization_id: Uuid,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    name: &str,
+    slug: &str,
+    organization_id: Uuid,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        r#"
+INSERT INTO courses(name, slug, organization_id)
+VALUES($1, $2, $3)
+RETURNING id
+            "#,
+        name,
+        slug,
+        organization_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result<Course> {
     let res = sqlx::query_as!(
         Course,

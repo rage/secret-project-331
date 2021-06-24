@@ -24,18 +24,19 @@ pub async fn all_organizations(conn: &mut PgConnection) -> Result<Vec<Organizati
     Ok(courses)
 }
 
-pub async fn insert(slug: &str, name: &str, conn: &mut PgConnection) -> Result<()> {
-    sqlx::query!(
+pub async fn insert(slug: &str, name: &str, conn: &mut PgConnection) -> Result<Uuid> {
+    let res = sqlx::query!(
         "
 INSERT INTO organizations (slug, name)
 VALUES ($1, $2)
+RETURNING id
 ",
         slug,
         name
     )
-    .execute(conn)
+    .fetch_one(conn)
     .await?;
-    Ok(())
+    Ok(res.id)
 }
 
 #[cfg(test)]

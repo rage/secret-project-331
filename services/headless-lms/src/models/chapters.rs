@@ -89,6 +89,27 @@ pub async fn course_chapters(conn: &mut PgConnection, course_id: Uuid) -> Result
     Ok(chapters)
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    name: &str,
+    course_id: Uuid,
+    chapter_number: i32,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO chapters (name, course_id, chapter_number)
+VALUES ($1, $2, $3)
+RETURNING id
+",
+        name,
+        course_id,
+        chapter_number
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> Result<Chapter> {
     let res = sqlx::query_as!(
         Chapter,

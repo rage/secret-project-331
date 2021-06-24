@@ -149,12 +149,6 @@ export const getNextPageRoutingData = async (currentPageId: string): Promise<Pag
   return (await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)).data
 }
 
-export const getPreviousPageRoutingData = async (
-  currentPageId: string,
-): Promise<PageRoutingData> => {
-  return (await courseMaterialClient.get(`/pages/${currentPageId}/previous-page`)).data
-}
-
 export interface ChapterPages {
   id: string
   created_at: Date

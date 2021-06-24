@@ -567,20 +567,6 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
         .await?;
     }
 
-    // if new_page.chapter_id.is_some() {
-    //     let amount =
-    //         (get_chapters_pages_exclude_main_frontpage(&mut tx, new_page.chapter_id.unwrap())
-    //             .await?)
-    //             .len();
-    //     if amount > 1 {
-    //         let result = insert_pages_in_chapter_block_into_chapter_frontpage(
-    //             &mut tx,
-    //             new_page.chapter_id.unwrap(),
-    //         )
-    //         .await?;
-    //     }
-    // }
-
     tx.commit().await?;
     return Ok(Page {
         content: serde_json::to_value(denormalized_content)?,
@@ -874,28 +860,3 @@ where c.id = $1;
 
     Ok(result)
 }
-
-// pub async fn insert_pages_in_chapter_block_into_chapter_frontpage(
-//     conn: &mut PgConnection,
-//     chapter_id: Uuid,
-// ) -> Result<Page> {
-//     let old_content = sqlx::query!(
-//         "
-// select p.content as content
-// from pages p
-// where p.id = (
-//     select c.front_page_id
-//     from chapters c
-//     where c.id = $1
-//   );
-//     ",
-//         chapter_id,
-//     )
-//     .fetch_one(conn)
-//     .await?;
-
-//     // let chapter_frontpage_content = serde_json::to_value(vec![
-//     //     ContentBlock::empty_block_from_name("moocfi/pages-in-chapter".to_owned()),
-//     //     old_content.content,
-//     // ]);
-// }

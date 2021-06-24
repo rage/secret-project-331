@@ -48,7 +48,8 @@ import {
  */
 import SerializeGutenbergModal from "./SerializeGutenbergModal"
 import DebugModal from "./DebugModal"
-import { allowedEmbedBlocks, blockTypeMap, supportedCoreBlocks } from "../blocks"
+import { blockTypeMap } from "../blocks"
+import { supportedCoreBlocks, allowedEmbedBlocks } from "../blocks/supportedGutenbergBlocks"
 
 interface GutenbergEditor {
   content: BlockInstance[]

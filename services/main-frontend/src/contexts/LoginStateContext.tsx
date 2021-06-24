@@ -3,13 +3,13 @@ import { useQuery } from "react-query"
 import { loggedIn } from "../services/backend/auth"
 
 export interface LoginState {
-  refresh(): void
+  refresh(): Promise<unknown>
   isLoading: boolean
   signedIn: boolean | null
 }
 
 const defaultLoginState: LoginState = {
-  refresh: () => {
+  refresh: async () => {
     /* No op */
   },
   isLoading: false,

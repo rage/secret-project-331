@@ -1,19 +1,20 @@
-import { loggedIn, logout } from "../services/backend/auth"
+import React, { useContext } from "react"
+import { logout } from "../services/backend/auth"
 import Link from "next/link"
-import { useQuery } from "react-query"
+import LoginStateContext from "../contexts/LoginStateContext"
 
 export default function LoginLogoutButton(): JSX.Element {
-  const { isLoading, data, refetch } = useQuery(`logged-in`, () => loggedIn())
+  const loginStateContext = useContext(LoginStateContext)
 
-  if (isLoading) {
+  if (loginStateContext.isLoading) {
     return <>Loading...</>
   }
 
-  if (data) {
+  if (loginStateContext.signedIn) {
     const submitLogout = async (event) => {
       event.preventDefault()
       await logout()
-      await refetch()
+      await loginStateContext.refresh()
     }
     return (
       <form onSubmit={submitLogout}>

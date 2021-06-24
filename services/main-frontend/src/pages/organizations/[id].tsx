@@ -7,14 +7,16 @@ import { fetchOrganizationCourses } from "../../services/backend/organizations"
 import DebugModal from "../../components/DebugModal"
 import { css } from "@emotion/css"
 import NewCourseForm from "../../components/forms/NewCourseForm"
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 import { Button, Dialog } from "@material-ui/core"
+import LoginStateContext from "../../contexts/LoginStateContext"
 
 const Organization: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
   const { isLoading, error, data, refetch } = useQuery(`organization-courses`, () =>
     fetchOrganizationCourses(id),
   )
+  const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
 
@@ -38,27 +40,31 @@ const Organization: React.FC<unknown> = () => {
         {data.map((course) => (
           <div key={course.id}>
             <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
-            <a href={`/cms/courses/${course.id}/overview`}>Edit</a>{" "}
-            <Link
-              href={{
-                pathname: "/manage/courses/[id]",
-                query: {
-                  id: course.id,
-                },
-              }}
-            >
-              Manage
-            </Link>{" "}
-            <Link
-              href={{
-                pathname: "/manage/courses/[id]/stats",
-                query: {
-                  id: course.id,
-                },
-              }}
-            >
-              Stats
-            </Link>
+            {loginStateContext.signedIn && (
+              <>
+                <a href={`/cms/courses/${course.id}/overview`}>Edit</a>{" "}
+                <Link
+                  href={{
+                    pathname: "/manage/courses/[id]",
+                    query: {
+                      id: course.id,
+                    },
+                  }}
+                >
+                  Manage
+                </Link>{" "}
+                <Link
+                  href={{
+                    pathname: "/manage/courses/[id]/stats",
+                    query: {
+                      id: course.id,
+                    },
+                  }}
+                >
+                  Stats
+                </Link>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -68,7 +74,9 @@ const Organization: React.FC<unknown> = () => {
           margin-bottom: 1rem;
         `}
       >
-        <Button onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}>Add course</Button>
+        {loginStateContext.signedIn && (
+          <Button onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}>Add course</Button>
+        )}
 
         <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
           <div

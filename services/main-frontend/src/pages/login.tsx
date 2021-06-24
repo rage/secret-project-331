@@ -1,16 +1,19 @@
 import Layout from "../components/Layout"
 import { login } from "../services/backend/auth"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { useRouter } from "next/router"
+import LoginStateContext from "../contexts/LoginStateContext"
 
 export default function Login(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const loginStateContext = useContext(LoginStateContext)
 
   async function submitForm(event) {
     event.preventDefault()
     await login(email, password)
+    await loginStateContext.refresh()
     router.push("/")
   }
 

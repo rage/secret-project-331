@@ -13,6 +13,7 @@
     - [Adding documentation to an endpoint](#adding-documentation-to-an-endpoint)
   - [Sqlx](#sqlx)
     - [Formatting inline SQL in Visual Studio Code](#formatting-inline-sql-in-visual-studio-code)
+  - [Writing unit tests that use the database](#writing-unit-tests-that-use-the-database)
 
 ## sqlx prepare
 
@@ -252,3 +253,15 @@ Passing enum values as parameters to SQL queries: https://docs.rs/sqlx/0.5.5/sql
 4. Use the `SQLTools: Format Selected Query For Any Document` action from `ctrl-shift-p`-menu.
 
 https://user-images.githubusercontent.com/1922896/119937781-0ed77b80-bf94-11eb-8e45-8d7172d86f48.mp4
+
+## Writing unit tests that use the database
+
+Use the `headless_lms_actix::test_helper::Conn` helper struct. It can be initialized using `Conn::init`, after which the only method available for it is `Conn::begin`, which starts a transaction and returns a wrapper struct that can be used in place of `&mut PgConnection` by calling `AsMut::as_mut`. For example:
+
+```rust
+let mut conn = Conn::init().await;
+let mut tx = conn.begin().await;
+let orgs = all_organizations(tx.as_mut()).await.unwrap();
+```
+
+Using these helper structs helps ensure that you do not accidentally make permanent modifications to the dev database. It also helps keep tests separate from each other: modifications to the database made using a given `Conn` are only visible when making queries with the same `Conn` instance.

@@ -256,6 +256,7 @@ mod test {
     };
 
     #[tokio::test]
+    #[ignore = "db not set up in CI"]
     async fn selects_course_material_exercise_for_enrolled_student() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;

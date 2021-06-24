@@ -60,10 +60,10 @@ const CoverBlock: React.FC<BlockRendererProps<CoverAttributes>> = ({ data }) => 
   const attributes: CoverAttributes = data.attributes
 
   const overlayColor = colorMapper(attributes.overlayColor, "unset")
-  const contentPosition: CoverTextPosition =
-    textPosition[attributes.contentPosition] === undefined
+  const contentPosition = attributes.contentPosition
+  /*textPosition[attributes.contentPosition] === undefined
       ? { alignItems: "center", justifyContent: "center" }
-      : textPosition[attributes.contentPosition]
+      : textPosition[attributes.contentPosition]*/
   return (
     <pre
       className={css`

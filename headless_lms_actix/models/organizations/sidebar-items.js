@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["all_organizations",""]],"struct":[["Organization",""]]});
+initSidebarItems({"fn":[["all_organizations",""],["insert",""]],"struct":[["Organization",""]]});

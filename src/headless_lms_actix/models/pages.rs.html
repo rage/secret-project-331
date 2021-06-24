@@ -1178,7 +1178,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
 
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Page</span> {
+    <span class="prelude-val">Ok</span>(<span class="ident">Page</span> {
         <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">denormalized_content</span>)<span class="question-mark">?</span>,
         <span class="ident">course_id</span>: <span class="ident">page</span>.<span class="ident">course_id</span>,
         <span class="ident">created_at</span>: <span class="ident">page</span>.<span class="ident">created_at</span>,
@@ -1189,7 +1189,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
         <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
         <span class="ident">order_number</span>: <span class="ident">page</span>.<span class="ident">order_number</span>,
         <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
-    });
+    })
 }
 
 <span class="doccomment">/// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.</span>
@@ -1390,7 +1390,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
     }
 
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Page</span> {
+    <span class="prelude-val">Ok</span>(<span class="ident">Page</span> {
         <span class="ident">content</span>: <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">denormalized_content</span>)<span class="question-mark">?</span>,
         <span class="ident">course_id</span>: <span class="ident">page</span>.<span class="ident">course_id</span>,
         <span class="ident">created_at</span>: <span class="ident">page</span>.<span class="ident">created_at</span>,
@@ -1401,7 +1401,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
         <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
         <span class="ident">order_number</span>: <span class="ident">page</span>.<span class="ident">order_number</span>,
         <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
-    });
+    })
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_page_and_exercises</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {

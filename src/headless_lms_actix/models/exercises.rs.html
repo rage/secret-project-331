@@ -270,7 +270,7 @@ As close as possible LTI&#39;s grading progress for compatibility: https://www.i
     <span class="comment">// exercise -- for now we&#39;ll give a random exercise task to the student</span>
     <span class="comment">// this could be changed by creating a policy in the exercise.</span>
     <span class="kw">let</span> <span class="ident">current_exercise_task</span> <span class="op">=</span> <span class="ident">get_random_exercise_task</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">CourseMaterialExercise</span> {
+    <span class="prelude-val">Ok</span>(<span class="ident">CourseMaterialExercise</span> {
         <span class="ident">exercise</span>,
         <span class="ident">current_exercise_task</span>,
         <span class="ident">exercise_status</span>: <span class="prelude-val">Some</span>(<span class="ident">ExerciseStatus</span> {
@@ -278,7 +278,7 @@ As close as possible LTI&#39;s grading progress for compatibility: https://www.i
             <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>::<span class="ident">Initialized</span>,
             <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>::<span class="ident">NotReady</span>,
         }),
-    });
+    })
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-js="../../../search-index.js"></div>

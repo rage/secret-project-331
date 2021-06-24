@@ -1,9 +1,8 @@
-import { css } from "@emotion/css"
+/*import { css } from "@emotion/css"
 import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
-/* Still working on the tableBlock */
 
 const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
   const innerBlocks: TableAttributes = data.innerBlocks[0].innerBlocks[0].attributes
@@ -35,4 +34,4 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
   )
 }
 
-export default TableBlock
+export default TableBlock*/

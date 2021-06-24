@@ -14,6 +14,21 @@ pub struct Organization {
     deleted_at: Option<DateTime<Utc>>,
 }
 
+pub async fn insert(conn: &mut PgConnection, name: &str, slug: &str) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO organizations (name, slug)
+VALUES ($1, $2)
+RETURNING id
+",
+        name,
+        slug,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn all_organizations(conn: &mut PgConnection) -> Result<Vec<Organization>> {
     let courses = sqlx::query_as!(
         Organization,

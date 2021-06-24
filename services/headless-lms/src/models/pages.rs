@@ -840,23 +840,23 @@ pub async fn get_chapters_pages_exclude_main_frontpage(
     conn: &mut PgConnection,
     chapter_id: Uuid,
 ) -> Result<Vec<Page>> {
-    let all_pages = chapter_pages(conn, chapter_id).await?;
-
-    let main_frontpage = sqlx::query!(
-        r#"
-select c.front_page_id as "id!"
-from chapters c
-where c.id = $1;
-    "#,
-        chapter_id,
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT p.*
+FROM pages p
+WHERE p.chapter_id = $1
+  AND p.deleted_at IS NULL
+  AND p.id NOT IN (
+    SELECT front_page_id
+    FROM chapters c
+    WHERE c.front_page_id = p.id
+  );
+    ",
+        chapter_id
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
 
-    let result: Vec<Page> = all_pages
-        .into_iter()
-        .filter(|page| page.id != main_frontpage.id)
-        .collect();
-
-    Ok(result)
+    Ok(pages)
 }

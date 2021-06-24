@@ -2,13 +2,14 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import React from "react"
 import { useQuery } from "react-query"
-import { fetchChaptersPages } from "../../../services/backend"
+import { fetchChaptersPagesExcludeFrontpage } from "../../../services/backend"
 import GenericLoading from "../../GenericLoading"
 
 const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
   const courseSlug = useRouter().query.courseSlug
-  const { isLoading, error, data } = useQuery(`chapter-${chapterId}-pages`, () =>
-    fetchChaptersPages(chapterId),
+  const { isLoading, error, data } = useQuery(
+    `chapter-${chapterId}-pages-excluding-frontpage`,
+    () => fetchChaptersPagesExcludeFrontpage(chapterId),
   )
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>

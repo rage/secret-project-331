@@ -161,6 +161,8 @@ export interface ChapterPages {
   deleted_at: Date
 }
 
-export const fetchChaptersPages = async (chapterId: string): Promise<ChapterPages[]> => {
+export const fetchChaptersPagesExcludeFrontpage = async (
+  chapterId: string,
+): Promise<ChapterPages[]> => {
   return (await courseMaterialClient.get(`/chapters/${chapterId}/pages-exclude-mainfrontpage`)).data
 }

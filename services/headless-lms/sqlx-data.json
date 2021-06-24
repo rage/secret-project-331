@@ -658,6 +658,22 @@
       "nullable": [false]
     }
   },
+  "3e925fb3e5a135d876037e1424238f4c88a4d9a76a739e16c2c6d8d17151cd06": {
+    "query": "\nSELECT selected_exercise_task_id AS \"id!\"\nFROM user_exercise_states\nWHERE user_id = $1\n  AND selected_exercise_task_id IS NOT NULL\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id!",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [true]
+    }
+  },
   "3fe37166761219fc5d832aff78c2ae81f963c9b1fa42ac8519e80bc436c54200": {
     "query": "SELECT * FROM pages WHERE course_id = $1 AND deleted_at IS NULL;",
     "describe": {
@@ -1166,22 +1182,6 @@
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": []
-    }
-  },
-  "6c3c36981a6d965a17e7d2eb4fe238be9f32b831a14b0be2d82e90c7873a935c": {
-    "query": "\nSELECT selected_exercise_task_id AS \"id!\"\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id!",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [true]
     }
   },
   "7036a2844a38fec351746e047ebf4289670ebecd948398b6711b19dcf00df8cc": {

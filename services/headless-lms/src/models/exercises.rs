@@ -165,6 +165,7 @@ WHERE course_id = $1
 SELECT selected_exercise_task_id AS "id!"
 FROM user_exercise_states
 WHERE user_id = $1
+  AND selected_exercise_task_id IS NOT NULL
   AND exercise_id = $2
   AND course_instance_id = $3
   AND deleted_at IS NULL
@@ -223,8 +224,8 @@ SET selected_exercise_task_id = $4
                 selected_exercise_task
             }
         } else {
-            // user is not enrolled on the course, get a random task
-            get_random_exercise_task(conn, exercise_id).await?
+            // user is not enrolled on the course, return error
+            anyhow::bail!("User must be enrolled to the course")
         }
     } else {
         // user is not logged in, get a random task

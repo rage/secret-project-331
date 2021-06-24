@@ -743,6 +743,16 @@
       "nullable": []
     }
   },
+  "4eaafbc10af94b2f70893bd6c2ba268a68e02752115cc553d13c892607ceb449": {
+    "query": "\nINSERT INTO organizations (slug, name)\nVALUES ($1, $2)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Varchar", "Varchar"]
+      },
+      "nullable": []
+    }
+  },
   "56d846875a3a880da4819cf18d0137b9e305a95a81c54dc62a89a45829fcb38c": {
     "query": "\nINSERT INTO\n  gradings(submission_id, course_id, exercise_id, exercise_task_id, grading_started_at)\nVALUES($1, $2, $3, $4, now())\nRETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as \"grading_progress: _\", user_points_update_strategy as \"user_points_update_strategy: _\", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at\n        ",
     "describe": {

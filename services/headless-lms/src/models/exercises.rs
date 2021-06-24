@@ -127,7 +127,7 @@ pub async fn get_course_material_exercise(
     // exercise -- for now we'll give a random exercise task to the student
     // this could be changed by creating a policy in the exercise.
     let current_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
-    return Ok(CourseMaterialExercise {
+    Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task,
         exercise_status: Some(ExerciseStatus {
@@ -135,5 +135,5 @@ pub async fn get_course_material_exercise(
             activity_progress: ActivityProgress::Initialized,
             grading_progress: GradingProgress::NotReady,
         }),
-    });
+    })
 }

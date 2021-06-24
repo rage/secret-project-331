@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import { fetchOrganizations } from "../services/backend"
 import basePath from "../utils/base-path"
 import Link from "next/link"
+import "katex/dist/katex.min.css"
 
 const Title = styled.h1`
   font-size: 24px;

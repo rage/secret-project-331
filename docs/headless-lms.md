@@ -16,6 +16,7 @@
   - [Writing unit tests that use the database](#writing-unit-tests-that-use-the-database)
 
 ## sqlx prepare
+
 Creating new SQL queries in headless-lms using Sqlx requires running `bin/sqlx-prepare` so that it builds.
 
 ## Sqlx data types
@@ -39,10 +40,13 @@ Run migrations with `bin/sqlx-migrate-run` or `bin/sqlx-migrate-revert`. Once do
 ## Using postgres enums in SQLx queries
 
 SQLx isn't able to automatically use postgres enums in its queries; it needs a type hint. For example, given the following postgres enum
+
 ```postgres
 CREATE TYPE user_role AS ENUM ('admin', 'assistant', 'teacher', 'reviewer');
 ```
+
 and corresponding Rust enum
+
 ```rust
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
@@ -53,14 +57,18 @@ pub enum UserRole {
     Reviewer,
 }
 ```
+
 you could use `sqlx::query!` like this
+
 ```rust
 let role: UserRole = sqlx::query!(r#"SELECT role AS "role: UserRole" FROM roles"#)
     .fetch_one(&mut connection) //               ^^^^^^^^^^^^^^^^^^^
     .await?
     .role;
 ```
+
 The same syntax can be used with `sqlx::query_as!`
+
 ```rust
     let roles = sqlx::query_as!(
         Role,
@@ -72,9 +80,10 @@ The same syntax can be used with `sqlx::query_as!`
 ```
 
 Here, `Role` is a struct with various fields, including a `role: UserRole` field.
+
 ### Adding new tables
 
-Use the following as a template for new tables. It includes common fields that most tables should have, a trigger for automatically updating the updated\_at field, and a comment for explaining what the table is for.
+Use the following as a template for new tables. It includes common fields that most tables should have, a trigger for automatically updating the updated_at field, and a comment for explaining what the table is for.
 
 ```sql
 CREATE TABLE table_templates (
@@ -131,6 +140,7 @@ This said, the endpoint should be used for the `bogus` microservice and endpoint
 2. Create `foo.rs` in folder `src/controllers/bogus/`, if not present
 3. In `src/controllers/mod.rs` add the new microservice to `configure_controllers` -> `.service(web::scope("/bogus").configure(_add_bogus_routes))`, if not present.
 4. Write the new `_add_bogus_routes` function in the `src/controllers/bogus/mod.rs` file and create necessary submodules. (Hint: See existing, example below).
+
 ```rust
 /*!
 Handlers for HTTP requests to `/api/v0/bogus`.
@@ -152,7 +162,9 @@ pub fn add_bogus_routes(cfg: &mut ServiceConfig) {
 
 
 ```
+
 5. In `src/controllers/bogus/foo.rs` add the routes in e.g. `_add_foo_routes`, so if you would like to create a CRUD for `foo`, you would add 4 routes as following:
+
 ```rust
 pub fn _add_foo_routes(cfg: &mut ServiceConfig) {
   cfg.route("", web::get().to(get_all_foos))
@@ -161,6 +173,7 @@ pub fn _add_foo_routes(cfg: &mut ServiceConfig) {
       .route("/{foo_id}", web::delete().to(delete_foo))
 }
 ```
+
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations, because this method preserves the function signatures for documentation.
@@ -201,7 +214,7 @@ pub async fn some_endpoint(user: Option<AuthUser>) -> String {
 When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint
 and an example response data from it. For an example
 
-```
+````
 /**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
 # Example
@@ -222,12 +235,11 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
 }
 ```"
 */
-```
+````
 
 Easiest way to get the example response data and double check that endpoint works as itended is to write request to an **requests.rest** file and run the request. Before this, if needed, remember to update **seed.sql** file so that the needed data exists in a database.
 
 After this the docs are ready to go. Docs are created automatically upon mergin your feature branch to master.
-
 
 ## Sqlx
 
@@ -239,7 +251,6 @@ Passing enum values as parameters to SQL queries: https://docs.rs/sqlx/0.5.5/sql
 2. Move the statement into its own line
 3. Select the whole lines that contain the sql statement
 4. Use the `SQLTools: Format Selected Query For Any Document` action from `ctrl-shift-p`-menu.
-
 
 https://user-images.githubusercontent.com/1922896/119937781-0ed77b80-bf94-11eb-8e45-8d7172d86f48.mp4
 

@@ -49,7 +49,7 @@ const ImageContainer = styled.div`
 
 interface LayoutContainerAttributes {
   overlayColor: string
-  backgroundType: boolean
+  backgroundType: string
   dimRatio: number
   hasParallax: boolean
   isRepeated: boolean

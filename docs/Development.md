@@ -16,6 +16,13 @@
 
 You may also need stern and kubectx.
 
+### Special tools for headless-lms
+
+You don't need these if you don't intend to change the headless-lms.
+
+1. Install rust (https://www.rust-lang.org/tools/install)
+2. Install sqlx-cli (`cargo install sqlx-cli`)
+
 ### Setting up minikube
 
 Start minikube:
@@ -62,6 +69,13 @@ Install the following tools with [chocolatey](https://docs.chocolatey.org/en-us/
 2. Minikube: https://minikube.sigs.k8s.io/docs/start/
 
 You may also need [stern](https://community.chocolatey.org/packages/stern) and [kubectx](https://community.chocolatey.org/packages/kubectx).
+
+### Special tools for headless-lms
+
+You don't need these if you don't intend to change the headless-lms.
+
+1. Install rust (https://www.rust-lang.org/tools/install)
+2. Install sqlx-cli (`cargo install sqlx-cli`)
 
 ### Windows Terminal & Cygwin
 

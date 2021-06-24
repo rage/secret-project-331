@@ -1,7 +1,11 @@
+use crate::{
+    controllers::ApplicationError,
+    models::pages::{ContentBlock, NewPage},
+};
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
+use sqlx::{Acquire, PgConnection};
 use uuid::Uuid;
 
 use super::{
@@ -107,7 +111,9 @@ RETURNING id
 }
 
 pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result<Course> {
-    let res = sqlx::query_as!(
+    let mut tx = conn.begin().await?;
+
+    let course = sqlx::query_as!(
         Course,
         r#"
     INSERT INTO
@@ -119,9 +125,26 @@ pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result
         course.slug,
         course.organization_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut tx)
     .await?;
-    Ok(res)
+
+    let course_front_page_content = serde_json::to_value(vec![
+        ContentBlock::empty_block_from_name("moocfi/course-grid".to_owned()),
+        ContentBlock::empty_block_from_name("moocfi/course-progress".to_owned()),
+    ])
+    .map_err(|original_error| ApplicationError::InternalServerError(original_error.to_string()))?;
+    let course_front_page = NewPage {
+        chapter_id: None,
+        content: course_front_page_content,
+        course_id: course.id,
+        front_page_of_chapter_id: None,
+        title: course.name.clone(),
+        url_path: String::from("/"),
+    };
+    let _page = crate::models::pages::insert_page(&mut tx, course_front_page).await?;
+
+    tx.commit().await?;
+    Ok(course)
 }
 
 // Represents the subset of page fields that one is allowed to update in a course

@@ -38,8 +38,6 @@ import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 /**
  * Internal dependencies
  */
-import SerializeGutenbergModal from "./SerializeGutenbergModal"
-import DebugModal from "./DebugModal"
 import { blockTypeMap } from "../blocks"
 
 interface GutenbergEditor {
@@ -90,8 +88,6 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
           </div>
         </BlockEditorProvider>
       </SlotFillProvider>
-      <SerializeGutenbergModal content={content} />
-      <DebugModal data={content} />
     </div>
   )
 }

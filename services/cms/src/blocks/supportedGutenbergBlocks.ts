@@ -1,3 +1,4 @@
+// To get a list of all available blocks from Gutenberg, run: npm run list-gutenberg-block-names
 export const supportedCoreBlocks: string[] = [
   "core/paragraph",
   "core/image",

@@ -822,6 +822,47 @@
 <span id="819">819</span>
 <span id="820">820</span>
 <span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -836,6 +877,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_json</span>::<span class="ident">json</span>;
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Acquire</span>, <span class="ident">FromRow</span>, <span class="ident">PgConnection</span>};
+
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -950,18 +992,20 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NextPage</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageRoutingData</span> {
     <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="ident">chapter_number</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
+    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NextPageMetadata</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageMetadata</span> {
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">order_number</span>: <span class="ident">i32</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -1512,32 +1556,35 @@ WHERE page_id IN (
     <span class="prelude-val">Ok</span>(<span class="ident">chapter_pages_with_exercises</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">pages_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NextPage</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">page_metadata</span> <span class="op">=</span> <span class="ident">get_page_metadata</span>(<span class="ident">conn</span>, <span class="ident">pages_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">next_page</span> <span class="op">=</span> <span class="ident">get_next_page_by_order_number</span>(<span class="ident">conn</span>, <span class="ident">page_metadata</span>.<span class="ident">order_number</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pages_id</span>: <span class="ident">Uuid</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">page_metadata</span> <span class="op">=</span> <span class="ident">get_current_page_metadata</span>(<span class="ident">conn</span>, <span class="ident">pages_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">next_page</span> <span class="op">=</span> <span class="ident">get_next_page_by_order_number</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">page_metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">match</span> <span class="ident">next_page</span> {
         <span class="prelude-val">Some</span>(<span class="ident">next_page</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">next_page</span>)),
         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">first_page</span> <span class="op">=</span>
-                <span class="ident">get_next_page_by_chapter_number</span>(<span class="ident">conn</span>, <span class="ident">page_metadata</span>.<span class="ident">chapter_number</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">first_page</span> <span class="op">=</span> <span class="ident">get_next_page_by_chapter_number</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">page_metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">first_page</span>)
         }
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_metadata</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NextPageMetadata</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_current_page_metadata</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PageMetadata</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">page_metadata</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
-        <span class="ident">NextPageMetadata</span>,
-        <span class="string">r#&quot;
+        <span class="ident">PageMetadata</span>,
+        <span class="string">&quot;
 SELECT p.id as page_id,
   p.order_number as order_number,
+  p.course_id as course_id,
   c.id as chapter_id,
   c.chapter_number as chapter_number
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.id = $1;
-        &quot;#</span>,
+        &quot;</span>,
         <span class="ident">page_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
@@ -1548,56 +1595,66 @@ WHERE p.id = $1;
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page_by_order_number</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">order_number</span>: <span class="ident">i32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NextPage</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">current_page_metadata</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PageMetadata</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">next_page</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
-        <span class="ident">NextPage</span>,
-        <span class="string">r#&quot;
-SELECT p.url_path,
-  p.title,
-  c.chapter_number
+        <span class="ident">PageRoutingData</span>,
+        <span class="string">&quot;
+SELECT p.url_path as url_path,
+  p.title as title,
+  c.chapter_number as chapter_number,
+  c.id as chapter_id
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
-WHERE order_number = (
-    SELECT MIN(order_number)
-    FROM pages
-    WHERE order_number &gt; $1
-      AND deleted_at IS NULL
-  );
-        &quot;#</span>,
-        <span class="ident">order_number</span>
+WHERE p.order_number = (
+    SELECT MIN(pa.order_number)
+    FROM pages pa
+    WHERE pa.order_number &gt; $1
+      AND pa.deleted_at IS NULL
+  )
+  AND p.course_id = $2
+  AND c.chapter_number = $3;
+        &quot;</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">order_number</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">course_id</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">chapter_number</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">next_page</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">next_page</span>)
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page_by_chapter_number</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NextPage</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">current_page_metadata</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PageMetadata</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">next_page</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
-        <span class="ident">NextPage</span>,
-        <span class="string">r#&quot;
-SELECT p.url_path,
-  p.title,
-  c.chapter_number
+        <span class="ident">PageRoutingData</span>,
+        <span class="string">&quot;
+SELECT p.url_path as url_path,
+  p.title as title,
+  c.chapter_number as chapter_number,
+  c.id as chapter_id
 FROM chapters c
   LEFT JOIN pages p on c.id = p.chapter_id
-WHERE chapter_number = (
-    SELECT MIN(chapter_number)
-    FROM chapters
-    WHERE chapter_number &gt; $1
-      AND deleted_at IS NULL
-  );
-        &quot;#</span>,
-        <span class="ident">chapter_number</span>
+WHERE c.chapter_number = (
+    SELECT MIN(ca.chapter_number)
+    FROM chapters ca
+    WHERE ca.chapter_number &gt; $1
+      AND ca.deleted_at IS NULL
+  )
+  AND c.course_id = $2
+ORDER BY p.order_number
+LIMIT 1;
+        &quot;</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">chapter_number</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">course_id</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">next_page</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">next_page</span>)
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page_order_number_in_chapter</span>(
@@ -1643,6 +1700,31 @@ where p.course_id = $1
         <span class="prelude-val">Some</span>(<span class="ident">order_number</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">order_number</span> <span class="op">+</span> <span class="number">1</span>),
         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="number">0</span>),
     }
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages_exclude_main_frontpage</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">pages</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+        <span class="ident">Page</span>,
+        <span class="string">&quot;
+SELECT p.*
+FROM pages p
+WHERE p.chapter_id = $1
+  AND p.deleted_at IS NULL
+  AND p.id NOT IN (
+    SELECT front_page_id
+    FROM chapters c
+    WHERE c.front_page_id = p.id
+  );
+    &quot;</span>,
+        <span class="ident">chapter_id</span>
+    )
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">pages</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-js="../../../search-index.js"></div>

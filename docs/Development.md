@@ -13,6 +13,11 @@
 2. Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 3. Install Minikube: https://minikube.sigs.k8s.io/docs/start/
 4. Install Kustomize: https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/
+   - mkdir ~/bin/
+   - Add ~/bin/ to PATH
+   - Run Kustomize installation script in the folder
+5. Install Docker: https://docs.docker.com/engine/install/
+6. Install Postgresql: http://postgresguide.com/setup/install.html
 
 You may also need stern and kubectx.
 
@@ -65,8 +70,13 @@ After that, you should be able to access the application by going to `http://pro
 
 Install the following tools with [chocolatey](https://docs.chocolatey.org/en-us/choco/setup):
 
-1. Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
-2. Minikube: https://minikube.sigs.k8s.io/docs/start/
+1. Kubectl: [Choco instructions](https://community.chocolatey.org/packages/kubernetes-cli)
+   - Alternative: [Kubernetes](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+2. Minikube: [Choco instructions](https://community.chocolatey.org/packages/minikube)
+   - Alternative: [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+3. Postgresql: [Choco instructions](https://community.chocolatey.org/packages/postgresql)
+   - Alternative: [Postgresql](http://postgresguide.com/setup/install.html)
+4. Kustomize: [Choco instructions](https://community.chocolatey.org/packages/kustomize)
 
 You may also need [stern](https://community.chocolatey.org/packages/stern) and [kubectx](https://community.chocolatey.org/packages/kubectx).
 

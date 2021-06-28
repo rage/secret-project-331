@@ -8,7 +8,8 @@
     "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
     "eslint:ci": "eslint .",
     "prepare": "husky install",
-    "lint:css": "stylelint '**/*.tsx'"
+    "lint:css": "stylelint '**/*.tsx'",
+    "postinstall": "ts-node  -O '{\"module\":\"commonjs\"}' shared-module/setup-shared-module.ts"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   },
   "homepage": "https://github.com/rage/secret-project-331#readme",
   "devDependencies": {
+    "@types/node": "^15.12.5",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
     "eslint": "^7.27.0",
@@ -32,6 +34,7 @@
     "prettier": "^2.3.0",
     "stylelint": "^13.13.1",
     "stylelint-config-recommended": "^5.0.0",
+    "ts-node": "^10.0.0",
     "typescript": "^4.2.4"
   }
 }

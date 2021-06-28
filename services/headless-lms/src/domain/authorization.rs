@@ -67,7 +67,7 @@ pub fn remember(session: &Session, user: models::users::User) -> Result<()> {
 }
 
 /// Checks if the user is authenticated in the given session.
-pub fn remembers(session: &Session) -> bool {
+pub fn has_auth_user_session(session: &Session) -> bool {
     session.entries().get(SESSION_KEY).is_some()
 }
 

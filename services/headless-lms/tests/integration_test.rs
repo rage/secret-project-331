@@ -64,7 +64,7 @@ pub async fn init_actix() -> (
 async fn gets_organizations() {
     let (actix, pool) = init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
-    organizations::insert("slug", "org", &mut conn)
+    organizations::insert(&mut conn, "org", "slug")
         .await
         .unwrap();
     let req = test::TestRequest::with_uri("/api/v0/main-frontend/organizations").to_request();

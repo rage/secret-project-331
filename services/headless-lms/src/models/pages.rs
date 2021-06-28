@@ -1,16 +1,41 @@
-use std::collections::HashMap;
-
 use crate::{
     models::chapters::Chapter,
     models::exercise_tasks::ExerciseTask,
-    utils::document_schema_processor::{denormalize, normalize_from_json, NormalizedDocument},
+    utils::document_schema_processor::{
+        denormalize, normalize_from_json, GutenbergBlock, NormalizedDocument,
+    },
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use sqlx::{Acquire, FromRow, PgConnection};
+use std::collections::HashMap;
 use uuid::Uuid;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+// Gutenberg expects these fields to be in camelCase.
+#[serde(rename_all = "camelCase")]
+pub struct ContentBlock {
+    pub client_id: Uuid,
+    pub name: String,
+    pub is_valid: bool,
+    pub attributes: serde_json::Value,
+    pub inner_blocks: serde_json::Value,
+}
+
+impl ContentBlock {
+    pub fn empty_block_from_name(name: String) -> Self {
+        ContentBlock {
+            client_id: Uuid::new_v4(),
+            name,
+            is_valid: true,
+            attributes: json!({}),
+            inner_blocks: json!([]),
+        }
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Page {
@@ -44,13 +69,13 @@ pub struct PageWithExercises {
 // Represents the subset of page fields that are required to create a new page.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NewPage {
-    content: serde_json::Value,
-    url_path: String,
-    title: String,
-    course_id: Uuid,
-    chapter_id: Option<Uuid>,
+    pub content: serde_json::Value,
+    pub url_path: String,
+    pub title: String,
+    pub course_id: Uuid,
+    pub chapter_id: Option<Uuid>,
     /// If set, set this page to be the front page of this course part.
-    front_page_of_chapter_id: Option<Uuid>,
+    pub front_page_of_chapter_id: Option<Uuid>,
 }
 
 // Represents the subset of page fields that the user is allowed to modify.
@@ -101,18 +126,20 @@ pub struct PageExerciseTask {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct NextPage {
+pub struct PageRoutingData {
     url_path: String,
     title: String,
-    chapter_number: Option<i32>,
+    chapter_number: i32,
+    chapter_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
-pub struct NextPageMetadata {
+pub struct PageMetadata {
     page_id: Uuid,
     order_number: i32,
     chapter_id: Uuid,
     chapter_number: i32,
+    course_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -141,6 +168,66 @@ struct ExerciseWithExerciseTasks {
     page_id: Uuid,
     exercise_tasks: Vec<ExerciseTask>,
     score_maximum: i32,
+}
+
+pub async fn insert(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    url_path: &str,
+    title: &str,
+    order_number: i32,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO pages (
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+",
+        course_id,
+        serde_json::Value::Null,
+        url_path,
+        title,
+        order_number
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
+pub async fn set_chapter(conn: &mut PgConnection, page_id: Uuid, chapter_id: Uuid) -> Result<()> {
+    sqlx::query!(
+        "UPDATE pages SET chapter_id = $1 WHERE id = $2",
+        chapter_id,
+        page_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_content(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    content: &[GutenbergBlock],
+) -> Result<()> {
+    sqlx::query!(
+        "
+UPDATE pages
+SET content = $1
+WHERE id = $2
+",
+        serde_json::to_value(content).unwrap(),
+        page_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
@@ -329,7 +416,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
 
     tx.commit().await?;
 
-    return Ok(Page {
+    Ok(Page {
         content: serde_json::to_value(denormalized_content)?,
         course_id: page.course_id,
         created_at: page.created_at,
@@ -340,7 +427,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
         url_path: page.url_path,
         order_number: page.order_number,
         chapter_id: page.chapter_id,
-    });
+    })
 }
 
 /// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.
@@ -541,7 +628,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
     }
 
     tx.commit().await?;
-    return Ok(Page {
+    Ok(Page {
         content: serde_json::to_value(denormalized_content)?,
         course_id: page.course_id,
         created_at: page.created_at,
@@ -552,7 +639,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
         url_path: page.url_path,
         order_number: page.order_number,
         chapter_id: page.chapter_id,
-    });
+    })
 }
 
 pub async fn delete_page_and_exercises(conn: &mut PgConnection, page_id: Uuid) -> Result<Page> {
@@ -663,32 +750,35 @@ WHERE page_id IN (
     Ok(chapter_pages_with_exercises)
 }
 
-pub async fn get_next_page(conn: &mut PgConnection, pages_id: Uuid) -> Result<Option<NextPage>> {
-    let page_metadata = get_page_metadata(conn, pages_id).await?;
-    let next_page = get_next_page_by_order_number(conn, page_metadata.order_number).await?;
+pub async fn get_next_page(
+    conn: &mut PgConnection,
+    pages_id: Uuid,
+) -> Result<Option<PageRoutingData>> {
+    let mut page_metadata = get_current_page_metadata(conn, pages_id).await?;
+    let next_page = get_next_page_by_order_number(conn, &mut page_metadata).await?;
 
     match next_page {
         Some(next_page) => Ok(Some(next_page)),
         None => {
-            let first_page =
-                get_next_page_by_chapter_number(conn, page_metadata.chapter_number).await?;
+            let first_page = get_next_page_by_chapter_number(conn, &mut page_metadata).await?;
             Ok(first_page)
         }
     }
 }
 
-async fn get_page_metadata(conn: &mut PgConnection, page_id: Uuid) -> Result<NextPageMetadata> {
+async fn get_current_page_metadata(conn: &mut PgConnection, page_id: Uuid) -> Result<PageMetadata> {
     let page_metadata = sqlx::query_as!(
-        NextPageMetadata,
-        r#"
+        PageMetadata,
+        "
 SELECT p.id as page_id,
   p.order_number as order_number,
+  p.course_id as course_id,
   c.id as chapter_id,
   c.chapter_number as chapter_number
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.id = $1;
-        "#,
+        ",
         page_id
     )
     .fetch_one(conn)
@@ -699,56 +789,66 @@ WHERE p.id = $1;
 
 async fn get_next_page_by_order_number(
     conn: &mut PgConnection,
-    order_number: i32,
-) -> Result<Option<NextPage>> {
+    current_page_metadata: &mut PageMetadata,
+) -> Result<Option<PageRoutingData>> {
     let next_page = sqlx::query_as!(
-        NextPage,
-        r#"
-SELECT p.url_path,
-  p.title,
-  c.chapter_number
+        PageRoutingData,
+        "
+SELECT p.url_path as url_path,
+  p.title as title,
+  c.chapter_number as chapter_number,
+  c.id as chapter_id
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
-WHERE order_number = (
-    SELECT MIN(order_number)
-    FROM pages
-    WHERE order_number > $1
-      AND deleted_at IS NULL
-  );
-        "#,
-        order_number
+WHERE p.order_number = (
+    SELECT MIN(pa.order_number)
+    FROM pages pa
+    WHERE pa.order_number > $1
+      AND pa.deleted_at IS NULL
+  )
+  AND p.course_id = $2
+  AND c.chapter_number = $3;
+        ",
+        current_page_metadata.order_number,
+        current_page_metadata.course_id,
+        current_page_metadata.chapter_number
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
 
-    Ok(Some(next_page))
+    Ok(next_page)
 }
 
 async fn get_next_page_by_chapter_number(
     conn: &mut PgConnection,
-    chapter_number: i32,
-) -> Result<Option<NextPage>> {
+    current_page_metadata: &mut PageMetadata,
+) -> Result<Option<PageRoutingData>> {
     let next_page = sqlx::query_as!(
-        NextPage,
-        r#"
-SELECT p.url_path,
-  p.title,
-  c.chapter_number
+        PageRoutingData,
+        "
+SELECT p.url_path as url_path,
+  p.title as title,
+  c.chapter_number as chapter_number,
+  c.id as chapter_id
 FROM chapters c
   LEFT JOIN pages p on c.id = p.chapter_id
-WHERE chapter_number = (
-    SELECT MIN(chapter_number)
-    FROM chapters
-    WHERE chapter_number > $1
-      AND deleted_at IS NULL
-  );
-        "#,
-        chapter_number
+WHERE c.chapter_number = (
+    SELECT MIN(ca.chapter_number)
+    FROM chapters ca
+    WHERE ca.chapter_number > $1
+      AND ca.deleted_at IS NULL
+  )
+  AND c.course_id = $2
+ORDER BY p.order_number
+LIMIT 1;
+        ",
+        current_page_metadata.chapter_number,
+        current_page_metadata.course_id
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
 
-    Ok(Some(next_page))
+    Ok(next_page)
 }
 
 async fn get_next_page_order_number_in_chapter(
@@ -794,4 +894,29 @@ where p.course_id = $1
         Some(order_number) => Ok(order_number + 1),
         None => Ok(0),
     }
+}
+
+pub async fn get_chapters_pages_exclude_main_frontpage(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> Result<Vec<Page>> {
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT p.*
+FROM pages p
+WHERE p.chapter_id = $1
+  AND p.deleted_at IS NULL
+  AND p.id NOT IN (
+    SELECT front_page_id
+    FROM chapters c
+    WHERE c.front_page_id = p.id
+  );
+    ",
+        chapter_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(pages)
 }

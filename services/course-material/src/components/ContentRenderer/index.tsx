@@ -16,6 +16,7 @@ import PullquoteBlock from "./PullquoteBlock"
 import CoverBlock from "./CoverBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
 import PagesListBlock from "./PagesListBlock"
+import React from "react"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]

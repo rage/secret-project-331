@@ -4,10 +4,35 @@ import { BlockRendererProps } from "."
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
 import fontSizeMapper from "../../styles/fontSizeMapper"
-import { ParagraphAttributes } from "../../types/GutenbergBlockAttributes"
+import KaTex from "katex"
 
-const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({ data }) => {
-  const attributes: ParagraphAttributes = data.attributes
+interface ParagraphBlockAttributes {
+  content: string
+  dropCap: boolean
+  textColor?: string
+  backgroundColor?: string
+  fontSize?: string
+}
+
+const LATEX_REGEX = /\[latex\](.*)\[\/latex\]/g
+/**
+ *
+ * @param data HTML-content from the server
+ * @returns HTML as string in which "[latex] ... [/latex]" will be replaced with katex
+ */
+const convertToLatex = (data: string) => {
+  return data.replaceAll(LATEX_REGEX, (_, latex) => {
+    // Convert ampersand back to special symbol. This is needed e.g. in matrices
+    const processed = latex.replaceAll("&amp;", "&")
+    return KaTex.renderToString(processed, {
+      throwOnError: false,
+      output: "mathml",
+    })
+  })
+}
+
+const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({ data }) => {
+  const attributes: ParagraphBlockAttributes = data.attributes
 
   const textColor = colorMapper(attributes.textColor, "#000000")
 
@@ -28,7 +53,9 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({ dat
         font-size: ${fontSize};
         ${backgroundColor && `padding: 1.25em 2.375em;`}
       `}
-      dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes.content) }}
+      dangerouslySetInnerHTML={{
+        __html: convertToLatex(sanitizeHtml(attributes.content)),
+      }}
     />
   )
 }

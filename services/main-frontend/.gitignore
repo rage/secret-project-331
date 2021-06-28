@@ -35,3 +35,6 @@ yarn-error.log*
 
 # misc
 components/GutenbergEditor
+
+# Shared module that has been copied to this project
+shared-module

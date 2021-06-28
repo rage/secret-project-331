@@ -2,11 +2,11 @@
 set -euo pipefail
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-FILE_PATH="$BASEDIR/../services/headless-lms/db/seed.sql"
+FILE_PATH="$BASEDIR/../services/headless-lms/db/seed"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
 
-COMMAND="psql"
-ARGUMENTS=(postgres://headless-lms@localhost:54328/headless_lms_dev --file "$RELATIVE_PATH" "$@")
+COMMAND="pg_restore"
+ARGUMENTS=(--disable-triggers --dbname=postgres://headless-lms@localhost:54328/headless_lms_dev "$RELATIVE_PATH" "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

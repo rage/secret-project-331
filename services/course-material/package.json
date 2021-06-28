@@ -21,6 +21,7 @@
     "date-fns": "^2.22.1",
     "express": "^4.17.1",
     "http-proxy-middleware": "^1.1.0",
+    "katex": "^0.13.11",
     "monaco-editor": "^0.23.0",
     "next": "latest",
     "react": "^16.13.0",

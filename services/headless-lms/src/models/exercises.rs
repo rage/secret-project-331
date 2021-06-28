@@ -85,6 +85,29 @@ pub struct ExerciseStatus {
     grading_progress: GradingProgress,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    name: &str,
+    page_id: Uuid,
+    order_number: i32,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO exercises (course_id, name, page_id, order_number)
+VALUES ($1, $2, $3, $4)
+RETURNING id
+",
+        course_id,
+        name,
+        page_id,
+        order_number
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_exercise(conn: &mut PgConnection, exercise_id: Uuid) -> Result<Exercise> {
     let exercise = sqlx::query_as!(
         Exercise,
@@ -127,7 +150,7 @@ pub async fn get_course_material_exercise(
     // exercise -- for now we'll give a random exercise task to the student
     // this could be changed by creating a policy in the exercise.
     let current_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
-    return Ok(CourseMaterialExercise {
+    Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task,
         exercise_status: Some(ExerciseStatus {
@@ -135,5 +158,5 @@ pub async fn get_course_material_exercise(
             activity_progress: ActivityProgress::Initialized,
             grading_progress: GradingProgress::NotReady,
         }),
-    });
+    })
 }

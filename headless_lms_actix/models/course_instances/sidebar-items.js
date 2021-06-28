@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["VariantStatus",""]],"struct":[["CourseInstance",""]]});
+initSidebarItems({"enum":[["VariantStatus",""]],"fn":[["insert",""]],"struct":[["CourseInstance",""]]});

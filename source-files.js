@@ -51,6 +51,7 @@ sourcesIndex["cpufeatures"] = {"name":"","files":["lib.rs","x86.rs"]};
 sourcesIndex["cpuid_bool"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["crc"] = {"name":"","files":["crc16.rs","crc32.rs","crc64.rs","lib.rs","util.rs"]};
 sourcesIndex["crc32fast"] = {"name":"","dirs":[{"name":"specialized","files":["mod.rs","pclmulqdq.rs"]}],"files":["baseline.rs","combine.rs","lib.rs","table.rs"]};
+sourcesIndex["create_database_seed"] = {"name":"","files":["create-database-seed.rs"]};
 sourcesIndex["crossbeam_channel"] = {"name":"","dirs":[{"name":"flavors","files":["array.rs","at.rs","list.rs","mod.rs","never.rs","tick.rs","zero.rs"]}],"files":["channel.rs","context.rs","counter.rs","err.rs","lib.rs","select.rs","select_macro.rs","utils.rs","waker.rs"]};
 sourcesIndex["crossbeam_queue"] = {"name":"","files":["array_queue.rs","lib.rs","seg_queue.rs"]};
 sourcesIndex["crossbeam_utils"] = {"name":"","dirs":[{"name":"atomic","files":["atomic_cell.rs","consume.rs","mod.rs","seq_lock.rs"]},{"name":"sync","files":["mod.rs","parker.rs","sharded_lock.rs","wait_group.rs"]}],"files":["backoff.rs","cache_padded.rs","lib.rs","thread.rs"]};

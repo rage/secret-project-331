@@ -15,6 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Cargo clippy
+        run: cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings
       - name: Build
         run: cargo build --verbose
         working-directory: ./services/headless-lms

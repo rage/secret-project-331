@@ -33,7 +33,7 @@ const CoursePages: React.FC<unknown> = () => {
   }
 
   const handleCreateFrontPage = async () => {
-    const courseGrid = createBlockInstance("moocfi/course-grid")
+    const courseGrid = createBlockInstance("moocfi/course-chapter-grid")
     const courseProgress = createBlockInstance("moocfi/course-progress")
     await postNewPage({
       content: [courseGrid, courseProgress],

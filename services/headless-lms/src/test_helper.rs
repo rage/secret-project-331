@@ -1,4 +1,4 @@
-use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres, Transaction};
+use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
 use tokio::sync::Mutex;
 

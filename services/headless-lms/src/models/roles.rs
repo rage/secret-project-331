@@ -38,6 +38,27 @@ impl Role {
     }
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    organization_id: Option<Uuid>,
+    course_id: Option<Uuid>,
+    role: UserRole,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO roles (user_id, organization_id, course_id, role) VALUES ($1, $2, $3, $4) RETURNING id
+",
+        user_id,
+        organization_id,
+        course_id,
+        role as UserRole
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_roles(conn: &mut PgConnection, user_id: Uuid) -> Result<Vec<Role>> {
     let roles = sqlx::query_as!(
         Role,

@@ -31,6 +31,27 @@ pub struct CourseStructure {
     pub chapters: Vec<Chapter>,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    name: &str,
+    organization_id: Uuid,
+    slug: &str,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO courses (name, organization_id, slug)
+VALUES ($1, $2, $3)
+RETURNING id
+",
+        name,
+        organization_id,
+        slug,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn all_courses(conn: &mut PgConnection) -> Result<Vec<Course>> {
     let courses = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE deleted_at IS NULL;"#)
         .fetch_all(conn)

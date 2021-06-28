@@ -30,6 +30,21 @@ You don't need these if you don't intend to change the headless-lms.
 
 ### Setting up minikube
 
+> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you do the following, otherwise you will most likely run out of space:
+
+1. `sudo service docker stop`
+2. `sudo vim /etc/docker/daemon.json` -
+   with content:
+   {
+   "data-root": "/home/username/docker"
+   }
+3. `mkdir /home/username/docker`
+4. `sudo rsync -aP /var/lib/docker /home/username/docker` (optional)
+5. `sudo mv /var/lib/docker /var/lib/docker.old`
+6. `sudo service docker start`
+   - Ensure all works fine with Docker, e.g. by running the minikube-start command a couple of lines below.
+7. `sudo rm -rf /var/lib/docker.old` (cleanup)
+
 Start minikube:
 
 ```sh

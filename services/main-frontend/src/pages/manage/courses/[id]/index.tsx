@@ -9,7 +9,7 @@ import { useQuery } from "react-query"
 import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import { Dialog, Button } from "@material-ui/core"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
-import withSignedIn from "../../../../components/withSignedIn"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 
 const StatsPage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")

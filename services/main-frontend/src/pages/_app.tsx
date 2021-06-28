@@ -3,7 +3,7 @@ import { RecoilRoot } from "recoil"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
 import { StylesProvider } from "@material-ui/core/styles"
-import { LoginStateContextProvider } from "../contexts/LoginStateContext"
+import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 
 import { ThemeProvider } from "@material-ui/core/styles"
 import React from "react"

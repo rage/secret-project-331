@@ -9,7 +9,7 @@ import { css } from "@emotion/css"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import React, { useContext, useState } from "react"
 import { Button, Dialog } from "@material-ui/core"
-import LoginStateContext from "../../contexts/LoginStateContext"
+import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 
 const Organization: React.FC<unknown> = () => {
   const id = useQueryParameter("id")

@@ -38,3 +38,19 @@ pub async fn all_organizations(conn: &mut PgConnection) -> Result<Vec<Organizati
     .await?;
     Ok(courses)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::Conn;
+
+    #[tokio::test]
+    #[ignore = "db not set up in CI, still useful as an example test"]
+    async fn gets_organizations() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        insert("slug", "org", tx.as_mut()).await.unwrap();
+        let orgs = all_organizations(tx.as_mut()).await.unwrap();
+        assert_eq!(orgs.len(), 1);
+    }
+}

@@ -9,6 +9,7 @@ import CodeBlock from "./CodeBlock"
 import QuoteBlock from "./QuoteBlock"
 import AudioBlock from "./AudioBlock"
 import TableBlock from "./TableBlock"
+import CourseProgressBlock from "./CourseProgressBlock"
 import ExerciseBlock from "./ExerciseBlock"
 import CustomHTMLBlock from "./CustomHTMLBlock"
 import PreformatterBlock from "./PreformatterBlock"
@@ -40,6 +41,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/pullquote": PullquoteBlock,
   "core/preformatted": PreformatterBlock,
   "core/columns": TableBlock,
+  "moocfi/course-progress": CourseProgressBlock,
   "moocfi/exercise": ExerciseBlock,
   "moocfi/exercises-in-chapter": ExerciseListBlock,
   "moocfi/pages-in-chapter": PagesListBlock,

@@ -14,7 +14,7 @@ interface ParagraphBlockAttributes {
   fontSize?: string
 }
 
-const LATEX_REGEX = /\[latex\](.*)\[\/latex\]/
+const LATEX_REGEX = /\[latex\](.*)\[\/latex\]/g
 /**
  *
  * @param data HTML-content from the server

@@ -9,7 +9,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
-GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in course part.
+GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
 # Example
 ```json
 [
@@ -69,7 +69,7 @@ async fn get_chapters_pages(
 }
 
 /**
-GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in course part.
+GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.
 # Example
 ```json
 [
@@ -133,6 +133,40 @@ async fn get_chapters_exercises(
 }
 
 /**
+GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.
+# Example
+```json
+[
+  {
+    "id": "5d246366-1aad-43f0-9de6-34856d287ebb",
+    "created_at": "2021-06-22T12:02:55.083133Z",
+    "updated_at": "2021-06-22T12:02:55.083133Z",
+    "course_id": "d49aadb1-0c29-4b3d-bc01-8ff80638cd3f",
+    "chapter_id": "0bfe657d-7db6-4bae-84dd-9964bac2b55b",
+    "url_path": "/chapter-2/following-in-the-intermediaries",
+    "title": "following in the intermediaries",
+    "deleted_at": null,
+    "content": [],
+    "order_number": 1
+  }
+]
+```
+*/
+#[instrument(skip(pool))]
+async fn get_chapters_pages_without_main_frontpage(
+    request_chapter_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ApplicationResult<Json<Vec<Page>>> {
+    let mut conn = pool.acquire().await?;
+    let chapter_pages = crate::models::pages::get_chapters_pages_exclude_main_frontpage(
+        &mut conn,
+        *request_chapter_id,
+    )
+    .await?;
+    Ok(Json(chapter_pages))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -144,5 +178,9 @@ pub fn _add_chapters_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{chapter_id}/exercises",
             web::get().to(get_chapters_exercises),
+        )
+        .route(
+            "/{chapter_id}/pages-exclude-mainfrontpage",
+            web::get().to(get_chapters_pages_without_main_frontpage),
         );
 }

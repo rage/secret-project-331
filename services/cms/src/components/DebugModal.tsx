@@ -3,9 +3,10 @@ import { Button, Dialog, Paper } from "@material-ui/core"
 import { Dispatch, useState } from "react"
 import dynamic from "next/dynamic"
 import styled from "@emotion/styled"
+import { BlockInstance } from "@wordpress/blocks"
 
 export interface DebugModalProps {
-  data: unknown
+  content: BlockInstance[]
   readOnly?: boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateDataOnClose?: Dispatch<any>
@@ -29,11 +30,11 @@ const HeaderBar = styled.div`
   }
 `
 
-const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDataOnClose }) => {
+const DebugModal: React.FC<DebugModalProps> = ({ content, readOnly = true, updateDataOnClose }) => {
   const [open, setOpen] = useState(false)
-  const [editedContent, setEditedContent] = useState(JSON.stringify(data, undefined, 2))
+  const [editedContent, setEditedContent] = useState<string | null>(null)
 
-  if (!data) {
+  if (!content) {
     return null
   }
 
@@ -45,9 +46,14 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
     }
   }
 
+  const openModal = () => {
+    setEditedContent(JSON.stringify(content, undefined, 2))
+    setOpen(true)
+  }
+
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Debug</Button>
+      <Button onClick={() => openModal()}>Debug</Button>
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>
         <Paper
           className={css`

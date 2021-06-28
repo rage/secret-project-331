@@ -46,8 +46,6 @@ import {
 /**
  * Internal dependencies
  */
-import SerializeGutenbergModal from "./SerializeGutenbergModal"
-import DebugModal from "./DebugModal"
 import { blockTypeMap } from "../blocks"
 import { supportedCoreBlocks, allowedEmbedBlocks } from "../blocks/supportedGutenbergBlocks"
 
@@ -114,8 +112,6 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
           </div>
         </BlockEditorProvider>
       </SlotFillProvider>
-      <SerializeGutenbergModal content={content} />
-      <DebugModal data={content} />
     </div>
   )
 }

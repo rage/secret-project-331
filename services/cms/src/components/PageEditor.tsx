@@ -5,6 +5,8 @@ import dynamic from "next/dynamic"
 import React, { useState } from "react"
 import { Page, PageUpdate } from "../services/services.types"
 import UpdatePageDetailsForm from "./forms/UpdatePageDetailsForm"
+import SerializeGutenbergModal from "./SerializeGutenbergModal"
+import DebugModal from "./DebugModal"
 
 interface PageEditorProps {
   data: Page
@@ -56,6 +58,8 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       />
 
       <GutenbergEditor content={content} onContentChange={setContent} />
+      <SerializeGutenbergModal content={content} />
+      <DebugModal content={content} />
     </>
   )
 }

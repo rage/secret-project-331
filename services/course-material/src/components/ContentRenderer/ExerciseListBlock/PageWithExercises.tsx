@@ -3,16 +3,16 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 
 const PageWithExercises: React.FC<{ page: ChapterPagesWithExercises }> = ({ page }) => {
-  const coursePath = useRouter().asPath
+  const courseSlug = useRouter().query.courseSlug
   return (
     <div>
       <h5>
-        <Link href={coursePath + page.url_path}>{page.title}</Link>
+        <Link href={"/" + courseSlug + page.url_path}>{page.title}</Link>
       </h5>
       <div>
         {page.exercises.map((e) => (
           <div key={e.id}>
-            <Link href={coursePath + page.url_path + "#" + e.id} passHref>
+            <Link href={"/" + courseSlug + page.url_path + "#" + e.id} passHref>
               <a>{e.name}</a>
             </Link>
           </div>

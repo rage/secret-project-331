@@ -32,9 +32,16 @@ global.document = dom.window.document
 global.navigator = dom.window.navigator
 const blockLibrary = require("@wordpress/block-library")
 const blocks = require("@wordpress/blocks")
+const { supportedCoreBlocks } = require("../src/blocks/supportedGutenbergBlocks")
 
 async function main() {
   blockLibrary.registerCoreBlocks()
+
+  blocks.getBlockTypes().forEach((block) => {
+    if (supportedCoreBlocks.indexOf(block.name) === -1) {
+      blocks.unregisterBlockType(block.name)
+    }
+  })
 
   const sanitizeNames = (name: string) => {
     const newName = name.replace("core/", "").replace(/-./g, (x) => x.toUpperCase()[1])

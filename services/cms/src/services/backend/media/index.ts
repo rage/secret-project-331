@@ -1,17 +1,10 @@
 import { MediaItem } from "@wordpress/media-utils"
 import { cmsClient } from "../cmsClient"
 
-interface UploadFileProps {
-  uploadData: FormData
-  pageId: string
-}
+export const uploadFileFromPage = async (file: File, pageId: string): Promise<MediaItem> => {
+  const data = new FormData()
+  data.append("file", file, file.name || "unknown")
 
-export const uploadFileFromPage = async ({
-  uploadData,
-  pageId,
-}: UploadFileProps): Promise<MediaItem> => {
-  const url = `/pages/${pageId}/upload`
-
-  const res = await cmsClient.post(url, uploadData)
+  const res = await cmsClient.post(`/pages/${pageId}/upload`, data)
   return res.data
 }

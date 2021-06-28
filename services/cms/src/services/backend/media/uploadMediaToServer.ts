@@ -1,12 +1,4 @@
-/**
- * External dependencies
- */
-import { compact, get, includes, noop, some, startsWith } from "lodash"
 import { uploadFileFromPage } from "."
-
-/**
- * WordPress dependencies
- */
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
 import { UploadMediaOptions, MediaItem } from "@wordpress/media-utils"
 
@@ -16,7 +8,7 @@ export async function uploadMedia({
   allowedTypes,
   filesList,
   maxUploadFileSize,
-  onError = noop,
+  onError = () => undefined,
   onFileChange,
   pageId,
 }: Omit<UploadMediaOptions, "onError" | "onFileChange" | "additionalData"> & {
@@ -28,90 +20,80 @@ export async function uploadMedia({
   onError: (message: string) => void
   onFileChange: (files: Partial<MediaItem>[]) => void
 }): Promise<void> {
-  const files = [...(filesList as File[])]
+  const validFiles = Array.from(filesList).filter((file) =>
+    validateFileAndBroadcastErrors(file, allowedTypes, maxUploadFileSize, onError),
+  )
 
-  const filesSet: Partial<MediaItem>[] = []
-  const setMediaFiles = (i: number, value: Partial<MediaItem> | null) => {
-    revokeBlobURL(get(filesSet, [i, "url"]))
-    filesSet[i] = value
-    onFileChange(compact(filesSet))
-  }
-
-  const isAllowedType = (fileType: string) => {
-    if (!allowedTypes) {
-      return true
-    }
-    return some(allowedTypes, (allowedType) => {
-      if (includes(allowedType, "/")) {
-        return allowedType === fileType
-      }
-      return startsWith(fileType, `${allowedType}/`)
-    })
-  }
-
-  const triggerError = (error: { message: string; file: File }) => {
-    const message = [error.file.name, ": ", error.message].join("")
-    onError(message)
-  }
-
-  const validFiles = files.flatMap((file) => {
-    if (file.type && !isAllowedType(file.type)) {
-      triggerError({
-        message: "This file type is not supported here.",
-        file,
-      })
-      return []
-    }
-
-    if (maxUploadFileSize && file.size > maxUploadFileSize) {
-      triggerError({
-        message: "File exceeds maximum upload size 10MB.",
-        file,
-      })
-      return []
-    }
-
-    if (file.size <= 0) {
-      triggerError({
-        message: "File is empty.",
-        file,
-      })
-      return []
-    }
-
-    filesSet.push({ url: createBlobURL(file) })
-    onFileChange(filesSet)
-    return [file]
+  const mediaItems: Partial<MediaItem>[] = validFiles.map((file) => {
+    // Indicate in the UI that the upload has started by initially placing a placeholder blob url.
+    return { url: createBlobURL(file) }
   })
+  // Tell gutenberg to show the placeholders
+  onFileChange(mediaItems)
 
-  validFiles.forEach(async (file, i) => {
+  const promises = validFiles.map(async (file, i) => {
+    let res: Partial<MediaItem> | null = null
     try {
-      const uploadedMedia = await uploadMediaFromFile(file, pageId)
-      const mediaObject = {
+      const uploadedMedia = await uploadFileFromPage(file, pageId)
+      res = {
         alt: uploadedMedia.alt,
         caption: uploadedMedia.caption,
         title: uploadedMedia.title,
         url: uploadedMedia.url,
       }
-      setMediaFiles(i, mediaObject)
     } catch (error) {
-      /*
-        Issue #124, figure out this race condition.
-        setMediaFiles(index, null) should revoke the blob
-        and set the Image edit to MediaPlaceholder and be able to use noticeUi (???)
-        https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/image/edit.js#L290-L328
-
-        Or perhaps this could be fixed in some other way so that we can get the backend errors visible.
-      */
-      setMediaFiles(i, null)
-      const message = error.data.detail
-      triggerError({ message, file })
+      onError(formatError(file, error?.data?.detail || "Upload failed"))
+    } finally {
+      // Upload has either succeeded or failed so we can remove the placeholder that is being used as a upload indicator.
+      revokeBlobURL(mediaItems[i]?.url)
+      // Either sets the result or sets the item to null
+      mediaItems[i] = res
+      // Broadcast only succeeded items to the consumer
+      onFileChange(mediaItems.filter((o) => !!o))
     }
   })
+  await Promise.all(promises)
 }
 
-function uploadMediaFromFile(file: File, pageId: string): Promise<MediaItem> {
-  const data = new window.FormData()
-  data.append("file", file, file.name || "unknown")
-  return uploadFileFromPage({ uploadData: data, pageId })
+function isFileTypeAllowed(type: string, allowedTypes: string[] | undefined): boolean {
+  if (!allowedTypes) {
+    return true
+  }
+  const allowingRule = allowedTypes.find((at) => {
+    if (at.indexOf("/") !== -1) {
+      return type === at
+    }
+    return type.startsWith(at)
+  })
+  return allowingRule !== undefined
+}
+
+function validateFileAndBroadcastErrors(
+  file: File,
+  allowedTypes: string[],
+  maxSize: number,
+  onError: (message: string) => void,
+): boolean {
+  if (file.type && !isFileTypeAllowed(file.type, allowedTypes)) {
+    onError(formatError(file, `File type (${file.type}) not supported.`))
+    return false
+  }
+
+  if (file.size <= 0) {
+    onError(formatError(file, `You sent an empty file.`))
+    return false
+  }
+
+  if (maxSize && file.size > maxSize) {
+    const fileSizeMb = Math.ceil(file.size * 0.000001)
+    onError(
+      formatError(file, `File is too big. Your file was ${fileSizeMb}MB while the limit is 10MB.`),
+    )
+    return false
+  }
+  return true
+}
+
+function formatError(file: File, message: string): string {
+  return `${file.name}: ${message}`
 }

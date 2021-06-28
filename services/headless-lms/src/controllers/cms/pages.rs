@@ -267,7 +267,7 @@ Response file:
 }
 ```
 */
-#[instrument(skip(payload))]
+#[instrument(skip(payload, request, pool))]
 async fn upload_media_for_course(
     request_page_id: web::Path<Uuid>,
     mut payload: mp::Multipart,

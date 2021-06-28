@@ -85,6 +85,29 @@ pub struct ExerciseStatus {
     grading_progress: GradingProgress,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    name: &str,
+    page_id: Uuid,
+    order_number: i32,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO exercises (course_id, name, page_id, order_number)
+VALUES ($1, $2, $3, $4)
+RETURNING id
+",
+        course_id,
+        name,
+        page_id,
+        order_number
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_exercise(conn: &mut PgConnection, exercise_id: Uuid) -> Result<Exercise> {
     let exercise = sqlx::query_as!(
         Exercise,

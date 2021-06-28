@@ -12,6 +12,12 @@ pub enum VariantStatus {
     Ended,
 }
 
+impl Default for VariantStatus {
+    fn default() -> Self {
+        Self::Draft
+    }
+}
+
 #[derive(Debug)]
 pub struct CourseInstance {
     pub id: Uuid,
@@ -23,7 +29,7 @@ pub struct CourseInstance {
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
-    variant_status: VariantStatus,
+    variant_status: Option<VariantStatus>,
 ) -> Result<Uuid> {
     let res = sqlx::query!(
         "
@@ -32,7 +38,7 @@ VALUES ($1, $2)
 RETURNING id
 ",
         course_id,
-        variant_status as VariantStatus
+        variant_status.unwrap_or_default() as VariantStatus,
     )
     .fetch_one(conn)
     .await?;

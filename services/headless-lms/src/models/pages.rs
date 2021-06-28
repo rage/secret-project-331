@@ -1,9 +1,9 @@
-use std::collections::HashMap;
-
 use crate::{
     models::chapters::Chapter,
     models::exercise_tasks::ExerciseTask,
-    utils::document_schema_processor::{denormalize, normalize_from_json, NormalizedDocument},
+    utils::document_schema_processor::{
+        denormalize, normalize_from_json, GutenbergBlock, NormalizedDocument,
+    },
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -11,6 +11,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::{Acquire, FromRow, PgConnection};
+use std::collections::HashMap;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -165,6 +166,66 @@ struct ExerciseWithExerciseTasks {
     page_id: Uuid,
     exercise_tasks: Vec<ExerciseTask>,
     score_maximum: i32,
+}
+
+pub async fn insert(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    url_path: &str,
+    title: &str,
+    order_number: i32,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO pages (
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+",
+        course_id,
+        serde_json::Value::Null,
+        url_path,
+        title,
+        order_number
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
+pub async fn set_chapter(conn: &mut PgConnection, page_id: Uuid, chapter_id: Uuid) -> Result<()> {
+    sqlx::query!(
+        "UPDATE pages SET chapter_id = $1 WHERE id = $2",
+        chapter_id,
+        page_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_content(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    content: &[GutenbergBlock],
+) -> Result<()> {
+    sqlx::query!(
+        "
+UPDATE pages
+SET content = $1
+WHERE id = $2
+",
+        serde_json::to_value(content).unwrap(),
+        page_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {

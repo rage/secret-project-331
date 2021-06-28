@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/rage/secret-project-331#readme",
   "devDependencies": {
+    "@types/node": "^15.12.5",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
     "eslint": "^7.27.0",

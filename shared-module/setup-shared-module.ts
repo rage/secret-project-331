@@ -19,6 +19,9 @@ async function main() {
   ]
 
   const promises = targetFolders.map(async (targetFolder) => {
+    // Cleanup to make sure deleted files get deleted. Will not fail if the
+    // folder does not exist
+    await exec(`rm -rf '${projectRoot}/${targetFolder}'`)
     const command = `cp -r '${projectRoot}/shared-module/src' '${projectRoot}/${targetFolder}'`
     console.log(`> ${command}`)
     await exec(command)

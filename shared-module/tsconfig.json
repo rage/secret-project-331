@@ -18,7 +18,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "jsxImportSource": "@emotion/react"
   },
   "exclude": ["node_modules"],

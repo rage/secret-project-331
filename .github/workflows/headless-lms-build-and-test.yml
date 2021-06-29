@@ -33,14 +33,21 @@ jobs:
         run: cargo build --verbose
         working-directory: ./services/headless-lms
 
-      - name: Set up test database
+      - name: Set up unit test database
         run: sqlx database setup
         working-directory: ./services/headless-lms
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
+
+      - name: Set up integration test database
+        run: sqlx database setup
+        working-directory: ./services/headless-lms
+        env:
+          DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_integration
 
       - name: Run tests
         run: cargo test --verbose
         working-directory: ./services/headless-lms
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
+          DATABASE_URL_TEST: postgres://postgres:postgres@postgres/headless_lms_integration

@@ -10,7 +10,7 @@ In order to create a block in CMS, create a folder in `services/cms/src/blocks` 
 - `edit.tsx` which contains the block's edit view
 - `index.tsx` which contains configuration of the block
 
-Let's start by creating `save.tsx` which contains a compoenent that is displayed when the block is saved:
+Let's start by creating `save.tsx` which contains a component that is displayed when the block is saved:
 
 ```typescript
 import { InnerBlocks } from "@wordpress/block-editor"
@@ -74,7 +74,7 @@ const NewCMSBlock: BlockConfiguration = {
 export default NewCMSBlock
 ```
 
-Finally, we can connect the component to be rendered in the CMS by adding a line to blockTypeMap in `cms/src/blocks/index.tsx`-file
+Finally, we can render the component in the CMS by adding a line to blockTypeMap in `cms/src/blocks/index.tsx`-file
 
 ```typescript
 export const blockTypeMap: Array<[string, BlockConfiguration]> = [

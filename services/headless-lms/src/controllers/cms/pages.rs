@@ -279,14 +279,9 @@ async fn upload_media_for_course(
     let course = crate::models::courses::get_course(&mut conn, course_id).await?;
     let headers = request.headers();
 
-    let content_type_option = headers.get(header::CONTENT_TYPE);
-    if content_type_option.is_none() {
-        return Err(ApplicationError::BadRequest(
-            "Please provide a Content-Type header".into(),
-        ));
-    }
-
-    let content_type = content_type_option.unwrap();
+    let content_type = headers.get(header::CONTENT_TYPE).ok_or_else(|| {
+        ApplicationError::BadRequest("Please provide a Content-Type header".into())
+    })?;
     let content_type_string = String::from_utf8_lossy(content_type.as_bytes()).to_string();
 
     if !content_type_string.contains("multipart/form-data") {
@@ -295,17 +290,13 @@ async fn upload_media_for_course(
         ));
     }
 
-    let content_length_option = headers.get(header::CONTENT_LENGTH);
-    if content_length_option.is_none() {
-        return Err(ApplicationError::BadRequest(
-            "Please provide a Content-Length in header".into(),
-        ));
-    }
-    let content_length = content_length_option.unwrap();
+    let content_length = headers.get(header::CONTENT_LENGTH).ok_or_else(|| {
+        ApplicationError::BadRequest("Please provide a Content-Length in header".into())
+    })?;
     let content_length_number = String::from_utf8_lossy(content_length.as_bytes())
         .to_string()
         .parse::<i32>()
-        .unwrap();
+        .map_err(|original_err| ApplicationError::InternalServerError(original_err.to_string()))?;
 
     if content_length_number > 10485760 {
         return Err(ApplicationError::BadRequest(
@@ -313,7 +304,11 @@ async fn upload_media_for_course(
         ));
     }
 
-    match payload.next().await.unwrap() {
+    let next_payload = payload
+        .next()
+        .await
+        .ok_or_else(|| ApplicationError::BadRequest("Missing form data".into()))?;
+    match next_payload {
         Ok(field) => {
             let mime = field.content_type();
 
@@ -332,15 +327,21 @@ async fn upload_media_for_course(
                 return upload_audio_for_course(file_name, field, &course).await;
             }
 
-            let field_content = field.content_disposition().unwrap();
-            let field_content_name = field_content.get_filename().unwrap();
-            let uploaded_file_extension = get_extension_from_filename(field_content_name);
-            if uploaded_file_extension.is_none() {
-                return Err(ApplicationError::InternalServerError(
-                    "Could not determine file extension".into(),
-                ));
-            }
-            file_name.push_str(uploaded_file_extension.unwrap());
+            let field_content = field.content_disposition().ok_or_else(|| {
+                ApplicationError::BadRequest("Missing field content-disposition".into())
+            })?;
+            let field_content_name = field_content.get_filename().ok_or_else(|| {
+                ApplicationError::BadRequest("Missing file name in content-disposition".into())
+            })?;
+
+            let uploaded_file_extension = get_extension_from_filename(field_content_name)
+                .ok_or_else(|| {
+                    ApplicationError::InternalServerError(
+                        "Could not determine file extension".into(),
+                    )
+                })?;
+
+            file_name.push_str(uploaded_file_extension);
             let path = course_file_path(&course, file_name)
                 .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
 

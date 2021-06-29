@@ -1,16 +1,17 @@
 import Link from "next/link"
-import { useRouter } from "next/router"
 import React from "react"
 import { useQuery } from "react-query"
-import { fetchChaptersInTheCourse } from "../../services/backend"
-import { chapterBox } from "../../styles/componentStyles"
-import GenericLoading from "../GenericLoading"
+import useQueryParameter from "../../../hooks/useQueryParameter"
+import { fetchChaptersInTheCourse } from "../../../services/backend"
+import { chapterBox } from "../../../styles/componentStyles"
+import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
+import GenericLoading from "../../GenericLoading"
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const { data, error, isLoading } = useQuery(`course-${courseId}-chapters`, () =>
     fetchChaptersInTheCourse(courseId),
   )
-  const router = useRouter()
+  const courseSlug = useQueryParameter("courseSlug")
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -19,8 +20,6 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   if (isLoading || !data) {
     return <GenericLoading />
   }
-
-  const courseSlug = router.query.courseSlug
 
   return (
     <div>
@@ -38,4 +37,4 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   )
 }
 
-export default ChapterGrid
+export default dontRenderUntilQueryParametersReady(ChapterGrid)

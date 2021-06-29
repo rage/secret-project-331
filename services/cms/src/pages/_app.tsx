@@ -15,6 +15,7 @@ import { CssBaseline } from "@material-ui/core"
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
 import { Global, css } from "@emotion/react"
+import "katex/dist/katex.min.css"
 
 const queryClient = new QueryClient({
   defaultOptions: {

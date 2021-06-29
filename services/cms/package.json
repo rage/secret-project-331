@@ -41,6 +41,7 @@
     "js-base64": "^3.6.1",
     "jszip": "^3.6.0",
     "jszip-utils": "^0.1.0",
+    "katex": "^0.13.11",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.24.0",
     "next": "^10.2.3",

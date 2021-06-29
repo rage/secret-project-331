@@ -6,7 +6,8 @@ RUN apt-get update \
 
 RUN cargo install sqlx-cli --no-default-features --features postgres && \
   cargo install cargo-watch && \
-  cargo install systemfd
+  cargo install systemfd && \
+  rustup component add clippy
 WORKDIR /app
 
 RUN useradd -ms /usr/sbin/nologin user

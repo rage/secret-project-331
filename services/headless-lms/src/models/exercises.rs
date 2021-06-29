@@ -256,20 +256,20 @@ mod test {
             organizations, pages, users,
         },
         test_helper::Conn,
+        utils::document_schema_processor::GutenbergBlock,
     };
 
     #[tokio::test]
-    #[ignore = "db not set up in CI"]
     async fn selects_course_material_exercise_for_enrolled_student() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
 
         let user_id = users::insert(tx.as_mut()).await.unwrap();
-        let organization_id = organizations::insert("", "", tx.as_mut()).await.unwrap();
-        let course_id = courses::insert(tx.as_mut(), "", "", organization_id)
+        let organization_id = organizations::insert(tx.as_mut(), "", "").await.unwrap();
+        let course_id = courses::insert(tx.as_mut(), "", organization_id, "")
             .await
             .unwrap();
-        let course_instance_id = course_instances::insert(tx.as_mut(), course_id)
+        let course_instance_id = course_instances::insert(tx.as_mut(), course_id, None)
             .await
             .unwrap();
         course_instance_enrollments::insert(
@@ -284,19 +284,25 @@ mod test {
         let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();
-        let page_id = pages::insert(tx.as_mut(), "", Value::Null, 0, "", course_id, chapter_id)
+        let page_id = pages::insert(tx.as_mut(), course_id, "", "", 0)
             .await
             .unwrap();
-        let exercise_id = super::insert(tx.as_mut(), "", course_id, page_id)
+        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, 0)
             .await
             .unwrap();
         let exercise_task_id = exercise_tasks::insert(
             tx.as_mut(),
             exercise_id,
             "",
+            GutenbergBlock {
+                attributes: Value::Null,
+                client_id: "".to_string(),
+                inner_blocks: vec![],
+                is_valid: true,
+                name: "".to_string(),
+            },
             Value::Null,
             Value::Null,
-            Uuid::new_v4(),
         )
         .await
         .unwrap();

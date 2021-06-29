@@ -77,6 +77,19 @@ export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[
   return data
 }
 
+export interface CourseProgress {
+  score_given: number
+  score_maximum: number
+  total_exercises: number
+  completed_exercises: number
+}
+
+export const fetchCourseProgress = async (courseInstanceId: string): Promise<CourseProgress> => {
+  const data = (await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`))
+    .data
+  return data
+}
+
 export interface CourseMaterialExercise {
   exercise: Exercise
   current_exercise_task: CurrentExerciseTask

@@ -56,7 +56,6 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
-<span id="56">56</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -105,7 +104,6 @@ RETURNING id
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">test_helper</span>::<span class="ident">Conn</span>;
 
     <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">ignore</span> <span class="op">=</span> <span class="string">&quot;db not set up in CI, still useful as an example test&quot;</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">gets_organizations</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn</span>::<span class="ident">init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;

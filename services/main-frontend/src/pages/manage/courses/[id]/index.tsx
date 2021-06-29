@@ -9,6 +9,7 @@ import { useQuery } from "react-query"
 import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import { Dialog, Button } from "@material-ui/core"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
+import ExerciseList from "../../../../components/ExerciseList"
 
 const StatsPage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
@@ -59,6 +60,8 @@ const StatsPage: React.FC<unknown> = () => {
           </div>
         </Dialog>
       </div>
+      <h3>All exercises</h3>
+      <ExerciseList courseId={id} />
     </Layout>
   )
 }

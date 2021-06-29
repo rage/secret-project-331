@@ -38,7 +38,7 @@ You don't need these if you don't intend to change the headless-lms.
    {
    "data-root": "/home/username/docker"
    }
-3. `mkdir /home/username/docker`
+3. `mkdir /home/$USER/docker`
 4. `sudo rsync -aP /var/lib/docker /home/username/docker` (optional)
 5. `sudo mv /var/lib/docker /var/lib/docker.old`
 6. `sudo service docker start`

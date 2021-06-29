@@ -54,7 +54,8 @@ export function withSignedIn<T>(Component: ComponentType<T>): React.FC<T> {
     }
 
     if (!loginStateContext.signedIn) {
-      router.push("/login")
+      const returnTo = encodeURIComponent(router.asPath)
+      router.push(`/login?return_to=${returnTo}`)
       return <div>Please sign in to view this page.</div>
     }
 

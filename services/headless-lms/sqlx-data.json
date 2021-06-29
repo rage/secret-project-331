@@ -938,6 +938,57 @@
       ]
     }
   },
+  "574a901c8e23711205bd8e0d6bcefbeeebf389a4e344a47c6565b123e329b3ff": {
+    "query": "\nselect *\nfrom email_deliveries ed\nwhere ed.deleted_at IS NULL\n  and ed.sent = FALSE\n  and ed.error IS NULL;\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "email_template_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "error",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "sent",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 7,
+          "name": "user_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [false, false, false, true, false, true, false, false]
+    }
+  },
   "5c55b14104bfdc1b23bb335ce5a747f7d9bba291bfa8ffd6abf84decd936040b": {
     "query": "\n    INSERT INTO\n      courses(name, slug, organization_id)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
     "describe": {

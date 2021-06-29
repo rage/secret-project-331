@@ -1,6 +1,8 @@
+use crate::utils::document_schema_processor::GutenbergBlock;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::{FromRow, PgConnection};
 use uuid::Uuid;
 
@@ -31,9 +33,9 @@ pub async fn insert(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     exercise_type: &str,
-    assignment: serde_json::Value,
-    private_spec: serde_json::Value,
-    spec_file_id: Uuid,
+    assignment: GutenbergBlock,
+    private_spec: Value,
+    public_spec: Value,
 ) -> Result<Uuid> {
     let res = sqlx::query!(
         "
@@ -42,16 +44,16 @@ INSERT INTO exercise_tasks (
     exercise_type,
     assignment,
     private_spec,
-    spec_file_id
+    public_spec
   )
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         exercise_id,
         exercise_type,
-        assignment,
+        serde_json::to_value(assignment).unwrap(),
         private_spec,
-        spec_file_id,
+        public_spec
     )
     .fetch_one(conn)
     .await?;

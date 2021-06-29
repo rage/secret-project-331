@@ -12,12 +12,35 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v2
+      - name: Cargo clippy
+        run: cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings
       - name: Build
         run: cargo build --verbose
         working-directory: ./services/headless-lms
+
+      - name: Set up test database
+        run: sqlx database setup
+        working-directory: ./services/headless-lms
+        env:
+          DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
+
       - name: Run tests
         run: cargo test --verbose
         working-directory: ./services/headless-lms
+        env:
+          DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test

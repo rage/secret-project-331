@@ -50,6 +50,42 @@ pub struct ChapterUpdate {
     pub front_front_page_id: Option<Uuid>,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    name: &str,
+    course_id: Uuid,
+    chapter_number: i32,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO chapters (name, course_id, chapter_number)
+VALUES ($1, $2, $3)
+RETURNING id
+",
+        name,
+        course_id,
+        chapter_number
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
+pub async fn set_front_page(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    front_page_id: Uuid,
+) -> Result<()> {
+    sqlx::query!(
+        "UPDATE chapters SET front_page_id = $1 WHERE id = $2",
+        front_page_id,
+        chapter_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id from chapters where id = $1", chapter_id)
         .fetch_one(conn)
@@ -91,27 +127,6 @@ pub async fn course_chapters(conn: &mut PgConnection, course_id: Uuid) -> Result
     .fetch_all(conn)
     .await?;
     Ok(chapters)
-}
-
-pub async fn insert(
-    conn: &mut PgConnection,
-    name: &str,
-    course_id: Uuid,
-    chapter_number: i32,
-) -> Result<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO chapters (name, course_id, chapter_number)
-VALUES ($1, $2, $3)
-RETURNING id
-",
-        name,
-        course_id,
-        chapter_number
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
 }
 
 pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> Result<Chapter> {

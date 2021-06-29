@@ -93,6 +93,22 @@
       "nullable": [false]
     }
   },
+  "069ad8a4b2ba57b5f925e8fc3d71d2820c998ee6ee45b96febc7dbda70aef259": {
+    "query": "\nINSERT INTO organizations (name, slug)\nVALUES ($1, $2)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Varchar"]
+      },
+      "nullable": [false]
+    }
+  },
   "07ff6c440bb184c682c8095f73537a51399aff014e77485afa80dcde0268607f": {
     "query": "\nUPDATE chapters SET front_page_id = $1 WHERE id = $2\n        ",
     "describe": {
@@ -590,6 +606,22 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
+  "335aaa2cc36646c9865e2a8048896d907e41e9063dfa06fdd1cfad6817f9dc6e": {
+    "query": "\nINSERT INTO submissions (\n    exercise_id,\n    course_id,\n    exercise_task_id,\n    user_id,\n    course_instance_id\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "36578c1a1be112ab9d9f49eea1c69240309c9bf83e6a4b98237e687d1fa04b92": {
     "query": "SELECT course_id FROM pages WHERE id = $1",
     "describe": {
@@ -640,22 +672,6 @@
         "Left": ["Int4"]
       },
       "nullable": [false, false, false, true, true]
-    }
-  },
-  "390e1bad389bd625e85a2636a51dbe0de2b91c85aec7831126341bdd2d90101e": {
-    "query": "\nINSERT INTO courses(name, slug, organization_id)\nVALUES($1, $2, $3)\nRETURNING id\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Varchar", "Uuid"]
-      },
-      "nullable": [false]
     }
   },
   "3e925fb3e5a135d876037e1424238f4c88a4d9a76a739e16c2c6d8d17151cd06": {
@@ -827,20 +843,14 @@
       "nullable": []
     }
   },
-  "52ea9b2d3df0bf11677a29a6190c2db6c89f2d49b254f8c4cd66c24d13e36db2": {
-    "query": "\nINSERT INTO pages (\n    course_id,\n    content,\n    url_path,\n    title,\n    chapter_id,\n    order_number\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id\n",
+  "502d624be97efadd5fea8635bd71d85dd770df10088f3d1fe5ff749dd0e9bd7f": {
+    "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2\n",
     "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
+      "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid", "Int4"]
+        "Left": ["Jsonb", "Uuid"]
       },
-      "nullable": [false]
+      "nullable": []
     }
   },
   "56d846875a3a880da4819cf18d0137b9e305a95a81c54dc62a89a45829fcb38c": {
@@ -1184,22 +1194,6 @@
       "nullable": []
     }
   },
-  "7036a2844a38fec351746e047ebf4289670ebecd948398b6711b19dcf00df8cc": {
-    "query": "\nINSERT INTO exercises (course_id, name, page_id)\nVALUES ($1, $2, $3)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Uuid"]
-      },
-      "nullable": [false]
-    }
-  },
   "766a0d121d9fae40d872a1b4a5756610cdefb07f81fbfa11e4f112d11e9b2702": {
     "query": "\nSELECT\n    id, variant_status as \"variant_status: VariantStatus\", starts_at, ends_at\nFROM course_instances\nWHERE deleted_at IS NOT NULL;\n",
     "describe": {
@@ -1430,8 +1424,8 @@
       "nullable": [false, false, false, false, false, true, false]
     }
   },
-  "83af270e56cea7be1d83996d56dd34b4b09925ab185d5800e47c77f4be44a391": {
-    "query": "\nINSERT INTO exercise_tasks (\n    exercise_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    spec_file_id\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
+  "8618ce42d70d235789ef5dc2bf23051fa7964b770cbd4cfa95022fa219f5dddf": {
+    "query": "\nINSERT INTO courses (name, organization_id, slug)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
       "columns": [
         {
@@ -1441,7 +1435,7 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Jsonb", "Jsonb", "Uuid"]
+        "Left": ["Varchar", "Uuid", "Varchar"]
       },
       "nullable": [false]
     }
@@ -1516,22 +1510,6 @@
       "nullable": [false, false, false, false, false, true, true, false, false]
     }
   },
-  "8817cb6fcb353f5f06d1929ce3f1e527ff36b0fd56c4b756405d61ca1147ac85": {
-    "query": "\nINSERT INTO course_instances (course_id)\nVALUES ($1)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false]
-    }
-  },
   "88890869dabe25130451185ec231260f8cdc6121649923e7209346dded7d0014": {
     "query": "SELECT organization_id FROM courses WHERE id = $1",
     "describe": {
@@ -1598,22 +1576,6 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [null, null]
-    }
-  },
-  "9334e0d22a7881851c6b4453bf88669f691093536a9290353bac4aa669b401d0": {
-    "query": "\nINSERT INTO organizations (slug, name)\nVALUES ($1, $2)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Varchar"]
-      },
-      "nullable": [false]
     }
   },
   "95dd409bd722442fe75d3b3aba428f811687752e1df10dc30ad7a1ce0250e76d": {
@@ -1829,6 +1791,22 @@
       "nullable": [false, false, false, false, true, false, true, false, false, false]
     }
   },
+  "a63a933b50589d7ad1978288ac0be6ffb04c6293d360219b31cf012fa43e95ee": {
+    "query": "\nINSERT INTO exercise_tasks (\n    exercise_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    public_spec\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb"]
+      },
+      "nullable": [false]
+    }
+  },
   "a9e2fc40cc3a0a3e0bb5910ea9a354f91a3717e602eb8648fe8fd34a7da9bf44": {
     "query": "\nUPDATE chapters\n    SET name = $1,\n    chapter_number = $2\nWHERE\n    id = $3\n    RETURNING *\n    ",
     "describe": {
@@ -1878,6 +1856,22 @@
         "Left": ["Varchar", "Int4", "Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true]
+    }
+  },
+  "aa01a70a115278d29a492d5ea157236d54c06bbae3124930efa4ccb9deac4f10": {
+    "query": "\nINSERT INTO exercises (course_id, name, page_id, order_number)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Uuid", "Int4"]
+      },
+      "nullable": [false]
     }
   },
   "aa8073a0f2788eba303868988a8f5e04f6b15f456d0e13d640e2e365c2f3fc5e": {
@@ -2101,6 +2095,16 @@
       "nullable": [false, false, false, true, true]
     }
   },
+  "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {
+    "query": "UPDATE chapters SET front_page_id = $1 WHERE id = $2",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "b91b47ed8d6f7f16ee1866257a66c7b6b30e77737a0eebe0c8f2684f8dd11345": {
     "query": "\nSELECT p.id as page_id,\n  p.order_number as order_number,\n  p.course_id as course_id,\n  c.id as chapter_id,\n  c.chapter_number as chapter_number\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.id = $1;\n        ",
     "describe": {
@@ -2234,6 +2238,32 @@
       "nullable": [false, false, false, false, false, true, false]
     }
   },
+  "c64581b37859bf9c06117e35ab6f79a6eae6aa06e1caeff52e3e9734a0e36d75": {
+    "query": "\nINSERT INTO course_instances (course_id, variant_status)\nVALUES ($1, $2)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "variant_status",
+              "kind": {
+                "Enum": ["draft", "upcoming", "active", "ended"]
+              }
+            }
+          }
+        ]
+      },
+      "nullable": [false]
+    }
+  },
   "c8c5264811bce45733628caa8a1e90a07e2d16cbb5ad6ce0cd35f3e1e1921a4e": {
     "query": "\nSELECT date_part('isodow', created_at)::integer isodow, date_part('hour', created_at)::integer \"hour\", count(*)::integer\nFROM submissions\nWHERE course_id = $1\nGROUP BY isodow, \"hour\"\nORDER BY isodow, hour;\n          ",
     "describe": {
@@ -2335,6 +2365,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, false, false, true, true, false]
+    }
+  },
+  "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8": {
+    "query": "UPDATE pages SET chapter_id = $1 WHERE id = $2",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "d5305aa4ee1aefda2f427281711994f0cfb9308f018f02a1c30344b6a125f3a3": {
@@ -2638,6 +2678,22 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
+  "db64bea6f7dc10dd47f4c41c5efa78c95cf5b6d97fcfcefda66847c20861ac56": {
+    "query": "\nINSERT INTO pages (\n    course_id,\n    content,\n    url_path,\n    title,\n    order_number\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4"]
+      },
+      "nullable": [false]
+    }
+  },
   "ddc62ff5809a951ea9904da0f19e585ee6dd78efa938ca36aa58f22fd8036797": {
     "query": "\nINSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id, current)\nVALUES ($1, $2, $3, $4)\n",
     "describe": {
@@ -2784,6 +2840,34 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, true, false]
+    }
+  },
+  "f344ce135ffc19dfbf4176348181e9a876c8ed92ec853f8c62d2350d80fa3e2f": {
+    "query": "\nINSERT INTO roles (user_id, organization_id, course_id, role) VALUES ($1, $2, $3, $4) RETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+              }
+            }
+          }
+        ]
+      },
+      "nullable": [false]
     }
   },
   "f3f1159398504ef221c840898a788f385016d15f3e9aa661468776314f3bbd46": {

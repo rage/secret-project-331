@@ -2,9 +2,11 @@ import React, { useContext } from "react"
 import { logout } from "../shared-module/services/backend/auth"
 import Link from "next/link"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
+import { useRouter } from "next/router"
 
 export default function LoginLogoutButton(): JSX.Element {
   const loginStateContext = useContext(LoginStateContext)
+  const router = useRouter()
 
   if (loginStateContext.isLoading) {
     return <>Loading...</>
@@ -22,6 +24,6 @@ export default function LoginLogoutButton(): JSX.Element {
       </form>
     )
   } else {
-    return <Link href="/login">Login</Link>
+    return <Link href={`/login?return_to=${encodeURIComponent(router.asPath)}`}>Login</Link>
   }
 }

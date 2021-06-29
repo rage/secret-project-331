@@ -35,9 +35,13 @@ export default function Login(): JSX.Element {
   )
 }
 
-function validateRouteOrDefault(returnPath: string, defaultPath: string): string {
+function validateRouteOrDefault(returnPath: string | undefined, defaultPath: string): string {
+  if (!returnPath) {
+    return defaultPath
+  }
+
   // Only match paths like /asd, /asd/dfg, ...
-  const match = returnPath.match(/(\/d\S)+/)
+  const match = returnPath.match(/^(\/\S+)+/)
   if (match === null) {
     return defaultPath
   }

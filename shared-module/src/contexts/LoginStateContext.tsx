@@ -47,15 +47,14 @@ export function withSignedIn<T>(Component: ComponentType<T>): React.FC<T> {
 
   const InnerComponent: React.FC<T> = (props) => {
     const loginStateContext = useContext(LoginStateContext)
-    const router = useRouter()
 
     if (loginStateContext.isLoading || loginStateContext.signedIn === null) {
       return <div>Loading...</div>
     }
 
     if (!loginStateContext.signedIn) {
-      const returnTo = encodeURIComponent(router.asPath)
-      router.push(`/login?return_to=${returnTo}`)
+      const returnTo = encodeURIComponent(window.location.pathname)
+      window.location.replace(`/login?return_to=${returnTo}`)
       return <div>Please sign in to view this page.</div>
     }
 

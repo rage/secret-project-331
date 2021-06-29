@@ -39,7 +39,7 @@ You don't need these if you don't intend to change the headless-lms.
    "data-root": "/home/username/docker"
    }
 3. `mkdir /home/$USER/docker`
-4. `sudo rsync -aP /var/lib/docker /home/username/docker` (optional)
+4. `sudo rsync -aP /var/lib/docker /home/$USER/docker` (optional)
 5. `sudo mv /var/lib/docker /var/lib/docker.old`
 6. `sudo service docker start`
    - Ensure all works fine with Docker, e.g. by running the minikube-start command a couple of lines below.

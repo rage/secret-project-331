@@ -45,7 +45,6 @@ mod tests {
     use crate::test_helper::Conn;
 
     #[tokio::test]
-    #[ignore = "db not set up in CI, still useful as an example test"]
     async fn gets_organizations() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;

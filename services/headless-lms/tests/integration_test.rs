@@ -9,7 +9,9 @@ use tokio::sync::Mutex;
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
 
-/// Reinitializes the test database once per `cargo test` call
+/// Reinitializes the test database once per `cargo test` call.
+/// This is done because there's no good way to clean up the database after testing,
+/// so there may be leftover data.
 pub async fn init_db() -> String {
     if let Some(db) = DB_URL.lock().await.as_ref() {
         return db.clone();
@@ -60,7 +62,6 @@ pub async fn init_actix() -> (
 }
 
 #[tokio::test]
-#[ignore = "integration test db not set up in CI, still useful as an example test"]
 async fn gets_organizations() {
     let (actix, pool) = init_actix().await;
     let mut conn = pool.acquire().await.unwrap();

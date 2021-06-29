@@ -4,9 +4,15 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::models::exercise_tasks::get_random_exercise_task;
+use crate::models::{
+    exercise_service_info::get_course_material_service_info_by_exercise_type,
+    exercise_tasks::get_random_exercise_task,
+};
 
-use super::exercise_tasks::CourseMaterialExerciseTask;
+use super::{
+    exercise_service_info::CourseMaterialExerciseServiceInfo,
+    exercise_tasks::CourseMaterialExerciseTask,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Exercise {
@@ -26,6 +32,11 @@ pub struct Exercise {
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
     pub current_exercise_task: CourseMaterialExerciseTask,
+    /**
+    If none, the task is not completable at the moment because the service needs to
+    be configured to the system.
+    */
+    pub current_exercise_task_service_info: Option<CourseMaterialExerciseServiceInfo>,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
 }
@@ -150,6 +161,11 @@ pub async fn get_course_material_exercise(
     // exercise -- for now we'll give a random exercise task to the student
     // this could be changed by creating a policy in the exercise.
     let current_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
+    let current_exercise_task_service_info = get_course_material_service_info_by_exercise_type(
+        conn,
+        &current_exercise_task.exercise_type,
+    )
+    .await;
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task,
@@ -158,5 +174,6 @@ pub async fn get_course_material_exercise(
             activity_progress: ActivityProgress::Initialized,
             grading_progress: GradingProgress::NotReady,
         }),
+        current_exercise_task_service_info,
     })
 }

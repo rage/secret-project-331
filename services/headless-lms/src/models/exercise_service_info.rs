@@ -21,6 +21,11 @@ pub struct ExerciseServiceInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct CourseMaterialExerciseServiceInfo {
+    pub exercise_iframe_path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct FetchedExerciseServiceInfo {
     pub service_name: String,
     pub editor_iframe_path: String,
@@ -120,4 +125,20 @@ pub async fn get_service_info_by_exercise_type(
         fetched_service_info
     };
     Ok(service_info)
+}
+
+/**
+Returns service info meant for the course material. If no service info is found and fetching it fails, we return None to
+indicate that the service info is unavailable.
+*/
+pub async fn get_course_material_service_info_by_exercise_type(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+) -> Option<CourseMaterialExerciseServiceInfo> {
+    let full_service_info = get_service_info_by_exercise_type(conn, exercise_type).await;
+    full_service_info
+        .ok()
+        .map(|o| CourseMaterialExerciseServiceInfo {
+            exercise_iframe_path: o.exercise_iframe_path,
+        })
 }

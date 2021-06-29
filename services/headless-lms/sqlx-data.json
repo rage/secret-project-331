@@ -699,42 +699,6 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
-  "41272f15882f442930b5c33a7986dc39f59c1f1d249951752eb813d02aefa541": {
-    "query": "SELECT id, exercise_id, exercise_type, assignment, public_spec FROM exercise_tasks WHERE exercise_id = $1 AND deleted_at IS NULL ORDER BY random();",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "exercise_type",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "assignment",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 4,
-          "name": "public_spec",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true]
-    }
-  },
   "45a3380b45f6c12e86e8ed31d0e2c7490f2487c08d6cedc711cecabc0fbf6af7": {
     "query": "\nUPDATE courses\n    SET deleted_at = now()\nWHERE\n    id = $1\nRETURNING *\n    ",
     "describe": {
@@ -779,6 +743,42 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, true, false]
+    }
+  },
+  "4b1ff5bd633537d7159368dc3d07a0cdedaffffe39bddca03731fd3c6f04687b": {
+    "query": "\nSELECT id,\n  exercise_id,\n  exercise_type,\n  assignment,\n  public_spec\nFROM exercise_tasks\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\nORDER BY random();\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "exercise_type",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "assignment",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 4,
+          "name": "public_spec",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true]
     }
   },
   "4bcf93034b7f1e2a30d12f895c2e8c394094dd5b057cbbd89a5715ad9518ef9d": {

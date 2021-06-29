@@ -30,7 +30,13 @@ You don't need these if you don't intend to change the headless-lms.
 
 ### Setting up minikube
 
-> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you do the following, otherwise you will most likely run out of space:
+Start minikube:
+
+```sh
+bin/minikube-start
+```
+
+#### Moving docker data root to another drive with more space
 
 1. `sudo systemctl stop docker`
 2. `sudo vim /etc/docker/daemon.json` -
@@ -42,14 +48,10 @@ You don't need these if you don't intend to change the headless-lms.
 4. `sudo rsync -aP /var/lib/docker /home/$USER/docker` (optional)
 5. `sudo mv /var/lib/docker /var/lib/docker.old`
 6. `sudo systemctl start docker`
-   - Ensure all works fine with Docker, e.g. by running the minikube-start command a couple of lines below.
+   - Ensure all works fine by running: `docker run --rm hello-world`
 7. `sudo rm -rf /var/lib/docker.old` (cleanup)
 
-Start minikube:
-
-```sh
-bin/minikube-start
-```
+> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space.
 
 ### Starting the development cluster
 

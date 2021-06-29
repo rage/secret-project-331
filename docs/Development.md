@@ -32,7 +32,7 @@ You don't need these if you don't intend to change the headless-lms.
 
 > NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you do the following, otherwise you will most likely run out of space:
 
-1. `sudo service docker stop`
+1. `sudo systemctl stop docker`
 2. `sudo vim /etc/docker/daemon.json` -
    with content:
    {

@@ -79,6 +79,37 @@ pub struct SubmissionResult {
     grading: Grading,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    course_id: Uuid,
+    exercise_task_id: Uuid,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO submissions (
+    exercise_id,
+    course_id,
+    exercise_task_id,
+    user_id,
+    course_instance_id
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+",
+        exercise_id,
+        course_id,
+        exercise_task_id,
+        user_id,
+        course_instance_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM submissions WHERE id = $1", id)
         .fetch_one(conn)

@@ -49,8 +49,8 @@ async fn post_new_chapter(
     user: AuthUser,
 ) -> ApplicationResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
-    let new_course = payload.0;
-    let chapter = crate::models::chapters::insert_chapter(&mut conn, new_course).await?;
+    let new_chapter = payload.0;
+    let chapter = crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
     Ok(Json(chapter))
 }
 

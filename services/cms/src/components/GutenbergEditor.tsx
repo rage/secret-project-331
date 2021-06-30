@@ -34,19 +34,26 @@ import {
 } from "@wordpress/block-editor"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
-import { BlockInstance, registerBlockType } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
+import {
+  BlockInstance,
+  getBlockType,
+  getBlockTypes,
+  registerBlockType,
+  unregisterBlockType,
+  /* @ts-ignore: type signature incorrect */
+  unregisterBlockVariation,
+} from "@wordpress/blocks"
 
 /**
  * Internal dependencies
  */
 import React, { useEffect } from "react"
-import SerializeGutenbergModal from "./SerializeGutenbergModal"
-import DebugModal from "./DebugModal"
 import { blockTypeMap } from "../blocks"
 import mediaUploadBuilder, { MediaUploadProps } from "../services/backend/media/mediaUpload"
 import useQueryParameter from "../hooks/useQueryParameter"
 import { modifyBlockAttributes } from "../utils/Gutenberg/modifyBlockAttributes"
+import { supportedCoreBlocks, allowedEmbedBlocks } from "../blocks/supportedGutenbergBlocks"
 
 interface GutenbergEditor {
   content: BlockInstance[]
@@ -69,7 +76,22 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
   addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 
   useEffect(() => {
+    // Register all core blocks
     registerCoreBlocks()
+    // Register own blocks
+    // Unregister unwanted blocks
+    getBlockTypes().forEach((block) => {
+      if (supportedCoreBlocks.indexOf(block.name) === -1) {
+        unregisterBlockType(block.name)
+      }
+    })
+    /* @ts-ignore: type signature incorrect */
+    getBlockType("core/embed").variations.forEach((variation) => {
+      if (allowedEmbedBlocks.indexOf(variation.name) === -1) {
+        unregisterBlockVariation("core/embed", variation.name)
+      }
+    })
+
     blockTypeMap.forEach(([blockName, block]) => {
       registerBlockType(blockName, block)
     })
@@ -110,8 +132,6 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
           </div>
         </BlockEditorProvider>
       </SlotFillProvider>
-      <SerializeGutenbergModal content={content} />
-      <DebugModal data={content} />
     </div>
   )
 }

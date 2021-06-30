@@ -45,7 +45,7 @@ export interface CoursePage {
   url_path: string
   title: string
   deleted_at: Date | null
-  chapter_id: string
+  chapter_id: string | undefined
 }
 
 export interface Block<T> {
@@ -61,7 +61,7 @@ export const fetchCoursePageByPath = async (
   path: string,
 ): Promise<CoursePage> => {
   const data = (
-    await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path/${path}`, {
+    await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path${path}`, {
       responseType: "json",
     })
   ).data
@@ -74,6 +74,19 @@ export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[
       responseType: "json",
     })
   ).data
+  return data
+}
+
+export interface CourseProgress {
+  score_given: number
+  score_maximum: number
+  total_exercises: number
+  completed_exercises: number
+}
+
+export const fetchCourseProgress = async (courseInstanceId: string): Promise<CourseProgress> => {
+  const data = (await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`))
+    .data
   return data
 }
 
@@ -136,4 +149,33 @@ export const fetchChaptersPagesWithExercises = async (
     })
   ).data
   return data
+}
+
+export interface PageRoutingData {
+  url_path: string
+  title: string
+  chapter_number: string | undefined
+  chapter_id: string
+}
+
+export const getNextPageRoutingData = async (currentPageId: string): Promise<PageRoutingData> => {
+  return (await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)).data
+}
+
+export interface ChapterPages {
+  id: string
+  created_at: Date
+  updated_at: Date
+  course_id: string
+  chapter_id: string
+  content: any
+  url_path: string
+  title: string
+  deleted_at: Date
+}
+
+export const fetchChaptersPagesExcludeFrontpage = async (
+  chapterId: string,
+): Promise<ChapterPages[]> => {
+  return (await courseMaterialClient.get(`/chapters/${chapterId}/pages-exclude-mainfrontpage`)).data
 }

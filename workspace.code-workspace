@@ -27,6 +27,10 @@
     {
       "name": "System tests",
       "path": "./system-tests"
+    },
+    {
+      "name": "Shared module",
+      "path": "./shared-module"
     }
   ],
   "settings": {
@@ -35,7 +39,22 @@
     "eslint.format.enable": true,
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file",
-    "sqltools.highlightQuery": false
+    "sqltools.highlightQuery": false,
+    "[javascript]": {
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[rust]": {
+      "editor.defaultFormatter": "matklad.rust-analyzer"
+    }
   },
   "recommendations": [
     "stylelint.vscode-stylelint",
@@ -45,7 +64,9 @@
     "ms-kubernetes-tools.vscode-kubernetes-tools",
     "timonwong.shellcheck",
     "humao.rest-client",
-    "mtxr.sqltools"
+    "mtxr.sqltools",
+    "usernamehw.errorlens",
+    "coenraads.bracket-pair-colorizer-2"
   ],
   "launch": {
     "configurations": [],

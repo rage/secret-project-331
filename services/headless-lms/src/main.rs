@@ -2,18 +2,14 @@
 extern crate tracing;
 
 use actix_session::CookieSession;
-use actix_web::{error, web, App, HttpResponse, HttpServer};
+use actix_web::{App, HttpServer};
 use anyhow::Result;
 use dotenv::dotenv;
-use headless_lms_actix::{
-    controllers::configure_controllers, utils::file_store::local_file_store::LocalFileStore,
-    OAuthClient,
-};
+use headless_lms_actix::{utils::file_store::local_file_store::LocalFileStore, OAuthClient};
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
 use sqlx::PgPool;
 use std::{env, sync::Arc};
-use tracing_actix_web::TracingLogger;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
@@ -58,26 +54,12 @@ async fn main() -> Result<()> {
     let file_store: LocalFileStore = LocalFileStore::new("uploads".into()).await?;
 
     let mut server = HttpServer::new(move || {
-        let json_config = web::JsonConfig::default()
-            .limit(81920)
-            .error_handler(|err, _req| {
-                info!("Bad request: {}", &err);
-                // create custom error response
-                let response = HttpResponse::BadRequest().body(format!(
-                    "{{\"title\": \"Bad Request\", \"detail\": \"{}\"}}",
-                    &err
-                ));
-                error::InternalError::from_response(err, response).into()
-            });
-
         App::new()
+            .configure(headless_lms_actix::configure)
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
-            .wrap(TracingLogger::default())
-            .app_data(json_config)
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())
             .data(file_store.clone())
-            .service(web::scope("/api/v0").configure(configure_controllers::<LocalFileStore>))
     });
 
     server = match listenfd.take_tcp_listener(0)? {

@@ -36,9 +36,16 @@ import { addFilter } from "@wordpress/hooks"
 import { modifyBlockAttributes } from "../src/utils/Gutenberg/modifyBlockAttributes"
 
 addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
+const { supportedCoreBlocks } = require("../src/blocks/supportedGutenbergBlocks")
 
 async function main() {
   blockLibrary.registerCoreBlocks()
+
+  blocks.getBlockTypes().forEach((block) => {
+    if (supportedCoreBlocks.indexOf(block.name) === -1) {
+      blocks.unregisterBlockType(block.name)
+    }
+  })
 
   const sanitizeNames = (name: string) => {
     const newName = name.replace("core/", "").replace(/-./g, (x) => x.toUpperCase()[1])

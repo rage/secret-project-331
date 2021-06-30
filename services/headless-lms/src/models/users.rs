@@ -13,6 +13,19 @@ pub struct User {
     pub upstream_id: Option<i32>,
 }
 
+pub async fn insert(conn: &mut PgConnection) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO users DEFAULT
+VALUES
+RETURNING id
+"
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn upsert_user_id(
     conn: &mut PgConnection,
     id: Uuid,

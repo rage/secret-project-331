@@ -119,5 +119,5 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_course_page_by_path),
     )
     .route("/{course_id}/pages", web::get().to(get_course_pages))
-    .route("/{course_id}/parts", web::get().to(get_chapters));
+    .route("/{course_id}/chapters", web::get().to(get_chapters));
 }

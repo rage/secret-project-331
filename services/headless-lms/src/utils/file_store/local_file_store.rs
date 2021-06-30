@@ -122,7 +122,7 @@ mod tests {
             .await
             .expect("Could not create local file storage");
 
-        let path1 = Path::new("http://localhost:3000/file1");
+        let path1 = Path::new("file1");
         let test_file_contents = "Test file contents".as_bytes().to_vec();
         // Put content to storage and read it back
         local_file_store
@@ -153,7 +153,7 @@ mod tests {
             .await
             .expect("Could not create local file storage");
         let test_file_contents = "Test file contents 2".as_bytes().to_vec();
-        let path1 = Path::new("http://localhost:3000/file1");
+        let path1 = Path::new("file1");
         local_file_store
             .upload(&path1, test_file_contents.clone(), "text/plain".to_string())
             .await
@@ -162,7 +162,7 @@ mod tests {
             .get_download_url(&path1)
             .await
             .expect("Failed to get a download url");
-        let expected_url = format!("http://localhost:3000/{}", path1.to_string_lossy());
+        let expected_url = path1.to_string_lossy();
         assert_eq!(url, expected_url);
 
         let nonexistant_file = Path::new("does-not-exist");

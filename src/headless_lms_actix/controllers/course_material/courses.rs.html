@@ -246,7 +246,7 @@ We add the routes by calling the route method instead of using the route annotat
         <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_page_by_path</span>),
     )
     .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/pages&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_pages</span>))
-    .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/parts&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapters</span>));
+    .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/chapters&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapters</span>));
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>

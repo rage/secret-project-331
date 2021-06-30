@@ -326,7 +326,7 @@ RETURNING id
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">course_front_page_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="macro">vec!</span>[
-        <span class="ident">ContentBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-grid&quot;</span>.<span class="ident">to_owned</span>()),
+        <span class="ident">ContentBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.<span class="ident">to_owned</span>()),
         <span class="ident">ContentBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-progress&quot;</span>.<span class="ident">to_owned</span>()),
     ])
     .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> <span class="ident">ApplicationError::InternalServerError</span>(<span class="ident">original_error</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;

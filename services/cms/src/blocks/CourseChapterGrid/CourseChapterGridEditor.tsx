@@ -10,7 +10,7 @@ const CourseGridEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ cli
     <BlockPlaceholderWrapper id={clientId}>
       <h3>Chapters Grid Placeholder</h3>
       <p>
-        This block is placed on the course material front page for navigating to different parts
+        This block is placed on the course material front page for navigating to different chapters
         easily.
       </p>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />

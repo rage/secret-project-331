@@ -11,7 +11,7 @@ const { JSDOM } = jsdom
 const dom = new JSDOM(`<body>
 <script>document.body.appendChild(document.createElement("hr"));</script>
 </body>`)
-const mock = () => { }
+const mock = () => {}
 Object.defineProperty(dom.window, "matchMedia", {
   writable: true,
   value: (query) => {
@@ -34,7 +34,6 @@ const blockLibrary = require("@wordpress/block-library")
 const blocks = require("@wordpress/blocks")
 import { addFilter } from "@wordpress/hooks"
 import { modifyBlockAttributes } from "../src/utils/Gutenberg/modifyBlockAttributes"
-
 
 addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 

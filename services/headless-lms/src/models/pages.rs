@@ -1,5 +1,5 @@
 use crate::{
-    models::chapters::Chapter,
+    models::chapters::{Chapter, ChapterStatus},
     models::exercise_tasks::ExerciseTask,
     utils::document_schema_processor::{
         denormalize, normalize_from_json, GutenbergBlock, NormalizedDocument,
@@ -617,7 +617,19 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> Result<P
         let _res = sqlx::query_as!(
             Chapter,
             r#"
-UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
+UPDATE chapters
+SET front_page_id = $1
+WHERE id = $2
+RETURNING id,
+  created_at,
+  updated_at,
+  name,
+  course_id,
+  deleted_at,
+  chapter_number,
+  front_page_id,
+  opens_at,
+  status AS "status: ChapterStatus"
         "#,
             page.id,
             front_page_of_chapter_id

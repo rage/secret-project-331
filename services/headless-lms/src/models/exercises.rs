@@ -132,7 +132,12 @@ pub async fn get_exercises_by_course_id(
 ) -> Result<Vec<Exercise>> {
     let exercises = sqlx::query_as!(
         Exercise,
-        "SELECT * FROM exercises WHERE course_id = $1;",
+        r#"
+SELECT *
+FROM exercises
+WHERE course_id = $1
+  AND deleted_at IS NULL
+"#,
         course_id
     )
     .fetch_all(&mut *conn)

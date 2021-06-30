@@ -11,12 +11,6 @@ const StyledIcon = css`
   color: #333;
 `
 const NavbarItems = css`
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
   height: 90px;
   display: flex;
   justify-content: center;

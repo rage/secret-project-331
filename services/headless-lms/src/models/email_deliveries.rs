@@ -26,7 +26,8 @@ select *
 from email_deliveries ed
 where ed.deleted_at IS NULL
   and ed.sent = FALSE
-  and ed.error IS NULL;
+  and ed.error IS NULL
+limit 10000;
   ",
     )
     .fetch_all(conn)

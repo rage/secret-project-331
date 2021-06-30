@@ -7,9 +7,9 @@ use sqlx::{Connection, PgConnection};
 
 use lettre::{Message, SmtpTransport, Transport};
 
-pub async fn mail_sender() -> Result<()> {
-    let batch_size = 100;
+const BATCH_SIZE: usize = 100;
 
+pub async fn mail_sender() -> Result<()> {
     tracing_subscriber::fmt().init();
     dotenv::dotenv().ok();
 
@@ -30,17 +30,17 @@ pub async fn mail_sender() -> Result<()> {
                 .unwrap();
 
             match mailer.send(&msg) {
-                Ok(_) => {
-                    let res = mark_as_sent(email.id, &mut conn).await?;
-                    Ok(res)
-                }
-                Err(err) => {
-                    let res = save_err_to_email(email.id, err, &mut conn).await?;
-                    Ok(res)
-                }
-            }
+                Ok(_) => mark_as_sent(email.id, &mut conn)
+                    .await
+                    .expect("marking email as sent failed, crashing the app to restart via kube"),
+                Err(err) => save_err_to_email(email.id, err, &mut conn)
+                    .await
+                    .expect("sending message failed, crashing the app to restart via kube"),
+            };
+
+            Ok(())
         })
-        .buffer_unordered(batch_size)
+        .buffer_unordered(BATCH_SIZE)
         .collect();
 
     Ok(())

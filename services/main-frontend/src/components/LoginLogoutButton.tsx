@@ -1,19 +1,22 @@
-import { loggedIn, logout } from "../services/backend/auth"
+import React, { useContext } from "react"
+import { logout } from "../shared-module/services/backend/auth"
 import Link from "next/link"
-import { useQuery } from "react-query"
+import LoginStateContext from "../shared-module/contexts/LoginStateContext"
+import { useRouter } from "next/router"
 
 export default function LoginLogoutButton(): JSX.Element {
-  const { isLoading, data, refetch } = useQuery(`logged-in`, () => loggedIn())
+  const loginStateContext = useContext(LoginStateContext)
+  const router = useRouter()
 
-  if (isLoading) {
+  if (loginStateContext.isLoading) {
     return <>Loading...</>
   }
 
-  if (data) {
+  if (loginStateContext.signedIn) {
     const submitLogout = async (event) => {
       event.preventDefault()
       await logout()
-      await refetch()
+      await loginStateContext.refresh()
     }
     return (
       <form onSubmit={submitLogout}>
@@ -21,6 +24,6 @@ export default function LoginLogoutButton(): JSX.Element {
       </form>
     )
   } else {
-    return <Link href="/login">Login</Link>
+    return <Link href={`/login?return_to=${encodeURIComponent(router.asPath)}`}>Login</Link>
   }
 }

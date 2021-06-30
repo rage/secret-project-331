@@ -1,7 +1,7 @@
 import React from "react"
 
 import Layout from "../../../../components/Layout"
-import useQueryParameter from "../../../../hooks/useQueryParameter"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
 import { css } from "@emotion/css"

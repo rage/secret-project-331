@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
 
 import { ThemeProvider } from "@material-ui/core/styles"
+import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 import React from "react"
 import muiTheme from "../utils/muiTheme"
 import { CssBaseline } from "@material-ui/core"
@@ -144,7 +145,9 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
               }
             `}
           />
-          <Component {...pageProps} />
+          <LoginStateContextProvider>
+            <Component {...pageProps} />
+          </LoginStateContextProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </ThemeProvider>
       </RecoilRoot>

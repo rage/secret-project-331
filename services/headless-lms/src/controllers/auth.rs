@@ -91,11 +91,11 @@ pub async fn logout(session: Session) -> HttpResponse {
 }
 
 /**
-GET `/api/v0/auth/logged-in` Logs in to TMC.
+GET `/api/v0/auth/logged-in` Returns the current user's login status.
 **/
 #[instrument(skip(session))]
 pub async fn logged_in(session: Session) -> Json<bool> {
-    let logged_in = session.entries().get("session").is_some();
+    let logged_in = authorization::has_auth_user_session(&session);
     Json(logged_in)
 }
 

@@ -6,6 +6,7 @@ import dontRenderUntilQueryParametersReady, {
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { Page, PageUpdate } from "../../services/services.types"
 import PageEditor from "../../components/PageEditor"
+import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 
 interface PagesProps {
   query: SimplifiedUrlQuery
@@ -45,4 +46,4 @@ const Pages = ({ query }: PagesProps) => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(Pages)
+export default withSignedIn(dontRenderUntilQueryParametersReady(Pages))

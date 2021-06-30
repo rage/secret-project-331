@@ -9,7 +9,8 @@ use crate::{
     },
     utils::file_store::{
         course_audio_path, course_file_path, course_image_path,
-        file_utils::{get_extension_from_filename, upload_media_to_local_storage},
+        file_utils::{get_extension_from_filename, upload_media_to_storage},
+        FileStore,
     },
 };
 
@@ -251,12 +252,13 @@ Response:
 
 ```
 */
-#[instrument(skip(payload, request, pool))]
-async fn upload_media_for_course(
+#[instrument(skip(payload, request, pool, file_store))]
+async fn upload_media_for_course<T: FileStore>(
     request_page_id: web::Path<Uuid>,
     mut payload: mp::Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
+    file_store: web::Data<T>,
 ) -> ApplicationResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
     let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
@@ -308,9 +310,11 @@ async fn upload_media_for_course(
                 .collect();
 
             if mime.type_() == mime::IMAGE {
-                return upload_image_for_course(file_name, field, &course).await;
+                return upload_image_for_course(file_name, field, &course, file_store.as_ref())
+                    .await;
             } else if mime.type_() == mime::AUDIO {
-                return upload_audio_for_course(file_name, field, &course).await;
+                return upload_audio_for_course(file_name, field, &course, file_store.as_ref())
+                    .await;
             }
 
             let field_content = field.content_disposition().ok_or_else(|| {
@@ -328,7 +332,7 @@ async fn upload_media_for_course(
             let path = course_file_path(&course, file_name)
                 .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
 
-            upload_media_to_local_storage("/api/v0/files".to_string(), &path, field).await?;
+            upload_media_to_storage(&path, field, file_store.as_ref()).await?;
 
             return Ok(Json(UploadResult {
                 url: format!("/api/v0/files/{}", path.to_string_lossy()),
@@ -342,6 +346,7 @@ async fn upload_image_for_course(
     mut file_name: String,
     field: mp::Field,
     course: &Course,
+    file_store: &impl FileStore,
 ) -> ApplicationResult<Json<UploadResult>> {
     let extension = match field.content_type().to_string().as_str() {
         "image/jpeg" => ".jpg",
@@ -362,7 +367,7 @@ async fn upload_image_for_course(
     let path = course_image_path(&course, file_name)
         .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
 
-    upload_media_to_local_storage("/api/v0/images".to_string(), &path, field).await?;
+    upload_media_to_storage(&path, field, file_store).await?;
 
     return Ok(Json(UploadResult {
         url: format!("/api/v0/files/{}", path.to_string_lossy()),
@@ -373,6 +378,7 @@ async fn upload_audio_for_course(
     mut file_name: String,
     field: mp::Field,
     course: &Course,
+    file_store: &impl FileStore,
 ) -> ApplicationResult<Json<UploadResult>> {
     let extension = match field.content_type().to_string().as_str() {
         "audio/aac" => ".aac",
@@ -393,7 +399,7 @@ async fn upload_audio_for_course(
     let path = course_audio_path(&course, file_name)
         .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
 
-    upload_media_to_local_storage("/api/v0/audios".to_string(), &path, field).await?;
+    upload_media_to_storage(&path, field, file_store).await?;
 
     return Ok(Json(UploadResult {
         url: format!("/api/v0/files/{}", path.to_string_lossy()),
@@ -407,10 +413,13 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_pages_routes(cfg: &mut ServiceConfig) {
+pub fn _add_pages_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
     cfg.route("/{page_id}", web::get().to(get_page))
         .route("", web::post().to(post_new_page))
         .route("/{page_id}", web::put().to(update_page))
         .route("/{page_id}", web::delete().to(delete_page))
-        .route("/{page_id}/upload", web::post().to(upload_media_for_course));
+        .route(
+            "/{page_id}/upload",
+            web::post().to(upload_media_for_course::<T>),
+        );
 }

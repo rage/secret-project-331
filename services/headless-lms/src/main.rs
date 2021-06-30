@@ -5,7 +5,10 @@ use actix_session::CookieSession;
 use actix_web::{error, web, App, HttpResponse, HttpServer};
 use anyhow::Result;
 use dotenv::dotenv;
-use headless_lms_actix::{controllers::configure_controllers, OAuthClient};
+use headless_lms_actix::{
+    controllers::configure_controllers, utils::file_store::local_file_store::LocalFileStore,
+    OAuthClient,
+};
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
 use sqlx::PgPool;
@@ -52,6 +55,8 @@ async fn main() -> Result<()> {
         Some(TokenUrl::from_url(auth_url)),
     ));
 
+    let file_store: LocalFileStore = LocalFileStore::new("uploads".into()).await?;
+
     let mut server = HttpServer::new(move || {
         let json_config = web::JsonConfig::default()
             .limit(81920)
@@ -71,7 +76,8 @@ async fn main() -> Result<()> {
             .app_data(json_config)
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())
-            .service(web::scope("/api/v0").configure(configure_controllers))
+            .data(file_store.clone())
+            .service(web::scope("/api/v0").configure(configure_controllers::<LocalFileStore>))
     });
 
     server = match listenfd.take_tcp_listener(0)? {

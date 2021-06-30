@@ -14,7 +14,6 @@ use bytes::Bytes;
 use futures::Stream;
 
 use crate::models::courses::Course;
-use std::str::FromStr;
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes>>>>;
 /**
@@ -55,25 +54,25 @@ fn path_to_str(path: &Path) -> Result<&str> {
 }
 
 pub fn course_image_path(course: &Course, image_name: String) -> Result<PathBuf> {
-    let path = PathBuf::from_str(&format!(
-        "organizations/{}/courses/{}/images/{}",
+    let path = PathBuf::from(format!(
+        "/api/v0/images/organizations/{}/courses/{}/images/{}",
         course.organization_id, course.id, image_name
-    ))?;
+    ));
     Ok(path)
 }
 
 pub fn course_audio_path(course: &Course, audio_name: String) -> Result<PathBuf> {
-    let path = PathBuf::from_str(&format!(
-        "organizations/{}/courses/{}/audios/{}",
+    let path = PathBuf::from(format!(
+        "/api/v0/audios/organizations/{}/courses/{}/audios/{}",
         course.organization_id, course.id, audio_name
-    ))?;
+    ));
     Ok(path)
 }
 
 pub fn course_file_path(course: &Course, file_name: String) -> Result<PathBuf> {
-    let path = PathBuf::from_str(&format!(
-        "organizations/{}/courses/{}/files/{}",
+    let path = PathBuf::from(format!(
+        "/api/v0/files/organizations/{}/courses/{}/files/{}",
         course.organization_id, course.id, file_name
-    ))?;
+    ));
     Ok(path)
 }

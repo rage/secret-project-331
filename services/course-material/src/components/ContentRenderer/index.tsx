@@ -18,7 +18,7 @@ import CoverBlock from "./CoverBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
 import PagesListBlock from "./PagesListBlock"
 import React from "react"
-import CourseChapterGrid from "./CourseChapterGrid/index.tsx"
+import CourseChapterGrid from "./CourseChapterGrid"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]

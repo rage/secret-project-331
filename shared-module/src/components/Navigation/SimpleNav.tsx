@@ -86,8 +86,7 @@ const NavLinkMobile = css`
   display: none;
 `
 const MenuIcon = css`
-  width: auto;
-  height: 30px;
+  display: flex;
 `
 const Container = css`
   display: relative;
@@ -170,7 +169,7 @@ const Navigation: React.FC = (props) => {
           <Link className={cx(NavLink)} to="/faq" aria-label="Kurssi valikko" role="button">
             FAQ
           </Link>
-          <ul className={clicked ? cx(ToolTip) : cx(Hide)}>Login controls</ul>
+          <ul className={clicked ? cx(ToolTip) : cx(Hide)}><li>Login controls</li></ul>
         </li>
         <li>
           <div

@@ -181,6 +181,11 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers::ApplicationError</span>,
@@ -248,6 +253,11 @@
     <span class="ident">session</span>
         .<span class="ident">insert</span>(<span class="ident">SESSION_KEY</span>, <span class="ident">auth_user</span>)
         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to insert to session&quot;</span>))
+}
+
+<span class="doccomment">/// Checks if the user is authenticated in the given session.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_auth_user_session</span>(<span class="ident">session</span>: <span class="kw-2">&amp;</span><span class="ident">Session</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">session</span>.<span class="ident">entries</span>().<span class="ident">get</span>(<span class="ident">SESSION_KEY</span>).<span class="ident">is_some</span>()
 }
 
 <span class="doccomment">/// Forgets authentication from the current session, if any.</span>

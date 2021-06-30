@@ -5,7 +5,7 @@ const stylednav = css`
   background: #f1f1f1;
   color: #333;
   box-shadow: 0 1px rgba(0 0 0 / 0%);
-  width: 100vw;
+  width: 100%;
   padding: 0px 20px;
   top: 0;
   left: 0;
@@ -17,7 +17,6 @@ const stylednav = css`
 const section = css`
   padding: 0;
   display: table;
-  max-width: 1400px;
   margin-right: auto;
   margin-left: auto;
   width: 100%;

@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 
 import Layout from "../../../../components/Layout"
-import useQueryParameter from "../../../../hooks/useQueryParameter"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
 import { css } from "@emotion/css"
@@ -10,6 +10,7 @@ import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import { Dialog, Button } from "@material-ui/core"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
 import ExerciseList from "../../../../components/ExerciseList"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 
 const StatsPage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
@@ -66,4 +67,4 @@ const StatsPage: React.FC<unknown> = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(StatsPage)
+export default withSignedIn(dontRenderUntilQueryParametersReady(StatsPage))

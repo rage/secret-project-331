@@ -1,3 +1,5 @@
+use lettre::transport::smtp::Error;
+
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -31,4 +33,36 @@ where ed.deleted_at IS NULL
     .await?;
 
     Ok(emails)
+}
+
+pub async fn mark_as_sent(email_id: Uuid, conn: &mut PgConnection) -> Result<()> {
+    sqlx::query!(
+        "
+update email_deliveries
+set sent = TRUE
+where id = $1;
+    ",
+        email_id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn save_err_to_email(email_id: Uuid, err: Error, conn: &mut PgConnection) -> Result<()> {
+    sqlx::query!(
+        "
+update email_deliveries
+set sent = FALSE,
+  error = $1
+where id = $2;
+    ",
+        err.to_string(),
+        email_id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
 }

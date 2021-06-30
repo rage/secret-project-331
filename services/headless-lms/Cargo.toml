@@ -83,6 +83,8 @@ tracing-log = "0.1"
 actix-http = "=3.0.0-beta.5"
 actix-service = "=2.0.0-beta.5"
 
+lettre = "0.10.0-rc.3"
+
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "0.7.1"

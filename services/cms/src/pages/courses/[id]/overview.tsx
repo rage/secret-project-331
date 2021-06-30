@@ -16,6 +16,7 @@ import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
 import { groupBy, max } from "lodash"
 import { createBlockInstance } from "../../../utils/blockUtils"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 
 const CoursePages: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
@@ -137,4 +138,4 @@ const CoursePages: React.FC<unknown> = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(CoursePages)
+export default withSignedIn(dontRenderUntilQueryParametersReady(CoursePages))

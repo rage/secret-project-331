@@ -37,7 +37,7 @@ limit 10000;
 }
 
 pub async fn mark_as_sent(email_id: Uuid, conn: &mut PgConnection) -> Result<()> {
-    sqlx::query!(
+    let res = sqlx::query!(
         "
 update email_deliveries
 set sent = TRUE
@@ -48,11 +48,11 @@ where id = $1;
     .execute(conn)
     .await?;
 
-    Ok(())
+    Ok(res)
 }
 
 pub async fn save_err_to_email(email_id: Uuid, err: Error, conn: &mut PgConnection) -> Result<()> {
-    sqlx::query!(
+    let res = sqlx::query!(
         "
 update email_deliveries
 set sent = FALSE,
@@ -65,5 +65,5 @@ where id = $2;
     .execute(conn)
     .await?;
 
-    Ok(())
+    Ok(res)
 }

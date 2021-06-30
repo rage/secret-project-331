@@ -36,6 +36,23 @@ Start minikube:
 bin/minikube-start
 ```
 
+#### Moving docker data root to another drive with more space
+
+1. `sudo systemctl stop docker`
+2. `sudo vim /etc/docker/daemon.json` -
+   with content:
+   {
+   "data-root": "/home/username/docker"
+   }
+3. `mkdir /home/$USER/docker`
+4. `sudo rsync -aP /var/lib/docker /home/$USER/docker` (optional)
+5. `sudo mv /var/lib/docker /var/lib/docker.old`
+6. `sudo systemctl start docker`
+   - Ensure all works fine by running: `docker run --rm hello-world`
+7. `sudo rm -rf /var/lib/docker.old` (cleanup)
+
+> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space.
+
 ### Starting the development cluster
 
 In the root of the repo, run: `bin/dev`. This script will start the development cluster with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.

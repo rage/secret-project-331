@@ -1,12 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A variant of [query!] which takes a path to an explicitly defined struct as the output type."><meta name="keywords" content="rust, rustlang, rust-lang, query_as"><title>sqlx::query_as - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A variant of [query!] which takes a path to an explicitly defined struct as the output type."><meta name="keywords" content="rust, rustlang, rust-lang, query_as"><title>query_as in sqlx - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../sqlx/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="index.html">sqlx</a></p><div id="sidebar-vars" data-name="query_as" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="">query_as</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/sqlx/macros.rs.html#548-555" title="goto source code">[src]</a></span></h1><div class="docblock type-decl hidden-by-usual-hider"><div class="example-wrap"><pre class="rust macro">
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">query_as</span> {
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../sqlx/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="index.html">sqlx</a></p><div id="sidebar-vars" data-name="query_as" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="">query_as</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/sqlx/macros.rs.html#548-555" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules!</span> <span class="ident">query_as</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out_struct</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
 }</pre></div>
-</div><div class="docblock"><p>A variant of <a href="../sqlx/macro.query.html" title="query!">query!</a> which takes a path to an explicitly defined struct as the output type.</p>
+</div><div class="docblock"><p>A variant of <a href="macro.query.html" title="query!">query!</a> which takes a path to an explicitly defined struct as the output type.</p>
 <p>This lets you return the struct from a function or add your own trait implementations.</p>
 <p><strong>No trait implementations are required</strong>; the macro maps rows using a struct literal
 where the names of columns in the query are expected to be the same as the fields of the struct
@@ -19,7 +19,7 @@ query and not the corresponding fields of the struct, so this is type-safe as we
 <li>The field types must be the Rust equivalent of their SQL counterparts; see the corresponding
 module for your database for mappings:
 <ul>
-<li>Postgres: <a href="../sqlx/postgres/types/index.html" title="crate::postgres::types">crate::postgres::types</a></li>
+<li>Postgres: <a href="postgres/types/index.html" title="crate::postgres::types">crate::postgres::types</a></li>
 <li>MySQL: [crate::mysql::types]</li>
 <li>SQLite: [crate::sqlite::types]</li>
 <li>MSSQL: [crate::mssql::types]</li>
@@ -39,7 +39,7 @@ string:</p>
 }
 
 <span class="comment">// let mut conn = &lt;impl sqlx::Executor&gt;;</span>
-<span class="kw">let</span> <span class="ident">account</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+<span class="kw">let</span> <span class="ident">account</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Account</span>,
         <span class="string">&quot;select * from (select (1) as id, &#39;Herp Derpinson&#39; as name) accounts where id = ?&quot;</span>,
         <span class="number">1i32</span>
@@ -47,8 +47,8 @@ string:</p>
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">account</span>);
-<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">account</span>.<span class="ident">id</span>, <span class="ident">account</span>.<span class="ident">name</span>);
+<span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">account</span>);
+<span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">account</span>.<span class="ident">id</span>, <span class="ident">account</span>.<span class="ident">name</span>);
 </pre></div>
 <p><strong>The method you want to call depends on how many rows you’re expecting.</strong></p>
 <table><thead><tr><th>Number of Rows</th><th>Method to Call*</th><th>Returns (<code>T</code> being the given struct)</th><th>Notes</th></tr></thead><tbody>
@@ -59,7 +59,7 @@ string:</p>
 <p>* All methods accept one of <code>&amp;mut {connection type}</code>, <code>&amp;mut Transaction</code> or <code>&amp;Pool</code>.
 (<code>.execute()</code> is omitted as this macro requires at least one column to be returned.)</p>
 <h3 id="column-type-override-infer-from-struct-field" class="section-header"><a href="#column-type-override-infer-from-struct-field">Column Type Override: Infer from Struct Field</a></h3>
-<p>In addition to the column type overrides supported by <a href="../sqlx/macro.query.html" title="query!">query!</a>, <code>query_as!()</code> supports an
+<p>In addition to the column type overrides supported by <a href="macro.query.html" title="query!">query!</a>, <code>query_as!()</code> supports an
 additional override option:</p>
 <p>If you select a column <code>foo as &quot;foo: _&quot;</code> (Postgres/SQLite) or <code>foo as `foo: _`</code> (MySQL)
 it causes that column to be inferred based on the type of the corresponding field in the given
@@ -68,7 +68,7 @@ are not compatible.</p>
 <p>This allows you to override the inferred type of a column to instead use a custom-defined type:</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx::Type</span>)]</span>
 <span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">transparent</span>)]</span>
 <span class="kw">struct</span> <span class="ident">MyInt4</span>(<span class="ident">i32</span>);
 
@@ -79,11 +79,11 @@ are not compatible.</p>
 <span class="kw">let</span> <span class="ident">my_int</span> <span class="op">=</span> <span class="ident">MyInt4</span>(<span class="number">1</span>);
 
 <span class="comment">// Postgres/SQLite</span>
-<span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(<span class="ident">Record</span>, <span class="string">r#&quot;select 1 as &quot;id: _&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id: _`&quot; instead</span>
+<span class="macro">sqlx::query_as!</span>(<span class="ident">Record</span>, <span class="string">r#&quot;select 1 as &quot;id: _&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id: _`&quot; instead</span>
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="ident">MyInt4</span>(<span class="number">1</span>));</pre></div>
+<span class="macro">assert_eq!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="ident">MyInt4</span>(<span class="number">1</span>));</pre></div>
 <h3 id="troubleshooting-error-mismatched-types" class="section-header"><a href="#troubleshooting-error-mismatched-types">Troubleshooting: “error: mismatched types”</a></h3>
 <p>If you get a “mismatched types” error from an invocation of this macro and the error
 isn’t pointing specifically at a parameter.</p>
@@ -95,7 +95,7 @@ isn’t pointing specifically at a parameter.</p>
     <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">let</span> <span class="ident">account</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+<span class="kw">let</span> <span class="ident">account</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
     <span class="ident">Account</span>,
     <span class="string">r#&quot;SELECT id, name from (VALUES (1, &#39;Herp Derpinson&#39;)) accounts(id, name)&quot;#</span>,
 )
@@ -123,8 +123,8 @@ returned from a <code>VALUES</code> statement in Postgres, so the macro inferred
 and so used <code>Option&lt;i32&gt;</code> instead of <code>i32</code>. <strong>In this specific case</strong> we could use
 <code>select id as &quot;id!&quot;</code> to override the inferred nullability because we know in practice
 that column will never be <code>NULL</code> and it will fix the error.</p>
-<p>Nullability inference and type overrides are discussed in detail in the docs for <a href="../sqlx/macro.query.html" title="query!">query!</a>.</p>
+<p>Nullability inference and type overrides are discussed in detail in the docs for <a href="macro.query.html" title="query!">query!</a>.</p>
 <p>It unfortunately doesn’t appear to be possible right now to make the error specifically mention
 the field; this probably requires the <code>const-panic</code> feature (still unstable as of Rust 1.45).</p>
-</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="sqlx" data-search-js="../search-index.js"></div>
+</div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="sqlx" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script></body></html>

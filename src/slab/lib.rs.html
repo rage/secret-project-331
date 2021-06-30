@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/slab-0.4.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../slab/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../slab/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1572,17 +1572,17 @@
 <span class="kw">mod</span> <span class="ident">serde</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">vec</span>::<span class="ident">Vec</span>;
+<span class="kw">use</span> <span class="ident">alloc::vec::Vec</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">vec</span>;
+<span class="kw">use</span> <span class="ident">alloc::vec</span>;
 
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">FromIterator</span>;
+<span class="kw">use</span> <span class="ident">core::iter::FromIterator</span>;
 
 <span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">fmt</span>, <span class="ident">mem</span>, <span class="ident">ops</span>, <span class="ident">slice</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">vec</span>;
+<span class="kw">use</span> <span class="ident">std::vec</span>;
 
 <span class="doccomment">/// Pre-allocated storage for a uniform data type</span>
 <span class="doccomment">///</span>
@@ -1604,7 +1604,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Slab</span>::<span class="ident">new</span>()
+        <span class="ident">Slab::new</span>()
     }
 }
 
@@ -1638,24 +1638,24 @@
 
 <span class="doccomment">/// A consuming iterator over the values stored in a `Slab`</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">entries</span>: <span class="ident">vec</span>::<span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">entries</span>: <span class="ident">vec::IntoIter</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">curr</span>: <span class="ident">usize</span>,
 }
 
 <span class="doccomment">/// An iterator over the values stored in the `Slab`</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">entries</span>: <span class="ident">slice</span>::<span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">entries</span>: <span class="ident">slice::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">curr</span>: <span class="ident">usize</span>,
 }
 
 <span class="doccomment">/// A mutable iterator over the values stored in the `Slab`</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">entries</span>: <span class="ident">slice</span>::<span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">entries</span>: <span class="ident">slice::IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">curr</span>: <span class="ident">usize</span>,
 }
 
 <span class="doccomment">/// A draining iterator for `Slab`</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">vec</span>::<span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">vec::Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>);
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">enum</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
@@ -1676,7 +1676,7 @@
     <span class="doccomment">/// let slab: Slab&lt;i32&gt; = Slab::new();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Slab</span>::<span class="ident">with_capacity</span>(<span class="number">0</span>)
+        <span class="ident">Slab::with_capacity</span>(<span class="number">0</span>)
     }
 
     <span class="doccomment">/// Construct a new, empty `Slab` with the specified capacity.</span>
@@ -1708,7 +1708,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">capacity</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Slab</span> {
-            <span class="ident">entries</span>: <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">capacity</span>),
+            <span class="ident">entries</span>: <span class="ident">Vec::with_capacity</span>(<span class="ident">capacity</span>),
             <span class="ident">next</span>: <span class="number">0</span>,
             <span class="ident">len</span>: <span class="number">0</span>,
         }
@@ -1842,7 +1842,7 @@
         <span class="comment">// If the slab is empty the vector can simply be cleared, but that</span>
         <span class="comment">// optimization would not affect time complexity when T: Drop.</span>
         <span class="kw">let</span> <span class="ident">len_before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>();
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">last</span>() {
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry::Vacant</span>(<span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">last</span>() {
             <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">pop</span>();
         }
 
@@ -1876,7 +1876,7 @@
             <span class="kw">if</span> <span class="ident">remaining_vacant</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                 <span class="kw">break</span>;
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">next</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Vacant</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">next</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
                 <span class="kw-2">*</span><span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>;
                 <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">i</span>;
                 <span class="ident">remaining_vacant</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
@@ -1954,22 +1954,22 @@
             <span class="comment">// Find a value that needs to be moved,</span>
             <span class="comment">// by popping entries until we find an occopied one.</span>
             <span class="comment">// (entries cannot be empty because 0 is not greater than anything)</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">mut</span> <span class="ident">value</span>)) <span class="op">=</span> <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">pop</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Entry::Occupied</span>(<span class="kw-2">mut</span> <span class="ident">value</span>)) <span class="op">=</span> <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">pop</span>() {
                 <span class="comment">// Found one, now find a vacant entry to move it to</span>
-                <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw">_</span>)) <span class="op">=</span> <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">get</span>(<span class="ident">occupied_until</span>) {
+                <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry::Occupied</span>(<span class="kw">_</span>)) <span class="op">=</span> <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">get</span>(<span class="ident">occupied_until</span>) {
                     <span class="ident">occupied_until</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
                 <span class="comment">// Let the caller try to update references to the key</span>
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">rekey</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">len</span>(), <span class="ident">occupied_until</span>) {
                     <span class="comment">// Changing the key failed, so push the entry back on at its old index.</span>
-                    <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">value</span>));
+                    <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry::Occupied</span>(<span class="ident">value</span>));
                     <span class="ident">guard</span>.<span class="ident">decrement</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">shrink_to_fit</span>();
                     <span class="kw">return</span>;
                     <span class="comment">// Guard drop handles cleanup</span>
                 }
                 <span class="comment">// Put the value in its new spot</span>
-                <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>[<span class="ident">occupied_until</span>] <span class="op">=</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">value</span>);
+                <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>[<span class="ident">occupied_until</span>] <span class="op">=</span> <span class="ident">Entry::Occupied</span>(<span class="ident">value</span>);
                 <span class="comment">// ... and mark it as occupied (this is optional)</span>
                 <span class="ident">occupied_until</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
@@ -1977,7 +1977,7 @@
         <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">len</span>;
         <span class="ident">guard</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">shrink_to_fit</span>();
         <span class="comment">// Normal cleanup is not necessary</span>
-        <span class="ident">mem</span>::<span class="ident">forget</span>(<span class="ident">guard</span>);
+        <span class="ident">mem::forget</span>(<span class="ident">guard</span>);
     }
 
     <span class="doccomment">/// Clear the slab of all values.</span>
@@ -2115,7 +2115,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="ident">val</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="ident">val</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -2139,7 +2139,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>) {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -2168,7 +2168,7 @@
     <span class="doccomment">/// assert_eq!(slab[key2], 1);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get2_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key1</span>: <span class="ident">usize</span>, <span class="ident">key2</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>)<span class="op">&gt;</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">key1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">key2</span>);
+        <span class="macro">assert!</span>(<span class="ident">key1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">key2</span>);
 
         <span class="kw">let</span> (<span class="ident">entry1</span>, <span class="ident">entry2</span>);
 
@@ -2184,8 +2184,8 @@
 
         <span class="kw">match</span> (<span class="ident">entry1</span>, <span class="ident">entry2</span>) {
             (
-                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val1</span>)),
-                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val2</span>)),
+                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val1</span>)),
+                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val2</span>)),
             ) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">val1</span>, <span class="ident">val2</span>)),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
@@ -2213,8 +2213,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get_unchecked</span>(<span class="ident">key</span>) {
-            <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -2243,8 +2243,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">key</span>) {
-            <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -2277,10 +2277,10 @@
         <span class="kw">let</span> <span class="ident">ptr1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">key1</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
         <span class="kw">let</span> <span class="ident">ptr2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">key2</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
         <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">ptr1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">ptr2</span>) {
-            (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val1</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val2</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val1</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val2</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 (<span class="ident">val1</span>, <span class="ident">val2</span>)
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -2326,10 +2326,10 @@
         <span class="kw">let</span> <span class="ident">byte_offset</span> <span class="op">=</span> <span class="ident">element_ptr</span>.<span class="ident">wrapping_sub</span>(<span class="ident">base_ptr</span>);
         <span class="comment">// The division rounds away any offset of T inside Entry</span>
         <span class="comment">// The size of Entry&lt;T&gt; is never zero even if T is due to Vacant(usize)</span>
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">byte_offset</span> <span class="op">/</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">byte_offset</span> <span class="op">/</span> <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="comment">// Prevent returning unspecified (but out of bounds) values</span>
         <span class="kw">if</span> <span class="ident">key</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>() {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;The reference points to a value outside this slab&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;The reference points to a value outside this slab&quot;</span>);
         }
         <span class="comment">// The reference cannot point to a vacant entry, because then it would not be valid</span>
         <span class="ident">key</span>
@@ -2395,14 +2395,14 @@
         <span class="self">self</span>.<span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
         <span class="kw">if</span> <span class="ident">key</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>() {
-            <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">val</span>));
+            <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry::Occupied</span>(<span class="ident">val</span>));
             <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">key</span> <span class="op">+</span> <span class="number">1</span>;
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
-                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">next</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">next</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry::Vacant</span>(<span class="ident">next</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">next</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             };
-            <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">key</span>] <span class="op">=</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">val</span>);
+            <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">key</span>] <span class="op">=</span> <span class="ident">Entry::Occupied</span>(<span class="ident">val</span>);
         }
     }
 
@@ -2429,10 +2429,10 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">entry</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>) {
             <span class="comment">// Swap the entry at the provided value</span>
-            <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="ident">entry</span>, <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="self">self</span>.<span class="ident">next</span>));
+            <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="ident">entry</span>, <span class="ident">Entry::Vacant</span>(<span class="self">self</span>.<span class="ident">next</span>));
 
             <span class="kw">match</span> <span class="ident">prev</span> {
-                <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Entry::Occupied</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">len</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
                     <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">key</span>;
                     <span class="kw">return</span> <span class="ident">val</span>;
@@ -2443,7 +2443,7 @@
                 }
             }
         }
-        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;invalid key&quot;</span>);
+        <span class="macro">panic!</span>(<span class="string">&quot;invalid key&quot;</span>);
     }
 
     <span class="doccomment">/// Return `true` if a value is associated with the given key.</span>
@@ -2463,7 +2463,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry::Occupied</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
@@ -2498,7 +2498,7 @@
     {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>() {
             <span class="kw">let</span> <span class="ident">keep</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">i</span>] {
-                <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>(<span class="ident">i</span>, <span class="ident">v</span>),
+                <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>(<span class="ident">i</span>, <span class="ident">v</span>),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             };
 
@@ -2542,22 +2542,22 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops</span>::<span class="ident">Index</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops::Index</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span>;
 
     <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;invalid key&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;invalid key&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops</span>::<span class="ident">IndexMut</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops::IndexMut</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>) {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;invalid key&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;invalid key&quot;</span>),
         }
     }
 }
@@ -2628,28 +2628,28 @@
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">usize</span>, <span class="ident">T</span>)<span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">iterator</span> <span class="op">=</span> <span class="ident">iterable</span>.<span class="ident">into_iter</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slab</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">with_capacity</span>(<span class="ident">iterator</span>.<span class="ident">size_hint</span>().<span class="number">0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slab</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::with_capacity</span>(<span class="ident">iterator</span>.<span class="ident">size_hint</span>().<span class="number">0</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vacant_list_broken</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">iterator</span> {
             <span class="kw">if</span> <span class="ident">key</span> <span class="op">&lt;</span> <span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">len</span>() {
                 <span class="comment">// iterator is not sorted, might need to recreate vacant list</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">slab</span>.<span class="ident">entries</span>[<span class="ident">key</span>] {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Vacant</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">slab</span>.<span class="ident">entries</span>[<span class="ident">key</span>] {
                     <span class="ident">vacant_list_broken</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="ident">slab</span>.<span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
                 <span class="comment">// if an element with this key already exists, replace it.</span>
                 <span class="comment">// This is consisent with HashMap and BtreeMap</span>
-                <span class="ident">slab</span>.<span class="ident">entries</span>[<span class="ident">key</span>] <span class="op">=</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">value</span>);
+                <span class="ident">slab</span>.<span class="ident">entries</span>[<span class="ident">key</span>] <span class="op">=</span> <span class="ident">Entry::Occupied</span>(<span class="ident">value</span>);
             } <span class="kw">else</span> {
                 <span class="comment">// insert holes as necessary</span>
                 <span class="kw">while</span> <span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">key</span> {
                     <span class="comment">// add the entry to the start of the vacant list</span>
                     <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">slab</span>.<span class="ident">next</span>;
                     <span class="ident">slab</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">len</span>();
-                    <span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">next</span>));
+                    <span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry::Vacant</span>(<span class="ident">next</span>));
                 }
-                <span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">value</span>));
+                <span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry::Occupied</span>(<span class="ident">value</span>));
                 <span class="ident">slab</span>.<span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
         }
@@ -2663,11 +2663,11 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">T</span>: <span class="ident">fmt::Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Slab&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;len&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">len</span>)
             .<span class="ident">field</span>(<span class="string">&quot;cap&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">capacity</span>())
@@ -2675,11 +2675,11 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">T</span>: <span class="ident">fmt::Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Iter&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;curr&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">curr</span>)
             .<span class="ident">field</span>(<span class="string">&quot;remaining&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>())
@@ -2687,11 +2687,11 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">T</span>: <span class="ident">fmt::Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Iter&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;curr&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">curr</span>)
             .<span class="ident">field</span>(<span class="string">&quot;remaining&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>())
@@ -2699,11 +2699,11 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">T</span>: <span class="ident">fmt::Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;IterMut&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;curr&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">curr</span>)
             .<span class="ident">field</span>(<span class="string">&quot;remaining&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>())
@@ -2711,8 +2711,8 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Drain&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -2746,8 +2746,8 @@
         <span class="self">self</span>.<span class="ident">slab</span>.<span class="ident">insert_at</span>(<span class="self">self</span>.<span class="ident">key</span>, <span class="ident">val</span>);
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">slab</span>.<span class="ident">entries</span>.<span class="ident">get_mut</span>(<span class="self">self</span>.<span class="ident">key</span>) {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -2787,7 +2787,7 @@
             <span class="kw">let</span> <span class="ident">curr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">curr</span>;
             <span class="self">self</span>.<span class="ident">curr</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">entry</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Occupied</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">entry</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">curr</span>, <span class="ident">v</span>));
             }
         }
@@ -2803,7 +2803,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">T</span>)<span class="op">&gt;</span> {
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">entry</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">next_back</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">entry</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Occupied</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">entry</span> {
                 <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">curr</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">key</span>, <span class="ident">v</span>));
             }
@@ -2823,7 +2823,7 @@
             <span class="kw">let</span> <span class="ident">curr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">curr</span>;
             <span class="self">self</span>.<span class="ident">curr</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">curr</span>, <span class="ident">v</span>));
             }
         }
@@ -2839,7 +2839,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>)<span class="op">&gt;</span> {
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">entry</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">next_back</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
                 <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">curr</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">key</span>, <span class="ident">v</span>));
             }
@@ -2859,7 +2859,7 @@
             <span class="kw">let</span> <span class="ident">curr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">curr</span>;
             <span class="self">self</span>.<span class="ident">curr</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">curr</span>, <span class="ident">v</span>));
             }
         }
@@ -2875,7 +2875,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>)<span class="op">&gt;</span> {
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">entry</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">next_back</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Occupied</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">entry</span> {
                 <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">curr</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">key</span>, <span class="ident">v</span>));
             }
@@ -2892,7 +2892,7 @@
 
     <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">entry</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">next</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">entry</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Occupied</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">entry</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>);
             }
         }
@@ -2908,7 +2908,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">entry</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">next_back</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">entry</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Occupied</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">entry</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>);
             }
         }
@@ -2917,5 +2917,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="slab" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="slab" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

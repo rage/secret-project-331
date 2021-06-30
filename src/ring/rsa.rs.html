@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ring-0.16.20/src/rsa.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rsa.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ring/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ring/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
@@ -93,7 +93,7 @@
 
 <span class="doccomment">/// RSA signatures.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">arithmetic</span>::<span class="ident">bigint</span>,
+    <span class="ident">arithmetic::bigint</span>,
     <span class="ident">bits</span>, <span class="ident">error</span>,
     <span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">der</span>},
     <span class="ident">limb</span>,
@@ -102,31 +102,31 @@
 <span class="kw">mod</span> <span class="ident">padding</span>;
 
 <span class="comment">// `RSA_PKCS1_SHA1` is intentionally not exposed.</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">padding</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::padding</span>::{
     <span class="ident">RsaEncoding</span>, <span class="ident">RSA_PKCS1_SHA256</span>, <span class="ident">RSA_PKCS1_SHA384</span>, <span class="ident">RSA_PKCS1_SHA512</span>, <span class="ident">RSA_PSS_SHA256</span>,
     <span class="ident">RSA_PSS_SHA384</span>, <span class="ident">RSA_PSS_SHA512</span>,
 };
 
 <span class="comment">// Maximum RSA modulus size supported for signature verification (in bytes).</span>
-<span class="kw">const</span> <span class="ident">PUBLIC_KEY_PUBLIC_MODULUS_MAX_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">bigint</span>::<span class="ident">MODULUS_MAX_LIMBS</span> <span class="op">*</span> <span class="ident">limb</span>::<span class="ident">LIMB_BYTES</span>;
+<span class="kw">const</span> <span class="ident">PUBLIC_KEY_PUBLIC_MODULUS_MAX_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">bigint::MODULUS_MAX_LIMBS</span> <span class="op">*</span> <span class="ident">limb::LIMB_BYTES</span>;
 
 <span class="comment">// Keep in sync with the documentation comment for `KeyPair`.</span>
-<span class="kw">const</span> <span class="ident">PRIVATE_KEY_PUBLIC_MODULUS_MAX_BITS</span>: <span class="ident">bits</span>::<span class="ident">BitLength</span> <span class="op">=</span> <span class="ident">bits</span>::<span class="ident">BitLength</span>::<span class="ident">from_usize_bits</span>(<span class="number">4096</span>);
+<span class="kw">const</span> <span class="ident">PRIVATE_KEY_PUBLIC_MODULUS_MAX_BITS</span>: <span class="ident">bits::BitLength</span> <span class="op">=</span> <span class="ident">bits::BitLength::from_usize_bits</span>(<span class="number">4096</span>);
 
 <span class="doccomment">/// Parameters for RSA verification.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RsaParameters</span> {
-    <span class="ident">padding_alg</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw">dyn</span> <span class="ident">padding</span>::<span class="ident">Verification</span>,
-    <span class="ident">min_bits</span>: <span class="ident">bits</span>::<span class="ident">BitLength</span>,
+    <span class="ident">padding_alg</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw">dyn</span> <span class="ident">padding::Verification</span>,
+    <span class="ident">min_bits</span>: <span class="ident">bits::BitLength</span>,
 }
 
 <span class="kw">fn</span> <span class="ident">parse_public_key</span>(
-    <span class="ident">input</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">io</span>::<span class="ident">Positive</span>, <span class="ident">io</span>::<span class="ident">Positive</span>), <span class="ident">error</span>::<span class="ident">Unspecified</span><span class="op">&gt;</span> {
-    <span class="ident">input</span>.<span class="ident">read_all</span>(<span class="ident">error</span>::<span class="ident">Unspecified</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-        <span class="ident">der</span>::<span class="ident">nested</span>(<span class="ident">input</span>, <span class="ident">der</span>::<span class="ident">Tag</span>::<span class="ident">Sequence</span>, <span class="ident">error</span>::<span class="ident">Unspecified</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">positive_integer</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">positive_integer</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+    <span class="ident">input</span>: <span class="ident">untrusted::Input</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">io::Positive</span>, <span class="ident">io::Positive</span>), <span class="ident">error::Unspecified</span><span class="op">&gt;</span> {
+    <span class="ident">input</span>.<span class="ident">read_all</span>(<span class="ident">error::Unspecified</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+        <span class="ident">der::nested</span>(<span class="ident">input</span>, <span class="ident">der::Tag::Sequence</span>, <span class="ident">error::Unspecified</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">der::positive_integer</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">der::positive_integer</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>((<span class="ident">n</span>, <span class="ident">e</span>))
         })
     })
@@ -137,11 +137,11 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">N</span> {}
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">bigint</span>::<span class="ident">PublicModulus</span> <span class="kw">for</span> <span class="ident">N</span> {}
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">bigint::PublicModulus</span> <span class="kw">for</span> <span class="ident">N</span> {}
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">verification</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">signing</span>;
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ring" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ring" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

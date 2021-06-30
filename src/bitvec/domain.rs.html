@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bitvec-0.19.5/src/domain.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>domain.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../bitvec/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../bitvec/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -758,10 +758,10 @@ memory access for the duration of its existence.
 		<span class="ident">BitIdx</span>,
 		<span class="ident">BitTail</span>,
 	},
-	<span class="ident">mem</span>::<span class="ident">BitMemory</span>,
-	<span class="ident">order</span>::<span class="ident">BitOrder</span>,
-	<span class="ident">slice</span>::<span class="ident">BitSlice</span>,
-	<span class="ident">store</span>::<span class="ident">BitStore</span>,
+	<span class="ident">mem::BitMemory</span>,
+	<span class="ident">order::BitOrder</span>,
+	<span class="ident">slice::BitSlice</span>,
+	<span class="ident">store::BitStore</span>,
 };
 
 <span class="kw">use</span> <span class="ident">core</span>::{
@@ -778,13 +778,13 @@ memory access for the duration of its existence.
 };
 
 <span class="kw">use</span> <span class="ident">tap</span>::{
-	<span class="ident">pipe</span>::<span class="ident">Pipe</span>,
-	<span class="ident">tap</span>::<span class="ident">Tap</span>,
+	<span class="ident">pipe::Pipe</span>,
+	<span class="ident">tap::Tap</span>,
 };
 
-<span class="kw">use</span> <span class="ident">wyz</span>::<span class="ident">fmt</span>::<span class="ident">FmtForward</span>;
+<span class="kw">use</span> <span class="ident">wyz::fmt::FmtForward</span>;
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">bit_domain</span> {
+<span class="macro">macro_rules!</span> <span class="ident">bit_domain</span> {
 	(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ident</span> $(<span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>:<span class="ident">ident</span>)<span class="question-mark">?</span> $(@ <span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>) <span class="op">=</span><span class="op">&gt;</span> {
 		<span class="doccomment">/// Granular representation of the memory region containing a</span>
 		<span class="doccomment">/// `BitSlice`.</span>
@@ -834,14 +834,14 @@ memory access for the duration of its existence.
 				<span class="doccomment">///</span>
 				<span class="doccomment">/// This is not likely to be useful information, but is retained</span>
 				<span class="doccomment">/// for structural similarity with the rest of the module.</span>
-				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 				<span class="doccomment">/// The original `BitSlice` used to create this bit-domain view.</span>
 				<span class="ident">body</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>,
 				<span class="doccomment">/// The end index of the `BitSlice`.</span>
 				<span class="doccomment">///</span>
 				<span class="doccomment">/// This is not likely to be useful information, but is retained</span>
 				<span class="doccomment">/// for structural similarity with the rest of the module.</span>
-				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			},
 			<span class="doccomment">/// Indicates that a `BitSlice` region touches at least one edge</span>
 			<span class="doccomment">/// index of any number of elements.</span>
@@ -865,7 +865,7 @@ memory access for the duration of its existence.
 				<span class="doccomment">/// region it covers. As such, a bitslice that was marked as</span>
 				<span class="doccomment">/// entirely aliased, but contains interior unaliased elements,</span>
 				<span class="doccomment">/// can safely remove its aliasing protections.</span>
-				<span class="ident">body</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">body</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T::Mem</span><span class="op">&gt;</span>,
 				<span class="doccomment">/// Any bits that partially fill the last element of the slice</span>
 				<span class="doccomment">/// region.</span>
 				<span class="doccomment">///</span>
@@ -894,11 +894,11 @@ memory access for the duration of its existence.
 			<span class="doccomment">/// [`Enclave`]: #variant.Enclave</span>
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enclave</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(
-				<span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 				<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-				<span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			)<span class="op">&gt;</span> {
-				<span class="kw">if</span> <span class="kw">let</span> <span class="self">Self</span>::<span class="ident">Enclave</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span> <span class="self">self</span> {
+				<span class="kw">if</span> <span class="kw">let</span> <span class="self">Self</span><span class="ident">::Enclave</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span> <span class="self">self</span> {
 					<span class="prelude-val">Some</span>((<span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span>))
 				}
 				<span class="kw">else</span> {
@@ -921,10 +921,10 @@ memory access for the duration of its existence.
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">region</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(
 				<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-				<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T::Mem</span><span class="op">&gt;</span>,
 				<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>,
 			)<span class="op">&gt;</span> {
-				<span class="kw">if</span> <span class="kw">let</span> <span class="self">Self</span>::<span class="ident">Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span> <span class="self">self</span> {
+				<span class="kw">if</span> <span class="kw">let</span> <span class="self">Self</span><span class="ident">::Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span> <span class="self">self</span> {
 					<span class="prelude-val">Some</span>((<span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span>))
 				}
 				<span class="kw">else</span> {
@@ -946,55 +946,55 @@ memory access for the duration of its existence.
 				<span class="kw">let</span> <span class="ident">bitptr</span> <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">bitptr</span>();
 				<span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">bitptr</span>.<span class="ident">head</span>();
 				<span class="kw">let</span> (<span class="ident">e</span>, <span class="ident">t</span>) <span class="op">=</span> <span class="ident">h</span>.<span class="ident">span</span>(<span class="ident">bitptr</span>.<span class="ident">len</span>());
-				<span class="kw">let</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">Mem</span>::<span class="ident">BITS</span>;
+				<span class="kw">let</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">T::Mem::BITS</span>;
 
 				<span class="kw">match</span> (<span class="ident">h</span>.<span class="ident">value</span>(), <span class="ident">e</span>, <span class="ident">t</span>.<span class="ident">value</span>()) {
-					(<span class="kw">_</span>, <span class="number">0</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">empty</span>(),
-					(<span class="number">0</span>, <span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">if</span> <span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">w</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">spanning</span>(<span class="ident">slice</span>),
-					(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">if</span> <span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">w</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">partial_head</span>(<span class="ident">slice</span>, <span class="ident">h</span>),
-					(<span class="number">0</span>, ..) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">partial_tail</span>(<span class="ident">slice</span>, <span class="ident">h</span>, <span class="ident">t</span>),
-					(<span class="kw">_</span>, <span class="number">1</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">minor</span>(<span class="ident">slice</span>, <span class="ident">h</span>, <span class="ident">t</span>),
-					<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">major</span>(<span class="ident">slice</span>, <span class="ident">h</span>, <span class="ident">t</span>),
+					(<span class="kw">_</span>, <span class="number">0</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::empty</span>(),
+					(<span class="number">0</span>, <span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">if</span> <span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">w</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::spanning</span>(<span class="ident">slice</span>),
+					(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">if</span> <span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">w</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::partial_head</span>(<span class="ident">slice</span>, <span class="ident">h</span>),
+					(<span class="number">0</span>, ..) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::partial_tail</span>(<span class="ident">slice</span>, <span class="ident">h</span>, <span class="ident">t</span>),
+					(<span class="kw">_</span>, <span class="number">1</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::minor</span>(<span class="ident">slice</span>, <span class="ident">h</span>, <span class="ident">t</span>),
+					<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::major</span>(<span class="ident">slice</span>, <span class="ident">h</span>, <span class="ident">t</span>),
 				}
 			}
 
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-				<span class="self">Self</span>::<span class="ident">Region</span> {
-					<span class="ident">head</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-					<span class="ident">body</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-					<span class="ident">tail</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+				<span class="self">Self</span><span class="ident">::Region</span> {
+					<span class="ident">head</span>: <span class="ident">Default::default</span>(),
+					<span class="ident">body</span>: <span class="ident">Default::default</span>(),
+					<span class="ident">tail</span>: <span class="ident">Default::default</span>(),
 				}
 			}
 
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">fn</span> <span class="ident">major</span>(
 				<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
-				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
+				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-				<span class="kw">let</span> (<span class="ident">head</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">split</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span>
+				<span class="kw">let</span> (<span class="ident">head</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="macro">bit_domain!</span>(<span class="ident">split</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span>
 					<span class="ident">slice</span>,
-					(<span class="ident">T</span>::<span class="ident">Mem</span>::<span class="ident">BITS</span> <span class="op">-</span> <span class="ident">head</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">usize</span>,
+					(<span class="ident">T::Mem::BITS</span> <span class="op">-</span> <span class="ident">head</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">usize</span>,
 				);
-				<span class="kw">let</span> (<span class="ident">body</span>, <span class="ident">tail</span>) <span class="op">=</span> <span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">split</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span>
+				<span class="kw">let</span> (<span class="ident">body</span>, <span class="ident">tail</span>) <span class="op">=</span> <span class="macro">bit_domain!</span>(<span class="ident">split</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span>
 					<span class="ident">rest</span>,
 					<span class="ident">rest</span>.<span class="ident">len</span>() <span class="op">-</span> (<span class="ident">tail</span>.<span class="ident">value</span>() <span class="kw">as</span> <span class="ident">usize</span>),
 				);
-				<span class="self">Self</span>::<span class="ident">Region</span> {
-					<span class="ident">head</span>: <span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">head</span>),
-					<span class="ident">body</span>: <span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">body</span>),
-					<span class="ident">tail</span>: <span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">tail</span>),
+				<span class="self">Self</span><span class="ident">::Region</span> {
+					<span class="ident">head</span>: <span class="macro">bit_domain!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">head</span>),
+					<span class="ident">body</span>: <span class="macro">bit_domain!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">body</span>),
+					<span class="ident">tail</span>: <span class="macro">bit_domain!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">tail</span>),
 				}
 			}
 
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">fn</span> <span class="ident">minor</span>(
 				<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
-				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
+				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-				<span class="self">Self</span>::<span class="ident">Enclave</span> {
+				<span class="self">Self</span><span class="ident">::Enclave</span> {
 					<span class="ident">head</span>,
 					<span class="ident">body</span>: <span class="ident">slice</span>,
 					<span class="ident">tail</span>,
@@ -1004,20 +1004,20 @@ memory access for the duration of its existence.
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">fn</span> <span class="ident">partial_head</span>(
 				<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-				<span class="kw">let</span> (<span class="ident">head</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">split</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span>
+				<span class="kw">let</span> (<span class="ident">head</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="macro">bit_domain!</span>(<span class="ident">split</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span>
 					<span class="ident">slice</span>,
-					(<span class="ident">T</span>::<span class="ident">Mem</span>::<span class="ident">BITS</span> <span class="op">-</span> <span class="ident">head</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">usize</span>,
+					(<span class="ident">T::Mem::BITS</span> <span class="op">-</span> <span class="ident">head</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">usize</span>,
 				);
 				<span class="kw">let</span> (<span class="ident">head</span>, <span class="ident">body</span>) <span class="op">=</span> (
-					<span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">head</span>),
-					<span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">rest</span>),
+					<span class="macro">bit_domain!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">head</span>),
+					<span class="macro">bit_domain!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">rest</span>),
 				);
-				<span class="self">Self</span>::<span class="ident">Region</span> {
+				<span class="self">Self</span><span class="ident">::Region</span> {
 					<span class="ident">head</span>,
 					<span class="ident">body</span>,
-					<span class="ident">tail</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+					<span class="ident">tail</span>: <span class="ident">Default::default</span>(),
 				}
 			}
 
@@ -1029,19 +1029,19 @@ memory access for the duration of its existence.
 				function to establish the arguments ahead of time, then select a
 				constructor function to jump into.
 				*/</span>
-				<span class="ident">_head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
-				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">_head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
+				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-				<span class="kw">let</span> (<span class="ident">rest</span>, <span class="ident">tail</span>) <span class="op">=</span> <span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">split</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span>
+				<span class="kw">let</span> (<span class="ident">rest</span>, <span class="ident">tail</span>) <span class="op">=</span> <span class="macro">bit_domain!</span>(<span class="ident">split</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span>
 					<span class="ident">slice</span>,
 					<span class="ident">slice</span>.<span class="ident">len</span>() <span class="op">-</span> (<span class="ident">tail</span>.<span class="ident">value</span>() <span class="kw">as</span> <span class="ident">usize</span>),
 				);
 				<span class="kw">let</span> (<span class="ident">body</span>, <span class="ident">tail</span>) <span class="op">=</span> (
-					<span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">rest</span>),
-					<span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">tail</span>),
+					<span class="macro">bit_domain!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">rest</span>),
+					<span class="macro">bit_domain!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">tail</span>),
 				);
-				<span class="self">Self</span>::<span class="ident">Region</span> {
-					<span class="ident">head</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+				<span class="self">Self</span><span class="ident">::Region</span> {
+					<span class="ident">head</span>: <span class="ident">Default::default</span>(),
 					<span class="ident">body</span>,
 					<span class="ident">tail</span>,
 				}
@@ -1049,10 +1049,10 @@ memory access for the duration of its existence.
 
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">fn</span> <span class="ident">spanning</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-				<span class="self">Self</span>::<span class="ident">Region</span> {
-					<span class="ident">head</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-					<span class="ident">body</span>: <span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">slice</span>),
-					<span class="ident">tail</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+				<span class="self">Self</span><span class="ident">::Region</span> {
+					<span class="ident">head</span>: <span class="ident">Default::default</span>(),
+					<span class="ident">body</span>: <span class="macro">bit_domain!</span>(<span class="ident">retype</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">slice</span>),
+					<span class="ident">tail</span>: <span class="ident">Default::default</span>(),
 				}
 			}
 		}
@@ -1073,8 +1073,8 @@ memory access for the duration of its existence.
 	};
 }
 
-<span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">BitDomain</span>);
-<span class="macro">bit_domain</span><span class="macro">!</span>(<span class="ident">BitDomainMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">mut</span> @ <span class="ident">Alias</span>);
+<span class="macro">bit_domain!</span>(<span class="ident">BitDomain</span>);
+<span class="macro">bit_domain!</span>(<span class="ident">BitDomainMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">mut</span> @ <span class="ident">Alias</span>);
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">tarpaulin_include</span>))]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">BitDomain</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>
@@ -1095,7 +1095,7 @@ memory access for the duration of its existence.
 {
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">domain</span> {
+<span class="macro">macro_rules!</span> <span class="ident">domain</span> {
 	(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ident</span> $(<span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>:<span class="ident">ident</span> @ <span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">ident</span>)<span class="question-mark">?</span>) <span class="op">=</span><span class="op">&gt;</span> {
 		<span class="doccomment">/// Granular representation of the memory region containing a</span>
 		<span class="doccomment">/// `BitSlice`.</span>
@@ -1134,14 +1134,14 @@ memory access for the duration of its existence.
 			<span class="doccomment">/// interior indices of a single memory element.</span>
 			<span class="ident">Enclave</span> {
 				<span class="doccomment">/// The start index of the `BitSlice`.</span>
-				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 				<span class="doccomment">/// An aliased view of the element containing the `BitSlice`.</span>
 				<span class="doccomment">///</span>
 				<span class="doccomment">/// This is necessary even on immutable views, because other</span>
 				<span class="doccomment">/// views to the referent element may be permitted to modify it.</span>
 				<span class="ident">elem</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>,
 				<span class="doccomment">/// The end index of the `BitSlice`.</span>
-				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			},
 			<span class="doccomment">/// Indicates that a `BitSlice` region touches at least one edge</span>
 			<span class="doccomment">/// index of any number of elements.</span>
@@ -1153,7 +1153,7 @@ memory access for the duration of its existence.
 				<span class="doccomment">/// If the `BitSlice` started in the interior of its first</span>
 				<span class="doccomment">/// element, this contains the starting index and the base</span>
 				<span class="doccomment">/// address.</span>
-				<span class="ident">head</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>)<span class="op">&gt;</span>,
+				<span class="ident">head</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>)<span class="op">&gt;</span>,
 				<span class="doccomment">/// All fully-spanned, unaliased, elements.</span>
 				<span class="doccomment">///</span>
 				<span class="doccomment">/// This is marked as bare memory without any access</span>
@@ -1176,10 +1176,10 @@ memory access for the duration of its existence.
 				<span class="doccomment">/// interior elements marked as unaliased, will cause the domain</span>
 				<span class="doccomment">/// view to be undefined behavior. Do not combine domain views</span>
 				<span class="doccomment">/// and `.set_aliased` calls.</span>
-				<span class="ident">body</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> [<span class="ident">T</span>::<span class="ident">Mem</span>],
+				<span class="ident">body</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> [<span class="ident">T::Mem</span>],
 				<span class="doccomment">/// If the `BitSlice` ended in the interior of its last element,</span>
 				<span class="doccomment">/// this contains the ending index and the last address.</span>
-				<span class="ident">tail</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>, <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+				<span class="ident">tail</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>, <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
 			}
 		}
 
@@ -1201,11 +1201,11 @@ memory access for the duration of its existence.
 			<span class="doccomment">/// [`Enclave`]: #variant.Enclave</span>
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enclave</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(
-				<span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 				<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>,
-				<span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			)<span class="op">&gt;</span> {
-				<span class="kw">if</span> <span class="kw">let</span> <span class="self">Self</span>::<span class="ident">Enclave</span> { <span class="ident">head</span>, <span class="ident">elem</span>, <span class="ident">tail</span> } <span class="op">=</span> <span class="self">self</span> {
+				<span class="kw">if</span> <span class="kw">let</span> <span class="self">Self</span><span class="ident">::Enclave</span> { <span class="ident">head</span>, <span class="ident">elem</span>, <span class="ident">tail</span> } <span class="op">=</span> <span class="self">self</span> {
 					<span class="prelude-val">Some</span>((<span class="ident">head</span>, <span class="ident">elem</span>, <span class="ident">tail</span>))
 				} <span class="kw">else</span> {
 					<span class="prelude-val">None</span>
@@ -1226,11 +1226,11 @@ memory access for the duration of its existence.
 			<span class="doccomment">/// [`Region`]: #variant.Region</span>
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">region</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(
-				<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>)<span class="op">&gt;</span>,
-				<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> [<span class="ident">T</span>::<span class="ident">Mem</span>],
-				<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>, <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+				<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>)<span class="op">&gt;</span>,
+				<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> [<span class="ident">T::Mem</span>],
+				<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>, <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
 			)<span class="op">&gt;</span> {
-				<span class="kw">if</span> <span class="kw">let</span> <span class="self">Self</span>::<span class="ident">Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span> <span class="self">self</span> {
+				<span class="kw">if</span> <span class="kw">let</span> <span class="self">Self</span><span class="ident">::Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span> <span class="self">self</span> {
 					<span class="prelude-val">Some</span>((<span class="ident">head</span>,<span class="ident">body</span>,<span class="ident">tail</span>))
 				}
 				<span class="kw">else</span> {
@@ -1245,21 +1245,21 @@ memory access for the duration of its existence.
 				<span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">bitptr</span>.<span class="ident">head</span>();
 				<span class="kw">let</span> <span class="ident">elts</span> <span class="op">=</span> <span class="ident">bitptr</span>.<span class="ident">elements</span>();
 				<span class="kw">let</span> <span class="ident">tail</span> <span class="op">=</span> <span class="ident">bitptr</span>.<span class="ident">tail</span>();
-				<span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">Mem</span>::<span class="ident">BITS</span>;
+				<span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">T::Mem::BITS</span>;
 				<span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="ident">bitptr</span>.<span class="ident">pointer</span>().<span class="ident">to_const</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span>;
 				<span class="kw">match</span> (<span class="ident">head</span>.<span class="ident">value</span>(), <span class="ident">elts</span>, <span class="ident">tail</span>.<span class="ident">value</span>()) {
-					(<span class="kw">_</span>, <span class="number">0</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">empty</span>(),
-					(<span class="number">0</span>, <span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">if</span> <span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">bits</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">spanning</span>(<span class="ident">base</span>, <span class="ident">elts</span>),
-					(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">if</span> <span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">bits</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">partial_head</span>(<span class="ident">base</span>, <span class="ident">elts</span>, <span class="ident">head</span>),
-					(<span class="number">0</span>, ..) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">partial_tail</span>(<span class="ident">base</span>, <span class="ident">elts</span>, <span class="ident">tail</span>),
-					(<span class="kw">_</span>, <span class="number">1</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">minor</span>(<span class="ident">base</span>, <span class="ident">head</span>, <span class="ident">tail</span>),
-					<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">major</span>(<span class="ident">base</span>, <span class="ident">elts</span>, <span class="ident">head</span>, <span class="ident">tail</span>),
+					(<span class="kw">_</span>, <span class="number">0</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::empty</span>(),
+					(<span class="number">0</span>, <span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">if</span> <span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">bits</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::spanning</span>(<span class="ident">base</span>, <span class="ident">elts</span>),
+					(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">if</span> <span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">bits</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::partial_head</span>(<span class="ident">base</span>, <span class="ident">elts</span>, <span class="ident">head</span>),
+					(<span class="number">0</span>, ..) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::partial_tail</span>(<span class="ident">base</span>, <span class="ident">elts</span>, <span class="ident">tail</span>),
+					(<span class="kw">_</span>, <span class="number">1</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::minor</span>(<span class="ident">base</span>, <span class="ident">head</span>, <span class="ident">tail</span>),
+					<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::major</span>(<span class="ident">base</span>, <span class="ident">elts</span>, <span class="ident">head</span>, <span class="ident">tail</span>),
 				}
 			}
 
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-				<span class="self">Self</span>::<span class="ident">Region</span> {
+				<span class="self">Self</span><span class="ident">::Region</span> {
 					<span class="ident">head</span>: <span class="prelude-val">None</span>,
 					<span class="ident">body</span>: <span class="op">&amp;</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> [],
 					<span class="ident">tail</span>: <span class="prelude-val">None</span>,
@@ -1270,13 +1270,13 @@ memory access for the duration of its existence.
 			<span class="kw">fn</span> <span class="ident">major</span>(
 				<span class="ident">base</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>,
 				<span class="ident">elts</span>: <span class="ident">usize</span>,
-				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
-				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
+				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
 				<span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">base</span> };
 				<span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">base</span>.<span class="ident">add</span>(<span class="ident">elts</span> <span class="op">-</span> <span class="number">1</span>) };
-				<span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">domain</span><span class="macro">!</span>(<span class="ident">slice</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">base</span>.<span class="ident">add</span>(<span class="number">1</span>), <span class="ident">elts</span> <span class="op">-</span> <span class="number">2</span>);
-				<span class="self">Self</span>::<span class="ident">Region</span> {
+				<span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">domain!</span>(<span class="ident">slice</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">base</span>.<span class="ident">add</span>(<span class="number">1</span>), <span class="ident">elts</span> <span class="op">-</span> <span class="number">2</span>);
+				<span class="self">Self</span><span class="ident">::Region</span> {
 					<span class="ident">head</span>: <span class="prelude-val">Some</span>((<span class="ident">head</span>, <span class="ident">h</span>)),
 					<span class="ident">body</span>,
 					<span class="ident">tail</span>: <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="ident">tail</span>)),
@@ -1286,10 +1286,10 @@ memory access for the duration of its existence.
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">fn</span> <span class="ident">minor</span>(
 				<span class="ident">addr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>,
-				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
-				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
+				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-				<span class="self">Self</span>::<span class="ident">Enclave</span> {
+				<span class="self">Self</span><span class="ident">::Enclave</span> {
 					<span class="ident">head</span>,
 					<span class="ident">elem</span>: <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">addr</span> },
 					<span class="ident">tail</span>,
@@ -1300,11 +1300,11 @@ memory access for the duration of its existence.
 			<span class="kw">fn</span> <span class="ident">partial_head</span>(
 				<span class="ident">base</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>,
 				<span class="ident">elts</span>: <span class="ident">usize</span>,
-				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">head</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
 				<span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">base</span> };
-				<span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">domain</span><span class="macro">!</span>(<span class="ident">slice</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">base</span>.<span class="ident">add</span>(<span class="number">1</span>), <span class="ident">elts</span> <span class="op">-</span> <span class="number">1</span>);
-				<span class="self">Self</span>::<span class="ident">Region</span> {
+				<span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">domain!</span>(<span class="ident">slice</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">base</span>.<span class="ident">add</span>(<span class="number">1</span>), <span class="ident">elts</span> <span class="op">-</span> <span class="number">1</span>);
+				<span class="self">Self</span><span class="ident">::Region</span> {
 					<span class="ident">head</span>: <span class="prelude-val">Some</span>((<span class="ident">head</span>, <span class="ident">h</span>)),
 					<span class="ident">body</span>,
 					<span class="ident">tail</span>: <span class="prelude-val">None</span>,
@@ -1315,11 +1315,11 @@ memory access for the duration of its existence.
 			<span class="kw">fn</span> <span class="ident">partial_tail</span>(
 				<span class="ident">base</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>,
 				<span class="ident">elts</span>: <span class="ident">usize</span>,
-				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>,
+				<span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">T::Mem</span><span class="op">&gt;</span>,
 			) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
 				<span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">base</span>.<span class="ident">add</span>(<span class="ident">elts</span> <span class="op">-</span> <span class="number">1</span>) };
-				<span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">domain</span><span class="macro">!</span>(<span class="ident">slice</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">base</span>, <span class="ident">elts</span> <span class="op">-</span> <span class="number">1</span>);
-				<span class="self">Self</span>::<span class="ident">Region</span> {
+				<span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">domain!</span>(<span class="ident">slice</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">base</span>, <span class="ident">elts</span> <span class="op">-</span> <span class="number">1</span>);
+				<span class="self">Self</span><span class="ident">::Region</span> {
 					<span class="ident">head</span>: <span class="prelude-val">None</span>,
 					<span class="ident">body</span>,
 					<span class="ident">tail</span>: <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="ident">tail</span>)),
@@ -1328,9 +1328,9 @@ memory access for the duration of its existence.
 
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
 			<span class="kw">fn</span> <span class="ident">spanning</span>(<span class="ident">base</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span> $(::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>)<span class="question-mark">?</span>, <span class="ident">elts</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-				<span class="self">Self</span>::<span class="ident">Region</span> {
+				<span class="self">Self</span><span class="ident">::Region</span> {
 					<span class="ident">head</span>: <span class="prelude-val">None</span>,
-					<span class="ident">body</span>: <span class="macro">domain</span><span class="macro">!</span>(<span class="ident">slice</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">base</span>, <span class="ident">elts</span>),
+					<span class="ident">body</span>: <span class="macro">domain!</span>(<span class="ident">slice</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>)<span class="question-mark">?</span> <span class="ident">base</span>, <span class="ident">elts</span>),
 					<span class="ident">tail</span>: <span class="prelude-val">None</span>,
 				}
 			}
@@ -1338,15 +1338,15 @@ memory access for the duration of its existence.
 	};
 
 	(<span class="ident">slice</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">elts</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-		<span class="kw">unsafe</span> { <span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">elts</span>) }
+		<span class="kw">unsafe</span> { <span class="ident">slice::from_raw_parts_mut</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">elts</span>) }
 	};
 	(<span class="ident">slice</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">elts</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-		<span class="kw">unsafe</span> { <span class="ident">slice</span>::<span class="ident">from_raw_parts</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">elts</span>) }
+		<span class="kw">unsafe</span> { <span class="ident">slice::from_raw_parts</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">elts</span>) }
 	};
 }
 
-<span class="macro">domain</span><span class="macro">!</span>(<span class="ident">Domain</span>);
-<span class="macro">domain</span><span class="macro">!</span>(<span class="ident">DomainMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">mut</span> @ <span class="ident">Alias</span>);
+<span class="macro">domain!</span>(<span class="ident">Domain</span>);
+<span class="macro">domain!</span>(<span class="ident">DomainMut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">mut</span> @ <span class="ident">Alias</span>);
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">tarpaulin_include</span>))]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Domain</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>
@@ -1361,15 +1361,15 @@ memory access for the duration of its existence.
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Domain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span> <span class="ident">T</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BitStore</span>
 {
-	<span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">Mem</span>;
+	<span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">T::Mem</span>;
 
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
 		<span class="kw">match</span> <span class="self">self</span> {
-			<span class="self">Self</span>::<span class="ident">Enclave</span> { <span class="ident">elem</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
-				<span class="ident">elem</span>.<span class="ident">load_value</span>().<span class="ident">pipe</span>(<span class="prelude-val">Some</span>).<span class="ident">tap</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">empty</span>())
+			<span class="self">Self</span><span class="ident">::Enclave</span> { <span class="ident">elem</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+				<span class="ident">elem</span>.<span class="ident">load_value</span>().<span class="ident">pipe</span>(<span class="prelude-val">Some</span>).<span class="ident">tap</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::empty</span>())
 			},
-			<span class="self">Self</span>::<span class="ident">Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
+			<span class="self">Self</span><span class="ident">::Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
 				<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">elem</span>)) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">head</span> {
 					<span class="kw">return</span> <span class="ident">elem</span>.<span class="ident">load_value</span>().<span class="ident">pipe</span>(<span class="prelude-val">Some</span>).<span class="ident">tap</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">head</span> <span class="op">=</span> <span class="prelude-val">None</span>);
 				}
@@ -1390,12 +1390,12 @@ memory access for the duration of its existence.
 <span class="kw">where</span> <span class="ident">T</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BitStore</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
 		<span class="kw">match</span> <span class="self">self</span> {
-			<span class="self">Self</span>::<span class="ident">Enclave</span> { <span class="ident">elem</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
-				<span class="ident">elem</span>.<span class="ident">load_value</span>().<span class="ident">pipe</span>(<span class="prelude-val">Some</span>).<span class="ident">tap</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">empty</span>())
+			<span class="self">Self</span><span class="ident">::Enclave</span> { <span class="ident">elem</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+				<span class="ident">elem</span>.<span class="ident">load_value</span>().<span class="ident">pipe</span>(<span class="prelude-val">Some</span>).<span class="ident">tap</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::empty</span>())
 			},
-			<span class="self">Self</span>::<span class="ident">Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
+			<span class="self">Self</span><span class="ident">::Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
 				<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">elem</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">tail</span> {
 					<span class="kw">return</span> <span class="ident">elem</span>.<span class="ident">load_value</span>().<span class="ident">pipe</span>(<span class="prelude-val">Some</span>).<span class="ident">tap</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">tail</span> <span class="op">=</span> <span class="prelude-val">None</span>);
 				}
@@ -1418,15 +1418,15 @@ memory access for the duration of its existence.
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
 		<span class="kw">match</span> <span class="self">self</span> {
-			<span class="self">Self</span>::<span class="ident">Enclave</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
-			<span class="self">Self</span>::<span class="ident">Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
+			<span class="self">Self</span><span class="ident">::Enclave</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
+			<span class="self">Self</span><span class="ident">::Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
 				<span class="ident">head</span>.<span class="ident">is_some</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">body</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">tail</span>.<span class="ident">is_some</span>() <span class="kw">as</span> <span class="ident">usize</span>
 			},
 		}
 	}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">FusedIterator</span> <span class="kw">for</span> <span class="ident">Domain</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">BitStore</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::iter::FusedIterator</span> <span class="kw">for</span> <span class="ident">Domain</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">BitStore</span>
 {
 }
 
@@ -1434,13 +1434,13 @@ memory access for the duration of its existence.
 {
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">fmt</span> {
+<span class="macro">macro_rules!</span> <span class="ident">fmt</span> {
 	($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span>:<span class="ident">ty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fwd</span>:<span class="ident">ident</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>) <span class="op">=</span><span class="op">&gt;</span> { $(
 		<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span> <span class="kw">for</span> <span class="ident">Domain</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>
 		<span class="kw">where</span> <span class="ident">T</span>: <span class="ident">BitStore</span>
 		{
 			<span class="attribute">#[<span class="ident">inline</span>]</span>
-			<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+			<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
 				<span class="ident">fmt</span>.<span class="ident">debug_list</span>()
 					.<span class="ident">entries</span>(<span class="self">self</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">FmtForward</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fwd</span>))
 					.<span class="ident">finish</span>()
@@ -1449,7 +1449,7 @@ memory access for the duration of its existence.
 	)<span class="op">+</span> };
 }
 
-<span class="macro">fmt</span><span class="macro">!</span>(
+<span class="macro">fmt!</span>(
 	<span class="ident">Binary</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fmt_binary</span>,
 	<span class="ident">LowerHex</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fmt_lower_hex</span>,
 	<span class="ident">Octal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fmt_octal</span>,
@@ -1458,7 +1458,7 @@ memory access for the duration of its existence.
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-	<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+	<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::<span class="kw-2">*</span>;
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">domain_iter</span>() {
@@ -1466,10 +1466,10 @@ memory access for the duration of its existence.
 		<span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">view_bits</span>::<span class="op">&lt;</span><span class="ident">LocalBits</span><span class="op">&gt;</span>()[<span class="number">4</span> .. <span class="number">92</span>];
 
 		<span class="kw">for</span> (<span class="ident">iter</span>, <span class="ident">elem</span>) <span class="kw">in</span> <span class="ident">bits</span>.<span class="ident">domain</span>().<span class="ident">rev</span>().<span class="ident">zip</span>([<span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>].<span class="ident">iter</span>().<span class="ident">copied</span>()) {
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">iter</span>, <span class="ident">elem</span>);
+			<span class="macro">assert_eq!</span>(<span class="ident">iter</span>, <span class="ident">elem</span>);
 		}
 	}
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="bitvec" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="bitvec" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

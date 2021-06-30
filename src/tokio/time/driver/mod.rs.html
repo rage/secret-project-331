@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/time/driver/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -474,24 +474,24 @@
 <span class="doccomment">//! Time driver</span>
 
 <span class="kw">mod</span> <span class="ident">entry</span>;
-<span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">entry</span>::{<span class="ident">EntryList</span>, <span class="ident">TimerEntry</span>, <span class="ident">TimerHandle</span>, <span class="ident">TimerShared</span>};
+<span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">use</span> <span class="self">self</span><span class="ident">::entry</span>::{<span class="ident">EntryList</span>, <span class="ident">TimerEntry</span>, <span class="ident">TimerHandle</span>, <span class="ident">TimerShared</span>};
 
 <span class="kw">mod</span> <span class="ident">handle</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">handle</span>::<span class="ident">Handle</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span><span class="ident">::handle::Handle</span>;
 
 <span class="kw">mod</span> <span class="ident">wheel</span>;
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod</span> <span class="ident">sleep</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">park</span>::{<span class="ident">Park</span>, <span class="ident">Unpark</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">time</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">time</span>::{<span class="ident">Clock</span>, <span class="ident">Duration</span>, <span class="ident">Instant</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::park</span>::{<span class="ident">Park</span>, <span class="ident">Unpark</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::time::error::Error</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::time</span>::{<span class="ident">Clock</span>, <span class="ident">Duration</span>, <span class="ident">Instant</span>};
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryInto</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">num</span>::<span class="ident">NonZeroU64</span>, <span class="ident">ptr</span>::<span class="ident">NonNull</span>, <span class="ident">task</span>::<span class="ident">Waker</span>};
+<span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">num::NonZeroU64</span>, <span class="ident">ptr::NonNull</span>, <span class="ident">task::Waker</span>};
 
 <span class="doccomment">/// Time implementation that drives [`Sleep`][sleep], [`Interval`][interval], and [`Timeout`][timeout].</span>
 <span class="doccomment">///</span>
@@ -563,7 +563,7 @@
 <span class="doccomment">/// A structure which handles conversion from Instants to u64 timestamps.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">struct</span> <span class="ident">ClockTime</span> {
-    <span class="ident">clock</span>: <span class="kw">super</span>::<span class="ident">clock</span>::<span class="ident">Clock</span>,
+    <span class="ident">clock</span>: <span class="kw">super</span><span class="ident">::clock::Clock</span>,
     <span class="ident">start_time</span>: <span class="ident">Instant</span>,
 }
 
@@ -577,21 +577,21 @@
 
     <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">fn</span> <span class="ident">deadline_to_tick</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="ident">Instant</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
         <span class="comment">// Round up to the end of a ms</span>
-        <span class="self">self</span>.<span class="ident">instant_to_tick</span>(<span class="ident">t</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">from_nanos</span>(<span class="number">999_999</span>))
+        <span class="self">self</span>.<span class="ident">instant_to_tick</span>(<span class="ident">t</span> <span class="op">+</span> <span class="ident">Duration::from_nanos</span>(<span class="number">999_999</span>))
     }
 
     <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">fn</span> <span class="ident">instant_to_tick</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="ident">Instant</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
         <span class="comment">// round up</span>
         <span class="kw">let</span> <span class="ident">dur</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">t</span>
             .<span class="ident">checked_duration_since</span>(<span class="self">self</span>.<span class="ident">start_time</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>));
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Duration::from_secs</span>(<span class="number">0</span>));
         <span class="kw">let</span> <span class="ident">ms</span> <span class="op">=</span> <span class="ident">dur</span>.<span class="ident">as_millis</span>();
 
         <span class="ident">ms</span>.<span class="ident">try_into</span>().<span class="ident">expect</span>(<span class="string">&quot;Duration too far into the future&quot;</span>)
     }
 
     <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">fn</span> <span class="ident">tick_to_duration</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
-        <span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="ident">t</span>)
+        <span class="ident">Duration::from_millis</span>(<span class="ident">t</span>)
     }
 
     <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">fn</span> <span class="ident">now</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
@@ -620,7 +620,7 @@
     <span class="ident">next_wake</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonZeroU64</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Timer wheel</span>
-    <span class="ident">wheel</span>: <span class="ident">wheel</span>::<span class="ident">Wheel</span>,
+    <span class="ident">wheel</span>: <span class="ident">wheel::Wheel</span>,
 
     <span class="doccomment">/// Unparker that can be used to wake the time driver</span>
     <span class="ident">unpark</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Unpark</span><span class="op">&gt;</span>,
@@ -637,13 +637,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Specifying the source of time is useful when testing.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">park</span>: <span class="ident">P</span>, <span class="ident">clock</span>: <span class="ident">Clock</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Driver</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">time_source</span> <span class="op">=</span> <span class="ident">ClockTime</span>::<span class="ident">new</span>(<span class="ident">clock</span>);
+        <span class="kw">let</span> <span class="ident">time_source</span> <span class="op">=</span> <span class="ident">ClockTime::new</span>(<span class="ident">clock</span>);
 
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Inner</span>::<span class="ident">new</span>(<span class="ident">time_source</span>.<span class="ident">clone</span>(), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">park</span>.<span class="ident">unpark</span>()));
+        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Inner::new</span>(<span class="ident">time_source</span>.<span class="ident">clone</span>(), <span class="ident">Box::new</span>(<span class="ident">park</span>.<span class="ident">unpark</span>()));
 
         <span class="ident">Driver</span> {
             <span class="ident">time_source</span>,
-            <span class="ident">handle</span>: <span class="ident">Handle</span>::<span class="ident">new</span>(<span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">inner</span>)),
+            <span class="ident">handle</span>: <span class="ident">Handle::new</span>(<span class="ident">Arc::new</span>(<span class="ident">inner</span>)),
             <span class="ident">park</span>,
         }
     }
@@ -658,16 +658,16 @@
         <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">clone</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">park_internal</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">P</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">park_internal</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">P::Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">clock</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">time_source</span>.<span class="ident">clock</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">get</span>().<span class="ident">state</span>.<span class="ident">lock</span>();
 
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">is_shutdown</span>());
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">is_shutdown</span>());
 
         <span class="kw">let</span> <span class="ident">next_wake</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">wheel</span>.<span class="ident">next_expiration_time</span>();
         <span class="ident">lock</span>.<span class="ident">next_wake</span> <span class="op">=</span>
-            <span class="ident">next_wake</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">NonZeroU64</span>::<span class="ident">new</span>(<span class="ident">t</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">NonZeroU64</span>::<span class="ident">new</span>(<span class="number">1</span>).<span class="ident">unwrap</span>()));
+            <span class="ident">next_wake</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">NonZeroU64::new</span>(<span class="ident">t</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">NonZeroU64::new</span>(<span class="number">1</span>).<span class="ident">unwrap</span>()));
 
         <span class="ident">drop</span>(<span class="ident">lock</span>);
 
@@ -679,13 +679,13 @@
                 <span class="comment">// might treat as zero-length.</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">duration</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">time_source</span>.<span class="ident">tick_to_duration</span>(<span class="ident">when</span>.<span class="ident">saturating_sub</span>(<span class="ident">now</span>));
 
-                <span class="kw">if</span> <span class="ident">duration</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">0</span>) {
+                <span class="kw">if</span> <span class="ident">duration</span> <span class="op">&gt;</span> <span class="ident">Duration::from_millis</span>(<span class="number">0</span>) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">limit</span>) <span class="op">=</span> <span class="ident">limit</span> {
-                        <span class="ident">duration</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">limit</span>, <span class="ident">duration</span>);
+                        <span class="ident">duration</span> <span class="op">=</span> <span class="ident">std::cmp::min</span>(<span class="ident">limit</span>, <span class="ident">duration</span>);
                     }
 
                     <span class="kw">if</span> <span class="ident">clock</span>.<span class="ident">is_paused</span>() {
-                        <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
 
                         <span class="comment">// Simulate advancing time</span>
                         <span class="ident">clock</span>.<span class="ident">advance</span>(<span class="ident">duration</span>);
@@ -693,13 +693,13 @@
                         <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">park_timeout</span>(<span class="ident">duration</span>)<span class="question-mark">?</span>;
                     }
                 } <span class="kw">else</span> {
-                    <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
+                    <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
                 }
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">duration</span>) <span class="op">=</span> <span class="ident">limit</span> {
                     <span class="kw">if</span> <span class="ident">clock</span>.<span class="ident">is_paused</span>() {
-                        <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
                         <span class="ident">clock</span>.<span class="ident">advance</span>(<span class="ident">duration</span>);
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">park_timeout</span>(<span class="ident">duration</span>)<span class="question-mark">?</span>;
@@ -726,15 +726,15 @@
     }
 
     <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">fn</span> <span class="ident">process_at_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">u64</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">waker_list</span>: [<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>; <span class="number">32</span>] <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">waker_list</span>: [<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>; <span class="number">32</span>] <span class="op">=</span> <span class="ident">Default::default</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">waker_idx</span> <span class="op">=</span> <span class="number">0</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get</span>().<span class="ident">lock</span>();
 
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">now</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">lock</span>.<span class="ident">elapsed</span>);
+        <span class="macro">assert!</span>(<span class="ident">now</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">lock</span>.<span class="ident">elapsed</span>);
 
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">entry</span>) <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">wheel</span>.<span class="ident">poll</span>(<span class="ident">now</span>) {
-            <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="kw">unsafe</span> { <span class="ident">entry</span>.<span class="ident">is_pending</span>() });
+            <span class="macro">debug_assert!</span>(<span class="kw">unsafe</span> { <span class="ident">entry</span>.<span class="ident">is_pending</span>() });
 
             <span class="comment">// SAFETY: We hold the driver lock, and just removed the entry from any linked lists.</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">entry</span>.<span class="ident">fire</span>(<span class="prelude-val">Ok</span>(())) } {
@@ -762,7 +762,7 @@
         <span class="ident">lock</span>.<span class="ident">next_wake</span> <span class="op">=</span> <span class="ident">lock</span>
             .<span class="ident">wheel</span>
             .<span class="ident">poll_at</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">NonZeroU64</span>::<span class="ident">new</span>(<span class="ident">t</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">NonZeroU64</span>::<span class="ident">new</span>(<span class="number">1</span>).<span class="ident">unwrap</span>()));
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">NonZeroU64::new</span>(<span class="ident">t</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">NonZeroU64::new</span>(<span class="number">1</span>).<span class="ident">unwrap</span>()));
 
         <span class="ident">drop</span>(<span class="ident">lock</span>);
 
@@ -813,7 +813,7 @@
             <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">as_ref</span>().<span class="ident">handle</span>();
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_shutdown</span>() {
-                <span class="kw">unsafe</span> { <span class="ident">entry</span>.<span class="ident">fire</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::<span class="ident">time</span>::<span class="ident">error</span>::<span class="ident">Error</span>::<span class="ident">shutdown</span>())) }
+                <span class="kw">unsafe</span> { <span class="ident">entry</span>.<span class="ident">fire</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::time::error::Error::shutdown</span>())) }
             } <span class="kw">else</span> {
                 <span class="ident">entry</span>.<span class="ident">set_expiration</span>(<span class="ident">new_tick</span>);
 
@@ -832,7 +832,7 @@
 
                         <span class="prelude-val">None</span>
                     }
-                    <span class="prelude-val">Err</span>((<span class="ident">entry</span>, <span class="kw">super</span>::<span class="ident">error</span>::<span class="ident">InsertError</span>::<span class="ident">Elapsed</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">unsafe</span> {
+                    <span class="prelude-val">Err</span>((<span class="ident">entry</span>, <span class="kw">super</span><span class="ident">::error::InsertError::Elapsed</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">unsafe</span> {
                         <span class="ident">entry</span>.<span class="ident">fire</span>(<span class="prelude-val">Ok</span>(()))
                     },
                 }
@@ -854,18 +854,18 @@
 <span class="kw">where</span>
     <span class="ident">P</span>: <span class="ident">Park</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Unpark</span> <span class="op">=</span> <span class="ident">P</span>::<span class="ident">Unpark</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">P</span>::<span class="ident">Error</span>;
+    <span class="kw">type</span> <span class="ident">Unpark</span> <span class="op">=</span> <span class="ident">P::Unpark</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">P::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">unpark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Unpark</span> {
+    <span class="kw">fn</span> <span class="ident">unpark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Unpark</span> {
         <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">unpark</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">park</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">park</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">park_internal</span>(<span class="prelude-val">None</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">park_timeout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">park_timeout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">park_internal</span>(<span class="prelude-val">Some</span>(<span class="ident">duration</span>))
     }
 
@@ -874,11 +874,11 @@
             <span class="kw">return</span>;
         }
 
-        <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">get</span>().<span class="ident">is_shutdown</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+        <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">get</span>().<span class="ident">is_shutdown</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::SeqCst</span>);
 
         <span class="comment">// Advance time forward to the end of time.</span>
 
-        <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">process_at_time</span>(<span class="ident">u64</span>::<span class="ident">MAX</span>);
+        <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">process_at_time</span>(<span class="ident">u64::MAX</span>);
 
         <span class="self">self</span>.<span class="ident">park</span>.<span class="ident">shutdown</span>();
     }
@@ -898,30 +898,30 @@
 <span class="kw">impl</span> <span class="ident">Inner</span> {
     <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">time_source</span>: <span class="ident">ClockTime</span>, <span class="ident">unpark</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Unpark</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Inner</span> {
-            <span class="ident">state</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">InnerState</span> {
+            <span class="ident">state</span>: <span class="ident">Mutex::new</span>(<span class="ident">InnerState</span> {
                 <span class="ident">time_source</span>,
                 <span class="ident">elapsed</span>: <span class="number">0</span>,
                 <span class="ident">next_wake</span>: <span class="prelude-val">None</span>,
                 <span class="ident">unpark</span>,
-                <span class="ident">wheel</span>: <span class="ident">wheel</span>::<span class="ident">Wheel</span>::<span class="ident">new</span>(),
+                <span class="ident">wheel</span>: <span class="ident">wheel::Wheel::new</span>(),
             }),
-            <span class="ident">is_shutdown</span>: <span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>),
+            <span class="ident">is_shutdown</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>),
         }
     }
 
     <span class="doccomment">/// Locks the driver&#39;s inner structure</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">lock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">sync</span>::<span class="ident">MutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">InnerState</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">lock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::loom::sync::MutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">InnerState</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">lock</span>()
     }
 
     <span class="comment">// Check whether the driver has been shutdown</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_shutdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">is_shutdown</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>)
+        <span class="self">self</span>.<span class="ident">is_shutdown</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Inner</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Inner</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Inner&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -929,5 +929,5 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

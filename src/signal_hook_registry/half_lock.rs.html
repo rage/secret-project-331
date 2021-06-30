@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/signal-hook-registry-1.4.0/src/half_lock.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>half_lock.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../signal_hook_registry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../signal_hook_registry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -268,17 +268,17 @@
 <span class="doccomment">//! enough in practice in case someone wants to get inspired (but do make your own check through</span>
 <span class="doccomment">//! them anyway).</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">isize</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Deref</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="self">self</span>, <span class="ident">AtomicPtr</span>, <span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::{<span class="ident">Mutex</span>, <span class="ident">MutexGuard</span>, <span class="ident">PoisonError</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>;
+<span class="kw">use</span> <span class="ident">std::isize</span>;
+<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+<span class="kw">use</span> <span class="ident">std::ops::Deref</span>;
+<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="self">self</span>, <span class="ident">AtomicPtr</span>, <span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Mutex</span>, <span class="ident">MutexGuard</span>, <span class="ident">PoisonError</span>};
+<span class="kw">use</span> <span class="ident">std::thread</span>;
 
 <span class="kw">use</span> <span class="ident">libc</span>;
 
 <span class="kw">const</span> <span class="ident">YIELD_EVERY</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16</span>;
-<span class="kw">const</span> <span class="ident">MAX_GUARDS</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="ident">isize</span>::<span class="ident">MAX</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+<span class="kw">const</span> <span class="ident">MAX_GUARDS</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="ident">isize::MAX</span>) <span class="kw">as</span> <span class="ident">usize</span>;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">ReadGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>,
@@ -295,7 +295,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">ReadGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="comment">// We effectively unlock; Release would be enough.</span>
-        <span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+        <span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>);
     }
 }
 
@@ -308,18 +308,18 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">WriteGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">store</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) {
         <span class="comment">// Move to the heap and convert to raw pointer for AtomicPtr.</span>
-        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">val</span>));
+        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">Box::into_raw</span>(<span class="ident">Box::new</span>(<span class="ident">val</span>));
 
         <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">new</span> };
 
         <span class="comment">// We can just put the new value in here safely, we worry only about dropping the old one.</span>
         <span class="comment">// Release might (?) be enough, to &quot;upload&quot; the data.</span>
-        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">data</span>.<span class="ident">swap</span>(<span class="ident">new</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">data</span>.<span class="ident">swap</span>(<span class="ident">new</span>, <span class="ident">Ordering::SeqCst</span>);
 
         <span class="comment">// Now we make sure there&#39;s no reader having the old data.</span>
         <span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">write_barrier</span>();
 
-        <span class="ident">drop</span>(<span class="kw">unsafe</span> { <span class="ident">Box</span>::<span class="ident">from_raw</span>(<span class="ident">old</span>) });
+        <span class="ident">drop</span>(<span class="kw">unsafe</span> { <span class="ident">Box::from_raw</span>(<span class="ident">old</span>) });
     }
 }
 
@@ -348,13 +348,13 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">data</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="comment">// Move to the heap so we can safely point there. Then convert to raw pointer as AtomicPtr</span>
         <span class="comment">// operates on raw pointers. The AtomicPtr effectively acts like Box for us semantically.</span>
-        <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">data</span>));
+        <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">Box::into_raw</span>(<span class="ident">Box::new</span>(<span class="ident">data</span>));
         <span class="self">Self</span> {
             <span class="ident">_t</span>: <span class="ident">PhantomData</span>,
-            <span class="ident">data</span>: <span class="ident">AtomicPtr</span>::<span class="ident">new</span>(<span class="ident">ptr</span>),
-            <span class="ident">generation</span>: <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>),
-            <span class="ident">lock</span>: [<span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>), <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>)],
-            <span class="ident">write_mutex</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(()),
+            <span class="ident">data</span>: <span class="ident">AtomicPtr::new</span>(<span class="ident">ptr</span>),
+            <span class="ident">generation</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>),
+            <span class="ident">lock</span>: [<span class="ident">AtomicUsize::new</span>(<span class="number">0</span>), <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>)],
+            <span class="ident">write_mutex</span>: <span class="ident">Mutex::new</span>(()),
         }
     }
 
@@ -362,10 +362,10 @@
         <span class="comment">// Relaxed should be enough; we only pick one or the other slot and the writer observes</span>
         <span class="comment">// that both were 0 at some time. So the actual value doesn&#39;t really matter for safety,</span>
         <span class="comment">// only the changing improves the performance.</span>
-        <span class="kw">let</span> <span class="ident">gen</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generation</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+        <span class="kw">let</span> <span class="ident">gen</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generation</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>);
         <span class="kw">let</span> <span class="ident">lock</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lock</span>[<span class="ident">gen</span> <span class="op">%</span> <span class="number">2</span>];
         <span class="comment">// Effectively locking something, acquire should be enough.</span>
-        <span class="kw">let</span> <span class="ident">guard_cnt</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+        <span class="kw">let</span> <span class="ident">guard_cnt</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>);
 
         <span class="comment">// This is to prevent overflowing the counter in some degenerate cases, which could lead to</span>
         <span class="comment">// UB (freeing data while still in use). However, as this data structure is used only</span>
@@ -378,12 +378,12 @@
         <span class="comment">// that would mean having too many active threads to fit into RAM too and is even more</span>
         <span class="comment">// absurd corner case than the above.</span>
         <span class="kw">if</span> <span class="ident">guard_cnt</span> <span class="op">&gt;</span> <span class="ident">MAX_GUARDS</span> {
-            <span class="kw">unsafe</span> { <span class="ident">libc</span>::<span class="ident">abort</span>() };
+            <span class="kw">unsafe</span> { <span class="ident">libc::abort</span>() };
         }
 
         <span class="comment">// Acquire should be enough; we need to &quot;download&quot; the data, paired with the swap on the</span>
         <span class="comment">// same pointer.</span>
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>);
         <span class="comment">// Safe:</span>
         <span class="comment">// * It did point to valid data when put in.</span>
         <span class="comment">// * Protected by lock, so still valid.</span>
@@ -394,7 +394,7 @@
 
     <span class="kw">fn</span> <span class="ident">update_seen</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">seen_zero</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">bool</span>; <span class="number">2</span>]) {
         <span class="kw">for</span> (<span class="ident">seen</span>, <span class="ident">slot</span>) <span class="kw">in</span> <span class="ident">seen_zero</span>.<span class="ident">iter_mut</span>().<span class="ident">zip</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lock</span>) {
-            <span class="kw-2">*</span><span class="ident">seen</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">seen</span> <span class="op">|</span><span class="op">|</span> <span class="ident">slot</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>;
+            <span class="kw-2">*</span><span class="ident">seen</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">seen</span> <span class="op">|</span><span class="op">|</span> <span class="ident">slot</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>;
         }
     }
 
@@ -406,20 +406,20 @@
         <span class="self">self</span>.<span class="ident">update_seen</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">seen_zero</span>);
         <span class="comment">// By switching the generation to the other slot, we make sure the currently active starts</span>
         <span class="comment">// draining while the other will start filling up.</span>
-        <span class="self">self</span>.<span class="ident">generation</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>); <span class="comment">// Overflow is fine.</span>
+        <span class="self">self</span>.<span class="ident">generation</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>); <span class="comment">// Overflow is fine.</span>
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="number">0usize</span>;
         <span class="kw">while</span> <span class="op">!</span><span class="ident">seen_zero</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">s</span>) {
             <span class="ident">iter</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>);
 
             <span class="comment">// Be somewhat less aggressive while looping, switch to the other threads if possible.</span>
-            <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">not</span>(<span class="ident">miri</span>)) {
+            <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">miri</span>)) {
                 <span class="kw">if</span> <span class="ident">iter</span> <span class="op">%</span> <span class="ident">YIELD_EVERY</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="ident">thread</span>::<span class="ident">yield_now</span>();
+                    <span class="ident">thread::yield_now</span>();
                 } <span class="kw">else</span> {
                     <span class="comment">// Replaced by hint::spin_loop, but we want to support older compiler</span>
                     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
-                    <span class="ident">atomic</span>::<span class="ident">spin_loop_hint</span>();
+                    <span class="ident">atomic::spin_loop_hint</span>();
                 }
             }
 
@@ -434,11 +434,11 @@
         <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">write_mutex</span>
             .<span class="ident">lock</span>()
-            .<span class="ident">unwrap_or_else</span>(<span class="ident">PoisonError</span>::<span class="ident">into_inner</span>);
+            .<span class="ident">unwrap_or_else</span>(<span class="ident">PoisonError::into_inner</span>);
 
         <span class="comment">// Relaxed should be enough, as we are under the same mutex that was used to get the data</span>
         <span class="comment">// in.</span>
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>);
         <span class="comment">// Safe:</span>
         <span class="comment">// * Stored as valid data</span>
         <span class="comment">// * Only this method, protected by mutex, can change the pointer, so it didn&#39;t go away.</span>
@@ -461,11 +461,11 @@
         <span class="comment">// unsafe: the pointer in there is always valid, we just take the last instance out.</span>
         <span class="kw">unsafe</span> {
             <span class="comment">// Acquire should be enough.</span>
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">from_raw</span>(<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>));
+            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">Box::from_raw</span>(<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>));
             <span class="ident">drop</span>(<span class="ident">data</span>);
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="signal_hook_registry" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="signal_hook_registry" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

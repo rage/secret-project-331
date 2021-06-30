@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.5/src/postgres/connection/sasl.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>sasl.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -218,17 +218,17 @@
 <span id="215">215</span>
 <span id="216">216</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">postgres</span>::<span class="ident">connection</span>::<span class="ident">stream</span>::<span class="ident">PgStream</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">postgres</span>::<span class="ident">message</span>::{
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Error</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::postgres::connection::stream::PgStream</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::postgres::message</span>::{
     <span class="ident">Authentication</span>, <span class="ident">AuthenticationSasl</span>, <span class="ident">MessageFormat</span>, <span class="ident">SaslInitialResponse</span>, <span class="ident">SaslResponse</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">postgres</span>::<span class="ident">PgConnectOptions</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::postgres::PgConnectOptions</span>;
 <span class="kw">use</span> <span class="ident">hmac</span>::{<span class="ident">Hmac</span>, <span class="ident">Mac</span>, <span class="ident">NewMac</span>};
-<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
-<span class="kw">use</span> <span class="ident">sha2</span>::<span class="ident">digest</span>::<span class="ident">Digest</span>;
-<span class="kw">use</span> <span class="ident">sha2</span>::<span class="ident">Sha256</span>;
-<span class="kw">use</span> <span class="ident">stringprep</span>::<span class="ident">saslprep</span>;
+<span class="kw">use</span> <span class="ident">rand::Rng</span>;
+<span class="kw">use</span> <span class="ident">sha2::digest::Digest</span>;
+<span class="kw">use</span> <span class="ident">sha2::Sha256</span>;
+<span class="kw">use</span> <span class="ident">stringprep::saslprep</span>;
 
 <span class="kw">const</span> <span class="ident">GS2_HEADER</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;n,,&quot;</span>;
 <span class="kw">const</span> <span class="ident">CHANNEL_ATTR</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;c&quot;</span>;
@@ -243,7 +243,7 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_sasl</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_sasl_plus</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unknown</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unknown</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="kw">for</span> <span class="ident">mechanism</span> <span class="kw">in</span> <span class="ident">data</span>.<span class="ident">mechanisms</span>() {
         <span class="kw">match</span> <span class="ident">mechanism</span> {
@@ -262,21 +262,21 @@
     }
 
     <span class="kw">if</span> <span class="op">!</span><span class="ident">has_sasl_plus</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">has_sasl</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol</span><span class="macro">!</span>(
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
             <span class="string">&quot;unsupported SASL authentication mechanisms: {}&quot;</span>,
             <span class="ident">unknown</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
         ));
     }
 
     <span class="comment">// channel-binding = &quot;c=&quot; base64</span>
-    <span class="kw">let</span> <span class="ident">channel_binding</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">CHANNEL_ATTR</span>, <span class="ident">base64</span>::<span class="ident">encode</span>(<span class="ident">GS2_HEADER</span>));
+    <span class="kw">let</span> <span class="ident">channel_binding</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">CHANNEL_ATTR</span>, <span class="ident">base64::encode</span>(<span class="ident">GS2_HEADER</span>));
 
     <span class="comment">// &quot;n=&quot; saslname ;; Usernames are prepared using SASLprep.</span>
-    <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">USERNAME_ATTR</span>, <span class="ident">options</span>.<span class="ident">username</span>);
+    <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">USERNAME_ATTR</span>, <span class="ident">options</span>.<span class="ident">username</span>);
     <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">saslprep</span>(<span class="kw-2">&amp;</span><span class="ident">username</span>) {
         <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
         <span class="comment">// TODO(danielakhterov): Remove panic when we have proper support for configuration errors</span>
-        <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Failed to saslprep username&quot;</span>),
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Failed to saslprep username&quot;</span>),
     };
 
     <span class="comment">// nonce = &quot;r=&quot; c-nonce [s-nonce] ;; Second part provided by server.</span>
@@ -284,9 +284,9 @@
 
     <span class="comment">// client-first-message-bare = [reserved-mext &quot;,&quot;] username &quot;,&quot; nonce [&quot;,&quot; extensions]</span>
     <span class="kw">let</span> <span class="ident">client_first_message_bare</span> <span class="op">=</span>
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{username},{nonce}&quot;</span>, <span class="ident">username</span> <span class="op">=</span> <span class="ident">username</span>, <span class="ident">nonce</span> <span class="op">=</span> <span class="ident">nonce</span>);
+        <span class="macro">format!</span>(<span class="string">&quot;{username},{nonce}&quot;</span>, <span class="ident">username</span> <span class="op">=</span> <span class="ident">username</span>, <span class="ident">nonce</span> <span class="op">=</span> <span class="ident">nonce</span>);
 
-    <span class="kw">let</span> <span class="ident">client_first_message</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="ident">client_first_message</span> <span class="op">=</span> <span class="macro">format!</span>(
         <span class="string">&quot;{gs2_header}{client_first_message_bare}&quot;</span>,
         <span class="ident">gs2_header</span> <span class="op">=</span> <span class="ident">GS2_HEADER</span>,
         <span class="ident">client_first_message_bare</span> <span class="op">=</span> <span class="ident">client_first_message_bare</span>
@@ -299,11 +299,11 @@
         })
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">cont</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stream</span>.<span class="ident">recv_expect</span>(<span class="ident">MessageFormat</span>::<span class="ident">Authentication</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="ident">Authentication</span>::<span class="ident">SaslContinue</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">data</span>,
+    <span class="kw">let</span> <span class="ident">cont</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stream</span>.<span class="ident">recv_expect</span>(<span class="ident">MessageFormat::Authentication</span>).<span class="kw">await</span><span class="question-mark">?</span> {
+        <span class="ident">Authentication::SaslContinue</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">data</span>,
 
         <span class="ident">auth</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
                 <span class="string">&quot;expected SASLContinue but received {:?}&quot;</span>,
                 <span class="ident">auth</span>
             ));
@@ -318,23 +318,23 @@
     )<span class="question-mark">?</span>;
 
     <span class="comment">// ClientKey := HMAC(SaltedPassword, &quot;Client Key&quot;)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span>::<span class="ident">new_varkey</span>(<span class="kw-2">&amp;</span><span class="ident">salted_password</span>).<span class="ident">map_err</span>(<span class="ident">Error</span>::<span class="ident">protocol</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span><span class="ident">::new_varkey</span>(<span class="kw-2">&amp;</span><span class="ident">salted_password</span>).<span class="ident">map_err</span>(<span class="ident">Error::protocol</span>)<span class="question-mark">?</span>;
     <span class="ident">mac</span>.<span class="ident">update</span>(<span class="string">b&quot;Client Key&quot;</span>);
 
     <span class="kw">let</span> <span class="ident">client_key</span> <span class="op">=</span> <span class="ident">mac</span>.<span class="ident">finalize</span>().<span class="ident">into_bytes</span>();
 
     <span class="comment">// StoredKey := H(ClientKey)</span>
-    <span class="kw">let</span> <span class="ident">stored_key</span> <span class="op">=</span> <span class="ident">Sha256</span>::<span class="ident">digest</span>(<span class="kw-2">&amp;</span><span class="ident">client_key</span>);
+    <span class="kw">let</span> <span class="ident">stored_key</span> <span class="op">=</span> <span class="ident">Sha256::digest</span>(<span class="kw-2">&amp;</span><span class="ident">client_key</span>);
 
     <span class="comment">// client-final-message-without-proof</span>
-    <span class="kw">let</span> <span class="ident">client_final_message_wo_proof</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="ident">client_final_message_wo_proof</span> <span class="op">=</span> <span class="macro">format!</span>(
         <span class="string">&quot;{channel_binding},r={nonce}&quot;</span>,
         <span class="ident">channel_binding</span> <span class="op">=</span> <span class="ident">channel_binding</span>,
         <span class="ident">nonce</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">cont</span>.<span class="ident">nonce</span>
     );
 
     <span class="comment">// AuthMessage := client-first-message-bare + &quot;,&quot; + server-first-message + &quot;,&quot; + client-final-message-without-proof</span>
-    <span class="kw">let</span> <span class="ident">auth_message</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="ident">auth_message</span> <span class="op">=</span> <span class="macro">format!</span>(
         <span class="string">&quot;{client_first_message_bare},{server_first_message},{client_final_message_wo_proof}&quot;</span>,
         <span class="ident">client_first_message_bare</span> <span class="op">=</span> <span class="ident">client_first_message_bare</span>,
         <span class="ident">server_first_message</span> <span class="op">=</span> <span class="ident">cont</span>.<span class="ident">message</span>,
@@ -342,7 +342,7 @@
     );
 
     <span class="comment">// ClientSignature := HMAC(StoredKey, AuthMessage)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span>::<span class="ident">new_varkey</span>(<span class="kw-2">&amp;</span><span class="ident">stored_key</span>).<span class="ident">map_err</span>(<span class="ident">Error</span>::<span class="ident">protocol</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span><span class="ident">::new_varkey</span>(<span class="kw-2">&amp;</span><span class="ident">stored_key</span>).<span class="ident">map_err</span>(<span class="ident">Error::protocol</span>)<span class="question-mark">?</span>;
     <span class="ident">mac</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">auth_message</span>.<span class="ident">as_bytes</span>());
 
     <span class="kw">let</span> <span class="ident">client_signature</span> <span class="op">=</span> <span class="ident">mac</span>.<span class="ident">finalize</span>().<span class="ident">into_bytes</span>();
@@ -355,49 +355,49 @@
         .<span class="ident">collect</span>();
 
     <span class="comment">// ServerKey := HMAC(SaltedPassword, &quot;Server Key&quot;)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span>::<span class="ident">new_varkey</span>(<span class="kw-2">&amp;</span><span class="ident">salted_password</span>).<span class="ident">map_err</span>(<span class="ident">Error</span>::<span class="ident">protocol</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span><span class="ident">::new_varkey</span>(<span class="kw-2">&amp;</span><span class="ident">salted_password</span>).<span class="ident">map_err</span>(<span class="ident">Error::protocol</span>)<span class="question-mark">?</span>;
     <span class="ident">mac</span>.<span class="ident">update</span>(<span class="string">b&quot;Server Key&quot;</span>);
 
     <span class="kw">let</span> <span class="ident">server_key</span> <span class="op">=</span> <span class="ident">mac</span>.<span class="ident">finalize</span>().<span class="ident">into_bytes</span>();
 
     <span class="comment">// ServerSignature := HMAC(ServerKey, AuthMessage)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span>::<span class="ident">new_varkey</span>(<span class="kw-2">&amp;</span><span class="ident">server_key</span>).<span class="ident">map_err</span>(<span class="ident">Error</span>::<span class="ident">protocol</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span><span class="ident">::new_varkey</span>(<span class="kw-2">&amp;</span><span class="ident">server_key</span>).<span class="ident">map_err</span>(<span class="ident">Error::protocol</span>)<span class="question-mark">?</span>;
     <span class="ident">mac</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">auth_message</span>.<span class="ident">as_bytes</span>());
 
     <span class="comment">// client-final-message = client-final-message-without-proof &quot;,&quot; proof</span>
-    <span class="kw">let</span> <span class="ident">client_final_message</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="ident">client_final_message</span> <span class="op">=</span> <span class="macro">format!</span>(
         <span class="string">&quot;{client_final_message_wo_proof},{client_proof_attr}={client_proof}&quot;</span>,
         <span class="ident">client_final_message_wo_proof</span> <span class="op">=</span> <span class="ident">client_final_message_wo_proof</span>,
         <span class="ident">client_proof_attr</span> <span class="op">=</span> <span class="ident">CLIENT_PROOF_ATTR</span>,
-        <span class="ident">client_proof</span> <span class="op">=</span> <span class="ident">base64</span>::<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="ident">client_proof</span>)
+        <span class="ident">client_proof</span> <span class="op">=</span> <span class="ident">base64::encode</span>(<span class="kw-2">&amp;</span><span class="ident">client_proof</span>)
     );
 
     <span class="ident">stream</span>.<span class="ident">send</span>(<span class="ident">SaslResponse</span>(<span class="kw-2">&amp;</span><span class="ident">client_final_message</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stream</span>.<span class="ident">recv_expect</span>(<span class="ident">MessageFormat</span>::<span class="ident">Authentication</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="ident">Authentication</span>::<span class="ident">SaslFinal</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">data</span>,
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">stream</span>.<span class="ident">recv_expect</span>(<span class="ident">MessageFormat::Authentication</span>).<span class="kw">await</span><span class="question-mark">?</span> {
+        <span class="ident">Authentication::SaslFinal</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">data</span>,
 
         <span class="ident">auth</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol</span><span class="macro">!</span>(<span class="string">&quot;expected SASLFinal but received {:?}&quot;</span>, <span class="ident">auth</span>));
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(<span class="string">&quot;expected SASLFinal but received {:?}&quot;</span>, <span class="ident">auth</span>));
         }
     };
 
     <span class="comment">// authentication is only considered valid if this verification passes</span>
-    <span class="ident">mac</span>.<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">verifier</span>).<span class="ident">map_err</span>(<span class="ident">Error</span>::<span class="ident">protocol</span>)<span class="question-mark">?</span>;
+    <span class="ident">mac</span>.<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">verifier</span>).<span class="ident">map_err</span>(<span class="ident">Error::protocol</span>)<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="comment">// nonce is a sequence of random printable bytes</span>
 <span class="kw">fn</span> <span class="ident">gen_nonce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand</span>::<span class="ident">thread_rng</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
     <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">64</span>..<span class="number">128</span>);
 
     <span class="comment">// printable = %x21-2B / %x2D-7E</span>
     <span class="comment">// ;; Printable ASCII except &quot;,&quot;.</span>
     <span class="comment">// ;; Note that any &quot;printable&quot; is also</span>
     <span class="comment">// ;; a valid &quot;value&quot;.</span>
-    <span class="kw">let</span> <span class="ident">nonce</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat</span>(())
+    <span class="kw">let</span> <span class="ident">nonce</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">std::iter::repeat</span>(())
         .<span class="ident">map</span>(<span class="op">|</span>()<span class="op">|</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0x21</span>..<span class="number">0x7F</span>) <span class="kw">as</span> <span class="ident">u8</span>;
 
@@ -412,12 +412,12 @@
         .<span class="ident">collect</span>();
 
     <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">32</span>..<span class="number">128</span>);
-    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">NONCE_ATTR</span>, <span class="ident">nonce</span>)
+    <span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">NONCE_ATTR</span>, <span class="ident">nonce</span>)
 }
 
 <span class="comment">// Hi(str, salt, i):</span>
 <span class="kw">fn</span> <span class="ident">hi</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">salt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">iter_count</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>], <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span>::<span class="ident">new_varkey</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">Error</span>::<span class="ident">protocol</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span><span class="ident">::new_varkey</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">Error::protocol</span>)<span class="question-mark">?</span>;
 
     <span class="ident">mac</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">salt</span>);
     <span class="ident">mac</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="number">1u32</span>.<span class="ident">to_be_bytes</span>());
@@ -426,7 +426,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hi</span> <span class="op">=</span> <span class="ident">u</span>;
 
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">iter_count</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span>::<span class="ident">new_varkey</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">Error</span>::<span class="ident">protocol</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mac</span> <span class="op">=</span> <span class="ident">Hmac</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span><span class="ident">::new_varkey</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">Error::protocol</span>)<span class="question-mark">?</span>;
         <span class="ident">mac</span>.<span class="ident">update</span>(<span class="ident">u</span>.<span class="ident">as_slice</span>());
         <span class="ident">u</span> <span class="op">=</span> <span class="ident">mac</span>.<span class="ident">finalize</span>().<span class="ident">into_bytes</span>();
         <span class="ident">hi</span> <span class="op">=</span> <span class="ident">hi</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">u</span>.<span class="ident">iter</span>()).<span class="ident">map</span>(<span class="op">|</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>)<span class="op">|</span> <span class="ident">a</span> <span class="op">^</span> <span class="ident">b</span>).<span class="ident">collect</span>();
@@ -435,5 +435,5 @@
     <span class="prelude-val">Ok</span>(<span class="ident">hi</span>.<span class="ident">into</span>())
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

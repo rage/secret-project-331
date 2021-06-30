@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.8.4/src/resources/bucket.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bucket.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../cloud_storage/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../cloud_storage/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1123,12 +1123,12 @@
 <span id="1120">1120</span>
 <span id="1121">1121</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">resources</span>::{<span class="ident">common</span>::<span class="ident">Entity</span>, <span class="ident">location</span>::<span class="kw-2">*</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::resources</span>::{<span class="ident">common::Entity</span>, <span class="ident">location</span>::<span class="kw-2">*</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">GoogleResponse</span>},
     <span class="ident">resources</span>::{
         <span class="ident">bucket_access_control</span>::{<span class="ident">BucketAccessControl</span>, <span class="ident">NewBucketAccessControl</span>},
-        <span class="ident">common</span>::<span class="ident">ListResponse</span>,
+        <span class="ident">common::ListResponse</span>,
         <span class="ident">default_object_access_control</span>::{
             <span class="ident">DefaultObjectAccessControl</span>, <span class="ident">NewDefaultObjectAccessControl</span>,
         },
@@ -1146,7 +1146,7 @@
 <span class="doccomment">/// controls.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// A bucket is always owned by the project team owners group.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Bucket</span> {
     <span class="doccomment">/// The kind of item this is. For buckets, this is always `storage#bucket`.</span>
@@ -1161,9 +1161,9 @@
     <span class="doccomment">/// The name of the bucket.</span>
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="doccomment">/// The creation time of the bucket in RFC 3339 format.</span>
-    <span class="kw">pub</span> <span class="ident">time_created</span>: <span class="ident">chrono</span>::<span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">chrono</span>::<span class="ident">Utc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">time_created</span>: <span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::Utc</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The modification time of the bucket in RFC 3339 format.</span>
-    <span class="kw">pub</span> <span class="ident">updated</span>: <span class="ident">chrono</span>::<span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">chrono</span>::<span class="ident">Utc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">updated</span>: <span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::Utc</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Whether or not to automatically apply an eventBasedHold to new objects added to the bucket.</span>
     <span class="kw">pub</span> <span class="ident">default_event_based_hold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The bucket&#39;s retention policy, which defines the minimum age an object in the bucket must</span>
@@ -1208,7 +1208,7 @@
     <span class="doccomment">/// information.</span>
     <span class="kw">pub</span> <span class="ident">lifecycle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Lifecycle</span><span class="op">&gt;</span>,
     <span class="doccomment">/// User-provided bucket labels, in key/value pairs.</span>
-    <span class="kw">pub</span> <span class="ident">labels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">labels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">std::collections::HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The bucket&#39;s default storage class, used whenever no storageClass is specified for a</span>
     <span class="doccomment">/// newly-created object. If storageClass is not specified when the bucket</span>
     <span class="doccomment">/// is created, it defaults to STANDARD. For more information, see storage classes.</span>
@@ -1220,7 +1220,7 @@
 }
 
 <span class="doccomment">/// A model that can be used to insert new buckets into Google Cloud Storage.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Default</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Default</span>, <span class="ident">serde::Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewBucket</span> {
     <span class="doccomment">/// The name of the bucket. See the bucket naming guidelines for more information.</span>
@@ -1259,7 +1259,7 @@
     <span class="doccomment">/// information.</span>
     <span class="kw">pub</span> <span class="ident">lifecycle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Lifecycle</span><span class="op">&gt;</span>,
     <span class="doccomment">/// User-provided bucket labels, in key/value pairs.</span>
-    <span class="kw">pub</span> <span class="ident">labels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">labels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">std::collections::HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The bucket&#39;s default storage class, used whenever no storageClass is specified for a</span>
     <span class="doccomment">/// newly-created object. If storageClass is not specified when the bucket</span>
     <span class="doccomment">/// is created, it defaults to STANDARD. For more information, see storage classes.</span>
@@ -1269,7 +1269,7 @@
 }
 
 <span class="doccomment">/// Contains information about how files are kept after deletion.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RetentionPolicy</span> {
     <span class="doccomment">/// The period of time, in seconds, that objects in the bucket must be retained and cannot be</span>
@@ -1278,14 +1278,14 @@
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;crate::from_str&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">retention_period</span>: <span class="ident">u64</span>,
     <span class="doccomment">/// The time from which the retentionPolicy was effective, in RFC 3339 format.</span>
-    <span class="kw">pub</span> <span class="ident">effective_time</span>: <span class="ident">chrono</span>::<span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">chrono</span>::<span class="ident">Utc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">effective_time</span>: <span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::Utc</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Whether or not the retentionPolicy is locked. If true, the retentionPolicy cannot be removed</span>
     <span class="doccomment">/// and the retention period cannot be reduced.</span>
     <span class="kw">pub</span> <span class="ident">is_locked</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Contains information about the Buckets IAM configuration.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IamConfiguration</span> {
     <span class="doccomment">/// The bucket&#39;s uniform bucket-level access configuration.</span>
@@ -1297,7 +1297,7 @@
 }
 
 <span class="doccomment">/// Access that is configured for all objects in one go.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UniformBucketLevelAccess</span> {
     <span class="doccomment">/// Whether or not the bucket uses uniform bucket-level access. If set, access checks only use</span>
@@ -1308,11 +1308,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// iamConfiguration.uniformBucketLevelAccess.enabled may be changed from true to false until</span>
     <span class="doccomment">/// the locked time, after which the field is immutable.</span>
-    <span class="kw">pub</span> <span class="ident">locked_time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">chrono</span>::<span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">chrono</span>::<span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">locked_time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Contains information about the encryption used for data in this Bucket.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Encryption</span> {
     <span class="doccomment">/// A Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no</span>
@@ -1321,7 +1321,7 @@
 }
 
 <span class="doccomment">/// Contains information about an entity that is able to own a `Bucket`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Owner</span> {
     <span class="doccomment">/// The entity, in the form project-owner-projectId.</span>
@@ -1331,7 +1331,7 @@
 }
 
 <span class="doccomment">/// Contains configuration about how to visit the website linked to this Bucket.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Website</span> {
     <span class="doccomment">/// If the requested object path is missing, the service will ensure the path has a trailing</span>
@@ -1345,7 +1345,7 @@
 }
 
 <span class="doccomment">/// Contains information of where and how access logs to this bucket are maintained.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Logging</span> {
     <span class="doccomment">/// The destination bucket where the current bucket&#39;s logs should be placed.</span>
@@ -1355,7 +1355,7 @@
 }
 
 <span class="doccomment">/// Contains information about whether a Bucket keeps track of its version.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Versioning</span> {
     <span class="doccomment">/// While set to true, versioning is fully enabled for this bucket.</span>
@@ -1363,7 +1363,7 @@
 }
 
 <span class="doccomment">/// Contains information about how OPTIONS requests for this Bucket are handled.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cors</span> {
     <span class="doccomment">/// The list of Origins eligible to receive CORS response headers. Note: &quot;*&quot; is permitted in the</span>
@@ -1381,7 +1381,7 @@
 }
 
 <span class="doccomment">/// Contains a set of `Rule` Objects which together describe the way this lifecycle behaves</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Lifecycle</span> {
     <span class="doccomment">/// A lifecycle management rule, which is made of an action to take and the condition(s) under</span>
@@ -1390,7 +1390,7 @@
 }
 
 <span class="doccomment">/// An element of the lifecyle list.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Rule</span> {
     <span class="doccomment">/// The action to take.</span>
@@ -1400,7 +1400,7 @@
 }
 
 <span class="doccomment">/// Represents an action that might be undertaken due to a `Condition`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Action</span> {
     <span class="doccomment">/// Type of the action.</span>
@@ -1410,7 +1410,7 @@
 }
 
 <span class="doccomment">/// Type of the action.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ActionType</span> {
     <span class="doccomment">/// Deletes a Bucket.</span>
     <span class="ident">Delete</span>,
@@ -1419,7 +1419,7 @@
 }
 
 <span class="doccomment">/// A rule that might induce an `Action` if met.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Condition</span> {
     <span class="doccomment">/// Age of an object (in days). This condition is satisfied when an object reaches the specified</span>
@@ -1428,7 +1428,7 @@
     <span class="doccomment">/// A date in `RFC 3339` format with only the date part (for instance, &quot;2013-01-15&quot;). This</span>
     <span class="doccomment">/// condition is satisfied when an object is created before midnight of the specified date in</span>
     <span class="doccomment">/// UTC.</span>
-    <span class="kw">pub</span> <span class="ident">created_before</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">chrono</span>::<span class="ident">NaiveDate</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">created_before</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">chrono::NaiveDate</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Relevant only for versioned objects. If the value is true, this condition matches the live</span>
     <span class="doccomment">/// version of objects; if the value is `false`, it matches noncurrent versions of objects.</span>
     <span class="kw">pub</span> <span class="ident">is_live</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
@@ -1444,7 +1444,7 @@
 }
 
 <span class="doccomment">/// Contains information about the payment structure of this bucket</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Billing</span> {
     <span class="doccomment">/// When set to true, Requester Pays is enabled for this bucket.</span>
@@ -1452,7 +1452,7 @@
 }
 
 <span class="doccomment">/// The type of storage that is used. Pertains to availability, performance and cost.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;SCREAMING_SNAKE_CASE&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StorageClass</span> {
     <span class="doccomment">/// Standard Storage is best for data that is frequently accessed (&quot;hot&quot; data) and/or stored for</span>
@@ -1481,7 +1481,7 @@
 }
 
 <span class="doccomment">/// A representation of the IAM Policiy for a certain bucket.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Default</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Default</span>, <span class="ident">serde::Deserialize</span>, <span class="ident">serde::Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IamPolicy</span> {
     <span class="doccomment">/// The [Cloud IAM policy](https://cloud.google.com/iam/docs/policies#versions) version.</span>
@@ -1500,7 +1500,7 @@
 
 <span class="doccomment">/// An association between a role, which comes with a set of permissions, and members who may assume</span>
 <span class="doccomment">/// that role.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Deserialize</span>, <span class="ident">serde::Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Binding</span> {
     <span class="doccomment">/// The role to which members belong. Two types of roles are supported: standard IAM roles,</span>
@@ -1540,7 +1540,7 @@
 }
 
 <span class="doccomment">/// A condition object associated with a binding.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Deserialize</span>, <span class="ident">serde::Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IamCondition</span> {
     <span class="doccomment">/// Title of the condition. For example, &quot;expires_end_of_2018&quot;.</span>
@@ -1555,7 +1555,7 @@
 
 <span class="doccomment">/// All possible roles that can exist in the IAM system. For a more comprehensive version, check</span>
 <span class="doccomment">/// [Googles Documentation](https://cloud.google.com/storage/docs/access-control/iam-roles).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Deserialize</span>, <span class="ident">serde::Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">IamRole</span> {
     <span class="doccomment">/// Standard roles can be applied to either buckets or projects.</span>
@@ -1569,7 +1569,7 @@
 <span class="doccomment">/// The following enum contains Cloud Identity and Access Management (Cloud IAM) roles that are</span>
 <span class="doccomment">/// associated with Cloud Storage and lists the permissions that are contained in each role. Unless</span>
 <span class="doccomment">/// otherwise noted, these roles can be applied either to entire projects or specific buckets.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Deserialize</span>, <span class="ident">serde::Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StandardIamRole</span> {
     <span class="doccomment">/// Allows users to create objects. Does not give permission to view, delete, or overwrite</span>
     <span class="doccomment">/// objects.</span>
@@ -1597,7 +1597,7 @@
 
 <span class="doccomment">/// The following enum contains primitive roles and the Cloud Storage permissions that these roles</span>
 <span class="doccomment">/// contain. Primitive roles cannot be added at the bucket-level.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Deserialize</span>, <span class="ident">serde::Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PrimitiveIamRole</span> {
     <span class="doccomment">/// Grants permission to list buckets as well as view bucket metadata, excluding ACLs, when</span>
     <span class="doccomment">/// listing. Also grants permission to list and get HMAC keys in the project.</span>
@@ -1615,7 +1615,7 @@
 
 <span class="doccomment">/// The following enum contains Cloud IAM roles that are equivalent to Access Control List (ACL)</span>
 <span class="doccomment">/// permissions. These Cloud IAM roles can only be applied to a bucket, not a project.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Deserialize</span>, <span class="ident">serde::Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LegacyIamRole</span> {
     <span class="doccomment">/// Grants permission to view objects and their metadata, excluding ACLs.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;roles/storage.legacyObjectReader&quot;</span>)]</span>
@@ -1653,7 +1653,7 @@
 }
 
 <span class="doccomment">/// The request needed to perform the Object::test_iam_permission function.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestIamPermission</span> {
     <span class="doccomment">/// The kind of item this is.</span>
@@ -1688,13 +1688,13 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="ident">new_bucket</span>: <span class="kw-2">&amp;</span><span class="ident">NewBucket</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="kw">crate</span>::<span class="ident">BASE_URL</span>);
-        <span class="kw">let</span> <span class="ident">project</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw">crate</span>::<span class="ident">SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>;
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="ident">new_bucket</span>: <span class="kw-2">&amp;</span><span class="ident">NewBucket</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="kw">crate</span><span class="ident">::BASE_URL</span>);
+        <span class="kw">let</span> <span class="ident">project</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw">crate</span><span class="ident">::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>;
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> [(<span class="string">&quot;project&quot;</span>, <span class="ident">project</span>)];
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>)
             .<span class="ident">json</span>(<span class="ident">new_bucket</span>)
             .<span class="ident">send</span>()
@@ -1702,8 +1702,8 @@
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -1712,8 +1712,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_sync</span>(<span class="ident">new_bucket</span>: <span class="kw-2">&amp;</span><span class="ident">NewBucket</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span>::<span class="ident">create</span>(<span class="ident">new_bucket</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_sync</span>(<span class="ident">new_bucket</span>: <span class="kw-2">&amp;</span><span class="ident">NewBucket</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span><span class="ident">::create</span>(<span class="ident">new_bucket</span>))
     }
 
     <span class="doccomment">/// Returns all `Bucket`s within this project.</span>
@@ -1732,20 +1732,20 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="kw">crate</span>::<span class="ident">BASE_URL</span>);
-        <span class="kw">let</span> <span class="ident">project</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw">crate</span>::<span class="ident">SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>;
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="kw">crate</span><span class="ident">::BASE_URL</span>);
+        <span class="kw">let</span> <span class="ident">project</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw">crate</span><span class="ident">::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>;
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> [(<span class="string">&quot;project&quot;</span>, <span class="ident">project</span>)];
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">ListResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">ListResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">items</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">items</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -1755,7 +1755,7 @@
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_sync</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span>::<span class="ident">list</span>())
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span><span class="ident">::list</span>())
     }
 
     <span class="doccomment">/// Returns a single `Bucket` by its name. If the Bucket does not exist, an error is returned.</span>
@@ -1776,18 +1776,18 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span>::<span class="ident">BASE_URL</span>, <span class="ident">name</span>);
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span><span class="ident">::BASE_URL</span>, <span class="ident">name</span>);
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -1796,8 +1796,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_sync</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span>::<span class="ident">read</span>(<span class="ident">name</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_sync</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span><span class="ident">::read</span>(<span class="ident">name</span>))
     }
 
     <span class="doccomment">/// Update an existing `Bucket`. If you declare you bucket as mutable, you can edit its fields.</span>
@@ -1825,19 +1825,19 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span>::<span class="ident">BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span><span class="ident">::BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">json</span>(<span class="self">self</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -1846,8 +1846,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">update</span>())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">update</span>())
     }
 
     <span class="doccomment">/// Delete an existing `Bucket`. This permanently removes a bucket from Google Cloud Storage.</span>
@@ -1870,17 +1870,17 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span>::<span class="ident">BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span><span class="ident">::BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
+        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">response</span>.<span class="ident">status</span>().<span class="ident">is_success</span>() {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Google</span>(<span class="ident">response</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>))
+            <span class="prelude-val">Err</span>(<span class="ident">Error::Google</span>(<span class="ident">response</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>))
         }
     }
 
@@ -1889,8 +1889,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_sync</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">delete</span>())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_sync</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">delete</span>())
     }
 
     <span class="doccomment">/// Returns the [IAM Policy](https://cloud.google.com/iam/docs/) for this bucket.</span>
@@ -1912,18 +1912,18 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_iam_policy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="kw">crate</span>::<span class="ident">BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_iam_policy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="kw">crate</span><span class="ident">::BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -1932,8 +1932,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_iam_policy_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">get_iam_policy</span>())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_iam_policy_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">get_iam_policy</span>())
     }
 
     <span class="doccomment">/// Updates the [IAM Policy](https://cloud.google.com/iam/docs/) for this bucket.</span>
@@ -1967,19 +1967,19 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_iam_policy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">iam</span>: <span class="kw-2">&amp;</span><span class="ident">IamPolicy</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="kw">crate</span>::<span class="ident">BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_iam_policy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">iam</span>: <span class="kw-2">&amp;</span><span class="ident">IamPolicy</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="kw">crate</span><span class="ident">::BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">json</span>(<span class="ident">iam</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -1988,8 +1988,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_iam_policy_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">iam</span>: <span class="kw-2">&amp;</span><span class="ident">IamPolicy</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">set_iam_policy</span>(<span class="ident">iam</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_iam_policy_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">iam</span>: <span class="kw-2">&amp;</span><span class="ident">IamPolicy</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">set_iam_policy</span>(<span class="ident">iam</span>))
     }
 
     <span class="doccomment">/// Checks whether the user provided in the service account has this permission.</span>
@@ -2004,24 +2004,24 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_iam_permission</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permission</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TestIamPermission</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_iam_permission</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permission</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">TestIamPermission</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">permission</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;storage.buckets.list&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">permission</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;storage.buckets.create&quot;</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">new</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
                 <span class="string">&quot;tested permission must not be `storage.buckets.list` or `storage.buckets.create`&quot;</span>,
             ));
         }
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/b/{}/iam/testPermissions&quot;</span>, <span class="kw">crate</span>::<span class="ident">BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">TestIamPermission</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/iam/testPermissions&quot;</span>, <span class="kw">crate</span><span class="ident">::BASE_URL</span>, <span class="self">self</span>.<span class="ident">name</span>);
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">TestIamPermission</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">query</span>(<span class="kw-2">&amp;</span>[(<span class="string">&quot;permissions&quot;</span>, <span class="ident">permission</span>)])
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -2030,35 +2030,35 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test_iam_permission_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permission</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TestIamPermission</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">test_iam_permission</span>(<span class="ident">permission</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test_iam_permission_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permission</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">TestIamPermission</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">test_iam_permission</span>(<span class="ident">permission</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">_lock_retention_policy</span>() {
-        <span class="macro">todo</span><span class="macro">!</span>()
+        <span class="macro">todo!</span>()
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">resources</span>::<span class="ident">common</span>::<span class="ident">Role</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::resources::common::Role</span>;
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">dotenv</span>::<span class="ident">dotenv</span>().<span class="ident">ok</span>();
-        <span class="kw">let</span> <span class="ident">base_name</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_BUCKET&quot;</span>)<span class="question-mark">?</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">dotenv::dotenv</span>().<span class="ident">ok</span>();
+        <span class="kw">let</span> <span class="ident">base_name</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;TEST_BUCKET&quot;</span>)<span class="question-mark">?</span>;
         <span class="comment">// use a more complex bucket in this test.</span>
         <span class="kw">let</span> <span class="ident">new_bucket</span> <span class="op">=</span> <span class="ident">NewBucket</span> {
-            <span class="ident">name</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}-test-create&quot;</span>, <span class="ident">base_name</span>),
+            <span class="ident">name</span>: <span class="macro">format!</span>(<span class="string">&quot;{}-test-create&quot;</span>, <span class="ident">base_name</span>),
             <span class="ident">default_event_based_hold</span>: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
-            <span class="ident">acl</span>: <span class="prelude-val">Some</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">NewBucketAccessControl</span> {
-                <span class="ident">entity</span>: <span class="ident">Entity</span>::<span class="ident">AllUsers</span>,
-                <span class="ident">role</span>: <span class="ident">Role</span>::<span class="ident">Reader</span>,
+            <span class="ident">acl</span>: <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="ident">NewBucketAccessControl</span> {
+                <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
+                <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
             }]),
-            <span class="ident">default_object_acl</span>: <span class="prelude-val">Some</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">NewDefaultObjectAccessControl</span> {
-                <span class="ident">entity</span>: <span class="ident">Entity</span>::<span class="ident">AllUsers</span>,
-                <span class="ident">role</span>: <span class="ident">Role</span>::<span class="ident">Reader</span>,
+            <span class="ident">default_object_acl</span>: <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="ident">NewDefaultObjectAccessControl</span> {
+                <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
+                <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
             }]),
             <span class="ident">iam_configuration</span>: <span class="prelude-val">Some</span>(<span class="ident">IamConfiguration</span> {
                 <span class="ident">uniform_bucket_level_access</span>: <span class="ident">UniformBucketLevelAccess</span> {
@@ -2066,70 +2066,70 @@
                     <span class="ident">locked_time</span>: <span class="prelude-val">None</span>,
                 },
             }),
-            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+            ..<span class="ident">Default::default</span>()
         };
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident">Bucket</span>::<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="ident">new_bucket</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident">Bucket::create</span>(<span class="kw-2">&amp;</span><span class="ident">new_bucket</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="ident">bucket</span>.<span class="ident">delete</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Bucket</span>::<span class="ident">list</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Bucket::list</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket</span>(<span class="string">&quot;test-update&quot;</span>).<span class="kw">await</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket</span>(<span class="string">&quot;test-update&quot;</span>).<span class="kw">await</span>;
         <span class="ident">bucket</span>.<span class="ident">retention_policy</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">RetentionPolicy</span> {
             <span class="ident">retention_period</span>: <span class="number">50</span>,
-            <span class="ident">effective_time</span>: <span class="ident">chrono</span>::<span class="ident">Utc</span>::<span class="ident">now</span>() <span class="op">+</span> <span class="ident">chrono</span>::<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">50</span>),
+            <span class="ident">effective_time</span>: <span class="ident">chrono::Utc::now</span>() <span class="op">+</span> <span class="ident">chrono::Duration::seconds</span>(<span class="number">50</span>),
             <span class="ident">is_locked</span>: <span class="prelude-val">Some</span>(<span class="bool-val">false</span>),
         });
         <span class="ident">bucket</span>.<span class="ident">update</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">updated</span> <span class="op">=</span> <span class="ident">Bucket</span>::<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">updated</span>.<span class="ident">retention_policy</span>.<span class="ident">unwrap</span>().<span class="ident">retention_period</span>, <span class="number">50</span>);
+        <span class="kw">let</span> <span class="ident">updated</span> <span class="op">=</span> <span class="ident">Bucket::read</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">updated</span>.<span class="ident">retention_policy</span>.<span class="ident">unwrap</span>().<span class="ident">retention_period</span>, <span class="number">50</span>);
         <span class="ident">bucket</span>.<span class="ident">delete</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="comment">// used a lot throughout the other tests, but included for completeness</span>
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket</span>(<span class="string">&quot;test-delete&quot;</span>).<span class="kw">await</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket</span>(<span class="string">&quot;test-delete&quot;</span>).<span class="kw">await</span>;
         <span class="ident">bucket</span>.<span class="ident">delete</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_iam_policy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket</span>(<span class="string">&quot;test-get-iam-policy&quot;</span>).<span class="kw">await</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_iam_policy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket</span>(<span class="string">&quot;test-get-iam-policy&quot;</span>).<span class="kw">await</span>;
         <span class="ident">bucket</span>.<span class="ident">get_iam_policy</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="ident">bucket</span>.<span class="ident">delete</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_iam_policy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket</span>(<span class="string">&quot;test-set-iam-policy&quot;</span>).<span class="kw">await</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_iam_policy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket</span>(<span class="string">&quot;test-set-iam-policy&quot;</span>).<span class="kw">await</span>;
         <span class="kw">let</span> <span class="ident">iam_policy</span> <span class="op">=</span> <span class="ident">IamPolicy</span> {
-            <span class="ident">bindings</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Binding</span> {
-                <span class="ident">role</span>: <span class="ident">IamRole</span>::<span class="ident">Standard</span>(<span class="ident">StandardIamRole</span>::<span class="ident">ObjectViewer</span>),
-                <span class="ident">members</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;allUsers&quot;</span>.<span class="ident">to_string</span>()],
+            <span class="ident">bindings</span>: <span class="macro">vec!</span>[<span class="ident">Binding</span> {
+                <span class="ident">role</span>: <span class="ident">IamRole::Standard</span>(<span class="ident">StandardIamRole::ObjectViewer</span>),
+                <span class="ident">members</span>: <span class="macro">vec!</span>[<span class="string">&quot;allUsers&quot;</span>.<span class="ident">to_string</span>()],
                 <span class="ident">condition</span>: <span class="prelude-val">None</span>,
             }],
-            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+            ..<span class="ident">Default::default</span>()
         };
         <span class="ident">bucket</span>.<span class="ident">set_iam_policy</span>(<span class="kw-2">&amp;</span><span class="ident">iam_policy</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">bucket</span>.<span class="ident">get_iam_policy</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">bindings</span>, <span class="ident">iam_policy</span>.<span class="ident">bindings</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">bucket</span>.<span class="ident">get_iam_policy</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">bindings</span>, <span class="ident">iam_policy</span>.<span class="ident">bindings</span>);
         <span class="ident">bucket</span>.<span class="ident">delete</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_iam_permission</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket</span>(<span class="string">&quot;test-test-ia-permission&quot;</span>).<span class="kw">await</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_iam_permission</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket</span>(<span class="string">&quot;test-test-ia-permission&quot;</span>).<span class="kw">await</span>;
         <span class="ident">bucket</span>.<span class="ident">test_iam_permission</span>(<span class="string">&quot;storage.buckets.get&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="ident">bucket</span>.<span class="ident">delete</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
@@ -2138,23 +2138,23 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
     <span class="kw">mod</span> <span class="ident">sync</span> {
         <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">resources</span>::<span class="ident">common</span>::<span class="ident">Role</span>;
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::resources::common::Role</span>;
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="ident">dotenv</span>::<span class="ident">dotenv</span>().<span class="ident">ok</span>();
-            <span class="kw">let</span> <span class="ident">base_name</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_BUCKET&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="ident">dotenv::dotenv</span>().<span class="ident">ok</span>();
+            <span class="kw">let</span> <span class="ident">base_name</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;TEST_BUCKET&quot;</span>)<span class="question-mark">?</span>;
             <span class="comment">// use a more complex bucket in this test.</span>
             <span class="kw">let</span> <span class="ident">new_bucket</span> <span class="op">=</span> <span class="ident">NewBucket</span> {
-                <span class="ident">name</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}-test-create&quot;</span>, <span class="ident">base_name</span>),
+                <span class="ident">name</span>: <span class="macro">format!</span>(<span class="string">&quot;{}-test-create&quot;</span>, <span class="ident">base_name</span>),
                 <span class="ident">default_event_based_hold</span>: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
-                <span class="ident">acl</span>: <span class="prelude-val">Some</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">NewBucketAccessControl</span> {
-                    <span class="ident">entity</span>: <span class="ident">Entity</span>::<span class="ident">AllUsers</span>,
-                    <span class="ident">role</span>: <span class="ident">Role</span>::<span class="ident">Reader</span>,
+                <span class="ident">acl</span>: <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="ident">NewBucketAccessControl</span> {
+                    <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
+                    <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
                 }]),
-                <span class="ident">default_object_acl</span>: <span class="prelude-val">Some</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">NewDefaultObjectAccessControl</span> {
-                    <span class="ident">entity</span>: <span class="ident">Entity</span>::<span class="ident">AllUsers</span>,
-                    <span class="ident">role</span>: <span class="ident">Role</span>::<span class="ident">Reader</span>,
+                <span class="ident">default_object_acl</span>: <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="ident">NewDefaultObjectAccessControl</span> {
+                    <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
+                    <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
                 }]),
                 <span class="ident">iam_configuration</span>: <span class="prelude-val">Some</span>(<span class="ident">IamConfiguration</span> {
                     <span class="ident">uniform_bucket_level_access</span>: <span class="ident">UniformBucketLevelAccess</span> {
@@ -2162,82 +2162,82 @@
                         <span class="ident">locked_time</span>: <span class="prelude-val">None</span>,
                     },
                 }),
-                ..<span class="ident">Default</span>::<span class="ident">default</span>()
+                ..<span class="ident">Default::default</span>()
             };
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident">Bucket</span>::<span class="ident">create_sync</span>(<span class="kw-2">&amp;</span><span class="ident">new_bucket</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident">Bucket::create_sync</span>(<span class="kw-2">&amp;</span><span class="ident">new_bucket</span>)<span class="question-mark">?</span>;
             <span class="ident">bucket</span>.<span class="ident">delete_sync</span>()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="ident">Bucket</span>::<span class="ident">list_sync</span>()<span class="question-mark">?</span>;
+        <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="ident">Bucket::list_sync</span>()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">read</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket_sync</span>(<span class="string">&quot;test-read&quot;</span>);
-            <span class="kw">let</span> <span class="ident">also_bucket</span> <span class="op">=</span> <span class="ident">Bucket</span>::<span class="ident">read_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>)<span class="question-mark">?</span>;
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">bucket</span>, <span class="ident">also_bucket</span>);
+        <span class="kw">fn</span> <span class="ident">read</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket_sync</span>(<span class="string">&quot;test-read&quot;</span>);
+            <span class="kw">let</span> <span class="ident">also_bucket</span> <span class="op">=</span> <span class="ident">Bucket::read_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>)<span class="question-mark">?</span>;
+            <span class="macro">assert_eq!</span>(<span class="ident">bucket</span>, <span class="ident">also_bucket</span>);
             <span class="ident">bucket</span>.<span class="ident">delete_sync</span>()<span class="question-mark">?</span>;
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">also_bucket</span>.<span class="ident">delete_sync</span>().<span class="ident">is_err</span>());
+            <span class="macro">assert!</span>(<span class="ident">also_bucket</span>.<span class="ident">delete_sync</span>().<span class="ident">is_err</span>());
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">update</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket_sync</span>(<span class="string">&quot;test-update&quot;</span>);
+        <span class="kw">fn</span> <span class="ident">update</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket_sync</span>(<span class="string">&quot;test-update&quot;</span>);
             <span class="ident">bucket</span>.<span class="ident">retention_policy</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">RetentionPolicy</span> {
                 <span class="ident">retention_period</span>: <span class="number">50</span>,
-                <span class="ident">effective_time</span>: <span class="ident">chrono</span>::<span class="ident">Utc</span>::<span class="ident">now</span>() <span class="op">+</span> <span class="ident">chrono</span>::<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">50</span>),
+                <span class="ident">effective_time</span>: <span class="ident">chrono::Utc::now</span>() <span class="op">+</span> <span class="ident">chrono::Duration::seconds</span>(<span class="number">50</span>),
                 <span class="ident">is_locked</span>: <span class="prelude-val">Some</span>(<span class="bool-val">false</span>),
             });
             <span class="ident">bucket</span>.<span class="ident">update_sync</span>()<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">updated</span> <span class="op">=</span> <span class="ident">Bucket</span>::<span class="ident">read_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>)<span class="question-mark">?</span>;
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">updated</span>.<span class="ident">retention_policy</span>.<span class="ident">unwrap</span>().<span class="ident">retention_period</span>, <span class="number">50</span>);
+            <span class="kw">let</span> <span class="ident">updated</span> <span class="op">=</span> <span class="ident">Bucket::read_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>)<span class="question-mark">?</span>;
+            <span class="macro">assert_eq!</span>(<span class="ident">updated</span>.<span class="ident">retention_policy</span>.<span class="ident">unwrap</span>().<span class="ident">retention_period</span>, <span class="number">50</span>);
             <span class="ident">bucket</span>.<span class="ident">delete_sync</span>()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="comment">// used a lot throughout the other tests, but included for completeness</span>
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">delete</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket_sync</span>(<span class="string">&quot;test-delete&quot;</span>);
+        <span class="kw">fn</span> <span class="ident">delete</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket_sync</span>(<span class="string">&quot;test-delete&quot;</span>);
             <span class="ident">bucket</span>.<span class="ident">delete_sync</span>()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">get_iam_policy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket_sync</span>(<span class="string">&quot;test-get-iam-policy&quot;</span>);
+        <span class="kw">fn</span> <span class="ident">get_iam_policy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket_sync</span>(<span class="string">&quot;test-get-iam-policy&quot;</span>);
             <span class="ident">bucket</span>.<span class="ident">get_iam_policy_sync</span>()<span class="question-mark">?</span>;
             <span class="ident">bucket</span>.<span class="ident">delete_sync</span>()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">set_iam_policy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">set_iam_policy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
             <span class="comment">// use crate::resources::iam_policy::{Binding, IamRole, StandardIamRole};</span>
 
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket_sync</span>(<span class="string">&quot;test-set-iam-policy&quot;</span>);
+            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket_sync</span>(<span class="string">&quot;test-set-iam-policy&quot;</span>);
             <span class="kw">let</span> <span class="ident">iam_policy</span> <span class="op">=</span> <span class="ident">IamPolicy</span> {
-                <span class="ident">bindings</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Binding</span> {
-                    <span class="ident">role</span>: <span class="ident">IamRole</span>::<span class="ident">Standard</span>(<span class="ident">StandardIamRole</span>::<span class="ident">ObjectViewer</span>),
-                    <span class="ident">members</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;allUsers&quot;</span>.<span class="ident">to_string</span>()],
+                <span class="ident">bindings</span>: <span class="macro">vec!</span>[<span class="ident">Binding</span> {
+                    <span class="ident">role</span>: <span class="ident">IamRole::Standard</span>(<span class="ident">StandardIamRole::ObjectViewer</span>),
+                    <span class="ident">members</span>: <span class="macro">vec!</span>[<span class="string">&quot;allUsers&quot;</span>.<span class="ident">to_string</span>()],
                     <span class="ident">condition</span>: <span class="prelude-val">None</span>,
                 }],
-                ..<span class="ident">Default</span>::<span class="ident">default</span>()
+                ..<span class="ident">Default::default</span>()
             };
             <span class="ident">bucket</span>.<span class="ident">set_iam_policy_sync</span>(<span class="kw-2">&amp;</span><span class="ident">iam_policy</span>)<span class="question-mark">?</span>;
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">bucket</span>.<span class="ident">get_iam_policy_sync</span>()<span class="question-mark">?</span>.<span class="ident">bindings</span>, <span class="ident">iam_policy</span>.<span class="ident">bindings</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">bucket</span>.<span class="ident">get_iam_policy_sync</span>()<span class="question-mark">?</span>.<span class="ident">bindings</span>, <span class="ident">iam_policy</span>.<span class="ident">bindings</span>);
             <span class="ident">bucket</span>.<span class="ident">delete_sync</span>()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">test_iam_permission</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">create_test_bucket_sync</span>(<span class="string">&quot;test-test-ia-permission&quot;</span>);
+        <span class="kw">fn</span> <span class="ident">test_iam_permission</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::create_test_bucket_sync</span>(<span class="string">&quot;test-test-ia-permission&quot;</span>);
             <span class="ident">bucket</span>.<span class="ident">test_iam_permission_sync</span>(<span class="string">&quot;storage.buckets.get&quot;</span>)<span class="question-mark">?</span>;
             <span class="ident">bucket</span>.<span class="ident">delete_sync</span>()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
@@ -2245,5 +2245,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

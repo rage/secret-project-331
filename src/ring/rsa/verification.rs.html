@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ring-0.16.20/src/rsa/verification.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>verification.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../ring/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../ring/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -357,27 +357,27 @@
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">parse_public_key</span>, <span class="ident">RsaParameters</span>, <span class="ident">N</span>, <span class="ident">PUBLIC_KEY_PUBLIC_MODULUS_MAX_LEN</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">arithmetic</span>::{<span class="ident">bigint</span>, <span class="ident">montgomery</span>::<span class="ident">Unencoded</span>},
+    <span class="ident">arithmetic</span>::{<span class="ident">bigint</span>, <span class="ident">montgomery::Unencoded</span>},
     <span class="ident">bits</span>, <span class="ident">cpu</span>, <span class="ident">digest</span>, <span class="ident">error</span>,
-    <span class="ident">limb</span>::<span class="ident">LIMB_BYTES</span>,
+    <span class="ident">limb::LIMB_BYTES</span>,
     <span class="ident">sealed</span>, <span class="ident">signature</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Key</span> {
-    <span class="kw">pub</span> <span class="ident">n</span>: <span class="ident">bigint</span>::<span class="ident">Modulus</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">e</span>: <span class="ident">bigint</span>::<span class="ident">PublicExponent</span>,
-    <span class="kw">pub</span> <span class="ident">n_bits</span>: <span class="ident">bits</span>::<span class="ident">BitLength</span>,
+    <span class="kw">pub</span> <span class="ident">n</span>: <span class="ident">bigint::Modulus</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">e</span>: <span class="ident">bigint::PublicExponent</span>,
+    <span class="kw">pub</span> <span class="ident">n_bits</span>: <span class="ident">bits::BitLength</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Key</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_modulus_and_exponent</span>(
-        <span class="ident">n</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
-        <span class="ident">e</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
-        <span class="ident">n_min_bits</span>: <span class="ident">bits</span>::<span class="ident">BitLength</span>,
-        <span class="ident">n_max_bits</span>: <span class="ident">bits</span>::<span class="ident">BitLength</span>,
+        <span class="ident">n</span>: <span class="ident">untrusted::Input</span>,
+        <span class="ident">e</span>: <span class="ident">untrusted::Input</span>,
+        <span class="ident">n_min_bits</span>: <span class="ident">bits::BitLength</span>,
+        <span class="ident">n_max_bits</span>: <span class="ident">bits::BitLength</span>,
         <span class="ident">e_min_value</span>: <span class="ident">u64</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">error</span>::<span class="ident">KeyRejected</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">error::KeyRejected</span><span class="op">&gt;</span> {
         <span class="comment">// This is an incomplete implementation of NIST SP800-56Br1 Section</span>
         <span class="comment">// 6.4.2.2, &quot;Partial Public-Key Validation for RSA.&quot; That spec defers</span>
         <span class="comment">// to NIST SP800-89 Section 5.3.3, &quot;(Explicit) Partial Public Key</span>
@@ -388,30 +388,30 @@
         <span class="comment">// documentation for RSA keys.</span>
 
         <span class="comment">// Step 3 / Step c for `n` (out of order).</span>
-        <span class="kw">let</span> (<span class="ident">n</span>, <span class="ident">n_bits</span>) <span class="op">=</span> <span class="ident">bigint</span>::<span class="ident">Modulus</span>::<span class="ident">from_be_bytes_with_bit_length</span>(<span class="ident">n</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> (<span class="ident">n</span>, <span class="ident">n_bits</span>) <span class="op">=</span> <span class="ident">bigint::Modulus::from_be_bytes_with_bit_length</span>(<span class="ident">n</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// `pkcs1_encode` depends on this not being small. Otherwise,</span>
         <span class="comment">// `pkcs1_encode` would generate padding that is invalid (too few 0xFF</span>
         <span class="comment">// bytes) for very small keys.</span>
-        <span class="kw">const</span> <span class="ident">N_MIN_BITS</span>: <span class="ident">bits</span>::<span class="ident">BitLength</span> <span class="op">=</span> <span class="ident">bits</span>::<span class="ident">BitLength</span>::<span class="ident">from_usize_bits</span>(<span class="number">1024</span>);
+        <span class="kw">const</span> <span class="ident">N_MIN_BITS</span>: <span class="ident">bits::BitLength</span> <span class="op">=</span> <span class="ident">bits::BitLength::from_usize_bits</span>(<span class="number">1024</span>);
 
         <span class="comment">// Step 1 / Step a. XXX: SP800-56Br1 and SP800-89 require the length of</span>
         <span class="comment">// the public modulus to be exactly 2048 or 3072 bits, but we are more</span>
         <span class="comment">// flexible to be compatible with other commonly-used crypto libraries.</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">n_min_bits</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">N_MIN_BITS</span>);
+        <span class="macro">assert!</span>(<span class="ident">n_min_bits</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">N_MIN_BITS</span>);
         <span class="kw">let</span> <span class="ident">n_bits_rounded_up</span> <span class="op">=</span>
-            <span class="ident">bits</span>::<span class="ident">BitLength</span>::<span class="ident">from_usize_bytes</span>(<span class="ident">n_bits</span>.<span class="ident">as_usize_bytes_rounded_up</span>())
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span>::<span class="ident">Unspecified</span><span class="op">|</span> <span class="ident">error</span>::<span class="ident">KeyRejected</span>::<span class="ident">unexpected_error</span>())<span class="question-mark">?</span>;
+            <span class="ident">bits::BitLength::from_usize_bytes</span>(<span class="ident">n_bits</span>.<span class="ident">as_usize_bytes_rounded_up</span>())
+                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error::Unspecified</span><span class="op">|</span> <span class="ident">error::KeyRejected::unexpected_error</span>())<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">n_bits_rounded_up</span> <span class="op">&lt;</span> <span class="ident">n_min_bits</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>::<span class="ident">KeyRejected</span>::<span class="ident">too_small</span>());
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::KeyRejected::too_small</span>());
         }
         <span class="kw">if</span> <span class="ident">n_bits</span> <span class="op">&gt;</span> <span class="ident">n_max_bits</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>::<span class="ident">KeyRejected</span>::<span class="ident">too_large</span>());
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::KeyRejected::too_large</span>());
         }
 
         <span class="comment">// Step 2 / Step b.</span>
         <span class="comment">// Step 3 / Step c for `e`.</span>
-        <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">bigint</span>::<span class="ident">PublicExponent</span>::<span class="ident">from_be_bytes</span>(<span class="ident">e</span>, <span class="ident">e_min_value</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">bigint::PublicExponent::from_be_bytes</span>(<span class="ident">e</span>, <span class="ident">e_min_value</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// If `n` is less than `e` then somebody has probably accidentally swapped</span>
         <span class="comment">// them. The largest acceptable `e` is smaller than the smallest acceptable</span>
@@ -424,13 +424,13 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">signature</span>::<span class="ident">VerificationAlgorithm</span> <span class="kw">for</span> <span class="ident">RsaParameters</span> {
+<span class="kw">impl</span> <span class="ident">signature::VerificationAlgorithm</span> <span class="kw">for</span> <span class="ident">RsaParameters</span> {
     <span class="kw">fn</span> <span class="ident">verify</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">public_key</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
-        <span class="ident">msg</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
-        <span class="ident">signature</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error</span>::<span class="ident">Unspecified</span><span class="op">&gt;</span> {
+        <span class="ident">public_key</span>: <span class="ident">untrusted::Input</span>,
+        <span class="ident">msg</span>: <span class="ident">untrusted::Input</span>,
+        <span class="ident">signature</span>: <span class="ident">untrusted::Input</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error::Unspecified</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">n</span>, <span class="ident">e</span>) <span class="op">=</span> <span class="ident">parse_public_key</span>(<span class="ident">public_key</span>)<span class="question-mark">?</span>;
         <span class="ident">verify_rsa_</span>(
             <span class="self">self</span>,
@@ -444,9 +444,9 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">sealed</span>::<span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">RsaParameters</span> {}
+<span class="kw">impl</span> <span class="ident">sealed::Sealed</span> <span class="kw">for</span> <span class="ident">RsaParameters</span> {}
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">rsa_params</span> {
+<span class="macro">macro_rules!</span> <span class="ident">rsa_params</span> {
     ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">VERIFY_ALGORITHM</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_bits</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">PADDING_ALGORITHM</span>:<span class="ident">expr</span>,
       <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc_str</span>:<span class="ident">expr</span> ) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc_str</span>]</span>
@@ -454,96 +454,96 @@
         <span class="doccomment">/// Only available in `alloc` mode.</span>
         <span class="kw">pub</span> <span class="kw">static</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">VERIFY_ALGORITHM</span>: <span class="ident">RsaParameters</span> <span class="op">=</span> <span class="ident">RsaParameters</span> {
             <span class="ident">padding_alg</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">PADDING_ALGORITHM</span>,
-            <span class="ident">min_bits</span>: <span class="ident">bits</span>::<span class="ident">BitLength</span>::<span class="ident">from_usize_bits</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_bits</span>),
+            <span class="ident">min_bits</span>: <span class="ident">bits::BitLength::from_usize_bits</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_bits</span>),
         };
     };
 }
 
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PKCS1_1024_8192_SHA1_FOR_LEGACY_USE_ONLY</span>,
     <span class="number">1024</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">padding</span>::<span class="ident">RSA_PKCS1_SHA1_FOR_LEGACY_USE_ONLY</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::padding::RSA_PKCS1_SHA1_FOR_LEGACY_USE_ONLY</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 1024-8192 bits,
              PKCS#1.5 padding, and SHA-1.\n\nSee \&quot;`RSA_PKCS1_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PKCS1_2048_8192_SHA1_FOR_LEGACY_USE_ONLY</span>,
     <span class="number">2048</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">padding</span>::<span class="ident">RSA_PKCS1_SHA1_FOR_LEGACY_USE_ONLY</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::padding::RSA_PKCS1_SHA1_FOR_LEGACY_USE_ONLY</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 2048-8192 bits,
              PKCS#1.5 padding, and SHA-1.\n\nSee \&quot;`RSA_PKCS1_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PKCS1_1024_8192_SHA256_FOR_LEGACY_USE_ONLY</span>,
     <span class="number">1024</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">RSA_PKCS1_SHA256</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::RSA_PKCS1_SHA256</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 1024-8192 bits,
              PKCS#1.5 padding, and SHA-256.\n\nSee \&quot;`RSA_PKCS1_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PKCS1_2048_8192_SHA256</span>,
     <span class="number">2048</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">RSA_PKCS1_SHA256</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::RSA_PKCS1_SHA256</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 2048-8192 bits,
              PKCS#1.5 padding, and SHA-256.\n\nSee \&quot;`RSA_PKCS1_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PKCS1_2048_8192_SHA384</span>,
     <span class="number">2048</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">RSA_PKCS1_SHA384</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::RSA_PKCS1_SHA384</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 2048-8192 bits,
              PKCS#1.5 padding, and SHA-384.\n\nSee \&quot;`RSA_PKCS1_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PKCS1_2048_8192_SHA512</span>,
     <span class="number">2048</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">RSA_PKCS1_SHA512</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::RSA_PKCS1_SHA512</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 2048-8192 bits,
              PKCS#1.5 padding, and SHA-512.\n\nSee \&quot;`RSA_PKCS1_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PKCS1_1024_8192_SHA512_FOR_LEGACY_USE_ONLY</span>,
     <span class="number">1024</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">RSA_PKCS1_SHA512</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::RSA_PKCS1_SHA512</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 1024-8192 bits,
              PKCS#1.5 padding, and SHA-512.\n\nSee \&quot;`RSA_PKCS1_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PKCS1_3072_8192_SHA384</span>,
     <span class="number">3072</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">RSA_PKCS1_SHA384</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::RSA_PKCS1_SHA384</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 3072-8192 bits,
              PKCS#1.5 padding, and SHA-384.\n\nSee \&quot;`RSA_PKCS1_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
 
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PSS_2048_8192_SHA256</span>,
     <span class="number">2048</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">RSA_PSS_SHA256</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::RSA_PSS_SHA256</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 2048-8192 bits,
              PSS padding, and SHA-256.\n\nSee \&quot;`RSA_PSS_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PSS_2048_8192_SHA384</span>,
     <span class="number">2048</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">RSA_PSS_SHA384</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::RSA_PSS_SHA384</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 2048-8192 bits,
              PSS padding, and SHA-384.\n\nSee \&quot;`RSA_PSS_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
 );
-<span class="macro">rsa_params</span><span class="macro">!</span>(
+<span class="macro">rsa_params!</span>(
     <span class="ident">RSA_PSS_2048_8192_SHA512</span>,
     <span class="number">2048</span>,
-    <span class="kw-2">&amp;</span><span class="kw">super</span>::<span class="ident">RSA_PSS_SHA512</span>,
+    <span class="kw-2">&amp;</span><span class="kw">super</span><span class="ident">::RSA_PSS_SHA512</span>,
     <span class="string">&quot;Verification of signatures using RSA keys of 2048-8192 bits,
              PSS padding, and SHA-512.\n\nSee \&quot;`RSA_PSS_*` Details\&quot; in
              `ring::signature`&#39;s module-level documentation for more details.&quot;</span>
@@ -567,7 +567,7 @@
 <span class="comment">// verification was done during the implementation of</span>
 <span class="comment">// `signature::VerificationAlgorithm`, before `verify_rsa` was factored out).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RsaPublicKeyComponents</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RsaPublicKeyComponents</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core::fmt::Debug</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The public modulus, encoded in big-endian bytes without leading zeros.</span>
     <span class="kw">pub</span> <span class="ident">n</span>: <span class="ident">B</span>,
 
@@ -575,11 +575,11 @@
     <span class="kw">pub</span> <span class="ident">e</span>: <span class="ident">B</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">RsaPublicKeyComponents</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">RsaPublicKeyComponents</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core::fmt::Debug</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">RsaPublicKeyComponents</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core::fmt::Debug</span>,
 {
     <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
@@ -591,7 +591,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">RsaPublicKeyComponents</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core::fmt::Debug</span>,
 {
     <span class="doccomment">/// Verifies that `signature` is a valid signature of `message` using `self`</span>
     <span class="doccomment">/// as the public key. `params` determine what algorithm parameters</span>
@@ -602,49 +602,49 @@
         <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RsaParameters</span>,
         <span class="ident">message</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">signature</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error</span>::<span class="ident">Unspecified</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">cpu</span>::<span class="ident">features</span>();
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error::Unspecified</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">cpu::features</span>();
         <span class="ident">verify_rsa_</span>(
             <span class="ident">params</span>,
             (
-                <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">n</span>.<span class="ident">as_ref</span>()),
-                <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">e</span>.<span class="ident">as_ref</span>()),
+                <span class="ident">untrusted::Input::from</span>(<span class="self">self</span>.<span class="ident">n</span>.<span class="ident">as_ref</span>()),
+                <span class="ident">untrusted::Input::from</span>(<span class="self">self</span>.<span class="ident">e</span>.<span class="ident">as_ref</span>()),
             ),
-            <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="ident">message</span>),
-            <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="ident">signature</span>),
+            <span class="ident">untrusted::Input::from</span>(<span class="ident">message</span>),
+            <span class="ident">untrusted::Input::from</span>(<span class="ident">signature</span>),
         )
     }
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">verify_rsa_</span>(
     <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RsaParameters</span>,
-    (<span class="ident">n</span>, <span class="ident">e</span>): (<span class="ident">untrusted</span>::<span class="ident">Input</span>, <span class="ident">untrusted</span>::<span class="ident">Input</span>),
-    <span class="ident">msg</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
-    <span class="ident">signature</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error</span>::<span class="ident">Unspecified</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">max_bits</span> <span class="op">=</span> <span class="ident">bits</span>::<span class="ident">BitLength</span>::<span class="ident">from_usize_bytes</span>(<span class="ident">PUBLIC_KEY_PUBLIC_MODULUS_MAX_LEN</span>)<span class="question-mark">?</span>;
+    (<span class="ident">n</span>, <span class="ident">e</span>): (<span class="ident">untrusted::Input</span>, <span class="ident">untrusted::Input</span>),
+    <span class="ident">msg</span>: <span class="ident">untrusted::Input</span>,
+    <span class="ident">signature</span>: <span class="ident">untrusted::Input</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error::Unspecified</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">max_bits</span> <span class="op">=</span> <span class="ident">bits::BitLength::from_usize_bytes</span>(<span class="ident">PUBLIC_KEY_PUBLIC_MODULUS_MAX_LEN</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// XXX: FIPS 186-4 seems to indicate that the minimum</span>
     <span class="comment">// exponent value is 2**16 + 1, but it isn&#39;t clear if this is just for</span>
     <span class="comment">// signing or also for verification. We support exponents of 3 and larger</span>
     <span class="comment">// for compatibility with other commonly-used crypto libraries.</span>
-    <span class="kw">let</span> <span class="ident">Key</span> { <span class="ident">n</span>, <span class="ident">e</span>, <span class="ident">n_bits</span> } <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from_modulus_and_exponent</span>(<span class="ident">n</span>, <span class="ident">e</span>, <span class="ident">params</span>.<span class="ident">min_bits</span>, <span class="ident">max_bits</span>, <span class="number">3</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">Key</span> { <span class="ident">n</span>, <span class="ident">e</span>, <span class="ident">n_bits</span> } <span class="op">=</span> <span class="ident">Key::from_modulus_and_exponent</span>(<span class="ident">n</span>, <span class="ident">e</span>, <span class="ident">params</span>.<span class="ident">min_bits</span>, <span class="ident">max_bits</span>, <span class="number">3</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// The signature must be the same length as the modulus, in bytes.</span>
     <span class="kw">if</span> <span class="ident">signature</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">n_bits</span>.<span class="ident">as_usize_bytes_rounded_up</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>::<span class="ident">Unspecified</span>);
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::Unspecified</span>);
     }
 
     <span class="comment">// RFC 8017 Section 5.2.2: RSAVP1.</span>
 
     <span class="comment">// Step 1.</span>
-    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">bigint</span>::<span class="ident">Elem</span>::<span class="ident">from_be_bytes_padded</span>(<span class="ident">signature</span>, <span class="kw-2">&amp;</span><span class="ident">n</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">bigint::Elem::from_be_bytes_padded</span>(<span class="ident">signature</span>, <span class="kw-2">&amp;</span><span class="ident">n</span>)<span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">is_zero</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>::<span class="ident">Unspecified</span>);
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::Unspecified</span>);
     }
 
     <span class="comment">// Step 2.</span>
-    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">bigint</span>::<span class="ident">elem_exp_vartime</span>(<span class="ident">s</span>, <span class="ident">e</span>, <span class="kw-2">&amp;</span><span class="ident">n</span>);
+    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">bigint::elem_exp_vartime</span>(<span class="ident">s</span>, <span class="ident">e</span>, <span class="kw-2">&amp;</span><span class="ident">n</span>);
     <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">into_unencoded</span>(<span class="kw-2">&amp;</span><span class="ident">n</span>);
 
     <span class="comment">// Step 3.</span>
@@ -652,8 +652,8 @@
     <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">fill_be_bytes_n</span>(<span class="ident">m</span>, <span class="ident">n_bits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>);
 
     <span class="comment">// Verify the padded message is correct.</span>
-    <span class="kw">let</span> <span class="ident">m_hash</span> <span class="op">=</span> <span class="ident">digest</span>::<span class="ident">digest</span>(<span class="ident">params</span>.<span class="ident">padding_alg</span>.<span class="ident">digest_alg</span>(), <span class="ident">msg</span>.<span class="ident">as_slice_less_safe</span>());
-    <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="ident">decoded</span>).<span class="ident">read_all</span>(<span class="ident">error</span>::<span class="ident">Unspecified</span>, <span class="op">|</span><span class="ident">m</span><span class="op">|</span> {
+    <span class="kw">let</span> <span class="ident">m_hash</span> <span class="op">=</span> <span class="ident">digest::digest</span>(<span class="ident">params</span>.<span class="ident">padding_alg</span>.<span class="ident">digest_alg</span>(), <span class="ident">msg</span>.<span class="ident">as_slice_less_safe</span>());
+    <span class="ident">untrusted::Input::from</span>(<span class="ident">decoded</span>).<span class="ident">read_all</span>(<span class="ident">error::Unspecified</span>, <span class="op">|</span><span class="ident">m</span><span class="op">|</span> {
         <span class="ident">params</span>.<span class="ident">padding_alg</span>.<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="ident">m_hash</span>, <span class="ident">m</span>, <span class="ident">n_bits</span>)
     })
 }
@@ -664,8 +664,8 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// `n_bits` must be the bit length of the public modulus `n`.</span>
 <span class="kw">fn</span> <span class="ident">fill_be_bytes_n</span>(
-    <span class="ident">elem</span>: <span class="ident">bigint</span>::<span class="ident">Elem</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Unencoded</span><span class="op">&gt;</span>,
-    <span class="ident">n_bits</span>: <span class="ident">bits</span>::<span class="ident">BitLength</span>,
+    <span class="ident">elem</span>: <span class="ident">bigint::Elem</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Unencoded</span><span class="op">&gt;</span>,
+    <span class="ident">n_bits</span>: <span class="ident">bits::BitLength</span>,
     <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="ident">PUBLIC_KEY_PUBLIC_MODULUS_MAX_LEN</span>],
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
     <span class="kw">let</span> <span class="ident">n_bytes</span> <span class="op">=</span> <span class="ident">n_bits</span>.<span class="ident">as_usize_bytes_rounded_up</span>();
@@ -673,9 +673,9 @@
     <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[..<span class="ident">n_bytes_padded</span>];
     <span class="ident">elem</span>.<span class="ident">fill_be_bytes</span>(<span class="ident">out</span>);
     <span class="kw">let</span> (<span class="ident">padding</span>, <span class="ident">out</span>) <span class="op">=</span> <span class="ident">out</span>.<span class="ident">split_at</span>(<span class="ident">n_bytes_padded</span> <span class="op">-</span> <span class="ident">n_bytes</span>);
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">padding</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>));
+    <span class="macro">assert!</span>(<span class="ident">padding</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>));
     <span class="ident">out</span>
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ring" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ring" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lexical-core-0.7.6/src/atoi/api.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>api.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../lexical_core/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../lexical_core/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -765,8 +765,8 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Fast lexical string-to-integer conversion routines.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">generic</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::util</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::generic</span>::<span class="kw-2">*</span>;
 
 <span class="comment">// ATOI TRAIT</span>
 <span class="comment">// ----------</span>
@@ -781,17 +781,17 @@
 }
 
 <span class="comment">// Implement atoi for type.</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">atoi_impl</span> {
+<span class="macro">macro_rules!</span> <span class="ident">atoi_impl</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ($(
         <span class="kw">impl</span> <span class="ident">Atoi</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> {
-            <span class="macro">perftools_inline_always</span><span class="macro">!</span>{
+            <span class="macro">perftools_inline_always!</span>{
             <span class="kw">fn</span> <span class="ident">atoi</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">radix</span>: <span class="ident">u32</span>)
                 <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParseResult</span><span class="op">&lt;</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>, <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>)<span class="op">&gt;</span>
             {
                 <span class="ident">standalone_no_separator</span>(<span class="ident">bytes</span>, <span class="ident">radix</span>)
             }}
 
-            <span class="macro">perftools_inline_always</span><span class="macro">!</span>{
+            <span class="macro">perftools_inline_always!</span>{
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
             <span class="kw">fn</span> <span class="ident">atoi_format</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">radix</span>: <span class="ident">u32</span>, <span class="ident">format</span>: <span class="ident">NumberFormat</span>)
                 <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParseResult</span><span class="op">&lt;</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>, <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>)<span class="op">&gt;</span>
@@ -802,17 +802,17 @@
     )<span class="kw-2">*</span>);
 }
 
-<span class="macro">atoi_impl</span><span class="macro">!</span> { <span class="ident">u8</span> <span class="ident">u16</span> <span class="ident">u32</span> <span class="ident">u64</span> <span class="ident">usize</span> <span class="ident">i8</span> <span class="ident">i16</span> <span class="ident">i32</span> <span class="ident">i64</span> <span class="ident">isize</span> }
+<span class="macro">atoi_impl!</span> { <span class="ident">u8</span> <span class="ident">u16</span> <span class="ident">u32</span> <span class="ident">u64</span> <span class="ident">usize</span> <span class="ident">i8</span> <span class="ident">i16</span> <span class="ident">i32</span> <span class="ident">i64</span> <span class="ident">isize</span> }
 
 <span class="kw">impl</span> <span class="ident">Atoi</span> <span class="kw">for</span> <span class="ident">u128</span> {
-    <span class="macro">perftools_inline_always</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline_always!</span>{
     <span class="kw">fn</span> <span class="ident">atoi</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">radix</span>: <span class="ident">u32</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParseResult</span><span class="op">&lt;</span>(<span class="ident">u128</span>, <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>)<span class="op">&gt;</span>
     {
         <span class="ident">standalone_128_no_separator</span>::<span class="op">&lt;</span><span class="ident">u128</span>, <span class="ident">u64</span><span class="op">&gt;</span>(<span class="ident">bytes</span>, <span class="ident">radix</span>)
     }}
 
-    <span class="macro">perftools_inline_always</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline_always!</span>{
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">atoi_format</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">radix</span>: <span class="ident">u32</span>, <span class="ident">format</span>: <span class="ident">NumberFormat</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParseResult</span><span class="op">&lt;</span>(<span class="ident">u128</span>, <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>)<span class="op">&gt;</span>
@@ -822,14 +822,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Atoi</span> <span class="kw">for</span> <span class="ident">i128</span> {
-    <span class="macro">perftools_inline_always</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline_always!</span>{
     <span class="kw">fn</span> <span class="ident">atoi</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">radix</span>: <span class="ident">u32</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParseResult</span><span class="op">&lt;</span>(<span class="ident">i128</span>, <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>)<span class="op">&gt;</span>
     {
         <span class="ident">standalone_128_no_separator</span>::<span class="op">&lt;</span><span class="ident">i128</span>, <span class="ident">i64</span><span class="op">&gt;</span>(<span class="ident">bytes</span>, <span class="ident">radix</span>)
     }}
 
-    <span class="macro">perftools_inline_always</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline_always!</span>{
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">atoi_format</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">radix</span>: <span class="ident">u32</span>, <span class="ident">format</span>: <span class="ident">NumberFormat</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParseResult</span><span class="op">&lt;</span>(<span class="ident">i128</span>, <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>)<span class="op">&gt;</span>
@@ -841,26 +841,26 @@
 <span class="comment">// ATOI</span>
 <span class="comment">// ----</span>
 
-<span class="macro">perftools_inline</span><span class="macro">!</span>{
+<span class="macro">perftools_inline!</span>{
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">atoi</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">radix</span>: <span class="ident">u32</span>)
     <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Atoi</span>
 {
     <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="op">|</span> <span class="ident">ptr</span> <span class="op">|</span> <span class="ident">distance</span>(<span class="ident">bytes</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr</span>);
-    <span class="kw">match</span> <span class="ident">T</span>::<span class="ident">atoi</span>(<span class="ident">bytes</span>, <span class="ident">radix</span>) {
+    <span class="kw">match</span> <span class="ident">T::atoi</span>(<span class="ident">bytes</span>, <span class="ident">radix</span>) {
         <span class="prelude-val">Ok</span>((<span class="ident">value</span>, <span class="ident">ptr</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">value</span>, <span class="ident">index</span>(<span class="ident">ptr</span>))),
         <span class="prelude-val">Err</span>((<span class="ident">code</span>, <span class="ident">ptr</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>((<span class="ident">code</span>, <span class="ident">index</span>(<span class="ident">ptr</span>)).<span class="ident">into</span>()),
     }
 }}
 
-<span class="macro">perftools_inline</span><span class="macro">!</span>{
+<span class="macro">perftools_inline!</span>{
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">atoi_format</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">radix</span>: <span class="ident">u32</span>, <span class="ident">format</span>: <span class="ident">NumberFormat</span>)
     <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Atoi</span>
 {
     <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="op">|</span> <span class="ident">ptr</span> <span class="op">|</span> <span class="ident">distance</span>(<span class="ident">bytes</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr</span>);
-    <span class="kw">match</span> <span class="ident">T</span>::<span class="ident">atoi_format</span>(<span class="ident">bytes</span>, <span class="ident">radix</span>, <span class="ident">format</span>) {
+    <span class="kw">match</span> <span class="ident">T::atoi_format</span>(<span class="ident">bytes</span>, <span class="ident">radix</span>, <span class="ident">format</span>) {
         <span class="prelude-val">Ok</span>((<span class="ident">value</span>, <span class="ident">ptr</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">value</span>, <span class="ident">index</span>(<span class="ident">ptr</span>))),
         <span class="prelude-val">Err</span>((<span class="ident">code</span>, <span class="ident">ptr</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>((<span class="ident">code</span>, <span class="ident">index</span>(<span class="ident">ptr</span>)).<span class="ident">into</span>()),
     }
@@ -869,35 +869,35 @@
 <span class="comment">// FROM LEXICAL</span>
 <span class="comment">// ------------</span>
 
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">u8</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">u16</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">u32</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">u64</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">usize</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">u128</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">u8</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">u16</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">u32</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">u64</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">usize</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">u128</span>);
 
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">i8</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">i16</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">i32</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">i64</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">isize</span>);
-<span class="macro">from_lexical</span><span class="macro">!</span>(<span class="ident">atoi</span>, <span class="ident">i128</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">i8</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">i16</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">i32</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">i64</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">isize</span>);
+<span class="macro">from_lexical!</span>(<span class="ident">atoi</span>, <span class="ident">i128</span>);
 
-<span class="macro">cfg_if</span><span class="macro">!</span>{
+<span class="macro">cfg_if!</span>{
 <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span> {
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">u8</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">u16</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">u32</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">u64</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">usize</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">u128</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">u8</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">u16</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">u32</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">u64</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">usize</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">u128</span>);
 
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">i8</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">i16</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">i32</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">i64</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">isize</span>);
-    <span class="macro">from_lexical_format</span><span class="macro">!</span>(<span class="ident">atoi_format</span>, <span class="ident">i128</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">i8</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">i16</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">i32</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">i64</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">isize</span>);
+    <span class="macro">from_lexical_format!</span>(<span class="ident">atoi_format</span>, <span class="ident">i128</span>);
 }}
 
 <span class="comment">// TESTS</span>
@@ -905,7 +905,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::util</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;property_tests&quot;</span>))]</span>
     <span class="kw">use</span> <span class="ident">proptest</span>::{<span class="ident">proptest</span>, <span class="ident">prop_assert_eq</span>, <span class="ident">prop_assert</span>};
@@ -951,579 +951,579 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">u8_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">127</span>), <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;127&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">128</span>), <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;128&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">255</span>), <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;255&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u8::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">127</span>), <span class="ident">u8::from_lexical</span>(<span class="string">b&quot;127&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">128</span>), <span class="ident">u8::from_lexical</span>(<span class="string">b&quot;128&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">255</span>), <span class="ident">u8::from_lexical</span>(<span class="string">b&quot;255&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u8::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u8::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;radix&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">u8_radix_test</span>() {
         <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">DATA</span>.<span class="ident">iter</span>() {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u8</span>::<span class="ident">from_lexical_radix</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">*</span><span class="ident">b</span>), <span class="prelude-val">Ok</span>(<span class="number">37</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">u8::from_lexical_radix</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">*</span><span class="ident">b</span>), <span class="prelude-val">Ok</span>(<span class="number">37</span>));
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">i8_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">127</span>), <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;127&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">2</span>).<span class="ident">into</span>()), <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;128&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">2</span>).<span class="ident">into</span>()), <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;255&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i8::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">127</span>), <span class="ident">i8::from_lexical</span>(<span class="string">b&quot;127&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">2</span>).<span class="ident">into</span>()), <span class="ident">i8::from_lexical</span>(<span class="string">b&quot;128&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">2</span>).<span class="ident">into</span>()), <span class="ident">i8::from_lexical</span>(<span class="string">b&quot;255&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i8::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i8::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;radix&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">i8_radix_test</span>() {
         <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">DATA</span>.<span class="ident">iter</span>() {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i8</span>::<span class="ident">from_lexical_radix</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">*</span><span class="ident">b</span>), <span class="prelude-val">Ok</span>(<span class="number">37</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">i8::from_lexical_radix</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">*</span><span class="ident">b</span>), <span class="prelude-val">Ok</span>(<span class="number">37</span>));
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">u16_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">32767</span>), <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;32767&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">32768</span>), <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;32768&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">65535</span>), <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;65535&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u16::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">32767</span>), <span class="ident">u16::from_lexical</span>(<span class="string">b&quot;32767&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">32768</span>), <span class="ident">u16::from_lexical</span>(<span class="string">b&quot;32768&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">65535</span>), <span class="ident">u16::from_lexical</span>(<span class="string">b&quot;65535&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u16::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u16::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">i16_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">32767</span>), <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;32767&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">4</span>).<span class="ident">into</span>()), <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;32768&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">4</span>).<span class="ident">into</span>()), <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;65535&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i16::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">32767</span>), <span class="ident">i16::from_lexical</span>(<span class="string">b&quot;32767&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">4</span>).<span class="ident">into</span>()), <span class="ident">i16::from_lexical</span>(<span class="string">b&quot;32768&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">4</span>).<span class="ident">into</span>()), <span class="ident">i16::from_lexical</span>(<span class="string">b&quot;65535&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i16::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i16::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;radix&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">i16_radix_test</span>() {
         <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">DATA</span>.<span class="ident">iter</span>() {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i16</span>::<span class="ident">from_lexical_radix</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">*</span><span class="ident">b</span>), <span class="prelude-val">Ok</span>(<span class="number">37</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">i16::from_lexical_radix</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">*</span><span class="ident">b</span>), <span class="prelude-val">Ok</span>(<span class="number">37</span>));
         }
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i16</span>::<span class="ident">from_lexical_radix</span>(<span class="string">b&quot;YA&quot;</span>, <span class="number">36</span>), <span class="prelude-val">Ok</span>(<span class="number">1234</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">i16::from_lexical_radix</span>(<span class="string">b&quot;YA&quot;</span>, <span class="number">36</span>), <span class="prelude-val">Ok</span>(<span class="number">1234</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">u32_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">2147483647</span>), <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;2147483647&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">2147483648</span>), <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;2147483648&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">4294967295</span>), <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;4294967295&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u32::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">2147483647</span>), <span class="ident">u32::from_lexical</span>(<span class="string">b&quot;2147483647&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">2147483648</span>), <span class="ident">u32::from_lexical</span>(<span class="string">b&quot;2147483648&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">4294967295</span>), <span class="ident">u32::from_lexical</span>(<span class="string">b&quot;4294967295&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u32::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u32::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">i32_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">2147483647</span>), <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;2147483647&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">9</span>).<span class="ident">into</span>()), <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;2147483648&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">9</span>).<span class="ident">into</span>()), <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;4294967295&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i32::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">2147483647</span>), <span class="ident">i32::from_lexical</span>(<span class="string">b&quot;2147483647&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">9</span>).<span class="ident">into</span>()), <span class="ident">i32::from_lexical</span>(<span class="string">b&quot;2147483648&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">9</span>).<span class="ident">into</span>()), <span class="ident">i32::from_lexical</span>(<span class="string">b&quot;4294967295&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i32::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i32::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">u64_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">9223372036854775807</span>), <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;9223372036854775807&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">9223372036854775808</span>), <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;9223372036854775808&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">18446744073709551615</span>), <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;18446744073709551615&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u64::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">9223372036854775807</span>), <span class="ident">u64::from_lexical</span>(<span class="string">b&quot;9223372036854775807&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">9223372036854775808</span>), <span class="ident">u64::from_lexical</span>(<span class="string">b&quot;9223372036854775808&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">18446744073709551615</span>), <span class="ident">u64::from_lexical</span>(<span class="string">b&quot;18446744073709551615&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u64::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u64::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">i64_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">9223372036854775807</span>), <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;9223372036854775807&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">18</span>).<span class="ident">into</span>()), <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;9223372036854775808&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">19</span>).<span class="ident">into</span>()), <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;18446744073709551615&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i64::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">9223372036854775807</span>), <span class="ident">i64::from_lexical</span>(<span class="string">b&quot;9223372036854775807&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">18</span>).<span class="ident">into</span>()), <span class="ident">i64::from_lexical</span>(<span class="string">b&quot;9223372036854775808&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">19</span>).<span class="ident">into</span>()), <span class="ident">i64::from_lexical</span>(<span class="string">b&quot;18446744073709551615&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i64::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i64::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
 
         <span class="comment">// Add tests discovered via fuzzing.</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">19</span>).<span class="ident">into</span>()), <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;406260572150672006000066000000060060007667760000000000000000000+00000006766767766666767665670000000000000000000000666&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">19</span>).<span class="ident">into</span>()), <span class="ident">i64::from_lexical</span>(<span class="string">b&quot;406260572150672006000066000000060060007667760000000000000000000+00000006766767766666767665670000000000000000000000666&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">u128_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">170141183460469231731687303715884105727</span>), <span class="ident">u128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;170141183460469231731687303715884105727&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">170141183460469231731687303715884105728</span>), <span class="ident">u128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;170141183460469231731687303715884105728&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">340282366920938463463374607431768211455</span>), <span class="ident">u128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;340282366920938463463374607431768211455&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">u128::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">170141183460469231731687303715884105727</span>), <span class="ident">u128::from_lexical</span>(<span class="string">b&quot;170141183460469231731687303715884105727&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">170141183460469231731687303715884105728</span>), <span class="ident">u128::from_lexical</span>(<span class="string">b&quot;170141183460469231731687303715884105728&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">340282366920938463463374607431768211455</span>), <span class="ident">u128::from_lexical</span>(<span class="string">b&quot;340282366920938463463374607431768211455&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">0</span>).<span class="ident">into</span>()), <span class="ident">u128::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">u128::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">i128_decimal_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="number">170141183460469231731687303715884105727</span>), <span class="ident">i128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;170141183460469231731687303715884105727&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">39</span>).<span class="ident">into</span>()), <span class="ident">i128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;170141183460469231731687303715884105728&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>, <span class="number">39</span>).<span class="ident">into</span>()), <span class="ident">i128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;340282366920938463463374607431768211455&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i128</span>::<span class="ident">from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="ident">i128::from_lexical</span>(<span class="string">b&quot;0&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="number">170141183460469231731687303715884105727</span>), <span class="ident">i128::from_lexical</span>(<span class="string">b&quot;170141183460469231731687303715884105727&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">39</span>).<span class="ident">into</span>()), <span class="ident">i128::from_lexical</span>(<span class="string">b&quot;170141183460469231731687303715884105728&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::Overflow</span>, <span class="number">39</span>).<span class="ident">into</span>()), <span class="ident">i128::from_lexical</span>(<span class="string">b&quot;340282366920938463463374607431768211455&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">i128::from_lexical</span>(<span class="string">b&quot;-1&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>((<span class="ident">ErrorCode::InvalidDigit</span>, <span class="number">1</span>).<span class="ident">into</span>()), <span class="ident">i128::from_lexical</span>(<span class="string">b&quot;1a&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">i32_no_leading_zeros_test</span>() {
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat</span>::<span class="ident">NO_INTEGER_LEADING_ZEROS</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;0&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;01&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;10&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;010&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat::NO_INTEGER_LEADING_ZEROS</span>;
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;0&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;01&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;10&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;010&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">i32_integer_internal_digit_separator_test</span>() {
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat</span>::<span class="ident">from_separator</span>(<span class="string">b&#39;_&#39;</span>) <span class="op">|</span> <span class="ident">NumberFormat</span>::<span class="ident">INTEGER_INTERNAL_DIGIT_SEPARATOR</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;3_1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;_31&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;31_&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat::from_separator</span>(<span class="string">b&#39;_&#39;</span>) <span class="op">|</span> <span class="ident">NumberFormat::INTEGER_INTERNAL_DIGIT_SEPARATOR</span>;
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;3_1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;_31&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;31_&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">i32_integer_leading_digit_separator_test</span>() {
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat</span>::<span class="ident">from_separator</span>(<span class="string">b&#39;_&#39;</span>) <span class="op">|</span> <span class="ident">NumberFormat</span>::<span class="ident">INTEGER_LEADING_DIGIT_SEPARATOR</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;3_1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;_31&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;31_&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat::from_separator</span>(<span class="string">b&#39;_&#39;</span>) <span class="op">|</span> <span class="ident">NumberFormat::INTEGER_LEADING_DIGIT_SEPARATOR</span>;
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;3_1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;_31&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;31_&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">i32_integer_trailing_digit_separator_test</span>() {
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat</span>::<span class="ident">from_separator</span>(<span class="string">b&#39;_&#39;</span>) <span class="op">|</span> <span class="ident">NumberFormat</span>::<span class="ident">INTEGER_TRAILING_DIGIT_SEPARATOR</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;3_1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;_31&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;31_&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat::from_separator</span>(<span class="string">b&#39;_&#39;</span>) <span class="op">|</span> <span class="ident">NumberFormat::INTEGER_TRAILING_DIGIT_SEPARATOR</span>;
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;3_1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;_31&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;31_&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">i32_integer_consecutive_digit_separator_test</span>() {
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat</span>::<span class="ident">from_separator</span>(<span class="string">b&#39;_&#39;</span>)
-            <span class="op">|</span> <span class="ident">NumberFormat</span>::<span class="ident">INTEGER_INTERNAL_DIGIT_SEPARATOR</span>
-            <span class="op">|</span> <span class="ident">NumberFormat</span>::<span class="ident">INTEGER_CONSECUTIVE_DIGIT_SEPARATOR</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;3_1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;3__1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;_31&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;31_&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat::from_separator</span>(<span class="string">b&#39;_&#39;</span>)
+            <span class="op">|</span> <span class="ident">NumberFormat::INTEGER_INTERNAL_DIGIT_SEPARATOR</span>
+            <span class="op">|</span> <span class="ident">NumberFormat::INTEGER_CONSECUTIVE_DIGIT_SEPARATOR</span>;
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;3_1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;3__1&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;_31&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;31_&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;format&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">i32_json_no_leading_zero</span>() {
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat</span>::<span class="ident">JSON</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;12&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;-12&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;012&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i32</span>::<span class="ident">from_lexical_format</span>(<span class="string">b&quot;-012&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">NumberFormat::JSON</span>;
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;12&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;-12&quot;</span>, <span class="ident">format</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;012&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">i32::from_lexical_format</span>(<span class="string">b&quot;-012&quot;</span>, <span class="ident">format</span>).<span class="ident">is_err</span>());
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;property_tests&quot;</span>))]</span>
-    <span class="macro">proptest</span><span class="macro">!</span> {
+    <span class="macro">proptest!</span> {
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u8_invalid_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[0-9]{2}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">index</span>;
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u8_overflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[1-9][0-9]{3}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Overflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u8_negative_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[-][1-9][0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u8_double_sign_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]{2}[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u8_sign_only_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Empty</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Empty</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u8_trailing_digits_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[0-9]{2}\D[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i8_invalid_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]?[0-9]{2}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i8_overflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[1-9][0-9]{3}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Overflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i8_underflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[-][1-9][0-9]{3}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Underflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Underflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i8_double_sign_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]{2}[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i8_sign_only_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Empty</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::Empty</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i8_trailing_digits_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]?[0-9]{2}\D[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i8::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u16_invalid_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[0-9]{4}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">5</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">5</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u16_overflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[1-9][0-9]{5}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Overflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u16_negative_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[-][1-9][0-9]{4}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u16_double_sign_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]{2}[0-9]{4}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u16_sign_only_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Empty</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Empty</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u16_trailing_digits_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[0-9]{4}\D[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">5</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">5</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i16_invalid_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]?[0-9]{4}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">5</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">5</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i16_overflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[1-9][0-9]{5}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Overflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i16_underflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[-][1-9][0-9]{5}\DD&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Underflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Underflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i16_double_sign_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]{2}[0-9]{4}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i16_sign_only_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Empty</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Empty</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i16_trailing_digits_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]?[0-9]{4}\D[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i16::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">5</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">4</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">5</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u32_invalid_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[0-9]{9}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">10</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">10</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u32_overflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[1-9][0-9]{10}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Overflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u32_negative_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[-][1-9][0-9]{9}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u32_double_sign_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]{2}[0-9]{9}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u32_sign_only_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Empty</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Empty</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u32_trailing_digits_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[0-9]{9}\D[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">10</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">10</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i32_invalid_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]?[0-9]{9}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">10</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">10</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i32_overflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[1-9][0-9]{10}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Overflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i32_underflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;-[1-9][0-9]{10}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Underflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Underflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i32_double_sign_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]{2}[0-9]{9}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i32_sign_only_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Empty</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Empty</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i32_trailing_digits_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]?[0-9]{9}\D[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">10</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">10</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u64_invalid_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[0-9]{19}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">19</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">20</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">19</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">20</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u64_overflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[1-9][0-9]{21}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Overflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u64_negative_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[-][1-9][0-9]{21}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u64_double_sign_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]{2}[0-9]{19}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u64_sign_only_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Empty</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Empty</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">u64_trailing_digits_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[0-9]{19}\D[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">u64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">19</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">20</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">19</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">20</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i64_invalid_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]?[0-9]{18}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">18</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">19</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">18</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">19</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i64_overflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+]?[1-9][0-9]{19}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Overflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Overflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i64_underflow_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;-[1-9][0-9]{19}\D&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Underflow</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Underflow</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i64_double_sign_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]{2}[0-9]{18}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i64_sign_only_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i32::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="macro">prop_assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">code</span>;
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">Empty</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">code</span>, <span class="ident">ErrorCode::Empty</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">i64_trailing_digits_proptest</span>(<span class="ident">i</span> <span class="kw">in</span> <span class="string">r&quot;[+-]?[0-9]{18}\D[0-9]{2}&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64</span>::<span class="ident">from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">i64::from_lexical</span>(<span class="ident">i</span>.<span class="ident">as_bytes</span>());
             <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>();
-            <span class="macro">prop_assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode</span>::<span class="ident">InvalidDigit</span>);
-            <span class="macro">prop_assert</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">18</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">19</span>);
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">ErrorCode::InvalidDigit</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">18</span> <span class="op">|</span><span class="op">|</span> <span class="ident">error</span>.<span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">19</span>);
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lexical_core" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lexical_core" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

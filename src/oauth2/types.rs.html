@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/oauth2-4.0.0/src/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../oauth2/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../oauth2/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -657,17 +657,17 @@
 <span id="654">654</span>
 <span id="655">655</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">Into</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">FormatterError</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="ident">Debug</span>, <span class="ident">Formatter</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Deref</span>;
+<span class="kw">use</span> <span class="ident">std::convert::Into</span>;
+<span class="kw">use</span> <span class="ident">std::fmt::Error</span> <span class="kw">as</span> <span class="ident">FormatterError</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="ident">Debug</span>, <span class="ident">Formatter</span>};
+<span class="kw">use</span> <span class="ident">std::ops::Deref</span>;
 
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">thread_rng</span>, <span class="ident">Rng</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">sha2</span>::{<span class="ident">Digest</span>, <span class="ident">Sha256</span>};
-<span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
+<span class="kw">use</span> <span class="ident">url::Url</span>;
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">new_type</span> {
+<span class="macro">macro_rules!</span> <span class="ident">new_type</span> {
     <span class="comment">// Convenience pattern without an impl.</span>
     (
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
@@ -676,17 +676,17 @@
             <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>
         )
     ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">new_type</span><span class="macro">!</span>[
+        <span class="macro">new_type!</span>[
             @<span class="ident">new_type</span> $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(
                 $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_attr</span>]</span>)<span class="op">*</span>
                 <span class="macro-nonterminal">$</span><span class="kw">type</span>
             ),
-            <span class="macro">concat</span><span class="macro">!</span>(
+            <span class="macro">concat!</span>(
                 <span class="string">&quot;Create a new `&quot;</span>,
-                <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>),
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>),
                 <span class="string">&quot;` to wrap the given `&quot;</span>,
-                <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>),
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>),
                 <span class="string">&quot;`.&quot;</span>
             ),
             <span class="kw">impl</span> {}
@@ -703,17 +703,17 @@
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
     ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">new_type</span><span class="macro">!</span>[
+        <span class="macro">new_type!</span>[
             @<span class="ident">new_type</span> $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(
                 $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_attr</span>]</span>)<span class="op">*</span>
                 <span class="macro-nonterminal">$</span><span class="kw">type</span>
             ),
-            <span class="macro">concat</span><span class="macro">!</span>(
+            <span class="macro">concat!</span>(
                 <span class="string">&quot;Create a new `&quot;</span>,
-                <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>),
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>),
                 <span class="string">&quot;` to wrap the given `&quot;</span>,
-                <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>),
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>),
                 <span class="string">&quot;`.&quot;</span>
             ),
             <span class="kw">impl</span> {
@@ -761,12 +761,12 @@
     }
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="macro-nonterminal">new_secret_type</span> {
+<span class="macro">macro_rules!</span> <span class="macro-nonterminal">new_secret_type</span> {
     (
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>)
     ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">new_secret_type</span><span class="macro">!</span>[
+        <span class="macro">new_secret_type!</span>[
             $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>)
             <span class="kw">impl</span> {}
@@ -779,17 +779,17 @@
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
     ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">new_secret_type</span><span class="macro">!</span>[
+        <span class="macro">new_secret_type!</span>[
             $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>),
-            <span class="macro">concat</span><span class="macro">!</span>(
+            <span class="macro">concat!</span>(
                 <span class="string">&quot;Create a new `&quot;</span>,
-                <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>),
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>),
                 <span class="string">&quot;` to wrap the given `&quot;</span>,
-                <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>),
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>),
                 <span class="string">&quot;`.&quot;</span>
             ),
-            <span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Get the secret contained within this `&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;`.&quot;</span>),
+            <span class="macro">concat!</span>(<span class="string">&quot;Get the secret contained within this `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;`.&quot;</span>),
             <span class="kw">impl</span> {
                 $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>)<span class="op">*</span>
             }
@@ -826,7 +826,7 @@
         }
         <span class="kw">impl</span> <span class="macro-nonterminal">Debug</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="macro">concat</span><span class="macro">!</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;([redacted])&quot;</span>))
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;([redacted])&quot;</span>))
             }
         }
     };
@@ -844,18 +844,18 @@
 <span class="doccomment">/// In addition to the raw string representation, these types include a `url` method to retrieve a</span>
 <span class="doccomment">/// parsed `Url` struct.</span>
 <span class="doccomment">///</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">new_url_type</span> {
+<span class="macro">macro_rules!</span> <span class="ident">new_url_type</span> {
     <span class="comment">// Convenience pattern without an impl.</span>
     (
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>
     ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">new_url_type</span><span class="macro">!</span>[
+        <span class="macro">new_url_type!</span>[
             @<span class="ident">new_type_pub</span> $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-            <span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Create a new `&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` from a `String` to wrap a URL.&quot;</span>),
-            <span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Create a new `&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` from a `Url` to wrap a URL.&quot;</span>),
-            <span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Return this `&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` as a parsed `Url`.&quot;</span>),
+            <span class="macro">concat!</span>(<span class="string">&quot;Create a new `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` from a `String` to wrap a URL.&quot;</span>),
+            <span class="macro">concat!</span>(<span class="string">&quot;Create a new `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` from a `Url` to wrap a URL.&quot;</span>),
+            <span class="macro">concat!</span>(<span class="string">&quot;Return this `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` as a parsed `Url`.&quot;</span>),
             <span class="kw">impl</span> {}
         ];
     };
@@ -867,12 +867,12 @@
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>:<span class="ident">tt</span>)<span class="op">*</span>
         }
     ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">new_url_type</span><span class="macro">!</span>[
+        <span class="macro">new_url_type!</span>[
             @<span class="ident">new_type_pub</span> $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>,
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-            <span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Create a new `&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` from a `String` to wrap a URL.&quot;</span>),
-            <span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Create a new `&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` from a `Url` to wrap a URL.&quot;</span>),
-            <span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Return this `&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` as a parsed `Url`.&quot;</span>),
+            <span class="macro">concat!</span>(<span class="string">&quot;Create a new `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` from a `String` to wrap a URL.&quot;</span>),
+            <span class="macro">concat!</span>(<span class="string">&quot;Create a new `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` from a `Url` to wrap a URL.&quot;</span>),
+            <span class="macro">concat!</span>(<span class="string">&quot;Return this `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot;` as a parsed `Url`.&quot;</span>),
             <span class="kw">impl</span> {
                 $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">item</span>)<span class="op">*</span>
             }
@@ -894,8 +894,8 @@
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="ident">Url</span>, <span class="ident">String</span>);
         <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">new_doc</span>]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, ::<span class="ident">url</span>::<span class="ident">ParseError</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>, <span class="ident">url</span>))
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::url::ParseError</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="ident">Url::parse</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>, <span class="ident">url</span>))
             }
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">from_url_doc</span>]</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_url</span>(<span class="ident">url</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
@@ -914,59 +914,59 @@
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">1</span>
             }
         }
-        <span class="kw">impl</span> ::<span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> ::<span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ::<span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug_trait_builder</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>));
+        <span class="kw">impl</span> <span class="ident">::std::fmt::Debug</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::std::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">::std::fmt::Error</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug_trait_builder</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>));
                 <span class="ident">debug_trait_builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">1</span>);
                 <span class="ident">debug_trait_builder</span>.<span class="ident">finish</span>()
             }
         }
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> ::<span class="ident">serde</span>::<span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">::serde::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+            <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
             <span class="kw">where</span>
-                <span class="ident">D</span>: ::<span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+                <span class="ident">D</span>: <span class="ident">::serde::de::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
             {
                 <span class="kw">struct</span> <span class="ident">UrlVisitor</span>;
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> ::<span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UrlVisitor</span> {
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">::serde::de::Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UrlVisitor</span> {
                     <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>;
 
                     <span class="kw">fn</span> <span class="ident">expecting</span>(
                         <span class="kw-2">&amp;</span><span class="self">self</span>,
-                        <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> ::<span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>
-                    ) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-                        <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>))
+                        <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::std::fmt::Formatter</span>
+                    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::std::fmt::Result</span> {
+                        <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>))
                     }
 
-                    <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Value</span>, <span class="ident">E</span><span class="op">&gt;</span>
+                    <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Value</span>, <span class="ident">E</span><span class="op">&gt;</span>
                     <span class="kw">where</span>
-                        <span class="ident">E</span>: ::<span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">Error</span>,
+                        <span class="ident">E</span>: <span class="ident">::serde::de::Error</span>,
                     {
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>::<span class="ident">new</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()).<span class="ident">map_err</span>(<span class="ident">E</span>::<span class="ident">custom</span>)
+                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name::new</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()).<span class="ident">map_err</span>(<span class="ident">E::custom</span>)
                     }
                 }
                 <span class="ident">deserializer</span>.<span class="ident">deserialize_str</span>(<span class="ident">UrlVisitor</span> {})
             }
         }
-        <span class="kw">impl</span> ::<span class="ident">serde</span>::<span class="ident">Serialize</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">SE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">SE</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SE</span>::<span class="prelude-val">Ok</span>, <span class="ident">SE</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+        <span class="kw">impl</span> <span class="ident">::serde::Serialize</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+            <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">SE</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">SE</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SE::Ok</span>, <span class="ident">SE::Error</span><span class="op">&gt;</span>
             <span class="kw">where</span>
-                <span class="ident">SE</span>: ::<span class="ident">serde</span>::<span class="ident">Serializer</span>,
+                <span class="ident">SE</span>: <span class="ident">::serde::Serializer</span>,
             {
                 <span class="ident">serializer</span>.<span class="ident">serialize_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">1</span>)
             }
         }
-        <span class="kw">impl</span> ::<span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">Hash</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: ::<span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) <span class="op">-</span><span class="op">&gt;</span> () {
-                ::<span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">Hash</span>::<span class="ident">hash</span>(<span class="kw-2">&amp;</span>(<span class="self">self</span>.<span class="number">1</span>), <span class="ident">state</span>);
+        <span class="kw">impl</span> <span class="ident">::std::hash::Hash</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+            <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">::std::hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) <span class="op">-</span><span class="op">&gt;</span> () {
+                <span class="ident">::std::hash::Hash::hash</span>(<span class="kw-2">&amp;</span>(<span class="self">self</span>.<span class="number">1</span>), <span class="ident">state</span>);
             }
         }
         <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span> {
+            <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::std::cmp::Ordering</span> {
                 <span class="self">self</span>.<span class="number">1</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="number">1</span>)
             }
         }
         <span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>::<span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">::std::cmp::Ordering</span><span class="op">&gt;</span> {
                 <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
             }
         }
@@ -979,7 +979,7 @@
     };
 }
 
-<span class="macro">new_type</span><span class="macro">!</span>[
+<span class="macro">new_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Client identifier issued to the client during the registration process described by</span>
     <span class="doccomment">/// [Section 2.2](https://tools.ietf.org/html/rfc6749#section-2.2).</span>
@@ -988,49 +988,49 @@
     <span class="ident">ClientId</span>(<span class="ident">String</span>)
 ];
 
-<span class="macro">new_url_type</span><span class="macro">!</span>[
+<span class="macro">new_url_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// URL of the authorization server&#39;s authorization endpoint.</span>
     <span class="doccomment">///</span>
     <span class="ident">AuthUrl</span>
 ];
-<span class="macro">new_url_type</span><span class="macro">!</span>[
+<span class="macro">new_url_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// URL of the authorization server&#39;s token endpoint.</span>
     <span class="doccomment">///</span>
     <span class="ident">TokenUrl</span>
 ];
-<span class="macro">new_url_type</span><span class="macro">!</span>[
+<span class="macro">new_url_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// URL of the client&#39;s redirection endpoint.</span>
     <span class="doccomment">///</span>
     <span class="ident">RedirectUrl</span>
 ];
-<span class="macro">new_url_type</span><span class="macro">!</span>[
+<span class="macro">new_url_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// URL of the client&#39;s [RFC 7662 OAuth 2.0 Token Introspection](https://tools.ietf.org/html/rfc7662) endpoint.</span>
     <span class="doccomment">///</span>
     <span class="ident">IntrospectionUrl</span>
 ];
-<span class="macro">new_url_type</span><span class="macro">!</span>[
+<span class="macro">new_url_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// URL of the authorization server&#39;s RFC 7009 token revocation endpoint.</span>
     <span class="doccomment">///</span>
     <span class="ident">RevocationUrl</span>
 ];
-<span class="macro">new_url_type</span><span class="macro">!</span>[
+<span class="macro">new_url_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// URL of the client&#39;s device authorization endpoint.</span>
     <span class="doccomment">///</span>
     <span class="ident">DeviceAuthorizationUrl</span>
 ];
-<span class="macro">new_url_type</span><span class="macro">!</span>[
+<span class="macro">new_url_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// URL of the end-user verification URI on the authorization server.</span>
     <span class="doccomment">///</span>
     <span class="ident">EndUserVerificationUrl</span>
 ];
-<span class="macro">new_type</span><span class="macro">!</span>[
+<span class="macro">new_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Authorization endpoint response (grant) type defined in</span>
     <span class="doccomment">/// [Section 3.1.1](https://tools.ietf.org/html/rfc6749#section-3.1.1).</span>
@@ -1038,7 +1038,7 @@
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
     <span class="ident">ResponseType</span>(<span class="ident">String</span>)
 ];
-<span class="macro">new_type</span><span class="macro">!</span>[
+<span class="macro">new_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Resource owner&#39;s username used directly as an authorization grant to obtain an access</span>
     <span class="doccomment">/// token.</span>
@@ -1047,7 +1047,7 @@
     <span class="ident">ResourceOwnerUsername</span>(<span class="ident">String</span>)
 ];
 
-<span class="macro">new_type</span><span class="macro">!</span>[
+<span class="macro">new_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Access token scope, as defined by the authorization server.</span>
     <span class="doccomment">///</span>
@@ -1060,7 +1060,7 @@
     }
 }
 
-<span class="macro">new_type</span><span class="macro">!</span>[
+<span class="macro">new_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Code Challenge Method used for [PKCE]((https://tools.ietf.org/html/rfc7636)) protection</span>
     <span class="doccomment">/// via the `code_challenge_method` parameter.</span>
@@ -1070,7 +1070,7 @@
 ];
 <span class="comment">// This type intentionally does not implement Clone in order to make it difficult to reuse PKCE</span>
 <span class="comment">// challenges across multiple requests.</span>
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Code Verifier used for [PKCE]((https://tools.ietf.org/html/rfc7636)) protection via the</span>
     <span class="doccomment">/// `code_verifier` parameter. The value must have a minimum length of 43 characters and a</span>
@@ -1095,7 +1095,7 @@
     <span class="doccomment">/// Generate a new random, base64-encoded SHA-256 PKCE code.</span>
     <span class="doccomment">///</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_sha256</span>() <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">PkceCodeVerifier</span>) {
-        <span class="self">Self</span>::<span class="ident">new_random_sha256_len</span>(<span class="number">32</span>)
+        <span class="self">Self</span><span class="ident">::new_random_sha256_len</span>(<span class="number">32</span>)
     }
 
     <span class="doccomment">///</span>
@@ -1113,9 +1113,9 @@
     <span class="doccomment">/// to comply with [RFC 7636](https://tools.ietf.org/html/rfc7636).</span>
     <span class="doccomment">///</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_sha256_len</span>(<span class="ident">num_bytes</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">PkceCodeVerifier</span>) {
-        <span class="kw">let</span> <span class="ident">code_verifier</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">new_random_len</span>(<span class="ident">num_bytes</span>);
+        <span class="kw">let</span> <span class="ident">code_verifier</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::new_random_len</span>(<span class="ident">num_bytes</span>);
         (
-            <span class="self">Self</span>::<span class="ident">from_code_verifier_sha256</span>(<span class="kw-2">&amp;</span><span class="ident">code_verifier</span>),
+            <span class="self">Self</span><span class="ident">::from_code_verifier_sha256</span>(<span class="kw-2">&amp;</span><span class="ident">code_verifier</span>),
             <span class="ident">code_verifier</span>,
         )
     }
@@ -1138,11 +1138,11 @@
         <span class="comment">// The RFC specifies that the code verifier must have &quot;a minimum length of 43</span>
         <span class="comment">// characters and a maximum length of 128 characters&quot;.</span>
         <span class="comment">// This implies 32-96 octets of random data to be base64 encoded.</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">num_bytes</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">32</span> <span class="op">&amp;&amp;</span> <span class="ident">num_bytes</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">96</span>);
+        <span class="macro">assert!</span>(<span class="ident">num_bytes</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">32</span> <span class="op">&amp;&amp;</span> <span class="ident">num_bytes</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">96</span>);
         <span class="kw">let</span> <span class="ident">random_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">num_bytes</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">thread_rng</span>().<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>()).<span class="ident">collect</span>();
-        <span class="ident">PkceCodeVerifier</span>::<span class="ident">new</span>(<span class="ident">base64</span>::<span class="ident">encode_config</span>(
+        <span class="ident">PkceCodeVerifier::new</span>(<span class="ident">base64::encode_config</span>(
             <span class="kw-2">&amp;</span><span class="ident">random_bytes</span>,
-            <span class="ident">base64</span>::<span class="ident">URL_SAFE_NO_PAD</span>,
+            <span class="ident">base64::URL_SAFE_NO_PAD</span>,
         ))
     }
 
@@ -1157,14 +1157,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_code_verifier_sha256</span>(<span class="ident">code_verifier</span>: <span class="kw-2">&amp;</span><span class="ident">PkceCodeVerifier</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="comment">// The RFC specifies that the code verifier must have &quot;a minimum length of 43</span>
         <span class="comment">// characters and a maximum length of 128 characters&quot;.</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">43</span> <span class="op">&amp;&amp;</span> <span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">128</span>);
+        <span class="macro">assert!</span>(<span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">43</span> <span class="op">&amp;&amp;</span> <span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">128</span>);
 
-        <span class="kw">let</span> <span class="ident">digest</span> <span class="op">=</span> <span class="ident">Sha256</span>::<span class="ident">digest</span>(<span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">as_bytes</span>());
-        <span class="kw">let</span> <span class="ident">code_challenge</span> <span class="op">=</span> <span class="ident">base64</span>::<span class="ident">encode_config</span>(<span class="kw-2">&amp;</span><span class="ident">digest</span>, <span class="ident">base64</span>::<span class="ident">URL_SAFE_NO_PAD</span>);
+        <span class="kw">let</span> <span class="ident">digest</span> <span class="op">=</span> <span class="ident">Sha256::digest</span>(<span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">as_bytes</span>());
+        <span class="kw">let</span> <span class="ident">code_challenge</span> <span class="op">=</span> <span class="ident">base64::encode_config</span>(<span class="kw-2">&amp;</span><span class="ident">digest</span>, <span class="ident">base64::URL_SAFE_NO_PAD</span>);
 
         <span class="self">Self</span> {
             <span class="ident">code_challenge</span>,
-            <span class="ident">code_challenge_method</span>: <span class="ident">PkceCodeChallengeMethod</span>::<span class="ident">new</span>(<span class="string">&quot;S256&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">code_challenge_method</span>: <span class="ident">PkceCodeChallengeMethod::new</span>(<span class="string">&quot;S256&quot;</span>.<span class="ident">to_string</span>()),
         }
     }
 
@@ -1179,9 +1179,9 @@
     <span class="doccomment">///</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pkce-plain&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_plain</span>() <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">PkceCodeVerifier</span>) {
-        <span class="kw">let</span> <span class="ident">code_verifier</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">new_random_len</span>(<span class="number">32</span>);
+        <span class="kw">let</span> <span class="ident">code_verifier</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::new_random_len</span>(<span class="number">32</span>);
         (
-            <span class="self">Self</span>::<span class="ident">from_code_verifier_plain</span>(<span class="kw-2">&amp;</span><span class="ident">code_verifier</span>),
+            <span class="self">Self</span><span class="ident">::from_code_verifier_plain</span>(<span class="kw-2">&amp;</span><span class="ident">code_verifier</span>),
             <span class="ident">code_verifier</span>,
         )
     }
@@ -1199,13 +1199,13 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_code_verifier_plain</span>(<span class="ident">code_verifier</span>: <span class="kw-2">&amp;</span><span class="ident">PkceCodeVerifier</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="comment">// The RFC specifies that the code verifier must have &quot;a minimum length of 43</span>
         <span class="comment">// characters and a maximum length of 128 characters&quot;.</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">43</span> <span class="op">&amp;&amp;</span> <span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">128</span>);
+        <span class="macro">assert!</span>(<span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">43</span> <span class="op">&amp;&amp;</span> <span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">128</span>);
 
         <span class="kw">let</span> <span class="ident">code_challenge</span> <span class="op">=</span> <span class="ident">code_verifier</span>.<span class="ident">secret</span>().<span class="ident">clone</span>();
 
         <span class="self">Self</span> {
             <span class="ident">code_challenge</span>,
-            <span class="ident">code_challenge_method</span>: <span class="ident">PkceCodeChallengeMethod</span>::<span class="ident">new</span>(<span class="string">&quot;plain&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">code_challenge_method</span>: <span class="ident">PkceCodeChallengeMethod::new</span>(<span class="string">&quot;plain&quot;</span>.<span class="ident">to_string</span>()),
         }
     }
 
@@ -1224,7 +1224,7 @@
     }
 }
 
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Client password issued to the client during the registration process described by</span>
     <span class="doccomment">/// [Section 2.2](https://tools.ietf.org/html/rfc6749#section-2.2).</span>
@@ -1232,7 +1232,7 @@
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
     <span class="ident">ClientSecret</span>(<span class="ident">String</span>)
 ];
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Value used for [CSRF](https://tools.ietf.org/html/rfc6749#section-10.12) protection</span>
     <span class="doccomment">/// via the `state` parameter.</span>
@@ -1245,7 +1245,7 @@
         <span class="doccomment">/// Generate a new random, base64-encoded 128-bit CSRF token.</span>
         <span class="doccomment">///</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-            <span class="ident">CsrfToken</span>::<span class="ident">new_random_len</span>(<span class="number">16</span>)
+            <span class="ident">CsrfToken::new_random_len</span>(<span class="number">16</span>)
         }
         <span class="doccomment">///</span>
         <span class="doccomment">/// Generate a new random, base64-encoded CSRF token of the specified length.</span>
@@ -1256,32 +1256,32 @@
         <span class="doccomment">///</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_random_len</span>(<span class="ident">num_bytes</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
             <span class="kw">let</span> <span class="ident">random_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">num_bytes</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">thread_rng</span>().<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>()).<span class="ident">collect</span>();
-            <span class="ident">CsrfToken</span>::<span class="ident">new</span>(<span class="ident">base64</span>::<span class="ident">encode_config</span>(<span class="kw-2">&amp;</span><span class="ident">random_bytes</span>, <span class="ident">base64</span>::<span class="ident">URL_SAFE_NO_PAD</span>))
+            <span class="ident">CsrfToken::new</span>(<span class="ident">base64::encode_config</span>(<span class="kw-2">&amp;</span><span class="ident">random_bytes</span>, <span class="ident">base64::URL_SAFE_NO_PAD</span>))
         }
     }
 ];
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Authorization code returned from the authorization endpoint.</span>
     <span class="doccomment">///</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
     <span class="ident">AuthorizationCode</span>(<span class="ident">String</span>)
 ];
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Refresh token used to obtain a new access token (if supported by the authorization server).</span>
     <span class="doccomment">///</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
     <span class="ident">RefreshToken</span>(<span class="ident">String</span>)
 ];
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Access token returned by the token endpoint and used to access protected resources.</span>
     <span class="doccomment">///</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
     <span class="ident">AccessToken</span>(<span class="ident">String</span>)
 ];
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Resource owner&#39;s password used directly as an authorization grant to obtain an access</span>
     <span class="doccomment">/// token.</span>
@@ -1289,14 +1289,14 @@
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
     <span class="ident">ResourceOwnerPassword</span>(<span class="ident">String</span>)
 ];
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Device code returned by the device authorization endpoint and used to query the token endpoint.</span>
     <span class="doccomment">///</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
     <span class="ident">DeviceCode</span>(<span class="ident">String</span>)
 ];
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// Verification URI returned by the device authorization endpoint and visited by the user</span>
     <span class="doccomment">/// to authorize.  Contains the user code.</span>
@@ -1304,7 +1304,7 @@
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
     <span class="ident">VerificationUriComplete</span>(<span class="ident">String</span>)
 ];
-<span class="macro">new_secret_type</span><span class="macro">!</span>[
+<span class="macro">new_secret_type!</span>[
     <span class="doccomment">///</span>
     <span class="doccomment">/// User code returned by the device authorization endpoint and used by the user to authorize at</span>
     <span class="doccomment">/// the verification URI.</span>
@@ -1313,5 +1313,5 @@
     <span class="ident">UserCode</span>(<span class="ident">String</span>)
 ];
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oauth2" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oauth2" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

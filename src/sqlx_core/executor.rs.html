@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.5/src/executor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>executor.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -249,14 +249,14 @@
 <span id="246">246</span>
 <span id="247">247</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">database</span>::{<span class="ident">Database</span>, <span class="ident">HasArguments</span>, <span class="ident">HasStatement</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">describe</span>::<span class="ident">Describe</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="ident">either</span>::<span class="ident">Either</span>;
-<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">future</span>::<span class="ident">BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">stream</span>::<span class="ident">BoxStream</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::database</span>::{<span class="ident">Database</span>, <span class="ident">HasArguments</span>, <span class="ident">HasStatement</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::describe::Describe</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Error</span>;
+<span class="kw">use</span> <span class="ident">either::Either</span>;
+<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
+<span class="kw">use</span> <span class="ident">futures_core::stream::BoxStream</span>;
 <span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">future</span>, <span class="ident">FutureExt</span>, <span class="ident">StreamExt</span>, <span class="ident">TryFutureExt</span>, <span class="ident">TryStreamExt</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
+<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 
 <span class="doccomment">/// A type that contains or can provide a database</span>
 <span class="doccomment">/// connection to use for executing queries against the database.</span>
@@ -280,10 +280,10 @@
     <span class="kw">fn</span> <span class="ident">execute</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">query</span>: <span class="ident">E</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">QueryResult</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::QueryResult</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>,
+        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">execute_many</span>(<span class="ident">query</span>).<span class="ident">try_collect</span>().<span class="ident">boxed</span>()
     }
@@ -292,16 +292,16 @@
     <span class="kw">fn</span> <span class="ident">execute_many</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">query</span>: <span class="ident">E</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxStream</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">QueryResult</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxStream</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::QueryResult</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>,
+        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">fetch_many</span>(<span class="ident">query</span>)
             .<span class="ident">try_filter_map</span>(<span class="op">|</span><span class="ident">step</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
                 <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">step</span> {
-                    <span class="ident">Either</span>::<span class="ident">Left</span>(<span class="ident">rows</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">rows</span>),
-                    <span class="ident">Either</span>::<span class="ident">Right</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="ident">Either::Left</span>(<span class="ident">rows</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">rows</span>),
+                    <span class="ident">Either::Right</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
                 })
             })
             .<span class="ident">boxed</span>()
@@ -311,16 +311,16 @@
     <span class="kw">fn</span> <span class="ident">fetch</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">query</span>: <span class="ident">E</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxStream</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">Row</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxStream</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>,
+        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">fetch_many</span>(<span class="ident">query</span>)
             .<span class="ident">try_filter_map</span>(<span class="op">|</span><span class="ident">step</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
                 <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">step</span> {
-                    <span class="ident">Either</span>::<span class="ident">Left</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                    <span class="ident">Either</span>::<span class="ident">Right</span>(<span class="ident">row</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">row</span>),
+                    <span class="ident">Either::Left</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="ident">Either::Right</span>(<span class="ident">row</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">row</span>),
                 })
             })
             .<span class="ident">boxed</span>()
@@ -334,22 +334,22 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxStream</span><span class="op">&lt;</span>
         <span class="lifetime">&#39;e</span>,
         <span class="prelude-ty">Result</span><span class="op">&lt;</span>
-            <span class="ident">Either</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">QueryResult</span>, <span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">Row</span><span class="op">&gt;</span>,
+            <span class="ident">Either</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::QueryResult</span>, <span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>,
             <span class="ident">Error</span>,
         <span class="op">&gt;</span>,
     <span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>;
+        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Execute the query and return all the generated results, collected into a [`Vec`].</span>
     <span class="kw">fn</span> <span class="ident">fetch_all</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">query</span>: <span class="ident">E</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">Row</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>,
+        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">fetch</span>(<span class="ident">query</span>).<span class="ident">try_collect</span>().<span class="ident">boxed</span>()
     }
@@ -358,15 +358,15 @@
     <span class="kw">fn</span> <span class="ident">fetch_one</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">query</span>: <span class="ident">E</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">Row</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>,
+        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">fetch_optional</span>(<span class="ident">query</span>)
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">row</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">row</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future</span>::<span class="ident">ok</span>(<span class="ident">row</span>),
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future</span>::<span class="ident">err</span>(<span class="ident">Error</span>::<span class="ident">RowNotFound</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">row</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future::ok</span>(<span class="ident">row</span>),
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future::err</span>(<span class="ident">Error::RowNotFound</span>),
             })
             .<span class="ident">boxed</span>()
     }
@@ -375,10 +375,10 @@
     <span class="kw">fn</span> <span class="ident">fetch_optional</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">query</span>: <span class="ident">E</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">Row</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>;
+        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Prepare the SQL query to inspect the type information of its parameters</span>
     <span class="doccomment">/// and results.</span>
@@ -392,7 +392,7 @@
     <span class="kw">fn</span> <span class="ident">prepare</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Statement</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
     {
@@ -407,8 +407,8 @@
     <span class="kw">fn</span> <span class="ident">prepare_with</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-        <span class="ident">parameters</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;e</span> [<span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">TypeInfo</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Statement</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+        <span class="ident">parameters</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;e</span> [<span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::TypeInfo</span>],
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>;
 
@@ -421,7 +421,7 @@
     <span class="kw">fn</span> <span class="ident">describe</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>;
 }
@@ -438,14 +438,14 @@
     <span class="kw">fn</span> <span class="ident">sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>;
 
     <span class="doccomment">/// Gets the previously cached statement, if available.</span>
-    <span class="kw">fn</span> <span class="ident">statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Statement</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns the arguments to be bound against the query string.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returning `None` for `Arguments` indicates to use a &quot;simple&quot; query protocol and to not</span>
     <span class="doccomment">/// prepare the query. Returning `Some(Default::default())` is an empty arguments object that</span>
     <span class="doccomment">/// will be prepared (and cached) before execution.</span>
-    <span class="kw">fn</span> <span class="ident">take_arguments</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Arguments</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">take_arguments</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns `true` if the statement should be cached.</span>
     <span class="kw">fn</span> <span class="ident">persistent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
@@ -460,12 +460,12 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Statement</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">take_arguments</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Arguments</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">take_arguments</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 
@@ -475,19 +475,19 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Arguments</span><span class="op">&gt;</span>) {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span>) {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span> {
         <span class="self">self</span>.<span class="number">0</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Statement</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">take_arguments</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Arguments</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">take_arguments</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="number">1</span>.<span class="ident">take</span>()
     }
 
@@ -497,5 +497,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

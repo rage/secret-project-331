@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.34/src/dh.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dh.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -481,19 +481,19 @@
 <span id="478">478</span>
 <span id="479">479</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">cfg_if</span>::<span class="ident">cfg_if</span>;
+<span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 <span class="kw">use</span> <span class="ident">foreign_types</span>::{<span class="ident">ForeignType</span>, <span class="ident">ForeignTypeRef</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
+<span class="kw">use</span> <span class="ident">std::mem</span>;
+<span class="kw">use</span> <span class="ident">std::ptr</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">bn</span>::{<span class="ident">BigNum</span>, <span class="ident">BigNumRef</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">ErrorStack</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pkey</span>::{<span class="ident">HasParams</span>, <span class="ident">HasPrivate</span>, <span class="ident">HasPublic</span>, <span class="ident">Params</span>, <span class="ident">Private</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::bn</span>::{<span class="ident">BigNum</span>, <span class="ident">BigNumRef</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorStack</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pkey</span>::{<span class="ident">HasParams</span>, <span class="ident">HasPrivate</span>, <span class="ident">HasPublic</span>, <span class="ident">Params</span>, <span class="ident">Private</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">cvt</span>, <span class="ident">cvt_p</span>};
 
-<span class="macro">generic_foreign_type_and_impl_send_sync</span><span class="macro">!</span> {
-    <span class="kw">type</span> <span class="ident">CType</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">DH</span>;
-    <span class="kw">fn</span> <span class="ident">drop</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">DH_free</span>;
+<span class="macro">generic_foreign_type_and_impl_send_sync!</span> {
+    <span class="kw">type</span> <span class="ident">CType</span> <span class="op">=</span> <span class="ident">ffi::DH</span>;
+    <span class="kw">fn</span> <span class="ident">drop</span> <span class="op">=</span> <span class="ident">ffi::DH_free</span>;
 
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
 
@@ -504,7 +504,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">HasParams</span>,
 {
-    <span class="macro">to_pem</span><span class="macro">!</span> {
+    <span class="macro">to_pem!</span> {
         <span class="doccomment">/// Serializes the parameters into a PEM-encoded PKCS#3 DHparameter structure.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// The output will have a header of `-----BEGIN DH PARAMETERS-----`.</span>
@@ -513,23 +513,23 @@
         <span class="doccomment">///</span>
         <span class="doccomment">/// [`PEM_write_bio_DHparams`]: https://www.openssl.org/docs/manmaster/man3/PEM_write_bio_DHparams.html</span>
         <span class="ident">params_to_pem</span>,
-        <span class="ident">ffi</span>::<span class="ident">PEM_write_bio_DHparams</span>
+        <span class="ident">ffi::PEM_write_bio_DHparams</span>
     }
 
-    <span class="macro">to_der</span><span class="macro">!</span> {
+    <span class="macro">to_der!</span> {
         <span class="doccomment">/// Serializes the parameters into a DER-encoded PKCS#3 DHparameter structure.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// This corresponds to [`i2d_DHparams`].</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// [`i2d_DHparams`]: https://www.openssl.org/docs/man1.1.0/crypto/i2d_DHparams.html</span>
         <span class="ident">params_to_der</span>,
-        <span class="ident">ffi</span>::<span class="ident">i2d_DHparams</span>
+        <span class="ident">ffi::i2d_DHparams</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_params</span>(<span class="ident">p</span>: <span class="ident">BigNum</span>, <span class="ident">g</span>: <span class="ident">BigNum</span>, <span class="ident">q</span>: <span class="ident">BigNum</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
-        <span class="self">Self</span>::<span class="ident">from_pqg</span>(<span class="ident">p</span>, <span class="prelude-val">Some</span>(<span class="ident">q</span>), <span class="ident">g</span>)
+        <span class="self">Self</span><span class="ident">::from_pqg</span>(<span class="ident">p</span>, <span class="prelude-val">Some</span>(<span class="ident">q</span>), <span class="ident">g</span>)
     }
 
     <span class="doccomment">/// Creates a DH instance based upon the given primes and generator params.</span>
@@ -544,14 +544,14 @@
         <span class="ident">generator</span>: <span class="ident">BigNum</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">from_ptr</span>(<span class="ident">cvt_p</span>(<span class="ident">ffi</span>::<span class="ident">DH_new</span>())<span class="question-mark">?</span>);
+            <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh::from_ptr</span>(<span class="ident">cvt_p</span>(<span class="ident">ffi::DH_new</span>())<span class="question-mark">?</span>);
             <span class="ident">cvt</span>(<span class="ident">DH_set0_pqg</span>(
                 <span class="ident">dh</span>.<span class="number">0</span>,
                 <span class="ident">prime_p</span>.<span class="ident">as_ptr</span>(),
-                <span class="ident">prime_q</span>.<span class="ident">as_ref</span>().<span class="ident">map_or</span>(<span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="op">|</span><span class="ident">q</span><span class="op">|</span> <span class="ident">q</span>.<span class="ident">as_ptr</span>()),
+                <span class="ident">prime_q</span>.<span class="ident">as_ref</span>().<span class="ident">map_or</span>(<span class="ident">ptr::null_mut</span>(), <span class="op">|</span><span class="ident">q</span><span class="op">|</span> <span class="ident">q</span>.<span class="ident">as_ptr</span>()),
                 <span class="ident">generator</span>.<span class="ident">as_ptr</span>(),
             ))<span class="question-mark">?</span>;
-            <span class="ident">mem</span>::<span class="ident">forget</span>((<span class="ident">prime_p</span>, <span class="ident">prime_q</span>, <span class="ident">generator</span>));
+            <span class="ident">mem::forget</span>((<span class="ident">prime_p</span>, <span class="ident">prime_q</span>, <span class="ident">generator</span>));
             <span class="prelude-val">Ok</span>(<span class="ident">dh</span>)
         }
     }
@@ -560,12 +560,12 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_private_key</span>(<span class="self">self</span>, <span class="ident">priv_key</span>: <span class="ident">BigNum</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Private</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">dh_ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
-            <span class="ident">cvt</span>(<span class="ident">DH_set0_key</span>(<span class="ident">dh_ptr</span>, <span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="ident">priv_key</span>.<span class="ident">as_ptr</span>()))<span class="question-mark">?</span>;
-            <span class="ident">mem</span>::<span class="ident">forget</span>(<span class="ident">priv_key</span>);
+            <span class="ident">cvt</span>(<span class="ident">DH_set0_key</span>(<span class="ident">dh_ptr</span>, <span class="ident">ptr::null_mut</span>(), <span class="ident">priv_key</span>.<span class="ident">as_ptr</span>()))<span class="question-mark">?</span>;
+            <span class="ident">mem::forget</span>(<span class="ident">priv_key</span>);
 
-            <span class="ident">cvt</span>(<span class="ident">ffi</span>::<span class="ident">DH_generate_key</span>(<span class="ident">dh_ptr</span>))<span class="question-mark">?</span>;
-            <span class="ident">mem</span>::<span class="ident">forget</span>(<span class="self">self</span>);
-            <span class="prelude-val">Ok</span>(<span class="ident">Dh</span>::<span class="ident">from_ptr</span>(<span class="ident">dh_ptr</span>))
+            <span class="ident">cvt</span>(<span class="ident">ffi::DH_generate_key</span>(<span class="ident">dh_ptr</span>))<span class="question-mark">?</span>;
+            <span class="ident">mem::forget</span>(<span class="self">self</span>);
+            <span class="prelude-val">Ok</span>(<span class="ident">Dh::from_ptr</span>(<span class="ident">dh_ptr</span>))
         }
     }
 
@@ -576,12 +576,12 @@
     <span class="doccomment">/// [`DH_generate_parameters_ex`]: https://www.openssl.org/docs/man1.1.0/crypto/DH_generate_parameters.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_params</span>(<span class="ident">prime_len</span>: <span class="ident">u32</span>, <span class="ident">generator</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">from_ptr</span>(<span class="ident">cvt_p</span>(<span class="ident">ffi</span>::<span class="ident">DH_new</span>())<span class="question-mark">?</span>);
-            <span class="ident">cvt</span>(<span class="ident">ffi</span>::<span class="ident">DH_generate_parameters_ex</span>(
+            <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh::from_ptr</span>(<span class="ident">cvt_p</span>(<span class="ident">ffi::DH_new</span>())<span class="question-mark">?</span>);
+            <span class="ident">cvt</span>(<span class="ident">ffi::DH_generate_parameters_ex</span>(
                 <span class="ident">dh</span>.<span class="number">0</span>,
                 <span class="ident">prime_len</span> <span class="kw">as</span> <span class="ident">i32</span>,
                 <span class="ident">generator</span> <span class="kw">as</span> <span class="ident">i32</span>,
-                <span class="ident">ptr</span>::<span class="ident">null_mut</span>(),
+                <span class="ident">ptr::null_mut</span>(),
             ))<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">dh</span>)
         }
@@ -595,13 +595,13 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_key</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Private</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">dh_ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
-            <span class="ident">cvt</span>(<span class="ident">ffi</span>::<span class="ident">DH_generate_key</span>(<span class="ident">dh_ptr</span>))<span class="question-mark">?</span>;
-            <span class="ident">mem</span>::<span class="ident">forget</span>(<span class="self">self</span>);
-            <span class="prelude-val">Ok</span>(<span class="ident">Dh</span>::<span class="ident">from_ptr</span>(<span class="ident">dh_ptr</span>))
+            <span class="ident">cvt</span>(<span class="ident">ffi::DH_generate_key</span>(<span class="ident">dh_ptr</span>))<span class="question-mark">?</span>;
+            <span class="ident">mem::forget</span>(<span class="self">self</span>);
+            <span class="prelude-val">Ok</span>(<span class="ident">Dh::from_ptr</span>(<span class="ident">dh_ptr</span>))
         }
     }
 
-    <span class="macro">from_pem</span><span class="macro">!</span> {
+    <span class="macro">from_pem!</span> {
         <span class="doccomment">/// Deserializes a PEM-encoded PKCS#3 DHpararameters structure.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// The input should have a header of `-----BEGIN DH PARAMETERS-----`.</span>
@@ -611,10 +611,10 @@
         <span class="doccomment">/// [`PEM_read_bio_DHparams`]: https://www.openssl.org/docs/man1.0.2/crypto/PEM_read_bio_DHparams.html</span>
         <span class="ident">params_from_pem</span>,
         <span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>,
-        <span class="ident">ffi</span>::<span class="ident">PEM_read_bio_DHparams</span>
+        <span class="ident">ffi::PEM_read_bio_DHparams</span>
     }
 
-    <span class="macro">from_der</span><span class="macro">!</span> {
+    <span class="macro">from_der!</span> {
         <span class="doccomment">/// Deserializes a DER-encoded PKCS#3 DHparameters structure.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// This corresponds to [`d2i_DHparams`].</span>
@@ -622,15 +622,15 @@
         <span class="doccomment">/// [`d2i_DHparams`]: https://www.openssl.org/docs/man1.1.0/crypto/d2i_DHparams.html</span>
         <span class="ident">params_from_der</span>,
         <span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>,
-        <span class="ident">ffi</span>::<span class="ident">d2i_DHparams</span>
+        <span class="ident">ffi::d2i_DHparams</span>
     }
 
     <span class="doccomment">/// Requires OpenSSL 1.0.2 or newer.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl102</span>, <span class="ident">ossl110</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_1024_160</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">ffi</span>::<span class="ident">init</span>();
-            <span class="ident">cvt_p</span>(<span class="ident">ffi</span>::<span class="ident">DH_get_1024_160</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">Dh</span>::<span class="ident">from_ptr</span>(<span class="ident">p</span>))
+            <span class="ident">ffi::init</span>();
+            <span class="ident">cvt_p</span>(<span class="ident">ffi::DH_get_1024_160</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">Dh::from_ptr</span>(<span class="ident">p</span>))
         }
     }
 
@@ -638,8 +638,8 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl102</span>, <span class="ident">ossl110</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_2048_224</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">ffi</span>::<span class="ident">init</span>();
-            <span class="ident">cvt_p</span>(<span class="ident">ffi</span>::<span class="ident">DH_get_2048_224</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">Dh</span>::<span class="ident">from_ptr</span>(<span class="ident">p</span>))
+            <span class="ident">ffi::init</span>();
+            <span class="ident">cvt_p</span>(<span class="ident">ffi::DH_get_2048_224</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">Dh::from_ptr</span>(<span class="ident">p</span>))
         }
     }
 
@@ -647,8 +647,8 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl102</span>, <span class="ident">ossl110</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_2048_256</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Dh</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">ffi</span>::<span class="ident">init</span>();
-            <span class="ident">cvt_p</span>(<span class="ident">ffi</span>::<span class="ident">DH_get_2048_256</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">Dh</span>::<span class="ident">from_ptr</span>(<span class="ident">p</span>))
+            <span class="ident">ffi::init</span>();
+            <span class="ident">cvt_p</span>(<span class="ident">ffi::DH_get_2048_256</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">Dh::from_ptr</span>(<span class="ident">p</span>))
         }
     }
 }
@@ -663,10 +663,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`DH_get0_pqg`]: https://www.openssl.org/docs/man1.1.0/crypto/DH_get0_pqg.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prime_p</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">BigNumRef</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">null</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">ptr::null</span>();
         <span class="kw">unsafe</span> {
-            <span class="ident">DH_get0_pqg</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">p</span>, <span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="ident">ptr</span>::<span class="ident">null_mut</span>());
-            <span class="ident">BigNumRef</span>::<span class="ident">from_ptr</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>)
+            <span class="ident">DH_get0_pqg</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">p</span>, <span class="ident">ptr::null_mut</span>(), <span class="ident">ptr::null_mut</span>());
+            <span class="ident">BigNumRef::from_ptr</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>)
         }
     }
 
@@ -676,13 +676,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`DH_get0_pqg`]: https://www.openssl.org/docs/man1.1.0/crypto/DH_get0_pqg.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prime_q</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BigNumRef</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">null</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">ptr::null</span>();
         <span class="kw">unsafe</span> {
-            <span class="ident">DH_get0_pqg</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">q</span>, <span class="ident">ptr</span>::<span class="ident">null_mut</span>());
+            <span class="ident">DH_get0_pqg</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr::null_mut</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">q</span>, <span class="ident">ptr::null_mut</span>());
             <span class="kw">if</span> <span class="ident">q</span>.<span class="ident">is_null</span>() {
                 <span class="prelude-val">None</span>
             } <span class="kw">else</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">BigNumRef</span>::<span class="ident">from_ptr</span>(<span class="ident">q</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">BigNumRef::from_ptr</span>(<span class="ident">q</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>))
             }
         }
     }
@@ -693,10 +693,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`DH_get0_pqg`]: https://www.openssl.org/docs/man1.1.0/crypto/DH_get0_pqg.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">BigNumRef</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">g</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">null</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">g</span> <span class="op">=</span> <span class="ident">ptr::null</span>();
         <span class="kw">unsafe</span> {
-            <span class="ident">DH_get0_pqg</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">g</span>);
-            <span class="ident">BigNumRef</span>::<span class="ident">from_ptr</span>(<span class="ident">g</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>)
+            <span class="ident">DH_get0_pqg</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr::null_mut</span>(), <span class="ident">ptr::null_mut</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">g</span>);
+            <span class="ident">BigNumRef::from_ptr</span>(<span class="ident">g</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>)
         }
     }
 }
@@ -711,10 +711,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`DH_get0_key`]: https://www.openssl.org/docs/man1.1.0/crypto/DH_get0_key.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">public_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">BigNumRef</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pub_key</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">null</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pub_key</span> <span class="op">=</span> <span class="ident">ptr::null</span>();
         <span class="kw">unsafe</span> {
-            <span class="ident">DH_get0_key</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pub_key</span>, <span class="ident">ptr</span>::<span class="ident">null_mut</span>());
-            <span class="ident">BigNumRef</span>::<span class="ident">from_ptr</span>(<span class="ident">pub_key</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>)
+            <span class="ident">DH_get0_key</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pub_key</span>, <span class="ident">ptr::null_mut</span>());
+            <span class="ident">BigNumRef::from_ptr</span>(<span class="ident">pub_key</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>)
         }
     }
 }
@@ -730,9 +730,9 @@
     <span class="doccomment">/// [`DH_compute_key`]: https://www.openssl.org/docs/man1.1.0/crypto/DH_compute_key.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compute_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">public_key</span>: <span class="kw-2">&amp;</span><span class="ident">BigNumRef</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">key_len</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">DH_size</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>());
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0u8</span>; <span class="ident">key_len</span> <span class="kw">as</span> <span class="ident">usize</span>];
-            <span class="ident">cvt</span>(<span class="ident">ffi</span>::<span class="ident">DH_compute_key</span>(
+            <span class="kw">let</span> <span class="ident">key_len</span> <span class="op">=</span> <span class="ident">ffi::DH_size</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>());
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0u8</span>; <span class="ident">key_len</span> <span class="kw">as</span> <span class="ident">usize</span>];
+            <span class="ident">cvt</span>(<span class="ident">ffi::DH_compute_key</span>(
                 <span class="ident">key</span>.<span class="ident">as_mut_ptr</span>(),
                 <span class="ident">public_key</span>.<span class="ident">as_ptr</span>(),
                 <span class="self">self</span>.<span class="ident">as_ptr</span>(),
@@ -747,25 +747,25 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`DH_get0_key`]: https://www.openssl.org/docs/man1.1.0/crypto/DH_get0_key.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">private_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">BigNumRef</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">priv_key</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">null</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">priv_key</span> <span class="op">=</span> <span class="ident">ptr::null</span>();
         <span class="kw">unsafe</span> {
-            <span class="ident">DH_get0_key</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">priv_key</span>);
-            <span class="ident">BigNumRef</span>::<span class="ident">from_ptr</span>(<span class="ident">priv_key</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>)
+            <span class="ident">DH_get0_key</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr::null_mut</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">priv_key</span>);
+            <span class="ident">BigNumRef::from_ptr</span>(<span class="ident">priv_key</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>)
         }
     }
 }
 
-<span class="macro">cfg_if</span><span class="macro">!</span> {
+<span class="macro">cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">libressl270</span>))]</span> {
         <span class="kw">use</span> <span class="ident">ffi</span>::{<span class="ident">DH_set0_pqg</span>, <span class="ident">DH_get0_pqg</span>, <span class="ident">DH_get0_key</span>, <span class="ident">DH_set0_key</span>};
     } <span class="kw">else</span> {
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
         <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">DH_set0_pqg</span>(
-            <span class="ident">dh</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">DH</span>,
-            <span class="ident">p</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
-            <span class="ident">q</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
-            <span class="ident">g</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">libc</span>::<span class="ident">c_int</span> {
+            <span class="ident">dh</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::DH</span>,
+            <span class="ident">p</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BIGNUM</span>,
+            <span class="ident">q</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BIGNUM</span>,
+            <span class="ident">g</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BIGNUM</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::libc::c_int</span> {
             (<span class="kw-2">*</span><span class="ident">dh</span>).<span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>;
             (<span class="kw-2">*</span><span class="ident">dh</span>).<span class="ident">q</span> <span class="op">=</span> <span class="ident">q</span>;
             (<span class="kw-2">*</span><span class="ident">dh</span>).<span class="ident">g</span> <span class="op">=</span> <span class="ident">g</span>;
@@ -774,10 +774,10 @@
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
         <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">DH_get0_pqg</span>(
-            <span class="ident">dh</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">DH</span>,
-            <span class="ident">p</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
-            <span class="ident">q</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
-            <span class="ident">g</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
+            <span class="ident">dh</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::DH</span>,
+            <span class="ident">p</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BIGNUM</span>,
+            <span class="ident">q</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BIGNUM</span>,
+            <span class="ident">g</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BIGNUM</span>,
         ) {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">p</span>.<span class="ident">is_null</span>() {
                 <span class="kw-2">*</span><span class="ident">p</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">dh</span>).<span class="ident">p</span>;
@@ -792,10 +792,10 @@
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
         <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">DH_set0_key</span>(
-            <span class="ident">dh</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">DH</span>,
-            <span class="ident">pub_key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
-            <span class="ident">priv_key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">libc</span>::<span class="ident">c_int</span> {
+            <span class="ident">dh</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::DH</span>,
+            <span class="ident">pub_key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BIGNUM</span>,
+            <span class="ident">priv_key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BIGNUM</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::libc::c_int</span> {
             (<span class="kw-2">*</span><span class="ident">dh</span>).<span class="ident">pub_key</span> <span class="op">=</span> <span class="ident">pub_key</span>;
             (<span class="kw-2">*</span><span class="ident">dh</span>).<span class="ident">priv_key</span> <span class="op">=</span> <span class="ident">priv_key</span>;
             <span class="number">1</span>
@@ -803,9 +803,9 @@
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
         <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">DH_get0_key</span>(
-            <span class="ident">dh</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">DH</span>,
-            <span class="ident">pub_key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
-            <span class="ident">priv_key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BIGNUM</span>,
+            <span class="ident">dh</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::DH</span>,
+            <span class="ident">pub_key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BIGNUM</span>,
+            <span class="ident">priv_key</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BIGNUM</span>,
         ) {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">pub_key</span>.<span class="ident">is_null</span>() {
                 <span class="kw-2">*</span><span class="ident">pub_key</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">dh</span>).<span class="ident">pub_key</span>;
@@ -819,24 +819,24 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">bn</span>::<span class="ident">BigNum</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">dh</span>::<span class="ident">Dh</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ssl</span>::{<span class="ident">SslContext</span>, <span class="ident">SslMethod</span>};
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::bn::BigNum</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::dh::Dh</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ssl</span>::{<span class="ident">SslContext</span>, <span class="ident">SslMethod</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl102</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_dh_rfc5114</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">SslContext</span>::<span class="ident">builder</span>(<span class="ident">SslMethod</span>::<span class="ident">tls</span>()).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">dh2</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">get_2048_224</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">SslContext::builder</span>(<span class="ident">SslMethod::tls</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">dh2</span> <span class="op">=</span> <span class="ident">Dh::get_2048_224</span>().<span class="ident">unwrap</span>();
         <span class="ident">ctx</span>.<span class="ident">set_tmp_dh</span>(<span class="kw-2">&amp;</span><span class="ident">dh2</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">dh3</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">get_2048_256</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">dh3</span> <span class="op">=</span> <span class="ident">Dh::get_2048_256</span>().<span class="ident">unwrap</span>();
         <span class="ident">ctx</span>.<span class="ident">set_tmp_dh</span>(<span class="kw-2">&amp;</span><span class="ident">dh3</span>).<span class="ident">unwrap</span>();
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_dh_params</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">SslContext</span>::<span class="ident">builder</span>(<span class="ident">SslMethod</span>::<span class="ident">tls</span>()).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">prime_p</span> <span class="op">=</span> <span class="ident">BigNum</span>::<span class="ident">from_hex_str</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">SslContext::builder</span>(<span class="ident">SslMethod::tls</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">prime_p</span> <span class="op">=</span> <span class="ident">BigNum::from_hex_str</span>(
             <span class="string">&quot;87A8E61DB4B6663CFFBBD19C651959998CEEF608660DD0F25D2CEED4435E3B00E00DF8F1D61957D4FAF7DF\
              4561B2AA3016C3D91134096FAA3BF4296D830E9A7C209E0C6497517ABD5A8A9D306BCF67ED91F9E6725B47\
              58C022E0B1EF4275BF7B6C5BFC11D45F9088B941F54EB1E59BB8BC39A0BF12307F5C4FDB70C581B23F76B6\
@@ -844,7 +844,7 @@
              140564251CCACB83E6B486F6B3CA3F7971506026C0B857F689962856DED4010ABD0BE621C3A3960A54E710\
              C375F26375D7014103A4B54330C198AF126116D2276E11715F693877FAD7EF09CADB094AE91E1A1597&quot;</span>,
         ).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">prime_q</span> <span class="op">=</span> <span class="ident">BigNum</span>::<span class="ident">from_hex_str</span>(
+        <span class="kw">let</span> <span class="ident">prime_q</span> <span class="op">=</span> <span class="ident">BigNum::from_hex_str</span>(
             <span class="string">&quot;3FB32C9B73134D0B2E77506660EDBD484CA7B18F21EF205407F4793A1A0BA12510DBC15077BE463FFF4FED\
              4AAC0BB555BE3A6C1B0C6B47B1BC3773BF7E8C6F62901228F8C28CBB18A55AE31341000A650196F931C77A\
              57F2DDF463E5E9EC144B777DE62AAAB8A8628AC376D282D6ED3864E67982428EBC831D14348F6F2F9193B5\
@@ -852,11 +852,11 @@
              052588B9B7D2BBD2DF016199ECD06E1557CD0915B3353BBB64E0EC377FD028370DF92B52C7891428CDC67E\
              B6184B523D1DB246C32F63078490F00EF8D647D148D47954515E2327CFEF98C582664B4C0F6CC41659&quot;</span>,
         ).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">generator</span> <span class="op">=</span> <span class="ident">BigNum</span>::<span class="ident">from_hex_str</span>(
+        <span class="kw">let</span> <span class="ident">generator</span> <span class="op">=</span> <span class="ident">BigNum::from_hex_str</span>(
             <span class="string">&quot;8CF83642A709A097B447997640129DA299B1A47D1EB3750BA308B0FE64F5FBD3&quot;</span>,
         )
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">from_params</span>(
+        <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh::from_params</span>(
             <span class="ident">prime_p</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
             <span class="ident">generator</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
             <span class="ident">prime_q</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
@@ -864,14 +864,14 @@
         .<span class="ident">unwrap</span>();
         <span class="ident">ctx</span>.<span class="ident">set_tmp_dh</span>(<span class="kw-2">&amp;</span><span class="ident">dh</span>).<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">dh</span>.<span class="ident">prime_p</span>(), <span class="kw-2">&amp;</span><span class="ident">prime_p</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">dh</span>.<span class="ident">prime_q</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">prime_q</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">dh</span>.<span class="ident">generator</span>(), <span class="kw-2">&amp;</span><span class="ident">generator</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">dh</span>.<span class="ident">prime_p</span>(), <span class="kw-2">&amp;</span><span class="ident">prime_p</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">dh</span>.<span class="ident">prime_q</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">prime_q</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">dh</span>.<span class="ident">generator</span>(), <span class="kw-2">&amp;</span><span class="ident">generator</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_dh_stored_restored</span>() {
-        <span class="kw">let</span> <span class="ident">prime_p</span> <span class="op">=</span> <span class="ident">BigNum</span>::<span class="ident">from_hex_str</span>(
+        <span class="kw">let</span> <span class="ident">prime_p</span> <span class="op">=</span> <span class="ident">BigNum::from_hex_str</span>(
             <span class="string">&quot;87A8E61DB4B6663CFFBBD19C651959998CEEF608660DD0F25D2CEED4435E3B00E00DF8F1D61957D4FAF7DF\
              4561B2AA3016C3D91134096FAA3BF4296D830E9A7C209E0C6497517ABD5A8A9D306BCF67ED91F9E6725B47\
              58C022E0B1EF4275BF7B6C5BFC11D45F9088B941F54EB1E59BB8BC39A0BF12307F5C4FDB70C581B23F76B6\
@@ -879,7 +879,7 @@
              140564251CCACB83E6B486F6B3CA3F7971506026C0B857F689962856DED4010ABD0BE621C3A3960A54E710\
              C375F26375D7014103A4B54330C198AF126116D2276E11715F693877FAD7EF09CADB094AE91E1A1597&quot;</span>,
         ).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">prime_q</span> <span class="op">=</span> <span class="ident">BigNum</span>::<span class="ident">from_hex_str</span>(
+        <span class="kw">let</span> <span class="ident">prime_q</span> <span class="op">=</span> <span class="ident">BigNum::from_hex_str</span>(
             <span class="string">&quot;3FB32C9B73134D0B2E77506660EDBD484CA7B18F21EF205407F4793A1A0BA12510DBC15077BE463FFF4FED\
              4AAC0BB555BE3A6C1B0C6B47B1BC3773BF7E8C6F62901228F8C28CBB18A55AE31341000A650196F931C77A\
              57F2DDF463E5E9EC144B777DE62AAAB8A8628AC376D282D6ED3864E67982428EBC831D14348F6F2F9193B5\
@@ -887,11 +887,11 @@
              052588B9B7D2BBD2DF016199ECD06E1557CD0915B3353BBB64E0EC377FD028370DF92B52C7891428CDC67E\
              B6184B523D1DB246C32F63078490F00EF8D647D148D47954515E2327CFEF98C582664B4C0F6CC41659&quot;</span>,
         ).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">generator</span> <span class="op">=</span> <span class="ident">BigNum</span>::<span class="ident">from_hex_str</span>(
+        <span class="kw">let</span> <span class="ident">generator</span> <span class="op">=</span> <span class="ident">BigNum::from_hex_str</span>(
             <span class="string">&quot;8CF83642A709A097B447997640129DA299B1A47D1EB3750BA308B0FE64F5FBD3&quot;</span>,
         )
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">dh1</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">from_params</span>(
+        <span class="kw">let</span> <span class="ident">dh1</span> <span class="op">=</span> <span class="ident">Dh::from_params</span>(
             <span class="ident">prime_p</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
             <span class="ident">generator</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
             <span class="ident">prime_q</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
@@ -899,7 +899,7 @@
         .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">key1</span> <span class="op">=</span> <span class="ident">dh1</span>.<span class="ident">generate_key</span>().<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">dh2</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">from_params</span>(
+        <span class="kw">let</span> <span class="ident">dh2</span> <span class="op">=</span> <span class="ident">Dh::from_params</span>(
             <span class="ident">prime_p</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
             <span class="ident">generator</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
             <span class="ident">prime_q</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
@@ -909,42 +909,42 @@
             .<span class="ident">set_private_key</span>(<span class="ident">key1</span>.<span class="ident">private_key</span>().<span class="ident">to_owned</span>().<span class="ident">unwrap</span>())
             .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">key1</span>.<span class="ident">public_key</span>(), <span class="ident">key2</span>.<span class="ident">public_key</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">key1</span>.<span class="ident">private_key</span>(), <span class="ident">key2</span>.<span class="ident">private_key</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">key1</span>.<span class="ident">public_key</span>(), <span class="ident">key2</span>.<span class="ident">public_key</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">key1</span>.<span class="ident">private_key</span>(), <span class="ident">key2</span>.<span class="ident">private_key</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_dh_from_pem</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">SslContext</span>::<span class="ident">builder</span>(<span class="ident">SslMethod</span>::<span class="ident">tls</span>()).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../test/dhparams.pem&quot;</span>);
-        <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">params_from_pem</span>(<span class="ident">params</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">SslContext::builder</span>(<span class="ident">SslMethod::tls</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/dhparams.pem&quot;</span>);
+        <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh::params_from_pem</span>(<span class="ident">params</span>).<span class="ident">unwrap</span>();
         <span class="ident">ctx</span>.<span class="ident">set_tmp_dh</span>(<span class="kw-2">&amp;</span><span class="ident">dh</span>).<span class="ident">unwrap</span>();
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_dh_from_der</span>() {
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;../test/dhparams.pem&quot;</span>);
-        <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">params_from_pem</span>(<span class="ident">params</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/dhparams.pem&quot;</span>);
+        <span class="kw">let</span> <span class="ident">dh</span> <span class="op">=</span> <span class="ident">Dh::params_from_pem</span>(<span class="ident">params</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">der</span> <span class="op">=</span> <span class="ident">dh</span>.<span class="ident">params_to_der</span>().<span class="ident">unwrap</span>();
-        <span class="ident">Dh</span>::<span class="ident">params_from_der</span>(<span class="kw-2">&amp;</span><span class="ident">der</span>).<span class="ident">unwrap</span>();
+        <span class="ident">Dh::params_from_der</span>(<span class="kw-2">&amp;</span><span class="ident">der</span>).<span class="ident">unwrap</span>();
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl102</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_dh_generate_key_compute_key</span>() {
-        <span class="kw">let</span> <span class="ident">dh1</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">get_2048_224</span>().<span class="ident">unwrap</span>().<span class="ident">generate_key</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">dh2</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">get_2048_224</span>().<span class="ident">unwrap</span>().<span class="ident">generate_key</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">dh1</span> <span class="op">=</span> <span class="ident">Dh::get_2048_224</span>().<span class="ident">unwrap</span>().<span class="ident">generate_key</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">dh2</span> <span class="op">=</span> <span class="ident">Dh::get_2048_224</span>().<span class="ident">unwrap</span>().<span class="ident">generate_key</span>().<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">shared_a</span> <span class="op">=</span> <span class="ident">dh1</span>.<span class="ident">compute_key</span>(<span class="ident">dh2</span>.<span class="ident">public_key</span>()).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">shared_b</span> <span class="op">=</span> <span class="ident">dh2</span>.<span class="ident">compute_key</span>(<span class="ident">dh1</span>.<span class="ident">public_key</span>()).<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">shared_a</span>, <span class="ident">shared_b</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">shared_a</span>, <span class="ident">shared_b</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_dh_generate_params_generate_key_compute_key</span>() {
-        <span class="kw">let</span> <span class="ident">dh_params1</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">generate_params</span>(<span class="number">512</span>, <span class="number">2</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">dh_params2</span> <span class="op">=</span> <span class="ident">Dh</span>::<span class="ident">from_pqg</span>(
+        <span class="kw">let</span> <span class="ident">dh_params1</span> <span class="op">=</span> <span class="ident">Dh::generate_params</span>(<span class="number">512</span>, <span class="number">2</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">dh_params2</span> <span class="op">=</span> <span class="ident">Dh::from_pqg</span>(
             <span class="ident">dh_params1</span>.<span class="ident">prime_p</span>().<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
             <span class="prelude-val">None</span>,
             <span class="ident">dh_params1</span>.<span class="ident">generator</span>().<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
@@ -957,9 +957,9 @@
         <span class="kw">let</span> <span class="ident">shared_a</span> <span class="op">=</span> <span class="ident">dh1</span>.<span class="ident">compute_key</span>(<span class="ident">dh2</span>.<span class="ident">public_key</span>()).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">shared_b</span> <span class="op">=</span> <span class="ident">dh2</span>.<span class="ident">compute_key</span>(<span class="ident">dh1</span>.<span class="ident">public_key</span>()).<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">shared_a</span>, <span class="ident">shared_b</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">shared_a</span>, <span class="ident">shared_b</span>);
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="openssl" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="openssl" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

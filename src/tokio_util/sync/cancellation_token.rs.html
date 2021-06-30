@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-util-0.6.7/src/sync/cancellation_token.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cancellation_token.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio_util/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio_util/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -872,15 +872,15 @@
 <span class="doccomment">//! An asynchronously awaitable `CancellationToken`.</span>
 <span class="doccomment">//! The token allows to signal a cancellation request to one or more tasks.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::<span class="ident">AtomicUsize</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">intrusive_double_linked_list</span>::{<span class="ident">LinkedList</span>, <span class="ident">ListNode</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic::AtomicUsize</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::Mutex</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::intrusive_double_linked_list</span>::{<span class="ident">LinkedList</span>, <span class="ident">ListNode</span>};
 
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::<span class="ident">Ordering</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
+<span class="kw">use</span> <span class="ident">core::future::Future</span>;
+<span class="kw">use</span> <span class="ident">core::pin::Pin</span>;
+<span class="kw">use</span> <span class="ident">core::ptr::NonNull</span>;
+<span class="kw">use</span> <span class="ident">core::sync::atomic::Ordering</span>;
+<span class="kw">use</span> <span class="ident">core::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
 
 <span class="doccomment">/// A token which can be used to signal a cancellation request to one or more</span>
 <span class="doccomment">/// tasks.</span>
@@ -950,8 +950,8 @@
 
 <span class="comment">// ===== impl CancellationToken =====</span>
 
-<span class="kw">impl</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">CancellationToken</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">CancellationToken</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;CancellationToken&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;is_cancelled&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">is_cancelled</span>())
             .<span class="ident">finish</span>()
@@ -1002,17 +1002,17 @@
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">CancellationToken</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CancellationToken</span> {
-        <span class="ident">CancellationToken</span>::<span class="ident">new</span>()
+        <span class="ident">CancellationToken::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">CancellationToken</span> {
     <span class="doccomment">/// Creates a new CancellationToken in the non-cancelled state.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CancellationToken</span> {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">CancellationTokenState</span>::<span class="ident">new</span>(
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">CancellationTokenState::new</span>(
             <span class="prelude-val">None</span>,
             <span class="ident">StateSnapshot</span> {
-                <span class="ident">cancel_state</span>: <span class="ident">CancellationState</span>::<span class="ident">NotCancelled</span>,
+                <span class="ident">cancel_state</span>: <span class="ident">CancellationState::NotCancelled</span>,
                 <span class="ident">has_parent_ref</span>: <span class="bool-val">false</span>,
                 <span class="ident">refcount</span>: <span class="number">1</span>,
             },
@@ -1021,7 +1021,7 @@
         <span class="comment">// Safety: We just created the Box. The pointer is guaranteed to be</span>
         <span class="comment">// not null</span>
         <span class="ident">CancellationToken</span> {
-            <span class="ident">inner</span>: <span class="kw">unsafe</span> { <span class="ident">NonNull</span>::<span class="ident">new_unchecked</span>(<span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">state</span>)) },
+            <span class="ident">inner</span>: <span class="kw">unsafe</span> { <span class="ident">NonNull::new_unchecked</span>(<span class="ident">Box::into_raw</span>(<span class="ident">state</span>)) },
         }
     }
 
@@ -1081,9 +1081,9 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unpacked_child_state</span> <span class="op">=</span> <span class="ident">StateSnapshot</span> {
             <span class="ident">has_parent_ref</span>: <span class="bool-val">true</span>,
             <span class="ident">refcount</span>: <span class="number">1</span>,
-            <span class="ident">cancel_state</span>: <span class="ident">CancellationState</span>::<span class="ident">NotCancelled</span>,
+            <span class="ident">cancel_state</span>: <span class="ident">CancellationState::NotCancelled</span>,
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">child_token_state</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">CancellationTokenState</span>::<span class="ident">new</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">child_token_state</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">CancellationTokenState::new</span>(
             <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">inner</span>),
             <span class="ident">unpacked_child_state</span>,
         ));
@@ -1095,13 +1095,13 @@
                 <span class="comment">// insert the child into the list, since it would never get removed</span>
                 <span class="comment">// from the list.</span>
                 (<span class="kw-2">*</span><span class="ident">child_token_state</span>.<span class="ident">synchronized</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>()).<span class="ident">is_cancelled</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="ident">unpacked_child_state</span>.<span class="ident">cancel_state</span> <span class="op">=</span> <span class="ident">CancellationState</span>::<span class="ident">Cancelled</span>;
+                <span class="ident">unpacked_child_state</span>.<span class="ident">cancel_state</span> <span class="op">=</span> <span class="ident">CancellationState::Cancelled</span>;
                 <span class="comment">// Since it&#39;s not in the list, the parent doesn&#39;t need to retain</span>
                 <span class="comment">// a reference to it.</span>
                 <span class="ident">unpacked_child_state</span>.<span class="ident">has_parent_ref</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="ident">child_token_state</span>
                     .<span class="ident">state</span>
-                    .<span class="ident">store</span>(<span class="ident">unpacked_child_state</span>.<span class="ident">pack</span>(), <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+                    .<span class="ident">store</span>(<span class="ident">unpacked_child_state</span>.<span class="ident">pack</span>(), <span class="ident">Ordering::SeqCst</span>);
             } <span class="kw">else</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">first_child</span>) <span class="op">=</span> <span class="ident">guard</span>.<span class="ident">first_child</span> {
                     <span class="ident">child_token_state</span>.<span class="ident">from_parent</span>.<span class="ident">next_peer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">first_child</span>);
@@ -1117,10 +1117,10 @@
             }
         };
 
-        <span class="kw">let</span> <span class="ident">child_token_ptr</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">child_token_state</span>);
+        <span class="kw">let</span> <span class="ident">child_token_ptr</span> <span class="op">=</span> <span class="ident">Box::into_raw</span>(<span class="ident">child_token_state</span>);
         <span class="comment">// Safety: We just created the pointer from a `Box`</span>
         <span class="ident">CancellationToken</span> {
-            <span class="ident">inner</span>: <span class="kw">unsafe</span> { <span class="ident">NonNull</span>::<span class="ident">new_unchecked</span>(<span class="ident">child_token_ptr</span>) },
+            <span class="ident">inner</span>: <span class="kw">unsafe</span> { <span class="ident">NonNull::new_unchecked</span>(<span class="ident">child_token_ptr</span>) },
         }
     }
 
@@ -1141,7 +1141,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancelled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WaitForCancellationFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="ident">WaitForCancellationFuture</span> {
             <span class="ident">cancellation_token</span>: <span class="prelude-val">Some</span>(<span class="self">self</span>),
-            <span class="ident">wait_node</span>: <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="ident">WaitQueueEntry</span>::<span class="ident">new</span>()),
+            <span class="ident">wait_node</span>: <span class="ident">ListNode::new</span>(<span class="ident">WaitQueueEntry::new</span>()),
             <span class="ident">is_registered</span>: <span class="bool-val">false</span>,
         }
     }
@@ -1169,8 +1169,8 @@
 
 <span class="comment">// ===== impl WaitForCancellationFuture =====</span>
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">WaitForCancellationFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">WaitForCancellationFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;WaitForCancellationFuture&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -1180,7 +1180,7 @@
 
     <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Safety: We do not move anything out of `WaitForCancellationFuture`</span>
-        <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WaitForCancellationFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Pin</span>::<span class="ident">get_unchecked_mut</span>(<span class="self">self</span>) };
+        <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WaitForCancellationFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
 
         <span class="kw">let</span> <span class="ident">cancellation_token</span> <span class="op">=</span> <span class="ident">mut_self</span>
             .<span class="ident">cancellation_token</span>
@@ -1195,7 +1195,7 @@
             <span class="ident">cancellation_token</span>.<span class="ident">check_for_cancellation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>)
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(()) <span class="op">=</span> <span class="ident">poll_res</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Poll::Ready</span>(()) <span class="op">=</span> <span class="ident">poll_res</span> {
             <span class="comment">// The cancellation_token was signalled</span>
             <span class="ident">mut_self</span>.<span class="ident">cancellation_token</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="comment">// A signalled Token means the Waker won&#39;t be enqueued anymore</span>
@@ -1250,7 +1250,7 @@
     <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WaitQueueEntry</span> {
         <span class="ident">WaitQueueEntry</span> {
             <span class="ident">task</span>: <span class="prelude-val">None</span>,
-            <span class="ident">state</span>: <span class="ident">PollState</span>::<span class="ident">New</span>,
+            <span class="ident">state</span>: <span class="ident">PollState::New</span>,
         }
     }
 }
@@ -1264,7 +1264,7 @@
 <span class="kw">impl</span> <span class="ident">SynchronizedState</span> {
     <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">waiters</span>: <span class="ident">LinkedList</span>::<span class="ident">new</span>(),
+            <span class="ident">waiters</span>: <span class="ident">LinkedList::new</span>(),
             <span class="ident">first_child</span>: <span class="prelude-val">None</span>,
             <span class="ident">is_cancelled</span>: <span class="bool-val">false</span>,
         }
@@ -1293,10 +1293,10 @@
 
     <span class="kw">fn</span> <span class="ident">unpack</span>(<span class="ident">value</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CancellationState</span>::<span class="ident">NotCancelled</span>,
-            <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CancellationState</span>::<span class="ident">Cancelling</span>,
-            <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CancellationState</span>::<span class="ident">Cancelled</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;Invalid value&quot;</span>),
+            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CancellationState::NotCancelled</span>,
+            <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CancellationState::Cancelling</span>,
+            <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CancellationState::Cancelled</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Invalid value&quot;</span>),
         }
     }
 }
@@ -1324,7 +1324,7 @@
     <span class="kw">fn</span> <span class="ident">unpack</span>(<span class="ident">value</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">refcount</span> <span class="op">=</span> <span class="ident">value</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>;
         <span class="kw">let</span> <span class="ident">has_parent_ref</span> <span class="op">=</span> <span class="ident">value</span> <span class="op">&amp;</span> <span class="number">4</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="ident">cancel_state</span> <span class="op">=</span> <span class="ident">CancellationState</span>::<span class="ident">unpack</span>(<span class="ident">value</span> <span class="op">&amp;</span> <span class="number">0x03</span>);
+        <span class="kw">let</span> <span class="ident">cancel_state</span> <span class="op">=</span> <span class="ident">CancellationState::unpack</span>(<span class="ident">value</span> <span class="op">&amp;</span> <span class="number">0x03</span>);
 
         <span class="ident">StateSnapshot</span> {
             <span class="ident">refcount</span>,
@@ -1342,7 +1342,7 @@
 
 <span class="doccomment">/// The maximum permitted amount of references to a CancellationToken. This</span>
 <span class="doccomment">/// is derived from the intent to never use more than 32bit in the `Snapshot`.</span>
-<span class="kw">const</span> <span class="ident">MAX_REFS</span>: <span class="ident">u32</span> <span class="op">=</span> (<span class="ident">std</span>::<span class="ident">u32</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="number">7</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>;
+<span class="kw">const</span> <span class="ident">MAX_REFS</span>: <span class="ident">u32</span> <span class="op">=</span> (<span class="ident">std::u32::MAX</span> <span class="op">-</span> <span class="number">7</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>;
 
 <span class="doccomment">/// Internal state of the `CancellationToken` pair above</span>
 <span class="kw">struct</span> <span class="ident">CancellationTokenState</span> {
@@ -1363,14 +1363,14 @@
                 <span class="ident">prev_peer</span>: <span class="prelude-val">None</span>,
                 <span class="ident">next_peer</span>: <span class="prelude-val">None</span>,
             },
-            <span class="ident">state</span>: <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="ident">state</span>.<span class="ident">pack</span>()),
-            <span class="ident">synchronized</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">SynchronizedState</span>::<span class="ident">new</span>()),
+            <span class="ident">state</span>: <span class="ident">AtomicUsize::new</span>(<span class="ident">state</span>.<span class="ident">pack</span>()),
+            <span class="ident">synchronized</span>: <span class="ident">Mutex::new</span>(<span class="ident">SynchronizedState::new</span>()),
         }
     }
 
     <span class="doccomment">/// Returns a snapshot of the current atomic state of the token</span>
     <span class="kw">fn</span> <span class="ident">snapshot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateSnapshot</span> {
-        <span class="ident">StateSnapshot</span>::<span class="ident">unpack</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>))
+        <span class="ident">StateSnapshot::unpack</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">atomic_update_state</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">current_state</span>: <span class="ident">StateSnapshot</span>, <span class="ident">func</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateSnapshot</span>
@@ -1383,15 +1383,15 @@
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">compare_exchange</span>(
                 <span class="ident">current_packed_state</span>,
                 <span class="ident">next_state</span>.<span class="ident">pack</span>(),
-                <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>,
-                <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>,
+                <span class="ident">Ordering::SeqCst</span>,
+                <span class="ident">Ordering::SeqCst</span>,
             ) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">next_state</span>;
                 }
                 <span class="prelude-val">Err</span>(<span class="ident">actual</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">current_packed_state</span> <span class="op">=</span> <span class="ident">actual</span>;
-                    <span class="ident">current_state</span> <span class="op">=</span> <span class="ident">StateSnapshot</span>::<span class="ident">unpack</span>(<span class="ident">actual</span>);
+                    <span class="ident">current_state</span> <span class="op">=</span> <span class="ident">StateSnapshot::unpack</span>(<span class="ident">actual</span>);
                 }
             }
         }
@@ -1400,8 +1400,8 @@
     <span class="kw">fn</span> <span class="ident">increment_refcount</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current_state</span>: <span class="ident">StateSnapshot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateSnapshot</span> {
         <span class="self">self</span>.<span class="ident">atomic_update_state</span>(<span class="ident">current_state</span>, <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">state</span>: <span class="ident">StateSnapshot</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">refcount</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_REFS</span> <span class="kw">as</span> <span class="ident">usize</span> {
-                <span class="macro">eprintln</span><span class="macro">!</span>(<span class="string">&quot;[ERROR] Maximum reference count for CancellationToken was exceeded&quot;</span>);
-                <span class="ident">std</span>::<span class="ident">process</span>::<span class="ident">abort</span>();
+                <span class="macro">eprintln!</span>(<span class="string">&quot;[ERROR] Maximum reference count for CancellationToken was exceeded&quot;</span>);
+                <span class="ident">std::process::abort</span>();
             }
             <span class="ident">state</span>.<span class="ident">refcount</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="ident">state</span>
@@ -1418,7 +1418,7 @@
         <span class="kw">if</span> <span class="op">!</span><span class="ident">current_state</span>.<span class="ident">has_refs</span>() {
             <span class="comment">// Safety: `CancellationTokenState` is always stored in refcounted</span>
             <span class="comment">// Boxes</span>
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Box</span>::<span class="ident">from_raw</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="self">Self</span>) };
+            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Box::from_raw</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="self">Self</span>) };
         }
 
         <span class="ident">current_state</span>
@@ -1434,7 +1434,7 @@
         <span class="kw">if</span> <span class="op">!</span><span class="ident">current_state</span>.<span class="ident">has_refs</span>() {
             <span class="comment">// Safety: `CancellationTokenState` is always stored in refcounted</span>
             <span class="comment">// Boxes</span>
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Box</span>::<span class="ident">from_raw</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="self">Self</span>) };
+            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Box::from_raw</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="self">Self</span>) };
         }
 
         <span class="ident">current_state</span>
@@ -1457,7 +1457,7 @@
                 <span class="comment">// Safety: Since the token was not cancelled, the child must</span>
                 <span class="comment">// still be in the list and valid.</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">child_state</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">child_state</span>.<span class="ident">as_mut</span>() };
-                <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">child_state</span>.<span class="ident">snapshot</span>().<span class="ident">has_parent_ref</span>);
+                <span class="macro">debug_assert!</span>(<span class="ident">child_state</span>.<span class="ident">snapshot</span>().<span class="ident">has_parent_ref</span>);
 
                 <span class="kw">if</span> <span class="ident">guard</span>.<span class="ident">first_child</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">child_state</span>.<span class="ident">into</span>()) {
                     <span class="ident">guard</span>.<span class="ident">first_child</span> <span class="op">=</span> <span class="ident">child_state</span>.<span class="ident">from_parent</span>.<span class="ident">next_peer</span>;
@@ -1513,21 +1513,21 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">snapshot</span>();
 
         <span class="kw">let</span> <span class="ident">state_after_cancellation</span> <span class="op">=</span> <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState</span>::<span class="ident">NotCancelled</span> {
+            <span class="kw">if</span> <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState::NotCancelled</span> {
                 <span class="comment">// Another task already initiated the cancellation</span>
                 <span class="kw">return</span>;
             }
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_state</span> <span class="op">=</span> <span class="ident">current_state</span>;
-            <span class="ident">next_state</span>.<span class="ident">cancel_state</span> <span class="op">=</span> <span class="ident">CancellationState</span>::<span class="ident">Cancelling</span>;
+            <span class="ident">next_state</span>.<span class="ident">cancel_state</span> <span class="op">=</span> <span class="ident">CancellationState::Cancelling</span>;
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">compare_exchange</span>(
                 <span class="ident">current_state</span>.<span class="ident">pack</span>(),
                 <span class="ident">next_state</span>.<span class="ident">pack</span>(),
-                <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>,
-                <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>,
+                <span class="ident">Ordering::SeqCst</span>,
+                <span class="ident">Ordering::SeqCst</span>,
             ) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span> <span class="ident">next_state</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">actual</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">current_state</span> <span class="op">=</span> <span class="ident">StateSnapshot</span>::<span class="ident">unpack</span>(<span class="ident">actual</span>),
+                <span class="prelude-val">Err</span>(<span class="ident">actual</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">current_state</span> <span class="op">=</span> <span class="ident">StateSnapshot::unpack</span>(<span class="ident">actual</span>),
             }
         };
 
@@ -1573,7 +1573,7 @@
                     <span class="ident">handle</span>.<span class="ident">wake_by_ref</span>();
                 }
                 <span class="comment">// Mark the waiter to have been removed from the list.</span>
-                <span class="ident">waiter</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState</span>::<span class="ident">Done</span>;
+                <span class="ident">waiter</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
             });
 
             <span class="ident">guard</span>.<span class="ident">first_child</span>.<span class="ident">take</span>()
@@ -1605,7 +1605,7 @@
         <span class="comment">// that this wait node already had been dequeued from the list without</span>
         <span class="comment">// needing to inspect the list.</span>
         <span class="self">self</span>.<span class="ident">atomic_update_state</span>(<span class="ident">state_after_cancellation</span>, <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">state</span><span class="op">|</span> {
-            <span class="ident">state</span>.<span class="ident">cancel_state</span> <span class="op">=</span> <span class="ident">CancellationState</span>::<span class="ident">Cancelled</span>;
+            <span class="ident">state</span>.<span class="ident">cancel_state</span> <span class="op">=</span> <span class="ident">CancellationState::Cancelled</span>;
             <span class="ident">state</span>
         });
     }
@@ -1613,7 +1613,7 @@
     <span class="doccomment">/// Returns `true` if the `CancellationToken` had been cancelled</span>
     <span class="kw">fn</span> <span class="ident">is_cancelled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">current_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">snapshot</span>();
-        <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState</span>::<span class="ident">NotCancelled</span>
+        <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState::NotCancelled</span>
     }
 
     <span class="doccomment">/// Registers a waiting task at the `CancellationToken`.</span>
@@ -1624,15 +1624,15 @@
         <span class="ident">wait_node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">PollState</span>::<span class="ident">New</span>, <span class="ident">wait_node</span>.<span class="ident">state</span>);
+        <span class="macro">debug_assert_eq!</span>(<span class="ident">PollState::New</span>, <span class="ident">wait_node</span>.<span class="ident">state</span>);
         <span class="kw">let</span> <span class="ident">current_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">snapshot</span>();
 
         <span class="comment">// Perform an optimistic cancellation check before. This is not strictly</span>
         <span class="comment">// necessary since we also check for cancellation in the Mutex, but</span>
         <span class="comment">// reduces the necessary work to be performed for tasks which already</span>
         <span class="comment">// had been cancelled.</span>
-        <span class="kw">if</span> <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState</span>::<span class="ident">NotCancelled</span> {
-            <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(());
+        <span class="kw">if</span> <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState::NotCancelled</span> {
+            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(());
         }
 
         <span class="comment">// So far the token is not cancelled. However it could be cancelld before</span>
@@ -1641,14 +1641,14 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">synchronized</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
         <span class="kw">if</span> <span class="ident">guard</span>.<span class="ident">is_cancelled</span> {
             <span class="comment">// Cancellation was signalled</span>
-            <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState</span>::<span class="ident">Done</span>;
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(())
+            <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
+            <span class="ident">Poll::Ready</span>(())
         } <span class="kw">else</span> {
             <span class="comment">// Added the task to the wait queue</span>
             <span class="ident">wait_node</span>.<span class="ident">task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
-            <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState</span>::<span class="ident">Waiting</span>;
+            <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Waiting</span>;
             <span class="ident">guard</span>.<span class="ident">waiters</span>.<span class="ident">add_front</span>(<span class="ident">wait_node</span>);
-            <span class="ident">Poll</span>::<span class="ident">Pending</span>
+            <span class="ident">Poll::Pending</span>
         }
     }
 
@@ -1657,14 +1657,14 @@
         <span class="ident">wait_node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">debug_assert</span><span class="macro">!</span>(
+        <span class="macro">debug_assert!</span>(
             <span class="ident">wait_node</span>.<span class="ident">task</span>.<span class="ident">is_some</span>(),
             <span class="string">&quot;Method can only be called after task had been registered&quot;</span>
         );
 
         <span class="kw">let</span> <span class="ident">current_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">snapshot</span>();
 
-        <span class="kw">if</span> <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState</span>::<span class="ident">NotCancelled</span> {
+        <span class="kw">if</span> <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState::NotCancelled</span> {
             <span class="comment">// If the cancellation had been fully completed we know that our `Waker`</span>
             <span class="comment">// is no longer registered at the `CancellationToken`.</span>
             <span class="comment">// Otherwise the cancel call may or may not yet have iterated</span>
@@ -1672,10 +1672,10 @@
             <span class="comment">// If it hasn&#39;t yet, we need to remove it. Otherwise an attempt to</span>
             <span class="comment">// reuse the `wait_node´ might get freed due to the `WaitForCancellationFuture`</span>
             <span class="comment">// getting dropped before the cancellation had interacted with it.</span>
-            <span class="kw">if</span> <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState</span>::<span class="ident">Cancelled</span> {
+            <span class="kw">if</span> <span class="ident">current_state</span>.<span class="ident">cancel_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">CancellationState::Cancelled</span> {
                 <span class="self">self</span>.<span class="ident">unregister</span>(<span class="ident">wait_node</span>);
             }
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(())
+            <span class="ident">Poll::Ready</span>(())
         } <span class="kw">else</span> {
             <span class="comment">// Check if we need to swap the `Waker`. This will make the check more</span>
             <span class="comment">// expensive, since the `Waker` is synchronized through the Mutex.</span>
@@ -1693,9 +1693,9 @@
                     <span class="comment">// Cancellation was signalled. Since this cancellation signal</span>
                     <span class="comment">// is set inside the Mutex, the old waiter must already have</span>
                     <span class="comment">// been removed from the waiting list</span>
-                    <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">PollState</span>::<span class="ident">Done</span>, <span class="ident">wait_node</span>.<span class="ident">state</span>);
+                    <span class="macro">debug_assert_eq!</span>(<span class="ident">PollState::Done</span>, <span class="ident">wait_node</span>.<span class="ident">state</span>);
                     <span class="ident">wait_node</span>.<span class="ident">task</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="ident">Poll</span>::<span class="ident">Ready</span>(())
+                    <span class="ident">Poll::Ready</span>(())
                 } <span class="kw">else</span> {
                     <span class="comment">// The WaitForCancellationFuture is already in the queue.</span>
                     <span class="comment">// The CancellationToken can&#39;t have been cancelled,</span>
@@ -1703,18 +1703,18 @@
                     <span class="comment">// Therefore we just have to update the Waker. A follow-up</span>
                     <span class="comment">// cancellation will always use the new waker.</span>
                     <span class="ident">wait_node</span>.<span class="ident">task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
-                    <span class="ident">Poll</span>::<span class="ident">Pending</span>
+                    <span class="ident">Poll::Pending</span>
                 }
             } <span class="kw">else</span> {
                 <span class="comment">// Do nothing. If the token gets cancelled, this task will get</span>
                 <span class="comment">// woken again and can fetch the cancellation.</span>
-                <span class="ident">Poll</span>::<span class="ident">Pending</span>
+                <span class="ident">Poll::Pending</span>
             }
         }
     }
 
     <span class="kw">fn</span> <span class="ident">unregister</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">wait_node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>) {
-        <span class="macro">debug_assert</span><span class="macro">!</span>(
+        <span class="macro">debug_assert!</span>(
             <span class="ident">wait_node</span>.<span class="ident">task</span>.<span class="ident">is_some</span>(),
             <span class="string">&quot;waiter can not be active without task&quot;</span>
         );
@@ -1723,19 +1723,19 @@
         <span class="comment">// WaitForCancellationFuture only needs to get removed if it has been added to</span>
         <span class="comment">// the wait queue of the CancellationToken.</span>
         <span class="comment">// This has happened in the PollState::Waiting case.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PollState</span>::<span class="ident">Waiting</span> <span class="op">=</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PollState::Waiting</span> <span class="op">=</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
             <span class="comment">// Safety: Due to the state, we know that the node must be part</span>
             <span class="comment">// of the waiter list</span>
             <span class="kw">if</span> <span class="op">!</span><span class="kw">unsafe</span> { <span class="ident">guard</span>.<span class="ident">waiters</span>.<span class="ident">remove</span>(<span class="ident">wait_node</span>) } {
                 <span class="comment">// Panic if the address isn&#39;t found. This can only happen if the contract was</span>
                 <span class="comment">// violated, e.g. the WaitQueueEntry got moved after the initial poll.</span>
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Future could not be removed from wait queue&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">&quot;Future could not be removed from wait queue&quot;</span>);
             }
-            <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState</span>::<span class="ident">Done</span>;
+            <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
         }
         <span class="ident">wait_node</span>.<span class="ident">task</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio_util" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio_util" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

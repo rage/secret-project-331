@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.0.0-beta.3/src/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_server/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.0.0-beta.3/src/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_server/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -503,28 +503,28 @@
 <span id="502">502</span>
 <span id="503">503</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
+<span class="kw">use</span> <span class="ident">std::future::Future</span>;
+<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
+<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io</span>, <span class="ident">mem</span>};
 
-<span class="kw">use</span> <span class="ident">actix_rt</span>::<span class="ident">net</span>::<span class="ident">TcpStream</span>;
-<span class="kw">use</span> <span class="ident">actix_rt</span>::<span class="ident">time</span>::{<span class="ident">sleep_until</span>, <span class="ident">Instant</span>};
+<span class="kw">use</span> <span class="ident">actix_rt::net::TcpStream</span>;
+<span class="kw">use</span> <span class="ident">actix_rt::time</span>::{<span class="ident">sleep_until</span>, <span class="ident">Instant</span>};
 <span class="kw">use</span> <span class="ident">actix_rt</span>::{<span class="self">self</span> <span class="kw">as</span> <span class="ident">rt</span>, <span class="ident">System</span>};
 <span class="kw">use</span> <span class="ident">log</span>::{<span class="ident">error</span>, <span class="ident">info</span>};
-<span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::{<span class="ident">unbounded_channel</span>, <span class="ident">UnboundedReceiver</span>};
-<span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">sync</span>::<span class="ident">oneshot</span>;
+<span class="kw">use</span> <span class="ident">tokio::sync::mpsc</span>::{<span class="ident">unbounded_channel</span>, <span class="ident">UnboundedReceiver</span>};
+<span class="kw">use</span> <span class="ident">tokio::sync::oneshot</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">accept</span>::<span class="ident">AcceptLoop</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">config</span>::{<span class="ident">ConfiguredService</span>, <span class="ident">ServiceConfig</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">server</span>::{<span class="ident">Server</span>, <span class="ident">ServerCommand</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">service</span>::{<span class="ident">InternalServiceFactory</span>, <span class="ident">ServiceFactory</span>, <span class="ident">StreamNewService</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">signals</span>::{<span class="ident">Signal</span>, <span class="ident">Signals</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">socket</span>::{<span class="ident">MioListener</span>, <span class="ident">StdSocketAddr</span>, <span class="ident">StdTcpListener</span>, <span class="ident">ToSocketAddrs</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">socket</span>::{<span class="ident">MioTcpListener</span>, <span class="ident">MioTcpSocket</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">waker_queue</span>::{<span class="ident">WakerInterest</span>, <span class="ident">WakerQueue</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">worker</span>::{<span class="self">self</span>, <span class="ident">ServerWorker</span>, <span class="ident">ServerWorkerConfig</span>, <span class="ident">WorkerAvailability</span>, <span class="ident">WorkerHandle</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::accept::AcceptLoop</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::config</span>::{<span class="ident">ConfiguredService</span>, <span class="ident">ServiceConfig</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::server</span>::{<span class="ident">Server</span>, <span class="ident">ServerCommand</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::service</span>::{<span class="ident">InternalServiceFactory</span>, <span class="ident">ServiceFactory</span>, <span class="ident">StreamNewService</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::signals</span>::{<span class="ident">Signal</span>, <span class="ident">Signals</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::socket</span>::{<span class="ident">MioListener</span>, <span class="ident">StdSocketAddr</span>, <span class="ident">StdTcpListener</span>, <span class="ident">ToSocketAddrs</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::socket</span>::{<span class="ident">MioTcpListener</span>, <span class="ident">MioTcpSocket</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::waker_queue</span>::{<span class="ident">WakerInterest</span>, <span class="ident">WakerQueue</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::worker</span>::{<span class="self">self</span>, <span class="ident">ServerWorker</span>, <span class="ident">ServerWorkerConfig</span>, <span class="ident">WorkerAvailability</span>, <span class="ident">WorkerHandle</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">join_all</span>, <span class="ident">Token</span>};
 
 <span class="doccomment">/// Server builder</span>
@@ -540,13 +540,13 @@
     <span class="ident">no_signals</span>: <span class="ident">bool</span>,
     <span class="ident">cmd</span>: <span class="ident">UnboundedReceiver</span><span class="op">&lt;</span><span class="ident">ServerCommand</span><span class="op">&gt;</span>,
     <span class="ident">server</span>: <span class="ident">Server</span>,
-    <span class="ident">notify</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">oneshot</span>::<span class="ident">Sender</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">notify</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">oneshot::Sender</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">worker_config</span>: <span class="ident">ServerWorkerConfig</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ServerBuilder</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>()
+        <span class="self">Self</span><span class="ident">::new</span>()
     }
 }
 
@@ -554,22 +554,22 @@
     <span class="doccomment">/// Create new Server builder instance</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ServerBuilder</span> {
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">unbounded_channel</span>();
-        <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">Server</span>::<span class="ident">new</span>(<span class="ident">tx</span>);
+        <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">Server::new</span>(<span class="ident">tx</span>);
 
         <span class="ident">ServerBuilder</span> {
-            <span class="ident">threads</span>: <span class="ident">num_cpus</span>::<span class="ident">get</span>(),
-            <span class="ident">token</span>: <span class="ident">Token</span>::<span class="ident">default</span>(),
-            <span class="ident">handles</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">services</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">sockets</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">accept</span>: <span class="ident">AcceptLoop</span>::<span class="ident">new</span>(<span class="ident">server</span>.<span class="ident">clone</span>()),
+            <span class="ident">threads</span>: <span class="ident">num_cpus::get</span>(),
+            <span class="ident">token</span>: <span class="ident">Token::default</span>(),
+            <span class="ident">handles</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">services</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">sockets</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">accept</span>: <span class="ident">AcceptLoop::new</span>(<span class="ident">server</span>.<span class="ident">clone</span>()),
             <span class="ident">backlog</span>: <span class="number">2048</span>,
             <span class="ident">exit</span>: <span class="bool-val">false</span>,
             <span class="ident">no_signals</span>: <span class="bool-val">false</span>,
             <span class="ident">cmd</span>: <span class="ident">rx</span>,
-            <span class="ident">notify</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">notify</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">server</span>,
-            <span class="ident">worker_config</span>: <span class="ident">ServerWorkerConfig</span>::<span class="ident">default</span>(),
+            <span class="ident">worker_config</span>: <span class="ident">ServerWorkerConfig::default</span>(),
         }
     }
 
@@ -578,7 +578,7 @@
     <span class="doccomment">/// By default server uses number of available logical cpu as workers</span>
     <span class="doccomment">/// count. Workers must be greater than 0.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">workers</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">num</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">num</span>, <span class="number">0</span>, <span class="string">&quot;workers must be greater than 0&quot;</span>);
+        <span class="macro">assert_ne!</span>(<span class="ident">num</span>, <span class="number">0</span>, <span class="string">&quot;workers must be greater than 0&quot;</span>);
         <span class="self">self</span>.<span class="ident">threads</span> <span class="op">=</span> <span class="ident">num</span>;
         <span class="self">self</span>
     }
@@ -623,7 +623,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default max connections is set to a 25k per worker.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maxconn</span>(<span class="self">self</span>, <span class="ident">num</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">worker</span>::<span class="ident">max_concurrent_connections</span>(<span class="ident">num</span>);
+        <span class="ident">worker::max_concurrent_connections</span>(<span class="ident">num</span>);
         <span class="self">self</span>
     }
 
@@ -648,7 +648,7 @@
     <span class="doccomment">/// By default shutdown timeout sets to 30 seconds.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shutdown_timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">sec</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">worker_config</span>
-            .<span class="ident">shutdown_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="ident">sec</span>));
+            .<span class="ident">shutdown_timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="ident">sec</span>));
         <span class="self">self</span>
     }
 
@@ -657,22 +657,22 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This function is useful for moving parts of configuration to a</span>
     <span class="doccomment">/// different module or even library.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">configure</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServerBuilder</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">configure</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">ServerBuilder</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="ident">ServiceConfig</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">threads</span>, <span class="self">self</span>.<span class="ident">backlog</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="ident">ServiceConfig::new</span>(<span class="self">self</span>.<span class="ident">threads</span>, <span class="self">self</span>.<span class="ident">backlog</span>);
 
         <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cfg</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">apply</span>) <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">apply</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">ConfiguredService</span>::<span class="ident">new</span>(<span class="ident">apply</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">ConfiguredService::new</span>(<span class="ident">apply</span>);
             <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">lst</span>) <span class="kw">in</span> <span class="ident">cfg</span>.<span class="ident">services</span> {
                 <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">next</span>();
                 <span class="ident">srv</span>.<span class="ident">stream</span>(<span class="ident">token</span>, <span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">lst</span>.<span class="ident">local_addr</span>()<span class="question-mark">?</span>);
-                <span class="self">self</span>.<span class="ident">sockets</span>.<span class="ident">push</span>((<span class="ident">token</span>, <span class="ident">name</span>, <span class="ident">MioListener</span>::<span class="ident">Tcp</span>(<span class="ident">lst</span>)));
+                <span class="self">self</span>.<span class="ident">sockets</span>.<span class="ident">push</span>((<span class="ident">token</span>, <span class="ident">name</span>, <span class="ident">MioListener::Tcp</span>(<span class="ident">lst</span>)));
             }
-            <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">push</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">srv</span>));
+            <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">push</span>(<span class="ident">Box::new</span>(<span class="ident">srv</span>));
         }
         <span class="self">self</span>.<span class="ident">threads</span> <span class="op">=</span> <span class="ident">cfg</span>.<span class="ident">threads</span>;
 
@@ -680,7 +680,7 @@
     }
 
     <span class="doccomment">/// Add new service to the server.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>, <span class="ident">N</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">addr</span>: <span class="ident">U</span>, <span class="ident">factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>, <span class="ident">N</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">addr</span>: <span class="ident">U</span>, <span class="ident">factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>,
         <span class="ident">U</span>: <span class="ident">ToSocketAddrs</span>,
@@ -689,36 +689,36 @@
 
         <span class="kw">for</span> <span class="ident">lst</span> <span class="kw">in</span> <span class="ident">sockets</span> {
             <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">next</span>();
-            <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">push</span>(<span class="ident">StreamNewService</span>::<span class="ident">create</span>(
+            <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">push</span>(<span class="ident">StreamNewService::create</span>(
                 <span class="ident">name</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(),
                 <span class="ident">token</span>,
                 <span class="ident">factory</span>.<span class="ident">clone</span>(),
                 <span class="ident">lst</span>.<span class="ident">local_addr</span>()<span class="question-mark">?</span>,
             ));
             <span class="self">self</span>.<span class="ident">sockets</span>
-                .<span class="ident">push</span>((<span class="ident">token</span>, <span class="ident">name</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(), <span class="ident">MioListener</span>::<span class="ident">Tcp</span>(<span class="ident">lst</span>)));
+                .<span class="ident">push</span>((<span class="ident">token</span>, <span class="ident">name</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(), <span class="ident">MioListener::Tcp</span>(<span class="ident">lst</span>)));
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Add new unix domain service to the server.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_uds</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>, <span class="ident">N</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">addr</span>: <span class="ident">U</span>, <span class="ident">factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_uds</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>, <span class="ident">N</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">addr</span>: <span class="ident">U</span>, <span class="ident">factory</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">actix_rt</span>::<span class="ident">net</span>::<span class="ident">UnixStream</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">actix_rt::net::UnixStream</span><span class="op">&gt;</span>,
         <span class="ident">N</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
-        <span class="ident">U</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span><span class="op">&gt;</span>,
+        <span class="ident">U</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">std::path::Path</span><span class="op">&gt;</span>,
     {
         <span class="comment">// The path must not exist when we try to bind.</span>
         <span class="comment">// Try to remove it to avoid bind error.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">remove_file</span>(<span class="ident">addr</span>.<span class="ident">as_ref</span>()) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">std::fs::remove_file</span>(<span class="ident">addr</span>.<span class="ident">as_ref</span>()) {
             <span class="comment">// NotFound is expected and not an issue. Anything else is.</span>
-            <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">NotFound</span> {
+            <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">std::io::ErrorKind::NotFound</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
             }
         }
 
-        <span class="kw">let</span> <span class="ident">lst</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">socket</span>::<span class="ident">StdUnixListener</span>::<span class="ident">bind</span>(<span class="ident">addr</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">lst</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::socket::StdUnixListener::bind</span>(<span class="ident">addr</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">listen_uds</span>(<span class="ident">name</span>, <span class="ident">lst</span>, <span class="ident">factory</span>)
     }
 
@@ -729,24 +729,24 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">listen_uds</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">N</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">name</span>: <span class="ident">N</span>,
-        <span class="ident">lst</span>: <span class="kw">crate</span>::<span class="ident">socket</span>::<span class="ident">StdUnixListener</span>,
+        <span class="ident">lst</span>: <span class="kw">crate</span><span class="ident">::socket::StdUnixListener</span>,
         <span class="ident">factory</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">actix_rt</span>::<span class="ident">net</span>::<span class="ident">UnixStream</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">actix_rt::net::UnixStream</span><span class="op">&gt;</span>,
     {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">net</span>::{<span class="ident">IpAddr</span>, <span class="ident">Ipv4Addr</span>};
+        <span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">IpAddr</span>, <span class="ident">Ipv4Addr</span>};
         <span class="ident">lst</span>.<span class="ident">set_nonblocking</span>(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">next</span>();
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">StdSocketAddr</span>::<span class="ident">new</span>(<span class="ident">IpAddr</span>::<span class="ident">V4</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">new</span>(<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>)), <span class="number">8080</span>);
-        <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">push</span>(<span class="ident">StreamNewService</span>::<span class="ident">create</span>(
+        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">StdSocketAddr::new</span>(<span class="ident">IpAddr::V4</span>(<span class="ident">Ipv4Addr::new</span>(<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>)), <span class="number">8080</span>);
+        <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">push</span>(<span class="ident">StreamNewService::create</span>(
             <span class="ident">name</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(),
             <span class="ident">token</span>,
             <span class="ident">factory</span>,
             <span class="ident">addr</span>,
         ));
         <span class="self">self</span>.<span class="ident">sockets</span>
-            .<span class="ident">push</span>((<span class="ident">token</span>, <span class="ident">name</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(), <span class="ident">MioListener</span>::<span class="ident">from</span>(<span class="ident">lst</span>)));
+            .<span class="ident">push</span>((<span class="ident">token</span>, <span class="ident">name</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(), <span class="ident">MioListener::from</span>(<span class="ident">lst</span>)));
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
@@ -756,7 +756,7 @@
         <span class="ident">name</span>: <span class="ident">N</span>,
         <span class="ident">lst</span>: <span class="ident">StdTcpListener</span>,
         <span class="ident">factory</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>,
     {
@@ -764,7 +764,7 @@
         <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">lst</span>.<span class="ident">local_addr</span>()<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">next</span>();
-        <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">push</span>(<span class="ident">StreamNewService</span>::<span class="ident">create</span>(
+        <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">push</span>(<span class="ident">StreamNewService::create</span>(
             <span class="ident">name</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(),
             <span class="ident">token</span>,
             <span class="ident">factory</span>,
@@ -772,16 +772,16 @@
         ));
 
         <span class="self">self</span>.<span class="ident">sockets</span>
-            .<span class="ident">push</span>((<span class="ident">token</span>, <span class="ident">name</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(), <span class="ident">MioListener</span>::<span class="ident">from</span>(<span class="ident">lst</span>)));
+            .<span class="ident">push</span>((<span class="ident">token</span>, <span class="ident">name</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(), <span class="ident">MioListener::from</span>(<span class="ident">lst</span>)));
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Starts processing incoming connections and return server controller.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Server</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">sockets</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Server should have at least one bound socket&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;Server should have at least one bound socket&quot;</span>);
         } <span class="kw">else</span> {
-            <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Starting {} workers&quot;</span>, <span class="self">self</span>.<span class="ident">threads</span>);
+            <span class="macro">info!</span>(<span class="string">&quot;Starting {} workers&quot;</span>, <span class="self">self</span>.<span class="ident">threads</span>);
 
             <span class="comment">// start workers</span>
             <span class="kw">let</span> <span class="ident">handles</span> <span class="op">=</span> (<span class="number">0</span>..<span class="self">self</span>.<span class="ident">threads</span>)
@@ -795,10 +795,10 @@
 
             <span class="comment">// start accept thread</span>
             <span class="kw">for</span> <span class="ident">sock</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sockets</span> {
-                <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Starting \&quot;{}\&quot; service on {}&quot;</span>, <span class="ident">sock</span>.<span class="number">1</span>, <span class="ident">sock</span>.<span class="number">2</span>);
+                <span class="macro">info!</span>(<span class="string">&quot;Starting \&quot;{}\&quot; service on {}&quot;</span>, <span class="ident">sock</span>.<span class="number">1</span>, <span class="ident">sock</span>.<span class="number">2</span>);
             }
             <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">start</span>(
-                <span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sockets</span>)
+                <span class="ident">mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sockets</span>)
                     .<span class="ident">into_iter</span>()
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> (<span class="ident">t</span>.<span class="number">0</span>, <span class="ident">t</span>.<span class="number">2</span>))
                     .<span class="ident">collect</span>(),
@@ -807,57 +807,57 @@
 
             <span class="comment">// handle signals</span>
             <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">no_signals</span> {
-                <span class="ident">Signals</span>::<span class="ident">start</span>(<span class="self">self</span>.<span class="ident">server</span>.<span class="ident">clone</span>());
+                <span class="ident">Signals::start</span>(<span class="self">self</span>.<span class="ident">server</span>.<span class="ident">clone</span>());
             }
 
             <span class="comment">// start http server actor</span>
             <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">server</span>.<span class="ident">clone</span>();
-            <span class="ident">rt</span>::<span class="ident">spawn</span>(<span class="self">self</span>);
+            <span class="ident">rt::spawn</span>(<span class="self">self</span>);
             <span class="ident">server</span>
         }
     }
 
     <span class="kw">fn</span> <span class="ident">start_worker</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>, <span class="ident">waker</span>: <span class="ident">WakerQueue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WorkerHandle</span> {
-        <span class="kw">let</span> <span class="ident">avail</span> <span class="op">=</span> <span class="ident">WorkerAvailability</span>::<span class="ident">new</span>(<span class="ident">waker</span>);
+        <span class="kw">let</span> <span class="ident">avail</span> <span class="op">=</span> <span class="ident">WorkerAvailability::new</span>(<span class="ident">waker</span>);
         <span class="kw">let</span> <span class="ident">services</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">clone_factory</span>()).<span class="ident">collect</span>();
 
-        <span class="ident">ServerWorker</span>::<span class="ident">start</span>(<span class="ident">idx</span>, <span class="ident">services</span>, <span class="ident">avail</span>, <span class="self">self</span>.<span class="ident">worker_config</span>)
+        <span class="ident">ServerWorker::start</span>(<span class="ident">idx</span>, <span class="ident">services</span>, <span class="ident">avail</span>, <span class="self">self</span>.<span class="ident">worker_config</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">handle_cmd</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="ident">ServerCommand</span>) {
         <span class="kw">match</span> <span class="ident">item</span> {
-            <span class="ident">ServerCommand</span>::<span class="ident">Pause</span>(<span class="ident">tx</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">wake</span>(<span class="ident">WakerInterest</span>::<span class="ident">Pause</span>);
+            <span class="ident">ServerCommand::Pause</span>(<span class="ident">tx</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">wake</span>(<span class="ident">WakerInterest::Pause</span>);
                 <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">send</span>(());
             }
-            <span class="ident">ServerCommand</span>::<span class="ident">Resume</span>(<span class="ident">tx</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">wake</span>(<span class="ident">WakerInterest</span>::<span class="ident">Resume</span>);
+            <span class="ident">ServerCommand::Resume</span>(<span class="ident">tx</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">wake</span>(<span class="ident">WakerInterest::Resume</span>);
                 <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">send</span>(());
             }
-            <span class="ident">ServerCommand</span>::<span class="ident">Signal</span>(<span class="ident">sig</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ServerCommand::Signal</span>(<span class="ident">sig</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Signals support</span>
                 <span class="comment">// Handle `SIGINT`, `SIGTERM`, `SIGQUIT` signals and stop actix system</span>
                 <span class="kw">match</span> <span class="ident">sig</span> {
-                    <span class="ident">Signal</span>::<span class="ident">Int</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;SIGINT received, exiting&quot;</span>);
+                    <span class="ident">Signal::Int</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">info!</span>(<span class="string">&quot;SIGINT received, exiting&quot;</span>);
                         <span class="self">self</span>.<span class="ident">exit</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="self">self</span>.<span class="ident">handle_cmd</span>(<span class="ident">ServerCommand</span>::<span class="ident">Stop</span> {
+                        <span class="self">self</span>.<span class="ident">handle_cmd</span>(<span class="ident">ServerCommand::Stop</span> {
                             <span class="ident">graceful</span>: <span class="bool-val">false</span>,
                             <span class="ident">completion</span>: <span class="prelude-val">None</span>,
                         })
                     }
-                    <span class="ident">Signal</span>::<span class="ident">Term</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;SIGTERM received, stopping&quot;</span>);
+                    <span class="ident">Signal::Term</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">info!</span>(<span class="string">&quot;SIGTERM received, stopping&quot;</span>);
                         <span class="self">self</span>.<span class="ident">exit</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="self">self</span>.<span class="ident">handle_cmd</span>(<span class="ident">ServerCommand</span>::<span class="ident">Stop</span> {
+                        <span class="self">self</span>.<span class="ident">handle_cmd</span>(<span class="ident">ServerCommand::Stop</span> {
                             <span class="ident">graceful</span>: <span class="bool-val">true</span>,
                             <span class="ident">completion</span>: <span class="prelude-val">None</span>,
                         })
                     }
-                    <span class="ident">Signal</span>::<span class="ident">Quit</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;SIGQUIT received, exiting&quot;</span>);
+                    <span class="ident">Signal::Quit</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">info!</span>(<span class="string">&quot;SIGQUIT received, exiting&quot;</span>);
                         <span class="self">self</span>.<span class="ident">exit</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="self">self</span>.<span class="ident">handle_cmd</span>(<span class="ident">ServerCommand</span>::<span class="ident">Stop</span> {
+                        <span class="self">self</span>.<span class="ident">handle_cmd</span>(<span class="ident">ServerCommand::Stop</span> {
                             <span class="ident">graceful</span>: <span class="bool-val">false</span>,
                             <span class="ident">completion</span>: <span class="prelude-val">None</span>,
                         })
@@ -865,18 +865,18 @@
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (),
                 }
             }
-            <span class="ident">ServerCommand</span>::<span class="ident">Notify</span>(<span class="ident">tx</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ServerCommand::Notify</span>(<span class="ident">tx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">notify</span>.<span class="ident">push</span>(<span class="ident">tx</span>);
             }
-            <span class="ident">ServerCommand</span>::<span class="ident">Stop</span> {
+            <span class="ident">ServerCommand::Stop</span> {
                 <span class="ident">graceful</span>,
                 <span class="ident">completion</span>,
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">exit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">exit</span>;
 
                 <span class="comment">// stop accept thread</span>
-                <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">wake</span>(<span class="ident">WakerInterest</span>::<span class="ident">Stop</span>);
-                <span class="kw">let</span> <span class="ident">notify</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">notify</span>);
+                <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">wake</span>(<span class="ident">WakerInterest::Stop</span>);
+                <span class="kw">let</span> <span class="ident">notify</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">notify</span>);
 
                 <span class="comment">// stop workers</span>
                 <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">handles</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">graceful</span> {
@@ -888,7 +888,7 @@
 
                     <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">join_all</span>(<span class="ident">iter</span>);
 
-                    <span class="ident">rt</span>::<span class="ident">spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="ident">rt::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
                         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">fut</span>.<span class="kw">await</span>;
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tx</span>) <span class="op">=</span> <span class="ident">completion</span> {
                             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">send</span>(());
@@ -897,18 +897,18 @@
                             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">send</span>(());
                         }
                         <span class="kw">if</span> <span class="ident">exit</span> {
-                            <span class="ident">rt</span>::<span class="ident">spawn</span>(<span class="kw">async</span> {
-                                <span class="ident">sleep_until</span>(<span class="ident">Instant</span>::<span class="ident">now</span>() <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">300</span>)).<span class="kw">await</span>;
-                                <span class="ident">System</span>::<span class="ident">current</span>().<span class="ident">stop</span>();
+                            <span class="ident">rt::spawn</span>(<span class="kw">async</span> {
+                                <span class="ident">sleep_until</span>(<span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">Duration::from_millis</span>(<span class="number">300</span>)).<span class="kw">await</span>;
+                                <span class="ident">System::current</span>().<span class="ident">stop</span>();
                             });
                         }
                     });
                 } <span class="kw">else</span> {
                     <span class="comment">// we need to stop system if server was spawned</span>
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">exit</span> {
-                        <span class="ident">rt</span>::<span class="ident">spawn</span>(<span class="kw">async</span> {
-                            <span class="ident">sleep_until</span>(<span class="ident">Instant</span>::<span class="ident">now</span>() <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">300</span>)).<span class="kw">await</span>;
-                            <span class="ident">System</span>::<span class="ident">current</span>().<span class="ident">stop</span>();
+                        <span class="ident">rt::spawn</span>(<span class="kw">async</span> {
+                            <span class="ident">sleep_until</span>(<span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">Duration::from_millis</span>(<span class="number">300</span>)).<span class="kw">await</span>;
+                            <span class="ident">System::current</span>().<span class="ident">stop</span>();
                         });
                     }
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tx</span>) <span class="op">=</span> <span class="ident">completion</span> {
@@ -919,7 +919,7 @@
                     }
                 }
             }
-            <span class="ident">ServerCommand</span>::<span class="ident">WorkerFaulted</span>(<span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ServerCommand::WorkerFaulted</span>(<span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">handles</span>.<span class="ident">len</span>() {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">handles</span>[<span class="ident">i</span>].<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">idx</span> {
@@ -930,7 +930,7 @@
                 }
 
                 <span class="kw">if</span> <span class="ident">found</span> {
-                    <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Worker has died {:?}, restarting&quot;</span>, <span class="ident">idx</span>);
+                    <span class="macro">error!</span>(<span class="string">&quot;Worker has died {:?}, restarting&quot;</span>, <span class="ident">idx</span>);
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">handles</span>.<span class="ident">len</span>();
                     <span class="lifetime">&#39;found</span>: <span class="kw">loop</span> {
@@ -945,7 +945,7 @@
 
                     <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">start_worker</span>(<span class="ident">new_idx</span>, <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">waker_owned</span>());
                     <span class="self">self</span>.<span class="ident">handles</span>.<span class="ident">push</span>((<span class="ident">new_idx</span>, <span class="ident">handle</span>.<span class="ident">clone</span>()));
-                    <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">wake</span>(<span class="ident">WakerInterest</span>::<span class="ident">Worker</span>(<span class="ident">handle</span>));
+                    <span class="self">self</span>.<span class="ident">accept</span>.<span class="ident">wake</span>(<span class="ident">WakerInterest::Worker</span>(<span class="ident">handle</span>));
                 }
             }
         }
@@ -955,11 +955,11 @@
 <span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ServerBuilder</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Output</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cmd</span>).<span class="ident">poll_recv</span>(<span class="ident">cx</span>) {
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="ident">it</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">get_mut</span>().<span class="ident">handle_cmd</span>(<span class="ident">it</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>,
+            <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cmd</span>).<span class="ident">poll_recv</span>(<span class="ident">cx</span>) {
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="ident">it</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">get_mut</span>().<span class="ident">handle_cmd</span>(<span class="ident">it</span>),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll::Pending</span>,
             }
         }
     }
@@ -968,10 +968,10 @@
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">bind_addr</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">ToSocketAddrs</span><span class="op">&gt;</span>(
     <span class="ident">addr</span>: <span class="ident">S</span>,
     <span class="ident">backlog</span>: <span class="ident">u32</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MioTcpListener</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MioTcpListener</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">err</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">succ</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sockets</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sockets</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">addr</span> <span class="kw">in</span> <span class="ident">addr</span>.<span class="ident">to_socket_addrs</span>()<span class="question-mark">?</span> {
         <span class="kw">match</span> <span class="ident">create_tcp_listener</span>(<span class="ident">addr</span>, <span class="ident">backlog</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">lst</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -986,8 +986,8 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">err</span>.<span class="ident">take</span>() {
             <span class="prelude-val">Err</span>(<span class="ident">e</span>)
         } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(
-                <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Other</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+                <span class="ident">io::ErrorKind::Other</span>,
                 <span class="string">&quot;Can not bind to address.&quot;</span>,
             ))
         }
@@ -996,10 +996,10 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">create_tcp_listener</span>(<span class="ident">addr</span>: <span class="ident">StdSocketAddr</span>, <span class="ident">backlog</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MioTcpListener</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">create_tcp_listener</span>(<span class="ident">addr</span>: <span class="ident">StdSocketAddr</span>, <span class="ident">backlog</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">MioTcpListener</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">addr</span> {
-        <span class="ident">StdSocketAddr</span>::<span class="ident">V4</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MioTcpSocket</span>::<span class="ident">new_v4</span>()<span class="question-mark">?</span>,
-        <span class="ident">StdSocketAddr</span>::<span class="ident">V6</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MioTcpSocket</span>::<span class="ident">new_v6</span>()<span class="question-mark">?</span>,
+        <span class="ident">StdSocketAddr::V4</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MioTcpSocket::new_v4</span>()<span class="question-mark">?</span>,
+        <span class="ident">StdSocketAddr::V6</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MioTcpSocket::new_v6</span>()<span class="question-mark">?</span>,
     };
 
     <span class="ident">socket</span>.<span class="ident">set_reuseaddr</span>(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
@@ -1007,5 +1007,5 @@
     <span class="ident">socket</span>.<span class="ident">listen</span>(<span class="ident">backlog</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

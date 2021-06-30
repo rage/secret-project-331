@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-rt-0.5.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_rt/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_rt/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -205,7 +205,7 @@
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime-async-std-rustls&quot;</span>,
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime-tokio-rustls&quot;</span>,
 )))]</span>
-<span class="macro">compile_error</span><span class="macro">!</span>(
+<span class="macro">compile_error!</span>(
     <span class="string">&quot;one of the features [&#39;runtime-actix-native-tls&#39;, &#39;runtime-async-std-native-tls&#39;, \
      &#39;runtime-tokio-native-tls&#39;, &#39;runtime-actix-rustls&#39;, &#39;runtime-async-std-rustls&#39;, \
      &#39;runtime-tokio-rustls&#39;] must be enabled&quot;</span>
@@ -217,7 +217,7 @@
     <span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>),
     <span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_tls-native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_tls-rustls&quot;</span>),
 ))]</span>
-<span class="macro">compile_error</span><span class="macro">!</span>(
+<span class="macro">compile_error!</span>(
     <span class="string">&quot;only one of [&#39;runtime-actix-native-tls&#39;, &#39;runtime-async-std-native-tls&#39;, \
      &#39;runtime-tokio-native-tls&#39;, &#39;runtime-actix-rustls&#39;, &#39;runtime-async-std-rustls&#39;, \
      &#39;runtime-tokio-rustls&#39;] can be enabled&quot;</span>
@@ -235,8 +235,8 @@
     <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>),
 ))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tokio</span>::{
-    <span class="self">self</span>, <span class="ident">fs</span>, <span class="ident">io</span>::<span class="ident">AsyncRead</span>, <span class="ident">io</span>::<span class="ident">AsyncReadExt</span>, <span class="ident">io</span>::<span class="ident">AsyncWrite</span>, <span class="ident">io</span>::<span class="ident">AsyncWriteExt</span>, <span class="ident">io</span>::<span class="ident">ReadBuf</span>,
-    <span class="ident">net</span>::<span class="ident">TcpStream</span>, <span class="ident">task</span>::<span class="ident">spawn</span>, <span class="ident">task</span>::<span class="ident">yield_now</span>, <span class="ident">time</span>::<span class="ident">sleep</span>, <span class="ident">time</span>::<span class="ident">timeout</span>,
+    <span class="self">self</span>, <span class="ident">fs</span>, <span class="ident">io::AsyncRead</span>, <span class="ident">io::AsyncReadExt</span>, <span class="ident">io::AsyncWrite</span>, <span class="ident">io::AsyncWriteExt</span>, <span class="ident">io::ReadBuf</span>,
+    <span class="ident">net::TcpStream</span>, <span class="ident">task::spawn</span>, <span class="ident">task::yield_now</span>, <span class="ident">time::sleep</span>, <span class="ident">time::timeout</span>,
 };
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
@@ -244,7 +244,7 @@
     <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>),
     <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>),
 ))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">net</span>::<span class="ident">UnixStream</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tokio::net::UnixStream</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
     <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>),
@@ -254,19 +254,19 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">tokio_runtime</span> {
-    <span class="kw">use</span> <span class="ident">once_cell</span>::<span class="ident">sync</span>::<span class="ident">Lazy</span>;
-    <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">runtime</span>::{<span class="self">self</span>, <span class="ident">Runtime</span>};
+    <span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
+    <span class="kw">use</span> <span class="ident">tokio::runtime</span>::{<span class="self">self</span>, <span class="ident">Runtime</span>};
 
     <span class="comment">// lazily initialize a global runtime once for multiple invocations of the macros</span>
-    <span class="kw">static</span> <span class="ident">RUNTIME</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy</span>::<span class="ident">new</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">runtime</span>::<span class="ident">Builder</span>::<span class="ident">new_multi_thread</span>()
+    <span class="kw">static</span> <span class="ident">RUNTIME</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {
+        <span class="ident">runtime::Builder::new_multi_thread</span>()
             .<span class="ident">enable_io</span>()
             .<span class="ident">enable_time</span>()
             .<span class="ident">build</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;failed to initialize Tokio runtime&quot;</span>)
     });
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">std</span>::<span class="ident">future</span>::<span class="ident">Future</span><span class="op">&gt;</span>(<span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>::<span class="ident">Output</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">std::future::Future</span><span class="op">&gt;</span>(<span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F::Output</span> {
         <span class="ident">RUNTIME</span>.<span class="ident">block_on</span>(<span class="ident">future</span>)
     }
 
@@ -291,7 +291,7 @@
     <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>),
     <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_tls-native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>)),
 ))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tokio_rustls</span>::{<span class="ident">client</span>::<span class="ident">TlsStream</span>, <span class="ident">TlsConnector</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tokio_rustls</span>::{<span class="ident">client::TlsStream</span>, <span class="ident">TlsConnector</span>};
 
 <span class="comment">//</span>
 <span class="comment">// tokio</span>
@@ -302,9 +302,9 @@
     <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>)),
 ))]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">blocking</span> {
+<span class="macro">macro_rules!</span> <span class="ident">blocking</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">tokio</span>::<span class="ident">task</span>::<span class="ident">block_in_place</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>)<span class="op">*</span> })
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::tokio::task::block_in_place</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>)<span class="op">*</span> })
     };
 }
 
@@ -320,10 +320,10 @@
     <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>)),
 ))]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">blocking</span> {
+<span class="macro">macro_rules!</span> <span class="ident">blocking</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
          <span class="comment">// spawn_blocking is a re-export from tokio</span>
-         <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">actix_rt</span>::<span class="ident">task</span>::<span class="ident">spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>)<span class="op">*</span> })
+         <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::actix_rt::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>)<span class="op">*</span> })
             .<span class="kw">await</span>
             .<span class="ident">expect</span>(<span class="string">&quot;Blocking task failed to complete.&quot;</span>)
     };
@@ -338,9 +338,9 @@
     <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>)),
 ))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">async_std</span>::{
-    <span class="self">self</span>, <span class="ident">fs</span>, <span class="ident">future</span>::<span class="ident">timeout</span>, <span class="ident">io</span>::<span class="ident">prelude</span>::<span class="ident">ReadExt</span> <span class="kw">as</span> <span class="ident">AsyncReadExt</span>,
-    <span class="ident">io</span>::<span class="ident">prelude</span>::<span class="ident">WriteExt</span> <span class="kw">as</span> <span class="ident">AsyncWriteExt</span>, <span class="ident">io</span>::<span class="ident">Read</span> <span class="kw">as</span> <span class="ident">AsyncRead</span>, <span class="ident">io</span>::<span class="ident">Write</span> <span class="kw">as</span> <span class="ident">AsyncWrite</span>,
-    <span class="ident">net</span>::<span class="ident">TcpStream</span>, <span class="ident">task</span>::<span class="ident">sleep</span>, <span class="ident">task</span>::<span class="ident">spawn</span>, <span class="ident">task</span>::<span class="ident">yield_now</span>,
+    <span class="self">self</span>, <span class="ident">fs</span>, <span class="ident">future::timeout</span>, <span class="ident">io::prelude::ReadExt</span> <span class="kw">as</span> <span class="ident">AsyncReadExt</span>,
+    <span class="ident">io::prelude::WriteExt</span> <span class="kw">as</span> <span class="ident">AsyncWriteExt</span>, <span class="ident">io::Read</span> <span class="kw">as</span> <span class="ident">AsyncRead</span>, <span class="ident">io::Write</span> <span class="kw">as</span> <span class="ident">AsyncWrite</span>,
+    <span class="ident">net::TcpStream</span>, <span class="ident">task::sleep</span>, <span class="ident">task::spawn</span>, <span class="ident">task::yield_now</span>,
 };
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
@@ -348,9 +348,9 @@
     <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>)),
 ))]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">blocking</span> {
+<span class="macro">macro_rules!</span> <span class="ident">blocking</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">async_std</span>::<span class="ident">task</span>::<span class="ident">spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>)<span class="op">*</span> }).<span class="kw">await</span>
+        <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::async_std::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> { $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>)<span class="op">*</span> }).<span class="kw">await</span>
     };
 }
 
@@ -359,13 +359,13 @@
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>,
     <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>)),
 ))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">async_std</span>::<span class="ident">os</span>::<span class="ident">unix</span>::<span class="ident">net</span>::<span class="ident">UnixStream</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">async_std::os::unix::net::UnixStream</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>,
     <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>)),
 ))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">async_std</span>::<span class="ident">task</span>::<span class="ident">block_on</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">async_std::task::block_on</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>,
@@ -391,7 +391,7 @@
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-actix&quot;</span>
     )),
 ))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">async_rustls</span>::{<span class="ident">client</span>::<span class="ident">TlsStream</span>, <span class="ident">TlsConnector</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">async_rustls</span>::{<span class="ident">client::TlsStream</span>, <span class="ident">TlsConnector</span>};
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_rt" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_rt" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

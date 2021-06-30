@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/nom-6.1.2/src/character/streaming.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>streaming.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -999,13 +999,13 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Functions recognizing specific characters</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">ParseError</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">internal</span>::{<span class="prelude-val">Err</span>, <span class="ident">IResult</span>, <span class="ident">Needed</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">lib</span>::<span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Range</span>, <span class="ident">RangeFrom</span>, <span class="ident">RangeTo</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{<span class="ident">AsChar</span>, <span class="ident">FindToken</span>, <span class="ident">InputIter</span>, <span class="ident">InputLength</span>, <span class="ident">InputTakeAtPosition</span>, <span class="ident">Slice</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{<span class="ident">Compare</span>, <span class="ident">CompareResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ParseError</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::internal</span>::{<span class="prelude-val">Err</span>, <span class="ident">IResult</span>, <span class="ident">Needed</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::lib::std::ops</span>::{<span class="ident">Range</span>, <span class="ident">RangeFrom</span>, <span class="ident">RangeTo</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{<span class="ident">AsChar</span>, <span class="ident">FindToken</span>, <span class="ident">InputIter</span>, <span class="ident">InputLength</span>, <span class="ident">InputTakeAtPosition</span>, <span class="ident">Slice</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{<span class="ident">Compare</span>, <span class="ident">CompareResult</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">ErrorKind</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorKind</span>;
 
 <span class="doccomment">/// Recognizes one character.</span>
 <span class="doccomment">///</span>
@@ -1025,14 +1025,14 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">char</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">c</span>: <span class="ident">char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">InputIter</span> <span class="op">+</span> <span class="ident">InputLength</span>,
-  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> <span class="kw">match</span> (<span class="ident">i</span>).<span class="ident">iter_elements</span>().<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
     <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">as_char</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">c</span>;
     (<span class="kw-2">&amp;</span><span class="ident">c</span>, <span class="ident">b</span>)
   }) {
-    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="ident">c</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">i</span>.<span class="ident">input_len</span>()))),
-    <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="bool-val">false</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="ident">Error</span>::<span class="ident">from_char</span>(<span class="ident">i</span>, <span class="ident">c</span>))),
+    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="ident">c</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">i</span>.<span class="ident">input_len</span>()))),
+    <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="bool-val">false</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">Error::from_char</span>(<span class="ident">i</span>, <span class="ident">c</span>))),
     <span class="prelude-val">Some</span>((<span class="ident">c</span>, <span class="bool-val">true</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>.<span class="ident">slice</span>(<span class="ident">c</span>.<span class="ident">len</span>()..), <span class="ident">c</span>.<span class="ident">as_char</span>())),
   }
 }
@@ -1055,7 +1055,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">satisfy</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">cond</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">InputIter</span>,
-  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
   <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> <span class="kw">match</span> (<span class="ident">i</span>).<span class="ident">iter_elements</span>().<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
@@ -1063,8 +1063,8 @@
     <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">cond</span>(<span class="ident">c</span>);
     (<span class="ident">c</span>, <span class="ident">b</span>)
   }) {
-    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">Unknown</span>)),
-    <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="bool-val">false</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="ident">Error</span>::<span class="ident">from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind</span>::<span class="ident">Satisfy</span>))),
+    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Unknown</span>)),
+    <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="bool-val">false</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">Error::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Satisfy</span>))),
     <span class="prelude-val">Some</span>((<span class="ident">c</span>, <span class="bool-val">true</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>.<span class="ident">slice</span>(<span class="ident">c</span>.<span class="ident">len</span>()..), <span class="ident">c</span>)),
   }
 }
@@ -1084,12 +1084,12 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">one_of</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">list</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">InputIter</span>,
-  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Copy</span>,
-  <span class="ident">T</span>: <span class="ident">FindToken</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Copy</span>,
+  <span class="ident">T</span>: <span class="ident">FindToken</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> <span class="kw">match</span> (<span class="ident">i</span>).<span class="ident">iter_elements</span>().<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> (<span class="ident">c</span>, <span class="ident">list</span>.<span class="ident">find_token</span>(<span class="ident">c</span>))) {
-    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>))),
-    <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="bool-val">false</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="ident">Error</span>::<span class="ident">from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind</span>::<span class="ident">OneOf</span>))),
+    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>))),
+    <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="bool-val">false</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">Error::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::OneOf</span>))),
     <span class="prelude-val">Some</span>((<span class="ident">c</span>, <span class="bool-val">true</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>.<span class="ident">slice</span>(<span class="ident">c</span>.<span class="ident">len</span>()..), <span class="ident">c</span>.<span class="ident">as_char</span>())),
   }
 }
@@ -1109,12 +1109,12 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">none_of</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">list</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">InputIter</span>,
-  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Copy</span>,
-  <span class="ident">T</span>: <span class="ident">FindToken</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Copy</span>,
+  <span class="ident">T</span>: <span class="ident">FindToken</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> <span class="kw">match</span> (<span class="ident">i</span>).<span class="ident">iter_elements</span>().<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> (<span class="ident">c</span>, <span class="op">!</span><span class="ident">list</span>.<span class="ident">find_token</span>(<span class="ident">c</span>))) {
-    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>))),
-    <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="bool-val">false</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="ident">Error</span>::<span class="ident">from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind</span>::<span class="ident">NoneOf</span>))),
+    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>))),
+    <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="bool-val">false</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">Error::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::NoneOf</span>))),
     <span class="prelude-val">Some</span>((<span class="ident">c</span>, <span class="bool-val">true</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>.<span class="ident">slice</span>(<span class="ident">c</span>.<span class="ident">len</span>()..), <span class="ident">c</span>.<span class="ident">as_char</span>())),
   }
 }
@@ -1139,11 +1139,11 @@
 {
   <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">compare</span>(<span class="string">&quot;\r\n&quot;</span>) {
     <span class="comment">//FIXME: is this the right index?</span>
-    <span class="ident">CompareResult</span>::<span class="prelude-val">Ok</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">2</span>..), <span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">0</span>..<span class="number">2</span>))),
-    <span class="ident">CompareResult</span>::<span class="ident">Incomplete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">2</span>))),
-    <span class="ident">CompareResult</span>::<span class="ident">Error</span> <span class="op">=</span><span class="op">&gt;</span> {
-      <span class="kw">let</span> <span class="ident">e</span>: <span class="ident">ErrorKind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">CrLf</span>;
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="ident">E</span>::<span class="ident">from_error_kind</span>(<span class="ident">input</span>, <span class="ident">e</span>)))
+    <span class="ident">CompareResult::Ok</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">2</span>..), <span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">0</span>..<span class="number">2</span>))),
+    <span class="ident">CompareResult::Incomplete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">2</span>))),
+    <span class="ident">CompareResult::Error</span> <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="kw">let</span> <span class="ident">e</span>: <span class="ident">ErrorKind</span> <span class="op">=</span> <span class="ident">ErrorKind::CrLf</span>;
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">input</span>, <span class="ident">e</span>)))
     }
   }
 }
@@ -1165,14 +1165,14 @@
   <span class="ident">T</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeTo</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
   <span class="ident">T</span>: <span class="ident">InputIter</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">T</span>: <span class="ident">Compare</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
     <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
     <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\r&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span>
   }) {
-    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">Unknown</span>)),
+    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Unknown</span>)),
     <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">it</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">index</span>..).<span class="ident">iter_elements</span>();
       <span class="kw">let</span> <span class="ident">nth</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_char</span>();
@@ -1181,12 +1181,12 @@
         <span class="kw">let</span> <span class="ident">comp</span> <span class="op">=</span> <span class="ident">sliced</span>.<span class="ident">compare</span>(<span class="string">&quot;\r\n&quot;</span>);
         <span class="kw">match</span> <span class="ident">comp</span> {
           <span class="comment">//FIXME: calculate the right index</span>
-          <span class="ident">CompareResult</span>::<span class="ident">Incomplete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">Unknown</span>)),
-          <span class="ident">CompareResult</span>::<span class="ident">Error</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">e</span>: <span class="ident">ErrorKind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">Tag</span>;
-            <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="ident">E</span>::<span class="ident">from_error_kind</span>(<span class="ident">input</span>, <span class="ident">e</span>)))
+          <span class="ident">CompareResult::Incomplete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Unknown</span>)),
+          <span class="ident">CompareResult::Error</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">e</span>: <span class="ident">ErrorKind</span> <span class="op">=</span> <span class="ident">ErrorKind::Tag</span>;
+            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">input</span>, <span class="ident">e</span>)))
           }
-          <span class="ident">CompareResult</span>::<span class="prelude-val">Ok</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">index</span>..), <span class="ident">input</span>.<span class="ident">slice</span>(..<span class="ident">index</span>))),
+          <span class="ident">CompareResult::Ok</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">index</span>..), <span class="ident">input</span>.<span class="ident">slice</span>(..<span class="ident">index</span>))),
         }
       } <span class="kw">else</span> {
         <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">index</span>..), <span class="ident">input</span>.<span class="ident">slice</span>(..<span class="ident">index</span>)))
@@ -1214,14 +1214,14 @@
   <span class="ident">T</span>: <span class="ident">Compare</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
 {
   <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">compare</span>(<span class="string">&quot;\n&quot;</span>) {
-    <span class="ident">CompareResult</span>::<span class="prelude-val">Ok</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">1</span>..), <span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">0</span>..<span class="number">1</span>))),
-    <span class="ident">CompareResult</span>::<span class="ident">Incomplete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>))),
-    <span class="ident">CompareResult</span>::<span class="ident">Error</span> <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="ident">CompareResult::Ok</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">1</span>..), <span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">0</span>..<span class="number">1</span>))),
+    <span class="ident">CompareResult::Incomplete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>))),
+    <span class="ident">CompareResult::Error</span> <span class="op">=</span><span class="op">&gt;</span> {
       <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">compare</span>(<span class="string">&quot;\r\n&quot;</span>) {
         <span class="comment">//FIXME: is this the right index?</span>
-        <span class="ident">CompareResult</span>::<span class="prelude-val">Ok</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">2</span>..), <span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">0</span>..<span class="number">2</span>))),
-        <span class="ident">CompareResult</span>::<span class="ident">Incomplete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">2</span>))),
-        <span class="ident">CompareResult</span>::<span class="ident">Error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="ident">E</span>::<span class="ident">from_error_kind</span>(<span class="ident">input</span>, <span class="ident">ErrorKind</span>::<span class="ident">CrLf</span>))),
+        <span class="ident">CompareResult::Ok</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">2</span>..), <span class="ident">input</span>.<span class="ident">slice</span>(<span class="number">0</span>..<span class="number">2</span>))),
+        <span class="ident">CompareResult::Incomplete</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">2</span>))),
+        <span class="ident">CompareResult::Error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">input</span>, <span class="ident">ErrorKind::CrLf</span>))),
       }
     }
   }
@@ -1242,7 +1242,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">newline</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">InputIter</span> <span class="op">+</span> <span class="ident">InputLength</span>,
-  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="ident">char</span>(<span class="string">&#39;\n&#39;</span>)(<span class="ident">input</span>)
 }
@@ -1262,7 +1262,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tab</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">InputIter</span> <span class="op">+</span> <span class="ident">InputLength</span>,
-  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="ident">char</span>(<span class="string">&#39;\t&#39;</span>)(<span class="ident">input</span>)
 }
@@ -1281,11 +1281,11 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">anychar</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">char</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputIter</span> <span class="op">+</span> <span class="ident">InputLength</span> <span class="op">+</span> <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">it</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">iter_indices</span>();
   <span class="kw">match</span> <span class="ident">it</span>.<span class="ident">next</span>() {
-    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>))),
+    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>))),
     <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">c</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">it</span>.<span class="ident">next</span>() {
       <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">input</span>.<span class="ident">input_len</span>()..), <span class="ident">c</span>.<span class="ident">as_char</span>())),
       <span class="prelude-val">Some</span>((<span class="ident">idx</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">idx</span>..), <span class="ident">c</span>.<span class="ident">as_char</span>())),
@@ -1309,7 +1309,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alpha0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_alpha</span>())
 }
@@ -1330,9 +1330,9 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alpha1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
-  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_alpha</span>(), <span class="ident">ErrorKind</span>::<span class="ident">Alpha</span>)
+  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_alpha</span>(), <span class="ident">ErrorKind::Alpha</span>)
 }
 
 <span class="doccomment">/// Recognizes zero or more ASCII numerical characters: 0-9</span>
@@ -1351,7 +1351,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">digit0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_dec_digit</span>())
 }
@@ -1372,9 +1372,9 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">digit1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
-  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_dec_digit</span>(), <span class="ident">ErrorKind</span>::<span class="ident">Digit</span>)
+  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_dec_digit</span>(), <span class="ident">ErrorKind::Digit</span>)
 }
 
 <span class="doccomment">/// Recognizes zero or more ASCII hexadecimal numerical characters: 0-9, A-F, a-f</span>
@@ -1393,7 +1393,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hex_digit0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_hex_digit</span>())
 }
@@ -1414,9 +1414,9 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hex_digit1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
-  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_hex_digit</span>(), <span class="ident">ErrorKind</span>::<span class="ident">HexDigit</span>)
+  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_hex_digit</span>(), <span class="ident">ErrorKind::HexDigit</span>)
 }
 
 <span class="doccomment">/// Recognizes zero or more octal characters: 0-7</span>
@@ -1435,7 +1435,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">oct_digit0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_oct_digit</span>())
 }
@@ -1456,9 +1456,9 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">oct_digit1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
-  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_oct_digit</span>(), <span class="ident">ErrorKind</span>::<span class="ident">OctDigit</span>)
+  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_oct_digit</span>(), <span class="ident">ErrorKind::OctDigit</span>)
 }
 
 <span class="doccomment">/// Recognizes zero or more ASCII numerical and alphabetic characters: 0-9, a-z, A-Z</span>
@@ -1477,7 +1477,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alphanumeric0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_alphanum</span>())
 }
@@ -1498,9 +1498,9 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alphanumeric1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
 {
-  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_alphanum</span>(), <span class="ident">ErrorKind</span>::<span class="ident">AlphaNumeric</span>)
+  <span class="ident">input</span>.<span class="ident">split_at_position1</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="op">!</span><span class="ident">item</span>.<span class="ident">is_alphanum</span>(), <span class="ident">ErrorKind::AlphaNumeric</span>)
 }
 
 <span class="doccomment">/// Recognizes zero or more spaces and tabs.</span>
@@ -1519,7 +1519,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">space0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
     <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
@@ -1542,14 +1542,14 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">space1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position1</span>(
     <span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
       <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
       <span class="op">!</span>(<span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\t&#39;</span>)
     },
-    <span class="ident">ErrorKind</span>::<span class="ident">Space</span>,
+    <span class="ident">ErrorKind::Space</span>,
   )
 }
 
@@ -1569,7 +1569,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multispace0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
     <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
@@ -1593,34 +1593,34 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multispace1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">InputTakeAtPosition</span>,
-  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
+  <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position1</span>(
     <span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
       <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
       <span class="op">!</span>(<span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\t&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\r&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span>)
     },
-    <span class="ident">ErrorKind</span>::<span class="ident">MultiSpace</span>,
+    <span class="ident">ErrorKind::MultiSpace</span>,
   )
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
   <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-  <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">ErrorKind</span>;
-  <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">internal</span>::{<span class="prelude-val">Err</span>, <span class="ident">Needed</span>};
+  <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorKind</span>;
+  <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::internal</span>::{<span class="prelude-val">Err</span>, <span class="ident">Needed</span>};
 
-  <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">assert_parse</span>(
+  <span class="macro">macro_rules!</span> <span class="ident">assert_parse</span>(
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">left</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">right</span>: <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-      <span class="kw">let</span> <span class="ident">res</span>: <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">IResult</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">left</span>;
-      <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">right</span>);
+      <span class="kw">let</span> <span class="ident">res</span>: <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::IResult</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">left</span>;
+      <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">right</span>);
     };
   );
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">anychar_str</span>() {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">anychar</span>;
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">anychar</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="string">&quot;Ә&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;&quot;</span>, <span class="string">&#39;Ә&#39;</span>)));
+    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::anychar</span>;
+    <span class="macro">assert_eq!</span>(<span class="ident">anychar</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="string">&quot;Ә&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;&quot;</span>, <span class="string">&#39;Ә&#39;</span>)));
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1632,62 +1632,62 @@
     <span class="kw">let</span> <span class="ident">e</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot; &quot;</span>;
     <span class="kw">let</span> <span class="ident">f</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot; ;&quot;</span>;
     <span class="comment">//assert_eq!(alpha1::&lt;_, (_, ErrorKind)&gt;(a), Err(Err::Incomplete(Needed::new(1))));</span>
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">alpha1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">alpha1</span>(<span class="ident">b</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">b</span>, <span class="ident">ErrorKind</span>::<span class="ident">Alpha</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">c</span>[<span class="number">1</span>..], <span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..])));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_parse!</span>(<span class="ident">alpha1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>(<span class="ident">b</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">b</span>, <span class="ident">ErrorKind::Alpha</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">c</span>[<span class="number">1</span>..], <span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>),
       <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;az&quot;</span>[..]))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind</span>::<span class="ident">Digit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind</span>::<span class="ident">Digit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind</span>::<span class="ident">Digit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>),
       <span class="prelude-val">Ok</span>((<span class="string">&quot;zé12&quot;</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..]))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hex_digit1</span>(<span class="ident">e</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">e</span>, <span class="ident">ErrorKind</span>::<span class="ident">HexDigit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">oct_digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind</span>::<span class="ident">OctDigit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>(<span class="ident">e</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">e</span>, <span class="ident">ErrorKind::HexDigit</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">oct_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">oct_digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind</span>::<span class="ident">OctDigit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">oct_digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind</span>::<span class="ident">OctDigit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
     <span class="comment">//assert_eq!(fix_error!(b,(), alphanumeric1), Ok((empty, b)));</span>
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>),
       <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;az&quot;</span>[..]))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">space1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">e</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">space1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">f</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot; &quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(<span class="ident">space1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">f</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot; &quot;</span>[..])));
   }
 
   <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
@@ -1698,58 +1698,58 @@
     <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="string">&quot;a123&quot;</span>;
     <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="string">&quot;azé12&quot;</span>;
     <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="string">&quot; &quot;</span>;
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">alpha1</span>(<span class="ident">b</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">b</span>, <span class="ident">ErrorKind</span>::<span class="ident">Alpha</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">c</span>[<span class="number">1</span>..], <span class="kw-2">&amp;</span><span class="string">&quot;a&quot;</span>[..])));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;az&quot;</span>[..])));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind</span>::<span class="ident">Digit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>(<span class="ident">b</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">b</span>, <span class="ident">ErrorKind::Alpha</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">c</span>[<span class="number">1</span>..], <span class="kw-2">&amp;</span><span class="string">&quot;a&quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;az&quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind</span>::<span class="ident">Digit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind</span>::<span class="ident">Digit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;zé12&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;a&quot;</span>[..])));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hex_digit1</span>(<span class="ident">e</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">e</span>, <span class="ident">ErrorKind</span>::<span class="ident">HexDigit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">oct_digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind</span>::<span class="ident">OctDigit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;zé12&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;a&quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>(<span class="ident">e</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">e</span>, <span class="ident">ErrorKind::HexDigit</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">oct_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">oct_digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind</span>::<span class="ident">OctDigit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">oct_digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind</span>::<span class="ident">OctDigit</span>))));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
     <span class="comment">//assert_eq!(fix_error!(b,(), alphanumeric1), Ok((empty, b)));</span>
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>, <span class="string">&quot;az&quot;</span>)));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(<span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>, <span class="string">&quot;az&quot;</span>)));
+    <span class="macro">assert_eq!</span>(
       <span class="ident">space1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">e</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">1</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">1</span>)))
     );
   }
 
-  <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::<span class="ident">Offset</span>;
+  <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits::Offset</span>;
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">offset</span>() {
     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;abcd;&quot;</span>[..];
@@ -1761,72 +1761,72 @@
 
     <span class="kw">match</span> <span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>) {
       <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">a</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">a</span>.<span class="ident">len</span>());
       }
-      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;wrong return type in offset test for alpha&quot;</span>),
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;wrong return type in offset test for alpha&quot;</span>),
     }
     <span class="kw">match</span> <span class="ident">digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>) {
       <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">b</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">b</span>.<span class="ident">len</span>());
       }
-      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;wrong return type in offset test for digit&quot;</span>),
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;wrong return type in offset test for digit&quot;</span>),
     }
     <span class="kw">match</span> <span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>) {
       <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">c</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">c</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">c</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">c</span>.<span class="ident">len</span>());
       }
-      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;wrong return type in offset test for alphanumeric&quot;</span>),
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;wrong return type in offset test for alphanumeric&quot;</span>),
     }
     <span class="kw">match</span> <span class="ident">space1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>) {
       <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">d</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">d</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">d</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">d</span>.<span class="ident">len</span>());
       }
-      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;wrong return type in offset test for space&quot;</span>),
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;wrong return type in offset test for space&quot;</span>),
     }
     <span class="kw">match</span> <span class="ident">multispace1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">e</span>) {
       <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">e</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">e</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">e</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">e</span>.<span class="ident">len</span>());
       }
-      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;wrong return type in offset test for multispace&quot;</span>),
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;wrong return type in offset test for multispace&quot;</span>),
     }
     <span class="kw">match</span> <span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">f</span>) {
       <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">f</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">f</span>.<span class="ident">len</span>());
       }
-      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;wrong return type in offset test for hex_digit&quot;</span>),
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;wrong return type in offset test for hex_digit&quot;</span>),
     }
     <span class="kw">match</span> <span class="ident">oct_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">f</span>) {
       <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">f</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">offset</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">i</span>.<span class="ident">len</span>(), <span class="ident">f</span>.<span class="ident">len</span>());
       }
-      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;wrong return type in offset test for oct_digit&quot;</span>),
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;wrong return type in offset test for oct_digit&quot;</span>),
     }
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">is_not_line_ending_bytes</span>() {
     <span class="kw">let</span> <span class="ident">a</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;ab12cd\nefgh&quot;</span>;
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>),
       <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;\nefgh&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;ab12cd&quot;</span>[..]))
     );
 
     <span class="kw">let</span> <span class="ident">b</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;ab12cd\nefgh\nijkl&quot;</span>;
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>),
       <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;\nefgh\nijkl&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;ab12cd&quot;</span>[..]))
     );
 
     <span class="kw">let</span> <span class="ident">c</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;ab12cd\r\nefgh\nijkl&quot;</span>;
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>),
       <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;\r\nefgh\nijkl&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;ab12cd&quot;</span>[..]))
     );
 
     <span class="kw">let</span> <span class="ident">d</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;ab12cd&quot;</span>;
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">Unknown</span>))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Unknown</span>))
     );
   }
 
@@ -1850,144 +1850,144 @@
     */</span>
 
     <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="string">&quot;βèƒôřè\rÂßÇáƒƭèř&quot;</span>;
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">not_line_ending</span>(<span class="ident">f</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>((<span class="ident">f</span>, <span class="ident">ErrorKind</span>::<span class="ident">Tag</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">not_line_ending</span>(<span class="ident">f</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">f</span>, <span class="ident">ErrorKind::Tag</span>))));
 
     <span class="kw">let</span> <span class="ident">g2</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;ab12cd&quot;</span>;
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
+    <span class="macro">assert_eq!</span>(
       <span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">g2</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">Unknown</span>))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Unknown</span>))
     );
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">hex_digit_test</span>() {
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;0123456789abcdefABCDEF;&quot;</span>[..];
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">hex_digit1</span>(<span class="ident">i</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="ident">i</span>[..<span class="ident">i</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>])));
+    <span class="macro">assert_parse!</span>(<span class="ident">hex_digit1</span>(<span class="ident">i</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="ident">i</span>[..<span class="ident">i</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>])));
 
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;g&quot;</span>[..];
-    <span class="macro">assert_parse</span><span class="macro">!</span>(
+    <span class="macro">assert_parse!</span>(
       <span class="ident">hex_digit1</span>(<span class="ident">i</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="macro">error_position</span><span class="macro">!</span>(<span class="ident">i</span>, <span class="ident">ErrorKind</span>::<span class="ident">HexDigit</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::HexDigit</span>)))
     );
 
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;G&quot;</span>[..];
-    <span class="macro">assert_parse</span><span class="macro">!</span>(
+    <span class="macro">assert_parse!</span>(
       <span class="ident">hex_digit1</span>(<span class="ident">i</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="macro">error_position</span><span class="macro">!</span>(<span class="ident">i</span>, <span class="ident">ErrorKind</span>::<span class="ident">HexDigit</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::HexDigit</span>)))
     );
 
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;0&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;9&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;a&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;f&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;A&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;F&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;g&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;G&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;/&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;:&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;@&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_hex_digit</span>(<span class="string">b&#39;\x60&#39;</span>));
+    <span class="macro">assert!</span>(<span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;0&#39;</span>));
+    <span class="macro">assert!</span>(<span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;9&#39;</span>));
+    <span class="macro">assert!</span>(<span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;a&#39;</span>));
+    <span class="macro">assert!</span>(<span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;f&#39;</span>));
+    <span class="macro">assert!</span>(<span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;A&#39;</span>));
+    <span class="macro">assert!</span>(<span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;F&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;g&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;G&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;/&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;:&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;@&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_hex_digit</span>(<span class="string">b&#39;\x60&#39;</span>));
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">oct_digit_test</span>() {
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;01234567;&quot;</span>[..];
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">oct_digit1</span>(<span class="ident">i</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="ident">i</span>[..<span class="ident">i</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>])));
+    <span class="macro">assert_parse!</span>(<span class="ident">oct_digit1</span>(<span class="ident">i</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="ident">i</span>[..<span class="ident">i</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>])));
 
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;8&quot;</span>[..];
-    <span class="macro">assert_parse</span><span class="macro">!</span>(
+    <span class="macro">assert_parse!</span>(
       <span class="ident">oct_digit1</span>(<span class="ident">i</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="macro">error_position</span><span class="macro">!</span>(<span class="ident">i</span>, <span class="ident">ErrorKind</span>::<span class="ident">OctDigit</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::OctDigit</span>)))
     );
 
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;0&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;7&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;8&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;9&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;a&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;A&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;/&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;:&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;@&#39;</span>));
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="kw">crate</span>::<span class="ident">character</span>::<span class="ident">is_oct_digit</span>(<span class="string">b&#39;\x60&#39;</span>));
+    <span class="macro">assert!</span>(<span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;0&#39;</span>));
+    <span class="macro">assert!</span>(<span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;7&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;8&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;9&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;a&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;A&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;/&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;:&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;@&#39;</span>));
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="kw">crate</span><span class="ident">::character::is_oct_digit</span>(<span class="string">b&#39;\x60&#39;</span>));
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">full_line_windows</span>() {
-    <span class="macro">named</span><span class="macro">!</span>(
+    <span class="macro">named!</span>(
       <span class="ident">take_full_line</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>])<span class="op">&gt;</span>,
-      <span class="macro">tuple</span><span class="macro">!</span>(<span class="ident">not_line_ending</span>, <span class="ident">line_ending</span>)
+      <span class="macro">tuple!</span>(<span class="ident">not_line_ending</span>, <span class="ident">line_ending</span>)
     );
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">b&quot;abc\r\n&quot;</span>;
     <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">take_full_line</span>(<span class="ident">input</span>);
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">output</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..], (<span class="kw-2">&amp;</span><span class="string">b&quot;abc&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..]))));
+    <span class="macro">assert_eq!</span>(<span class="ident">output</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..], (<span class="kw-2">&amp;</span><span class="string">b&quot;abc&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..]))));
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">full_line_unix</span>() {
-    <span class="macro">named</span><span class="macro">!</span>(
+    <span class="macro">named!</span>(
       <span class="ident">take_full_line</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>])<span class="op">&gt;</span>,
-      <span class="macro">tuple</span><span class="macro">!</span>(<span class="ident">not_line_ending</span>, <span class="ident">line_ending</span>)
+      <span class="macro">tuple!</span>(<span class="ident">not_line_ending</span>, <span class="ident">line_ending</span>)
     );
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">b&quot;abc\n&quot;</span>;
     <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">take_full_line</span>(<span class="ident">input</span>);
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">output</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..], (<span class="kw-2">&amp;</span><span class="string">b&quot;abc&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\n&quot;</span>[..]))));
+    <span class="macro">assert_eq!</span>(<span class="ident">output</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..], (<span class="kw-2">&amp;</span><span class="string">b&quot;abc&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\n&quot;</span>[..]))));
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">check_windows_lineending</span>() {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">b&quot;\r\n&quot;</span>;
     <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>[..]);
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">output</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..])));
+    <span class="macro">assert_parse!</span>(<span class="ident">output</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..])));
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">check_unix_lineending</span>() {
     <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">b&quot;\n&quot;</span>;
     <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>[..]);
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">output</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\n&quot;</span>[..])));
+    <span class="macro">assert_parse!</span>(<span class="ident">output</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\n&quot;</span>[..])));
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">cr_lf</span>() {
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">crlf</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r\na&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..])));
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">crlf</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">2</span>))));
-    <span class="macro">assert_parse</span><span class="macro">!</span>(
+    <span class="macro">assert_parse!</span>(<span class="ident">crlf</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r\na&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..])));
+    <span class="macro">assert_parse!</span>(<span class="ident">crlf</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">2</span>))));
+    <span class="macro">assert_parse!</span>(
       <span class="ident">crlf</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="macro">error_position</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..], <span class="ident">ErrorKind</span>::<span class="ident">CrLf</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>)))
     );
 
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">crlf</span>(<span class="string">&quot;\r\na&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\r\n&quot;</span>)));
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">crlf</span>(<span class="string">&quot;\r&quot;</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">2</span>))));
-    <span class="macro">assert_parse</span><span class="macro">!</span>(
+    <span class="macro">assert_parse!</span>(<span class="ident">crlf</span>(<span class="string">&quot;\r\na&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\r\n&quot;</span>)));
+    <span class="macro">assert_parse!</span>(<span class="ident">crlf</span>(<span class="string">&quot;\r&quot;</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">2</span>))));
+    <span class="macro">assert_parse!</span>(
       <span class="ident">crlf</span>(<span class="string">&quot;\ra&quot;</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="macro">error_position</span><span class="macro">!</span>(<span class="string">&quot;\ra&quot;</span>, <span class="ident">ErrorKind</span>::<span class="ident">CrLf</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="string">&quot;\ra&quot;</span>, <span class="ident">ErrorKind::CrLf</span>)))
     );
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">end_of_line</span>() {
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\na&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\n&quot;</span>[..])));
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r\na&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..])));
-    <span class="macro">assert_parse</span><span class="macro">!</span>(
+    <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\na&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\n&quot;</span>[..])));
+    <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r\na&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..])));
+    <span class="macro">assert_parse!</span>(
       <span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">2</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">2</span>)))
     );
-    <span class="macro">assert_parse</span><span class="macro">!</span>(
+    <span class="macro">assert_parse!</span>(
       <span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="macro">error_position</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..], <span class="ident">ErrorKind</span>::<span class="ident">CrLf</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>)))
     );
 
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">line_ending</span>(<span class="string">&quot;\na&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\n&quot;</span>)));
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">line_ending</span>(<span class="string">&quot;\r\na&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\r\n&quot;</span>)));
-    <span class="macro">assert_parse</span><span class="macro">!</span>(<span class="ident">line_ending</span>(<span class="string">&quot;\r&quot;</span>), <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Incomplete</span>(<span class="ident">Needed</span>::<span class="ident">new</span>(<span class="number">2</span>))));
-    <span class="macro">assert_parse</span><span class="macro">!</span>(
+    <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="string">&quot;\na&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\n&quot;</span>)));
+    <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="string">&quot;\r\na&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\r\n&quot;</span>)));
+    <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="string">&quot;\r&quot;</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">2</span>))));
+    <span class="macro">assert_parse!</span>(
       <span class="ident">line_ending</span>(<span class="string">&quot;\ra&quot;</span>),
-      <span class="prelude-val">Err</span>(<span class="prelude-val">Err</span>::<span class="ident">Error</span>(<span class="macro">error_position</span><span class="macro">!</span>(<span class="string">&quot;\ra&quot;</span>, <span class="ident">ErrorKind</span>::<span class="ident">CrLf</span>)))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="string">&quot;\ra&quot;</span>, <span class="ident">ErrorKind::CrLf</span>)))
     );
   }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="nom" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="nom" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

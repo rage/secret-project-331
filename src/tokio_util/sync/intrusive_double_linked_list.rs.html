@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-util-0.6.7/src/sync/intrusive_double_linked_list.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>intrusive_double_linked_list.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio_util/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio_util/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -795,9 +795,9 @@
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>, <span class="ident">unreachable_pub</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">marker</span>::<span class="ident">PhantomPinned</span>,
+    <span class="ident">marker::PhantomPinned</span>,
     <span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>},
-    <span class="ident">ptr</span>::<span class="ident">NonNull</span>,
+    <span class="ident">ptr::NonNull</span>,
 };
 
 <span class="doccomment">/// A node which carries data of type `T` and is stored in an intrusive list</span>
@@ -960,7 +960,7 @@
 
     <span class="doccomment">/// Removes the first node from the linked list</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_first</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">debug_assert_with_mut_call</span>)]</span>
+        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::debug_assert_with_mut_call</span>)]</span>
 
         <span class="comment">// Safety: When the node was inserted it was promised that it is alive</span>
         <span class="comment">// until it gets removed from the list</span>
@@ -972,7 +972,7 @@
             <span class="kw">match</span> <span class="ident">first_ref</span>.<span class="ident">next</span> {
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// This was the only node in the list</span>
-                    <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="ident">first_ref</span>.<span class="ident">into</span>()), <span class="self">self</span>.<span class="ident">tail</span>);
+                    <span class="macro">debug_assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="ident">first_ref</span>.<span class="ident">into</span>()), <span class="self">self</span>.<span class="ident">tail</span>);
                     <span class="self">self</span>.<span class="ident">tail</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 }
                 <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">next</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -988,7 +988,7 @@
 
     <span class="doccomment">/// Removes the last node from the linked list and returns it</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_last</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">debug_assert_with_mut_call</span>)]</span>
+        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::debug_assert_with_mut_call</span>)]</span>
 
         <span class="comment">// Safety: When the node was inserted it was promised that it is alive</span>
         <span class="comment">// until it gets removed from the list</span>
@@ -1000,7 +1000,7 @@
             <span class="kw">match</span> <span class="ident">last_ref</span>.<span class="ident">prev</span> {
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// This was the last node in the list</span>
-                    <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="ident">last_ref</span>.<span class="ident">into</span>()), <span class="self">self</span>.<span class="ident">head</span>);
+                    <span class="macro">debug_assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="ident">last_ref</span>.<span class="ident">into</span>()), <span class="self">self</span>.<span class="ident">head</span>);
                     <span class="self">self</span>.<span class="ident">head</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 }
                 <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">prev</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1020,7 +1020,7 @@
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">tail</span>.<span class="ident">is_none</span>());
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">tail</span>.<span class="ident">is_none</span>());
         <span class="bool-val">true</span>
     }
 
@@ -1030,7 +1030,7 @@
     <span class="doccomment">/// list, or of no list at all. If `node` is part of another list, the</span>
     <span class="doccomment">/// behavior is undefined.</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">debug_assert_with_mut_call</span>)]</span>
+        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::debug_assert_with_mut_call</span>)]</span>
 
         <span class="kw">match</span> <span class="ident">node</span>.<span class="ident">prev</span> {
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1039,13 +1039,13 @@
                 <span class="comment">// the node must either be in this list or in no list, we check that</span>
                 <span class="comment">// the node is really in no list.</span>
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">head</span> <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()) {
-                    <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">node</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
+                    <span class="macro">debug_assert!</span>(<span class="ident">node</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
                     <span class="kw">return</span> <span class="bool-val">false</span>;
                 }
                 <span class="self">self</span>.<span class="ident">head</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">next</span>;
             }
             <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">prev</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">prev</span>.<span class="ident">as_ref</span>().<span class="ident">next</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()));
+                <span class="macro">debug_assert_eq!</span>(<span class="ident">prev</span>.<span class="ident">as_ref</span>().<span class="ident">next</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()));
                 <span class="ident">prev</span>.<span class="ident">as_mut</span>().<span class="ident">next</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">next</span>;
             }
         }
@@ -1054,11 +1054,11 @@
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// This must be the last node in our list. Otherwise the list</span>
                 <span class="comment">// is inconsistent.</span>
-                <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">tail</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()));
+                <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.<span class="ident">tail</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()));
                 <span class="self">self</span>.<span class="ident">tail</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">prev</span>;
             }
             <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">next</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">next</span>.<span class="ident">as_mut</span>().<span class="ident">prev</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()));
+                <span class="macro">debug_assert_eq!</span>(<span class="ident">next</span>.<span class="ident">as_mut</span>().<span class="ident">prev</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()));
                 <span class="ident">next</span>.<span class="ident">as_mut</span>().<span class="ident">prev</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">prev</span>;
             }
         }
@@ -1143,7 +1143,7 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="kw">fn</span> <span class="ident">collect_list</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="ident">list</span>.<span class="ident">drain</span>(<span class="op">|</span><span class="ident">node</span><span class="op">|</span> {
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">node</span>);
         });
@@ -1151,7 +1151,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">collect_reverse_list</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="ident">list</span>.<span class="ident">reverse_drain</span>(<span class="op">|</span><span class="ident">node</span><span class="op">|</span> {
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">node</span>);
         });
@@ -1165,147 +1165,147 @@
     }
 
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">assert_clean</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">node</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">node</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">node</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">node</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">insert_and_iterate</span>() {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">5</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">7</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">31</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">5</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">7</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">31</span>);
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">setup</span> <span class="op">=</span> <span class="op">|</span><span class="ident">list</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">|</span> {
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">is_empty</span>());
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">is_empty</span>());
                 <span class="ident">list</span>.<span class="ident">add_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">31</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">list</span>.<span class="ident">peek_first</span>().<span class="ident">unwrap</span>());
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">is_empty</span>());
+                <span class="macro">assert_eq!</span>(<span class="number">31</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">list</span>.<span class="ident">peek_first</span>().<span class="ident">unwrap</span>());
+                <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">is_empty</span>());
                 <span class="ident">list</span>.<span class="ident">add_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">7</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">list</span>.<span class="ident">peek_first</span>().<span class="ident">unwrap</span>());
+                <span class="macro">assert_eq!</span>(<span class="number">7</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">list</span>.<span class="ident">peek_first</span>().<span class="ident">unwrap</span>());
                 <span class="ident">list</span>.<span class="ident">add_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">5</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">list</span>.<span class="ident">peek_first</span>().<span class="ident">unwrap</span>());
+                <span class="macro">assert_eq!</span>(<span class="number">5</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">list</span>.<span class="ident">peek_first</span>().<span class="ident">unwrap</span>());
             };
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">setup</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">setup</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">add_sorted</span>() {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">5</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">7</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">31</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">99</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">5</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">7</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">31</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">99</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">d</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>]);
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>, <span class="number">99</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>, <span class="number">99</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">d</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>]);
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">99</span>, <span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">99</span>, <span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">d</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>, <span class="number">99</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>, <span class="number">99</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">d</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">99</span>, <span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">99</span>, <span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">d</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>, <span class="number">99</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>, <span class="number">99</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">d</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">99</span>, <span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">99</span>, <span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">d</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>, <span class="number">99</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>, <span class="number">99</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="ident">list</span>.<span class="ident">add_sorted</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">d</span>);
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">99</span>, <span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">99</span>, <span class="number">31</span>, <span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">drain_and_collect</span>() {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">5</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">7</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">31</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">5</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">7</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">31</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
 
             <span class="kw">let</span> <span class="ident">taken_items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">taken_items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>, <span class="number">7</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">taken_items</span>);
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">peek_last</span>() {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">5</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">7</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">31</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">5</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">7</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">31</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
 
             <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">peek_last</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">31</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">last</span>.<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">31</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">last</span>.<span class="ident">unwrap</span>());
             <span class="ident">list</span>.<span class="ident">remove_last</span>();
 
             <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">peek_last</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">7</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">last</span>.<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">7</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">last</span>.<span class="ident">unwrap</span>());
             <span class="ident">list</span>.<span class="ident">remove_last</span>();
 
             <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">peek_last</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">5</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">last</span>.<span class="ident">unwrap</span>());
+            <span class="macro">assert_eq!</span>(<span class="number">5</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">last</span>.<span class="ident">unwrap</span>());
             <span class="ident">list</span>.<span class="ident">remove_last</span>();
 
             <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">peek_last</span>();
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">last</span>.<span class="ident">is_none</span>());
+            <span class="macro">assert!</span>(<span class="ident">last</span>.<span class="ident">is_none</span>());
         }
     }
 
@@ -1314,57 +1314,57 @@
         <span class="kw">unsafe</span> {
             <span class="comment">// We iterate forward and backwards through the manipulated lists</span>
             <span class="comment">// to make sure pointers in both directions are still ok.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">5</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">7</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">31</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">5</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">7</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">31</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_first</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">7</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">7</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_first</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">31</span>, <span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">31</span>, <span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_first</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_first</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_first</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_first</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
         }
     }
 
@@ -1373,211 +1373,211 @@
         <span class="kw">unsafe</span> {
             <span class="comment">// We iterate forward and backwards through the manipulated lists</span>
             <span class="comment">// to make sure pointers in both directions are still ok.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">5</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">7</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">31</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">5</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">7</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">31</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_last</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>, <span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>, <span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_last</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_last</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_last</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+            <span class="macro">assert_eq!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_last</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
             <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
             <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">remove_last</span>().<span class="ident">unwrap</span>();
             <span class="ident">assert_clean</span>(<span class="ident">removed</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">list</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">remove_by_address</span>() {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">5</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">7</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode</span>::<span class="ident">new</span>(<span class="number">31</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">5</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">7</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ListNode::new</span>(<span class="number">31</span>);
 
             {
                 <span class="comment">// Remove first</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>());
                 <span class="comment">// a should be no longer there and can&#39;t be removed twice</span>
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>()), <span class="ident">b</span>.<span class="ident">next</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">c</span>.<span class="ident">prev</span>);
+                <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>()), <span class="ident">b</span>.<span class="ident">next</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">c</span>.<span class="ident">prev</span>);
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">7</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">7</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>());
                 <span class="comment">// a should be no longer there and can&#39;t be removed twice</span>
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>()), <span class="ident">b</span>.<span class="ident">next</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">c</span>.<span class="ident">prev</span>);
+                <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>()), <span class="ident">b</span>.<span class="ident">next</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">c</span>.<span class="ident">prev</span>);
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">31</span>, <span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">31</span>, <span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
             }
 
             {
                 <span class="comment">// Remove middle</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>());
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>()), <span class="ident">a</span>.<span class="ident">next</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">c</span>.<span class="ident">prev</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>()), <span class="ident">a</span>.<span class="ident">next</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">c</span>.<span class="ident">prev</span>);
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">5</span>, <span class="number">31</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>());
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>()), <span class="ident">a</span>.<span class="ident">next</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">c</span>.<span class="ident">prev</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>()), <span class="ident">a</span>.<span class="ident">next</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">c</span>.<span class="ident">prev</span>);
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">31</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">31</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
             }
 
             {
                 <span class="comment">// Remove last</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>());
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
+                <span class="macro">assert!</span>(<span class="ident">b</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>, <span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">5</span>, <span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>).<span class="ident">into</span>());
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
+                <span class="macro">assert!</span>(<span class="ident">b</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">7</span>, <span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
             }
 
             {
                 <span class="comment">// Remove first of two</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>());
                 <span class="comment">// a should be no longer there and can&#39;t be removed twice</span>
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
+                <span class="macro">assert!</span>(<span class="ident">b</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert!</span>(<span class="ident">b</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>());
                 <span class="comment">// a should be no longer there and can&#39;t be removed twice</span>
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
+                <span class="macro">assert!</span>(<span class="ident">b</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert!</span>(<span class="ident">b</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">7</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
             }
 
             {
                 <span class="comment">// Remove last of two</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>());
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
+                <span class="macro">assert!</span>(<span class="ident">a</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert!</span>(<span class="ident">a</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>).<span class="ident">into</span>());
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">head</span>);
+                <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>()), <span class="ident">list</span>.<span class="ident">tail</span>);
+                <span class="macro">assert!</span>(<span class="ident">a</span>.<span class="ident">next</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert!</span>(<span class="ident">a</span>.<span class="ident">prev</span>.<span class="ident">is_none</span>());
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_reverse_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
+                <span class="macro">assert_eq!</span>([<span class="number">5</span>].<span class="ident">to_vec</span>(), <span class="ident">items</span>);
             }
 
             {
                 <span class="comment">// Remove last item</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">add_nodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>]);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>));
                 <span class="ident">assert_clean</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>).<span class="ident">into</span>());
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">list</span>.<span class="ident">head</span>.<span class="ident">is_none</span>());
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">list</span>.<span class="ident">tail</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">head</span>.<span class="ident">is_none</span>());
+                <span class="macro">assert!</span>(<span class="ident">list</span>.<span class="ident">tail</span>.<span class="ident">is_none</span>());
                 <span class="kw">let</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">collect_list</span>(<span class="ident">list</span>);
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
+                <span class="macro">assert!</span>(<span class="ident">items</span>.<span class="ident">is_empty</span>());
             }
 
             {
                 <span class="comment">// Remove missing</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
                 <span class="ident">list</span>.<span class="ident">add_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>);
                 <span class="ident">list</span>.<span class="ident">add_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">a</span>);
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>));
+                <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">list</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">c</span>));
             }
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio_util" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio_util" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

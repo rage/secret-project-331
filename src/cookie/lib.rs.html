@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cookie-0.14.4/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../cookie/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../cookie/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1357,22 +1357,22 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;private&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;signed&quot;</span>))]</span> <span class="attribute">#[<span class="ident">macro_use</span>]</span> <span class="kw">mod</span> <span class="ident">secure</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;private&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;signed&quot;</span>))]</span> <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">secure</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
+<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>, <span class="ident">deprecated</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ascii</span>::<span class="ident">AsciiExt</span>;
+<span class="kw">use</span> <span class="ident">std::ascii::AsciiExt</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">percent_encoding</span>::{<span class="ident">AsciiSet</span>, <span class="ident">percent_encode</span>};
 <span class="kw">use</span> <span class="ident">time</span>::{<span class="ident">Duration</span>, <span class="ident">OffsetDateTime</span>, <span class="ident">UtcOffset</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">parse</span>::<span class="ident">parse_cookie</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">parse</span>::<span class="ident">ParseError</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">builder</span>::<span class="ident">CookieBuilder</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">jar</span>::{<span class="ident">CookieJar</span>, <span class="ident">Delta</span>, <span class="ident">Iter</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">draft</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::parse::parse_cookie</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::parse::ParseError</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::builder::CookieBuilder</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::jar</span>::{<span class="ident">CookieJar</span>, <span class="ident">Delta</span>, <span class="ident">Iter</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::draft</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">enum</span> <span class="ident">CookieStr</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
@@ -1392,34 +1392,34 @@
     <span class="doccomment">/// Panics if `self` is an indexed string and `string` is None.</span>
     <span class="kw">fn</span> <span class="ident">to_str</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">CookieStr</span>::<span class="ident">Indexed</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CookieStr::Indexed</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">string</span>.<span class="ident">expect</span>(<span class="string">&quot;`Some` base string must exist when \
                     converting indexed str to str! (This is a module invariant.)&quot;</span>);
                 <span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">i</span>..<span class="ident">j</span>]
             },
-            <span class="ident">CookieStr</span>::<span class="ident">Concrete</span>(<span class="kw-2">ref</span> <span class="ident">cstr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">cstr</span>,
+            <span class="ident">CookieStr::Concrete</span>(<span class="kw-2">ref</span> <span class="ident">cstr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">cstr</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">to_raw_str</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;s</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">CookieStr</span>::<span class="ident">Indexed</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CookieStr::Indexed</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">string</span> {
-                    <span class="ident">Cow</span>::<span class="ident">Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">i</span>..<span class="ident">j</span>]),
-                    <span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">i</span>..<span class="ident">j</span>]),
+                    <span class="ident">Cow::Owned</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
                 }
             },
-            <span class="ident">CookieStr</span>::<span class="ident">Concrete</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">CookieStr::Concrete</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">into_owned</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CookieStr</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">CookieStr</span>::<span class="kw-2">*</span>;
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::CookieStr</span>::<span class="kw-2">*</span>;
 
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Indexed</span>(<span class="ident">a</span>, <span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Indexed</span>(<span class="ident">a</span>, <span class="ident">b</span>),
-            <span class="ident">Concrete</span>(<span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">c</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Concrete</span>(<span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">c</span>)),
-            <span class="ident">Concrete</span>(<span class="ident">Cow</span>::<span class="ident">Borrowed</span>(<span class="ident">c</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Concrete</span>(<span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">c</span>.<span class="ident">into</span>())),
+            <span class="ident">Concrete</span>(<span class="ident">Cow::Owned</span>(<span class="ident">c</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Concrete</span>(<span class="ident">Cow::Owned</span>(<span class="ident">c</span>)),
+            <span class="ident">Concrete</span>(<span class="ident">Cow::Borrowed</span>(<span class="ident">c</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Concrete</span>(<span class="ident">Cow::Owned</span>(<span class="ident">c</span>.<span class="ident">into</span>())),
         }
     }
 }
@@ -1492,8 +1492,8 @@
     {
         <span class="ident">Cookie</span> {
             <span class="ident">cookie_string</span>: <span class="prelude-val">None</span>,
-            <span class="ident">name</span>: <span class="ident">CookieStr</span>::<span class="ident">Concrete</span>(<span class="ident">name</span>.<span class="ident">into</span>()),
-            <span class="ident">value</span>: <span class="ident">CookieStr</span>::<span class="ident">Concrete</span>(<span class="ident">value</span>.<span class="ident">into</span>()),
+            <span class="ident">name</span>: <span class="ident">CookieStr::Concrete</span>(<span class="ident">name</span>.<span class="ident">into</span>()),
+            <span class="ident">value</span>: <span class="ident">CookieStr::Concrete</span>(<span class="ident">value</span>.<span class="ident">into</span>()),
             <span class="ident">expires</span>: <span class="prelude-val">None</span>,
             <span class="ident">max_age</span>: <span class="prelude-val">None</span>,
             <span class="ident">domain</span>: <span class="prelude-val">None</span>,
@@ -1518,7 +1518,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">named</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="ident">N</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>
     {
-        <span class="ident">Cookie</span>::<span class="ident">new</span>(<span class="ident">name</span>, <span class="string">&quot;&quot;</span>)
+        <span class="ident">Cookie::new</span>(<span class="ident">name</span>, <span class="string">&quot;&quot;</span>)
     }
 
     <span class="doccomment">/// Creates a new `CookieBuilder` instance from the given key and value</span>
@@ -1536,7 +1536,7 @@
         <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
               <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>
     {
-        <span class="ident">CookieBuilder</span>::<span class="ident">new</span>(<span class="ident">name</span>, <span class="ident">value</span>)
+        <span class="ident">CookieBuilder::new</span>(<span class="ident">name</span>, <span class="ident">value</span>)
     }
 
     <span class="doccomment">/// Parses a `Cookie` from the given HTTP cookie header value string. Does</span>
@@ -1844,7 +1844,7 @@
     <span class="doccomment">/// assert_eq!(c.name(), &quot;foo&quot;);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_name</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>) {
-        <span class="self">self</span>.<span class="ident">name</span> <span class="op">=</span> <span class="ident">CookieStr</span>::<span class="ident">Concrete</span>(<span class="ident">name</span>.<span class="ident">into</span>())
+        <span class="self">self</span>.<span class="ident">name</span> <span class="op">=</span> <span class="ident">CookieStr::Concrete</span>(<span class="ident">name</span>.<span class="ident">into</span>())
     }
 
     <span class="doccomment">/// Sets the value of `self` to `value`.</span>
@@ -1861,7 +1861,7 @@
     <span class="doccomment">/// assert_eq!(c.value(), &quot;bar&quot;);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_value</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) {
-        <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="ident">CookieStr</span>::<span class="ident">Concrete</span>(<span class="ident">value</span>.<span class="ident">into</span>())
+        <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="ident">CookieStr::Concrete</span>(<span class="ident">value</span>.<span class="ident">into</span>())
     }
 
     <span class="doccomment">/// Sets the value of `http_only` in `self` to `value`.  If `value` is</span>
@@ -1995,7 +1995,7 @@
     <span class="doccomment">/// assert_eq!(c.path(), Some(&quot;/&quot;));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_path</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="ident">P</span>) {
-        <span class="self">self</span>.<span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CookieStr</span>::<span class="ident">Concrete</span>(<span class="ident">path</span>.<span class="ident">into</span>()));
+        <span class="self">self</span>.<span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CookieStr::Concrete</span>(<span class="ident">path</span>.<span class="ident">into</span>()));
     }
 
     <span class="doccomment">/// Unsets the `path` of `self`.</span>
@@ -2032,7 +2032,7 @@
     <span class="doccomment">/// assert_eq!(c.domain(), Some(&quot;rust-lang.org&quot;));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_domain</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">domain</span>: <span class="ident">D</span>) {
-        <span class="self">self</span>.<span class="ident">domain</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CookieStr</span>::<span class="ident">Concrete</span>(<span class="ident">domain</span>.<span class="ident">into</span>()));
+        <span class="self">self</span>.<span class="ident">domain</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CookieStr::Concrete</span>(<span class="ident">domain</span>.<span class="ident">into</span>()));
     }
 
     <span class="doccomment">/// Unsets the `domain` of `self`.</span>
@@ -2083,13 +2083,13 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_expires</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OffsetDateTime</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">time</span>: <span class="ident">T</span>) {
         <span class="kw">use</span> <span class="ident">time</span>::{<span class="ident">date</span>, <span class="ident">time</span>, <span class="ident">offset</span>};
-        <span class="kw">static</span> <span class="ident">MAX_DATETIME</span>: <span class="ident">OffsetDateTime</span> <span class="op">=</span> <span class="macro">date</span><span class="macro">!</span>(<span class="number">9999</span><span class="op">-</span><span class="number">12</span><span class="op">-</span><span class="number">31</span>)
-            .<span class="ident">with_time</span>(<span class="macro">time</span><span class="macro">!</span>(<span class="number">23</span>:<span class="number">59</span>:<span class="number">59.999_999</span>))
+        <span class="kw">static</span> <span class="ident">MAX_DATETIME</span>: <span class="ident">OffsetDateTime</span> <span class="op">=</span> <span class="macro">date!</span>(<span class="number">9999</span><span class="op">-</span><span class="number">12</span><span class="op">-</span><span class="number">31</span>)
+            .<span class="ident">with_time</span>(<span class="macro">time!</span>(<span class="number">23</span>:<span class="number">59</span>:<span class="number">59.999_999</span>))
             .<span class="ident">assume_utc</span>()
-            .<span class="ident">to_offset</span>(<span class="macro">offset</span><span class="macro">!</span>(<span class="ident">UTC</span>));
+            .<span class="ident">to_offset</span>(<span class="macro">offset!</span>(<span class="ident">UTC</span>));
 
         <span class="comment">// RFC 6265 requires dates not to exceed 9999 years.</span>
-        <span class="self">self</span>.<span class="ident">expires</span> <span class="op">=</span> <span class="ident">time</span>.<span class="ident">into</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">time</span><span class="op">|</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">time</span>, <span class="ident">MAX_DATETIME</span>));
+        <span class="self">self</span>.<span class="ident">expires</span> <span class="op">=</span> <span class="ident">time</span>.<span class="ident">into</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">time</span><span class="op">|</span> <span class="ident">std::cmp::min</span>(<span class="ident">time</span>, <span class="ident">MAX_DATETIME</span>));
     }
 
     <span class="doccomment">/// Makes `self` a &quot;permanent&quot; cookie by extending its expiration and max</span>
@@ -2115,43 +2115,43 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_permanent</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">twenty_years</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">days</span>(<span class="number">365</span> <span class="op">*</span> <span class="number">20</span>);
+        <span class="kw">let</span> <span class="ident">twenty_years</span> <span class="op">=</span> <span class="ident">Duration::days</span>(<span class="number">365</span> <span class="op">*</span> <span class="number">20</span>);
         <span class="self">self</span>.<span class="ident">set_max_age</span>(<span class="ident">twenty_years</span>);
-        <span class="self">self</span>.<span class="ident">set_expires</span>(<span class="ident">OffsetDateTime</span>::<span class="ident">now_utc</span>() <span class="op">+</span> <span class="ident">twenty_years</span>);
+        <span class="self">self</span>.<span class="ident">set_expires</span>(<span class="ident">OffsetDateTime::now_utc</span>() <span class="op">+</span> <span class="ident">twenty_years</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">fmt_parameters</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt_parameters</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">http_only</span>() {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;; HttpOnly&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; HttpOnly&quot;</span>)<span class="question-mark">?</span>;
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">same_site</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">same_site</span>() {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;; SameSite={}&quot;</span>, <span class="ident">same_site</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; SameSite={}&quot;</span>, <span class="ident">same_site</span>)<span class="question-mark">?</span>;
 
             <span class="kw">if</span> <span class="ident">same_site</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">secure</span>().<span class="ident">is_none</span>() {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;; Secure&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; Secure&quot;</span>)<span class="question-mark">?</span>;
             }
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">secure</span>() {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;; Secure&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; Secure&quot;</span>)<span class="question-mark">?</span>;
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>() {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;; Path={}&quot;</span>, <span class="ident">path</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; Path={}&quot;</span>, <span class="ident">path</span>)<span class="question-mark">?</span>;
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">domain</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">domain</span>() {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;; Domain={}&quot;</span>, <span class="ident">domain</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; Domain={}&quot;</span>, <span class="ident">domain</span>)<span class="question-mark">?</span>;
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_age</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_age</span>() {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;; Max-Age={}&quot;</span>, <span class="ident">max_age</span>.<span class="ident">whole_seconds</span>())<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; Max-Age={}&quot;</span>, <span class="ident">max_age</span>.<span class="ident">whole_seconds</span>())<span class="question-mark">?</span>;
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">time</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">expires</span>() {
-            <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">time</span>.<span class="ident">to_offset</span>(<span class="ident">UtcOffset</span>::<span class="ident">UTC</span>);
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;; Expires={}&quot;</span>, <span class="ident">time</span>.<span class="ident">format</span>(<span class="string">&quot;%a, %d %b %Y %H:%M:%S GMT&quot;</span>))<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">time</span>.<span class="ident">to_offset</span>(<span class="ident">UtcOffset::UTC</span>);
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; Expires={}&quot;</span>, <span class="ident">time</span>.<span class="ident">format</span>(<span class="string">&quot;%a, %d %b %Y %H:%M:%S GMT&quot;</span>))<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -2287,7 +2287,7 @@
 
 <span class="doccomment">/// https://url.spec.whatwg.org/#fragment-percent-encode-set</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
-<span class="kw">const</span> <span class="ident">FRAGMENT_ENCODE_SET</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">percent_encoding</span>::<span class="ident">CONTROLS</span>.<span class="ident">add</span>(<span class="string">b&#39; &#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;&quot;&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;&lt;&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;&gt;&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;`&#39;</span>);
+<span class="kw">const</span> <span class="ident">FRAGMENT_ENCODE_SET</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">percent_encoding::CONTROLS</span>.<span class="ident">add</span>(<span class="string">b&#39; &#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;&quot;&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;&lt;&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;&gt;&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;`&#39;</span>);
 
 <span class="doccomment">/// https://url.spec.whatwg.org/#path-percent-encode-set</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
@@ -2328,19 +2328,19 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">nightly</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">EncodedCookie</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">EncodedCookie</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="comment">// Percent-encode the name and value.</span>
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">name</span>().<span class="ident">as_bytes</span>(), <span class="ident">USERINFO_ENCODE_SET</span>);
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">value</span>().<span class="ident">as_bytes</span>(), <span class="ident">USERINFO_ENCODE_SET</span>);
 
         <span class="comment">// Write out the name/value pair and the cookie&#39;s parameters.</span>
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}={}&quot;</span>, <span class="ident">name</span>, <span class="ident">value</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}={}&quot;</span>, <span class="ident">name</span>, <span class="ident">value</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">fmt_parameters</span>(<span class="ident">f</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Formats the cookie `self` as a `Set-Cookie` header value.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
@@ -2354,8 +2354,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&amp;cookie.to_string(), &quot;foo=bar; Path=/&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}={}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>(), <span class="self">self</span>.<span class="ident">value</span>())<span class="question-mark">?</span>;
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}={}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>(), <span class="self">self</span>.<span class="ident">value</span>())<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">fmt_parameters</span>(<span class="ident">f</span>)
     }
 }
@@ -2364,7 +2364,7 @@
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ParseError</span>;
 
     <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
-        <span class="ident">Cookie</span>::<span class="ident">parse</span>(<span class="ident">s</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">into_owned</span>())
+        <span class="ident">Cookie::parse</span>(<span class="ident">s</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">into_owned</span>())
     }
 }
 
@@ -2400,72 +2400,72 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Cookie</span>, <span class="ident">SameSite</span>};
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">parse</span>::<span class="ident">parse_gmt_date</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">time</span>::<span class="ident">Duration</span>, <span class="ident">OffsetDateTime</span>};
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::parse::parse_gmt_date</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">time::Duration</span>, <span class="ident">OffsetDateTime</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">format</span>() {
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">new</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar&quot;</span>);
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::new</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
             .<span class="ident">http_only</span>(<span class="bool-val">true</span>).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; HttpOnly&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; HttpOnly&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
-            .<span class="ident">max_age</span>(<span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10</span>)).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; Max-Age=10&quot;</span>);
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+            .<span class="ident">max_age</span>(<span class="ident">Duration::seconds</span>(<span class="number">10</span>)).<span class="ident">finish</span>();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; Max-Age=10&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
             .<span class="ident">secure</span>(<span class="bool-val">true</span>).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; Secure&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; Secure&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
             .<span class="ident">path</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; Path=/&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; Path=/&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
             .<span class="ident">domain</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; Domain=www.rust-lang.org&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; Domain=www.rust-lang.org&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">time_str</span> <span class="op">=</span> <span class="string">&quot;Wed, 21 Oct 2015 07:28:00 GMT&quot;</span>;
         <span class="kw">let</span> <span class="ident">expires</span> <span class="op">=</span> <span class="ident">parse_gmt_date</span>(<span class="ident">time_str</span>, <span class="string">&quot;%a, %d %b %Y %H:%M:%S GMT&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
             .<span class="ident">expires</span>(<span class="ident">expires</span>).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(),
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(),
                    <span class="string">&quot;foo=bar; Expires=Wed, 21 Oct 2015 07:28:00 GMT&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
-            .<span class="ident">same_site</span>(<span class="ident">SameSite</span>::<span class="ident">Strict</span>).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=Strict&quot;</span>);
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+            .<span class="ident">same_site</span>(<span class="ident">SameSite::Strict</span>).<span class="ident">finish</span>();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=Strict&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
-            .<span class="ident">same_site</span>(<span class="ident">SameSite</span>::<span class="ident">Lax</span>).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=Lax&quot;</span>);
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+            .<span class="ident">same_site</span>(<span class="ident">SameSite::Lax</span>).<span class="ident">finish</span>();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=Lax&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
-            .<span class="ident">same_site</span>(<span class="ident">SameSite</span>::<span class="prelude-val">None</span>).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=None; Secure&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+            .<span class="ident">same_site</span>(<span class="ident">SameSite::None</span>).<span class="ident">finish</span>();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=None; Secure&quot;</span>);
 
         <span class="ident">cookie</span>.<span class="ident">set_same_site</span>(<span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
-            .<span class="ident">same_site</span>(<span class="ident">SameSite</span>::<span class="prelude-val">None</span>)
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+            .<span class="ident">same_site</span>(<span class="ident">SameSite::None</span>)
             .<span class="ident">secure</span>(<span class="bool-val">false</span>)
             .<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=None&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=None&quot;</span>);
         <span class="ident">cookie</span>.<span class="ident">set_secure</span>(<span class="bool-val">true</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=None; Secure&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(), <span class="string">&quot;foo=bar; SameSite=None; Secure&quot;</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">format_date_wraps</span>() {
-        <span class="kw">let</span> <span class="ident">expires</span> <span class="op">=</span> <span class="ident">OffsetDateTime</span>::<span class="ident">unix_epoch</span>() <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">max_value</span>();
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
+        <span class="kw">let</span> <span class="ident">expires</span> <span class="op">=</span> <span class="ident">OffsetDateTime::unix_epoch</span>() <span class="op">+</span> <span class="ident">Duration::max_value</span>();
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
             .<span class="ident">expires</span>(<span class="ident">expires</span>).<span class="ident">finish</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(),
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>(),
                    <span class="string">&quot;foo=bar; Expires=Fri, 31 Dec 9999 23:59:59 GMT&quot;</span>);
     }
 
@@ -2474,14 +2474,14 @@
         <span class="kw">let</span> <span class="ident">cookie_string</span> <span class="op">=</span> <span class="string">&quot;bar=baz; Path=/subdir; HttpOnly; Domain=crates.io&quot;</span>.<span class="ident">to_owned</span>();
         <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">value</span>, <span class="ident">path</span>, <span class="ident">domain</span>) <span class="op">=</span> {
             <span class="comment">// Create a cookie passing a slice</span>
-            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">parse</span>(<span class="ident">cookie_string</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Cookie::parse</span>(<span class="ident">cookie_string</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap</span>();
             (<span class="ident">c</span>.<span class="ident">name_raw</span>(), <span class="ident">c</span>.<span class="ident">value_raw</span>(), <span class="ident">c</span>.<span class="ident">path_raw</span>(), <span class="ident">c</span>.<span class="ident">domain_raw</span>())
         };
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">name</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">value</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">path</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;/subdir&quot;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">domain</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;crates.io&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">name</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">value</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">path</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;/subdir&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">domain</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;crates.io&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -2489,14 +2489,14 @@
         <span class="kw">let</span> <span class="ident">cookie_string</span> <span class="op">=</span> <span class="string">&quot;bar=baz; Path=/subdir; HttpOnly; Domain=crates.io&quot;</span>.<span class="ident">to_owned</span>();
         <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">value</span>, <span class="ident">path</span>, <span class="ident">domain</span>) <span class="op">=</span> {
             <span class="comment">// Create a cookie passing an owned string</span>
-            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">parse</span>(<span class="ident">cookie_string</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Cookie::parse</span>(<span class="ident">cookie_string</span>).<span class="ident">unwrap</span>();
             (<span class="ident">c</span>.<span class="ident">name_raw</span>(), <span class="ident">c</span>.<span class="ident">value_raw</span>(), <span class="ident">c</span>.<span class="ident">path_raw</span>(), <span class="ident">c</span>.<span class="ident">domain_raw</span>())
         };
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">name</span>, <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">value</span>, <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">path</span>, <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">domain</span>, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">name</span>, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">value</span>, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">path</span>, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">domain</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -2504,28 +2504,28 @@
         <span class="kw">let</span> <span class="ident">cookie_string</span> <span class="op">=</span> <span class="string">&quot;bar=baz; Path=/subdir; HttpOnly; Domain=crates.io&quot;</span>;
         <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">value</span>, <span class="ident">path</span>, <span class="ident">domain</span>) <span class="op">=</span> {
             <span class="comment">// Create an owned cookie</span>
-            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">parse</span>(<span class="ident">cookie_string</span>).<span class="ident">unwrap</span>().<span class="ident">into_owned</span>();
+            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Cookie::parse</span>(<span class="ident">cookie_string</span>).<span class="ident">unwrap</span>().<span class="ident">into_owned</span>();
 
             (<span class="ident">c</span>.<span class="ident">name_raw</span>(), <span class="ident">c</span>.<span class="ident">value_raw</span>(), <span class="ident">c</span>.<span class="ident">path_raw</span>(), <span class="ident">c</span>.<span class="ident">domain_raw</span>())
         };
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">name</span>, <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">value</span>, <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">path</span>, <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">domain</span>, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">name</span>, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">value</span>, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">path</span>, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">domain</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">format_encoded</span>() {
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">build</span>(<span class="string">&quot;foo !?=&quot;</span>, <span class="string">&quot;bar;; a&quot;</span>).<span class="ident">finish</span>();
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo !?=&quot;</span>, <span class="string">&quot;bar;; a&quot;</span>).<span class="ident">finish</span>();
         <span class="kw">let</span> <span class="ident">cookie_str</span> <span class="op">=</span> <span class="ident">cookie</span>.<span class="ident">encoded</span>().<span class="ident">to_string</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie_str</span>, <span class="string">&quot;foo%20!%3F%3D=bar%3B%3B%20a&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie_str</span>, <span class="string">&quot;foo%20!%3F%3D=bar%3B%3B%20a&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie</span>::<span class="ident">parse_encoded</span>(<span class="ident">cookie_str</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cookie</span>.<span class="ident">name_value</span>(), (<span class="string">&quot;foo !?=&quot;</span>, <span class="string">&quot;bar;; a&quot;</span>));
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::parse_encoded</span>(<span class="ident">cookie_str</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">cookie</span>.<span class="ident">name_value</span>(), (<span class="string">&quot;foo !?=&quot;</span>, <span class="string">&quot;bar;; a&quot;</span>));
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cookie" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cookie" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

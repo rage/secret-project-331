@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.0-beta.5/src/app_service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app_service.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.0-beta.5/src/app_service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app_service.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -366,23 +366,23 @@
 <span id="365">365</span>
 <span id="366">366</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
+<span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+<span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
 
 <span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">Extensions</span>, <span class="ident">Request</span>, <span class="ident">Response</span>};
 <span class="kw">use</span> <span class="ident">actix_router</span>::{<span class="ident">Path</span>, <span class="ident">ResourceDef</span>, <span class="ident">Router</span>, <span class="ident">Url</span>};
-<span class="kw">use</span> <span class="ident">actix_service</span>::<span class="ident">boxed</span>::{<span class="self">self</span>, <span class="ident">BoxService</span>, <span class="ident">BoxServiceFactory</span>};
+<span class="kw">use</span> <span class="ident">actix_service::boxed</span>::{<span class="self">self</span>, <span class="ident">BoxService</span>, <span class="ident">BoxServiceFactory</span>};
 <span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">fn_service</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>};
-<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">future</span>::<span class="ident">LocalBoxFuture</span>;
-<span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">future</span>::<span class="ident">join_all</span>;
+<span class="kw">use</span> <span class="ident">futures_core::future::LocalBoxFuture</span>;
+<span class="kw">use</span> <span class="ident">futures_util::future::join_all</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">config</span>::{<span class="ident">AppConfig</span>, <span class="ident">AppService</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">data</span>::<span class="ident">FnDataFactory</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">guard</span>::<span class="ident">Guard</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">request</span>::{<span class="ident">HttpRequest</span>, <span class="ident">HttpRequestPool</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">rmap</span>::<span class="ident">ResourceMap</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">service</span>::{<span class="ident">AppServiceFactory</span>, <span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::config</span>::{<span class="ident">AppConfig</span>, <span class="ident">AppService</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::data::FnDataFactory</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Error</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::guard::Guard</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::request</span>::{<span class="ident">HttpRequest</span>, <span class="ident">HttpRequestPool</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::rmap::ResourceMap</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::service</span>::{<span class="ident">AppServiceFactory</span>, <span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>};
 
 <span class="kw">type</span> <span class="ident">Guards</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 <span class="kw">type</span> <span class="ident">HttpService</span> <span class="op">=</span> <span class="ident">BoxService</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
@@ -418,33 +418,33 @@
         <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>,
         <span class="ident">InitError</span> <span class="op">=</span> (),
     <span class="op">&gt;</span>,
-    <span class="ident">T</span>::<span class="ident">Future</span>: <span class="lifetime">&#39;static</span>,
+    <span class="ident">T::Future</span>: <span class="lifetime">&#39;static</span>,
 {
     <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">Error</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">T::Error</span>;
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">AppConfig</span>;
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">AppInitService</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Service</span>, <span class="ident">B</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Service</span>, <span class="self">Self</span>::<span class="ident">InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">AppInitService</span><span class="op">&lt;</span><span class="ident">T::Service</span>, <span class="ident">B</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">T::InitError</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Service</span>, <span class="self">Self</span><span class="ident">::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">config</span>: <span class="ident">AppConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">config</span>: <span class="ident">AppConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Future</span> {
         <span class="comment">// set AppService&#39;s default service to 404 NotFound</span>
         <span class="comment">// if no user defined default service exists.</span>
         <span class="kw">let</span> <span class="ident">default</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">boxed</span>::<span class="ident">factory</span>(<span class="ident">fn_service</span>(<span class="op">|</span><span class="ident">req</span>: <span class="ident">ServiceRequest</span><span class="op">|</span> <span class="kw">async</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(<span class="ident">Response</span>::<span class="ident">NotFound</span>().<span class="ident">finish</span>()))
+            <span class="ident">Rc::new</span>(<span class="ident">boxed::factory</span>(<span class="ident">fn_service</span>(<span class="op">|</span><span class="ident">req</span>: <span class="ident">ServiceRequest</span><span class="op">|</span> <span class="kw">async</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(<span class="ident">Response::NotFound</span>().<span class="ident">finish</span>()))
             })))
         });
 
         <span class="comment">// App config</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">AppService</span>::<span class="ident">new</span>(<span class="ident">config</span>, <span class="ident">default</span>.<span class="ident">clone</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">AppService::new</span>(<span class="ident">config</span>, <span class="ident">default</span>.<span class="ident">clone</span>());
 
         <span class="comment">// register services</span>
-        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">services</span>.<span class="ident">borrow_mut</span>())
+        <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">services</span>.<span class="ident">borrow_mut</span>())
             .<span class="ident">into_iter</span>()
             .<span class="ident">for_each</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">srv</span><span class="op">|</span> <span class="ident">srv</span>.<span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">config</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rmap</span> <span class="op">=</span> <span class="ident">ResourceMap</span>::<span class="ident">new</span>(<span class="ident">ResourceDef</span>::<span class="ident">new</span>(<span class="string">&quot;&quot;</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rmap</span> <span class="op">=</span> <span class="ident">ResourceMap::new</span>(<span class="ident">ResourceDef::new</span>(<span class="string">&quot;&quot;</span>));
 
         <span class="kw">let</span> (<span class="ident">config</span>, <span class="ident">services</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">into_services</span>();
 
@@ -455,7 +455,7 @@
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw-2">mut</span> <span class="ident">rdef</span>, <span class="ident">srv</span>, <span class="ident">guards</span>, <span class="ident">nested</span>)<span class="op">|</span> {
                     <span class="ident">rmap</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rdef</span>, <span class="ident">nested</span>);
-                    (<span class="ident">rdef</span>, <span class="ident">srv</span>, <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">guards</span>))
+                    (<span class="ident">rdef</span>, <span class="ident">srv</span>, <span class="ident">RefCell::new</span>(<span class="ident">guards</span>))
                 })
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
                 .<span class="ident">into_boxed_slice</span>()
@@ -463,12 +463,12 @@
         });
 
         <span class="comment">// external resources</span>
-        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">rdef</span> <span class="kw">in</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">external</span>.<span class="ident">borrow_mut</span>()) {
+        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">rdef</span> <span class="kw">in</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">external</span>.<span class="ident">borrow_mut</span>()) {
             <span class="ident">rmap</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rdef</span>, <span class="prelude-val">None</span>);
         }
 
         <span class="comment">// complete ResourceMap tree creation</span>
-        <span class="kw">let</span> <span class="ident">rmap</span> <span class="op">=</span> <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">rmap</span>);
+        <span class="kw">let</span> <span class="ident">rmap</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">rmap</span>);
         <span class="ident">rmap</span>.<span class="ident">finish</span>(<span class="ident">rmap</span>.<span class="ident">clone</span>());
 
         <span class="comment">// construct all async data factory futures</span>
@@ -482,9 +482,9 @@
             .<span class="ident">extensions</span>
             .<span class="ident">borrow_mut</span>()
             .<span class="ident">take</span>()
-            .<span class="ident">unwrap_or_else</span>(<span class="ident">Extensions</span>::<span class="ident">new</span>);
+            .<span class="ident">unwrap_or_else</span>(<span class="ident">Extensions::new</span>);
 
-        <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
+        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
             <span class="comment">// async data factories</span>
             <span class="kw">let</span> <span class="ident">async_data_factories</span> <span class="op">=</span> <span class="ident">factory_futs</span>
                 .<span class="kw">await</span>
@@ -502,8 +502,8 @@
 
             <span class="prelude-val">Ok</span>(<span class="ident">AppInitService</span> {
                 <span class="ident">service</span>,
-                <span class="ident">app_data</span>: <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">app_data</span>),
-                <span class="ident">app_state</span>: <span class="ident">AppInitServiceState</span>::<span class="ident">new</span>(<span class="ident">rmap</span>, <span class="ident">config</span>),
+                <span class="ident">app_data</span>: <span class="ident">Rc::new</span>(<span class="ident">app_data</span>),
+                <span class="ident">app_state</span>: <span class="ident">AppInitServiceState::new</span>(<span class="ident">rmap</span>, <span class="ident">config</span>),
             })
         })
     }
@@ -528,12 +528,12 @@
 
 <span class="kw">impl</span> <span class="ident">AppInitServiceState</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rmap</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span>, <span class="ident">config</span>: <span class="ident">AppConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">AppInitServiceState</span> {
+        <span class="ident">Rc::new</span>(<span class="ident">AppInitServiceState</span> {
             <span class="ident">rmap</span>,
             <span class="ident">config</span>,
             <span class="comment">// TODO: AppConfig can be used to pass user defined HttpRequestPool</span>
             <span class="comment">// capacity.</span>
-            <span class="ident">pool</span>: <span class="ident">HttpRequestPool</span>::<span class="ident">default</span>(),
+            <span class="ident">pool</span>: <span class="ident">HttpRequestPool::default</span>(),
         })
     }
 
@@ -558,29 +558,29 @@
     <span class="ident">T</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">Future</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">T::Error</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">T::Future</span>;
 
-    <span class="ident">actix_service</span>::<span class="macro">forward_ready</span><span class="macro">!</span>(<span class="ident">service</span>);
+    <span class="macro">actix_service::forward_ready!</span>(<span class="ident">service</span>);
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Request</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Request</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Future</span> {
         <span class="kw">let</span> (<span class="ident">head</span>, <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
 
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">app_state</span>.<span class="ident">pool</span>().<span class="ident">pop</span>() {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Rc</span>::<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">req</span>.<span class="ident">inner</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">req</span>.<span class="ident">inner</span>).<span class="ident">unwrap</span>();
             <span class="ident">inner</span>.<span class="ident">path</span>.<span class="ident">get_mut</span>().<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">head</span>.<span class="ident">uri</span>);
             <span class="ident">inner</span>.<span class="ident">path</span>.<span class="ident">reset</span>();
             <span class="ident">inner</span>.<span class="ident">head</span> <span class="op">=</span> <span class="ident">head</span>;
             <span class="ident">req</span>
         } <span class="kw">else</span> {
-            <span class="ident">HttpRequest</span>::<span class="ident">new</span>(
-                <span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">new</span>(<span class="ident">head</span>.<span class="ident">uri</span>.<span class="ident">clone</span>())),
+            <span class="ident">HttpRequest::new</span>(
+                <span class="ident">Path::new</span>(<span class="ident">Url::new</span>(<span class="ident">head</span>.<span class="ident">uri</span>.<span class="ident">clone</span>())),
                 <span class="ident">head</span>,
                 <span class="self">self</span>.<span class="ident">app_state</span>.<span class="ident">clone</span>(),
                 <span class="self">self</span>.<span class="ident">app_data</span>.<span class="ident">clone</span>(),
             )
         };
-        <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">ServiceRequest</span>::<span class="ident">new</span>(<span class="ident">req</span>, <span class="ident">payload</span>))
+        <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">ServiceRequest::new</span>(<span class="ident">req</span>, <span class="ident">payload</span>))
     }
 }
 
@@ -604,9 +604,9 @@
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
     <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">AppRouting</span>;
     <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Service</span>, <span class="self">Self</span>::<span class="ident">InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Service</span>, <span class="self">Self</span><span class="ident">::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Future</span> {
         <span class="comment">// construct all services factory future with it&#39;s resource def and guards.</span>
         <span class="kw">let</span> <span class="ident">factory_fut</span> <span class="op">=</span> <span class="ident">join_all</span>(<span class="self">self</span>.<span class="ident">services</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">path</span>, <span class="ident">factory</span>, <span class="ident">guards</span>)<span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">clone</span>();
@@ -621,7 +621,7 @@
         <span class="comment">// construct default service factory future</span>
         <span class="kw">let</span> <span class="ident">default_fut</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default</span>.<span class="ident">new_service</span>(());
 
-        <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
+        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">let</span> <span class="ident">default</span> <span class="op">=</span> <span class="ident">default_fut</span>.<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="comment">// build router from the factory future result.</span>
@@ -630,7 +630,7 @@
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>
                 .<span class="ident">drain</span>(..)
-                .<span class="ident">fold</span>(<span class="ident">Router</span>::<span class="ident">build</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">router</span>, (<span class="ident">path</span>, <span class="ident">guards</span>, <span class="ident">service</span>)<span class="op">|</span> {
+                .<span class="ident">fold</span>(<span class="ident">Router::build</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">router</span>, (<span class="ident">path</span>, <span class="ident">guards</span>, <span class="ident">service</span>)<span class="op">|</span> {
                     <span class="ident">router</span>.<span class="ident">rdef</span>(<span class="ident">path</span>, <span class="ident">service</span>).<span class="number">2</span> <span class="op">=</span> <span class="ident">guards</span>;
                     <span class="ident">router</span>
                 })
@@ -649,11 +649,11 @@
 <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AppRouting</span> {
     <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Response</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Response</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="ident">actix_service</span>::<span class="macro">always_ready</span><span class="macro">!</span>();
+    <span class="macro">actix_service::always_ready!</span>();
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Future</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">recognize_checked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">req</span>, <span class="op">|</span><span class="ident">req</span>, <span class="ident">guards</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">guards</span>) <span class="op">=</span> <span class="ident">guards</span> {
                 <span class="kw">for</span> <span class="ident">f</span> <span class="kw">in</span> <span class="ident">guards</span> {
@@ -690,48 +690,48 @@
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
     <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">AppRouting</span>;
     <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Service</span>, <span class="self">Self</span>::<span class="ident">InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Service</span>, <span class="self">Self</span><span class="ident">::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Future</span> {
+    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Future</span> {
         <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">borrow_mut</span>().<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">new_service</span>(())
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
+    <span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
+    <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
-    <span class="kw">use</span> <span class="ident">actix_service</span>::<span class="ident">Service</span>;
+    <span class="kw">use</span> <span class="ident">actix_service::Service</span>;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">test</span>::{<span class="ident">init_service</span>, <span class="ident">TestRequest</span>};
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::test</span>::{<span class="ident">init_service</span>, <span class="ident">TestRequest</span>};
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">web</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>};
 
     <span class="kw">struct</span> <span class="ident">DropData</span>(<span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AtomicBool</span><span class="op">&gt;</span>);
 
     <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">DropData</span> {
         <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-            <span class="self">self</span>.<span class="number">0</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">Relaxed</span>);
+            <span class="self">self</span>.<span class="number">0</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::Relaxed</span>);
         }
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_drop_data</span>() {
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>));
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>));
 
         {
             <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">init_service</span>(
-                <span class="ident">App</span>::<span class="ident">new</span>()
+                <span class="ident">App::new</span>()
                     .<span class="ident">data</span>(<span class="ident">DropData</span>(<span class="ident">data</span>.<span class="ident">clone</span>()))
-                    .<span class="ident">service</span>(<span class="ident">web</span>::<span class="ident">resource</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">to</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>)),
+                    .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>)),
             )
             .<span class="kw">await</span>;
-            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest</span>::<span class="ident">with_uri</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">to_request</span>();
+            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">to_request</span>();
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         }
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">data</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">Relaxed</span>));
+        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">load</span>(<span class="ident">Ordering::Relaxed</span>));
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ipnet-2.3.0/src/ipext.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ipext.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ipnet/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ipnet/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -974,10 +974,10 @@
 <span class="doccomment">//! the `Ipv4Addr` and `Ipv6Addr` types with methods to perform these</span>
 <span class="doccomment">//! operations.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::{<span class="ident">Less</span>, <span class="ident">Equal</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>::{<span class="ident">FusedIterator</span>, <span class="ident">DoubleEndedIterator</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">net</span>::{<span class="ident">IpAddr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">Ipv6Addr</span>};
+<span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>::{<span class="ident">Less</span>, <span class="ident">Equal</span>};
+<span class="kw">use</span> <span class="ident">std::iter</span>::{<span class="ident">FusedIterator</span>, <span class="ident">DoubleEndedIterator</span>};
+<span class="kw">use</span> <span class="ident">std::mem</span>;
+<span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">IpAddr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">Ipv6Addr</span>};
 
 <span class="doccomment">/// Provides a `saturating_add()` method for `Ipv4Addr` and `Ipv6Addr`.</span>
 <span class="doccomment">///</span>
@@ -1011,7 +1011,7 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IpAdd</span><span class="op">&lt;</span><span class="ident">RHS</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span>;
-    <span class="kw">fn</span> <span class="ident">saturating_add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">RHS</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>;
+    <span class="kw">fn</span> <span class="ident">saturating_add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">RHS</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span>;
 }
 
 <span class="doccomment">/// Provides a `saturating_sub()` method for `Ipv4Addr` and `Ipv6Addr`.</span>
@@ -1051,7 +1051,7 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IpSub</span><span class="op">&lt;</span><span class="ident">RHS</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span>;
-    <span class="kw">fn</span> <span class="ident">saturating_sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">RHS</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>;
+    <span class="kw">fn</span> <span class="ident">saturating_sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">RHS</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span>;
 }
 
 <span class="doccomment">/// Provides a `bitand()` method for `Ipv4Addr` and `Ipv6Addr`.</span>
@@ -1078,7 +1078,7 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IpBitAnd</span><span class="op">&lt;</span><span class="ident">RHS</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span>;
-    <span class="kw">fn</span> <span class="ident">bitand</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">RHS</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>;
+    <span class="kw">fn</span> <span class="ident">bitand</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">RHS</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span>;
 }
 
 <span class="doccomment">/// Provides a `bitor()` method for `Ipv4Addr` and `Ipv6Addr`.</span>
@@ -1105,10 +1105,10 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IpBitOr</span><span class="op">&lt;</span><span class="ident">RHS</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span>;
-    <span class="kw">fn</span> <span class="ident">bitor</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">RHS</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>;
+    <span class="kw">fn</span> <span class="ident">bitor</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">RHS</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span>;
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">ip_add_impl</span> {
+<span class="macro">macro_rules!</span> <span class="ident">ip_add_impl</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>:<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> (
         <span class="kw">impl</span> <span class="ident">IpAdd</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span> {
             <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>;
@@ -1122,7 +1122,7 @@
     )
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">ip_sub_impl</span> {
+<span class="macro">macro_rules!</span> <span class="ident">ip_sub_impl</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>:<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> (
         <span class="kw">impl</span> <span class="ident">IpSub</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span> {
             <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>;
@@ -1136,15 +1136,15 @@
     )
 }
 
-<span class="macro">ip_add_impl</span><span class="macro">!</span>(<span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>);
-<span class="macro">ip_add_impl</span><span class="macro">!</span>(<span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>, <span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>);
+<span class="macro">ip_add_impl!</span>(<span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>);
+<span class="macro">ip_add_impl!</span>(<span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>, <span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>);
 
-<span class="macro">ip_sub_impl</span><span class="macro">!</span>(<span class="ident">Ipv4Addr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>, <span class="ident">u32</span>);
-<span class="macro">ip_sub_impl</span><span class="macro">!</span>(<span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>);
-<span class="macro">ip_sub_impl</span><span class="macro">!</span>(<span class="ident">Ipv6Addr</span>, <span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>, <span class="ident">u128</span>);
-<span class="macro">ip_sub_impl</span><span class="macro">!</span>(<span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>, <span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>);
+<span class="macro">ip_sub_impl!</span>(<span class="ident">Ipv4Addr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>, <span class="ident">u32</span>);
+<span class="macro">ip_sub_impl!</span>(<span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>);
+<span class="macro">ip_sub_impl!</span>(<span class="ident">Ipv6Addr</span>, <span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>, <span class="ident">u128</span>);
+<span class="macro">ip_sub_impl!</span>(<span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>, <span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>);
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">ip_bitops_impl</span> {
+<span class="macro">macro_rules!</span> <span class="ident">ip_bitops_impl</span> {
     ($((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span>),)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
     $(
         <span class="kw">impl</span> <span class="ident">IpBitAnd</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span> {
@@ -1170,7 +1170,7 @@
     }
 }
 
-<span class="macro">ip_bitops_impl</span><span class="macro">!</span> {
+<span class="macro">ip_bitops_impl!</span> {
     (<span class="ident">Ipv4Addr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>),
     (<span class="ident">Ipv4Addr</span>, <span class="ident">u32</span>, <span class="ident">u32</span>),
     (<span class="ident">Ipv6Addr</span>, <span class="ident">Ipv6Addr</span>, <span class="ident">u128</span>),
@@ -1189,10 +1189,10 @@
 
 <span class="kw">impl</span> <span class="ident">IpStep</span> <span class="kw">for</span> <span class="ident">Ipv4Addr</span> {
     <span class="kw">fn</span> <span class="ident">replace_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="self">self</span>, <span class="ident">Ipv4Addr</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>))
+        <span class="ident">mem::replace</span>(<span class="self">self</span>, <span class="ident">Ipv4Addr::new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>))
     }
     <span class="kw">fn</span> <span class="ident">replace_zero</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="self">self</span>, <span class="ident">Ipv4Addr</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="ident">mem::replace</span>(<span class="self">self</span>, <span class="ident">Ipv4Addr::new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
     <span class="kw">fn</span> <span class="ident">add_one</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">saturating_add</span>(<span class="number">1</span>)
@@ -1204,10 +1204,10 @@
 
 <span class="kw">impl</span> <span class="ident">IpStep</span> <span class="kw">for</span> <span class="ident">Ipv6Addr</span> {
     <span class="kw">fn</span> <span class="ident">replace_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="self">self</span>, <span class="ident">Ipv6Addr</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>))
+        <span class="ident">mem::replace</span>(<span class="self">self</span>, <span class="ident">Ipv6Addr::new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>))
     }
     <span class="kw">fn</span> <span class="ident">replace_zero</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="self">self</span>, <span class="ident">Ipv6Addr</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="ident">mem::replace</span>(<span class="self">self</span>, <span class="ident">Ipv6Addr::new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
     <span class="kw">fn</span> <span class="ident">add_one</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">saturating_add</span>(<span class="number">1</span>)
@@ -1309,13 +1309,13 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ipv4AddrRange</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IpAddrRange</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">i</span>: <span class="ident">Ipv4AddrRange</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpAddrRange</span> {
-        <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="ident">i</span>)
+        <span class="ident">IpAddrRange::V4</span>(<span class="ident">i</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ipv6AddrRange</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IpAddrRange</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">i</span>: <span class="ident">Ipv6AddrRange</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpAddrRange</span> {
-        <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="ident">i</span>)
+        <span class="ident">IpAddrRange::V6</span>(<span class="ident">i</span>)
     }
 }
 
@@ -1364,60 +1364,60 @@
     }
     <span class="doccomment">/// True only if count_u128 does not overflow</span>
     <span class="kw">fn</span> <span class="ident">can_count_u128</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">start</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ipv6Addr</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
-        <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">end</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ipv6Addr</span>::<span class="ident">new</span>(<span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>)
+        <span class="self">self</span>.<span class="ident">start</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ipv6Addr::new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
+        <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">end</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ipv6Addr::new</span>(<span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>, <span class="number">0xffff</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IpAddrRange</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">IpAddr</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V4</span>),
-            <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V6</span>),
+            <span class="ident">IpAddrRange::V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">IpAddr::V4</span>),
+            <span class="ident">IpAddrRange::V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">IpAddr::V6</span>),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">count</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">count</span>(),
-            <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">count</span>(),
+            <span class="ident">IpAddrRange::V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">count</span>(),
+            <span class="ident">IpAddrRange::V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">count</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">last</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">last</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">last</span>().<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V4</span>),
-            <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">last</span>().<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V6</span>),
+            <span class="ident">IpAddrRange::V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">last</span>().<span class="ident">map</span>(<span class="ident">IpAddr::V4</span>),
+            <span class="ident">IpAddrRange::V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">last</span>().<span class="ident">map</span>(<span class="ident">IpAddr::V6</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iterator</span>::<span class="ident">max</span>(<span class="ident">a</span>).<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V4</span>),
-            <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iterator</span>::<span class="ident">max</span>(<span class="ident">a</span>).<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V6</span>),
+            <span class="ident">IpAddrRange::V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iterator::max</span>(<span class="ident">a</span>).<span class="ident">map</span>(<span class="ident">IpAddr::V4</span>),
+            <span class="ident">IpAddrRange::V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iterator::max</span>(<span class="ident">a</span>).<span class="ident">map</span>(<span class="ident">IpAddr::V6</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iterator</span>::<span class="ident">min</span>(<span class="ident">a</span>).<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V4</span>),
-            <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iterator</span>::<span class="ident">min</span>(<span class="ident">a</span>).<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V6</span>),
+            <span class="ident">IpAddrRange::V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iterator::min</span>(<span class="ident">a</span>).<span class="ident">map</span>(<span class="ident">IpAddr::V4</span>),
+            <span class="ident">IpAddrRange::V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Iterator::min</span>(<span class="ident">a</span>).<span class="ident">map</span>(<span class="ident">IpAddr::V6</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">nth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">nth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">nth</span>(<span class="ident">n</span>).<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V4</span>),
-            <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">nth</span>(<span class="ident">n</span>).<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V6</span>),
+            <span class="ident">IpAddrRange::V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">nth</span>(<span class="ident">n</span>).<span class="ident">map</span>(<span class="ident">IpAddr::V4</span>),
+            <span class="ident">IpAddrRange::V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">nth</span>(<span class="ident">n</span>).<span class="ident">map</span>(<span class="ident">IpAddr::V6</span>),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">size_hint</span>(),
-            <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">size_hint</span>(),
+            <span class="ident">IpAddrRange::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">size_hint</span>(),
+            <span class="ident">IpAddrRange::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">size_hint</span>(),
         }
     }
 }
@@ -1425,11 +1425,11 @@
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Ipv4AddrRange</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Ipv4Addr</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">add_one</span>();
-                <span class="prelude-val">Some</span>(<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">start</span>, <span class="ident">next</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">start</span>, <span class="ident">next</span>))
             },
             <span class="prelude-val">Some</span>(<span class="ident">Equal</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">end</span>.<span class="ident">replace_zero</span>();
@@ -1452,12 +1452,12 @@
                 <span class="comment">// so need to explicitely check for overflow.</span>
                 <span class="comment">// &#39;usize::MAX as u32&#39; is okay here - if usize is 64 bits,</span>
                 <span class="comment">// value truncates to u32::MAX</span>
-                <span class="kw">if</span> <span class="ident">count</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span> <span class="kw">as</span> <span class="ident">u32</span> {
+                <span class="kw">if</span> <span class="ident">count</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">std::usize::MAX</span> <span class="kw">as</span> <span class="ident">u32</span> {
                     <span class="ident">count</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="number">1</span>
                 <span class="comment">// count overflows usize</span>
                 } <span class="kw">else</span> {
                     <span class="comment">// emulate standard overflow/panic behavior</span>
-                    <span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span> <span class="op">+</span> <span class="number">2</span> <span class="op">+</span> <span class="ident">count</span> <span class="kw">as</span> <span class="ident">usize</span>
+                    <span class="ident">std::usize::MAX</span> <span class="op">+</span> <span class="number">2</span> <span class="op">+</span> <span class="ident">count</span> <span class="kw">as</span> <span class="ident">usize</span>
                 }
             },
             <span class="prelude-val">Some</span>(<span class="ident">Equal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
@@ -1465,25 +1465,25 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">last</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">last</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Equal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">end</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">last</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Equal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">start</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">nth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">nth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_u64</span>();
         <span class="kw">if</span> <span class="ident">n</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">count</span> {
@@ -1502,8 +1502,8 @@
 
     <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_u64</span>();
-        <span class="kw">if</span> <span class="ident">count</span> <span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span> <span class="kw">as</span> <span class="ident">u64</span> {
-            (<span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span>, <span class="prelude-val">None</span>)
+        <span class="kw">if</span> <span class="ident">count</span> <span class="op">&gt;</span> <span class="ident">std::usize::MAX</span> <span class="kw">as</span> <span class="ident">u64</span> {
+            (<span class="ident">std::usize::MAX</span>, <span class="prelude-val">None</span>)
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">count</span> <span class="kw">as</span> <span class="ident">usize</span>;
             (<span class="ident">count</span>, <span class="prelude-val">Some</span>(<span class="ident">count</span>))
@@ -1514,11 +1514,11 @@
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Ipv6AddrRange</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Ipv6Addr</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">add_one</span>();
-                <span class="prelude-val">Some</span>(<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">start</span>, <span class="ident">next</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">start</span>, <span class="ident">next</span>))
             },
             <span class="prelude-val">Some</span>(<span class="ident">Equal</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">end</span>.<span class="ident">replace_zero</span>();
@@ -1533,34 +1533,34 @@
     <span class="kw">fn</span> <span class="ident">count</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_u128</span>();
         <span class="comment">// count fits in usize</span>
-        <span class="kw">if</span> <span class="ident">count</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span> <span class="kw">as</span> <span class="ident">u128</span> {
+        <span class="kw">if</span> <span class="ident">count</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">std::usize::MAX</span> <span class="kw">as</span> <span class="ident">u128</span> {
             <span class="ident">count</span> <span class="kw">as</span> <span class="ident">usize</span>
         <span class="comment">// count does not fit in usize</span>
         } <span class="kw">else</span> {
             <span class="comment">// emulate standard overflow/panic behavior</span>
-            <span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">count</span> <span class="kw">as</span> <span class="ident">usize</span>
+            <span class="ident">std::usize::MAX</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">count</span> <span class="kw">as</span> <span class="ident">usize</span>
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">last</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">last</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Equal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">end</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">max</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">last</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">min</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Equal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">start</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">nth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">nth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u128</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">can_count_u128</span>() {
             <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_u128</span>();
@@ -1588,39 +1588,39 @@
     <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">can_count_u128</span>() {
             <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_u128</span>();
-            <span class="kw">if</span> <span class="ident">count</span> <span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span> <span class="kw">as</span> <span class="ident">u128</span> {
-                (<span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span>, <span class="prelude-val">None</span>)
+            <span class="kw">if</span> <span class="ident">count</span> <span class="op">&gt;</span> <span class="ident">std::usize::MAX</span> <span class="kw">as</span> <span class="ident">u128</span> {
+                (<span class="ident">std::usize::MAX</span>, <span class="prelude-val">None</span>)
             } <span class="kw">else</span> {
                 <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">count</span> <span class="kw">as</span> <span class="ident">usize</span>;
                 (<span class="ident">count</span>, <span class="prelude-val">Some</span>(<span class="ident">count</span>))
             }
         } <span class="kw">else</span> {
-            (<span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span>, <span class="prelude-val">None</span>)
+            (<span class="ident">std::usize::MAX</span>, <span class="prelude-val">None</span>)
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">IpAddrRange</span> {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next_back</span>().<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V4</span>),
-            <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next_back</span>().<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V6</span>),
+            <span class="ident">IpAddrRange::V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next_back</span>().<span class="ident">map</span>(<span class="ident">IpAddr::V4</span>),
+            <span class="ident">IpAddrRange::V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next_back</span>().<span class="ident">map</span>(<span class="ident">IpAddr::V6</span>),
         }
     }
-    <span class="kw">fn</span> <span class="ident">nth_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">nth_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">nth_back</span>(<span class="ident">n</span>).<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V4</span>),
-            <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">nth_back</span>(<span class="ident">n</span>).<span class="ident">map</span>(<span class="ident">IpAddr</span>::<span class="ident">V6</span>),
+            <span class="ident">IpAddrRange::V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">nth_back</span>(<span class="ident">n</span>).<span class="ident">map</span>(<span class="ident">IpAddr::V4</span>),
+            <span class="ident">IpAddrRange::V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">nth_back</span>(<span class="ident">n</span>).<span class="ident">map</span>(<span class="ident">IpAddr::V6</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">Ipv4AddrRange</span> {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">next_back</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">end</span>.<span class="ident">sub_one</span>();
-                <span class="prelude-val">Some</span>(<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">end</span>, <span class="ident">next_back</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">end</span>, <span class="ident">next_back</span>))
             },
             <span class="prelude-val">Some</span>(<span class="ident">Equal</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">end</span>.<span class="ident">replace_zero</span>();
@@ -1629,7 +1629,7 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>
         }
     }
-    <span class="kw">fn</span> <span class="ident">nth_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">nth_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_u64</span>();
         <span class="kw">if</span> <span class="ident">n</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">count</span> {
@@ -1648,11 +1648,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">Ipv6AddrRange</span> {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">next_back</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">end</span>.<span class="ident">sub_one</span>();
-                <span class="prelude-val">Some</span>(<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">end</span>, <span class="ident">next_back</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">end</span>, <span class="ident">next_back</span>))
             },
             <span class="prelude-val">Some</span>(<span class="ident">Equal</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">end</span>.<span class="ident">replace_zero</span>();
@@ -1661,7 +1661,7 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>
         }
     }
-    <span class="kw">fn</span> <span class="ident">nth_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">nth_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u128</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">can_count_u128</span>() {
             <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_u128</span>();
@@ -1694,245 +1694,245 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">net</span>::{<span class="ident">IpAddr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">Ipv6Addr</span>};
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
+    <span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">IpAddr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">Ipv6Addr</span>};
+    <span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_ipaddrrange</span>() {
         <span class="comment">// Next, Next-Back</span>
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange::new</span>(
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Addr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.1&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.2&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Addr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec!</span>[
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.1&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.2&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>(),
         ]);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="ident">v</span>.<span class="ident">reverse</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">v</span>, <span class="ident">i</span>.<span class="ident">rev</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">v</span>, <span class="ident">i</span>.<span class="ident">rev</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;255.255.255.254&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;255.255.255.255&quot;</span>).<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange::new</span>(
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;255.255.255.254&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;255.255.255.255&quot;</span>).<span class="ident">unwrap</span>()
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Addr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;255.255.255.254&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;255.255.255.255&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Addr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec!</span>[
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;255.255.255.254&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;255.255.255.255&quot;</span>).<span class="ident">unwrap</span>(),
         ]);
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Addr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::1&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::2&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Addr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec!</span>[
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::1&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::2&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
         ]);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="ident">v</span>.<span class="ident">reverse</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">v</span>, <span class="ident">i</span>.<span class="ident">rev</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">v</span>, <span class="ident">i</span>.<span class="ident">rev</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>).<span class="ident">unwrap</span>(),
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Addr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Addr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec!</span>[
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>).<span class="ident">unwrap</span>(),
         ]);
         
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IpAddrRange</span>::<span class="ident">from</span>(<span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IpAddrRange::from</span>(<span class="ident">Ipv4AddrRange::new</span>(
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>(),
         ));
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.1&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.2&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec!</span>[
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;10.0.0.1&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;10.0.0.2&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>(),
         ]);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="ident">v</span>.<span class="ident">reverse</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">v</span>, <span class="ident">i</span>.<span class="ident">rev</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">v</span>, <span class="ident">i</span>.<span class="ident">rev</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
         
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IpAddrRange</span>::<span class="ident">from</span>(<span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;255.255.255.254&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;255.255.255.255&quot;</span>).<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IpAddrRange::from</span>(<span class="ident">Ipv4AddrRange::new</span>(
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;255.255.255.254&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;255.255.255.255&quot;</span>).<span class="ident">unwrap</span>()
         ));
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;255.255.255.254&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;255.255.255.255&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec!</span>[
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;255.255.255.254&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;255.255.255.255&quot;</span>).<span class="ident">unwrap</span>(),
         ]);
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IpAddrRange</span>::<span class="ident">from</span>(<span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IpAddrRange::from</span>(<span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
         ));
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::1&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::2&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec!</span>[
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;fd00::1&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;fd00::2&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
         ]);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="ident">v</span>.<span class="ident">reverse</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">v</span>, <span class="ident">i</span>.<span class="ident">rev</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">v</span>, <span class="ident">i</span>.<span class="ident">rev</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IpAddrRange</span>::<span class="ident">from</span>(<span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IpAddrRange::from</span>(<span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>).<span class="ident">unwrap</span>(),
         ));
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">IpAddr</span>::<span class="ident">from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec!</span>[
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">IpAddr::from_str</span>(<span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>).<span class="ident">unwrap</span>(),
         ]);
 
         <span class="comment">// #11 (infinite iterator when start and stop are 0)</span>
-        <span class="kw">let</span> <span class="ident">zero4</span> <span class="op">=</span> <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;0.0.0.0&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">zero6</span> <span class="op">=</span> <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;::&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">zero4</span> <span class="op">=</span> <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;0.0.0.0&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">zero6</span> <span class="op">=</span> <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;::&quot;</span>).<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(<span class="ident">zero4</span>, <span class="ident">zero4</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="ident">zero4</span>), <span class="ident">i</span>.<span class="ident">next</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">None</span>, <span class="ident">i</span>.<span class="ident">next</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange::new</span>(<span class="ident">zero4</span>, <span class="ident">zero4</span>);
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="ident">zero4</span>), <span class="ident">i</span>.<span class="ident">next</span>());
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">i</span>.<span class="ident">next</span>());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(<span class="ident">zero6</span>, <span class="ident">zero6</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="ident">zero6</span>), <span class="ident">i</span>.<span class="ident">next</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">None</span>, <span class="ident">i</span>.<span class="ident">next</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange::new</span>(<span class="ident">zero6</span>, <span class="ident">zero6</span>);
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="ident">zero6</span>), <span class="ident">i</span>.<span class="ident">next</span>());
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">i</span>.<span class="ident">next</span>());
 
         <span class="comment">// Count</span>
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange::new</span>(
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">count</span>(), <span class="number">4</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">count</span>(), <span class="number">4</span>);
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">count</span>(), <span class="number">4</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">count</span>(), <span class="number">4</span>);
 
         <span class="comment">// Size Hint</span>
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange::new</span>(
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">size_hint</span>(), (<span class="number">4</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">size_hint</span>(), (<span class="number">4</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)));
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">size_hint</span>(), (<span class="number">4</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">size_hint</span>(), (<span class="number">4</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)));
 
         <span class="comment">// Size Hint: a range where size clearly overflows usize</span>
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;8000::&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;8000::&quot;</span>).<span class="ident">unwrap</span>(),
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">size_hint</span>(), (<span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span>, <span class="prelude-val">None</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">size_hint</span>(), (<span class="ident">std::usize::MAX</span>, <span class="prelude-val">None</span>));
 
         <span class="comment">// Min, Max, Last</span>
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange::new</span>(
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Iterator</span>::<span class="ident">min</span>(<span class="ident">i</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Iterator</span>::<span class="ident">max</span>(<span class="ident">i</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">last</span>(), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">Iterator::min</span>(<span class="ident">i</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">Iterator::max</span>(<span class="ident">i</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">last</span>(), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Iterator</span>::<span class="ident">min</span>(<span class="ident">i</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Iterator</span>::<span class="ident">max</span>(<span class="ident">i</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">last</span>(), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">Iterator::min</span>(<span class="ident">i</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">Iterator::max</span>(<span class="ident">i</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">last</span>(), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
 
         <span class="comment">// Nth</span>
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange::new</span>(
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">4</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">4</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i2</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.1&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.1&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i3</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i3</span>.<span class="ident">nth</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i3</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i3</span>.<span class="ident">nth</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i3</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">4</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">4</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i2</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::1&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::1&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i3</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i3</span>.<span class="ident">nth</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i3</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i3</span>.<span class="ident">nth</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i3</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);
 
         <span class="comment">// Nth Back</span>
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv4AddrRange::new</span>(
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">4</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">4</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i2</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.2&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.2&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv4Addr::from_str</span>(<span class="string">&quot;10.0.0.0&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i3</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i3</span>.<span class="ident">nth_back</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i3</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i3</span>.<span class="ident">nth_back</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i3</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ipv6AddrRange::new</span>(
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>(),
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">4</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::3&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">4</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i</span>.<span class="ident">clone</span>().<span class="ident">nth_back</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i2</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::2&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr</span>::<span class="ident">from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>()));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::2&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Ipv6Addr::from_str</span>(<span class="string">&quot;fd00::&quot;</span>).<span class="ident">unwrap</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">i2</span>.<span class="ident">nth_back</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i3</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i3</span>.<span class="ident">nth_back</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">i3</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i3</span>.<span class="ident">nth_back</span>(<span class="number">99</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">i3</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);
     }
 }</pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ipnet" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ipnet" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

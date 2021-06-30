@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.0.0-beta.5/src/http_codes.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>http_codes.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_http/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.0.0-beta.5/src/http_codes.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>http_codes.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_http/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -105,103 +105,103 @@
 
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
 
-<span class="kw">use</span> <span class="ident">http</span>::<span class="ident">StatusCode</span>;
+<span class="kw">use</span> <span class="ident">http::StatusCode</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">response</span>::{<span class="ident">Response</span>, <span class="ident">ResponseBuilder</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::response</span>::{<span class="ident">Response</span>, <span class="ident">ResponseBuilder</span>};
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">static_resp</span> {
+<span class="macro">macro_rules!</span> <span class="ident">static_resp</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">status</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>, <span class="ident">missing_docs</span>)]</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResponseBuilder</span> {
-            <span class="ident">ResponseBuilder</span>::<span class="ident">new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">status</span>)
+            <span class="ident">ResponseBuilder::new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">status</span>)
         }
     };
 }
 
 <span class="kw">impl</span> <span class="ident">Response</span> {
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">Continue</span>, <span class="ident">StatusCode</span>::<span class="ident">CONTINUE</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">SwitchingProtocols</span>, <span class="ident">StatusCode</span>::<span class="ident">SWITCHING_PROTOCOLS</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">Processing</span>, <span class="ident">StatusCode</span>::<span class="ident">PROCESSING</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">Continue</span>, <span class="ident">StatusCode::CONTINUE</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">SwitchingProtocols</span>, <span class="ident">StatusCode::SWITCHING_PROTOCOLS</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">Processing</span>, <span class="ident">StatusCode::PROCESSING</span>);
 
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="prelude-val">Ok</span>, <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">Created</span>, <span class="ident">StatusCode</span>::<span class="ident">CREATED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">Accepted</span>, <span class="ident">StatusCode</span>::<span class="ident">ACCEPTED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(
+    <span class="macro">static_resp!</span>(<span class="prelude-val">Ok</span>, <span class="ident">StatusCode::OK</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">Created</span>, <span class="ident">StatusCode::CREATED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">Accepted</span>, <span class="ident">StatusCode::ACCEPTED</span>);
+    <span class="macro">static_resp!</span>(
         <span class="ident">NonAuthoritativeInformation</span>,
-        <span class="ident">StatusCode</span>::<span class="ident">NON_AUTHORITATIVE_INFORMATION</span>
+        <span class="ident">StatusCode::NON_AUTHORITATIVE_INFORMATION</span>
     );
 
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">NoContent</span>, <span class="ident">StatusCode</span>::<span class="ident">NO_CONTENT</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">ResetContent</span>, <span class="ident">StatusCode</span>::<span class="ident">RESET_CONTENT</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">PartialContent</span>, <span class="ident">StatusCode</span>::<span class="ident">PARTIAL_CONTENT</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">MultiStatus</span>, <span class="ident">StatusCode</span>::<span class="ident">MULTI_STATUS</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">AlreadyReported</span>, <span class="ident">StatusCode</span>::<span class="ident">ALREADY_REPORTED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">NoContent</span>, <span class="ident">StatusCode::NO_CONTENT</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">ResetContent</span>, <span class="ident">StatusCode::RESET_CONTENT</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">PartialContent</span>, <span class="ident">StatusCode::PARTIAL_CONTENT</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">MultiStatus</span>, <span class="ident">StatusCode::MULTI_STATUS</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">AlreadyReported</span>, <span class="ident">StatusCode::ALREADY_REPORTED</span>);
 
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">MultipleChoices</span>, <span class="ident">StatusCode</span>::<span class="ident">MULTIPLE_CHOICES</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">MovedPermanently</span>, <span class="ident">StatusCode</span>::<span class="ident">MOVED_PERMANENTLY</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">Found</span>, <span class="ident">StatusCode</span>::<span class="ident">FOUND</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">SeeOther</span>, <span class="ident">StatusCode</span>::<span class="ident">SEE_OTHER</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">NotModified</span>, <span class="ident">StatusCode</span>::<span class="ident">NOT_MODIFIED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">UseProxy</span>, <span class="ident">StatusCode</span>::<span class="ident">USE_PROXY</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">TemporaryRedirect</span>, <span class="ident">StatusCode</span>::<span class="ident">TEMPORARY_REDIRECT</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">PermanentRedirect</span>, <span class="ident">StatusCode</span>::<span class="ident">PERMANENT_REDIRECT</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">MultipleChoices</span>, <span class="ident">StatusCode::MULTIPLE_CHOICES</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">MovedPermanently</span>, <span class="ident">StatusCode::MOVED_PERMANENTLY</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">Found</span>, <span class="ident">StatusCode::FOUND</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">SeeOther</span>, <span class="ident">StatusCode::SEE_OTHER</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">NotModified</span>, <span class="ident">StatusCode::NOT_MODIFIED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">UseProxy</span>, <span class="ident">StatusCode::USE_PROXY</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">TemporaryRedirect</span>, <span class="ident">StatusCode::TEMPORARY_REDIRECT</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">PermanentRedirect</span>, <span class="ident">StatusCode::PERMANENT_REDIRECT</span>);
 
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">BadRequest</span>, <span class="ident">StatusCode</span>::<span class="ident">BAD_REQUEST</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">NotFound</span>, <span class="ident">StatusCode</span>::<span class="ident">NOT_FOUND</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">Unauthorized</span>, <span class="ident">StatusCode</span>::<span class="ident">UNAUTHORIZED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">PaymentRequired</span>, <span class="ident">StatusCode</span>::<span class="ident">PAYMENT_REQUIRED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">Forbidden</span>, <span class="ident">StatusCode</span>::<span class="ident">FORBIDDEN</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">MethodNotAllowed</span>, <span class="ident">StatusCode</span>::<span class="ident">METHOD_NOT_ALLOWED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">NotAcceptable</span>, <span class="ident">StatusCode</span>::<span class="ident">NOT_ACCEPTABLE</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(
+    <span class="macro">static_resp!</span>(<span class="ident">BadRequest</span>, <span class="ident">StatusCode::BAD_REQUEST</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">NotFound</span>, <span class="ident">StatusCode::NOT_FOUND</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">Unauthorized</span>, <span class="ident">StatusCode::UNAUTHORIZED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">PaymentRequired</span>, <span class="ident">StatusCode::PAYMENT_REQUIRED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">Forbidden</span>, <span class="ident">StatusCode::FORBIDDEN</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">MethodNotAllowed</span>, <span class="ident">StatusCode::METHOD_NOT_ALLOWED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">NotAcceptable</span>, <span class="ident">StatusCode::NOT_ACCEPTABLE</span>);
+    <span class="macro">static_resp!</span>(
         <span class="ident">ProxyAuthenticationRequired</span>,
-        <span class="ident">StatusCode</span>::<span class="ident">PROXY_AUTHENTICATION_REQUIRED</span>
+        <span class="ident">StatusCode::PROXY_AUTHENTICATION_REQUIRED</span>
     );
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">RequestTimeout</span>, <span class="ident">StatusCode</span>::<span class="ident">REQUEST_TIMEOUT</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">Conflict</span>, <span class="ident">StatusCode</span>::<span class="ident">CONFLICT</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">Gone</span>, <span class="ident">StatusCode</span>::<span class="ident">GONE</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">LengthRequired</span>, <span class="ident">StatusCode</span>::<span class="ident">LENGTH_REQUIRED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">PreconditionFailed</span>, <span class="ident">StatusCode</span>::<span class="ident">PRECONDITION_FAILED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">PreconditionRequired</span>, <span class="ident">StatusCode</span>::<span class="ident">PRECONDITION_REQUIRED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">PayloadTooLarge</span>, <span class="ident">StatusCode</span>::<span class="ident">PAYLOAD_TOO_LARGE</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">UriTooLong</span>, <span class="ident">StatusCode</span>::<span class="ident">URI_TOO_LONG</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">UnsupportedMediaType</span>, <span class="ident">StatusCode</span>::<span class="ident">UNSUPPORTED_MEDIA_TYPE</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">RangeNotSatisfiable</span>, <span class="ident">StatusCode</span>::<span class="ident">RANGE_NOT_SATISFIABLE</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">ExpectationFailed</span>, <span class="ident">StatusCode</span>::<span class="ident">EXPECTATION_FAILED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">UnprocessableEntity</span>, <span class="ident">StatusCode</span>::<span class="ident">UNPROCESSABLE_ENTITY</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">TooManyRequests</span>, <span class="ident">StatusCode</span>::<span class="ident">TOO_MANY_REQUESTS</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(
+    <span class="macro">static_resp!</span>(<span class="ident">RequestTimeout</span>, <span class="ident">StatusCode::REQUEST_TIMEOUT</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">Conflict</span>, <span class="ident">StatusCode::CONFLICT</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">Gone</span>, <span class="ident">StatusCode::GONE</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">LengthRequired</span>, <span class="ident">StatusCode::LENGTH_REQUIRED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">PreconditionFailed</span>, <span class="ident">StatusCode::PRECONDITION_FAILED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">PreconditionRequired</span>, <span class="ident">StatusCode::PRECONDITION_REQUIRED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">PayloadTooLarge</span>, <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">UriTooLong</span>, <span class="ident">StatusCode::URI_TOO_LONG</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">UnsupportedMediaType</span>, <span class="ident">StatusCode::UNSUPPORTED_MEDIA_TYPE</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">RangeNotSatisfiable</span>, <span class="ident">StatusCode::RANGE_NOT_SATISFIABLE</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">ExpectationFailed</span>, <span class="ident">StatusCode::EXPECTATION_FAILED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">UnprocessableEntity</span>, <span class="ident">StatusCode::UNPROCESSABLE_ENTITY</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">TooManyRequests</span>, <span class="ident">StatusCode::TOO_MANY_REQUESTS</span>);
+    <span class="macro">static_resp!</span>(
         <span class="ident">RequestHeaderFieldsTooLarge</span>,
-        <span class="ident">StatusCode</span>::<span class="ident">REQUEST_HEADER_FIELDS_TOO_LARGE</span>
+        <span class="ident">StatusCode::REQUEST_HEADER_FIELDS_TOO_LARGE</span>
     );
-    <span class="macro">static_resp</span><span class="macro">!</span>(
+    <span class="macro">static_resp!</span>(
         <span class="ident">UnavailableForLegalReasons</span>,
-        <span class="ident">StatusCode</span>::<span class="ident">UNAVAILABLE_FOR_LEGAL_REASONS</span>
+        <span class="ident">StatusCode::UNAVAILABLE_FOR_LEGAL_REASONS</span>
     );
 
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">InternalServerError</span>, <span class="ident">StatusCode</span>::<span class="ident">INTERNAL_SERVER_ERROR</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">NotImplemented</span>, <span class="ident">StatusCode</span>::<span class="ident">NOT_IMPLEMENTED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">BadGateway</span>, <span class="ident">StatusCode</span>::<span class="ident">BAD_GATEWAY</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">ServiceUnavailable</span>, <span class="ident">StatusCode</span>::<span class="ident">SERVICE_UNAVAILABLE</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">GatewayTimeout</span>, <span class="ident">StatusCode</span>::<span class="ident">GATEWAY_TIMEOUT</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">VersionNotSupported</span>, <span class="ident">StatusCode</span>::<span class="ident">HTTP_VERSION_NOT_SUPPORTED</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">VariantAlsoNegotiates</span>, <span class="ident">StatusCode</span>::<span class="ident">VARIANT_ALSO_NEGOTIATES</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">InsufficientStorage</span>, <span class="ident">StatusCode</span>::<span class="ident">INSUFFICIENT_STORAGE</span>);
-    <span class="macro">static_resp</span><span class="macro">!</span>(<span class="ident">LoopDetected</span>, <span class="ident">StatusCode</span>::<span class="ident">LOOP_DETECTED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">InternalServerError</span>, <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">NotImplemented</span>, <span class="ident">StatusCode::NOT_IMPLEMENTED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">BadGateway</span>, <span class="ident">StatusCode::BAD_GATEWAY</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">ServiceUnavailable</span>, <span class="ident">StatusCode::SERVICE_UNAVAILABLE</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">GatewayTimeout</span>, <span class="ident">StatusCode::GATEWAY_TIMEOUT</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">VersionNotSupported</span>, <span class="ident">StatusCode::HTTP_VERSION_NOT_SUPPORTED</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">VariantAlsoNegotiates</span>, <span class="ident">StatusCode::VARIANT_ALSO_NEGOTIATES</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">InsufficientStorage</span>, <span class="ident">StatusCode::INSUFFICIENT_STORAGE</span>);
+    <span class="macro">static_resp!</span>(<span class="ident">LoopDetected</span>, <span class="ident">StatusCode::LOOP_DETECTED</span>);
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">body</span>::<span class="ident">Body</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">response</span>::<span class="ident">Response</span>;
-    <span class="kw">use</span> <span class="ident">http</span>::<span class="ident">StatusCode</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::body::Body</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::response::Response</span>;
+    <span class="kw">use</span> <span class="ident">http::StatusCode</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_build</span>() {
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">Response</span>::<span class="prelude-val">Ok</span>().<span class="ident">body</span>(<span class="ident">Body</span>::<span class="ident">Empty</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode</span>::<span class="ident">OK</span>);
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">Response::Ok</span>().<span class="ident">body</span>(<span class="ident">Body::Empty</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

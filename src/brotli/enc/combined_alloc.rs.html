@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.0/src/enc/combined_alloc.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>combined_alloc.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -441,25 +441,25 @@
 <span id="438">438</span>
 <span id="439">439</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">Allocator</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">command</span>::<span class="ident">Command</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">util</span>::<span class="ident">floatX</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">v8</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">s16</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">PDF</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">interface</span>::<span class="ident">StaticCommand</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">histogram</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc::Allocator</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::command::Command</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::util::floatX</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::v8</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::s16</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::PDF</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::interface::StaticCommand</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::histogram</span>::{
   <span class="ident">HistogramLiteral</span>,
   <span class="ident">HistogramCommand</span>,
   <span class="ident">HistogramDistance</span>,
   <span class="ident">ContextType</span>,
 };
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">cluster</span>::<span class="ident">HistogramPair</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::cluster::HistogramPair</span>;
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">entropy_encode</span>::<span class="ident">HuffmanTree</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">hash_to_binary_tree</span>::<span class="ident">ZopfliNode</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::entropy_encode::HuffmanTree</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::hash_to_binary_tree::ZopfliNode</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">alloc_stdlib</span>::<span class="ident">StandardAlloc</span>;
+<span class="kw">use</span> <span class="ident">alloc_stdlib::StandardAlloc</span>;
 <span class="comment">/*
 struct CombiningAllocator&lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt;(AllocT1, AllocT2);
 
@@ -479,7 +479,7 @@ impl &lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt; Al
 }
 */</span>
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BrotliAlloc</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">Command</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="kw">super</span>::<span class="ident">util</span>::<span class="ident">floatX</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">PDF</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">StaticCommand</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramLiteral</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramCommand</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramDistance</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramPair</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">ContextType</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanTree</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">ZopfliNode</span><span class="op">&gt;</span>{
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BrotliAlloc</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">Command</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="kw">super</span><span class="ident">::util::floatX</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">PDF</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">StaticCommand</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramLiteral</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramCommand</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramDistance</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramPair</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">ContextType</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanTree</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">ZopfliNode</span><span class="op">&gt;</span>{
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
@@ -682,24 +682,24 @@ impl &lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt; Al
                           <span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
     <span class="ident">CombiningAllocator</span>{
-      <span class="ident">alloc_u8</span>:  <span class="ident">AllocU8</span>::<span class="ident">default</span>(),
-      <span class="ident">alloc_u16</span>: <span class="ident">AllocU16</span>::<span class="ident">default</span>(),  
-      <span class="ident">alloc_i32</span>: <span class="ident">AllocI32</span>::<span class="ident">default</span>(),
-      <span class="ident">alloc_u32</span>: <span class="ident">AllocU32</span>::<span class="ident">default</span>(), 
-      <span class="ident">alloc_u64</span>: <span class="ident">AllocU64</span>::<span class="ident">default</span>(), 
-      <span class="ident">alloc_c</span>:   <span class="ident">AllocCommand</span>::<span class="ident">default</span>(),
-      <span class="ident">alloc_f</span>:   <span class="ident">AllocFloatX</span>::<span class="ident">default</span>(), 
-      <span class="ident">alloc_f32x8</span>:<span class="ident">AllocV8</span>::<span class="ident">default</span>(),
-      <span class="ident">alloc_i16x16</span>:<span class="ident">AllocS16</span>::<span class="ident">default</span>(),
-      <span class="ident">alloc_pdf</span>: <span class="ident">AllocPDF</span>::<span class="ident">default</span>(),
-      <span class="ident">alloc_sc</span>:  <span class="ident">AllocStaticCommand</span>::<span class="ident">default</span>(),
-      <span class="ident">alloc_hl</span>:  <span class="ident">AllocHistogramLiteral</span>::<span class="ident">default</span>(), 
-      <span class="ident">alloc_hc</span>:  <span class="ident">AllocHistogramCommand</span>::<span class="ident">default</span>(), 
-      <span class="ident">alloc_hd</span>:  <span class="ident">AllocHistogramDistance</span>::<span class="ident">default</span>(),
-      <span class="ident">alloc_hp</span>:  <span class="ident">AllocHistogramPair</span>::<span class="ident">default</span>(), 
-      <span class="ident">alloc_ct</span>:  <span class="ident">AllocContextType</span>::<span class="ident">default</span>(), 
-      <span class="ident">alloc_ht</span>:  <span class="ident">AllocHuffmanTree</span>::<span class="ident">default</span>(),
-      <span class="ident">alloc_zn</span>:  <span class="ident">AllocZopfliNode</span>::<span class="ident">default</span>(),
+      <span class="ident">alloc_u8</span>:  <span class="ident">AllocU8::default</span>(),
+      <span class="ident">alloc_u16</span>: <span class="ident">AllocU16::default</span>(),  
+      <span class="ident">alloc_i32</span>: <span class="ident">AllocI32::default</span>(),
+      <span class="ident">alloc_u32</span>: <span class="ident">AllocU32::default</span>(), 
+      <span class="ident">alloc_u64</span>: <span class="ident">AllocU64::default</span>(), 
+      <span class="ident">alloc_c</span>:   <span class="ident">AllocCommand::default</span>(),
+      <span class="ident">alloc_f</span>:   <span class="ident">AllocFloatX::default</span>(), 
+      <span class="ident">alloc_f32x8</span>:<span class="ident">AllocV8</span><span class="ident">::default</span>(),
+      <span class="ident">alloc_i16x16</span>:<span class="ident">AllocS16</span><span class="ident">::default</span>(),
+      <span class="ident">alloc_pdf</span>: <span class="ident">AllocPDF::default</span>(),
+      <span class="ident">alloc_sc</span>:  <span class="ident">AllocStaticCommand::default</span>(),
+      <span class="ident">alloc_hl</span>:  <span class="ident">AllocHistogramLiteral::default</span>(), 
+      <span class="ident">alloc_hc</span>:  <span class="ident">AllocHistogramCommand::default</span>(), 
+      <span class="ident">alloc_hd</span>:  <span class="ident">AllocHistogramDistance::default</span>(),
+      <span class="ident">alloc_hp</span>:  <span class="ident">AllocHistogramPair::default</span>(), 
+      <span class="ident">alloc_ct</span>:  <span class="ident">AllocContextType::default</span>(), 
+      <span class="ident">alloc_ht</span>:  <span class="ident">AllocHuffmanTree::default</span>(),
+      <span class="ident">alloc_zn</span>:  <span class="ident">AllocZopfliNode::default</span>(),
     }
         
     }
@@ -806,7 +806,7 @@ impl &lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt; Al
                                     <span class="op">&gt;</span> {
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">implement_allocator</span> {
+<span class="macro">macro_rules!</span> <span class="ident">implement_allocator</span> {
   (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bound_name</span>: <span class="ident">ty</span>,
    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span>: <span class="ident">ty</span>,
    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sub_type_name</span>: <span class="ident">ty</span>,
@@ -849,37 +849,37 @@ impl &lt;T1, T2, AllocT1:Allocator&lt;T1&gt;, AllocT2:Allocator&lt;T2&gt;&gt; Al
                                                  <span class="ident">AllocZopfliNode</span>,
                                                  <span class="op">&gt;</span> {
       <span class="kw">type</span> <span class="ident">AllocatedMemory</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sub_type_name</span>;
-      <span class="kw">fn</span> <span class="ident">alloc_cell</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">AllocatedMemory</span> {
+      <span class="kw">fn</span> <span class="ident">alloc_cell</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span> {
         <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">local_name</span>.<span class="ident">alloc_cell</span>(<span class="ident">size</span>)
       }
-      <span class="kw">fn</span> <span class="ident">free_cell</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">AllocatedMemory</span>) {
+      <span class="kw">fn</span> <span class="ident">free_cell</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>) {
         <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">local_name</span>.<span class="ident">free_cell</span>(<span class="ident">data</span>)
       }
     }
 };
 }
 
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocU8</span>, <span class="ident">u8</span>, <span class="ident">AllocU8</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_u8</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocU16</span>, <span class="ident">u16</span>, <span class="ident">AllocU16</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_u16</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocU8</span>, <span class="ident">u8</span>, <span class="ident">AllocU8::AllocatedMemory</span>, <span class="ident">alloc_u8</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocU16</span>, <span class="ident">u16</span>, <span class="ident">AllocU16::AllocatedMemory</span>, <span class="ident">alloc_u16</span>);
 
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocI32</span>, <span class="ident">i32</span>, <span class="ident">AllocI32</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_i32</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocU32</span>, <span class="ident">u32</span>, <span class="ident">AllocU32</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_u32</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocU64</span>, <span class="ident">u64</span>, <span class="ident">AllocU64</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_u64</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocCommand</span>, <span class="ident">Command</span>, <span class="ident">AllocCommand</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_c</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocFloatX</span>, <span class="ident">floatX</span>, <span class="ident">AllocFloatX</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_f</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocV8</span>, <span class="ident">v8</span>, <span class="ident">AllocV8</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_f32x8</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocS16</span>, <span class="ident">s16</span>, <span class="ident">AllocS16</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_i16x16</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocPDF</span>, <span class="ident">PDF</span>, <span class="ident">AllocPDF</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_pdf</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocStaticCommand</span>, <span class="ident">StaticCommand</span>, <span class="ident">AllocStaticCommand</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_sc</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocHistogramLiteral</span>, <span class="ident">HistogramLiteral</span>, <span class="ident">AllocHistogramLiteral</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_hl</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocHistogramCommand</span>, <span class="ident">HistogramCommand</span>, <span class="ident">AllocHistogramCommand</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_hc</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocHistogramDistance</span>, <span class="ident">HistogramDistance</span>, <span class="ident">AllocHistogramDistance</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_hd</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocHistogramPair</span>, <span class="ident">HistogramPair</span>, <span class="ident">AllocHistogramPair</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_hp</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocContextType</span>, <span class="ident">ContextType</span>, <span class="ident">AllocContextType</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_ct</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocHuffmanTree</span>, <span class="ident">HuffmanTree</span>, <span class="ident">AllocHuffmanTree</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_ht</span>);
-<span class="macro">implement_allocator</span><span class="macro">!</span>(<span class="ident">AllocZopfliNode</span>, <span class="ident">ZopfliNode</span>, <span class="ident">AllocZopfliNode</span>::<span class="ident">AllocatedMemory</span>, <span class="ident">alloc_zn</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocI32</span>, <span class="ident">i32</span>, <span class="ident">AllocI32::AllocatedMemory</span>, <span class="ident">alloc_i32</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocU32</span>, <span class="ident">u32</span>, <span class="ident">AllocU32::AllocatedMemory</span>, <span class="ident">alloc_u32</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocU64</span>, <span class="ident">u64</span>, <span class="ident">AllocU64::AllocatedMemory</span>, <span class="ident">alloc_u64</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocCommand</span>, <span class="ident">Command</span>, <span class="ident">AllocCommand::AllocatedMemory</span>, <span class="ident">alloc_c</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocFloatX</span>, <span class="ident">floatX</span>, <span class="ident">AllocFloatX::AllocatedMemory</span>, <span class="ident">alloc_f</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocV8</span>, <span class="ident">v8</span>, <span class="ident">AllocV8::AllocatedMemory</span>, <span class="ident">alloc_f32x8</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocS16</span>, <span class="ident">s16</span>, <span class="ident">AllocS16::AllocatedMemory</span>, <span class="ident">alloc_i16x16</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocPDF</span>, <span class="ident">PDF</span>, <span class="ident">AllocPDF::AllocatedMemory</span>, <span class="ident">alloc_pdf</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocStaticCommand</span>, <span class="ident">StaticCommand</span>, <span class="ident">AllocStaticCommand::AllocatedMemory</span>, <span class="ident">alloc_sc</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocHistogramLiteral</span>, <span class="ident">HistogramLiteral</span>, <span class="ident">AllocHistogramLiteral::AllocatedMemory</span>, <span class="ident">alloc_hl</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocHistogramCommand</span>, <span class="ident">HistogramCommand</span>, <span class="ident">AllocHistogramCommand::AllocatedMemory</span>, <span class="ident">alloc_hc</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocHistogramDistance</span>, <span class="ident">HistogramDistance</span>, <span class="ident">AllocHistogramDistance::AllocatedMemory</span>, <span class="ident">alloc_hd</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocHistogramPair</span>, <span class="ident">HistogramPair</span>, <span class="ident">AllocHistogramPair::AllocatedMemory</span>, <span class="ident">alloc_hp</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocContextType</span>, <span class="ident">ContextType</span>, <span class="ident">AllocContextType::AllocatedMemory</span>, <span class="ident">alloc_ct</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocHuffmanTree</span>, <span class="ident">HuffmanTree</span>, <span class="ident">AllocHuffmanTree::AllocatedMemory</span>, <span class="ident">alloc_ht</span>);
+<span class="macro">implement_allocator!</span>(<span class="ident">AllocZopfliNode</span>, <span class="ident">ZopfliNode</span>, <span class="ident">AllocZopfliNode::AllocatedMemory</span>, <span class="ident">alloc_zn</span>);
 
 
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

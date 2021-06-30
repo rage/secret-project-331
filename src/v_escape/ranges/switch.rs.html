@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/v_escape-0.15.0/src/ranges/switch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>switch.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../v_escape/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../v_escape/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -652,14 +652,14 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Defining character interval from ASCII table to create bit masks from slice to be escaped</span>
 <span class="doccomment">/// overflow above in addition</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">translations_256</span> {
+<span class="macro">macro_rules!</span> <span class="ident">translations_256</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{
             <span class="ident">_mm256_add_epi8</span>, <span class="ident">_mm256_cmpeq_epi8</span>, <span class="ident">_mm256_cmpgt_epi8</span>, <span class="ident">_mm256_or_si256</span>,
             <span class="ident">_mm256_set1_epi8</span>,
         };
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">const</span> <span class="ident">B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>;
         <span class="kw">const</span> <span class="ident">C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>;
 
@@ -668,7 +668,7 @@
         <span class="kw">let</span> <span class="ident">v_b</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">B</span>);
         <span class="kw">let</span> <span class="ident">v_c</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">C</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm256_or_si256</span>(
                     <span class="ident">_mm256_or_si256</span>(<span class="ident">_mm256_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_b</span>), <span class="ident">_mm256_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_c</span>)),
@@ -678,7 +678,7 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm256_cmpeq_epi8</span>, <span class="ident">_mm256_or_si256</span>, <span class="ident">_mm256_set1_epi8</span>};
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm256_cmpeq_epi8</span>, <span class="ident">_mm256_or_si256</span>, <span class="ident">_mm256_set1_epi8</span>};
         <span class="kw">const</span> <span class="ident">A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>;
         <span class="kw">const</span> <span class="ident">B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>;
         <span class="kw">const</span> <span class="ident">C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>;
@@ -687,7 +687,7 @@
         <span class="kw">let</span> <span class="ident">v_b</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">B</span>);
         <span class="kw">let</span> <span class="ident">v_c</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">C</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm256_or_si256</span>(
                     <span class="ident">_mm256_or_si256</span>(<span class="ident">_mm256_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_a</span>), <span class="ident">_mm256_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_b</span>)),
@@ -697,41 +697,41 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm256_cmpeq_epi8</span>, <span class="ident">_mm256_or_si256</span>, <span class="ident">_mm256_set1_epi8</span>};
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm256_cmpeq_epi8</span>, <span class="ident">_mm256_or_si256</span>, <span class="ident">_mm256_set1_epi8</span>};
         <span class="kw">const</span> <span class="ident">A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>;
         <span class="kw">const</span> <span class="ident">B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>;
 
         <span class="kw">let</span> <span class="ident">v_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">A</span>);
         <span class="kw">let</span> <span class="ident">v_b</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">B</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm256_or_si256</span>(<span class="ident">_mm256_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_a</span>), <span class="ident">_mm256_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_b</span>))
             }};
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm256_cmpeq_epi8</span>, <span class="ident">_mm256_set1_epi8</span>};
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm256_cmpeq_epi8</span>, <span class="ident">_mm256_set1_epi8</span>};
         <span class="kw">const</span> <span class="ident">A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>;
 
         <span class="kw">let</span> <span class="ident">v_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">A</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm256_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_a</span>)
             }};
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{
             <span class="ident">_mm256_add_epi8</span>, <span class="ident">_mm256_cmpgt_epi8</span>, <span class="ident">_mm256_or_si256</span>, <span class="ident">_mm256_set1_epi8</span>,
         };
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">const</span> <span class="ident">TRANSLATION_C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>) <span class="op">-</span> <span class="number">1</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
         <span class="kw">let</span> <span class="ident">v_below_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">BELOW_A</span>);
@@ -740,7 +740,7 @@
         <span class="kw">let</span> <span class="ident">v_translation_c</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">TRANSLATION_C</span>);
         <span class="kw">let</span> <span class="ident">v_below_c</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">BELOW_C</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm256_or_si256</span>(
                     <span class="ident">_mm256_or_si256</span>(
@@ -753,14 +753,14 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{
             <span class="ident">_mm256_add_epi8</span>, <span class="ident">_mm256_cmpeq_epi8</span>, <span class="ident">_mm256_cmpgt_epi8</span>, <span class="ident">_mm256_or_si256</span>,
             <span class="ident">_mm256_set1_epi8</span>,
         };
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">const</span> <span class="ident">C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
@@ -769,7 +769,7 @@
         <span class="kw">let</span> <span class="ident">v_below_b</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">BELOW_B</span>);
         <span class="kw">let</span> <span class="ident">v_c</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">C</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm256_or_si256</span>(
                     <span class="ident">_mm256_or_si256</span>(
@@ -782,20 +782,20 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{
             <span class="ident">_mm256_add_epi8</span>, <span class="ident">_mm256_cmpgt_epi8</span>, <span class="ident">_mm256_or_si256</span>, <span class="ident">_mm256_set1_epi8</span>,
         };
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
         <span class="kw">let</span> <span class="ident">v_below_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">BELOW_A</span>);
         <span class="kw">let</span> <span class="ident">v_translation_b</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">TRANSLATION_B</span>);
         <span class="kw">let</span> <span class="ident">v_below_b</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">BELOW_B</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm256_or_si256</span>(
                     <span class="ident">_mm256_cmpgt_epi8</span>(<span class="ident">_mm256_add_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_translation_a</span>), <span class="ident">v_below_a</span>),
@@ -805,19 +805,19 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{
             <span class="ident">_mm256_add_epi8</span>, <span class="ident">_mm256_cmpeq_epi8</span>, <span class="ident">_mm256_cmpgt_epi8</span>, <span class="ident">_mm256_or_si256</span>,
             <span class="ident">_mm256_set1_epi8</span>,
         };
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">const</span> <span class="ident">B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
         <span class="kw">let</span> <span class="ident">v_below_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">BELOW_A</span>);
         <span class="kw">let</span> <span class="ident">v_b</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">B</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm256_or_si256</span>(
                     <span class="ident">_mm256_cmpgt_epi8</span>(<span class="ident">_mm256_add_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_translation_a</span>), <span class="ident">v_below_a</span>),
@@ -827,14 +827,14 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm256_add_epi8</span>, <span class="ident">_mm256_cmpgt_epi8</span>, <span class="ident">_mm256_set1_epi8</span>};
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm256_add_epi8</span>, <span class="ident">_mm256_cmpgt_epi8</span>, <span class="ident">_mm256_set1_epi8</span>};
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
         <span class="kw">let</span> <span class="ident">v_below_a</span> <span class="op">=</span> <span class="ident">_mm256_set1_epi8</span>(<span class="ident">BELOW_A</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm256_cmpgt_epi8</span>(<span class="ident">_mm256_add_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_translation_a</span>), <span class="ident">v_below_a</span>)
             }};
@@ -848,13 +848,13 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Defining character interval from ASCII table to create bit masks from slice to be escaped</span>
 <span class="doccomment">/// overflow above in addition</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">translations_128</span> {
+<span class="macro">macro_rules!</span> <span class="ident">translations_128</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{
             <span class="ident">_mm_add_epi8</span>, <span class="ident">_mm_cmpeq_epi8</span>, <span class="ident">_mm_cmpgt_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>,
         };
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">const</span> <span class="ident">B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>;
         <span class="kw">const</span> <span class="ident">C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>;
 
@@ -863,7 +863,7 @@
         <span class="kw">let</span> <span class="ident">v_b</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">B</span>);
         <span class="kw">let</span> <span class="ident">v_c</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">C</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm_or_si128</span>(
                     <span class="ident">_mm_or_si128</span>(<span class="ident">_mm_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_b</span>), <span class="ident">_mm_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_c</span>)),
@@ -873,7 +873,7 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm_cmpeq_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>};
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm_cmpeq_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>};
         <span class="kw">const</span> <span class="ident">A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>;
         <span class="kw">const</span> <span class="ident">B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>;
         <span class="kw">const</span> <span class="ident">C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>;
@@ -882,7 +882,7 @@
         <span class="kw">let</span> <span class="ident">v_b</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">B</span>);
         <span class="kw">let</span> <span class="ident">v_c</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">C</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm_or_si128</span>(
                     <span class="ident">_mm_or_si128</span>(<span class="ident">_mm_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_a</span>), <span class="ident">_mm_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_b</span>)),
@@ -892,39 +892,39 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm_cmpeq_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>};
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm_cmpeq_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>};
         <span class="kw">const</span> <span class="ident">A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>;
         <span class="kw">const</span> <span class="ident">B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>;
 
         <span class="kw">let</span> <span class="ident">v_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">A</span>);
         <span class="kw">let</span> <span class="ident">v_b</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">B</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm_or_si128</span>(<span class="ident">_mm_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_a</span>), <span class="ident">_mm_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_b</span>))
             }};
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm_cmpeq_epi8</span>, <span class="ident">_mm_set1_epi8</span>};
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm_cmpeq_epi8</span>, <span class="ident">_mm_set1_epi8</span>};
         <span class="kw">const</span> <span class="ident">A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>;
 
         <span class="kw">let</span> <span class="ident">v_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">A</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm_cmpeq_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_a</span>)
             }};
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm_add_epi8</span>, <span class="ident">_mm_cmpgt_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>};
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">const</span> <span class="ident">TRANSLATION_C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm_add_epi8</span>, <span class="ident">_mm_cmpgt_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>};
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>) <span class="op">-</span> <span class="number">1</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
         <span class="kw">let</span> <span class="ident">v_below_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">BELOW_A</span>);
@@ -933,7 +933,7 @@
         <span class="kw">let</span> <span class="ident">v_translation_c</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">TRANSLATION_C</span>);
         <span class="kw">let</span> <span class="ident">v_below_c</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">BELOW_C</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm_or_si128</span>(
                     <span class="ident">_mm_or_si128</span>(
@@ -946,13 +946,13 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{
             <span class="ident">_mm_add_epi8</span>, <span class="ident">_mm_cmpeq_epi8</span>, <span class="ident">_mm_cmpgt_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>,
         };
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">const</span> <span class="ident">C</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
@@ -961,7 +961,7 @@
         <span class="kw">let</span> <span class="ident">v_below_b</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">BELOW_B</span>);
         <span class="kw">let</span> <span class="ident">v_c</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">C</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm_or_si128</span>(
                     <span class="ident">_mm_or_si128</span>(
@@ -974,18 +974,18 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm_add_epi8</span>, <span class="ident">_mm_cmpgt_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>};
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm_add_epi8</span>, <span class="ident">_mm_cmpgt_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>};
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>) <span class="op">-</span> <span class="number">1</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
         <span class="kw">let</span> <span class="ident">v_below_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">BELOW_A</span>);
         <span class="kw">let</span> <span class="ident">v_translation_b</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">TRANSLATION_B</span>);
         <span class="kw">let</span> <span class="ident">v_below_b</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">BELOW_B</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm_or_si128</span>(
                     <span class="ident">_mm_cmpgt_epi8</span>(<span class="ident">_mm_add_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_translation_a</span>), <span class="ident">v_below_a</span>),
@@ -995,18 +995,18 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{
             <span class="ident">_mm_add_epi8</span>, <span class="ident">_mm_cmpeq_epi8</span>, <span class="ident">_mm_cmpgt_epi8</span>, <span class="ident">_mm_or_si128</span>, <span class="ident">_mm_set1_epi8</span>,
         };
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">const</span> <span class="ident">B</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
         <span class="kw">let</span> <span class="ident">v_below_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">BELOW_A</span>);
         <span class="kw">let</span> <span class="ident">v_b</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">B</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm_or_si128</span>(
                     <span class="ident">_mm_cmpgt_epi8</span>(<span class="ident">_mm_add_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_translation_a</span>), <span class="ident">v_below_a</span>),
@@ -1016,14 +1016,14 @@
         }
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">arch</span>::<span class="ident">x86_64</span>::{<span class="ident">_mm_add_epi8</span>, <span class="ident">_mm_cmpgt_epi8</span>, <span class="ident">_mm_set1_epi8</span>};
-        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
-        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">i8</span>::<span class="ident">MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">use</span> <span class="ident">std::arch::x86_64</span>::{<span class="ident">_mm_add_epi8</span>, <span class="ident">_mm_cmpgt_epi8</span>, <span class="ident">_mm_set1_epi8</span>};
+        <span class="kw">const</span> <span class="ident">TRANSLATION_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>;
+        <span class="kw">const</span> <span class="ident">BELOW_A</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">std::i8::MAX</span> <span class="op">-</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span> <span class="op">-</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>) <span class="op">-</span> <span class="number">1</span>;
 
         <span class="kw">let</span> <span class="ident">v_translation_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">TRANSLATION_A</span>);
         <span class="kw">let</span> <span class="ident">v_below_a</span> <span class="op">=</span> <span class="ident">_mm_set1_epi8</span>(<span class="ident">BELOW_A</span>);
 
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">masking</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">masking</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
                 <span class="ident">_mm_cmpgt_epi8</span>(<span class="ident">_mm_add_epi8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>, <span class="ident">v_translation_a</span>), <span class="ident">v_below_a</span>)
             }};
@@ -1041,12 +1041,12 @@
 <span class="doccomment">/// * `fallback_callback($t:tt)`</span>
 <span class="doccomment">///     select between `fallback`</span>
 <span class="doccomment">///</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">fallback_escaping</span> {
+<span class="macro">macro_rules!</span> <span class="ident">fallback_escaping</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">fallback_callback</span><span class="macro">!</span>(<span class="ident">one</span>);
+        <span class="macro">fallback_callback!</span>(<span class="ident">one</span>);
     };
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">fallback_callback</span><span class="macro">!</span>(<span class="ident">default</span>);
+        <span class="macro">fallback_callback!</span>(<span class="ident">default</span>);
     };
 }
 
@@ -1060,21 +1060,21 @@
 <span class="doccomment">/// * `mask_bodies_callback($callback:path)`</span>
 <span class="doccomment">///     select between `mask_bodies`</span>
 <span class="doccomment">///</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">mask_bodies_escaping</span> {
+<span class="macro">macro_rules!</span> <span class="ident">mask_bodies_escaping</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_exact_one</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_exact_one</span>);
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies</span>);
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies</span>);
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies</span>);
     };
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_exact</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_exact</span>);
     };
 }
 
@@ -1088,21 +1088,21 @@
 <span class="doccomment">/// * `mask_bodies_callback($callback:path)`</span>
 <span class="doccomment">///     select between `mask_bodies`</span>
 <span class="doccomment">///</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">mask_bodies_escaping_ptr</span> {
+<span class="macro">macro_rules!</span> <span class="ident">mask_bodies_escaping_ptr</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_exact_one_ptr</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_exact_one_ptr</span>);
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_ptr</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_ptr</span>);
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_ptr</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_ptr</span>);
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_ptr</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_ptr</span>);
     };
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_exact_ptr</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_exact_ptr</span>);
     };
 }
 
@@ -1116,21 +1116,21 @@
 <span class="doccomment">/// * `mask_bodies_callback($callback:path)`</span>
 <span class="doccomment">///     select between `mask_bodies`</span>
 <span class="doccomment">///</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">mask_bodies_escaping_bytes</span> {
+<span class="macro">macro_rules!</span> <span class="ident">mask_bodies_escaping_bytes</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_exact_one_bytes</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_exact_one_bytes</span>);
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_bytes</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_bytes</span>);
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_bytes</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_bytes</span>);
     };
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_bytes</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_bytes</span>);
     };
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">mask_bodies_callback</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">bodies_exact_bytes</span>);
+        <span class="macro">mask_bodies_callback!</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::bodies_exact_bytes</span>);
     };
 }
 
@@ -1145,60 +1145,60 @@
 <span class="doccomment">///  * `$crate::switch_main_loop!(impl [024] for ($len:ident, $ptr:ident, $end_ptr:ident)`</span>
 <span class="doccomment">///    switch between main loops in avx</span>
 <span class="doccomment">///</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">avx_main_loop</span> {
+<span class="macro">macro_rules!</span> <span class="ident">avx_main_loop</span> {
     ((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>:<span class="ident">ident</span>) $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>, )<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">_inside</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">_inside</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">switch_main_loop</span><span class="macro">!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::switch_main_loop!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fc</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">switch_main_loop</span><span class="macro">!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::switch_main_loop!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fb</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">switch_main_loop</span><span class="macro">!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::switch_main_loop!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fa</span>:<span class="ident">expr</span>, <span class="number">128</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">switch_main_loop</span><span class="macro">!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::switch_main_loop!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
             <span class="comment">// TODO: https://github.com/rust-lang-nursery/stdsimd/issues/674</span>
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lc</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rc</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">switch_main_loop</span><span class="macro">!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::switch_main_loop!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">switch_main_loop</span><span class="macro">!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::switch_main_loop!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lb</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rb</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">switch_main_loop</span><span class="macro">!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::switch_main_loop!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));};
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">switch_main_loop</span><span class="macro">!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::switch_main_loop!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));
             };
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">la</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ra</span>:<span class="ident">expr</span>, ) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro">switch_main_loop</span><span class="macro">!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));
+                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::switch_main_loop!</span>(<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>));
             };
         }
 
-        <span class="macro">_inside</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>, )<span class="op">+</span>);
+        <span class="macro">_inside!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>, )<span class="op">+</span>);
     };
 }
 
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="doccomment">/// Generate avx main loops</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">switch_main_loop</span> {
+<span class="macro">macro_rules!</span> <span class="ident">switch_main_loop</span> {
     (<span class="kw">impl</span> <span class="number">0</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>:<span class="ident">ident</span>)) <span class="op">=</span><span class="op">&gt;</span> {
     };
     (<span class="kw">impl</span> <span class="number">2</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>:<span class="ident">ident</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">const</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">__m256i</span><span class="op">&gt;</span>();
+        <span class="kw">const</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">std::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">__m256i</span><span class="op">&gt;</span>();
         <span class="kw">const</span> <span class="ident">LOOP_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>;
 
         <span class="kw">if</span> <span class="ident">LOOP_SIZE</span> <span class="op">&lt;</span><span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span> {
             <span class="kw">while</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="op">&lt;</span><span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>.<span class="ident">sub</span>(<span class="ident">LOOP_SIZE</span>) {
-                <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="number">0</span>, (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>);
+                <span class="macro">debug_assert_eq!</span>(<span class="number">0</span>, (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>);
 
                 <span class="comment">// Using function `_mm256_load_si256` for faster behavior on aligned bytes.</span>
                 <span class="comment">// Getting 2sets of $length `_ONSWITCH_M256_VECTOR_SIZE` each (`LOOP_SIZE=4*_ONSWITCH_M256_VECTOR_SIZE`)</span>
                 <span class="kw">let</span> <span class="ident">cmp_a</span> <span class="op">=</span> {
                     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">_mm256_load_si256</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">__m256i</span>);
-                    <span class="macro">masking</span><span class="macro">!</span>(<span class="ident">a</span>)
+                    <span class="macro">masking!</span>(<span class="ident">a</span>)
                 };
 
                 <span class="kw">let</span> <span class="ident">cmp_b</span> <span class="op">=</span> {
                     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">_mm256_load_si256</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>.<span class="ident">add</span>(<span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">__m256i</span>);
-                    <span class="macro">masking</span><span class="macro">!</span>(<span class="ident">a</span>)
+                    <span class="macro">masking!</span>(<span class="ident">a</span>)
                 };
 
                 <span class="comment">// Combining the 2 sets using `or` logic operator by pairs. Then we write the</span>
@@ -1208,13 +1208,13 @@
                 {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">_mm256_movemask_epi8</span>(<span class="ident">cmp_a</span>);
                     <span class="kw">if</span> <span class="ident">mask</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="macro">write_mask</span><span class="macro">!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
+                        <span class="macro">write_mask!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
                     }
 
                     <span class="ident">mask</span> <span class="op">=</span> <span class="ident">_mm256_movemask_epi8</span>(<span class="ident">cmp_b</span>);
                     <span class="kw">if</span> <span class="ident">mask</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>.<span class="ident">add</span>(<span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>);
-                        <span class="macro">write_mask</span><span class="macro">!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
+                        <span class="macro">write_mask!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
                     }
 
                 }
@@ -1224,33 +1224,33 @@
         }
     };
     (<span class="kw">impl</span> <span class="number">4</span> <span class="kw">for</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>:<span class="ident">ident</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">const</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">__m256i</span><span class="op">&gt;</span>();
+        <span class="kw">const</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">std::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">__m256i</span><span class="op">&gt;</span>();
         <span class="kw">const</span> <span class="ident">LOOP_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">4</span> <span class="op">*</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>;
 
         <span class="kw">if</span> <span class="ident">LOOP_SIZE</span> <span class="op">&lt;</span><span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span> {
             <span class="kw">while</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="op">&lt;</span><span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end_ptr</span>.<span class="ident">sub</span>(<span class="ident">LOOP_SIZE</span>) {
-                <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="number">0</span>, (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>);
+                <span class="macro">debug_assert_eq!</span>(<span class="number">0</span>, (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">%</span> <span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>);
 
                 <span class="comment">// Using function `_mm256_load_si256` for faster behavior on aligned bytes.</span>
                 <span class="comment">// Getting 4 sets of $length `_ONSWITCH_M256_VECTOR_SIZE` each (`LOOP_SIZE=4*_ONSWITCH_M256_VECTOR_SIZE`)</span>
                 <span class="kw">let</span> <span class="ident">cmp_a</span> <span class="op">=</span> {
                     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">_mm256_load_si256</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">__m256i</span>);
-                    <span class="macro">masking</span><span class="macro">!</span>(<span class="ident">a</span>)
+                    <span class="macro">masking!</span>(<span class="ident">a</span>)
                 };
 
                 <span class="kw">let</span> <span class="ident">cmp_b</span> <span class="op">=</span> {
                     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">_mm256_load_si256</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>.<span class="ident">add</span>(<span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">__m256i</span>);
-                    <span class="macro">masking</span><span class="macro">!</span>(<span class="ident">a</span>)
+                    <span class="macro">masking!</span>(<span class="ident">a</span>)
                 };
 
                 <span class="kw">let</span> <span class="ident">cmp_c</span> <span class="op">=</span> {
                     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">_mm256_load_si256</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>.<span class="ident">add</span>(<span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span> <span class="op">*</span> <span class="number">2</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">__m256i</span>);
-                    <span class="macro">masking</span><span class="macro">!</span>(<span class="ident">a</span>)
+                    <span class="macro">masking!</span>(<span class="ident">a</span>)
                 };
 
                 <span class="kw">let</span> <span class="ident">cmp_d</span> <span class="op">=</span> {
                     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">_mm256_load_si256</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>.<span class="ident">add</span>(<span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span> <span class="op">*</span> <span class="number">3</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">__m256i</span>);
-                    <span class="macro">masking</span><span class="macro">!</span>(<span class="ident">a</span>)
+                    <span class="macro">masking!</span>(<span class="ident">a</span>)
                 };
 
                 <span class="comment">// Combining the 4 sets using `or` logic operator by pairs. Then we write the</span>
@@ -1263,25 +1263,25 @@
                 {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">_mm256_movemask_epi8</span>(<span class="ident">cmp_a</span>);
                     <span class="kw">if</span> <span class="ident">mask</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="macro">write_mask</span><span class="macro">!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
+                        <span class="macro">write_mask!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
                     }
 
                     <span class="ident">mask</span> <span class="op">=</span> <span class="ident">_mm256_movemask_epi8</span>(<span class="ident">cmp_b</span>);
                     <span class="kw">if</span> <span class="ident">mask</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>.<span class="ident">add</span>(<span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span>);
-                        <span class="macro">write_mask</span><span class="macro">!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
+                        <span class="macro">write_mask!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
                     }
 
                     <span class="ident">mask</span> <span class="op">=</span> <span class="ident">_mm256_movemask_epi8</span>(<span class="ident">cmp_c</span>);
                     <span class="kw">if</span> <span class="ident">mask</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>.<span class="ident">add</span>(<span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span> <span class="op">*</span> <span class="number">2</span>);
-                        <span class="macro">write_mask</span><span class="macro">!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
+                        <span class="macro">write_mask!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
                     }
 
                     <span class="ident">mask</span> <span class="op">=</span> <span class="ident">_mm256_movemask_epi8</span>(<span class="ident">cmp_d</span>);
                     <span class="kw">if</span> <span class="ident">mask</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>.<span class="ident">add</span>(<span class="ident">_ONSWITCH_M256_VECTOR_SIZE</span> <span class="op">*</span> <span class="number">3</span>);
-                        <span class="macro">write_mask</span><span class="macro">!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
+                        <span class="macro">write_mask!</span>(<span class="ident">mask</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ptr</span>);
                     }
                 }
 
@@ -1291,5 +1291,5 @@
     };
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="v_escape" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="v_escape" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

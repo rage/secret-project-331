@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/runtime/queue.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>queue.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -638,15 +638,15 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Run-queue structures to support a work-stealing scheduler</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">cell</span>::<span class="ident">UnsafeCell</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicU16</span>, <span class="ident">AtomicU32</span>, <span class="ident">AtomicUsize</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">runtime</span>::<span class="ident">task</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::cell::UnsafeCell</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic</span>::{<span class="ident">AtomicU16</span>, <span class="ident">AtomicU32</span>, <span class="ident">AtomicUsize</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::runtime::task</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">MaybeUninit</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::{<span class="self">self</span>, <span class="ident">NonNull</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::<span class="ident">Ordering</span>::{<span class="ident">AcqRel</span>, <span class="ident">Acquire</span>, <span class="ident">Relaxed</span>, <span class="ident">Release</span>};
+<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+<span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
+<span class="kw">use</span> <span class="ident">std::ptr</span>::{<span class="self">self</span>, <span class="ident">NonNull</span>};
+<span class="kw">use</span> <span class="ident">std::sync::atomic::Ordering</span>::{<span class="ident">AcqRel</span>, <span class="ident">Acquire</span>, <span class="ident">Relaxed</span>, <span class="ident">Release</span>};
 
 <span class="doccomment">/// Producer handle. May only be used from a single thread.</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Local</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
@@ -687,7 +687,7 @@
     <span class="ident">tail</span>: <span class="ident">AtomicU16</span>,
 
     <span class="doccomment">/// Elements</span>
-    <span class="ident">buffer</span>: <span class="ident">Box</span><span class="op">&lt;</span>[<span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>]<span class="op">&gt;</span>,
+    <span class="ident">buffer</span>: <span class="ident">Box</span><span class="op">&lt;</span>[<span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>]<span class="op">&gt;</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">Pointers</span> {
@@ -695,10 +695,10 @@
     <span class="ident">is_closed</span>: <span class="ident">bool</span>,
 
     <span class="doccomment">/// Linked-list head</span>
-    <span class="ident">head</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Header</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">head</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task::Header</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Linked-list tail</span>
-    <span class="ident">tail</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Header</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">tail</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task::Header</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">Inner</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
@@ -719,15 +719,15 @@
 
 <span class="doccomment">/// Create a new local run-queue</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">local</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Steal</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Local</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">LOCAL_QUEUE_CAPACITY</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">LOCAL_QUEUE_CAPACITY</span>);
 
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">LOCAL_QUEUE_CAPACITY</span> {
-        <span class="ident">buffer</span>.<span class="ident">push</span>(<span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="ident">MaybeUninit</span>::<span class="ident">uninit</span>()));
+        <span class="ident">buffer</span>.<span class="ident">push</span>(<span class="ident">UnsafeCell::new</span>(<span class="ident">MaybeUninit::uninit</span>()));
     }
 
-    <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">Inner</span> {
-        <span class="ident">head</span>: <span class="ident">AtomicU32</span>::<span class="ident">new</span>(<span class="number">0</span>),
-        <span class="ident">tail</span>: <span class="ident">AtomicU16</span>::<span class="ident">new</span>(<span class="number">0</span>),
+    <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">Inner</span> {
+        <span class="ident">head</span>: <span class="ident">AtomicU32::new</span>(<span class="number">0</span>),
+        <span class="ident">tail</span>: <span class="ident">AtomicU16::new</span>(<span class="number">0</span>),
         <span class="ident">buffer</span>: <span class="ident">buffer</span>.<span class="ident">into</span>(),
     });
 
@@ -747,7 +747,7 @@
     }
 
     <span class="doccomment">/// Pushes a task to the back of the local queue, skipping the LIFO slot.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">task</span>: <span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">inject</span>: <span class="kw-2">&amp;</span><span class="ident">Inject</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">task</span>: <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">inject</span>: <span class="kw-2">&amp;</span><span class="ident">Inject</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">tail</span> <span class="op">=</span> <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">load</span>(<span class="ident">Acquire</span>);
             <span class="kw">let</span> (<span class="ident">steal</span>, <span class="ident">real</span>) <span class="op">=</span> <span class="ident">unpack</span>(<span class="ident">head</span>);
@@ -786,7 +786,7 @@
             <span class="comment">// condition ensures we don&#39;t touch a cell if there is a</span>
             <span class="comment">// value, thus no consumer.</span>
             <span class="kw">unsafe</span> {
-                <span class="ident">ptr</span>::<span class="ident">write</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_mut_ptr</span>(), <span class="ident">task</span>);
+                <span class="ident">ptr::write</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_mut_ptr</span>(), <span class="ident">task</span>);
             }
         });
 
@@ -804,15 +804,15 @@
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
     <span class="kw">fn</span> <span class="ident">push_overflow</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">task</span>: <span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">task</span>: <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
         <span class="ident">head</span>: <span class="ident">u16</span>,
         <span class="ident">tail</span>: <span class="ident">u16</span>,
         <span class="ident">inject</span>: <span class="kw-2">&amp;</span><span class="ident">Inject</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">const</span> <span class="ident">BATCH_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">LOCAL_QUEUE_CAPACITY</span> <span class="op">/</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>;
 
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> (<span class="ident">LOCAL_QUEUE_CAPACITY</span> <span class="op">/</span> <span class="number">2</span>) <span class="kw">as</span> <span class="ident">u16</span>;
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">tail</span>.<span class="ident">wrapping_sub</span>(<span class="ident">head</span>) <span class="kw">as</span> <span class="ident">usize</span>,
             <span class="ident">LOCAL_QUEUE_CAPACITY</span>,
             <span class="string">&quot;queue is not full; tail = {}; head = {}&quot;</span>,
@@ -880,7 +880,7 @@
         <span class="comment">// safety: the above CAS prevents a stealer from accessing these tasks</span>
         <span class="comment">// and we are the only producer.</span>
         <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">buffer</span>[<span class="ident">head</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="ident">MASK</span>]
-            .<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr</span>::<span class="ident">read</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_ptr</span>()) });
+            .<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr::read</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_ptr</span>()) });
 
         <span class="comment">// Push the tasks onto the inject queue</span>
         <span class="ident">inject</span>.<span class="ident">push_batch</span>(<span class="ident">head</span>, <span class="ident">task</span>, <span class="ident">BATCH_LEN</span>);
@@ -889,7 +889,7 @@
     }
 
     <span class="doccomment">/// Pops a task from the local queue.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">head</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">load</span>(<span class="ident">Acquire</span>);
 
         <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">loop</span> {
@@ -910,7 +910,7 @@
             <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">steal</span> <span class="op">=</span><span class="op">=</span> <span class="ident">real</span> {
                 <span class="ident">pack</span>(<span class="ident">next_real</span>, <span class="ident">next_real</span>)
             } <span class="kw">else</span> {
-                <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">steal</span>, <span class="ident">next_real</span>);
+                <span class="macro">assert_ne!</span>(<span class="ident">steal</span>, <span class="ident">next_real</span>);
                 <span class="ident">pack</span>(<span class="ident">steal</span>, <span class="ident">next_real</span>)
             };
 
@@ -926,7 +926,7 @@
             }
         };
 
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">buffer</span>[<span class="ident">idx</span>].<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr</span>::<span class="ident">read</span>(<span class="ident">ptr</span>).<span class="ident">assume_init</span>() }))
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">buffer</span>[<span class="ident">idx</span>].<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr::read</span>(<span class="ident">ptr</span>).<span class="ident">assume_init</span>() }))
     }
 }
 
@@ -936,7 +936,7 @@
     }
 
     <span class="doccomment">/// Steals half the tasks from self and place them into `dst`.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">steal_into</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Local</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">steal_into</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Local</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// Safety: the caller is the only thread that mutates `dst.tail` and</span>
         <span class="comment">// holds a mutable reference.</span>
         <span class="kw">let</span> <span class="ident">dst_tail</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">dst</span>.<span class="ident">inner</span>.<span class="ident">tail</span>.<span class="ident">unsync_load</span>() };
@@ -969,7 +969,7 @@
 
         <span class="comment">// safety: the value was written as part of `steal_into2` and not</span>
         <span class="comment">// exposed to stealers, so no other thread can access it.</span>
-        <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">inner</span>.<span class="ident">buffer</span>[<span class="ident">ret_idx</span>].<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr</span>::<span class="ident">read</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_ptr</span>()) });
+        <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">inner</span>.<span class="ident">buffer</span>[<span class="ident">ret_idx</span>].<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr::read</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_ptr</span>()) });
 
         <span class="kw">if</span> <span class="ident">n</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="comment">// The `dst` queue is empty, but a single task was stolen</span>
@@ -1009,7 +1009,7 @@
 
             <span class="comment">// Update the real head index to acquire the tasks.</span>
             <span class="kw">let</span> <span class="ident">steal_to</span> <span class="op">=</span> <span class="ident">src_head_real</span>.<span class="ident">wrapping_add</span>(<span class="ident">n</span>);
-            <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">src_head_steal</span>, <span class="ident">steal_to</span>);
+            <span class="macro">assert_ne!</span>(<span class="ident">src_head_steal</span>, <span class="ident">steal_to</span>);
             <span class="ident">next_packed</span> <span class="op">=</span> <span class="ident">pack</span>(<span class="ident">src_head_steal</span>, <span class="ident">steal_to</span>);
 
             <span class="comment">// Claim all those tasks. This is done by incrementing the &quot;real&quot;</span>
@@ -1026,7 +1026,7 @@
             }
         };
 
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">n</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">LOCAL_QUEUE_CAPACITY</span> <span class="kw">as</span> <span class="ident">u16</span> <span class="op">/</span> <span class="number">2</span>, <span class="string">&quot;actual = {}&quot;</span>, <span class="ident">n</span>);
+        <span class="macro">assert!</span>(<span class="ident">n</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">LOCAL_QUEUE_CAPACITY</span> <span class="kw">as</span> <span class="ident">u16</span> <span class="op">/</span> <span class="number">2</span>, <span class="string">&quot;actual = {}&quot;</span>, <span class="ident">n</span>);
 
         <span class="kw">let</span> (<span class="ident">first</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">unpack</span>(<span class="ident">next_packed</span>);
 
@@ -1043,14 +1043,14 @@
             <span class="comment">// Read the task</span>
             <span class="comment">//</span>
             <span class="comment">// safety: We acquired the task with the atomic exchange above.</span>
-            <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">buffer</span>[<span class="ident">src_idx</span>].<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr</span>::<span class="ident">read</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_ptr</span>()) });
+            <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">buffer</span>[<span class="ident">src_idx</span>].<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr::read</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_ptr</span>()) });
 
             <span class="comment">// Write the task to the new slot</span>
             <span class="comment">//</span>
             <span class="comment">// safety: `dst` queue is empty and we are the only producer to</span>
             <span class="comment">// this queue.</span>
             <span class="ident">dst</span>.<span class="ident">inner</span>.<span class="ident">buffer</span>[<span class="ident">dst_idx</span>]
-                .<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr</span>::<span class="ident">write</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_mut_ptr</span>(), <span class="ident">task</span>) });
+                .<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">ptr::write</span>((<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_mut_ptr</span>(), <span class="ident">task</span>) });
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prev_packed</span> <span class="op">=</span> <span class="ident">next_packed</span>;
@@ -1071,7 +1071,7 @@
                 <span class="prelude-val">Err</span>(<span class="ident">actual</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> (<span class="ident">actual_steal</span>, <span class="ident">actual_real</span>) <span class="op">=</span> <span class="ident">unpack</span>(<span class="ident">actual</span>);
 
-                    <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">actual_steal</span>, <span class="ident">actual_real</span>);
+                    <span class="macro">assert_ne!</span>(<span class="ident">actual_steal</span>, <span class="ident">actual_real</span>);
 
                     <span class="ident">prev_packed</span> <span class="op">=</span> <span class="ident">actual</span>;
                 }
@@ -1088,8 +1088,8 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Local</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">panicking</span>() {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">pop</span>().<span class="ident">is_none</span>(), <span class="string">&quot;queue not empty&quot;</span>);
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">std::thread::panicking</span>() {
+            <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">pop</span>().<span class="ident">is_none</span>(), <span class="string">&quot;queue not empty&quot;</span>);
         }
     }
 }
@@ -1106,12 +1106,12 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">Inject</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Inject</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Inject</span> {
-            <span class="ident">pointers</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">Pointers</span> {
+            <span class="ident">pointers</span>: <span class="ident">Mutex::new</span>(<span class="ident">Pointers</span> {
                 <span class="ident">is_closed</span>: <span class="bool-val">false</span>,
                 <span class="ident">head</span>: <span class="prelude-val">None</span>,
                 <span class="ident">tail</span>: <span class="prelude-val">None</span>,
             }),
-            <span class="ident">len</span>: <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>),
+            <span class="ident">len</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>),
             <span class="ident">_p</span>: <span class="ident">PhantomData</span>,
         }
     }
@@ -1142,7 +1142,7 @@
     }
 
     <span class="doccomment">/// Pushes a value into the queue.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">task</span>: <span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">task</span>: <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
         <span class="comment">// Acquire queue lock</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pointers</span>.<span class="ident">lock</span>();
 
@@ -1159,7 +1159,7 @@
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">task</span>.<span class="ident">into_raw</span>();
 
         <span class="comment">// The next pointer should already be null</span>
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">get_next</span>(<span class="ident">task</span>).<span class="ident">is_none</span>());
+        <span class="macro">debug_assert!</span>(<span class="ident">get_next</span>(<span class="ident">task</span>).<span class="ident">is_none</span>());
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tail</span>) <span class="op">=</span> <span class="ident">p</span>.<span class="ident">tail</span> {
             <span class="ident">set_next</span>(<span class="ident">tail</span>, <span class="prelude-val">Some</span>(<span class="ident">task</span>));
@@ -1174,14 +1174,14 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push_batch</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">batch_head</span>: <span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-        <span class="ident">batch_tail</span>: <span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">batch_head</span>: <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">batch_tail</span>: <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
         <span class="ident">num</span>: <span class="ident">usize</span>,
     ) {
         <span class="kw">let</span> <span class="ident">batch_head</span> <span class="op">=</span> <span class="ident">batch_head</span>.<span class="ident">into_raw</span>();
         <span class="kw">let</span> <span class="ident">batch_tail</span> <span class="op">=</span> <span class="ident">batch_tail</span>.<span class="ident">into_raw</span>();
 
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">get_next</span>(<span class="ident">batch_tail</span>).<span class="ident">is_none</span>());
+        <span class="macro">debug_assert!</span>(<span class="ident">get_next</span>(<span class="ident">batch_tail</span>).<span class="ident">is_none</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pointers</span>.<span class="ident">lock</span>();
 
@@ -1202,7 +1202,7 @@
         <span class="self">self</span>.<span class="ident">len</span>.<span class="ident">store</span>(<span class="ident">len</span> <span class="op">+</span> <span class="ident">num</span>, <span class="ident">Release</span>);
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// Fast path, if len == 0, then there are no values</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -1230,23 +1230,23 @@
             .<span class="ident">store</span>(<span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">len</span>.<span class="ident">unsync_load</span>() } <span class="op">-</span> <span class="number">1</span>, <span class="ident">Release</span>);
 
         <span class="comment">// safety: a `Notified` is pushed into the queue and now it is popped!</span>
-        <span class="prelude-val">Some</span>(<span class="kw">unsafe</span> { <span class="ident">task</span>::<span class="ident">Notified</span>::<span class="ident">from_raw</span>(<span class="ident">task</span>) })
+        <span class="prelude-val">Some</span>(<span class="kw">unsafe</span> { <span class="ident">task::Notified::from_raw</span>(<span class="ident">task</span>) })
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Inject</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">panicking</span>() {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">pop</span>().<span class="ident">is_none</span>(), <span class="string">&quot;queue not empty&quot;</span>);
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">std::thread::panicking</span>() {
+            <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">pop</span>().<span class="ident">is_none</span>(), <span class="string">&quot;queue not empty&quot;</span>);
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">get_next</span>(<span class="ident">header</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Header</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Header</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_next</span>(<span class="ident">header</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task::Header</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task::Header</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">unsafe</span> { <span class="ident">header</span>.<span class="ident">as_ref</span>().<span class="ident">queue_next</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">ptr</span>) }
 }
 
-<span class="kw">fn</span> <span class="ident">set_next</span>(<span class="ident">header</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Header</span><span class="op">&gt;</span>, <span class="ident">val</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task</span>::<span class="ident">Header</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
+<span class="kw">fn</span> <span class="ident">set_next</span>(<span class="ident">header</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task::Header</span><span class="op">&gt;</span>, <span class="ident">val</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">task::Header</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
     <span class="kw">unsafe</span> {
         <span class="ident">header</span>.<span class="ident">as_ref</span>().<span class="ident">set_next</span>(<span class="ident">val</span>);
     }
@@ -1255,7 +1255,7 @@
 <span class="doccomment">/// Split the head value into the real head and the index a stealer is working</span>
 <span class="doccomment">/// on.</span>
 <span class="kw">fn</span> <span class="ident">unpack</span>(<span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u16</span>, <span class="ident">u16</span>) {
-    <span class="kw">let</span> <span class="ident">real</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">&amp;</span> <span class="ident">u16</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">u32</span>;
+    <span class="kw">let</span> <span class="ident">real</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">&amp;</span> <span class="ident">u16::max_value</span>() <span class="kw">as</span> <span class="ident">u32</span>;
     <span class="kw">let</span> <span class="ident">steal</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">16</span>;
 
     (<span class="ident">steal</span> <span class="kw">as</span> <span class="ident">u16</span>, <span class="ident">real</span> <span class="kw">as</span> <span class="ident">u16</span>)
@@ -1268,8 +1268,8 @@
 
 <span class="attribute">#[<span class="ident">test</span>]</span>
 <span class="kw">fn</span> <span class="ident">test_local_queue_capacity</span>() {
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">LOCAL_QUEUE_CAPACITY</span> <span class="op">-</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">u8</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+    <span class="macro">assert!</span>(<span class="ident">LOCAL_QUEUE_CAPACITY</span> <span class="op">-</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">u8::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

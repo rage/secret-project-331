@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ring-0.16.20/src/test.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>test.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ring/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ring/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -762,7 +762,7 @@
 <span class="doccomment">//! stack trace pointing to line 652 of the file `example.rs`.</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">format</span>, <span class="ident">string</span>::<span class="ident">String</span>, <span class="ident">vec</span>::<span class="ident">Vec</span>};
+<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">format</span>, <span class="ident">string::String</span>, <span class="ident">vec::Vec</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">bits</span>, <span class="ident">digest</span>, <span class="ident">error</span>};
@@ -789,7 +789,7 @@
 <span class="doccomment">/// `compile_time_assert_std_error_error::&lt;T&gt;();` fails to compile if `T`</span>
 <span class="doccomment">/// doesn&#39;t implement `std::error::Error`.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compile_time_assert_std_error_error</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span>() {}
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compile_time_assert_std_error_error</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">std::error::Error</span><span class="op">&gt;</span>() {}
 
 <span class="doccomment">/// A test case. A test case consists of a set of named attributes. Every</span>
 <span class="doccomment">/// attribute in the test case must be consumed exactly once; this helps catch</span>
@@ -809,7 +809,7 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">consume_string</span>(<span class="ident">key</span>).<span class="ident">as_ref</span>() {
             <span class="string">&quot;true&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="string">&quot;false&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">s</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Invalid bool value: {}&quot;</span>, <span class="ident">s</span>),
+            <span class="ident">s</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Invalid bool value: {}&quot;</span>, <span class="ident">s</span>),
         }
     }
 
@@ -818,16 +818,16 @@
     <span class="doccomment">/// inputs. &quot;SHA224&quot; is mapped to None because *ring* intentionally does</span>
     <span class="doccomment">/// not support SHA224, but we need to consume test vectors from NIST that</span>
     <span class="doccomment">/// have SHA224 vectors in them.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume_digest_alg</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">digest</span>::<span class="ident">Algorithm</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume_digest_alg</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">digest::Algorithm</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_string</span>(<span class="ident">key</span>);
         <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;SHA1&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest</span>::<span class="ident">SHA1_FOR_LEGACY_USE_ONLY</span>),
+            <span class="string">&quot;SHA1&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest::SHA1_FOR_LEGACY_USE_ONLY</span>),
             <span class="string">&quot;SHA224&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>, <span class="comment">// We actively skip SHA-224 support.</span>
-            <span class="string">&quot;SHA256&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest</span>::<span class="ident">SHA256</span>),
-            <span class="string">&quot;SHA384&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest</span>::<span class="ident">SHA384</span>),
-            <span class="string">&quot;SHA512&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest</span>::<span class="ident">SHA512</span>),
-            <span class="string">&quot;SHA512_256&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest</span>::<span class="ident">SHA512_256</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unsupported digest algorithm: {}&quot;</span>, <span class="ident">name</span>),
+            <span class="string">&quot;SHA256&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest::SHA256</span>),
+            <span class="string">&quot;SHA384&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest::SHA384</span>),
+            <span class="string">&quot;SHA512&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest::SHA512</span>),
+            <span class="string">&quot;SHA512_256&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">digest::SHA512_256</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Unsupported digest algorithm: {}&quot;</span>, <span class="ident">name</span>),
         }
     }
 
@@ -839,7 +839,7 @@
         <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&#39;\&quot;&#39;</span>) {
             <span class="comment">// The value is a quoted UTF-8 string.</span>
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>().<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>().<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">as_bytes</span>().<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>);
             <span class="kw">loop</span> {
                 <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">next</span>() {
@@ -857,22 +857,22 @@
                                 {
                                     (<span class="ident">hi</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>) <span class="op">|</span> <span class="ident">lo</span>
                                 } <span class="kw">else</span> {
-                                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Invalid hex escape sequence in string.&quot;</span>);
+                                    <span class="macro">panic!</span>(<span class="string">&quot;Invalid hex escape sequence in string.&quot;</span>);
                                 }
                             }
                             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Invalid hex escape sequence in string.&quot;</span>);
+                                <span class="macro">panic!</span>(<span class="string">&quot;Invalid hex escape sequence in string.&quot;</span>);
                             }
                         }
                     }
                     <span class="prelude-val">Some</span>(<span class="string">b&#39;&quot;&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">next</span>().<span class="ident">is_some</span>() {
-                            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;characters after the closing quote of a quoted string.&quot;</span>);
+                            <span class="macro">panic!</span>(<span class="string">&quot;characters after the closing quote of a quoted string.&quot;</span>);
                         }
                         <span class="kw">break</span>;
                     }
                     <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">b</span>,
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Missing terminating &#39;\&quot;&#39; in string literal.&quot;</span>),
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Missing terminating &#39;\&quot;&#39; in string literal.&quot;</span>),
                 };
                 <span class="ident">bytes</span>.<span class="ident">push</span>(<span class="ident">b</span>);
             }
@@ -882,7 +882,7 @@
             <span class="kw">match</span> <span class="ident">from_hex</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>,
                 <span class="prelude-val">Err</span>(<span class="ident">err_str</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} in {}&quot;</span>, <span class="ident">err_str</span>, <span class="ident">s</span>);
+                    <span class="macro">panic!</span>(<span class="string">&quot;{} in {}&quot;</span>, <span class="ident">err_str</span>, <span class="ident">s</span>);
                 }
             }
         }
@@ -898,17 +898,17 @@
     <span class="doccomment">/// Returns the value of an attribute that is an integer, in decimal</span>
     <span class="doccomment">/// notation, as a bit length.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume_usize_bits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bits</span>::<span class="ident">BitLength</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume_usize_bits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bits::BitLength</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_string</span>(<span class="ident">key</span>);
         <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="ident">bits</span>::<span class="ident">BitLength</span>::<span class="ident">from_usize_bits</span>(<span class="ident">bits</span>)
+        <span class="ident">bits::BitLength::from_usize_bits</span>(<span class="ident">bits</span>)
     }
 
     <span class="doccomment">/// Returns the raw value of an attribute, without any unquoting or</span>
     <span class="doccomment">/// other interpretation.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">consume_optional_string</span>(<span class="ident">key</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;No attribute named \&quot;{}\&quot;&quot;</span>, <span class="ident">key</span>))
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;No attribute named \&quot;{}\&quot;&quot;</span>, <span class="ident">key</span>))
     }
 
     <span class="doccomment">/// Like `consume_string()` except it returns `None` if the test case</span>
@@ -917,7 +917,7 @@
         <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">value</span>, <span class="ident">consumed</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">attributes</span> {
             <span class="kw">if</span> <span class="ident">key</span> <span class="op">=</span><span class="op">=</span> <span class="ident">name</span> {
                 <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">consumed</span> {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Attribute {} was already consumed&quot;</span>, <span class="ident">key</span>);
+                    <span class="macro">panic!</span>(<span class="string">&quot;Attribute {} was already consumed&quot;</span>, <span class="ident">key</span>);
                 }
                 <span class="kw-2">*</span><span class="ident">consumed</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">clone</span>());
@@ -930,11 +930,11 @@
 <span class="doccomment">/// References a test input file.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">test_file</span> {
+<span class="macro">macro_rules!</span> <span class="ident">test_file</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">test</span>::<span class="ident">File</span> {
+        <span class="kw">crate</span><span class="ident">::test::File</span> {
             <span class="ident">file_name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>,
-            <span class="ident">contents</span>: <span class="macro">include_str</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>),
+            <span class="ident">contents</span>: <span class="macro">include_str!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>),
         }
     };
 }
@@ -957,11 +957,11 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">test_file</span>: <span class="ident">File</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>)
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TestCase</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error</span>::<span class="ident">Unspecified</span><span class="op">&gt;</span>,
+    <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TestCase</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error::Unspecified</span><span class="op">&gt;</span>,
 {
     <span class="kw">let</span> <span class="ident">lines</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">test_file</span>.<span class="ident">contents</span>.<span class="ident">lines</span>();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_section</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_section</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;&quot;</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">failed</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">test_case</span>) <span class="op">=</span> <span class="ident">parse_test_case</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">current_section</span>, <span class="ident">lines</span>) {
@@ -978,7 +978,7 @@
                     <span class="prelude-val">Err</span>(<span class="string">&quot;Test didn&#39;t consume all attributes.&quot;</span>)
                 }
             }
-            <span class="prelude-val">Err</span>(<span class="ident">error</span>::<span class="ident">Unspecified</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Test returned Err(error::Unspecified).&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">error::Unspecified</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Test returned Err(error::Unspecified).&quot;</span>),
         };
 
         <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_err</span>() {
@@ -988,18 +988,18 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;test_logging&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">msg</span>) <span class="op">=</span> <span class="ident">result</span> {
-                <span class="ident">std</span>::<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">test_file</span>.<span class="ident">file_name</span>, <span class="ident">msg</span>);
+                <span class="macro">std::println!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">test_file</span>.<span class="ident">file_name</span>, <span class="ident">msg</span>);
 
                 <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">value</span>, <span class="ident">consumed</span>) <span class="kw">in</span> <span class="ident">test_case</span>.<span class="ident">attributes</span> {
                     <span class="kw">let</span> <span class="ident">consumed_str</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">consumed</span> { <span class="string">&quot;&quot;</span> } <span class="kw">else</span> { <span class="string">&quot; (unconsumed)&quot;</span> };
-                    <span class="ident">std</span>::<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}{} = {}&quot;</span>, <span class="ident">name</span>, <span class="ident">consumed_str</span>, <span class="ident">value</span>);
+                    <span class="macro">std::println!</span>(<span class="string">&quot;{}{} = {}&quot;</span>, <span class="ident">name</span>, <span class="ident">consumed_str</span>, <span class="ident">value</span>);
                 }
             };
         }
     }
 
     <span class="kw">if</span> <span class="ident">failed</span> {
-        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Test failed.&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">&quot;Test failed.&quot;</span>)
     }
 }
 
@@ -1008,12 +1008,12 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_hex</span>(<span class="ident">hex_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">hex_str</span>.<span class="ident">len</span>() <span class="op">%</span> <span class="number">2</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">String</span>::<span class="ident">from</span>(
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">String::from</span>(
             <span class="string">&quot;Hex string does not have an even number of digits&quot;</span>,
         ));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">hex_str</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="number">2</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">hex_str</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="number">2</span>);
     <span class="kw">for</span> <span class="ident">digits</span> <span class="kw">in</span> <span class="ident">hex_str</span>.<span class="ident">as_bytes</span>().<span class="ident">chunks</span>(<span class="number">2</span>) {
         <span class="kw">let</span> <span class="ident">hi</span> <span class="op">=</span> <span class="ident">from_hex_digit</span>(<span class="ident">digits</span>[<span class="number">0</span>])<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">lo</span> <span class="op">=</span> <span class="ident">from_hex_digit</span>(<span class="ident">digits</span>[<span class="number">1</span>])<span class="question-mark">?</span>;
@@ -1024,7 +1024,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
 <span class="kw">fn</span> <span class="ident">from_hex_digit</span>(<span class="ident">d</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">RangeInclusive</span>;
+    <span class="kw">use</span> <span class="ident">core::ops::RangeInclusive</span>;
     <span class="kw">const</span> <span class="ident">DECIMAL</span>: (<span class="ident">u8</span>, <span class="ident">RangeInclusive</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span> (<span class="number">0</span>, <span class="string">b&#39;0&#39;</span>..<span class="op">=</span><span class="string">b&#39;9&#39;</span>);
     <span class="kw">const</span> <span class="ident">HEX_LOWER</span>: (<span class="ident">u8</span>, <span class="ident">RangeInclusive</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span> (<span class="number">10</span>, <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;f&#39;</span>);
     <span class="kw">const</span> <span class="ident">HEX_UPPER</span>: (<span class="ident">u8</span>, <span class="ident">RangeInclusive</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span> (<span class="number">10</span>, <span class="string">b&#39;A&#39;</span>..<span class="op">=</span><span class="string">b&#39;F&#39;</span>);
@@ -1033,7 +1033,7 @@
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">d</span> <span class="op">-</span> <span class="ident">range</span>.<span class="ident">start</span>() <span class="op">+</span> <span class="ident">offset</span>);
         }
     }
-    <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Invalid hex digit &#39;{}&#39;&quot;</span>, <span class="ident">d</span> <span class="kw">as</span> <span class="ident">char</span>))
+    <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid hex digit &#39;{}&#39;&quot;</span>, <span class="ident">d</span> <span class="kw">as</span> <span class="ident">char</span>))
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
@@ -1041,7 +1041,7 @@
     <span class="ident">current_section</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>,
     <span class="ident">lines</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TestCase</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_first_line</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="kw">loop</span> {
@@ -1050,7 +1050,7 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;test_logging&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">line</span> {
-                <span class="ident">std</span>::<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Line: {}&quot;</span>, <span class="ident">text</span>);
+                <span class="macro">std::println!</span>(<span class="string">&quot;Line: {}&quot;</span>, <span class="ident">text</span>);
             }
         }
 
@@ -1078,8 +1078,8 @@
             <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">line</span>) <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&#39;#&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> (),
 
             <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">line</span>) <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&#39;[&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">is_first_line</span>);
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">line</span>.<span class="ident">ends_with</span>(<span class="string">&#39;]&#39;</span>));
+                <span class="macro">assert!</span>(<span class="ident">is_first_line</span>);
+                <span class="macro">assert!</span>(<span class="ident">line</span>.<span class="ident">ends_with</span>(<span class="string">&#39;]&#39;</span>));
                 <span class="ident">current_section</span>.<span class="ident">truncate</span>(<span class="number">0</span>);
                 <span class="ident">current_section</span>.<span class="ident">push_str</span>(<span class="ident">line</span>);
                 <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">current_section</span>.<span class="ident">pop</span>();
@@ -1091,7 +1091,7 @@
 
                 <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">splitn</span>(<span class="number">2</span>, <span class="string">&quot; = &quot;</span>).<span class="ident">collect</span>();
                 <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Syntax error: Expected Key = Value.&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">&quot;Syntax error: Expected Key = Value.&quot;</span>);
                 };
 
                 <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">trim</span>();
@@ -1099,10 +1099,10 @@
 
                 <span class="comment">// Don&#39;t allow the value to be ommitted. An empty value can be</span>
                 <span class="comment">// represented as an empty quoted string.</span>
-                <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">value</span>.<span class="ident">len</span>(), <span class="number">0</span>);
+                <span class="macro">assert_ne!</span>(<span class="ident">value</span>.<span class="ident">len</span>(), <span class="number">0</span>);
 
                 <span class="comment">// Checking is_none() ensures we don&#39;t accept duplicate keys.</span>
-                <span class="ident">attributes</span>.<span class="ident">push</span>((<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">key</span>), <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">value</span>), <span class="bool-val">false</span>));
+                <span class="ident">attributes</span>.<span class="ident">push</span>((<span class="ident">String::from</span>(<span class="ident">key</span>), <span class="ident">String::from</span>(<span class="ident">value</span>), <span class="bool-val">false</span>));
             }
         }
     }
@@ -1125,9 +1125,9 @@
         <span class="kw">pub</span> <span class="ident">byte</span>: <span class="ident">u8</span>,
     }
 
-    <span class="kw">impl</span> <span class="ident">rand</span>::<span class="ident">sealed</span>::<span class="ident">SecureRandom</span> <span class="kw">for</span> <span class="ident">FixedByteRandom</span> {
-        <span class="kw">fn</span> <span class="ident">fill_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error</span>::<span class="ident">Unspecified</span><span class="op">&gt;</span> {
-            <span class="ident">polyfill</span>::<span class="ident">slice</span>::<span class="ident">fill</span>(<span class="ident">dest</span>, <span class="self">self</span>.<span class="ident">byte</span>);
+    <span class="kw">impl</span> <span class="ident">rand::sealed::SecureRandom</span> <span class="kw">for</span> <span class="ident">FixedByteRandom</span> {
+        <span class="kw">fn</span> <span class="ident">fill_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error::Unspecified</span><span class="op">&gt;</span> {
+            <span class="ident">polyfill::slice::fill</span>(<span class="ident">dest</span>, <span class="self">self</span>.<span class="ident">byte</span>);
             <span class="prelude-val">Ok</span>(())
         }
     }
@@ -1140,8 +1140,8 @@
         <span class="kw">pub</span> <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>],
     }
 
-    <span class="kw">impl</span> <span class="ident">rand</span>::<span class="ident">sealed</span>::<span class="ident">SecureRandom</span> <span class="kw">for</span> <span class="ident">FixedSliceRandom</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">fill_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error</span>::<span class="ident">Unspecified</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span> <span class="ident">rand::sealed::SecureRandom</span> <span class="kw">for</span> <span class="ident">FixedSliceRandom</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">fill_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error::Unspecified</span><span class="op">&gt;</span> {
             <span class="ident">dest</span>.<span class="ident">copy_from_slice</span>(<span class="self">self</span>.<span class="ident">bytes</span>);
             <span class="prelude-val">Ok</span>(())
         }
@@ -1160,11 +1160,11 @@
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FixedSliceSequenceRandom</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="doccomment">/// The value.</span>
         <span class="kw">pub</span> <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]],
-        <span class="kw">pub</span> <span class="ident">current</span>: <span class="ident">core</span>::<span class="ident">cell</span>::<span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+        <span class="kw">pub</span> <span class="ident">current</span>: <span class="ident">core::cell::UnsafeCell</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
     }
 
-    <span class="kw">impl</span> <span class="ident">rand</span>::<span class="ident">sealed</span>::<span class="ident">SecureRandom</span> <span class="kw">for</span> <span class="ident">FixedSliceSequenceRandom</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">fill_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error</span>::<span class="ident">Unspecified</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span> <span class="ident">rand::sealed::SecureRandom</span> <span class="kw">for</span> <span class="ident">FixedSliceSequenceRandom</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">fill_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error::Unspecified</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">get</span>() };
             <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bytes</span>[<span class="ident">current</span>];
             <span class="ident">dest</span>.<span class="ident">copy_from_slice</span>(<span class="ident">bytes</span>);
@@ -1179,7 +1179,7 @@
         <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
             <span class="comment">// Ensure that `fill()` was called exactly the right number of</span>
             <span class="comment">// times.</span>
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">get</span>() }, <span class="self">self</span>.<span class="ident">bytes</span>.<span class="ident">len</span>());
+            <span class="macro">assert_eq!</span>(<span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">get</span>() }, <span class="self">self</span>.<span class="ident">bytes</span>.<span class="ident">len</span>());
         }
     }
 }
@@ -1190,7 +1190,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">one_ok</span>() {
-        <span class="ident">test</span>::<span class="ident">run</span>(<span class="macro">test_file</span><span class="macro">!</span>(<span class="string">&quot;test_1_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
+        <span class="ident">test::run</span>(<span class="macro">test_file!</span>(<span class="string">&quot;test_1_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">test_case</span>.<span class="ident">consume_string</span>(<span class="string">&quot;Key&quot;</span>);
             <span class="prelude-val">Ok</span>(())
         });
@@ -1199,18 +1199,18 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;Test failed.&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">one_err</span>() {
-        <span class="ident">test</span>::<span class="ident">run</span>(<span class="macro">test_file</span><span class="macro">!</span>(<span class="string">&quot;test_1_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
+        <span class="ident">test::run</span>(<span class="macro">test_file!</span>(<span class="string">&quot;test_1_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">test_case</span>.<span class="ident">consume_string</span>(<span class="string">&quot;Key&quot;</span>);
-            <span class="prelude-val">Err</span>(<span class="ident">error</span>::<span class="ident">Unspecified</span>)
+            <span class="prelude-val">Err</span>(<span class="ident">error::Unspecified</span>)
         });
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;Oh noes!&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">one_panics</span>() {
-        <span class="ident">test</span>::<span class="ident">run</span>(<span class="macro">test_file</span><span class="macro">!</span>(<span class="string">&quot;test_1_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
+        <span class="ident">test::run</span>(<span class="macro">test_file!</span>(<span class="string">&quot;test_1_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">test_case</span>.<span class="ident">consume_string</span>(<span class="string">&quot;Key&quot;</span>);
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Oh noes!&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;Oh noes!&quot;</span>);
         });
     }
 
@@ -1234,12 +1234,12 @@
 
     <span class="kw">fn</span> <span class="ident">err_one</span>(<span class="ident">test_to_fail</span>: <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">test</span>::<span class="ident">run</span>(<span class="macro">test_file</span><span class="macro">!</span>(<span class="string">&quot;test_3_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
+        <span class="ident">test::run</span>(<span class="macro">test_file!</span>(<span class="string">&quot;test_3_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">test_case</span>.<span class="ident">consume_string</span>(<span class="string">&quot;Key&quot;</span>);
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">n</span> <span class="op">!</span><span class="op">=</span> <span class="ident">test_to_fail</span> {
                 <span class="prelude-val">Ok</span>(())
             } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">error</span>::<span class="ident">Unspecified</span>)
+                <span class="prelude-val">Err</span>(<span class="ident">error::Unspecified</span>)
             };
             <span class="ident">n</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="ident">result</span>
@@ -1266,10 +1266,10 @@
 
     <span class="kw">fn</span> <span class="ident">panic_one</span>(<span class="ident">test_to_fail</span>: <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">test</span>::<span class="ident">run</span>(<span class="macro">test_file</span><span class="macro">!</span>(<span class="string">&quot;test_3_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
+        <span class="ident">test::run</span>(<span class="macro">test_file!</span>(<span class="string">&quot;test_3_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="ident">test_case</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">test_case</span>.<span class="ident">consume_string</span>(<span class="string">&quot;Key&quot;</span>);
             <span class="kw">if</span> <span class="ident">n</span> <span class="op">=</span><span class="op">=</span> <span class="ident">test_to_fail</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Oh Noes!&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">&quot;Oh Noes!&quot;</span>);
             };
             <span class="ident">n</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="prelude-val">Ok</span>(())
@@ -1279,9 +1279,9 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;Syntax error: Expected Key = Value.&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">syntax_error</span>() {
-        <span class="ident">test</span>::<span class="ident">run</span>(<span class="macro">test_file</span><span class="macro">!</span>(<span class="string">&quot;test_1_syntax_error_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Ok</span>(()));
+        <span class="ident">test::run</span>(<span class="macro">test_file!</span>(<span class="string">&quot;test_1_syntax_error_tests.txt&quot;</span>), <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Ok</span>(()));
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ring" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ring" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

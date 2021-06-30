@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/io/driver/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -359,26 +359,26 @@
 
 <span class="kw">mod</span> <span class="ident">interest</span>;
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">interest</span>::<span class="ident">Interest</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">interest::Interest</span>;
 
 <span class="kw">mod</span> <span class="ident">ready</span>;
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ready</span>::<span class="ident">Ready</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ready::Ready</span>;
 
 <span class="kw">mod</span> <span class="ident">registration</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">registration</span>::<span class="ident">Registration</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">registration::Registration</span>;
 
 <span class="kw">mod</span> <span class="ident">scheduled_io</span>;
-<span class="kw">use</span> <span class="ident">scheduled_io</span>::<span class="ident">ScheduledIo</span>;
+<span class="kw">use</span> <span class="ident">scheduled_io::ScheduledIo</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">park</span>::{<span class="ident">Park</span>, <span class="ident">Unpark</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">slab</span>::{<span class="self">self</span>, <span class="ident">Slab</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">loom</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>, <span class="ident">util</span>::<span class="ident">bit</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::park</span>::{<span class="ident">Park</span>, <span class="ident">Unpark</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::util::slab</span>::{<span class="self">self</span>, <span class="ident">Slab</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">loom::sync::Mutex</span>, <span class="ident">util::bit</span>};
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Weak</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Weak</span>};
+<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
 <span class="doccomment">/// I/O driver, backed by Mio</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Driver</span> {
@@ -387,7 +387,7 @@
     <span class="ident">tick</span>: <span class="ident">u8</span>,
 
     <span class="doccomment">/// Reuse the `mio::Events` value across calls to poll.</span>
-    <span class="ident">events</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">mio</span>::<span class="ident">Events</span><span class="op">&gt;</span>,
+    <span class="ident">events</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">mio::Events</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Primary slab handle containing the state for each resource registered</span>
     <span class="doccomment">/// with this driver. During Drop this is moved into the Inner structure, so</span>
@@ -396,7 +396,7 @@
     <span class="ident">resources</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">ScheduledIo</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The system event queue</span>
-    <span class="ident">poll</span>: <span class="ident">mio</span>::<span class="ident">Poll</span>,
+    <span class="ident">poll</span>: <span class="ident">mio::Poll</span>,
 
     <span class="doccomment">/// State shared between the reactor and the handles.</span>
     <span class="ident">inner</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span>,
@@ -423,13 +423,13 @@
     <span class="ident">resources</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Slab</span><span class="op">&lt;</span><span class="ident">ScheduledIo</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Registers I/O resources</span>
-    <span class="ident">registry</span>: <span class="ident">mio</span>::<span class="ident">Registry</span>,
+    <span class="ident">registry</span>: <span class="ident">mio::Registry</span>,
 
     <span class="doccomment">/// Allocates `ScheduledIo` handles when creating new resources.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">io_dispatch</span>: <span class="ident">slab</span>::<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">ScheduledIo</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">io_dispatch</span>: <span class="ident">slab::Allocator</span><span class="op">&lt;</span><span class="ident">ScheduledIo</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Used to wake up the reactor from a call to `turn`</span>
-    <span class="ident">waker</span>: <span class="ident">mio</span>::<span class="ident">Waker</span>,
+    <span class="ident">waker</span>: <span class="ident">mio::Waker</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
@@ -445,9 +445,9 @@
 
 <span class="comment">// TODO: Don&#39;t use a fake token. Instead, reserve a slot entry for the wakeup</span>
 <span class="comment">// token.</span>
-<span class="kw">const</span> <span class="ident">TOKEN_WAKEUP</span>: <span class="ident">mio</span>::<span class="ident">Token</span> <span class="op">=</span> <span class="ident">mio</span>::<span class="ident">Token</span>(<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">31</span>);
+<span class="kw">const</span> <span class="ident">TOKEN_WAKEUP</span>: <span class="ident">mio::Token</span> <span class="op">=</span> <span class="ident">mio::Token</span>(<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">31</span>);
 
-<span class="kw">const</span> <span class="ident">ADDRESS</span>: <span class="ident">bit</span>::<span class="ident">Pack</span> <span class="op">=</span> <span class="ident">bit</span>::<span class="ident">Pack</span>::<span class="ident">least_significant</span>(<span class="number">24</span>);
+<span class="kw">const</span> <span class="ident">ADDRESS</span>: <span class="ident">bit::Pack</span> <span class="op">=</span> <span class="ident">bit::Pack::least_significant</span>(<span class="number">24</span>);
 
 <span class="comment">// Packs the generation value in the `readiness` field.</span>
 <span class="comment">//</span>
@@ -455,7 +455,7 @@
 <span class="comment">// new socket while the I/O driver is about to apply a readiness event. The</span>
 <span class="comment">// generaton value is checked when setting new readiness. If the generation do</span>
 <span class="comment">// not match, then the readiness event is discarded.</span>
-<span class="kw">const</span> <span class="ident">GENERATION</span>: <span class="ident">bit</span>::<span class="ident">Pack</span> <span class="op">=</span> <span class="ident">ADDRESS</span>.<span class="ident">then</span>(<span class="number">7</span>);
+<span class="kw">const</span> <span class="ident">GENERATION</span>: <span class="ident">bit::Pack</span> <span class="op">=</span> <span class="ident">ADDRESS</span>.<span class="ident">then</span>(<span class="number">7</span>);
 
 <span class="kw">fn</span> <span class="ident">_assert_kinds</span>() {
     <span class="kw">fn</span> <span class="ident">_assert</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>() {}
@@ -468,21 +468,21 @@
 <span class="kw">impl</span> <span class="ident">Driver</span> {
     <span class="doccomment">/// Creates a new event loop, returning any error that happened during the</span>
     <span class="doccomment">/// creation.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Driver</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">poll</span> <span class="op">=</span> <span class="ident">mio</span>::<span class="ident">Poll</span>::<span class="ident">new</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> <span class="ident">mio</span>::<span class="ident">Waker</span>::<span class="ident">new</span>(<span class="ident">poll</span>.<span class="ident">registry</span>(), <span class="ident">TOKEN_WAKEUP</span>)<span class="question-mark">?</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Driver</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">poll</span> <span class="op">=</span> <span class="ident">mio::Poll::new</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> <span class="ident">mio::Waker::new</span>(<span class="ident">poll</span>.<span class="ident">registry</span>(), <span class="ident">TOKEN_WAKEUP</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">poll</span>.<span class="ident">registry</span>().<span class="ident">try_clone</span>()<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">slab</span> <span class="op">=</span> <span class="ident">Slab</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">slab</span> <span class="op">=</span> <span class="ident">Slab::new</span>();
         <span class="kw">let</span> <span class="ident">allocator</span> <span class="op">=</span> <span class="ident">slab</span>.<span class="ident">allocator</span>();
 
         <span class="prelude-val">Ok</span>(<span class="ident">Driver</span> {
             <span class="ident">tick</span>: <span class="number">0</span>,
-            <span class="ident">events</span>: <span class="prelude-val">Some</span>(<span class="ident">mio</span>::<span class="ident">Events</span>::<span class="ident">with_capacity</span>(<span class="number">1024</span>)),
+            <span class="ident">events</span>: <span class="prelude-val">Some</span>(<span class="ident">mio::Events::with_capacity</span>(<span class="number">1024</span>)),
             <span class="ident">poll</span>,
             <span class="ident">resources</span>: <span class="prelude-val">Some</span>(<span class="ident">slab</span>),
-            <span class="ident">inner</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">Inner</span> {
-                <span class="ident">resources</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),
+            <span class="ident">inner</span>: <span class="ident">Arc::new</span>(<span class="ident">Inner</span> {
+                <span class="ident">resources</span>: <span class="ident">Mutex::new</span>(<span class="prelude-val">None</span>),
                 <span class="ident">registry</span>,
                 <span class="ident">io_dispatch</span>: <span class="ident">allocator</span>,
                 <span class="ident">waker</span>,
@@ -498,11 +498,11 @@
     <span class="doccomment">/// to bind them to this event loop.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Handle</span> {
         <span class="ident">Handle</span> {
-            <span class="ident">inner</span>: <span class="ident">Arc</span>::<span class="ident">downgrade</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>),
+            <span class="ident">inner</span>: <span class="ident">Arc::downgrade</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">turn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">max_wait</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">turn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">max_wait</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// How often to call `compact()` on the resource slab</span>
         <span class="kw">const</span> <span class="ident">COMPACT_INTERVAL</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">255</span>;
 
@@ -518,7 +518,7 @@
         <span class="comment">// happened.</span>
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">poll</span>.<span class="ident">poll</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">events</span>, <span class="ident">max_wait</span>) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io::ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> {}
             <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
         }
 
@@ -527,7 +527,7 @@
             <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">token</span>();
 
             <span class="kw">if</span> <span class="ident">token</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TOKEN_WAKEUP</span> {
-                <span class="self">self</span>.<span class="ident">dispatch</span>(<span class="ident">token</span>, <span class="ident">Ready</span>::<span class="ident">from_mio</span>(<span class="ident">event</span>));
+                <span class="self">self</span>.<span class="ident">dispatch</span>(<span class="ident">token</span>, <span class="ident">Ready::from_mio</span>(<span class="ident">event</span>));
             }
         }
 
@@ -536,8 +536,8 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">dispatch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="ident">mio</span>::<span class="ident">Token</span>, <span class="ident">ready</span>: <span class="ident">Ready</span>) {
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">slab</span>::<span class="ident">Address</span>::<span class="ident">from_usize</span>(<span class="ident">ADDRESS</span>.<span class="ident">unpack</span>(<span class="ident">token</span>.<span class="number">0</span>));
+    <span class="kw">fn</span> <span class="ident">dispatch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="ident">mio::Token</span>, <span class="ident">ready</span>: <span class="ident">Ready</span>) {
+        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">slab::Address::from_usize</span>(<span class="ident">ADDRESS</span>.<span class="ident">unpack</span>(<span class="ident">token</span>.<span class="number">0</span>));
 
         <span class="kw">let</span> <span class="ident">resources</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">resources</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
 
@@ -546,7 +546,7 @@
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span>,
         };
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">io</span>.<span class="ident">set_readiness</span>(<span class="prelude-val">Some</span>(<span class="ident">token</span>.<span class="number">0</span>), <span class="ident">Tick</span>::<span class="ident">Set</span>(<span class="self">self</span>.<span class="ident">tick</span>), <span class="op">|</span><span class="ident">curr</span><span class="op">|</span> <span class="ident">curr</span> <span class="op">|</span> <span class="ident">ready</span>);
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">io</span>.<span class="ident">set_readiness</span>(<span class="prelude-val">Some</span>(<span class="ident">token</span>.<span class="number">0</span>), <span class="ident">Tick::Set</span>(<span class="self">self</span>.<span class="ident">tick</span>), <span class="op">|</span><span class="ident">curr</span><span class="op">|</span> <span class="ident">curr</span> <span class="op">|</span> <span class="ident">ready</span>);
 
         <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_err</span>() {
             <span class="comment">// token no longer valid!</span>
@@ -580,18 +580,18 @@
 
 <span class="kw">impl</span> <span class="ident">Park</span> <span class="kw">for</span> <span class="ident">Driver</span> {
     <span class="kw">type</span> <span class="ident">Unpark</span> <span class="op">=</span> <span class="ident">Handle</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">io</span>::<span class="ident">Error</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">io::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">unpark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Unpark</span> {
+    <span class="kw">fn</span> <span class="ident">unpark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Unpark</span> {
         <span class="self">self</span>.<span class="ident">handle</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">park</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">park</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">turn</span>(<span class="prelude-val">None</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">park_timeout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">park_timeout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">turn</span>(<span class="prelude-val">Some</span>(<span class="ident">duration</span>))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
@@ -599,15 +599,15 @@
     <span class="kw">fn</span> <span class="ident">shutdown</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Driver</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;Driver&quot;</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Driver</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Driver&quot;</span>)
     }
 }
 
 <span class="comment">// ===== impl Handle =====</span>
 
-<span class="macro">cfg_rt</span><span class="macro">!</span> {
+<span class="macro">cfg_rt!</span> {
     <span class="kw">impl</span> <span class="ident">Handle</span> {
         <span class="doccomment">/// Returns a handle to the current reactor</span>
         <span class="doccomment">///</span>
@@ -616,12 +616,12 @@
         <span class="doccomment">/// This function panics if there is no current reactor set and `rt` feature</span>
         <span class="doccomment">/// flag is not enabled.</span>
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">current</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-            <span class="kw">crate</span>::<span class="ident">runtime</span>::<span class="ident">context</span>::<span class="ident">io_handle</span>().<span class="ident">expect</span>(<span class="string">&quot;A Tokio 1.x context was found, but IO is disabled. Call `enable_io` on the runtime builder to enable IO.&quot;</span>)
+            <span class="kw">crate</span><span class="ident">::runtime::context::io_handle</span>().<span class="ident">expect</span>(<span class="string">&quot;A Tokio 1.x context was found, but IO is disabled. Call `enable_io` on the runtime builder to enable IO.&quot;</span>)
         }
     }
 }
 
-<span class="macro">cfg_not_rt</span><span class="macro">!</span> {
+<span class="macro">cfg_not_rt!</span> {
     <span class="kw">impl</span> <span class="ident">Handle</span> {
         <span class="doccomment">/// Returns a handle to the current reactor</span>
         <span class="doccomment">///</span>
@@ -630,7 +630,7 @@
         <span class="doccomment">/// This function panics if there is no current reactor set, or if the `rt`</span>
         <span class="doccomment">/// feature flag is not enabled.</span>
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">current</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">error</span>::<span class="ident">CONTEXT_MISSING_ERROR</span>)
+            <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="kw">crate</span><span class="ident">::util::error::CONTEXT_MISSING_ERROR</span>)
         }
     }
 }
@@ -662,9 +662,9 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Handle</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;Handle&quot;</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Handle</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Handle&quot;</span>)
     }
 }
 
@@ -676,12 +676,12 @@
     <span class="doccomment">/// The registration token is returned.</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">add_source</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">impl</span> <span class="ident">mio</span>::<span class="ident">event</span>::<span class="ident">Source</span>,
+        <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">impl</span> <span class="ident">mio::event::Source</span>,
         <span class="ident">interest</span>: <span class="ident">Interest</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">slab</span>::<span class="ident">Ref</span><span class="op">&lt;</span><span class="ident">ScheduledIo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">slab::Ref</span><span class="op">&lt;</span><span class="ident">ScheduledIo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">address</span>, <span class="ident">shared</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">io_dispatch</span>.<span class="ident">allocate</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(
-                <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Other</span>,
+            <span class="ident">io::Error::new</span>(
+                <span class="ident">io::ErrorKind::Other</span>,
                 <span class="string">&quot;reactor at max registered I/O resources&quot;</span>,
             )
         })<span class="question-mark">?</span>;
@@ -689,13 +689,13 @@
         <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">GENERATION</span>.<span class="ident">pack</span>(<span class="ident">shared</span>.<span class="ident">generation</span>(), <span class="ident">ADDRESS</span>.<span class="ident">pack</span>(<span class="ident">address</span>.<span class="ident">as_usize</span>(), <span class="number">0</span>));
 
         <span class="self">self</span>.<span class="ident">registry</span>
-            .<span class="ident">register</span>(<span class="ident">source</span>, <span class="ident">mio</span>::<span class="ident">Token</span>(<span class="ident">token</span>), <span class="ident">interest</span>.<span class="ident">to_mio</span>())<span class="question-mark">?</span>;
+            .<span class="ident">register</span>(<span class="ident">source</span>, <span class="ident">mio::Token</span>(<span class="ident">token</span>), <span class="ident">interest</span>.<span class="ident">to_mio</span>())<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="ident">shared</span>)
     }
 
     <span class="doccomment">/// Deregisters an I/O resource from the reactor.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">deregister_source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">impl</span> <span class="ident">mio</span>::<span class="ident">event</span>::<span class="ident">Source</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">deregister_source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">impl</span> <span class="ident">mio::event::Source</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">registry</span>.<span class="ident">deregister</span>(<span class="ident">source</span>)
     }
 }
@@ -703,11 +703,11 @@
 <span class="kw">impl</span> <span class="ident">Direction</span> {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">mask</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ready</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Direction</span>::<span class="ident">Read</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ready</span>::<span class="ident">READABLE</span> <span class="op">|</span> <span class="ident">Ready</span>::<span class="ident">READ_CLOSED</span>,
-            <span class="ident">Direction</span>::<span class="ident">Write</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ready</span>::<span class="ident">WRITABLE</span> <span class="op">|</span> <span class="ident">Ready</span>::<span class="ident">WRITE_CLOSED</span>,
+            <span class="ident">Direction::Read</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ready::READABLE</span> <span class="op">|</span> <span class="ident">Ready::READ_CLOSED</span>,
+            <span class="ident">Direction::Write</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Ready::WRITABLE</span> <span class="op">|</span> <span class="ident">Ready::WRITE_CLOSED</span>,
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

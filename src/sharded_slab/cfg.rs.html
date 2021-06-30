@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sharded-slab-0.1.1/src/cfg.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cfg.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sharded_slab/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sharded_slab/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -217,12 +217,12 @@
 <span id="214">214</span>
 <span id="215">215</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">page</span>::{
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::page</span>::{
     <span class="ident">slot</span>::{<span class="ident">Generation</span>, <span class="ident">RefCount</span>},
     <span class="ident">Addr</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Pack</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">marker</span>::<span class="ident">PhantomData</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Pack</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">marker::PhantomData</span>};
 <span class="doccomment">/// Configuration parameters which can be overridden to tune the behavior of a slab.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Config</span>: <span class="ident">Sized</span> {
     <span class="doccomment">/// The maximum number of threads which can access the slab.</span>
@@ -231,12 +231,12 @@
     <span class="doccomment">/// in the slab. If a thread is created, accesses the slab, and then terminates,</span>
     <span class="doccomment">/// its shard may be reused and thus does not count against the maximum</span>
     <span class="doccomment">/// number of threads once the thread has terminated.</span>
-    <span class="kw">const</span> <span class="ident">MAX_THREADS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">DefaultConfig</span>::<span class="ident">MAX_THREADS</span>;
+    <span class="kw">const</span> <span class="ident">MAX_THREADS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">DefaultConfig::MAX_THREADS</span>;
     <span class="doccomment">/// The maximum number of pages in each shard in the slab.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This value, in combination with `INITIAL_PAGE_SIZE`, determines how many</span>
     <span class="doccomment">/// bits of each index are used to represent page addresses.</span>
-    <span class="kw">const</span> <span class="ident">MAX_PAGES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">DefaultConfig</span>::<span class="ident">MAX_PAGES</span>;
+    <span class="kw">const</span> <span class="ident">MAX_PAGES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">DefaultConfig::MAX_PAGES</span>;
     <span class="doccomment">/// The size of the first page in each shard.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// When a page in a shard has been filled with values, a new page</span>
@@ -246,7 +246,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Note that page sizes must be powers of two. If this value is not a power</span>
     <span class="doccomment">/// of two, it will be rounded to the next power of two.</span>
-    <span class="kw">const</span> <span class="ident">INITIAL_PAGE_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">DefaultConfig</span>::<span class="ident">INITIAL_PAGE_SIZE</span>;
+    <span class="kw">const</span> <span class="ident">INITIAL_PAGE_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">DefaultConfig::INITIAL_PAGE_SIZE</span>;
     <span class="doccomment">/// Sets a number of high-order bits in each index which are reserved from</span>
     <span class="doccomment">/// user code.</span>
     <span class="doccomment">///</span>
@@ -259,13 +259,13 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait</span> <span class="ident">CfgPrivate</span>: <span class="ident">Config</span> {
-    <span class="kw">const</span> <span class="ident">USED_BITS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">Generation</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>::<span class="ident">LEN</span> <span class="op">+</span> <span class="ident">Generation</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>::<span class="ident">SHIFT</span>;
-    <span class="kw">const</span> <span class="ident">INITIAL_SZ</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">next_pow2</span>(<span class="self">Self</span>::<span class="ident">INITIAL_PAGE_SIZE</span>);
-    <span class="kw">const</span> <span class="ident">MAX_SHARDS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">next_pow2</span>(<span class="self">Self</span>::<span class="ident">MAX_THREADS</span> <span class="op">-</span> <span class="number">1</span>);
-    <span class="kw">const</span> <span class="ident">ADDR_INDEX_SHIFT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">INITIAL_SZ</span>.<span class="ident">trailing_zeros</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="number">1</span>;
+    <span class="kw">const</span> <span class="ident">USED_BITS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">Generation</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="ident">::LEN</span> <span class="op">+</span> <span class="ident">Generation</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="ident">::SHIFT</span>;
+    <span class="kw">const</span> <span class="ident">INITIAL_SZ</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">next_pow2</span>(<span class="self">Self</span><span class="ident">::INITIAL_PAGE_SIZE</span>);
+    <span class="kw">const</span> <span class="ident">MAX_SHARDS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">next_pow2</span>(<span class="self">Self</span><span class="ident">::MAX_THREADS</span> <span class="op">-</span> <span class="number">1</span>);
+    <span class="kw">const</span> <span class="ident">ADDR_INDEX_SHIFT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::INITIAL_SZ</span>.<span class="ident">trailing_zeros</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="number">1</span>;
 
     <span class="kw">fn</span> <span class="ident">page_size</span>(<span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="self">Self</span>::<span class="ident">INITIAL_SZ</span> <span class="op">*</span> <span class="number">2usize</span>.<span class="ident">pow</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="kw">_</span>)
+        <span class="self">Self</span><span class="ident">::INITIAL_SZ</span> <span class="op">*</span> <span class="number">2usize</span>.<span class="ident">pow</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="kw">_</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">debug</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DebugConfig</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
@@ -273,61 +273,61 @@
     }
 
     <span class="kw">fn</span> <span class="ident">validate</span>() {
-        <span class="macro">assert</span><span class="macro">!</span>(
-            <span class="self">Self</span>::<span class="ident">INITIAL_SZ</span>.<span class="ident">is_power_of_two</span>(),
+        <span class="macro">assert!</span>(
+            <span class="self">Self</span><span class="ident">::INITIAL_SZ</span>.<span class="ident">is_power_of_two</span>(),
             <span class="string">&quot;invalid Config: {:#?}&quot;</span>,
-            <span class="self">Self</span>::<span class="ident">debug</span>(),
+            <span class="self">Self</span><span class="ident">::debug</span>(),
         );
-        <span class="macro">assert</span><span class="macro">!</span>(
-            <span class="self">Self</span>::<span class="ident">INITIAL_SZ</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Addr</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>::<span class="ident">BITS</span>,
+        <span class="macro">assert!</span>(
+            <span class="self">Self</span><span class="ident">::INITIAL_SZ</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Addr</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="ident">::BITS</span>,
             <span class="string">&quot;invalid Config: {:#?}&quot;</span>,
-            <span class="self">Self</span>::<span class="ident">debug</span>()
+            <span class="self">Self</span><span class="ident">::debug</span>()
         );
 
-        <span class="macro">assert</span><span class="macro">!</span>(
-            <span class="ident">Generation</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>::<span class="ident">BITS</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span>,
+        <span class="macro">assert!</span>(
+            <span class="ident">Generation</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="ident">::BITS</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span>,
             <span class="string">&quot;invalid Config: {:#?}\ngeneration counter should be at least 3 bits!&quot;</span>,
-            <span class="self">Self</span>::<span class="ident">debug</span>()
+            <span class="self">Self</span><span class="ident">::debug</span>()
         );
 
-        <span class="macro">assert</span><span class="macro">!</span>(
-            <span class="self">Self</span>::<span class="ident">USED_BITS</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">WIDTH</span>,
+        <span class="macro">assert!</span>(
+            <span class="self">Self</span><span class="ident">::USED_BITS</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">WIDTH</span>,
             <span class="string">&quot;invalid Config: {:#?}\ntotal number of bits per index is too large to fit in a word!&quot;</span>,
-            <span class="self">Self</span>::<span class="ident">debug</span>()
+            <span class="self">Self</span><span class="ident">::debug</span>()
         );
 
-        <span class="macro">assert</span><span class="macro">!</span>(
-            <span class="ident">WIDTH</span> <span class="op">-</span> <span class="self">Self</span>::<span class="ident">USED_BITS</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">Self</span>::<span class="ident">RESERVED_BITS</span>,
+        <span class="macro">assert!</span>(
+            <span class="ident">WIDTH</span> <span class="op">-</span> <span class="self">Self</span><span class="ident">::USED_BITS</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">Self</span><span class="ident">::RESERVED_BITS</span>,
             <span class="string">&quot;invalid Config: {:#?}\nindices are too large to fit reserved bits!&quot;</span>,
-            <span class="self">Self</span>::<span class="ident">debug</span>()
+            <span class="self">Self</span><span class="ident">::debug</span>()
         );
 
-        <span class="macro">assert</span><span class="macro">!</span>(
-            <span class="ident">RefCount</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>::<span class="ident">MAX</span> <span class="op">&gt;</span> <span class="number">1</span>,
+        <span class="macro">assert!</span>(
+            <span class="ident">RefCount</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="ident">::MAX</span> <span class="op">&gt;</span> <span class="number">1</span>,
             <span class="string">&quot;invalid config: {:#?}\n maximum concurrent references would be {}&quot;</span>,
-            <span class="self">Self</span>::<span class="ident">debug</span>(),
-            <span class="ident">RefCount</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>::<span class="ident">MAX</span>,
+            <span class="self">Self</span><span class="ident">::debug</span>(),
+            <span class="ident">RefCount</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="ident">::MAX</span>,
         );
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">fn</span> <span class="ident">unpack</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Pack</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">packed</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">A</span> {
-        <span class="ident">A</span>::<span class="ident">from_packed</span>(<span class="ident">packed</span>)
+        <span class="ident">A::from_packed</span>(<span class="ident">packed</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">fn</span> <span class="ident">unpack_addr</span>(<span class="ident">packed</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Addr</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="self">Self</span>::<span class="ident">unpack</span>(<span class="ident">packed</span>)
+        <span class="self">Self</span><span class="ident">::unpack</span>(<span class="ident">packed</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">unpack_tid</span>(<span class="ident">packed</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">Tid</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="self">Self</span>::<span class="ident">unpack</span>(<span class="ident">packed</span>)
+    <span class="kw">fn</span> <span class="ident">unpack_tid</span>(<span class="ident">packed</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Tid</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="self">Self</span><span class="ident">::unpack</span>(<span class="ident">packed</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">fn</span> <span class="ident">unpack_gen</span>(<span class="ident">packed</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Generation</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="self">Self</span>::<span class="ident">unpack</span>(<span class="ident">packed</span>)
+        <span class="self">Self</span><span class="ident">::unpack</span>(<span class="ident">packed</span>)
     }
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">Config</span><span class="op">&gt;</span> <span class="ident">CfgPrivate</span> <span class="kw">for</span> <span class="ident">C</span> {}
@@ -342,7 +342,7 @@
     <span class="ident">_cfg</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>(<span class="ident">C</span>)<span class="op">&gt;</span>,
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">WIDTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() <span class="op">*</span> <span class="number">8</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">WIDTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">std::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() <span class="op">*</span> <span class="number">8</span>;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">next_pow2</span>(<span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="ident">pow2</span> <span class="op">=</span> <span class="ident">n</span>.<span class="ident">count_ones</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>;
@@ -364,22 +364,22 @@
     <span class="kw">const</span> <span class="ident">MAX_PAGES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">WIDTH</span> <span class="op">/</span> <span class="number">2</span>;
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">DefaultConfig</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="self">Self</span>::<span class="ident">debug</span>().<span class="ident">fmt</span>(<span class="ident">f</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">DefaultConfig</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="self">Self</span><span class="ident">::debug</span>().<span class="ident">fmt</span>(<span class="ident">f</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">Config</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">DebugConfig</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="ident">std</span>::<span class="ident">any</span>::<span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>())
-            .<span class="ident">field</span>(<span class="string">&quot;initial_page_size&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C</span>::<span class="ident">INITIAL_SZ</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;max_shards&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C</span>::<span class="ident">MAX_SHARDS</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;max_pages&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C</span>::<span class="ident">MAX_PAGES</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;used_bits&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C</span>::<span class="ident">USED_BITS</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;reserved_bits&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C</span>::<span class="ident">RESERVED_BITS</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">Config</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">DebugConfig</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="ident">std::any::type_name</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>())
+            .<span class="ident">field</span>(<span class="string">&quot;initial_page_size&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C::INITIAL_SZ</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;max_shards&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C::MAX_SHARDS</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;max_pages&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C::MAX_PAGES</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;used_bits&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C::USED_BITS</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;reserved_bits&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">C::RESERVED_BITS</span>)
             .<span class="ident">field</span>(<span class="string">&quot;pointer_width&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">WIDTH</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;max_concurrent_references&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">RefCount</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>::<span class="ident">MAX</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;max_concurrent_references&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">RefCount</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span><span class="ident">::MAX</span>)
             .<span class="ident">finish</span>()
     }
 }
@@ -387,8 +387,8 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">test_util</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Slab</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::test_util</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Slab</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">loom</span>, <span class="ident">ignore</span>)]</span>
@@ -405,33 +405,33 @@
             <span class="kw">const</span> <span class="ident">MAX_PAGES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">_slab</span> <span class="op">=</span> <span class="ident">Slab</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>::<span class="ident">new_with_config</span>::<span class="op">&lt;</span><span class="ident">GiantGenConfig</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">_slab</span> <span class="op">=</span> <span class="ident">Slab</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="ident">::new_with_config</span>::<span class="op">&lt;</span><span class="ident">GiantGenConfig</span><span class="op">&gt;</span>();
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">loom</span>, <span class="ident">ignore</span>)]</span>
     <span class="kw">fn</span> <span class="ident">big</span>() {
-        <span class="kw">let</span> <span class="ident">slab</span> <span class="op">=</span> <span class="ident">Slab</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">slab</span> <span class="op">=</span> <span class="ident">Slab::new</span>();
 
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">10000</span> {
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">i</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">i</span>);
             <span class="kw">let</span> <span class="ident">k</span> <span class="op">=</span> <span class="ident">slab</span>.<span class="ident">insert</span>(<span class="ident">i</span>).<span class="ident">expect</span>(<span class="string">&quot;insert&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">slab</span>.<span class="ident">get</span>(<span class="ident">k</span>).<span class="ident">expect</span>(<span class="string">&quot;get&quot;</span>), <span class="ident">i</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">slab</span>.<span class="ident">get</span>(<span class="ident">k</span>).<span class="ident">expect</span>(<span class="string">&quot;get&quot;</span>), <span class="ident">i</span>);
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">loom</span>, <span class="ident">ignore</span>)]</span>
     <span class="kw">fn</span> <span class="ident">custom_page_sz</span>() {
-        <span class="kw">let</span> <span class="ident">slab</span> <span class="op">=</span> <span class="ident">Slab</span>::<span class="ident">new_with_config</span>::<span class="op">&lt;</span><span class="ident">test_util</span>::<span class="ident">TinyConfig</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">slab</span> <span class="op">=</span> <span class="ident">Slab::new_with_config</span>::<span class="op">&lt;</span><span class="ident">test_util::TinyConfig</span><span class="op">&gt;</span>();
 
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4096</span> {
-            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">i</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">i</span>);
             <span class="kw">let</span> <span class="ident">k</span> <span class="op">=</span> <span class="ident">slab</span>.<span class="ident">insert</span>(<span class="ident">i</span>).<span class="ident">expect</span>(<span class="string">&quot;insert&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">slab</span>.<span class="ident">get</span>(<span class="ident">k</span>).<span class="ident">expect</span>(<span class="string">&quot;get&quot;</span>), <span class="ident">i</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">slab</span>.<span class="ident">get</span>(<span class="ident">k</span>).<span class="ident">expect</span>(<span class="string">&quot;get&quot;</span>), <span class="ident">i</span>);
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sharded_slab" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sharded_slab" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

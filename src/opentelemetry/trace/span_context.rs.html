@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/opentelemetry-0.13.0/src/trace/span_context.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>span_context.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../opentelemetry/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/open-telemetry/opentelemetry-rust/main/assets/logo.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../opentelemetry/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/open-telemetry/opentelemetry-rust/main/assets/logo.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -492,8 +492,8 @@
 <span class="doccomment">//! [w3c TraceContext specification]: https://www.w3.org/TR/trace-context/</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">FromStr</span>;
+<span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
+<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
 
 <span class="doccomment">/// A SpanContext with TRACE_FLAG_NOT_SAMPLED means the span is not sampled.</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">TRACE_FLAG_NOT_SAMPLED</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x00</span>;
@@ -531,7 +531,7 @@
 
     <span class="doccomment">/// Convert from TraceId to Hexadecimal String</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_hex</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:032x}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+        <span class="macro">format!</span>(<span class="string">&quot;{:032x}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 
     <span class="doccomment">/// Convert from TraceId to Big-Endian byte array</span>
@@ -541,12 +541,12 @@
 
     <span class="doccomment">/// Construct a new TraceId from Hexadecimal String</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_hex</span>(<span class="ident">hex</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">TraceId</span>(<span class="ident">u128</span>::<span class="ident">from_str_radix</span>(<span class="ident">hex</span>, <span class="number">16</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>))
+        <span class="ident">TraceId</span>(<span class="ident">u128::from_str_radix</span>(<span class="ident">hex</span>, <span class="number">16</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>))
     }
 
     <span class="doccomment">/// Construct a new TraceId from Big-Endian byte array</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_byte_array</span>(<span class="ident">byte_array</span>: [<span class="ident">u8</span>; <span class="number">16</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">TraceId</span>(<span class="ident">u128</span>::<span class="ident">from_be_bytes</span>(<span class="ident">byte_array</span>))
+        <span class="ident">TraceId</span>(<span class="ident">u128::from_be_bytes</span>(<span class="ident">byte_array</span>))
     }
 }
 
@@ -574,7 +574,7 @@
 
     <span class="doccomment">/// Convert from SpanId to Hexadecimal String</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_hex</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:016x}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+        <span class="macro">format!</span>(<span class="string">&quot;{:016x}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 
     <span class="doccomment">/// Convert from SpanId to Big-Endian byte array</span>
@@ -584,12 +584,12 @@
 
     <span class="doccomment">/// Construct a new SpanId from Hexadecimal String</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_hex</span>(<span class="ident">hex</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">SpanId</span>(<span class="ident">u64</span>::<span class="ident">from_str_radix</span>(<span class="ident">hex</span>, <span class="number">16</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>))
+        <span class="ident">SpanId</span>(<span class="ident">u64::from_str_radix</span>(<span class="ident">hex</span>, <span class="number">16</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>))
     }
 
     <span class="doccomment">/// Construct a new SpanId from Big-Endian byte array</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_byte_array</span>(<span class="ident">byte_array</span>: [<span class="ident">u8</span>; <span class="number">8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">SpanId</span>(<span class="ident">u64</span>::<span class="ident">from_be_bytes</span>(<span class="ident">byte_array</span>))
+        <span class="ident">SpanId</span>(<span class="ident">u64::from_be_bytes</span>(<span class="ident">byte_array</span>))
     }
 }
 
@@ -661,7 +661,7 @@
     <span class="doccomment">/// assert!(trace_state.is_ok());</span>
     <span class="doccomment">/// assert_eq!(trace_state.unwrap().header(), String::from(&quot;foo=bar,apple=banana&quot;))</span>
     <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">all</span>)]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::all</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_key_value</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">trace_state</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, ()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>,
@@ -672,7 +672,7 @@
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> {
                 <span class="kw">let</span> (<span class="ident">key</span>, <span class="ident">value</span>) <span class="op">=</span> (<span class="ident">key</span>.<span class="ident">to_string</span>(), <span class="ident">value</span>.<span class="ident">to_string</span>());
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">TraceState</span>::<span class="ident">valid_key</span>(<span class="ident">key</span>.<span class="ident">as_str</span>()) <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">TraceState</span>::<span class="ident">valid_value</span>(<span class="ident">value</span>.<span class="ident">as_str</span>())
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">TraceState::valid_key</span>(<span class="ident">key</span>.<span class="ident">as_str</span>()) <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">TraceState::valid_value</span>(<span class="ident">value</span>.<span class="ident">as_str</span>())
                 {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(());
                 }
@@ -707,14 +707,14 @@
     <span class="doccomment">/// updated key/value is returned.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [&#39;spec&#39;]: https://www.w3.org/TR/trace-context/#list</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">all</span>)]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::all</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">String</span>, <span class="ident">value</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TraceState</span>, ()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">TraceState</span>::<span class="ident">valid_key</span>(<span class="ident">key</span>.<span class="ident">as_str</span>()) <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">TraceState</span>::<span class="ident">valid_value</span>(<span class="ident">value</span>.<span class="ident">as_str</span>()) {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">TraceState::valid_key</span>(<span class="ident">key</span>.<span class="ident">as_str</span>()) <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">TraceState::valid_value</span>(<span class="ident">value</span>.<span class="ident">as_str</span>()) {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(());
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trace_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">delete</span>(<span class="ident">key</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">kvs</span> <span class="op">=</span> <span class="ident">trace_state</span>.<span class="number">0</span>.<span class="ident">get_or_insert</span>(<span class="ident">VecDeque</span>::<span class="ident">with_capacity</span>(<span class="number">1</span>));
+        <span class="kw">let</span> <span class="ident">kvs</span> <span class="op">=</span> <span class="ident">trace_state</span>.<span class="number">0</span>.<span class="ident">get_or_insert</span>(<span class="ident">VecDeque::with_capacity</span>(<span class="number">1</span>));
 
         <span class="ident">kvs</span>.<span class="ident">push_front</span>((<span class="ident">key</span>, <span class="ident">value</span>));
 
@@ -726,9 +726,9 @@
     <span class="doccomment">/// with the removed entry is returned.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [&#39;spec&#39;]: https://www.w3.org/TR/trace-context/#list</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">all</span>)]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::all</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TraceState</span>, ()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">TraceState</span>::<span class="ident">valid_key</span>(<span class="ident">key</span>.<span class="ident">as_str</span>()) {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">TraceState::valid_key</span>(<span class="ident">key</span>.<span class="ident">as_str</span>()) {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(());
         }
 
@@ -756,7 +756,7 @@
             .<span class="ident">as_ref</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">kvs</span><span class="op">|</span> {
                 <span class="ident">kvs</span>.<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}{}&quot;</span>, <span class="ident">key</span>, <span class="ident">entry_delimiter</span>, <span class="ident">value</span>))
+                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;{}{}{}&quot;</span>, <span class="ident">key</span>, <span class="ident">entry_delimiter</span>, <span class="ident">value</span>))
                     .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>()
                     .<span class="ident">join</span>(<span class="ident">list_delimiter</span>)
             })
@@ -767,9 +767,9 @@
 <span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">TraceState</span> {
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="prelude-val">Err</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Err</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">list_members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">split_terminator</span>(<span class="string">&#39;,&#39;</span>).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key_value_pairs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">list_members</span>.<span class="ident">len</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key_value_pairs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">list_members</span>.<span class="ident">len</span>());
 
         <span class="kw">for</span> <span class="ident">list_member</span> <span class="kw">in</span> <span class="ident">list_members</span> {
             <span class="kw">match</span> <span class="ident">list_member</span>.<span class="ident">find</span>(<span class="string">&#39;=&#39;</span>) {
@@ -782,7 +782,7 @@
             }
         }
 
-        <span class="ident">TraceState</span>::<span class="ident">from_key_value</span>(<span class="ident">key_value_pairs</span>)
+        <span class="ident">TraceState::from_key_value</span>(<span class="ident">key_value_pairs</span>)
     }
 }
 
@@ -800,12 +800,12 @@
 <span class="kw">impl</span> <span class="ident">SpanContext</span> {
     <span class="doccomment">/// Create an invalid empty span context</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_context</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">SpanContext</span>::<span class="ident">new</span>(
-            <span class="ident">TraceId</span>::<span class="ident">invalid</span>(),
-            <span class="ident">SpanId</span>::<span class="ident">invalid</span>(),
+        <span class="ident">SpanContext::new</span>(
+            <span class="ident">TraceId::invalid</span>(),
+            <span class="ident">SpanId::invalid</span>(),
             <span class="number">0</span>,
             <span class="bool-val">false</span>,
-            <span class="ident">TraceState</span>::<span class="ident">default</span>(),
+            <span class="ident">TraceState::default</span>(),
         )
     }
 
@@ -878,82 +878,82 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">rustfmt</span>::<span class="ident">skip</span>]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
     <span class="kw">fn</span> <span class="ident">trace_id_test_data</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TraceId</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, [<span class="ident">u8</span>; <span class="number">16</span>])<span class="op">&gt;</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="macro">vec!</span>[
             (<span class="ident">TraceId</span>(<span class="number">0</span>), <span class="string">&quot;00000000000000000000000000000000&quot;</span>, [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]),
             (<span class="ident">TraceId</span>(<span class="number">42</span>), <span class="string">&quot;0000000000000000000000000000002a&quot;</span>, [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">42</span>]),
             (<span class="ident">TraceId</span>(<span class="number">126642714606581564793456114182061442190</span>), <span class="string">&quot;5f467fe7bf42676c05e20ba4a90e448e&quot;</span>, [<span class="number">95</span>, <span class="number">70</span>, <span class="number">127</span>, <span class="number">231</span>, <span class="number">191</span>, <span class="number">66</span>, <span class="number">103</span>, <span class="number">108</span>, <span class="number">5</span>, <span class="number">226</span>, <span class="number">11</span>, <span class="number">164</span>, <span class="number">169</span>, <span class="number">14</span>, <span class="number">68</span>, <span class="number">142</span>])
         ]
     }
 
-    <span class="attribute">#[<span class="ident">rustfmt</span>::<span class="ident">skip</span>]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
     <span class="kw">fn</span> <span class="ident">span_id_test_data</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">SpanId</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, [<span class="ident">u8</span>; <span class="number">8</span>])<span class="op">&gt;</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="macro">vec!</span>[
             (<span class="ident">SpanId</span>(<span class="number">0</span>), <span class="string">&quot;0000000000000000&quot;</span>, [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]),
             (<span class="ident">SpanId</span>(<span class="number">42</span>), <span class="string">&quot;000000000000002a&quot;</span>, [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">42</span>]),
             (<span class="ident">SpanId</span>(<span class="number">5508496025762705295</span>), <span class="string">&quot;4c721bf33e3caf8f&quot;</span>, [<span class="number">76</span>, <span class="number">114</span>, <span class="number">27</span>, <span class="number">243</span>, <span class="number">62</span>, <span class="number">60</span>, <span class="number">175</span>, <span class="number">143</span>])
         ]
     }
 
-    <span class="attribute">#[<span class="ident">rustfmt</span>::<span class="ident">skip</span>]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
     <span class="kw">fn</span> <span class="ident">trace_state_test_data</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TraceState</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>)<span class="op">&gt;</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[
-            (<span class="ident">TraceState</span>::<span class="ident">from_key_value</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)]).<span class="ident">unwrap</span>(), <span class="string">&quot;foo=bar&quot;</span>, <span class="string">&quot;foo&quot;</span>),
-            (<span class="ident">TraceState</span>::<span class="ident">from_key_value</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;&quot;</span>), (<span class="string">&quot;apple&quot;</span>, <span class="string">&quot;banana&quot;</span>)]).<span class="ident">unwrap</span>(), <span class="string">&quot;foo=,apple=banana&quot;</span>, <span class="string">&quot;apple&quot;</span>),
-            (<span class="ident">TraceState</span>::<span class="ident">from_key_value</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>), (<span class="string">&quot;apple&quot;</span>, <span class="string">&quot;banana&quot;</span>)]).<span class="ident">unwrap</span>(), <span class="string">&quot;foo=bar,apple=banana&quot;</span>, <span class="string">&quot;apple&quot;</span>),
+        <span class="macro">vec!</span>[
+            (<span class="ident">TraceState::from_key_value</span>(<span class="macro">vec!</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)]).<span class="ident">unwrap</span>(), <span class="string">&quot;foo=bar&quot;</span>, <span class="string">&quot;foo&quot;</span>),
+            (<span class="ident">TraceState::from_key_value</span>(<span class="macro">vec!</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;&quot;</span>), (<span class="string">&quot;apple&quot;</span>, <span class="string">&quot;banana&quot;</span>)]).<span class="ident">unwrap</span>(), <span class="string">&quot;foo=,apple=banana&quot;</span>, <span class="string">&quot;apple&quot;</span>),
+            (<span class="ident">TraceState::from_key_value</span>(<span class="macro">vec!</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>), (<span class="string">&quot;apple&quot;</span>, <span class="string">&quot;banana&quot;</span>)]).<span class="ident">unwrap</span>(), <span class="string">&quot;foo=bar,apple=banana&quot;</span>, <span class="string">&quot;apple&quot;</span>),
         ]
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_trace_id</span>() {
         <span class="kw">for</span> <span class="ident">test_case</span> <span class="kw">in</span> <span class="ident">trace_id_test_data</span>() {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">to_hex</span>(), <span class="ident">test_case</span>.<span class="number">1</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">to_byte_array</span>(), <span class="ident">test_case</span>.<span class="number">2</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">to_hex</span>(), <span class="ident">test_case</span>.<span class="number">1</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">to_byte_array</span>(), <span class="ident">test_case</span>.<span class="number">2</span>);
 
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">test_case</span>.<span class="number">0</span>, <span class="ident">TraceId</span>::<span class="ident">from_hex</span>(<span class="ident">test_case</span>.<span class="number">1</span>));
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">test_case</span>.<span class="number">0</span>, <span class="ident">TraceId</span>::<span class="ident">from_byte_array</span>(<span class="ident">test_case</span>.<span class="number">2</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">test_case</span>.<span class="number">0</span>, <span class="ident">TraceId::from_hex</span>(<span class="ident">test_case</span>.<span class="number">1</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">test_case</span>.<span class="number">0</span>, <span class="ident">TraceId::from_byte_array</span>(<span class="ident">test_case</span>.<span class="number">2</span>));
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_span_id</span>() {
         <span class="kw">for</span> <span class="ident">test_case</span> <span class="kw">in</span> <span class="ident">span_id_test_data</span>() {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">to_hex</span>(), <span class="ident">test_case</span>.<span class="number">1</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">to_byte_array</span>(), <span class="ident">test_case</span>.<span class="number">2</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">to_hex</span>(), <span class="ident">test_case</span>.<span class="number">1</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">to_byte_array</span>(), <span class="ident">test_case</span>.<span class="number">2</span>);
 
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">test_case</span>.<span class="number">0</span>, <span class="ident">SpanId</span>::<span class="ident">from_hex</span>(<span class="ident">test_case</span>.<span class="number">1</span>));
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">test_case</span>.<span class="number">0</span>, <span class="ident">SpanId</span>::<span class="ident">from_byte_array</span>(<span class="ident">test_case</span>.<span class="number">2</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">test_case</span>.<span class="number">0</span>, <span class="ident">SpanId::from_hex</span>(<span class="ident">test_case</span>.<span class="number">1</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">test_case</span>.<span class="number">0</span>, <span class="ident">SpanId::from_byte_array</span>(<span class="ident">test_case</span>.<span class="number">2</span>));
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_trace_state</span>() {
         <span class="kw">for</span> <span class="ident">test_case</span> <span class="kw">in</span> <span class="ident">trace_state_test_data</span>() {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">clone</span>().<span class="ident">header</span>(), <span class="ident">test_case</span>.<span class="number">1</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">clone</span>().<span class="ident">header</span>(), <span class="ident">test_case</span>.<span class="number">1</span>);
 
-            <span class="kw">let</span> <span class="ident">new_key</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}-{}&quot;</span>, <span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">get</span>(<span class="ident">test_case</span>.<span class="number">2</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;test&quot;</span>);
+            <span class="kw">let</span> <span class="ident">new_key</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, <span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">get</span>(<span class="ident">test_case</span>.<span class="number">2</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;test&quot;</span>);
 
             <span class="kw">let</span> <span class="ident">updated_trace_state</span> <span class="op">=</span> <span class="ident">test_case</span>.<span class="number">0</span>.<span class="ident">insert</span>(<span class="ident">test_case</span>.<span class="number">2</span>.<span class="ident">into</span>(), <span class="ident">new_key</span>.<span class="ident">clone</span>());
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">updated_trace_state</span>.<span class="ident">is_ok</span>());
+            <span class="macro">assert!</span>(<span class="ident">updated_trace_state</span>.<span class="ident">is_ok</span>());
             <span class="kw">let</span> <span class="ident">updated_trace_state</span> <span class="op">=</span> <span class="ident">updated_trace_state</span>.<span class="ident">unwrap</span>();
 
-            <span class="kw">let</span> <span class="ident">updated</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">test_case</span>.<span class="number">2</span>, <span class="ident">new_key</span>);
+            <span class="kw">let</span> <span class="ident">updated</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">test_case</span>.<span class="number">2</span>, <span class="ident">new_key</span>);
 
             <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">updated_trace_state</span>.<span class="ident">clone</span>().<span class="ident">header</span>().<span class="ident">find</span>(<span class="kw-2">&amp;</span><span class="ident">updated</span>);
 
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">index</span>.<span class="ident">is_some</span>());
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">index</span>.<span class="ident">unwrap</span>(), <span class="number">0</span>);
+            <span class="macro">assert!</span>(<span class="ident">index</span>.<span class="ident">is_some</span>());
+            <span class="macro">assert_eq!</span>(<span class="ident">index</span>.<span class="ident">unwrap</span>(), <span class="number">0</span>);
 
             <span class="kw">let</span> <span class="ident">deleted_trace_state</span> <span class="op">=</span> <span class="ident">updated_trace_state</span>.<span class="ident">delete</span>(<span class="ident">test_case</span>.<span class="number">2</span>.<span class="ident">to_string</span>());
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">deleted_trace_state</span>.<span class="ident">is_ok</span>());
+            <span class="macro">assert!</span>(<span class="ident">deleted_trace_state</span>.<span class="ident">is_ok</span>());
 
             <span class="kw">let</span> <span class="ident">deleted_trace_state</span> <span class="op">=</span> <span class="ident">deleted_trace_state</span>.<span class="ident">unwrap</span>();
 
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">deleted_trace_state</span>.<span class="ident">get</span>(<span class="ident">test_case</span>.<span class="number">2</span>).<span class="ident">is_none</span>());
+            <span class="macro">assert!</span>(<span class="ident">deleted_trace_state</span>.<span class="ident">get</span>(<span class="ident">test_case</span>.<span class="number">2</span>).<span class="ident">is_none</span>());
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="opentelemetry" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="opentelemetry" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

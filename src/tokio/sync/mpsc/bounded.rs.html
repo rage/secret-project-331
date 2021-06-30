@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/sync/mpsc/bounded.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bounded.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1110,17 +1110,17 @@
 <span id="1107">1107</span>
 <span id="1108">1108</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">batch_semaphore</span>::{<span class="self">self</span> <span class="kw">as</span> <span class="ident">semaphore</span>, <span class="ident">TryAcquireError</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::<span class="ident">chan</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::<span class="ident">error</span>::{<span class="ident">SendError</span>, <span class="ident">TrySendError</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::batch_semaphore</span>::{<span class="self">self</span> <span class="kw">as</span> <span class="ident">semaphore</span>, <span class="ident">TryAcquireError</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::mpsc::chan</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::mpsc::error</span>::{<span class="ident">SendError</span>, <span class="ident">TrySendError</span>};
 
-<span class="macro">cfg_time</span><span class="macro">!</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::<span class="ident">error</span>::<span class="ident">SendTimeoutError</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
+<span class="macro">cfg_time!</span> {
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::mpsc::error::SendTimeoutError</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::time::Duration</span>;
 }
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
 
 <span class="doccomment">/// Send values to the associated `Receiver`.</span>
 <span class="doccomment">///</span>
@@ -1131,7 +1131,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`PollSender`]: https://docs.rs/tokio-util/0.6/tokio_util/sync/struct.PollSender.html</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">chan</span>: <span class="ident">chan</span>::<span class="ident">Tx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>,
+    <span class="ident">chan</span>: <span class="ident">chan::Tx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Permit to send one value into the channel.</span>
@@ -1142,7 +1142,7 @@
 <span class="doccomment">/// [`Sender::reserve()`]: Sender::reserve</span>
 <span class="doccomment">/// [`Sender::try_reserve()`]: Sender::try_reserve</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Permit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">chan</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">chan</span>::<span class="ident">Tx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>,
+    <span class="ident">chan</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">chan::Tx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Owned permit to send one value into the channel.</span>
@@ -1158,7 +1158,7 @@
 <span class="doccomment">/// [`Sender::reserve_owned()`]: Sender::reserve_owned</span>
 <span class="doccomment">/// [`Sender::try_reserve_owned()`]: Sender::try_reserve_owned</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OwnedPermit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">chan</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">chan</span>::<span class="ident">Tx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">chan</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">chan::Tx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Receive values from the associated `Sender`.</span>
@@ -1170,7 +1170,7 @@
 <span class="doccomment">/// [`ReceiverStream`]: https://docs.rs/tokio-stream/0.1/tokio_stream/wrappers/struct.ReceiverStream.html</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The channel receiver</span>
-    <span class="ident">chan</span>: <span class="ident">chan</span>::<span class="ident">Rx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>,
+    <span class="ident">chan</span>: <span class="ident">chan::Rx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Creates a bounded mpsc channel for communicating between asynchronous tasks</span>
@@ -1218,22 +1218,22 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">channel</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">buffer</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">buffer</span> <span class="op">&gt;</span> <span class="number">0</span>, <span class="string">&quot;mpsc bounded channel requires buffer &gt; 0&quot;</span>);
-    <span class="kw">let</span> <span class="ident">semaphore</span> <span class="op">=</span> (<span class="ident">semaphore</span>::<span class="ident">Semaphore</span>::<span class="ident">new</span>(<span class="ident">buffer</span>), <span class="ident">buffer</span>);
-    <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">chan</span>::<span class="ident">channel</span>(<span class="ident">semaphore</span>);
+    <span class="macro">assert!</span>(<span class="ident">buffer</span> <span class="op">&gt;</span> <span class="number">0</span>, <span class="string">&quot;mpsc bounded channel requires buffer &gt; 0&quot;</span>);
+    <span class="kw">let</span> <span class="ident">semaphore</span> <span class="op">=</span> (<span class="ident">semaphore::Semaphore::new</span>(<span class="ident">buffer</span>), <span class="ident">buffer</span>);
+    <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">chan::channel</span>(<span class="ident">semaphore</span>);
 
-    <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">Sender</span>::<span class="ident">new</span>(<span class="ident">tx</span>);
-    <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">Receiver</span>::<span class="ident">new</span>(<span class="ident">rx</span>);
+    <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">Sender::new</span>(<span class="ident">tx</span>);
+    <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">Receiver::new</span>(<span class="ident">rx</span>);
 
     (<span class="ident">tx</span>, <span class="ident">rx</span>)
 }
 
 <span class="doccomment">/// Channel semaphore is a tuple of the semaphore implementation and a `usize`</span>
 <span class="doccomment">/// representing the channel bound.</span>
-<span class="kw">type</span> <span class="ident">Semaphore</span> <span class="op">=</span> (<span class="ident">semaphore</span>::<span class="ident">Semaphore</span>, <span class="ident">usize</span>);
+<span class="kw">type</span> <span class="ident">Semaphore</span> <span class="op">=</span> (<span class="ident">semaphore::Semaphore</span>, <span class="ident">usize</span>);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">chan</span>: <span class="ident">chan</span>::<span class="ident">Rx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">chan</span>: <span class="ident">chan::Rx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Receiver</span> { <span class="ident">chan</span> }
     }
 
@@ -1290,7 +1290,7 @@
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">future</span>::<span class="ident">poll_fn</span>;
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::future::poll_fn</span>;
         <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">recv</span>(<span class="ident">cx</span>)).<span class="kw">await</span>
     }
 
@@ -1346,7 +1346,7 @@
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blocking_recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">future</span>::<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">recv</span>())
+        <span class="kw">crate</span><span class="ident">::future::block_on</span>(<span class="self">self</span>.<span class="ident">recv</span>())
     }
 
     <span class="doccomment">/// Closes the receiving half of a channel without dropping it.</span>
@@ -1413,8 +1413,8 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Receiver&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;chan&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">chan</span>)
             .<span class="ident">finish</span>()
@@ -1424,7 +1424,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Unpin</span> <span class="kw">for</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">chan</span>: <span class="ident">chan</span>::<span class="ident">Tx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">chan</span>: <span class="ident">chan::Tx</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Semaphore</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Sender</span> { <span class="ident">chan</span> }
     }
 
@@ -1579,8 +1579,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">message</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">TrySendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">semaphore</span>().<span class="number">0</span>.<span class="ident">try_acquire</span>(<span class="number">1</span>) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="prelude-val">Err</span>(<span class="ident">TryAcquireError</span>::<span class="ident">Closed</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TrySendError</span>::<span class="ident">Closed</span>(<span class="ident">message</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">TryAcquireError</span>::<span class="ident">NoPermits</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TrySendError</span>::<span class="ident">Full</span>(<span class="ident">message</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">TryAcquireError::Closed</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TrySendError::Closed</span>(<span class="ident">message</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">TryAcquireError::NoPermits</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TrySendError::Full</span>(<span class="ident">message</span>)),
         }
 
         <span class="comment">// Send the message</span>
@@ -1640,12 +1640,12 @@
         <span class="ident">value</span>: <span class="ident">T</span>,
         <span class="ident">timeout</span>: <span class="ident">Duration</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SendTimeoutError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">permit</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw">crate</span>::<span class="ident">time</span>::<span class="ident">timeout</span>(<span class="ident">timeout</span>, <span class="self">self</span>.<span class="ident">reserve</span>()).<span class="kw">await</span> {
+        <span class="kw">let</span> <span class="ident">permit</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw">crate</span><span class="ident">::time::timeout</span>(<span class="ident">timeout</span>, <span class="self">self</span>.<span class="ident">reserve</span>()).<span class="kw">await</span> {
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SendTimeoutError</span>::<span class="ident">Timeout</span>(<span class="ident">value</span>));
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SendTimeoutError::Timeout</span>(<span class="ident">value</span>));
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SendTimeoutError</span>::<span class="ident">Closed</span>(<span class="ident">value</span>));
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SendTimeoutError::Closed</span>(<span class="ident">value</span>));
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="ident">permit</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">permit</span>,
         };
@@ -1689,7 +1689,7 @@
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blocking_send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">future</span>::<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">send</span>(<span class="ident">value</span>))
+        <span class="kw">crate</span><span class="ident">::future::block_on</span>(<span class="self">self</span>.<span class="ident">send</span>(<span class="ident">value</span>))
     }
 
     <span class="doccomment">/// Checks if the channel has been closed. This happens when the</span>
@@ -1891,7 +1891,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_reserve</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Permit</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">TrySendError</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">semaphore</span>().<span class="number">0</span>.<span class="ident">try_acquire</span>(<span class="number">1</span>) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TrySendError</span>::<span class="ident">Full</span>(())),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TrySendError::Full</span>(())),
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">Permit</span> { <span class="ident">chan</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">chan</span> })
@@ -1955,7 +1955,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_reserve_owned</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OwnedPermit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">TrySendError</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">semaphore</span>().<span class="number">0</span>.<span class="ident">try_acquire</span>(<span class="number">1</span>) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TrySendError</span>::<span class="ident">Full</span>(<span class="self">self</span>)),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TrySendError::Full</span>(<span class="self">self</span>)),
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">OwnedPermit</span> {
@@ -2021,8 +2021,8 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Sender&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;chan&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">chan</span>)
             .<span class="ident">finish</span>()
@@ -2065,18 +2065,18 @@
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
+        <span class="kw">use</span> <span class="ident">std::mem</span>;
 
         <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">send</span>(<span class="ident">value</span>);
 
         <span class="comment">// Avoid the drop logic</span>
-        <span class="ident">mem</span>::<span class="ident">forget</span>(<span class="self">self</span>);
+        <span class="ident">mem::forget</span>(<span class="self">self</span>);
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Permit</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">use</span> <span class="ident">chan</span>::<span class="ident">Semaphore</span>;
+        <span class="kw">use</span> <span class="ident">chan::Semaphore</span>;
 
         <span class="kw">let</span> <span class="ident">semaphore</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">semaphore</span>();
 
@@ -2091,8 +2091,8 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Permit</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Permit</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Permit&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;chan&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">chan</span>)
             .<span class="ident">finish</span>()
@@ -2138,7 +2138,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">chan</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;OwnedPermit channel is only taken when the permit is moved&quot;</span>)
+            <span class="macro">unreachable!</span>(<span class="string">&quot;OwnedPermit channel is only taken when the permit is moved&quot;</span>)
         });
         <span class="ident">chan</span>.<span class="ident">send</span>(<span class="ident">value</span>);
 
@@ -2176,10 +2176,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Sender`]: Sender</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">release</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">chan</span>::<span class="ident">Semaphore</span>;
+        <span class="kw">use</span> <span class="ident">chan::Semaphore</span>;
 
         <span class="kw">let</span> <span class="ident">chan</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;OwnedPermit channel is only taken when the permit is moved&quot;</span>)
+            <span class="macro">unreachable!</span>(<span class="string">&quot;OwnedPermit channel is only taken when the permit is moved&quot;</span>)
         });
 
         <span class="comment">// Add the permit back to the semaphore</span>
@@ -2190,7 +2190,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">OwnedPermit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">use</span> <span class="ident">chan</span>::<span class="ident">Semaphore</span>;
+        <span class="kw">use</span> <span class="ident">chan::Semaphore</span>;
 
         <span class="comment">// Are we still holding onto the sender?</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chan</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">chan</span>.<span class="ident">take</span>() {
@@ -2211,13 +2211,13 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">OwnedPermit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">OwnedPermit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;OwnedPermit&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;chan&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">chan</span>)
             .<span class="ident">finish</span>()
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

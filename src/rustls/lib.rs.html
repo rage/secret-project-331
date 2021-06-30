@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.19.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../rustls/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../rustls/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -541,7 +541,7 @@
 <span class="comment">// Relax these clippy lints:</span>
 <span class="comment">// - ptr_arg: this triggers on references to type aliases that are Vec</span>
 <span class="comment">//   underneath.</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">ptr_arg</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy::ptr_arg</span>))]</span>
 <span class="comment">// Enable documentation for all features on docs.rs</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
 
@@ -552,10 +552,10 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">mod</span> <span class="ident">log</span> {
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">trace</span>    ( ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{}} );
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">debug</span>    ( ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{}} );
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">warn</span>     ( ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{}} );
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">error</span>    ( ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{}} );
+    <span class="macro">macro_rules!</span> <span class="ident">trace</span>    ( ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{}} );
+    <span class="macro">macro_rules!</span> <span class="ident">debug</span>    ( ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{}} );
+    <span class="macro">macro_rules!</span> <span class="ident">warn</span>     ( ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{}} );
+    <span class="macro">macro_rules!</span> <span class="ident">error</span>    ( ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {{}} );
 }
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
@@ -592,37 +592,37 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">internal</span> {
     <span class="doccomment">/// Functions for parsing PEM files containing certificates/keys.</span>
     <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pemfile</span> {
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pemfile</span>::{<span class="ident">certs</span>, <span class="ident">pkcs8_private_keys</span>, <span class="ident">rsa_private_keys</span>};
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pemfile</span>::{<span class="ident">certs</span>, <span class="ident">pkcs8_private_keys</span>, <span class="ident">rsa_private_keys</span>};
     }
 
     <span class="doccomment">/// Low-level TLS message parsing and encoding functions.</span>
     <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">msgs</span> {
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">msgs</span>::<span class="kw-2">*</span>;
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs</span>::<span class="kw-2">*</span>;
     }
 }
 
 <span class="comment">// The public interface is:</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">anchors</span>::{<span class="ident">DistinguishedNames</span>, <span class="ident">OwnedTrustAnchor</span>, <span class="ident">RootCertStore</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::<span class="ident">handy</span>::{<span class="ident">ClientSessionMemoryCache</span>, <span class="ident">NoClientSessionStorage</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::<span class="ident">ResolvesClientCert</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::<span class="ident">StoresClientSessions</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::{<span class="ident">ClientConfig</span>, <span class="ident">ClientSession</span>, <span class="ident">WriteEarlyData</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">TLSError</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">key</span>::{<span class="ident">Certificate</span>, <span class="ident">PrivateKey</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">keylog</span>::{<span class="ident">KeyLog</span>, <span class="ident">KeyLogFile</span>, <span class="ident">NoKeyLog</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">msgs</span>::<span class="ident">enums</span>::<span class="ident">CipherSuite</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">msgs</span>::<span class="ident">enums</span>::<span class="ident">ProtocolVersion</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">msgs</span>::<span class="ident">enums</span>::<span class="ident">SignatureScheme</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">server</span>::<span class="ident">handy</span>::<span class="ident">ResolvesServerCertUsingSNI</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">server</span>::<span class="ident">handy</span>::{<span class="ident">NoServerSessionStorage</span>, <span class="ident">ServerSessionMemoryCache</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">server</span>::<span class="ident">StoresServerSessions</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">server</span>::{<span class="ident">ClientHello</span>, <span class="ident">ProducesTickets</span>, <span class="ident">ResolvesServerCert</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">server</span>::{<span class="ident">ServerConfig</span>, <span class="ident">ServerSession</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">stream</span>::{<span class="ident">Stream</span>, <span class="ident">StreamOwned</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::{<span class="ident">BulkAlgorithm</span>, <span class="ident">SupportedCipherSuite</span>, <span class="ident">ALL_CIPHERSUITES</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ticketer</span>::<span class="ident">Ticketer</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verify</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::anchors</span>::{<span class="ident">DistinguishedNames</span>, <span class="ident">OwnedTrustAnchor</span>, <span class="ident">RootCertStore</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client::handy</span>::{<span class="ident">ClientSessionMemoryCache</span>, <span class="ident">NoClientSessionStorage</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client::ResolvesClientCert</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client::StoresClientSessions</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client</span>::{<span class="ident">ClientConfig</span>, <span class="ident">ClientSession</span>, <span class="ident">WriteEarlyData</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::TLSError</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::key</span>::{<span class="ident">Certificate</span>, <span class="ident">PrivateKey</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::keylog</span>::{<span class="ident">KeyLog</span>, <span class="ident">KeyLogFile</span>, <span class="ident">NoKeyLog</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::enums::CipherSuite</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::enums::ProtocolVersion</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::msgs::enums::SignatureScheme</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::server::handy::ResolvesServerCertUsingSNI</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::server::handy</span>::{<span class="ident">NoServerSessionStorage</span>, <span class="ident">ServerSessionMemoryCache</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::server::StoresServerSessions</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::server</span>::{<span class="ident">ClientHello</span>, <span class="ident">ProducesTickets</span>, <span class="ident">ResolvesServerCert</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::server</span>::{<span class="ident">ServerConfig</span>, <span class="ident">ServerSession</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::session::Session</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stream</span>::{<span class="ident">Stream</span>, <span class="ident">StreamOwned</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites</span>::{<span class="ident">BulkAlgorithm</span>, <span class="ident">SupportedCipherSuite</span>, <span class="ident">ALL_CIPHERSUITES</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ticketer::Ticketer</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::verify</span>::{
     <span class="ident">AllowAnyAnonymousOrAuthenticatedClient</span>, <span class="ident">AllowAnyAuthenticatedClient</span>, <span class="ident">NoClientAuth</span>,
 };
 
@@ -630,15 +630,15 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ALL_CIPHERSUITES is provided an array of all of these values.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ciphersuite</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::<span class="ident">TLS13_AES_128_GCM_SHA256</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::<span class="ident">TLS13_AES_256_GCM_SHA384</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::<span class="ident">TLS13_CHACHA20_POLY1305_SHA256</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::<span class="ident">TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::<span class="ident">TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::<span class="ident">TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::<span class="ident">TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::<span class="ident">TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">suites</span>::<span class="ident">TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites::TLS13_AES_128_GCM_SHA256</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites::TLS13_AES_256_GCM_SHA384</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites::TLS13_CHACHA20_POLY1305_SHA256</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::suites::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</span>;
 }
 
 <span class="doccomment">/// Message signing interfaces and implementations.</span>
@@ -654,16 +654,16 @@
 <span class="comment">// trait to allow Session having QuicExt as a trait bound.</span>
 <span class="kw">mod</span> <span class="ident">quic</span> {
     <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">QuicExt</span> {}
-    <span class="kw">impl</span> <span class="ident">QuicExt</span> <span class="kw">for</span> <span class="kw">super</span>::<span class="ident">ClientSession</span> {}
-    <span class="kw">impl</span> <span class="ident">QuicExt</span> <span class="kw">for</span> <span class="kw">super</span>::<span class="ident">ServerSession</span> {}
+    <span class="kw">impl</span> <span class="ident">QuicExt</span> <span class="kw">for</span> <span class="kw">super</span><span class="ident">::ClientSession</span> {}
+    <span class="kw">impl</span> <span class="ident">QuicExt</span> <span class="kw">for</span> <span class="kw">super</span><span class="ident">::ServerSession</span> {}
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dangerous_configuration&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dangerous_configuration&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::<span class="ident">danger</span>::<span class="ident">DangerousClientConfig</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client::danger::DangerousClientConfig</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dangerous_configuration&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dangerous_configuration&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verify</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::verify</span>::{
     <span class="ident">ClientCertVerified</span>, <span class="ident">ClientCertVerifier</span>, <span class="ident">HandshakeSignatureValid</span>, <span class="ident">ServerCertVerified</span>,
     <span class="ident">ServerCertVerifier</span>, <span class="ident">WebPKIVerifier</span>,
 };
@@ -671,5 +671,5 @@
 <span class="doccomment">/// This is the rustls manual.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">manual</span>;
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rustls" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rustls" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

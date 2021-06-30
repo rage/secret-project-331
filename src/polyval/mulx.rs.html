@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/polyval-0.4.5/src/mulx.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mulx.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../polyval/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/polyval-0.4.5/src/mulx.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mulx.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../polyval/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -191,7 +191,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The `mulX_POLYVAL()` function.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Block</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Block</span>;
 
 <span class="doccomment">/// The `mulX_POLYVAL()` function as defined in [RFC 8452 Appendix A][1].</span>
 <span class="doccomment">///</span>
@@ -201,7 +201,7 @@
 <span class="doccomment">/// [1]: https://tools.ietf.org/html/rfc8452#appendix-A</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mulx&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mulx</span>(<span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Block</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">u128</span>::<span class="ident">from_le_bytes</span>((<span class="kw-2">*</span><span class="ident">block</span>).<span class="ident">into</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">u128::from_le_bytes</span>((<span class="kw-2">*</span><span class="ident">block</span>).<span class="ident">into</span>());
     <span class="kw">let</span> <span class="ident">v_hi</span> <span class="op">=</span> <span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">127</span>;
 
     <span class="ident">v</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span>;
@@ -212,7 +212,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">mulx</span>, <span class="ident">Block</span>};
-    <span class="kw">use</span> <span class="ident">hex_literal</span>::<span class="ident">hex</span>;
+    <span class="kw">use</span> <span class="ident">hex_literal::hex</span>;
 
     <span class="doccomment">/// Test vector given in RFC 8452 Appendix A.</span>
     <span class="doccomment">///</span>
@@ -223,10 +223,10 @@
     <span class="doccomment">/// &lt;https://www.rfc-editor.org/errata_search.php?rfc=8452&gt;</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">rfc8452_vector</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">Block</span>::<span class="ident">from</span>(<span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;9c98c04df9387ded828175a92ba652d8&quot;</span>));
-        <span class="kw">let</span> <span class="ident">expected_output</span> <span class="op">=</span> <span class="ident">Block</span>::<span class="ident">from</span>(<span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;3931819bf271fada0503eb52574ca572&quot;</span>));
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">Block::from</span>(<span class="macro">hex!</span>(<span class="string">&quot;9c98c04df9387ded828175a92ba652d8&quot;</span>));
+        <span class="kw">let</span> <span class="ident">expected_output</span> <span class="op">=</span> <span class="ident">Block::from</span>(<span class="macro">hex!</span>(<span class="string">&quot;3931819bf271fada0503eb52574ca572&quot;</span>));
         <span class="kw">let</span> <span class="ident">actual_output</span> <span class="op">=</span> <span class="ident">mulx</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_output</span>, <span class="ident">actual_output</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">expected_output</span>, <span class="ident">actual_output</span>);
     }
 
     <span class="doccomment">/// Test against the `MULX_TEST_VECTORS` given below, which cover the full</span>
@@ -234,11 +234,11 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">mulx_vectors</span>() {
         <span class="comment">// One</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">Block</span>::<span class="ident">from</span>(<span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;01000000000000000000000000000000&quot;</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">Block::from</span>(<span class="macro">hex!</span>(<span class="string">&quot;01000000000000000000000000000000&quot;</span>));
 
         <span class="kw">for</span> <span class="ident">vector</span> <span class="kw">in</span> <span class="ident">MULX_TEST_VECTORS</span> {
             <span class="ident">r</span> <span class="op">=</span> <span class="ident">mulx</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>, <span class="ident">Block</span>::<span class="ident">from_slice</span>(<span class="ident">vector</span>));
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>, <span class="ident">Block::from_slice</span>(<span class="ident">vector</span>));
         }
     }
 
@@ -248,136 +248,136 @@
     <span class="doccomment">/// verified by a GHASH implementation based on a POLYVAL core successfully</span>
     <span class="doccomment">/// passing the NIST test vectors.</span>
     <span class="kw">const</span> <span class="ident">MULX_TEST_VECTORS</span>: <span class="kw-2">&amp;</span>[[<span class="ident">u8</span>; <span class="number">16</span>]] <span class="op">=</span> <span class="kw-2">&amp;</span>[
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;02000000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;04000000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;08000000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;10000000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;20000000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;40000000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;80000000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00010000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00020000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00040000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00080000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00100000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00200000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00400000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00800000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000100000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000200000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000400000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000800000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00001000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00002000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00004000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00008000000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000001000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000002000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000004000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000008000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000010000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000020000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000040000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000080000000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000010000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000020000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000040000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000080000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000100000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000200000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000400000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000800000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000100000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000200000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000400000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000800000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000001000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000002000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000004000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000008000000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000001000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000002000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000004000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000008000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000010000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000020000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000040000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000080000000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000010000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000020000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000040000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000080000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000100000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000200000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000400000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000800000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000100000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000200000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000400000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000800000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000001000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000002000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000004000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000008000000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000001000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000002000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000004000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000008000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000010000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000020000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000040000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000080000000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000010000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000020000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000040000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000080000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000100000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000200000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000400000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000800000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000100000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000200000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000400000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000800000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000001000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000002000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000004000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000008000000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000001000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000002000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000004000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000008000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000010000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000020000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000040000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000080000000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000010000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000020000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000040000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000080000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000100000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000200000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000400000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000800000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000100&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000200&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000400&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000800&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000001000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000002000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000004000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000008000&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000001&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000002&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000004&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000008&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000010&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000020&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000040&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;00000000000000000000000000000080&quot;</span>),
-        <span class="macro">hex</span><span class="macro">!</span>(<span class="string">&quot;010000000000000000000000000000c2&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;02000000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;04000000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;08000000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;10000000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;20000000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;40000000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;80000000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00010000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00020000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00040000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00080000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00100000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00200000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00400000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00800000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000100000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000200000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000400000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000800000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00001000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00002000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00004000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00008000000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000001000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000002000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000004000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000008000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000010000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000020000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000040000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000080000000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000010000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000020000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000040000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000080000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000100000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000200000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000400000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000800000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000100000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000200000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000400000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000800000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000001000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000002000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000004000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000008000000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000001000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000002000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000004000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000008000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000010000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000020000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000040000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000080000000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000010000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000020000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000040000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000080000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000100000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000200000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000400000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000800000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000100000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000200000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000400000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000800000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000001000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000002000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000004000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000008000000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000001000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000002000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000004000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000008000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000010000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000020000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000040000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000080000000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000010000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000020000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000040000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000080000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000100000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000200000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000400000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000800000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000100000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000200000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000400000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000800000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000001000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000002000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000004000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000008000000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000001000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000002000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000004000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000008000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000010000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000020000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000040000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000080000000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000010000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000020000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000040000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000080000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000100000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000200000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000400000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000800000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000100&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000200&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000400&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000800&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000001000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000002000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000004000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000008000&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000001&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000002&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000004&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000008&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000010&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000020&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000040&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;00000000000000000000000000000080&quot;</span>),
+        <span class="macro">hex!</span>(<span class="string">&quot;010000000000000000000000000000c2&quot;</span>),
     ];
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="polyval" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="polyval" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

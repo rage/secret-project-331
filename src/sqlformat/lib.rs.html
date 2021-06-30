@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlformat-0.1.6/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlformat/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlformat/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1398,7 +1398,7 @@
 <span class="attribute">#![<span class="ident">type_length_limit</span> <span class="op">=</span> <span class="string">&quot;99999999&quot;</span>]</span>
 <span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>)]</span>
 <span class="comment">// Maintains semver compatibility for older Rust versions</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">manual_strip</span>)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::manual_strip</span>)]</span>
 
 <span class="kw">mod</span> <span class="ident">formatter</span>;
 <span class="kw">mod</span> <span class="ident">indentation</span>;
@@ -1409,8 +1409,8 @@
 <span class="doccomment">/// Formats whitespace in a SQL string to make it easier to read.</span>
 <span class="doccomment">/// Optionally replaces parameter placeholders with `params`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">format</span>(<span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>, <span class="ident">options</span>: <span class="ident">FormatOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">tokenizer</span>::<span class="ident">tokenize</span>(<span class="ident">query</span>);
-    <span class="ident">formatter</span>::<span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="ident">tokens</span>, <span class="ident">params</span>, <span class="ident">options</span>)
+    <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">tokenizer::tokenize</span>(<span class="ident">query</span>);
+    <span class="ident">formatter::format</span>(<span class="kw-2">&amp;</span><span class="ident">tokens</span>, <span class="ident">params</span>, <span class="ident">options</span>)
 }
 
 <span class="doccomment">/// Options for controlling how the library formats SQL</span>
@@ -1433,7 +1433,7 @@
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">FormatOptions</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">FormatOptions</span> {
-            <span class="ident">indent</span>: <span class="ident">Indent</span>::<span class="ident">Spaces</span>(<span class="number">2</span>),
+            <span class="ident">indent</span>: <span class="ident">Indent::Spaces</span>(<span class="number">2</span>),
             <span class="ident">uppercase</span>: <span class="bool-val">false</span>,
             <span class="ident">lines_between_queries</span>: <span class="number">1</span>,
         }
@@ -1455,21 +1455,21 @@
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">QueryParams</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">QueryParams</span>::<span class="prelude-val">None</span>
+        <span class="ident">QueryParams::None</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">indoc</span>::<span class="ident">indoc</span>;
+    <span class="kw">use</span> <span class="ident">indoc::indoc</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_uses_given_indent_config_for_indentation</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT count(*),Column1 FROM Table1;&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="ident">options</span>.<span class="ident">indent</span> <span class="op">=</span> <span class="ident">Indent</span>::<span class="ident">Spaces</span>(<span class="number">4</span>);
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="ident">options</span>.<span class="ident">indent</span> <span class="op">=</span> <span class="ident">Indent::Spaces</span>(<span class="number">4</span>);
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
                 count(*),
@@ -1478,14 +1478,14 @@
                 Table1;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_simple_set_schema_queries</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SET SCHEMA schema1; SET CURRENT SCHEMA schema2;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SET SCHEMA
               schema1;
@@ -1493,14 +1493,14 @@
               schema2;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_simple_select_query</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT count(*),Column1 FROM Table1;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               count(*),
@@ -1509,15 +1509,15 @@
               Table1;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_complex_select</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span>
             <span class="string">&quot;SELECT DISTINCT name, ROUND(age/7) field1, 18 + 20 AS field2, &#39;some string&#39; FROM foo;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               DISTINCT name,
@@ -1528,19 +1528,19 @@
               foo;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_select_with_complex_where</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT * FROM foo WHERE Column1 = &#39;testing&#39;
             AND ( (Column2 = Column3 OR Column4 &gt;= NOW()) );
       &quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               *
@@ -1556,19 +1556,19 @@
               );&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_select_with_top_level_reserved_words</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT * FROM foo WHERE name = &#39;John&#39; GROUP BY some_column
             HAVING column &gt; 10 ORDER BY other_column LIMIT 5;
       &quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               *
@@ -1586,27 +1586,27 @@
               5;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_limit_with_two_comma_separated_values_on_single_line</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;LIMIT 5, 10;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             LIMIT
               5, 10;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_limit_of_single_value_followed_by_another_select_using_commas</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;LIMIT 5; SELECT foo, bar;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             LIMIT
               5;
@@ -1615,40 +1615,40 @@
               bar;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_limit_of_single_value_and_offset</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;LIMIT 5 OFFSET 8;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             LIMIT
               5 OFFSET 8;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_limit_in_lowercase</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;limit 5, 10;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             limit
               5, 10;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_preserves_case_of_keywords</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;select distinct * frOM foo left join bar WHERe a &gt; 1 and b = 3&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             select
               distinct *
@@ -1660,14 +1660,14 @@
               and b = 3&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_select_query_with_select_query_inside_it</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT *, SUM(*) AS sum FROM (SELECT * FROM Posts LIMIT 30) WHERE a &gt; b&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               *,
@@ -1685,18 +1685,18 @@
               a &gt; b&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_select_query_with_inner_join</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT customer_id.from, COUNT(order_id) AS total FROM customers
             INNER JOIN orders ON customers.customer_id = orders.customer_id;&quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               customer_id.from,
@@ -1706,12 +1706,12 @@
               INNER JOIN orders ON customers.customer_id = orders.customer_id;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_select_query_with_different_comments</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
             /*
@@ -1722,8 +1722,8 @@
             MyTable # One final comment
             WHERE 1 = 2;&quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               /*
@@ -1737,12 +1737,12 @@
               1 = 2;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_maintains_block_comment_indentation</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               /*
@@ -1754,16 +1754,16 @@
             WHERE
               1 = 2;&quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_simple_insert_query</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;INSERT INTO Customers (ID, MoneyBalance, Address, City) VALUES (12,-123.4, &#39;Skagen 2111&#39;,&#39;Stv&#39;);&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             INSERT INTO
               Customers (ID, MoneyBalance, Address, City)
@@ -1771,32 +1771,32 @@
               (12, -123.4, &#39;Skagen 2111&#39;, &#39;Stv&#39;);&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_keeps_short_parenthesized_list_with_nested_parenthesis_on_single_line</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT (a + b * (c - NOW()));&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               (a + b * (c - NOW()));&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_breaks_long_parenthesized_lists_to_multiple_lines</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             INSERT INTO some_table (id_product, id_shop, id_currency, id_country, id_registration) (
             SELECT IF(dq.id_discounter_shopping = 2, dq.value, dq.value / 100),
             IF (dq.id_discounter_shopping = 2, &#39;amount&#39;, &#39;percentage&#39;) FROM foo);&quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             INSERT INTO
               some_table (
@@ -1822,14 +1822,14 @@
               );&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_simple_update_query</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;UPDATE Customers SET ContactName=&#39;Alfred Schmidt&#39;, City=&#39;Hamburg&#39; WHERE CustomerName=&#39;Alfreds Futterkiste&#39;;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             UPDATE
               Customers
@@ -1840,14 +1840,14 @@
               CustomerName = &#39;Alfreds Futterkiste&#39;;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_simple_delete_query</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;DELETE FROM Customers WHERE CustomerName=&#39;Alfred&#39; AND Phone=5002132;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             DELETE FROM
               Customers
@@ -1856,53 +1856,53 @@
               AND Phone = 5002132;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_simple_drop_query</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;DROP TABLE IF EXISTS admin_role;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_incomplete_query</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT count(&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               count(&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_query_that_ends_with_open_comment</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT count(*)
             /*Comment&quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               count(*)
               /*Comment&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_update_query_with_as_part</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;UPDATE customers SET total_orders = order_summary.total  FROM ( SELECT * FROM bank) AS order_summary&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             UPDATE
               customers
@@ -1917,14 +1917,14 @@
               ) AS order_summary&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_top_level_and_newline_multi_word_reserved_words_with_inconsistent_spacing</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT * FROM foo LEFT \t OUTER  \n JOIN bar ORDER \n BY blah&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               *
@@ -1935,14 +1935,14 @@
               blah&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_long_double_parenthesized_queries_to_multiple_lines</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;((foo = &#39;0123456789-0123456789-0123456789-0123456789&#39;))&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             (
               (
@@ -1951,15 +1951,15 @@
             )&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_short_double_parenthesizes_queries_to_one_line</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;((foo = &#39;bar&#39;))&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1974,9 +1974,9 @@
             <span class="string">&quot;foo / bar&quot;</span>,
             <span class="string">&quot;foo % bar&quot;</span>,
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">inputs</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
         }
     }
 
@@ -1992,9 +1992,9 @@
             <span class="string">&quot;foo !&lt; bar&quot;</span>,
             <span class="string">&quot;foo !&gt; bar&quot;</span>,
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">inputs</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
         }
     }
 
@@ -2009,9 +2009,9 @@
             <span class="string">&quot;foo IS NULL&quot;</span>,
             <span class="string">&quot;UNIQUE foo&quot;</span>,
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">inputs</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
         }
     }
 
@@ -2022,18 +2022,18 @@
             (<span class="string">&quot;foo AND bar&quot;</span>, <span class="string">&quot;foo\nAND bar&quot;</span>),
             (<span class="string">&quot;foo OR bar&quot;</span>, <span class="string">&quot;foo\nOR bar&quot;</span>),
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">for</span> (<span class="ident">input</span>, <span class="ident">output</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">strings</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">output</span>);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">output</span>);
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_strings</span>() {
         <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> [<span class="string">&quot;\&quot;foo JOIN bar\&quot;&quot;</span>, <span class="string">&quot;&#39;foo JOIN bar&#39;&quot;</span>, <span class="string">&quot;`foo JOIN bar`&quot;</span>];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">inputs</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
         }
     }
 
@@ -2044,9 +2044,9 @@
             <span class="string">&quot;&#39;foo \\&#39; JOIN bar&#39;&quot;</span>,
             <span class="string">&quot;`foo `` JOIN bar`&quot;</span>,
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">inputs</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
         }
     }
 
@@ -2064,9 +2064,9 @@
             (<span class="string">&quot;foo !~* &#39;hello&#39;&quot;</span>, <span class="string">&quot;foo !~* &#39;hello&#39;&quot;</span>),
             (<span class="string">&quot;foo !~~* &#39;hello&#39;&quot;</span>, <span class="string">&quot;foo !~~* &#39;hello&#39;&quot;</span>),
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">for</span> (<span class="ident">input</span>, <span class="ident">output</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">strings</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">output</span>);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">output</span>);
         }
     }
 
@@ -2077,18 +2077,18 @@
             (<span class="string">&quot;foo\n;bar;&quot;</span>, <span class="string">&quot;foo;\nbar;&quot;</span>),
             (<span class="string">&quot;foo\n\n\n;bar;\n\n&quot;</span>, <span class="string">&quot;foo;\nbar;&quot;</span>),
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">for</span> (<span class="ident">input</span>, <span class="ident">output</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">strings</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">output</span>);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">output</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT count(*),Column1 FROM Table1;
             SELECT count(*),Column1 FROM Table2;&quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               count(*),
@@ -2102,14 +2102,14 @@
               Table2;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_unicode_correctly</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT test, тест FROM table;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               test,
@@ -2118,15 +2118,15 @@
               table;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_converts_keywords_to_uppercase_when_option_passed_in</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;select distinct * frOM foo left join bar WHERe cola &gt; 1 and colb = 3&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="ident">options</span>.<span class="ident">uppercase</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               DISTINCT *
@@ -2138,15 +2138,15 @@
               AND colb = 3&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_line_breaks_between_queries_with_config</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT * FROM foo; SELECT * FROM bar;&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="ident">options</span>.<span class="ident">lines_between_queries</span> <span class="op">=</span> <span class="number">2</span>;
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               *
@@ -2159,19 +2159,19 @@
               bar;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_correctly_indents_create_statement_after_select</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT * FROM test;
             CREATE TABLE TEST(id NUMBER NOT NULL, col1 VARCHAR2(20), col2 VARCHAR2(20));
         &quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               *
@@ -2184,23 +2184,23 @@
             );&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_short_create_table</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;CREATE TABLE items (a INT PRIMARY KEY, b TEXT);&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_long_create_table</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span>
             <span class="string">&quot;CREATE TABLE items (a INT PRIMARY KEY, b TEXT, c INT NOT NULL, d INT NOT NULL);&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             CREATE TABLE items (
               a INT PRIMARY KEY,
@@ -2210,15 +2210,15 @@
             );&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_insert_without_into</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span>
       <span class="string">&quot;INSERT Customers (ID, MoneyBalance, Address, City) VALUES (12,-123.4, &#39;Skagen 2111&#39;,&#39;Stv&#39;);&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             INSERT
               Customers (ID, MoneyBalance, Address, City)
@@ -2226,14 +2226,14 @@
               (12, -123.4, &#39;Skagen 2111&#39;, &#39;Stv&#39;);&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_alter_table_modify_query</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;ALTER TABLE supplier MODIFY supplier_name char(100) NOT NULL;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             ALTER TABLE
               supplier
@@ -2241,14 +2241,14 @@
               supplier_name char(100) NOT NULL;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_alter_table_alter_column_query</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;ALTER TABLE supplier ALTER COLUMN supplier_name VARCHAR(100) NOT NULL;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             ALTER TABLE
               supplier
@@ -2256,15 +2256,15 @@
               supplier_name VARCHAR(100) NOT NULL;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_bracketed_strings</span>() {
         <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> [<span class="string">&quot;[foo JOIN bar]&quot;</span>, <span class="string">&quot;[foo ]] JOIN bar]&quot;</span>];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">inputs</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
         }
     }
 
@@ -2272,8 +2272,8 @@
     <span class="kw">fn</span> <span class="ident">it_recognizes_at_variables</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span>
             <span class="string">&quot;SELECT @variable, @a1_2.3$, @&#39;var name&#39;, @\&quot;var name\&quot;, @`var name`, @[var name];&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               @variable,
@@ -2284,21 +2284,21 @@
               @[var name];&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_at_variables_with_param_values</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span>
             <span class="string">&quot;SELECT @variable, @a1_2.3$, @&#39;var name&#39;, @\&quot;var name\&quot;, @`var name`, @[var name], @&#39;var\\name&#39;;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec!</span>[
             (<span class="string">&quot;variable&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;\&quot;variable value\&quot;&quot;</span>.<span class="ident">to_string</span>()),
             (<span class="string">&quot;a1_2.3$&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;&#39;weird value&#39;&quot;</span>.<span class="ident">to_string</span>()),
             (<span class="string">&quot;var name&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;&#39;var value&#39;&quot;</span>.<span class="ident">to_string</span>()),
             (<span class="string">&quot;var\\name&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;&#39;var\\ value&#39;&quot;</span>.<span class="ident">to_string</span>()),
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               \&quot;variable value\&quot;,
@@ -2310,8 +2310,8 @@
               &#39;var\\ value&#39;;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="ident">Named</span>(<span class="ident">params</span>), <span class="ident">options</span>),
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::Named</span>(<span class="ident">params</span>), <span class="ident">options</span>),
             <span class="ident">expected</span>
         );
     }
@@ -2320,8 +2320,8 @@
     <span class="kw">fn</span> <span class="ident">it_recognizes_colon_variables</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span>
             <span class="string">&quot;SELECT :variable, :a1_2.3$, :&#39;var name&#39;, :\&quot;var name\&quot;, :`var name`, :[var name];&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               :variable,
@@ -2332,18 +2332,18 @@
               :[var name];&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_colon_variables_with_param_values</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT :variable, :a1_2.3$, :&#39;var name&#39;, :\&quot;var name\&quot;, :`var name`,
             :[var name], :&#39;escaped \\&#39;var\\&#39;&#39;, :\&quot;^*&amp; weird \\\&quot; var   \&quot;;
             &quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec!</span>[
             (<span class="string">&quot;variable&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;\&quot;variable value\&quot;&quot;</span>.<span class="ident">to_string</span>()),
             (<span class="string">&quot;a1_2.3$&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;&#39;weird value&#39;&quot;</span>.<span class="ident">to_string</span>()),
             (<span class="string">&quot;var name&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;&#39;var value&#39;&quot;</span>.<span class="ident">to_string</span>()),
@@ -2353,8 +2353,8 @@
                 <span class="string">&quot;&#39;super weird value&#39;&quot;</span>.<span class="ident">to_string</span>(),
             ),
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               \&quot;variable value\&quot;,
@@ -2367,8 +2367,8 @@
               &#39;super weird value&#39;;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="ident">Named</span>(<span class="ident">params</span>), <span class="ident">options</span>),
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::Named</span>(<span class="ident">params</span>), <span class="ident">options</span>),
             <span class="ident">expected</span>
         );
     }
@@ -2376,8 +2376,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_question_numbered_placeholders</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT ?1, ?25, ?;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               ?1,
@@ -2385,19 +2385,19 @@
               ?;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_question_numbered_placeholders_with_param_values</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT ?1, ?2, ?0;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="string">&quot;first&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;second&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;third&quot;</span>.<span class="ident">to_string</span>(),
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               second,
@@ -2405,8 +2405,8 @@
               first;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="ident">Indexed</span>(<span class="ident">params</span>), <span class="ident">options</span>),
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::Indexed</span>(<span class="ident">params</span>), <span class="ident">options</span>),
             <span class="ident">expected</span>
         );
     }
@@ -2414,13 +2414,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_question_indexed_placeholders_with_param_values</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT ?, ?, ?;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="string">&quot;first&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;second&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;third&quot;</span>.<span class="ident">to_string</span>(),
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               first,
@@ -2428,8 +2428,8 @@
               third;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="ident">Indexed</span>(<span class="ident">params</span>), <span class="ident">options</span>),
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::Indexed</span>(<span class="ident">params</span>), <span class="ident">options</span>),
             <span class="ident">expected</span>
         );
     }
@@ -2437,27 +2437,27 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_dollar_sign_numbered_placeholders</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT $1, $2;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               $1,
               $2;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_dollar_sign_numbered_placeholders_with_param_values</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT $2, $3, $1;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="string">&quot;first&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;second&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;third&quot;</span>.<span class="ident">to_string</span>(),
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               second,
@@ -2465,8 +2465,8 @@
               first;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="ident">Indexed</span>(<span class="ident">params</span>), <span class="ident">options</span>),
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::Indexed</span>(<span class="ident">params</span>), <span class="ident">options</span>),
             <span class="ident">expected</span>
         );
     }
@@ -2474,13 +2474,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_query_with_go_batch_separator</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT 1 GO SELECT 2&quot;</span>;
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="string">&quot;first&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;second&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;third&quot;</span>.<span class="ident">to_string</span>(),
         ];
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               1
@@ -2489,8 +2489,8 @@
               2&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="ident">Indexed</span>(<span class="ident">params</span>), <span class="ident">options</span>),
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::Indexed</span>(<span class="ident">params</span>), <span class="ident">options</span>),
             <span class="ident">expected</span>
         );
     }
@@ -2498,8 +2498,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_select_query_with_cross_join</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT a, b FROM t CROSS JOIN t2 on t.id = t2.id_t&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               a,
@@ -2509,14 +2509,14 @@
               CROSS JOIN t2 on t.id = t2.id_t&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_select_query_with_cross_apply</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT a, b FROM t CROSS APPLY fn(t.id)&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               a,
@@ -2526,14 +2526,14 @@
               CROSS APPLY fn(t.id)&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_simple_select</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT N, M FROM t&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               N,
@@ -2542,27 +2542,27 @@
               t&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_simple_select_with_national_characters_mssql</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT N&#39;value&#39;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               N&#39;value&#39;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_select_query_with_outer_apply</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT a, b FROM t OUTER APPLY fn(t.id)&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               a,
@@ -2572,14 +2572,14 @@
               OUTER APPLY fn(t.id)&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_fetch_first_like_limit</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT * FETCH FIRST 2 ROWS ONLY;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               *
@@ -2587,14 +2587,14 @@
               2 ROWS ONLY;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_case_when_with_a_blank_expression</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;CASE WHEN option = &#39;foo&#39; THEN 1 WHEN option = &#39;bar&#39; THEN 2 WHEN option = &#39;baz&#39; THEN 3 ELSE 4 END;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             CASE
               WHEN option = &#39;foo&#39; THEN 1
@@ -2604,15 +2604,15 @@
             END;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_case_when_inside_select</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span>
             <span class="string">&quot;SELECT foo, bar, CASE baz WHEN &#39;one&#39; THEN 1 WHEN &#39;two&#39; THEN 2 ELSE 3 END FROM table&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               foo,
@@ -2627,14 +2627,14 @@
               table&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_case_when_with_an_expression</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;CASE toString(getNumber()) WHEN &#39;one&#39; THEN 1 WHEN &#39;two&#39; THEN 2 WHEN &#39;three&#39; THEN 3 ELSE 4 END;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             CASE
               toString(getNumber())
@@ -2645,14 +2645,14 @@
             END;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_recognizes_lowercase_case_end</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;case when option = &#39;foo&#39; then 1 else 2 end;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             case
               when option = &#39;foo&#39; then 1
@@ -2660,14 +2660,14 @@
             end;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_ignores_words_case_and_end_inside_other_strings</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT CASEDATE, ENDDATE FROM table1;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               CASEDATE,
@@ -2676,14 +2676,14 @@
               table1;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_tricky_line_comments</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT a#comment, here\nFROM b--comment&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               a #comment, here
@@ -2691,19 +2691,19 @@
               b --comment&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_line_comments_followed_by_semicolon</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT a FROM b
             --comment
             ;&quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               a
@@ -2712,18 +2712,18 @@
             ;&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_line_comments_followed_by_comma</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT a --comment
             , b&quot;</span>
         );
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               a --comment
@@ -2731,14 +2731,14 @@
               b&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_line_comments_followed_by_close_paren</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT ( a --comment\n )&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               (
@@ -2746,40 +2746,40 @@
               )&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_line_comments_followed_by_open_paren</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;SELECT a --comment\n()&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">indoc!</span>(
             <span class="string">&quot;
             SELECT
               a --comment
               ()&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_lonely_semicolon</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">input</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_formats_multibyte_chars</span>() {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;\nSELECT &#39;главная&#39;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">FormatOptions::default</span>();
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;SELECT\n  &#39;главная&#39;&quot;</span>;
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams</span>::<span class="prelude-val">None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">format</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">QueryParams::None</span>, <span class="ident">options</span>), <span class="ident">expected</span>);
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlformat" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlformat" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

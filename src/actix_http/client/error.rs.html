@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.0.0-beta.5/src/client/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.0.0-beta.5/src/client/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -156,15 +156,15 @@
 <span id="155">155</span>
 <span id="156">156</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
 
 <span class="kw">use</span> <span class="ident">derive_more</span>::{<span class="ident">Display</span>, <span class="ident">From</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">actix_tls</span>::<span class="ident">accept</span>::<span class="ident">openssl</span>::<span class="ident">SslError</span>;
+<span class="kw">use</span> <span class="ident">actix_tls::accept::openssl::SslError</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ParseError</span>, <span class="ident">ResponseError</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::{<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">HttpError</span>, <span class="ident">StatusCode</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error</span>::{<span class="ident">Error</span>, <span class="ident">ParseError</span>, <span class="ident">ResponseError</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::http</span>::{<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">HttpError</span>, <span class="ident">StatusCode</span>};
 
 <span class="doccomment">/// A set of errors that can occur while connecting to an HTTP host</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">From</span>)]</span>
@@ -180,7 +180,7 @@
 
     <span class="doccomment">/// Failed to resolve the hostname</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Failed resolving hostname: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">Resolver</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span>),
+    <span class="ident">Resolver</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span>),
 
     <span class="doccomment">/// No dns records</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;No DNS records found for the input&quot;</span>)]</span>
@@ -188,7 +188,7 @@
 
     <span class="doccomment">/// Http2 error</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;{}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">H2</span>(<span class="ident">h2</span>::<span class="ident">Error</span>),
+    <span class="ident">H2</span>(<span class="ident">h2::Error</span>),
 
     <span class="doccomment">/// Connecting took too long</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Timeout while establishing connection&quot;</span>)]</span>
@@ -204,19 +204,19 @@
 
     <span class="doccomment">/// Connection io error</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;{}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">Io</span>(<span class="ident">io</span>::<span class="ident">Error</span>),
+    <span class="ident">Io</span>(<span class="ident">io::Error</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">for</span> <span class="ident">ConnectError</span> {}
+<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">ConnectError</span> {}
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">actix_tls</span>::<span class="ident">connect</span>::<span class="ident">ConnectError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ConnectError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">actix_tls</span>::<span class="ident">connect</span>::<span class="ident">ConnectError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConnectError</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">actix_tls::connect::ConnectError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ConnectError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">actix_tls::connect::ConnectError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConnectError</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">actix_tls</span>::<span class="ident">connect</span>::<span class="ident">ConnectError</span>::<span class="ident">Resolver</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError</span>::<span class="ident">Resolver</span>(<span class="ident">e</span>),
-            <span class="ident">actix_tls</span>::<span class="ident">connect</span>::<span class="ident">ConnectError</span>::<span class="ident">NoRecords</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError</span>::<span class="ident">NoRecords</span>,
-            <span class="ident">actix_tls</span>::<span class="ident">connect</span>::<span class="ident">ConnectError</span>::<span class="ident">InvalidInput</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(),
-            <span class="ident">actix_tls</span>::<span class="ident">connect</span>::<span class="ident">ConnectError</span>::<span class="ident">Unresolved</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError</span>::<span class="ident">Unresolved</span>,
-            <span class="ident">actix_tls</span>::<span class="ident">connect</span>::<span class="ident">ConnectError</span>::<span class="ident">Io</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError</span>::<span class="ident">Io</span>(<span class="ident">e</span>),
+            <span class="ident">actix_tls::connect::ConnectError::Resolver</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError::Resolver</span>(<span class="ident">e</span>),
+            <span class="ident">actix_tls::connect::ConnectError::NoRecords</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError::NoRecords</span>,
+            <span class="ident">actix_tls::connect::ConnectError::InvalidInput</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(),
+            <span class="ident">actix_tls::connect::ConnectError::Unresolved</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError::Unresolved</span>,
+            <span class="ident">actix_tls::connect::ConnectError::Io</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ConnectError::Io</span>(<span class="ident">e</span>),
         }
     }
 }
@@ -233,10 +233,10 @@
     <span class="ident">MissingHost</span>,
 
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;URL parse error: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">HttpError</span>(<span class="ident">http</span>::<span class="ident">Error</span>),
+    <span class="ident">HttpError</span>(<span class="ident">http::Error</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">for</span> <span class="ident">InvalidUrl</span> {}
+<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">InvalidUrl</span> {}
 
 <span class="doccomment">/// A set of errors that can occur during request sending and response reading</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">From</span>)]</span>
@@ -250,7 +250,7 @@
     <span class="ident">Connect</span>(<span class="ident">ConnectError</span>),
 
     <span class="doccomment">/// Error sending request</span>
-    <span class="ident">Send</span>(<span class="ident">io</span>::<span class="ident">Error</span>),
+    <span class="ident">Send</span>(<span class="ident">io::Error</span>),
 
     <span class="doccomment">/// Error parsing response</span>
     <span class="ident">Response</span>(<span class="ident">ParseError</span>),
@@ -261,7 +261,7 @@
 
     <span class="doccomment">/// Http2 error</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;{}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">H2</span>(<span class="ident">h2</span>::<span class="ident">Error</span>),
+    <span class="ident">H2</span>(<span class="ident">h2::Error</span>),
 
     <span class="doccomment">/// Response took too long</span>
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Timeout while waiting for response&quot;</span>)]</span>
@@ -275,17 +275,17 @@
     <span class="ident">Body</span>(<span class="ident">Error</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">for</span> <span class="ident">SendRequestError</span> {}
+<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">SendRequestError</span> {}
 
 <span class="doccomment">/// Convert `SendRequestError` to a server `Response`</span>
 <span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">SendRequestError</span> {
     <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">SendRequestError</span>::<span class="ident">Connect</span>(<span class="ident">ConnectError</span>::<span class="ident">Timeout</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">StatusCode</span>::<span class="ident">GATEWAY_TIMEOUT</span>
+            <span class="ident">SendRequestError::Connect</span>(<span class="ident">ConnectError::Timeout</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">StatusCode::GATEWAY_TIMEOUT</span>
             }
-            <span class="ident">SendRequestError</span>::<span class="ident">Connect</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode</span>::<span class="ident">BAD_REQUEST</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode</span>::<span class="ident">INTERNAL_SERVER_ERROR</span>,
+            <span class="ident">SendRequestError::Connect</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::BAD_REQUEST</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
         }
     }
 }
@@ -302,16 +302,16 @@
     <span class="ident">Http</span>(<span class="ident">HttpError</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">for</span> <span class="ident">FreezeRequestError</span> {}
+<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">FreezeRequestError</span> {}
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">FreezeRequestError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SendRequestError</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">FreezeRequestError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">e</span> {
-            <span class="ident">FreezeRequestError</span>::<span class="ident">Url</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">into</span>(),
-            <span class="ident">FreezeRequestError</span>::<span class="ident">Http</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">into</span>(),
+            <span class="ident">FreezeRequestError::Url</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">into</span>(),
+            <span class="ident">FreezeRequestError::Http</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">into</span>(),
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

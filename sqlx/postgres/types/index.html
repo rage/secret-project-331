@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Conversions between Rust and Postgres types."><meta name="keywords" content="rust, rustlang, rust-lang, types"><title>sqlx::postgres::types - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../sqlx/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module types</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li></ul></div><p class="location"><a href="../../index.html">sqlx</a>::<wbr><a href="../index.html">postgres</a></p><div id="sidebar-vars" data-name="types" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">sqlx</a>::<wbr><a href="../index.html">postgres</a>::<wbr><a class="mod" href="">types</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/sqlx_core/postgres/mod.rs.html#17" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Conversions between Rust and <strong>Postgres</strong> types.</p>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../sqlx/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module types</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li></ul></div><p class="location"><a href="../../index.html">sqlx</a>::<wbr><a href="../index.html">postgres</a></p><div id="sidebar-vars" data-name="types" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">sqlx</a>::<wbr><a href="../index.html">postgres</a>::<wbr><a class="mod" href="">types</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/sqlx_core/postgres/mod.rs.html#17" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Conversions between Rust and <strong>Postgres</strong> types.</p>
 <h1 id="types" class="section-header"><a href="#types">Types</a></h1><table><thead><tr><th>Rust type</th><th>Postgres type(s)</th></tr></thead><tbody>
 <tr><td><code>bool</code></td><td>BOOL</td></tr>
 <tr><td><code>i8</code></td><td>“CHAR”</td></tr>
@@ -12,9 +12,9 @@
 <tr><td><code>f64</code></td><td>DOUBLE PRECISION, FLOAT8</td></tr>
 <tr><td><code>&amp;str</code>, <a href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="String"><code>String</code></a></td><td>VARCHAR, CHAR(N), TEXT, NAME</td></tr>
 <tr><td><code>&amp;[u8]</code>, <code>Vec&lt;u8&gt;</code></td><td>BYTEA</td></tr>
-<tr><td><a href="../../../sqlx/postgres/types/struct.PgInterval.html" title="PgInterval"><code>PgInterval</code></a></td><td>INTERVAL</td></tr>
-<tr><td><a href="../../../sqlx/postgres/types/struct.PgRange.html"><code>PgRange&lt;T&gt;</code></a></td><td>INT8RANGE, INT4RANGE, TSRANGE, TSTZTRANGE, DATERANGE, NUMRANGE</td></tr>
-<tr><td><a href="../../../sqlx/postgres/types/struct.PgMoney.html" title="PgMoney"><code>PgMoney</code></a></td><td>MONEY</td></tr>
+<tr><td><a href="struct.PgInterval.html" title="PgInterval"><code>PgInterval</code></a></td><td>INTERVAL</td></tr>
+<tr><td><a href="struct.PgRange.html"><code>PgRange&lt;T&gt;</code></a></td><td>INT8RANGE, INT4RANGE, TSRANGE, TSTZTRANGE, DATERANGE, NUMRANGE</td></tr>
+<tr><td><a href="struct.PgMoney.html" title="PgMoney"><code>PgMoney</code></a></td><td>MONEY</td></tr>
 </tbody></table>
 <h3 id="bigdecimal" class="section-header"><a href="#bigdecimal"><code>bigdecimal</code></a></h3>
 <p>Requires the <code>bigdecimal</code> Cargo feature flag.</p>
@@ -34,7 +34,7 @@
 <tr><td><code>chrono::NaiveDateTime</code></td><td>TIMESTAMP</td></tr>
 <tr><td><code>chrono::NaiveDate</code></td><td>DATE</td></tr>
 <tr><td><code>chrono::NaiveTime</code></td><td>TIME</td></tr>
-<tr><td><a href="../../../sqlx/postgres/types/struct.PgTimeTz.html" title="PgTimeTz"><code>PgTimeTz</code></a></td><td>TIMETZ</td></tr>
+<tr><td><a href="struct.PgTimeTz.html" title="PgTimeTz"><code>PgTimeTz</code></a></td><td>TIMETZ</td></tr>
 </tbody></table>
 <h3 id="time" class="section-header"><a href="#time"><code>time</code></a></h3>
 <p>Requires the <code>time</code> Cargo feature flag.</p>
@@ -43,7 +43,7 @@
 <tr><td><code>time::OffsetDateTime</code></td><td>TIMESTAMPTZ</td></tr>
 <tr><td><code>time::Date</code></td><td>DATE</td></tr>
 <tr><td><code>time::Time</code></td><td>TIME</td></tr>
-<tr><td><a href="../../../sqlx/postgres/types/struct.PgTimeTz.html" title="PgTimeTz"><code>PgTimeTz</code></a></td><td>TIMETZ</td></tr>
+<tr><td><a href="struct.PgTimeTz.html" title="PgTimeTz"><code>PgTimeTz</code></a></td><td>TIMETZ</td></tr>
 </tbody></table>
 <h3 id="uuid" class="section-header"><a href="#uuid"><code>uuid</code></a></h3>
 <p>Requires the <code>uuid</code> Cargo feature flag.</p>
@@ -69,7 +69,7 @@
 </tbody></table>
 <p><code>Value</code> and <code>RawValue</code> from <code>serde_json</code> can be used for unstructured JSON data with
 Postgres.</p>
-<p><a href="../../../sqlx/types/struct.Json.html"><code>Json&lt;T&gt;</code></a> can be used for structured JSON data with Postgres.</p>
+<p><a href="../../types/struct.Json.html"><code>Json&lt;T&gt;</code></a> can be used for structured JSON data with Postgres.</p>
 <h1 id="composite-types" class="section-header"><a href="#composite-types">Composite types</a></h1>
 <p>User-defined composite types are supported through a derive for <code>Type</code>.</p>
 <pre><code class="language-text">CREATE TYPE inventory_item AS (
@@ -80,7 +80,7 @@ Postgres.</p>
 </code></pre>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx::Type</span>)]</span>
 <span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;inventory_item&quot;</span>)]</span>
 <span class="kw">struct</span> <span class="ident">InventoryItem</span> {
     <span class="ident">name</span>: <span class="ident">String</span>,
@@ -97,7 +97,7 @@ be returned and not sent to Postgres (this is a limitation of postgres).</p>
 </code></pre>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx::Type</span>)]</span>
 <span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;mood&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>)]</span>
 <span class="kw">enum</span> <span class="ident">Mood</span> { <span class="ident">Sad</span>, <span class="prelude-val">Ok</span>, <span class="ident">Happy</span> }</pre></div>
 <p>Rust enumerations may also be defined to be represented as an integer using <code>repr</code>.
@@ -105,7 +105,7 @@ The following type expects a SQL type of <code>INTEGER</code> or <code>INT4</cod
 Rust enumeration.</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx::Type</span>)]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">i32</span>)]</span>
 <span class="kw">enum</span> <span class="ident">Mood</span> { <span class="ident">Sad</span> <span class="op">=</span> <span class="number">0</span>, <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="number">1</span>, <span class="ident">Happy</span> <span class="op">=</span> <span class="number">2</span> }</pre></div>
 </div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
@@ -113,5 +113,5 @@ Rust enumeration.</p>
 precision. The fractional precision is determined by the database’s
 <code>lc_monetary</code> setting.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.PgRange.html" title="sqlx::postgres::types::PgRange struct">PgRange</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="struct" href="struct.PgTimeTz.html" title="sqlx::postgres::types::PgTimeTz struct">PgTimeTz</a></td><td class="docblock-short"><p>Represents a moment of time, in a specified timezone.</p>
-</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx" data-search-js="../../../search-index.js"></div>
+</td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script></body></html>

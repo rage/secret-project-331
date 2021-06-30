@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lexical-core-0.7.6/src/float/float.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>float.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../lexical_core/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../lexical_core/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1197,11 +1197,11 @@
 <span class="comment">// We want to make sure this code is not accidentally deleted.</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">convert</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">mantissa</span>::<span class="ident">Mantissa</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">rounding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">shift</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::util</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::convert</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::mantissa::Mantissa</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::rounding</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::shift</span>::<span class="kw-2">*</span>;
 
 <span class="comment">// FLOAT TYPE</span>
 
@@ -1220,13 +1220,13 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Mantissa</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
     <span class="comment">// PROPERTIES</span>
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Get the mantissa component.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mantissa</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">M</span> {
         <span class="self">self</span>.<span class="ident">mant</span>
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Get the exponent component.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exponent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
         <span class="self">self</span>.<span class="ident">exp</span>
@@ -1234,7 +1234,7 @@
 
     <span class="comment">// OPERATIONS</span>
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Multiply two normalized extended-precision floats, as if by `a*b`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The precision is maximal when the numbers are normalized, however,</span>
@@ -1249,13 +1249,13 @@
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>
     {
         <span class="comment">// Logic check, values must be decently normalized prior to multiplication.</span>
-        <span class="macro">debug_assert</span><span class="macro">!</span>((<span class="self">self</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M</span>::<span class="ident">HIMASK</span> <span class="op">!</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">ZERO</span>) <span class="op">&amp;&amp;</span> (<span class="ident">b</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M</span>::<span class="ident">HIMASK</span> <span class="op">!</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">ZERO</span>));
+        <span class="macro">debug_assert!</span>((<span class="self">self</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M::HIMASK</span> <span class="op">!</span><span class="op">=</span> <span class="ident">M::ZERO</span>) <span class="op">&amp;&amp;</span> (<span class="ident">b</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M::HIMASK</span> <span class="op">!</span><span class="op">=</span> <span class="ident">M::ZERO</span>));
 
         <span class="comment">// Extract high-and-low masks.</span>
-        <span class="kw">let</span> <span class="ident">ah</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mant</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M</span>::<span class="ident">HALF</span>;
-        <span class="kw">let</span> <span class="ident">al</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M</span>::<span class="ident">LOMASK</span>;
-        <span class="kw">let</span> <span class="ident">bh</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">mant</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M</span>::<span class="ident">HALF</span>;
-        <span class="kw">let</span> <span class="ident">bl</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M</span>::<span class="ident">LOMASK</span>;
+        <span class="kw">let</span> <span class="ident">ah</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mant</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M::HALF</span>;
+        <span class="kw">let</span> <span class="ident">al</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M::LOMASK</span>;
+        <span class="kw">let</span> <span class="ident">bh</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">mant</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M::HALF</span>;
+        <span class="kw">let</span> <span class="ident">bl</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M::LOMASK</span>;
 
         <span class="comment">// Get our products</span>
         <span class="kw">let</span> <span class="ident">ah_bl</span> <span class="op">=</span> <span class="ident">ah</span> <span class="op">*</span> <span class="ident">bl</span>;
@@ -1263,17 +1263,17 @@
         <span class="kw">let</span> <span class="ident">al_bl</span> <span class="op">=</span> <span class="ident">al</span> <span class="op">*</span> <span class="ident">bl</span>;
         <span class="kw">let</span> <span class="ident">ah_bh</span> <span class="op">=</span> <span class="ident">ah</span> <span class="op">*</span> <span class="ident">bh</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> (<span class="ident">ah_bl</span> <span class="op">&amp;</span> <span class="ident">M</span>::<span class="ident">LOMASK</span>) <span class="op">+</span> (<span class="ident">al_bh</span> <span class="op">&amp;</span> <span class="ident">M</span>::<span class="ident">LOMASK</span>) <span class="op">+</span> (<span class="ident">al_bl</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M</span>::<span class="ident">HALF</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> (<span class="ident">ah_bl</span> <span class="op">&amp;</span> <span class="ident">M::LOMASK</span>) <span class="op">+</span> (<span class="ident">al_bh</span> <span class="op">&amp;</span> <span class="ident">M::LOMASK</span>) <span class="op">+</span> (<span class="ident">al_bl</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M::HALF</span>);
         <span class="comment">// round up</span>
-        <span class="ident">tmp</span> <span class="op">+</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">ONE</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">M</span>::<span class="ident">HALF</span><span class="op">-</span><span class="number">1</span>);
+        <span class="ident">tmp</span> <span class="op">+</span><span class="op">=</span> <span class="ident">M::ONE</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">M::HALF</span><span class="op">-</span><span class="number">1</span>);
 
         <span class="ident">ExtendedFloat</span> {
-            <span class="ident">mant</span>: <span class="ident">ah_bh</span> <span class="op">+</span> (<span class="ident">ah_bl</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M</span>::<span class="ident">HALF</span>) <span class="op">+</span> (<span class="ident">al_bh</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M</span>::<span class="ident">HALF</span>) <span class="op">+</span> (<span class="ident">tmp</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M</span>::<span class="ident">HALF</span>),
-            <span class="ident">exp</span>: <span class="self">self</span>.<span class="ident">exp</span> <span class="op">+</span> <span class="ident">b</span>.<span class="ident">exp</span> <span class="op">+</span> <span class="ident">M</span>::<span class="ident">FULL</span>
+            <span class="ident">mant</span>: <span class="ident">ah_bh</span> <span class="op">+</span> (<span class="ident">ah_bl</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M::HALF</span>) <span class="op">+</span> (<span class="ident">al_bh</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M::HALF</span>) <span class="op">+</span> (<span class="ident">tmp</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">M::HALF</span>),
+            <span class="ident">exp</span>: <span class="self">self</span>.<span class="ident">exp</span> <span class="op">+</span> <span class="ident">b</span>.<span class="ident">exp</span> <span class="op">+</span> <span class="ident">M::FULL</span>
         }
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Multiply in-place, as if by `a*b`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The result is not normalized.</span>
@@ -1284,15 +1284,15 @@
 
     <span class="comment">// NORMALIZE</span>
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Get if extended-float is normalized, MSB is set.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_normalized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
     {
-        <span class="self">self</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M</span>::<span class="ident">NORMALIZED_MASK</span> <span class="op">=</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">NORMALIZED_MASK</span>
+        <span class="self">self</span>.<span class="ident">mant</span> <span class="op">&amp;</span> <span class="ident">M::NORMALIZED_MASK</span> <span class="op">=</span><span class="op">=</span> <span class="ident">M::NORMALIZED_MASK</span>
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Normalize float-point number.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Shift the mantissa so the number of leading zeros is 0, or the value</span>
@@ -1320,7 +1320,7 @@
         <span class="ident">shift</span>
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Normalize floating-point number to n-bits away from the MSB.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This may lead to lossy rounding, and will not use custom rounding</span>
@@ -1328,7 +1328,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normalize_to</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>
     {
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">n</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">M</span>::<span class="ident">BITS</span>.<span class="ident">as_u32</span>(), <span class="string">&quot;ExtendedFloat::normalize_to() attempting to shift beyond type size.&quot;</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">n</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">M::BITS</span>.<span class="ident">as_u32</span>(), <span class="string">&quot;ExtendedFloat::normalize_to() attempting to shift beyond type size.&quot;</span>);
 
         <span class="comment">// Get the shift, with any of the higher bits removed.</span>
         <span class="comment">// This way, we can guarantee that we will not overflow</span>
@@ -1346,24 +1346,24 @@
         <span class="ident">shift</span>
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Get normalized boundaries for float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normalized_boundaries</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
         <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>, <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>)
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">upper</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {
-            <span class="ident">mant</span>: (<span class="self">self</span>.<span class="ident">mant</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>) <span class="op">+</span> <span class="ident">M</span>::<span class="ident">ONE</span>,
+            <span class="ident">mant</span>: (<span class="self">self</span>.<span class="ident">mant</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>) <span class="op">+</span> <span class="ident">M::ONE</span>,
             <span class="ident">exp</span>: <span class="self">self</span>.<span class="ident">exp</span> <span class="op">-</span> <span class="number">1</span>,
         };
         <span class="ident">upper</span>.<span class="ident">normalize</span>();
 
         <span class="comment">// Use a boolean hack to get 2 if they&#39;re equal, else 1, without</span>
         <span class="comment">// any branching.</span>
-        <span class="kw">let</span> <span class="ident">is_hidden</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mant</span> <span class="op">=</span><span class="op">=</span> <span class="ident">as_cast</span>::<span class="op">&lt;</span><span class="ident">M</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">f64</span>::<span class="ident">HIDDEN_BIT_MASK</span>);
+        <span class="kw">let</span> <span class="ident">is_hidden</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mant</span> <span class="op">=</span><span class="op">=</span> <span class="ident">as_cast</span>::<span class="op">&lt;</span><span class="ident">M</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">f64::HIDDEN_BIT_MASK</span>);
         <span class="kw">let</span> <span class="ident">l_shift</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">is_hidden</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="number">1</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lower</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {
-            <span class="ident">mant</span>: (<span class="self">self</span>.<span class="ident">mant</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">l_shift</span>) <span class="op">-</span> <span class="ident">M</span>::<span class="ident">ONE</span>,
+            <span class="ident">mant</span>: (<span class="self">self</span>.<span class="ident">mant</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">l_shift</span>) <span class="op">-</span> <span class="ident">M::ONE</span>,
             <span class="ident">exp</span>: <span class="self">self</span>.<span class="ident">exp</span> <span class="op">-</span> <span class="ident">l_shift</span>,
         };
         <span class="ident">lower</span>.<span class="ident">mant</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">=</span> <span class="ident">lower</span>.<span class="ident">exp</span> <span class="op">-</span> <span class="ident">upper</span>.<span class="ident">exp</span>;
@@ -1374,7 +1374,7 @@
 
     <span class="comment">// ROUND</span>
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Lossy round float-point number to native mantissa boundaries.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">round_to_native</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Cb</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cb</span>: <span class="ident">Cb</span>)
         <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FloatRounding</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>,
@@ -1383,7 +1383,7 @@
         <span class="ident">round_to_native</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">M</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">cb</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Lossy round float-point number to f32 mantissa boundaries.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">round_to_f32</span><span class="op">&lt;</span><span class="ident">Cb</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cb</span>: <span class="ident">Cb</span>)
         <span class="kw">where</span> <span class="ident">f32</span>: <span class="ident">FloatRounding</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>,
@@ -1392,7 +1392,7 @@
         <span class="self">self</span>.<span class="ident">round_to_native</span>::<span class="op">&lt;</span><span class="ident">f32</span>, <span class="ident">Cb</span><span class="op">&gt;</span>(<span class="ident">cb</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Lossy round float-point number to f64 mantissa boundaries.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">round_to_f64</span><span class="op">&lt;</span><span class="ident">Cb</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cb</span>: <span class="ident">Cb</span>)
         <span class="kw">where</span> <span class="ident">f64</span>: <span class="ident">FloatRounding</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>,
@@ -1403,7 +1403,7 @@
 
     <span class="comment">// FROM</span>
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Create extended float from 8-bit unsigned integer.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_int</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Integer</span><span class="op">&gt;</span>(<span class="ident">i</span>: <span class="ident">T</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>
@@ -1411,39 +1411,39 @@
         <span class="ident">from_int</span>(<span class="ident">i</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Create extended float from 8-bit unsigned integer.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u8</span>(<span class="ident">i</span>: <span class="ident">u8</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>
     {
-        <span class="self">Self</span>::<span class="ident">from_int</span>(<span class="ident">i</span>)
+        <span class="self">Self</span><span class="ident">::from_int</span>(<span class="ident">i</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Create extended float from 16-bit unsigned integer.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u16</span>(<span class="ident">i</span>: <span class="ident">u16</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>
     {
-        <span class="self">Self</span>::<span class="ident">from_int</span>(<span class="ident">i</span>)
+        <span class="self">Self</span><span class="ident">::from_int</span>(<span class="ident">i</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Create extended float from 32-bit unsigned integer.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u32</span>(<span class="ident">i</span>: <span class="ident">u32</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>
     {
-        <span class="self">Self</span>::<span class="ident">from_int</span>(<span class="ident">i</span>)
+        <span class="self">Self</span><span class="ident">::from_int</span>(<span class="ident">i</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Create extended float from 64-bit unsigned integer.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">i</span>: <span class="ident">u64</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>
     {
-        <span class="self">Self</span>::<span class="ident">from_int</span>(<span class="ident">i</span>)
+        <span class="self">Self</span><span class="ident">::from_int</span>(<span class="ident">i</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Create extended float from native float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_float</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Float</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>
@@ -1451,39 +1451,39 @@
         <span class="ident">from_float</span>(<span class="ident">f</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Create extended float from 32-bit float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_f32</span>(<span class="ident">f</span>: <span class="ident">f32</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>
     {
-        <span class="self">Self</span>::<span class="ident">from_float</span>(<span class="ident">f</span>)
+        <span class="self">Self</span><span class="ident">::from_float</span>(<span class="ident">f</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Create extended float from 64-bit float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_f64</span>(<span class="ident">f</span>: <span class="ident">f64</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>
     {
-        <span class="self">Self</span>::<span class="ident">from_float</span>(<span class="ident">f</span>)
+        <span class="self">Self</span><span class="ident">::from_float</span>(<span class="ident">f</span>)
     }}
 
     <span class="comment">// INTO</span>
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert into lower-precision native float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_float</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FloatRounding</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>
     {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rounding&quot;</span>))]</span> {
-            <span class="self">self</span>.<span class="ident">into_rounded_float</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">RoundingKind</span>::<span class="ident">NearestTieEven</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>)
+            <span class="self">self</span>.<span class="ident">into_rounded_float</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">RoundingKind::NearestTieEven</span>, <span class="ident">Sign::Positive</span>)
         }
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rounding&quot;</span>)]</span> {
-            <span class="self">self</span>.<span class="ident">into_rounded_float</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">get_float_rounding</span>(), <span class="ident">Sign</span>::<span class="ident">Positive</span>)
+            <span class="self">self</span>.<span class="ident">into_rounded_float</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">get_float_rounding</span>(), <span class="ident">Sign::Positive</span>)
         }
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert into lower-precision 32-bit float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_f32</span>(<span class="self">self</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span>
@@ -1492,7 +1492,7 @@
         <span class="self">self</span>.<span class="ident">into_float</span>()
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert into lower-precision 64-bit float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_f64</span>(<span class="self">self</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span>
@@ -1503,7 +1503,7 @@
 
     <span class="comment">// INTO ROUNDED</span>
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Into rounded float where the rounding kind has been converted.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_rounded_float_impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">RoundingKind</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>
@@ -1511,18 +1511,18 @@
     {
         <span class="comment">// Normalize the actual float rounding here.</span>
         <span class="kw">let</span> <span class="ident">cb</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">kind</span> {
-            <span class="ident">RoundingKind</span>::<span class="ident">NearestTieEven</span>     <span class="op">=</span><span class="op">&gt;</span> <span class="ident">round_nearest_tie_even</span>,
-            <span class="ident">RoundingKind</span>::<span class="ident">NearestTieAwayZero</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">round_nearest_tie_away_zero</span>,
-            <span class="ident">RoundingKind</span>::<span class="ident">Upward</span>             <span class="op">=</span><span class="op">&gt;</span> <span class="ident">round_upward</span>,
-            <span class="ident">RoundingKind</span>::<span class="ident">Downward</span>           <span class="op">=</span><span class="op">&gt;</span> <span class="ident">round_downward</span>,
-            <span class="kw">_</span>                                <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>()
+            <span class="ident">RoundingKind::NearestTieEven</span>     <span class="op">=</span><span class="op">&gt;</span> <span class="ident">round_nearest_tie_even</span>,
+            <span class="ident">RoundingKind::NearestTieAwayZero</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">round_nearest_tie_away_zero</span>,
+            <span class="ident">RoundingKind::Upward</span>             <span class="op">=</span><span class="op">&gt;</span> <span class="ident">round_upward</span>,
+            <span class="ident">RoundingKind::Downward</span>           <span class="op">=</span><span class="op">&gt;</span> <span class="ident">round_downward</span>,
+            <span class="kw">_</span>                                <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>()
         };
 
         <span class="self">self</span>.<span class="ident">round_to_native</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">cb</span>);
         <span class="ident">into_float</span>(<span class="self">self</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert into lower-precision native float with custom rounding rules.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_rounded_float</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">RoundingKind</span>, <span class="ident">sign</span>: <span class="ident">Sign</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>
@@ -1531,7 +1531,7 @@
         <span class="self">self</span>.<span class="ident">into_rounded_float_impl</span>(<span class="ident">internal_rounding</span>(<span class="ident">kind</span>, <span class="ident">sign</span>))
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert into lower-precision 32-bit float with custom rounding rules.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_rounded_f32</span>(<span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">RoundingKind</span>, <span class="ident">sign</span>: <span class="ident">Sign</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span>
@@ -1540,7 +1540,7 @@
         <span class="self">self</span>.<span class="ident">into_rounded_float</span>(<span class="ident">kind</span>, <span class="ident">sign</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert into lower-precision 64-bit float with custom rounding rules.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_rounded_f64</span>(<span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">RoundingKind</span>, <span class="ident">sign</span>: <span class="ident">Sign</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span>
@@ -1551,7 +1551,7 @@
 
     <span class="comment">// AS</span>
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert to lower-precision native float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_float</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FloatRounding</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>
@@ -1559,7 +1559,7 @@
         <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">into_float</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>()
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert to lower-precision 32-bit float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_f32</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span>
@@ -1568,7 +1568,7 @@
         <span class="self">self</span>.<span class="ident">as_float</span>()
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert to lower-precision 64-bit float.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span>
@@ -1579,7 +1579,7 @@
 
     <span class="comment">// AS ROUNDED</span>
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert to lower-precision native float with custom rounding rules.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_rounded_float</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">RoundingKind</span>, <span class="ident">sign</span>: <span class="ident">Sign</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>
@@ -1588,7 +1588,7 @@
         <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">into_rounded_float</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">kind</span>, <span class="ident">sign</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert to lower-precision 32-bit float with custom rounding rules.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_rounded_f32</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">RoundingKind</span>, <span class="ident">sign</span>: <span class="ident">Sign</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span>
@@ -1597,7 +1597,7 @@
         <span class="self">self</span>.<span class="ident">as_rounded_float</span>(<span class="ident">kind</span>, <span class="ident">sign</span>)
     }}
 
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Convert to lower-precision 64-bit float with custom rounding rules.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_rounded_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">RoundingKind</span>, <span class="ident">sign</span>: <span class="ident">Sign</span>)
         <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span>
@@ -1608,10 +1608,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span> {
-    <span class="macro">perftools_inline</span><span class="macro">!</span>{
+    <span class="macro">perftools_inline!</span>{
     <span class="doccomment">/// Create extended float from 64-bit unsigned integer.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u128</span>(<span class="ident">i</span>: <span class="ident">u128</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span> {
-        <span class="self">Self</span>::<span class="ident">from_int</span>(<span class="ident">i</span>)
+        <span class="self">Self</span><span class="ident">::from_int</span>(<span class="ident">i</span>)
     }}
 }
 
@@ -1630,24 +1630,24 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">use</span> <span class="ident">approx</span>::<span class="ident">assert_relative_eq</span>;
+    <span class="kw">use</span> <span class="ident">approx::assert_relative_eq</span>;
 
     <span class="comment">// NORMALIZE</span>
 
     <span class="kw">fn</span> <span class="ident">check_normalize</span>(<span class="ident">mant</span>: <span class="ident">u64</span>, <span class="ident">exp</span>: <span class="ident">i32</span>, <span class="ident">shift</span>: <span class="ident">u32</span>, <span class="ident">r_mant</span>: <span class="ident">u64</span>, <span class="ident">r_exp</span>: <span class="ident">i32</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">mant</span>, <span class="ident">exp</span>: <span class="ident">exp</span>};
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">x</span>.<span class="ident">is_normalized</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">normalize</span>(), <span class="ident">shift</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">is_normalized</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">mant</span>.<span class="ident">is_zero</span>());
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">x</span>.<span class="ident">is_normalized</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">normalize</span>(), <span class="ident">shift</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
+        <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_normalized</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">mant</span>.<span class="ident">is_zero</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">mant</span> <span class="kw">as</span> <span class="ident">u128</span>, <span class="ident">exp</span>: <span class="ident">exp</span>};
         <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">shift</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="ident">shift</span><span class="op">+</span><span class="number">64</span> };
         <span class="kw">let</span> <span class="ident">r_exp</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r_exp</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="ident">r_exp</span><span class="op">-</span><span class="number">64</span> };
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">x</span>.<span class="ident">is_normalized</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">normalize</span>(), <span class="ident">shift</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: (<span class="ident">r_mant</span> <span class="kw">as</span> <span class="ident">u128</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">64</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">is_normalized</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">mant</span>.<span class="ident">is_zero</span>());
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">x</span>.<span class="ident">is_normalized</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">normalize</span>(), <span class="ident">shift</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: (<span class="ident">r_mant</span> <span class="kw">as</span> <span class="ident">u128</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">64</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
+        <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_normalized</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">mant</span>.<span class="ident">is_zero</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1715,14 +1715,14 @@
 
     <span class="kw">fn</span> <span class="ident">check_normalize_to</span>(<span class="ident">mant</span>: <span class="ident">u64</span>, <span class="ident">exp</span>: <span class="ident">i32</span>, <span class="ident">n</span>: <span class="ident">u32</span>, <span class="ident">shift</span>: <span class="ident">i32</span>, <span class="ident">r_mant</span>: <span class="ident">u64</span>, <span class="ident">r_exp</span>: <span class="ident">i32</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">mant</span>, <span class="ident">exp</span>: <span class="ident">exp</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">normalize_to</span>(<span class="ident">n</span>), <span class="ident">shift</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">normalize_to</span>(<span class="ident">n</span>), <span class="ident">shift</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">mant</span> <span class="kw">as</span> <span class="ident">u128</span>, <span class="ident">exp</span>: <span class="ident">exp</span>};
         <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">shift</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="ident">shift</span><span class="op">+</span><span class="number">64</span> };
         <span class="kw">let</span> <span class="ident">r_exp</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r_exp</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="ident">r_exp</span><span class="op">-</span><span class="number">64</span> };
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">normalize_to</span>(<span class="ident">n</span>), <span class="ident">shift</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: (<span class="ident">r_mant</span> <span class="kw">as</span> <span class="ident">u128</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">64</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">normalize_to</span>(<span class="ident">n</span>), <span class="ident">shift</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: (<span class="ident">r_mant</span> <span class="kw">as</span> <span class="ident">u128</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">64</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1813,8 +1813,8 @@
         <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854775296</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">61</span>};
         <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854776832</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">61</span>};
         <span class="kw">let</span> (<span class="ident">upper</span>, <span class="ident">lower</span>) <span class="op">=</span> <span class="ident">fp</span>.<span class="ident">normalized_boundaries</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">upper</span>, <span class="ident">u</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">lower</span>, <span class="ident">l</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">upper</span>, <span class="ident">u</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">lower</span>, <span class="ident">l</span>);
     }
 
     <span class="comment">// ROUND</span>
@@ -1823,11 +1823,11 @@
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">mant</span>, <span class="ident">exp</span>: <span class="ident">exp</span>};
         <span class="ident">x</span>.<span class="ident">round_to_f32</span>(<span class="ident">round_nearest_tie_even</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: (<span class="ident">mant</span> <span class="kw">as</span> <span class="ident">u128</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">64</span>, <span class="ident">exp</span>: <span class="ident">exp</span><span class="op">-</span><span class="number">64</span>};
         <span class="ident">x</span>.<span class="ident">round_to_f32</span>(<span class="ident">round_nearest_tie_even</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span> <span class="kw">as</span> <span class="ident">u128</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span> <span class="kw">as</span> <span class="ident">u128</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1863,11 +1863,11 @@
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">mant</span>, <span class="ident">exp</span>: <span class="ident">exp</span>};
         <span class="ident">x</span>.<span class="ident">round_to_f64</span>(<span class="ident">round_nearest_tie_even</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: (<span class="ident">mant</span> <span class="kw">as</span> <span class="ident">u128</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">64</span>, <span class="ident">exp</span>: <span class="ident">exp</span><span class="op">-</span><span class="number">64</span>};
         <span class="ident">x</span>.<span class="ident">round_to_f64</span>(<span class="ident">round_nearest_tie_even</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span> <span class="kw">as</span> <span class="ident">u128</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">ExtendedFloat</span> {<span class="ident">mant</span>: <span class="ident">r_mant</span> <span class="kw">as</span> <span class="ident">u128</span>, <span class="ident">exp</span>: <span class="ident">r_exp</span>});
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1923,89 +1923,89 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_int_test</span>() {
         <span class="comment">// 0</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u8</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u16</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u32</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u64</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat160</span>::<span class="ident">from_u128</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u8</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u16</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u32</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u64</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat160::from_u128</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>());
 
         <span class="comment">// 1</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u8</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u16</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u32</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u64</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat160</span>::<span class="ident">from_u128</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u8</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u16</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u32</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u64</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat160::from_u128</span>(<span class="number">1</span>), (<span class="number">1</span>, <span class="number">0</span>).<span class="ident">into</span>());
 
         <span class="comment">// (2^8-1) 255</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u8</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u16</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u32</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u64</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat160</span>::<span class="ident">from_u128</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u8</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u16</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u32</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u64</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat160::from_u128</span>(<span class="number">255</span>), (<span class="number">255</span>, <span class="number">0</span>).<span class="ident">into</span>());
 
         <span class="comment">// (2^16-1) 65535</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u16</span>(<span class="number">65535</span>), (<span class="number">65535</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u32</span>(<span class="number">65535</span>), (<span class="number">65535</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u64</span>(<span class="number">65535</span>), (<span class="number">65535</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat160</span>::<span class="ident">from_u128</span>(<span class="number">65535</span>), (<span class="number">65535</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u16</span>(<span class="number">65535</span>), (<span class="number">65535</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u32</span>(<span class="number">65535</span>), (<span class="number">65535</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u64</span>(<span class="number">65535</span>), (<span class="number">65535</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat160::from_u128</span>(<span class="number">65535</span>), (<span class="number">65535</span>, <span class="number">0</span>).<span class="ident">into</span>());
 
         <span class="comment">// (2^32-1) 4294967295</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u32</span>(<span class="number">4294967295</span>), (<span class="number">4294967295</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u64</span>(<span class="number">4294967295</span>), (<span class="number">4294967295</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat160</span>::<span class="ident">from_u128</span>(<span class="number">4294967295</span>), (<span class="number">4294967295</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u32</span>(<span class="number">4294967295</span>), (<span class="number">4294967295</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u64</span>(<span class="number">4294967295</span>), (<span class="number">4294967295</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat160::from_u128</span>(<span class="number">4294967295</span>), (<span class="number">4294967295</span>, <span class="number">0</span>).<span class="ident">into</span>());
 
         <span class="comment">// (2^64-1) 18446744073709551615</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_u64</span>(<span class="number">18446744073709551615</span>), (<span class="number">18446744073709551615</span>, <span class="number">0</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat160</span>::<span class="ident">from_u128</span>(<span class="number">18446744073709551615</span>), (<span class="number">18446744073709551615</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_u64</span>(<span class="number">18446744073709551615</span>), (<span class="number">18446744073709551615</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat160::from_u128</span>(<span class="number">18446744073709551615</span>), (<span class="number">18446744073709551615</span>, <span class="number">0</span>).<span class="ident">into</span>());
 
         <span class="comment">// (2^128-1) 340282366920938463463374607431768211455</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat160</span>::<span class="ident">from_u128</span>(<span class="number">340282366920938463463374607431768211455</span>), (<span class="number">340282366920938463463374607431768211455</span>, <span class="number">0</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat160::from_u128</span>(<span class="number">340282366920938463463374607431768211455</span>), (<span class="number">340282366920938463463374607431768211455</span>, <span class="number">0</span>).<span class="ident">into</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_f32_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">0.</span>), (<span class="number">0</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="op">-</span><span class="number">0.</span>), (<span class="number">0</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">0.</span>), (<span class="number">0</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="op">-</span><span class="number">0.</span>), (<span class="number">0</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">1e-45</span>), (<span class="number">1</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">1e-40</span>), (<span class="number">71362</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">2e-40</span>), (<span class="number">142725</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">1e-20</span>), (<span class="number">12379400</span>, <span class="op">-</span><span class="number">90</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">2e-20</span>), (<span class="number">12379400</span>, <span class="op">-</span><span class="number">89</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">1.0</span>), (<span class="number">8388608</span>, <span class="op">-</span><span class="number">23</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">2.0</span>), (<span class="number">8388608</span>, <span class="op">-</span><span class="number">22</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">1e20</span>), (<span class="number">11368684</span>, <span class="number">43</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">2e20</span>), (<span class="number">11368684</span>, <span class="number">44</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="number">3.402823e38</span>), (<span class="number">16777213</span>, <span class="number">104</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">1e-45</span>), (<span class="number">1</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">1e-40</span>), (<span class="number">71362</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">2e-40</span>), (<span class="number">142725</span>, <span class="op">-</span><span class="number">149</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">1e-20</span>), (<span class="number">12379400</span>, <span class="op">-</span><span class="number">90</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">2e-20</span>), (<span class="number">12379400</span>, <span class="op">-</span><span class="number">89</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">1.0</span>), (<span class="number">8388608</span>, <span class="op">-</span><span class="number">23</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">2.0</span>), (<span class="number">8388608</span>, <span class="op">-</span><span class="number">22</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">1e20</span>), (<span class="number">11368684</span>, <span class="number">43</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">2e20</span>), (<span class="number">11368684</span>, <span class="number">44</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="number">3.402823e38</span>), (<span class="number">16777213</span>, <span class="number">104</span>).<span class="ident">into</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_f64_test</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">0.</span>), (<span class="number">0</span>, <span class="op">-</span><span class="number">1074</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="op">-</span><span class="number">0.</span>), (<span class="number">0</span>, <span class="op">-</span><span class="number">1074</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">5e-324</span>), (<span class="number">1</span>, <span class="op">-</span><span class="number">1074</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1e-250</span>), (<span class="number">6448907850777164</span>, <span class="op">-</span><span class="number">883</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1e-150</span>), (<span class="number">7371020360979573</span>, <span class="op">-</span><span class="number">551</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1e-45</span>), (<span class="number">6427752177035961</span>, <span class="op">-</span><span class="number">202</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1e-40</span>), (<span class="number">4903985730770844</span>, <span class="op">-</span><span class="number">185</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">2e-40</span>), (<span class="number">4903985730770844</span>, <span class="op">-</span><span class="number">184</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1e-20</span>), (<span class="number">6646139978924579</span>, <span class="op">-</span><span class="number">119</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">2e-20</span>), (<span class="number">6646139978924579</span>, <span class="op">-</span><span class="number">118</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1.0</span>), (<span class="number">4503599627370496</span>, <span class="op">-</span><span class="number">52</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">2.0</span>), (<span class="number">4503599627370496</span>, <span class="op">-</span><span class="number">51</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1e20</span>), (<span class="number">6103515625000000</span>, <span class="number">14</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">2e20</span>), (<span class="number">6103515625000000</span>, <span class="number">15</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1e40</span>), (<span class="number">8271806125530277</span>, <span class="number">80</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">2e40</span>), (<span class="number">8271806125530277</span>, <span class="number">81</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1e150</span>), (<span class="number">5503284107318959</span>, <span class="number">446</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1e250</span>), (<span class="number">6290184345309700</span>, <span class="number">778</span>).<span class="ident">into</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="number">1.7976931348623157e308</span>), (<span class="number">9007199254740991</span>, <span class="number">971</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">0.</span>), (<span class="number">0</span>, <span class="op">-</span><span class="number">1074</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="op">-</span><span class="number">0.</span>), (<span class="number">0</span>, <span class="op">-</span><span class="number">1074</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">5e-324</span>), (<span class="number">1</span>, <span class="op">-</span><span class="number">1074</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1e-250</span>), (<span class="number">6448907850777164</span>, <span class="op">-</span><span class="number">883</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1e-150</span>), (<span class="number">7371020360979573</span>, <span class="op">-</span><span class="number">551</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1e-45</span>), (<span class="number">6427752177035961</span>, <span class="op">-</span><span class="number">202</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1e-40</span>), (<span class="number">4903985730770844</span>, <span class="op">-</span><span class="number">185</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">2e-40</span>), (<span class="number">4903985730770844</span>, <span class="op">-</span><span class="number">184</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1e-20</span>), (<span class="number">6646139978924579</span>, <span class="op">-</span><span class="number">119</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">2e-20</span>), (<span class="number">6646139978924579</span>, <span class="op">-</span><span class="number">118</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1.0</span>), (<span class="number">4503599627370496</span>, <span class="op">-</span><span class="number">52</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">2.0</span>), (<span class="number">4503599627370496</span>, <span class="op">-</span><span class="number">51</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1e20</span>), (<span class="number">6103515625000000</span>, <span class="number">14</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">2e20</span>), (<span class="number">6103515625000000</span>, <span class="number">15</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1e40</span>), (<span class="number">8271806125530277</span>, <span class="number">80</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">2e40</span>), (<span class="number">8271806125530277</span>, <span class="number">81</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1e150</span>), (<span class="number">5503284107318959</span>, <span class="number">446</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1e250</span>), (<span class="number">6290184345309700</span>, <span class="number">778</span>).<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ExtendedFloat80::from_f64</span>(<span class="number">1.7976931348623157e308</span>), (<span class="number">9007199254740991</span>, <span class="number">971</span>).<span class="ident">into</span>());
     }
 
     <span class="kw">fn</span> <span class="ident">assert_normalized_eq</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Mantissa</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">x</span>: <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">y</span>: <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>) {
         <span class="ident">x</span>.<span class="ident">normalize</span>();
         <span class="ident">y</span>.<span class="ident">normalize</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">y</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">y</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -2039,8 +2039,8 @@
             <span class="number">2e20</span>,
         ];
         <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="ident">values</span>.<span class="ident">iter</span>() {
-            <span class="ident">assert_normalized_eq</span>(<span class="ident">ExtendedFloat80</span>::<span class="ident">from_f32</span>(<span class="kw-2">*</span><span class="ident">value</span>), <span class="ident">ExtendedFloat80</span>::<span class="ident">from_f64</span>(<span class="kw-2">*</span><span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>));
-            <span class="ident">assert_normalized_eq</span>(<span class="ident">ExtendedFloat160</span>::<span class="ident">from_f32</span>(<span class="kw-2">*</span><span class="ident">value</span>), <span class="ident">ExtendedFloat160</span>::<span class="ident">from_f64</span>(<span class="kw-2">*</span><span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>));
+            <span class="ident">assert_normalized_eq</span>(<span class="ident">ExtendedFloat80::from_f32</span>(<span class="kw-2">*</span><span class="ident">value</span>), <span class="ident">ExtendedFloat80::from_f64</span>(<span class="kw-2">*</span><span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>));
+            <span class="ident">assert_normalized_eq</span>(<span class="ident">ExtendedFloat160::from_f32</span>(<span class="kw-2">*</span><span class="ident">value</span>), <span class="ident">ExtendedFloat160::from_f64</span>(<span class="kw-2">*</span><span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>));
         }
     }
 
@@ -2086,52 +2086,52 @@
     <span class="kw">fn</span> <span class="ident">to_f32_test</span>() {
         <span class="comment">// underflow</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854775808</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">213</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">0.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">0.0</span>);
 
         <span class="comment">// min value</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854775808</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">212</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1e-45</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1e-45</span>);
 
         <span class="comment">// 1.0e-40</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">10043308644012916736</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">196</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1e-40</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1e-40</span>);
 
         <span class="comment">// 1.0e-20</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">13611294244890214400</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">130</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1e-20</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1e-20</span>);
 
         <span class="comment">// 1.0</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854775808</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">63</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1.0</span>);
 
         <span class="comment">// 1e20</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">12500000250510966784</span>, <span class="ident">exp</span>: <span class="number">3</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1e20</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">1e20</span>);
 
         <span class="comment">// max value</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">18446740775174668288</span>, <span class="ident">exp</span>: <span class="number">64</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">3.402823e38</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">3.402823e38</span>);
 
         <span class="comment">// almost max, high exp</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">1048575</span>, <span class="ident">exp</span>: <span class="number">108</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">3.4028204e38</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="number">3.4028204e38</span>);
 
         <span class="comment">// max value + 1</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">16777216</span>, <span class="ident">exp</span>: <span class="number">104</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="ident">f32</span>::<span class="ident">INFINITY</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="ident">f32::INFINITY</span>);
 
         <span class="comment">// max value + 1</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">1048576</span>, <span class="ident">exp</span>: <span class="number">108</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="ident">f32</span>::<span class="ident">INFINITY</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="ident">f32::INFINITY</span>);
 
         <span class="comment">// 1e40</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">16940658945086007296</span>, <span class="ident">exp</span>: <span class="number">69</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="ident">f32</span>::<span class="ident">INFINITY</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f32</span>(), <span class="ident">f32::INFINITY</span>);
 
         <span class="comment">// Integers.</span>
         <span class="kw">for</span> <span class="ident">int</span> <span class="kw">in</span> <span class="ident">INTEGERS</span>.<span class="ident">iter</span>() {
             <span class="kw">let</span> <span class="ident">fp</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="kw-2">*</span><span class="ident">int</span>, <span class="ident">exp</span>: <span class="number">0</span>};
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fp</span>.<span class="ident">into_f32</span>(), <span class="kw-2">*</span><span class="ident">int</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="string">&quot;{:?} as f32&quot;</span>, <span class="kw-2">*</span><span class="ident">int</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">fp</span>.<span class="ident">into_f32</span>(), <span class="kw-2">*</span><span class="ident">int</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="string">&quot;{:?} as f32&quot;</span>, <span class="kw-2">*</span><span class="ident">int</span>);
         }
     }
 
@@ -2139,83 +2139,83 @@
     <span class="kw">fn</span> <span class="ident">to_f64_test</span>() {
         <span class="comment">// underflow</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854775808</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">1138</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">0.0</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">0.0</span>);
 
         <span class="comment">// min value</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854775808</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">1137</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">5e-324</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">5e-324</span>);
 
         <span class="comment">// 1.0e-250</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">13207363278391631872</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">894</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-250</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-250</span>);
 
         <span class="comment">// 1.0e-150</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">15095849699286165504</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">562</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-150</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-150</span>);
 
         <span class="comment">// 1.0e-45</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">13164036458569648128</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">213</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-45</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-45</span>);
 
         <span class="comment">// 1.0e-40</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">10043362776618688512</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">196</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-40</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-40</span>);
 
         <span class="comment">// 1.0e-20</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">13611294676837537792</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">130</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-20</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e-20</span>);
 
         <span class="comment">// 1.0</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854775808</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">63</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1.0</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1.0</span>);
 
         <span class="comment">// 1e20</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">12500000000000000000</span>, <span class="ident">exp</span>: <span class="number">3</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e20</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e20</span>);
 
         <span class="comment">// 1e40</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">16940658945086007296</span>, <span class="ident">exp</span>: <span class="number">69</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e40</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e40</span>);
 
         <span class="comment">// 1e150</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">11270725851789228032</span>, <span class="ident">exp</span>: <span class="number">435</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e150</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e150</span>);
 
         <span class="comment">// 1e250</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">12882297539194265600</span>, <span class="ident">exp</span>: <span class="number">767</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e250</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1e250</span>);
 
         <span class="comment">// max value</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9007199254740991</span>, <span class="ident">exp</span>: <span class="number">971</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1.7976931348623157e308</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1.7976931348623157e308</span>);
 
         <span class="comment">// max value</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">18446744073709549568</span>, <span class="ident">exp</span>: <span class="number">960</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1.7976931348623157e308</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">1.7976931348623157e308</span>);
 
         <span class="comment">// overflow</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9007199254740992</span>, <span class="ident">exp</span>: <span class="number">971</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="ident">f64</span>::<span class="ident">INFINITY</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="ident">f64::INFINITY</span>);
 
         <span class="comment">// overflow</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">18446744073709549568</span>, <span class="ident">exp</span>: <span class="number">961</span>};
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="ident">f64</span>::<span class="ident">INFINITY</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="ident">f64::INFINITY</span>);
 
         <span class="comment">// Underflow</span>
         <span class="comment">// Adapted from failures in strtod.</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">exp</span>: <span class="op">-</span><span class="number">1139</span>, <span class="ident">mant</span>: <span class="number">18446744073709550712</span> };
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">0.0</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">0.0</span>);
 
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">exp</span>: <span class="op">-</span><span class="number">1139</span>, <span class="ident">mant</span>: <span class="number">18446744073709551460</span> };
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">0.0</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">0.0</span>);
 
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">exp</span>: <span class="op">-</span><span class="number">1138</span>, <span class="ident">mant</span>: <span class="number">9223372036854776103</span> };
-        <span class="macro">assert_relative_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">5e-324</span>);
+        <span class="macro">assert_relative_eq!</span>(<span class="ident">x</span>.<span class="ident">into_f64</span>(), <span class="number">5e-324</span>);
 
         <span class="comment">// Integers.</span>
         <span class="kw">for</span> <span class="ident">int</span> <span class="kw">in</span> <span class="ident">INTEGERS</span>.<span class="ident">iter</span>() {
             <span class="kw">let</span> <span class="ident">fp</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="kw-2">*</span><span class="ident">int</span>, <span class="ident">exp</span>: <span class="number">0</span>};
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fp</span>.<span class="ident">into_f64</span>(), <span class="kw-2">*</span><span class="ident">int</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="string">&quot;{:?} as f64&quot;</span>, <span class="kw-2">*</span><span class="ident">int</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">fp</span>.<span class="ident">into_f64</span>(), <span class="kw-2">*</span><span class="ident">int</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="string">&quot;{:?} as f64&quot;</span>, <span class="kw-2">*</span><span class="ident">int</span>);
         }
     }
 
@@ -2223,22 +2223,22 @@
     <span class="kw">fn</span> <span class="ident">to_rounded_f32_test</span>() {
         <span class="comment">// Just check it compiles, we already check the underlying algorithms.</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854775808</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">63</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind</span>::<span class="ident">NearestTieEven</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind</span>::<span class="ident">NearestTieAwayZero</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind</span>::<span class="ident">TowardPositiveInfinity</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind</span>::<span class="ident">TowardNegativeInfinity</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind</span>::<span class="ident">TowardZero</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind::NearestTieEven</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind::NearestTieAwayZero</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind::TowardPositiveInfinity</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind::TowardNegativeInfinity</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f32</span>(<span class="ident">RoundingKind::TowardZero</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_rounded_f64_test</span>() {
         <span class="comment">// Just check it compiles, we already check the underlying algorithms.</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="number">9223372036854775808</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">63</span>};
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind</span>::<span class="ident">NearestTieEven</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind</span>::<span class="ident">NearestTieAwayZero</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind</span>::<span class="ident">TowardPositiveInfinity</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind</span>::<span class="ident">TowardNegativeInfinity</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind</span>::<span class="ident">TowardZero</span>, <span class="ident">Sign</span>::<span class="ident">Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind::NearestTieEven</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind::NearestTieAwayZero</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind::TowardPositiveInfinity</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind::TowardNegativeInfinity</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">as_rounded_f64</span>(<span class="ident">RoundingKind::TowardZero</span>, <span class="ident">Sign::Positive</span>), <span class="number">1.0</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -2246,12 +2246,12 @@
     <span class="kw">fn</span> <span class="ident">to_f32_full_test</span>() {
         <span class="comment">// Use exhaustive search to ensure both lossy and unlossy items are checked.</span>
         <span class="comment">// 23-bits of precision, so go from 0-32.</span>
-        <span class="kw">for</span> <span class="ident">int</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">u32</span>::<span class="ident">max_value</span>() {
+        <span class="kw">for</span> <span class="ident">int</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">u32::max_value</span>() {
             <span class="kw">let</span> <span class="ident">fp</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="ident">int</span> <span class="kw">as</span> <span class="ident">u64</span>, <span class="ident">exp</span>: <span class="number">0</span>};
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fp</span>.<span class="ident">into_f32</span>(), <span class="ident">int</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="string">&quot;ExtendedFloat80 {:?} as f32&quot;</span>, <span class="ident">int</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">fp</span>.<span class="ident">into_f32</span>(), <span class="ident">int</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="string">&quot;ExtendedFloat80 {:?} as f32&quot;</span>, <span class="ident">int</span>);
 
             <span class="kw">let</span> <span class="ident">fp</span> <span class="op">=</span> <span class="ident">ExtendedFloat160</span> {<span class="ident">mant</span>: <span class="ident">int</span> <span class="kw">as</span> <span class="ident">u128</span>, <span class="ident">exp</span>: <span class="number">0</span>};
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fp</span>.<span class="ident">into_f32</span>(), <span class="ident">int</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="string">&quot;ExtendedFloat160 {:?} as f64&quot;</span>, <span class="ident">int</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">fp</span>.<span class="ident">into_f32</span>(), <span class="ident">int</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="string">&quot;ExtendedFloat160 {:?} as f64&quot;</span>, <span class="ident">int</span>);
         }
     }
 
@@ -2259,16 +2259,16 @@
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_f64_full_test</span>() {
         <span class="comment">// Use exhaustive search to ensure both lossy and unlossy items are checked.</span>
-        <span class="kw">const</span> <span class="ident">U32_MAX</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">u64</span>;
+        <span class="kw">const</span> <span class="ident">U32_MAX</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">u32::max_value</span>() <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="kw">const</span> <span class="ident">POW2_52</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">4503599627370496</span>;
         <span class="kw">const</span> <span class="ident">START</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">POW2_52</span> <span class="op">-</span> <span class="ident">U32_MAX</span> <span class="op">/</span> <span class="number">2</span>;
         <span class="kw">const</span> <span class="ident">END</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">START</span> <span class="op">+</span> <span class="ident">U32_MAX</span>;
         <span class="kw">for</span> <span class="ident">int</span> <span class="kw">in</span> <span class="ident">START</span>..<span class="ident">END</span> {
             <span class="kw">let</span> <span class="ident">fp</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> {<span class="ident">mant</span>: <span class="ident">int</span>, <span class="ident">exp</span>: <span class="number">0</span>};
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fp</span>.<span class="ident">into_f64</span>(), <span class="ident">int</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="string">&quot;ExtendedFloat80 {:?} as f64&quot;</span>, <span class="ident">int</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">fp</span>.<span class="ident">into_f64</span>(), <span class="ident">int</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="string">&quot;ExtendedFloat80 {:?} as f64&quot;</span>, <span class="ident">int</span>);
 
             <span class="kw">let</span> <span class="ident">fp</span> <span class="op">=</span> <span class="ident">ExtendedFloat160</span> {<span class="ident">mant</span>: <span class="ident">int</span> <span class="kw">as</span> <span class="ident">u128</span>, <span class="ident">exp</span>: <span class="number">0</span>};
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fp</span>.<span class="ident">into_f64</span>(), <span class="ident">int</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="string">&quot;ExtendedFloat160 {:?} as f64&quot;</span>, <span class="ident">int</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">fp</span>.<span class="ident">into_f64</span>(), <span class="ident">int</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="string">&quot;ExtendedFloat160 {:?} as f64&quot;</span>, <span class="ident">int</span>);
         }
     }
 
@@ -2276,7 +2276,7 @@
 
     <span class="kw">fn</span> <span class="ident">check_mul</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Mantissa</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>, <span class="ident">b</span>: <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>, <span class="ident">c</span>: <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">mul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>, <span class="ident">c</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="ident">c</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -2295,33 +2295,33 @@
 
         <span class="comment">// Check with integers</span>
         <span class="comment">// 64-bit mantissa</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span>::<span class="ident">from_u8</span>(<span class="number">10</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span>::<span class="ident">from_u8</span>(<span class="number">10</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat80::from_u8</span>(<span class="number">10</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat80::from_u8</span>(<span class="number">10</span>);
         <span class="ident">a</span>.<span class="ident">normalize</span>();
         <span class="ident">b</span>.<span class="ident">normalize</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">mul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">mul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
 
         <span class="comment">// 128-bit mantissa</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat160</span>::<span class="ident">from_u8</span>(<span class="number">10</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat160</span>::<span class="ident">from_u8</span>(<span class="number">10</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat160::from_u8</span>(<span class="number">10</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat160::from_u8</span>(<span class="number">10</span>);
         <span class="ident">a</span>.<span class="ident">normalize</span>();
         <span class="ident">b</span>.<span class="ident">normalize</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">mul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">mul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
 
         <span class="comment">// Check both values need high bits set.</span>
         <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">mant</span>: <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">31</span> };
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">mant</span>: <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">31</span> };
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">mul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">into_f64</span>(), <span class="number">4.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">mul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">into_f64</span>(), <span class="number">4.0</span>);
 
         <span class="comment">// Check both values need high bits set.</span>
         <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">mant</span>: <span class="number">10</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">31</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">31</span> };
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">mant</span>: <span class="number">10</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">31</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">31</span> };
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">mul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">mul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">check_imul</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Mantissa</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">a</span>: <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>, <span class="ident">b</span>: <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>, <span class="ident">c</span>: <span class="ident">ExtendedFloat</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>) {
         <span class="ident">a</span>.<span class="ident">imul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>, <span class="ident">c</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>, <span class="ident">c</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -2340,34 +2340,34 @@
 
         <span class="comment">// Check with integers</span>
         <span class="comment">// 64-bit mantissa</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span>::<span class="ident">from_u8</span>(<span class="number">10</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span>::<span class="ident">from_u8</span>(<span class="number">10</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat80::from_u8</span>(<span class="number">10</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat80::from_u8</span>(<span class="number">10</span>);
         <span class="ident">a</span>.<span class="ident">normalize</span>();
         <span class="ident">b</span>.<span class="ident">normalize</span>();
         <span class="ident">a</span>.<span class="ident">imul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
 
         <span class="comment">// 128-bit mantissa</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat160</span>::<span class="ident">from_u8</span>(<span class="number">10</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat160</span>::<span class="ident">from_u8</span>(<span class="number">10</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat160::from_u8</span>(<span class="number">10</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat160::from_u8</span>(<span class="number">10</span>);
         <span class="ident">a</span>.<span class="ident">normalize</span>();
         <span class="ident">b</span>.<span class="ident">normalize</span>();
         <span class="ident">a</span>.<span class="ident">imul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
 
         <span class="comment">// Check both values need high bits set.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">mant</span>: <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">31</span> };
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">mant</span>: <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">31</span> };
         <span class="ident">a</span>.<span class="ident">imul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">into_f64</span>(), <span class="number">4.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">into_f64</span>(), <span class="number">4.0</span>);
 
         <span class="comment">// Check both values need high bits set.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">mant</span>: <span class="number">10</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">31</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">31</span> };
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">ExtendedFloat80</span> { <span class="ident">mant</span>: <span class="number">10</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">31</span>, <span class="ident">exp</span>: <span class="op">-</span><span class="number">31</span> };
         <span class="ident">a</span>.<span class="ident">imul</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">into_f64</span>(), <span class="number">100.0</span>);
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lexical_core" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lexical_core" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

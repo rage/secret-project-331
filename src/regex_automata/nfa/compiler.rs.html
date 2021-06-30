@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/regex-automata-0.1.10/src/nfa/compiler.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compiler.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../regex_automata/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../regex_automata/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1228,16 +1228,16 @@
 <span class="comment">// borrow `self` mutably both inside and outside the closure at the same</span>
 <span class="comment">// time.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
+<span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+<span class="kw">use</span> <span class="ident">std::mem</span>;
 
-<span class="kw">use</span> <span class="ident">regex_syntax</span>::<span class="ident">hir</span>::{<span class="self">self</span>, <span class="ident">Hir</span>, <span class="ident">HirKind</span>};
-<span class="kw">use</span> <span class="ident">regex_syntax</span>::<span class="ident">utf8</span>::{<span class="ident">Utf8Range</span>, <span class="ident">Utf8Sequences</span>};
+<span class="kw">use</span> <span class="ident">regex_syntax::hir</span>::{<span class="self">self</span>, <span class="ident">Hir</span>, <span class="ident">HirKind</span>};
+<span class="kw">use</span> <span class="ident">regex_syntax::utf8</span>::{<span class="ident">Utf8Range</span>, <span class="ident">Utf8Sequences</span>};
 
-<span class="kw">use</span> <span class="ident">classes</span>::<span class="ident">ByteClassSet</span>;
+<span class="kw">use</span> <span class="ident">classes::ByteClassSet</span>;
 <span class="kw">use</span> <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">nfa</span>::<span class="ident">map</span>::{<span class="ident">Utf8BoundedMap</span>, <span class="ident">Utf8SuffixKey</span>, <span class="ident">Utf8SuffixMap</span>};
-<span class="kw">use</span> <span class="ident">nfa</span>::<span class="ident">range_trie</span>::<span class="ident">RangeTrie</span>;
+<span class="kw">use</span> <span class="ident">nfa::map</span>::{<span class="ident">Utf8BoundedMap</span>, <span class="ident">Utf8SuffixKey</span>, <span class="ident">Utf8SuffixMap</span>};
+<span class="kw">use</span> <span class="ident">nfa::range_trie::RangeTrie</span>;
 <span class="kw">use</span> <span class="ident">nfa</span>::{<span class="ident">State</span>, <span class="ident">StateID</span>, <span class="ident">Transition</span>, <span class="ident">NFA</span>};
 
 <span class="doccomment">/// Config knobs for the NFA compiler. See the builder&#39;s methods for more</span>
@@ -1270,7 +1270,7 @@
 <span class="kw">impl</span> <span class="ident">Builder</span> {
     <span class="doccomment">/// Create a new NFA builder with its default configuration.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Builder</span> {
-        <span class="ident">Builder</span> { <span class="ident">config</span>: <span class="ident">Config</span>::<span class="ident">default</span>() }
+        <span class="ident">Builder</span> { <span class="ident">config</span>: <span class="ident">Config::default</span>() }
     }
 
     <span class="doccomment">/// Compile the given high level intermediate representation of a regular</span>
@@ -1280,8 +1280,8 @@
     <span class="doccomment">/// For example, if the regex uses unsupported features (such as zero-width</span>
     <span class="doccomment">/// assertions), then an error is returned.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">expr</span>: <span class="kw-2">&amp;</span><span class="ident">Hir</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NFA</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nfa</span> <span class="op">=</span> <span class="ident">NFA</span>::<span class="ident">always_match</span>();
-        <span class="self">self</span>.<span class="ident">build_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Compiler</span>::<span class="ident">new</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nfa</span>, <span class="ident">expr</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nfa</span> <span class="op">=</span> <span class="ident">NFA::always_match</span>();
+        <span class="self">self</span>.<span class="ident">build_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Compiler::new</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nfa</span>, <span class="ident">expr</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">nfa</span>)
     }
 
@@ -1450,13 +1450,13 @@
     <span class="doccomment">/// Create a new compiler.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compiler</span> {
         <span class="ident">Compiler</span> {
-            <span class="ident">states</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]),
-            <span class="ident">config</span>: <span class="ident">Config</span>::<span class="ident">default</span>(),
-            <span class="ident">utf8_state</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">Utf8State</span>::<span class="ident">new</span>()),
-            <span class="ident">trie_state</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">RangeTrie</span>::<span class="ident">new</span>()),
-            <span class="ident">utf8_suffix</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">Utf8SuffixMap</span>::<span class="ident">new</span>(<span class="number">1000</span>)),
-            <span class="ident">remap</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]),
-            <span class="ident">empties</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]),
+            <span class="ident">states</span>: <span class="ident">RefCell::new</span>(<span class="macro">vec!</span>[]),
+            <span class="ident">config</span>: <span class="ident">Config::default</span>(),
+            <span class="ident">utf8_state</span>: <span class="ident">RefCell::new</span>(<span class="ident">Utf8State::new</span>()),
+            <span class="ident">trie_state</span>: <span class="ident">RefCell::new</span>(<span class="ident">RangeTrie::new</span>()),
+            <span class="ident">utf8_suffix</span>: <span class="ident">RefCell::new</span>(<span class="ident">Utf8SuffixMap::new</span>(<span class="number">1000</span>)),
+            <span class="ident">remap</span>: <span class="ident">RefCell::new</span>(<span class="macro">vec!</span>[]),
+            <span class="ident">empties</span>: <span class="ident">RefCell::new</span>(<span class="macro">vec!</span>[]),
         }
     }
 
@@ -1513,7 +1513,7 @@
         <span class="comment">// We don&#39;t reuse allocations here becuase this is what we&#39;re</span>
         <span class="comment">// returning.</span>
         <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">clear</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">byteset</span> <span class="op">=</span> <span class="ident">ByteClassSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">byteset</span> <span class="op">=</span> <span class="ident">ByteClassSet::new</span>();
 
         <span class="comment">// The idea here is to convert our intermediate states to their final</span>
         <span class="comment">// form. The only real complexity here is the process of converting</span>
@@ -1522,48 +1522,48 @@
         <span class="comment">// so the state IDs will not be the same.</span>
         <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">bstate</span>) <span class="kw">in</span> <span class="ident">bstates</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
             <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">bstate</span> {
-                <span class="ident">CState</span>::<span class="ident">Empty</span> { <span class="ident">next</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CState::Empty</span> { <span class="ident">next</span> } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Since we&#39;re removing empty states, we need to handle</span>
                     <span class="comment">// them later since we don&#39;t yet know which new state this</span>
                     <span class="comment">// empty state will be mapped to.</span>
                     <span class="ident">empties</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">next</span>));
                 }
-                <span class="ident">CState</span>::<span class="ident">Range</span> { <span class="kw-2">ref</span> <span class="ident">range</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CState::Range</span> { <span class="kw-2">ref</span> <span class="ident">range</span> } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">remap</span>[<span class="ident">id</span>] <span class="op">=</span> <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">len</span>();
                     <span class="ident">byteset</span>.<span class="ident">set_range</span>(<span class="ident">range</span>.<span class="ident">start</span>, <span class="ident">range</span>.<span class="ident">end</span>);
-                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State</span>::<span class="ident">Range</span> { <span class="ident">range</span>: <span class="ident">range</span>.<span class="ident">clone</span>() });
+                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State::Range</span> { <span class="ident">range</span>: <span class="ident">range</span>.<span class="ident">clone</span>() });
                 }
-                <span class="ident">CState</span>::<span class="ident">Sparse</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">ranges</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CState::Sparse</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">ranges</span> } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">remap</span>[<span class="ident">id</span>] <span class="op">=</span> <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">len</span>();
 
-                    <span class="kw">let</span> <span class="ident">ranges</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="ident">ranges</span>, <span class="macro">vec</span><span class="macro">!</span>[]);
+                    <span class="kw">let</span> <span class="ident">ranges</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="ident">ranges</span>, <span class="macro">vec!</span>[]);
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ranges</span> {
                         <span class="ident">byteset</span>.<span class="ident">set_range</span>(<span class="ident">r</span>.<span class="ident">start</span>, <span class="ident">r</span>.<span class="ident">end</span>);
                     }
-                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State</span>::<span class="ident">Sparse</span> {
+                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State::Sparse</span> {
                         <span class="ident">ranges</span>: <span class="ident">ranges</span>.<span class="ident">into_boxed_slice</span>(),
                     });
                 }
-                <span class="ident">CState</span>::<span class="ident">Union</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CState::Union</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">remap</span>[<span class="ident">id</span>] <span class="op">=</span> <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">len</span>();
 
-                    <span class="kw">let</span> <span class="ident">alternates</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="ident">alternates</span>, <span class="macro">vec</span><span class="macro">!</span>[]);
-                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State</span>::<span class="ident">Union</span> {
+                    <span class="kw">let</span> <span class="ident">alternates</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="ident">alternates</span>, <span class="macro">vec!</span>[]);
+                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State::Union</span> {
                         <span class="ident">alternates</span>: <span class="ident">alternates</span>.<span class="ident">into_boxed_slice</span>(),
                     });
                 }
-                <span class="ident">CState</span>::<span class="ident">UnionReverse</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CState::UnionReverse</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">remap</span>[<span class="ident">id</span>] <span class="op">=</span> <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">len</span>();
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="ident">alternates</span>, <span class="macro">vec</span><span class="macro">!</span>[]);
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="ident">alternates</span>, <span class="macro">vec!</span>[]);
                     <span class="ident">alternates</span>.<span class="ident">reverse</span>();
-                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State</span>::<span class="ident">Union</span> {
+                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State::Union</span> {
                         <span class="ident">alternates</span>: <span class="ident">alternates</span>.<span class="ident">into_boxed_slice</span>(),
                     });
                 }
-                <span class="ident">CState</span>::<span class="ident">Match</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CState::Match</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">remap</span>[<span class="ident">id</span>] <span class="op">=</span> <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">len</span>();
-                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State</span>::<span class="ident">Match</span>);
+                    <span class="ident">nfa</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State::Match</span>);
                 }
             }
         }
@@ -1573,7 +1573,7 @@
             <span class="comment">// a non-empty state, and therefore, a state that is correctly</span>
             <span class="comment">// remapped. We are guaranteed to terminate because our compiler</span>
             <span class="comment">// never builds a loop among empty states.</span>
-            <span class="kw">while</span> <span class="kw">let</span> <span class="ident">CState</span>::<span class="ident">Empty</span> { <span class="ident">next</span> } <span class="op">=</span> <span class="ident">bstates</span>[<span class="ident">empty_next</span>] {
+            <span class="kw">while</span> <span class="kw">let</span> <span class="ident">CState::Empty</span> { <span class="ident">next</span> } <span class="op">=</span> <span class="ident">bstates</span>[<span class="ident">empty_next</span>] {
                 <span class="ident">empty_next</span> <span class="op">=</span> <span class="ident">next</span>;
             }
             <span class="ident">remap</span>[<span class="ident">empty_id</span>] <span class="op">=</span> <span class="ident">remap</span>[<span class="ident">empty_next</span>];
@@ -1588,11 +1588,11 @@
 
     <span class="kw">fn</span> <span class="ident">c</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">expr</span>: <span class="kw-2">&amp;</span><span class="ident">Hir</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">expr</span>.<span class="ident">kind</span>() {
-            <span class="ident">HirKind</span>::<span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HirKind::Empty</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">add_empty</span>();
                 <span class="prelude-val">Ok</span>(<span class="ident">ThompsonRef</span> { <span class="ident">start</span>: <span class="ident">id</span>, <span class="ident">end</span>: <span class="ident">id</span> })
             }
-            <span class="ident">HirKind</span>::<span class="ident">Literal</span>(<span class="ident">hir</span>::<span class="ident">Literal</span>::<span class="ident">Unicode</span>(<span class="ident">ch</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HirKind::Literal</span>(<span class="ident">hir::Literal::Unicode</span>(<span class="ident">ch</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">4</span>];
                 <span class="kw">let</span> <span class="ident">it</span> <span class="op">=</span> <span class="ident">ch</span>
                     .<span class="ident">encode_utf8</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>)
@@ -1601,23 +1601,23 @@
                     .<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">c_range</span>(<span class="ident">b</span>, <span class="ident">b</span>)));
                 <span class="self">self</span>.<span class="ident">c_concat</span>(<span class="ident">it</span>)
             }
-            <span class="ident">HirKind</span>::<span class="ident">Literal</span>(<span class="ident">hir</span>::<span class="ident">Literal</span>::<span class="ident">Byte</span>(<span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">c_range</span>(<span class="ident">b</span>, <span class="ident">b</span>)),
-            <span class="ident">HirKind</span>::<span class="ident">Class</span>(<span class="ident">hir</span>::<span class="ident">Class</span>::<span class="ident">Bytes</span>(<span class="kw-2">ref</span> <span class="ident">cls</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HirKind::Literal</span>(<span class="ident">hir::Literal::Byte</span>(<span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">c_range</span>(<span class="ident">b</span>, <span class="ident">b</span>)),
+            <span class="ident">HirKind::Class</span>(<span class="ident">hir::Class::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">cls</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">c_byte_class</span>(<span class="ident">cls</span>)
             }
-            <span class="ident">HirKind</span>::<span class="ident">Class</span>(<span class="ident">hir</span>::<span class="ident">Class</span>::<span class="ident">Unicode</span>(<span class="kw-2">ref</span> <span class="ident">cls</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HirKind::Class</span>(<span class="ident">hir::Class::Unicode</span>(<span class="kw-2">ref</span> <span class="ident">cls</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">c_unicode_class</span>(<span class="ident">cls</span>)
             }
-            <span class="ident">HirKind</span>::<span class="ident">Repetition</span>(<span class="kw-2">ref</span> <span class="ident">rep</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">c_repetition</span>(<span class="ident">rep</span>),
-            <span class="ident">HirKind</span>::<span class="ident">Group</span>(<span class="kw-2">ref</span> <span class="ident">group</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">c</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">group</span>.<span class="ident">hir</span>),
-            <span class="ident">HirKind</span>::<span class="ident">Concat</span>(<span class="kw-2">ref</span> <span class="ident">exprs</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HirKind::Repetition</span>(<span class="kw-2">ref</span> <span class="ident">rep</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">c_repetition</span>(<span class="ident">rep</span>),
+            <span class="ident">HirKind::Group</span>(<span class="kw-2">ref</span> <span class="ident">group</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">c</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">group</span>.<span class="ident">hir</span>),
+            <span class="ident">HirKind::Concat</span>(<span class="kw-2">ref</span> <span class="ident">exprs</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">c_concat</span>(<span class="ident">exprs</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">c</span>(<span class="ident">e</span>)))
             }
-            <span class="ident">HirKind</span>::<span class="ident">Alternation</span>(<span class="kw-2">ref</span> <span class="ident">exprs</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">HirKind::Alternation</span>(<span class="kw-2">ref</span> <span class="ident">exprs</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">c_alternation</span>(<span class="ident">exprs</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">c</span>(<span class="ident">e</span>)))
             }
-            <span class="ident">HirKind</span>::<span class="ident">Anchor</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">unsupported_anchor</span>()),
-            <span class="ident">HirKind</span>::<span class="ident">WordBoundary</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">unsupported_word</span>()),
+            <span class="ident">HirKind::Anchor</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error::unsupported_anchor</span>()),
+            <span class="ident">HirKind::WordBoundary</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error::unsupported_word</span>()),
         }
     }
 
@@ -1668,25 +1668,25 @@
         <span class="prelude-val">Ok</span>(<span class="ident">ThompsonRef</span> { <span class="ident">start</span>: <span class="ident">union</span>, <span class="ident">end</span> })
     }
 
-    <span class="kw">fn</span> <span class="ident">c_repetition</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rep</span>: <span class="kw-2">&amp;</span><span class="ident">hir</span>::<span class="ident">Repetition</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">c_repetition</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rep</span>: <span class="kw-2">&amp;</span><span class="ident">hir::Repetition</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">rep</span>.<span class="ident">kind</span> {
-            <span class="ident">hir</span>::<span class="ident">RepetitionKind</span>::<span class="ident">ZeroOrOne</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">hir::RepetitionKind::ZeroOrOne</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">c_zero_or_one</span>(<span class="kw-2">&amp;</span><span class="ident">rep</span>.<span class="ident">hir</span>, <span class="ident">rep</span>.<span class="ident">greedy</span>)
             }
-            <span class="ident">hir</span>::<span class="ident">RepetitionKind</span>::<span class="ident">ZeroOrMore</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">hir::RepetitionKind::ZeroOrMore</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">c_at_least</span>(<span class="kw-2">&amp;</span><span class="ident">rep</span>.<span class="ident">hir</span>, <span class="ident">rep</span>.<span class="ident">greedy</span>, <span class="number">0</span>)
             }
-            <span class="ident">hir</span>::<span class="ident">RepetitionKind</span>::<span class="ident">OneOrMore</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">hir::RepetitionKind::OneOrMore</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">c_at_least</span>(<span class="kw-2">&amp;</span><span class="ident">rep</span>.<span class="ident">hir</span>, <span class="ident">rep</span>.<span class="ident">greedy</span>, <span class="number">1</span>)
             }
-            <span class="ident">hir</span>::<span class="ident">RepetitionKind</span>::<span class="ident">Range</span>(<span class="kw-2">ref</span> <span class="ident">rng</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">rng</span> {
-                <span class="ident">hir</span>::<span class="ident">RepetitionRange</span>::<span class="ident">Exactly</span>(<span class="ident">count</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">hir::RepetitionKind::Range</span>(<span class="kw-2">ref</span> <span class="ident">rng</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">rng</span> {
+                <span class="ident">hir::RepetitionRange::Exactly</span>(<span class="ident">count</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">c_exactly</span>(<span class="kw-2">&amp;</span><span class="ident">rep</span>.<span class="ident">hir</span>, <span class="ident">count</span>)
                 }
-                <span class="ident">hir</span>::<span class="ident">RepetitionRange</span>::<span class="ident">AtLeast</span>(<span class="ident">m</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">hir::RepetitionRange::AtLeast</span>(<span class="ident">m</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">c_at_least</span>(<span class="kw-2">&amp;</span><span class="ident">rep</span>.<span class="ident">hir</span>, <span class="ident">rep</span>.<span class="ident">greedy</span>, <span class="ident">m</span>)
                 }
-                <span class="ident">hir</span>::<span class="ident">RepetitionRange</span>::<span class="ident">Bounded</span>(<span class="ident">min</span>, <span class="ident">max</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">hir::RepetitionRange::Bounded</span>(<span class="ident">min</span>, <span class="ident">max</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">c_bounded</span>(<span class="kw-2">&amp;</span><span class="ident">rep</span>.<span class="ident">hir</span>, <span class="ident">rep</span>.<span class="ident">greedy</span>, <span class="ident">min</span>, <span class="ident">max</span>)
                 }
             },
@@ -1809,9 +1809,9 @@
         <span class="self">self</span>.<span class="ident">c_concat</span>(<span class="ident">it</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">c_byte_class</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cls</span>: <span class="kw-2">&amp;</span><span class="ident">hir</span>::<span class="ident">ClassBytes</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">c_byte_class</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cls</span>: <span class="kw-2">&amp;</span><span class="ident">hir::ClassBytes</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">add_empty</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trans</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">cls</span>.<span class="ident">ranges</span>().<span class="ident">len</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trans</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">cls</span>.<span class="ident">ranges</span>().<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cls</span>.<span class="ident">iter</span>() {
             <span class="ident">trans</span>.<span class="ident">push</span>(<span class="ident">Transition</span> {
                 <span class="ident">start</span>: <span class="ident">r</span>.<span class="ident">start</span>(),
@@ -1822,16 +1822,16 @@
         <span class="prelude-val">Ok</span>(<span class="ident">ThompsonRef</span> { <span class="ident">start</span>: <span class="self">self</span>.<span class="ident">add_sparse</span>(<span class="ident">trans</span>), <span class="ident">end</span> })
     }
 
-    <span class="kw">fn</span> <span class="ident">c_unicode_class</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cls</span>: <span class="kw-2">&amp;</span><span class="ident">hir</span>::<span class="ident">ClassUnicode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">c_unicode_class</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cls</span>: <span class="kw-2">&amp;</span><span class="ident">hir::ClassUnicode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
         <span class="comment">// If all we have are ASCII ranges wrapped in a Unicode package, then</span>
         <span class="comment">// there is zero reason to bring out the big guns. We can fit all ASCII</span>
         <span class="comment">// ranges within a single sparse transition.</span>
         <span class="kw">if</span> <span class="ident">cls</span>.<span class="ident">is_all_ascii</span>() {
             <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">add_empty</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trans</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">cls</span>.<span class="ident">ranges</span>().<span class="ident">len</span>());
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trans</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">cls</span>.<span class="ident">ranges</span>().<span class="ident">len</span>());
             <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cls</span>.<span class="ident">iter</span>() {
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">start</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="string">&#39;\x7F&#39;</span>);
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">end</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="string">&#39;\x7F&#39;</span>);
+                <span class="macro">assert!</span>(<span class="ident">r</span>.<span class="ident">start</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="string">&#39;\x7F&#39;</span>);
+                <span class="macro">assert!</span>(<span class="ident">r</span>.<span class="ident">end</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="string">&#39;\x7F&#39;</span>);
                 <span class="ident">trans</span>.<span class="ident">push</span>(<span class="ident">Transition</span> {
                     <span class="ident">start</span>: <span class="ident">r</span>.<span class="ident">start</span>() <span class="kw">as</span> <span class="ident">u8</span>,
                     <span class="ident">end</span>: <span class="ident">r</span>.<span class="ident">end</span>() <span class="kw">as</span> <span class="ident">u8</span>,
@@ -1860,13 +1860,13 @@
                 <span class="ident">trie</span>.<span class="ident">clear</span>();
 
                 <span class="kw">for</span> <span class="ident">rng</span> <span class="kw">in</span> <span class="ident">cls</span>.<span class="ident">iter</span>() {
-                    <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">seq</span> <span class="kw">in</span> <span class="ident">Utf8Sequences</span>::<span class="ident">new</span>(<span class="ident">rng</span>.<span class="ident">start</span>(), <span class="ident">rng</span>.<span class="ident">end</span>()) {
+                    <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">seq</span> <span class="kw">in</span> <span class="ident">Utf8Sequences::new</span>(<span class="ident">rng</span>.<span class="ident">start</span>(), <span class="ident">rng</span>.<span class="ident">end</span>()) {
                         <span class="ident">seq</span>.<span class="ident">reverse</span>();
                         <span class="ident">trie</span>.<span class="ident">insert</span>(<span class="ident">seq</span>.<span class="ident">as_slice</span>());
                     }
                 }
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">utf8_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">utf8_state</span>.<span class="ident">borrow_mut</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">utf8c</span> <span class="op">=</span> <span class="ident">Utf8Compiler</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">utf8_state</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">utf8c</span> <span class="op">=</span> <span class="ident">Utf8Compiler::new</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">utf8_state</span>);
                 <span class="ident">trie</span>.<span class="ident">iter</span>(<span class="op">|</span><span class="ident">seq</span><span class="op">|</span> {
                     <span class="ident">utf8c</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="ident">seq</span>);
                 });
@@ -1878,9 +1878,9 @@
             <span class="comment">// is almost no downside (in either memory or time) to using this</span>
             <span class="comment">// approach.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">utf8_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">utf8_state</span>.<span class="ident">borrow_mut</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">utf8c</span> <span class="op">=</span> <span class="ident">Utf8Compiler</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">utf8_state</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">utf8c</span> <span class="op">=</span> <span class="ident">Utf8Compiler::new</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">utf8_state</span>);
             <span class="kw">for</span> <span class="ident">rng</span> <span class="kw">in</span> <span class="ident">cls</span>.<span class="ident">iter</span>() {
-                <span class="kw">for</span> <span class="ident">seq</span> <span class="kw">in</span> <span class="ident">Utf8Sequences</span>::<span class="ident">new</span>(<span class="ident">rng</span>.<span class="ident">start</span>(), <span class="ident">rng</span>.<span class="ident">end</span>()) {
+                <span class="kw">for</span> <span class="ident">seq</span> <span class="kw">in</span> <span class="ident">Utf8Sequences::new</span>(<span class="ident">rng</span>.<span class="ident">start</span>(), <span class="ident">rng</span>.<span class="ident">end</span>()) {
                     <span class="ident">utf8c</span>.<span class="ident">add</span>(<span class="ident">seq</span>.<span class="ident">as_slice</span>());
                 }
             }
@@ -1916,7 +1916,7 @@
 
     <span class="kw">fn</span> <span class="ident">c_unicode_class_reverse_with_suffix</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">cls</span>: <span class="kw-2">&amp;</span><span class="ident">hir</span>::<span class="ident">ClassUnicode</span>,
+        <span class="ident">cls</span>: <span class="kw-2">&amp;</span><span class="ident">hir::ClassUnicode</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
         <span class="comment">// N.B. It would likely be better to cache common *prefixes* in the</span>
         <span class="comment">// reverse direction, but it&#39;s not quite clear how to do that. The</span>
@@ -1928,7 +1928,7 @@
         <span class="kw">let</span> <span class="ident">union</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">add_union</span>();
         <span class="kw">let</span> <span class="ident">alt_end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">add_empty</span>();
         <span class="kw">for</span> <span class="ident">urng</span> <span class="kw">in</span> <span class="ident">cls</span>.<span class="ident">iter</span>() {
-            <span class="kw">for</span> <span class="ident">seq</span> <span class="kw">in</span> <span class="ident">Utf8Sequences</span>::<span class="ident">new</span>(<span class="ident">urng</span>.<span class="ident">start</span>(), <span class="ident">urng</span>.<span class="ident">end</span>()) {
+            <span class="kw">for</span> <span class="ident">seq</span> <span class="kw">in</span> <span class="ident">Utf8Sequences::new</span>(<span class="ident">urng</span>.<span class="ident">start</span>(), <span class="ident">urng</span>.<span class="ident">end</span>()) {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">alt_end</span>;
                 <span class="kw">for</span> <span class="ident">brng</span> <span class="kw">in</span> <span class="ident">seq</span>.<span class="ident">as_slice</span>() {
                     <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Utf8SuffixKey</span> {
@@ -1964,52 +1964,52 @@
     }
 
     <span class="kw">fn</span> <span class="ident">c_unanchored_prefix_valid_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">c</span>(<span class="kw-2">&amp;</span><span class="ident">Hir</span>::<span class="ident">repetition</span>(<span class="ident">hir</span>::<span class="ident">Repetition</span> {
-            <span class="ident">kind</span>: <span class="ident">hir</span>::<span class="ident">RepetitionKind</span>::<span class="ident">ZeroOrMore</span>,
+        <span class="self">self</span>.<span class="ident">c</span>(<span class="kw-2">&amp;</span><span class="ident">Hir::repetition</span>(<span class="ident">hir::Repetition</span> {
+            <span class="ident">kind</span>: <span class="ident">hir::RepetitionKind::ZeroOrMore</span>,
             <span class="ident">greedy</span>: <span class="bool-val">false</span>,
-            <span class="ident">hir</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Hir</span>::<span class="ident">any</span>(<span class="bool-val">false</span>)),
+            <span class="ident">hir</span>: <span class="ident">Box::new</span>(<span class="ident">Hir::any</span>(<span class="bool-val">false</span>)),
         }))
     }
 
     <span class="kw">fn</span> <span class="ident">c_unanchored_prefix_invalid_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ThompsonRef</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">c</span>(<span class="kw-2">&amp;</span><span class="ident">Hir</span>::<span class="ident">repetition</span>(<span class="ident">hir</span>::<span class="ident">Repetition</span> {
-            <span class="ident">kind</span>: <span class="ident">hir</span>::<span class="ident">RepetitionKind</span>::<span class="ident">ZeroOrMore</span>,
+        <span class="self">self</span>.<span class="ident">c</span>(<span class="kw-2">&amp;</span><span class="ident">Hir::repetition</span>(<span class="ident">hir::Repetition</span> {
+            <span class="ident">kind</span>: <span class="ident">hir::RepetitionKind::ZeroOrMore</span>,
             <span class="ident">greedy</span>: <span class="bool-val">false</span>,
-            <span class="ident">hir</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Hir</span>::<span class="ident">any</span>(<span class="bool-val">true</span>)),
+            <span class="ident">hir</span>: <span class="ident">Box::new</span>(<span class="ident">Hir::any</span>(<span class="bool-val">true</span>)),
         }))
     }
 
     <span class="kw">fn</span> <span class="ident">patch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">StateID</span>, <span class="ident">to</span>: <span class="ident">StateID</span>) {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>()[<span class="ident">from</span>] {
-            <span class="ident">CState</span>::<span class="ident">Empty</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">next</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CState::Empty</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">next</span> } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw-2">*</span><span class="ident">next</span> <span class="op">=</span> <span class="ident">to</span>;
             }
-            <span class="ident">CState</span>::<span class="ident">Range</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">range</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CState::Range</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">range</span> } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">range</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">to</span>;
             }
-            <span class="ident">CState</span>::<span class="ident">Sparse</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;cannot patch from a sparse NFA state&quot;</span>)
+            <span class="ident">CState::Sparse</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">panic!</span>(<span class="string">&quot;cannot patch from a sparse NFA state&quot;</span>)
             }
-            <span class="ident">CState</span>::<span class="ident">Union</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CState::Union</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">alternates</span>.<span class="ident">push</span>(<span class="ident">to</span>);
             }
-            <span class="ident">CState</span>::<span class="ident">UnionReverse</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CState::UnionReverse</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alternates</span> } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">alternates</span>.<span class="ident">push</span>(<span class="ident">to</span>);
             }
-            <span class="ident">CState</span>::<span class="ident">Match</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">CState::Match</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
     }
 
     <span class="kw">fn</span> <span class="ident">add_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateID</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow</span>().<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">CState</span>::<span class="ident">Empty</span> { <span class="ident">next</span>: <span class="number">0</span> });
+        <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">CState::Empty</span> { <span class="ident">next</span>: <span class="number">0</span> });
         <span class="ident">id</span>
     }
 
     <span class="kw">fn</span> <span class="ident">add_range</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">u8</span>, <span class="ident">end</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateID</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow</span>().<span class="ident">len</span>();
         <span class="kw">let</span> <span class="ident">trans</span> <span class="op">=</span> <span class="ident">Transition</span> { <span class="ident">start</span>, <span class="ident">end</span>, <span class="ident">next</span>: <span class="number">0</span> };
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState</span>::<span class="ident">Range</span> { <span class="ident">range</span>: <span class="ident">trans</span> };
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState::Range</span> { <span class="ident">range</span>: <span class="ident">trans</span> };
         <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">state</span>);
         <span class="ident">id</span>
     }
@@ -2017,33 +2017,33 @@
     <span class="kw">fn</span> <span class="ident">add_sparse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ranges</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateID</span> {
         <span class="kw">if</span> <span class="ident">ranges</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow</span>().<span class="ident">len</span>();
-            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState</span>::<span class="ident">Range</span> { <span class="ident">range</span>: <span class="ident">ranges</span>[<span class="number">0</span>] };
+            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState::Range</span> { <span class="ident">range</span>: <span class="ident">ranges</span>[<span class="number">0</span>] };
             <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">state</span>);
             <span class="kw">return</span> <span class="ident">id</span>;
         }
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow</span>().<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState</span>::<span class="ident">Sparse</span> { <span class="ident">ranges</span> };
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState::Sparse</span> { <span class="ident">ranges</span> };
         <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">state</span>);
         <span class="ident">id</span>
     }
 
     <span class="kw">fn</span> <span class="ident">add_union</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateID</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow</span>().<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState</span>::<span class="ident">Union</span> { <span class="ident">alternates</span>: <span class="macro">vec</span><span class="macro">!</span>[] };
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState::Union</span> { <span class="ident">alternates</span>: <span class="macro">vec!</span>[] };
         <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">state</span>);
         <span class="ident">id</span>
     }
 
     <span class="kw">fn</span> <span class="ident">add_reverse_union</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateID</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow</span>().<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState</span>::<span class="ident">UnionReverse</span> { <span class="ident">alternates</span>: <span class="macro">vec</span><span class="macro">!</span>[] };
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">CState::UnionReverse</span> { <span class="ident">alternates</span>: <span class="macro">vec!</span>[] };
         <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">state</span>);
         <span class="ident">id</span>
     }
 
     <span class="kw">fn</span> <span class="ident">add_match</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateID</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow</span>().<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">CState</span>::<span class="ident">Match</span>);
+        <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">CState::Match</span>);
         <span class="ident">id</span>
     }
 }
@@ -2075,7 +2075,7 @@
 
 <span class="kw">impl</span> <span class="ident">Utf8State</span> {
     <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Utf8State</span> {
-        <span class="ident">Utf8State</span> { <span class="ident">compiled</span>: <span class="ident">Utf8BoundedMap</span>::<span class="ident">new</span>(<span class="number">5000</span>), <span class="ident">uncompiled</span>: <span class="macro">vec</span><span class="macro">!</span>[] }
+        <span class="ident">Utf8State</span> { <span class="ident">compiled</span>: <span class="ident">Utf8BoundedMap::new</span>(<span class="number">5000</span>), <span class="ident">uncompiled</span>: <span class="macro">vec!</span>[] }
     }
 
     <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
@@ -2110,7 +2110,7 @@
                 })
             })
             .<span class="ident">count</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">prefix_len</span> <span class="op">&lt;</span> <span class="ident">ranges</span>.<span class="ident">len</span>());
+        <span class="macro">assert!</span>(<span class="ident">prefix_len</span> <span class="op">&lt;</span> <span class="ident">ranges</span>.<span class="ident">len</span>());
         <span class="self">self</span>.<span class="ident">compile_from</span>(<span class="ident">prefix_len</span>);
         <span class="self">self</span>.<span class="ident">add_suffix</span>(<span class="kw-2">&amp;</span><span class="ident">ranges</span>[<span class="ident">prefix_len</span>..]);
     }
@@ -2135,28 +2135,28 @@
     }
 
     <span class="kw">fn</span> <span class="ident">add_suffix</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ranges</span>: <span class="kw-2">&amp;</span>[<span class="ident">Utf8Range</span>]) {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">ranges</span>.<span class="ident">is_empty</span>());
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">ranges</span>.<span class="ident">is_empty</span>());
         <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">state</span>
             .<span class="ident">uncompiled</span>
             .<span class="ident">len</span>()
             .<span class="ident">checked_sub</span>(<span class="number">1</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;non-empty nodes&quot;</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>[<span class="ident">last</span>].<span class="ident">last</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>[<span class="ident">last</span>].<span class="ident">last</span>.<span class="ident">is_none</span>());
         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>[<span class="ident">last</span>].<span class="ident">last</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Utf8LastTransition</span> {
             <span class="ident">start</span>: <span class="ident">ranges</span>[<span class="number">0</span>].<span class="ident">start</span>,
             <span class="ident">end</span>: <span class="ident">ranges</span>[<span class="number">0</span>].<span class="ident">end</span>,
         });
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ranges</span>[<span class="number">1</span>..] {
             <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>.<span class="ident">push</span>(<span class="ident">Utf8Node</span> {
-                <span class="ident">trans</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+                <span class="ident">trans</span>: <span class="macro">vec!</span>[],
                 <span class="ident">last</span>: <span class="prelude-val">Some</span>(<span class="ident">Utf8LastTransition</span> { <span class="ident">start</span>: <span class="ident">r</span>.<span class="ident">start</span>, <span class="ident">end</span>: <span class="ident">r</span>.<span class="ident">end</span> }),
             });
         }
     }
 
     <span class="kw">fn</span> <span class="ident">add_empty</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>.<span class="ident">push</span>(<span class="ident">Utf8Node</span> { <span class="ident">trans</span>: <span class="macro">vec</span><span class="macro">!</span>[], <span class="ident">last</span>: <span class="prelude-val">None</span> });
+        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>.<span class="ident">push</span>(<span class="ident">Utf8Node</span> { <span class="ident">trans</span>: <span class="macro">vec!</span>[], <span class="ident">last</span>: <span class="prelude-val">None</span> });
     }
 
     <span class="kw">fn</span> <span class="ident">pop_freeze</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">next</span>: <span class="ident">StateID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
@@ -2166,8 +2166,8 @@
     }
 
     <span class="kw">fn</span> <span class="ident">pop_root</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>[<span class="number">0</span>].<span class="ident">last</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>[<span class="number">0</span>].<span class="ident">last</span>.<span class="ident">is_none</span>());
         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">uncompiled</span>.<span class="ident">pop</span>().<span class="ident">expect</span>(<span class="string">&quot;non-empty nodes&quot;</span>).<span class="ident">trans</span>
     }
 
@@ -2196,27 +2196,27 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">regex_syntax</span>::<span class="ident">hir</span>::<span class="ident">Hir</span>;
-    <span class="kw">use</span> <span class="ident">regex_syntax</span>::<span class="ident">ParserBuilder</span>;
+    <span class="kw">use</span> <span class="ident">regex_syntax::hir::Hir</span>;
+    <span class="kw">use</span> <span class="ident">regex_syntax::ParserBuilder</span>;
 
     <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Builder</span>, <span class="ident">State</span>, <span class="ident">StateID</span>, <span class="ident">Transition</span>, <span class="ident">NFA</span>};
 
     <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">pattern</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Hir</span> {
-        <span class="ident">ParserBuilder</span>::<span class="ident">new</span>().<span class="ident">build</span>().<span class="ident">parse</span>(<span class="ident">pattern</span>).<span class="ident">unwrap</span>()
+        <span class="ident">ParserBuilder::new</span>().<span class="ident">build</span>().<span class="ident">parse</span>(<span class="ident">pattern</span>).<span class="ident">unwrap</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">build</span>(<span class="ident">pattern</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NFA</span> {
-        <span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">anchored</span>(<span class="bool-val">true</span>).<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="ident">pattern</span>)).<span class="ident">unwrap</span>()
+        <span class="ident">Builder::new</span>().<span class="ident">anchored</span>(<span class="bool-val">true</span>).<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="ident">pattern</span>)).<span class="ident">unwrap</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">s_byte</span>(<span class="ident">byte</span>: <span class="ident">u8</span>, <span class="ident">next</span>: <span class="ident">StateID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">State</span> {
         <span class="kw">let</span> <span class="ident">trans</span> <span class="op">=</span> <span class="ident">Transition</span> { <span class="ident">start</span>: <span class="ident">byte</span>, <span class="ident">end</span>: <span class="ident">byte</span>, <span class="ident">next</span> };
-        <span class="ident">State</span>::<span class="ident">Range</span> { <span class="ident">range</span>: <span class="ident">trans</span> }
+        <span class="ident">State::Range</span> { <span class="ident">range</span>: <span class="ident">trans</span> }
     }
 
     <span class="kw">fn</span> <span class="ident">s_range</span>(<span class="ident">start</span>: <span class="ident">u8</span>, <span class="ident">end</span>: <span class="ident">u8</span>, <span class="ident">next</span>: <span class="ident">StateID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">State</span> {
         <span class="kw">let</span> <span class="ident">trans</span> <span class="op">=</span> <span class="ident">Transition</span> { <span class="ident">start</span>, <span class="ident">end</span>, <span class="ident">next</span> };
-        <span class="ident">State</span>::<span class="ident">Range</span> { <span class="ident">range</span>: <span class="ident">trans</span> }
+        <span class="ident">State::Range</span> { <span class="ident">range</span>: <span class="ident">trans</span> }
     }
 
     <span class="kw">fn</span> <span class="ident">s_sparse</span>(<span class="ident">ranges</span>: <span class="kw-2">&amp;</span>[(<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">StateID</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">State</span> {
@@ -2224,49 +2224,49 @@
             .<span class="ident">iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">start</span>, <span class="ident">end</span>, <span class="ident">next</span>)<span class="op">|</span> <span class="ident">Transition</span> { <span class="ident">start</span>, <span class="ident">end</span>, <span class="ident">next</span> })
             .<span class="ident">collect</span>();
-        <span class="ident">State</span>::<span class="ident">Sparse</span> { <span class="ident">ranges</span> }
+        <span class="ident">State::Sparse</span> { <span class="ident">ranges</span> }
     }
 
     <span class="kw">fn</span> <span class="ident">s_union</span>(<span class="ident">alts</span>: <span class="kw-2">&amp;</span>[<span class="ident">StateID</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">State</span> {
-        <span class="ident">State</span>::<span class="ident">Union</span> { <span class="ident">alternates</span>: <span class="ident">alts</span>.<span class="ident">to_vec</span>().<span class="ident">into_boxed_slice</span>() }
+        <span class="ident">State::Union</span> { <span class="ident">alternates</span>: <span class="ident">alts</span>.<span class="ident">to_vec</span>().<span class="ident">into_boxed_slice</span>() }
     }
 
     <span class="kw">fn</span> <span class="ident">s_match</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">State</span> {
-        <span class="ident">State</span>::<span class="ident">Match</span>
+        <span class="ident">State::Match</span>
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">errors</span>() {
         <span class="comment">// unsupported anchors</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;^&quot;</span>)).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;$&quot;</span>)).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;\A&quot;</span>)).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;\z&quot;</span>)).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">Builder::new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;^&quot;</span>)).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">Builder::new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;$&quot;</span>)).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">Builder::new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;\A&quot;</span>)).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">Builder::new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;\z&quot;</span>)).<span class="ident">is_err</span>());
 
         <span class="comment">// unsupported word boundaries</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;\b&quot;</span>)).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;\B&quot;</span>)).<span class="ident">is_err</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;(?-u)\b&quot;</span>)).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">Builder::new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;\b&quot;</span>)).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">Builder::new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;\B&quot;</span>)).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">Builder::new</span>().<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;(?-u)\b&quot;</span>)).<span class="ident">is_err</span>());
     }
 
     <span class="comment">// Test that building an unanchored NFA has an appropriate `.*?` prefix.</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compile_unanchored_prefix</span>() {
         <span class="comment">// When the machine can only match valid UTF-8.</span>
-        <span class="kw">let</span> <span class="ident">nfa</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">anchored</span>(<span class="bool-val">false</span>).<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;a&quot;</span>)).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">nfa</span> <span class="op">=</span> <span class="ident">Builder::new</span>().<span class="ident">anchored</span>(<span class="bool-val">false</span>).<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;a&quot;</span>)).<span class="ident">unwrap</span>();
         <span class="comment">// There should be many states since the `.` in `.*?` matches any</span>
         <span class="comment">// Unicode scalar value.</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">11</span>, <span class="ident">nfa</span>.<span class="ident">len</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">nfa</span>.<span class="ident">states</span>[<span class="number">10</span>], <span class="ident">s_match</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">nfa</span>.<span class="ident">states</span>[<span class="number">9</span>], <span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">10</span>));
+        <span class="macro">assert_eq!</span>(<span class="number">11</span>, <span class="ident">nfa</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">nfa</span>.<span class="ident">states</span>[<span class="number">10</span>], <span class="ident">s_match</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">nfa</span>.<span class="ident">states</span>[<span class="number">9</span>], <span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">10</span>));
 
         <span class="comment">// When the machine can match invalid UTF-8.</span>
-        <span class="kw">let</span> <span class="ident">nfa</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>()
+        <span class="kw">let</span> <span class="ident">nfa</span> <span class="op">=</span> <span class="ident">Builder::new</span>()
             .<span class="ident">anchored</span>(<span class="bool-val">false</span>)
             .<span class="ident">allow_invalid_utf8</span>(<span class="bool-val">true</span>)
             .<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">parse</span>(<span class="string">r&quot;a&quot;</span>))
             .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">nfa</span>.<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[
                 <span class="ident">s_union</span>(<span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">1</span>]),
@@ -2279,50 +2279,50 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compile_empty</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">build</span>(<span class="string">&quot;&quot;</span>).<span class="ident">states</span>, <span class="kw-2">&amp;</span>[<span class="ident">s_match</span>(),]);
+        <span class="macro">assert_eq!</span>(<span class="ident">build</span>(<span class="string">&quot;&quot;</span>).<span class="ident">states</span>, <span class="kw-2">&amp;</span>[<span class="ident">s_match</span>(),]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compile_literal</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">build</span>(<span class="string">&quot;a&quot;</span>).<span class="ident">states</span>, <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">1</span>), <span class="ident">s_match</span>(),]);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(<span class="ident">build</span>(<span class="string">&quot;a&quot;</span>).<span class="ident">states</span>, <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">1</span>), <span class="ident">s_match</span>(),]);
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">&quot;ab&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">1</span>), <span class="ident">s_byte</span>(<span class="string">b&#39;b&#39;</span>, <span class="number">2</span>), <span class="ident">s_match</span>(),]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">&quot;☃&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="number">0xE2</span>, <span class="number">1</span>), <span class="ident">s_byte</span>(<span class="number">0x98</span>, <span class="number">2</span>), <span class="ident">s_byte</span>(<span class="number">0x83</span>, <span class="number">3</span>), <span class="ident">s_match</span>(),]
         );
 
         <span class="comment">// Check that non-UTF-8 literals work.</span>
-        <span class="kw">let</span> <span class="ident">hir</span> <span class="op">=</span> <span class="ident">ParserBuilder</span>::<span class="ident">new</span>()
+        <span class="kw">let</span> <span class="ident">hir</span> <span class="op">=</span> <span class="ident">ParserBuilder::new</span>()
             .<span class="ident">allow_invalid_utf8</span>(<span class="bool-val">true</span>)
             .<span class="ident">build</span>()
             .<span class="ident">parse</span>(<span class="string">r&quot;(?-u)\xFF&quot;</span>)
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">nfa</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>()
+        <span class="kw">let</span> <span class="ident">nfa</span> <span class="op">=</span> <span class="ident">Builder::new</span>()
             .<span class="ident">anchored</span>(<span class="bool-val">true</span>)
             .<span class="ident">allow_invalid_utf8</span>(<span class="bool-val">true</span>)
             .<span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="ident">hir</span>)
             .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">nfa</span>.<span class="ident">states</span>, <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;\xFF&#39;</span>, <span class="number">1</span>), <span class="ident">s_match</span>(),]);
+        <span class="macro">assert_eq!</span>(<span class="ident">nfa</span>.<span class="ident">states</span>, <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;\xFF&#39;</span>, <span class="number">1</span>), <span class="ident">s_match</span>(),]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compile_class</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;[a-z]&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_range</span>(<span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;z&#39;</span>, <span class="number">1</span>), <span class="ident">s_match</span>(),]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;[x-za-c]&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_sparse</span>(<span class="kw-2">&amp;</span>[(<span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;c&#39;</span>, <span class="number">1</span>), (<span class="string">b&#39;x&#39;</span>, <span class="string">b&#39;z&#39;</span>, <span class="number">1</span>)]), <span class="ident">s_match</span>()]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;[\u03B1-\u03B4]&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_range</span>(<span class="number">0xB1</span>, <span class="number">0xB4</span>, <span class="number">2</span>), <span class="ident">s_byte</span>(<span class="number">0xCE</span>, <span class="number">0</span>), <span class="ident">s_match</span>()]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;[\u03B1-\u03B4\u{1F919}-\u{1F91E}]&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[
                 <span class="ident">s_range</span>(<span class="number">0xB1</span>, <span class="number">0xB4</span>, <span class="number">5</span>),
@@ -2333,7 +2333,7 @@
                 <span class="ident">s_match</span>(),
             ]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;[a-z☃]&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[
                 <span class="ident">s_byte</span>(<span class="number">0x83</span>, <span class="number">3</span>),
@@ -2346,11 +2346,11 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compile_repetition</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;a?&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_union</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>]), <span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">2</span>), <span class="ident">s_match</span>(),]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;a??&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_union</span>(<span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">1</span>]), <span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">2</span>), <span class="ident">s_match</span>(),]
         );
@@ -2358,15 +2358,15 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compile_group</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;ab+&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">1</span>), <span class="ident">s_byte</span>(<span class="string">b&#39;b&#39;</span>, <span class="number">2</span>), <span class="ident">s_union</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">3</span>]), <span class="ident">s_match</span>(),]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;(ab)&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">1</span>), <span class="ident">s_byte</span>(<span class="string">b&#39;b&#39;</span>, <span class="number">2</span>), <span class="ident">s_match</span>(),]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;(ab)+&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">1</span>), <span class="ident">s_byte</span>(<span class="string">b&#39;b&#39;</span>, <span class="number">2</span>), <span class="ident">s_union</span>(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">3</span>]), <span class="ident">s_match</span>(),]
         );
@@ -2374,20 +2374,20 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compile_alternation</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;a|b&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">3</span>), <span class="ident">s_byte</span>(<span class="string">b&#39;b&#39;</span>, <span class="number">3</span>), <span class="ident">s_union</span>(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>]), <span class="ident">s_match</span>(),]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;|b&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;b&#39;</span>, <span class="number">2</span>), <span class="ident">s_union</span>(<span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">0</span>]), <span class="ident">s_match</span>(),]
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">build</span>(<span class="string">r&quot;a|&quot;</span>).<span class="ident">states</span>,
             <span class="kw-2">&amp;</span>[<span class="ident">s_byte</span>(<span class="string">b&#39;a&#39;</span>, <span class="number">2</span>), <span class="ident">s_union</span>(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">2</span>]), <span class="ident">s_match</span>(),]
         );
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="regex_automata" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="regex_automata" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

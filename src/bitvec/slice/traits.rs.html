@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bitvec-0.19.5/src/slice/traits.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>traits.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../bitvec/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../bitvec/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -785,19 +785,19 @@
 <span class="doccomment">//! Trait implementations for `BitSlice`</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-	<span class="ident">domain</span>::<span class="ident">Domain</span>,
-	<span class="ident">index</span>::<span class="ident">BitRegister</span>,
-	<span class="ident">mem</span>::<span class="ident">BitMemory</span>,
-	<span class="ident">order</span>::<span class="ident">BitOrder</span>,
-	<span class="ident">slice</span>::<span class="ident">BitSlice</span>,
-	<span class="ident">store</span>::<span class="ident">BitStore</span>,
-	<span class="ident">view</span>::<span class="ident">BitView</span>,
+	<span class="ident">domain::Domain</span>,
+	<span class="ident">index::BitRegister</span>,
+	<span class="ident">mem::BitMemory</span>,
+	<span class="ident">order::BitOrder</span>,
+	<span class="ident">slice::BitSlice</span>,
+	<span class="ident">store::BitStore</span>,
+	<span class="ident">view::BitView</span>,
 };
 
 <span class="kw">use</span> <span class="ident">core</span>::{
 	<span class="ident">any</span>,
 	<span class="ident">cmp</span>,
-	<span class="ident">convert</span>::<span class="ident">TryFrom</span>,
+	<span class="ident">convert::TryFrom</span>,
 	<span class="ident">fmt</span>::{
 		<span class="self">self</span>,
 		<span class="ident">Binary</span>,
@@ -816,13 +816,13 @@
 	<span class="ident">str</span>,
 };
 
-<span class="kw">use</span> <span class="ident">tap</span>::<span class="ident">pipe</span>::<span class="ident">Pipe</span>;
+<span class="kw">use</span> <span class="ident">tap::pipe::Pipe</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">vec</span>::<span class="ident">BitVec</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::vec::BitVec</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">borrow</span>::<span class="ident">ToOwned</span>;
+<span class="kw">use</span> <span class="ident">alloc::borrow::ToOwned</span>;
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -837,7 +837,7 @@
 	<span class="ident">T</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">cmp</span>::<span class="ident">Ordering</span> {
+	<span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">cmp::Ordering</span> {
 		<span class="self">self</span>.<span class="ident">partial_cmp</span>(<span class="ident">rhs</span>)
 			.<span class="ident">expect</span>(<span class="string">&quot;BitSlice has a total ordering&quot;</span>)
 	}
@@ -937,11 +937,11 @@ then they are compared by length.
 	<span class="ident">T1</span>: <span class="ident">BitStore</span>,
 	<span class="ident">T2</span>: <span class="ident">BitStore</span>,
 {
-	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp</span>::<span class="ident">Ordering</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
 		<span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">rhs</span>.<span class="ident">iter</span>()) {
 			<span class="kw">match</span> (<span class="ident">l</span>, <span class="ident">r</span>) {
-				(<span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Greater</span>),
-				(<span class="bool-val">false</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Less</span>),
+				(<span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">cmp::Ordering::Greater</span>),
+				(<span class="bool-val">false</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">cmp::Ordering::Less</span>),
 				<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span>,
 			}
 		}
@@ -959,7 +959,7 @@ then they are compared by length.
 	<span class="ident">T2</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp</span>::<span class="ident">Ordering</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
 		(<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">partial_cmp</span>(<span class="ident">rhs</span>)
 	}
 }
@@ -972,7 +972,7 @@ then they are compared by length.
 	<span class="ident">T2</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp</span>::<span class="ident">Ordering</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
 		(<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">partial_cmp</span>(<span class="ident">rhs</span>)
 	}
 }
@@ -987,7 +987,7 @@ then they are compared by length.
 	<span class="ident">T2</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="op">&amp;&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp</span>::<span class="ident">Ordering</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="op">&amp;&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
 		(<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">rhs</span>)
 	}
 }
@@ -1000,7 +1000,7 @@ then they are compared by length.
 	<span class="ident">T2</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="op">&amp;&amp;</span><span class="kw-2">mut</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp</span>::<span class="ident">Ordering</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="op">&amp;&amp;</span><span class="kw-2">mut</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
 		(<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">rhs</span>)
 	}
 }
@@ -1015,7 +1015,7 @@ then they are compared by length.
 	<span class="ident">T2</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="op">&amp;&amp;</span><span class="kw-2">mut</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp</span>::<span class="ident">Ordering</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="op">&amp;&amp;</span><span class="kw-2">mut</span> <span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
 		(<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">rhs</span>)
 	}
 }
@@ -1028,7 +1028,7 @@ then they are compared by length.
 	<span class="ident">T2</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="op">&amp;&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp</span>::<span class="ident">Ordering</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="op">&amp;&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O2</span>, <span class="ident">T2</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
 		(<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">rhs</span>)
 	}
 }
@@ -1042,8 +1042,8 @@ then they are compared by length.
 	<span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>];
 
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-		<span class="ident">BitSlice</span>::<span class="ident">from_slice</span>(<span class="ident">slice</span>).<span class="ident">ok_or</span>(<span class="ident">slice</span>)
+	<span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+		<span class="ident">BitSlice::from_slice</span>(<span class="ident">slice</span>).<span class="ident">ok_or</span>(<span class="ident">slice</span>)
 	}
 }
 
@@ -1054,7 +1054,7 @@ then they are compared by length.
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="ident">BitSlice</span>::<span class="ident">empty</span>()
+		<span class="ident">BitSlice::empty</span>()
 	}
 }
 
@@ -1065,7 +1065,7 @@ then they are compared by length.
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="ident">BitSlice</span>::<span class="ident">empty_mut</span>()
+		<span class="ident">BitSlice::empty_mut</span>()
 	}
 }
 
@@ -1075,12 +1075,12 @@ then they are compared by length.
 	<span class="ident">T</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
 		<span class="kw">if</span> <span class="ident">fmt</span>.<span class="ident">alternate</span>() {
-			<span class="ident">Pointer</span>::<span class="ident">fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
+			<span class="ident">Pointer::fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
 			<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot; &quot;</span>)<span class="question-mark">?</span>;
 		}
-		<span class="ident">Binary</span>::<span class="ident">fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
+		<span class="ident">Binary::fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
 	}
 }
 
@@ -1091,8 +1091,8 @@ then they are compared by length.
 	<span class="ident">T</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="ident">Binary</span>::<span class="ident">fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="ident">Binary::fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
 	}
 }
 
@@ -1109,14 +1109,14 @@ as `Debug`.
 	<span class="ident">T</span>: <span class="ident">BitStore</span>,
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
 		<span class="self">self</span>.<span class="ident">bitptr</span>()
-			.<span class="ident">render</span>(<span class="ident">fmt</span>, <span class="string">&quot;Slice&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">any</span>::<span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>()), <span class="prelude-val">None</span>)
+			.<span class="ident">render</span>(<span class="ident">fmt</span>, <span class="string">&quot;Slice&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">any::type_name</span>::<span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>()), <span class="prelude-val">None</span>)
 	}
 }
 
 <span class="doccomment">/// Constructs numeric formatting implementations.</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">fmt</span> {
+<span class="macro">macro_rules!</span> <span class="ident">fmt</span> {
 	(<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pfx</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">blksz</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
 		<span class="doccomment">/// Render the contents of a `BitSlice` in a numeric format.</span>
 		<span class="doccomment">///</span>
@@ -1147,13 +1147,13 @@ as `Debug`.
 			<span class="ident">O</span>: <span class="ident">BitOrder</span>,
 			<span class="ident">T</span>: <span class="ident">BitStore</span>,
 		{
-			<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+			<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
 				<span class="doccomment">/// Renders an accumulated text buffer as UTF-8.</span>
 				<span class="kw">struct</span> <span class="ident">Seq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]);
 				<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Seq</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-					<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+					<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
 						<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="kw">unsafe</span> {
-							<span class="ident">str</span>::<span class="ident">from_utf8_unchecked</span>(<span class="self">self</span>.<span class="number">0</span>)
+							<span class="ident">str::from_utf8_unchecked</span>(<span class="self">self</span>.<span class="number">0</span>)
 						})
 					}
 				}
@@ -1166,14 +1166,14 @@ as `Debug`.
 				yet grant access to trait constants for use in constant
 				expressions within generics.
 				*/</span>
-				<span class="kw">const</span> <span class="ident">W</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">usize</span> <span class="kw">as</span> <span class="ident">BitMemory</span><span class="op">&gt;</span>::<span class="ident">BITS</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">/</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">blksz</span>;
+				<span class="kw">const</span> <span class="ident">W</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">usize</span> <span class="kw">as</span> <span class="ident">BitMemory</span><span class="op">&gt;</span><span class="ident">::BITS</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">/</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">blksz</span>;
 				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span>: [<span class="ident">u8</span>; <span class="ident">W</span> <span class="op">+</span> <span class="number">2</span>] <span class="op">=</span> [<span class="string">b&#39;0&#39;</span>; <span class="ident">W</span> <span class="op">+</span> <span class="number">2</span>];
 				<span class="comment">//  Write the prefix symbol into the buffer.</span>
 				<span class="ident">w</span>[<span class="number">1</span>] <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pfx</span>;
 				<span class="comment">//  This closure does the main work of rendering a bit slice as</span>
 				<span class="comment">//  text. It will be called on each memory element of the slice</span>
 				<span class="comment">//  undergoing formatting.</span>
-				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="op">|</span><span class="ident">bits</span>: <span class="kw-2">&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span><span class="op">|</span> {
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="op">|</span><span class="ident">bits</span>: <span class="kw-2">&amp;</span><span class="ident">BitSlice</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T::Mem</span><span class="op">&gt;</span><span class="op">|</span> {
 					<span class="comment">//  Set the end index of the format buffer.</span>
 					<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">end</span> <span class="op">=</span> <span class="number">2</span>;
 					<span class="comment">/* Taking `rchunks` clusters the bits to the right edge, so
@@ -1200,7 +1200,7 @@ as `Debug`.
 						<span class="ident">w</span>[<span class="number">2</span> <span class="op">+</span> <span class="ident">index</span>] <span class="op">=</span> <span class="kw">match</span> <span class="ident">val</span> {
 							<span class="ident">v</span> @ <span class="number">0</span> ..<span class="op">=</span> <span class="number">9</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">b&#39;0&#39;</span> <span class="op">+</span> <span class="ident">v</span>,
 							<span class="ident">v</span> @ <span class="number">10</span> ..<span class="op">=</span> <span class="number">16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">base</span> <span class="op">+</span> (<span class="ident">v</span> <span class="op">-</span> <span class="number">10</span>),
-							<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">unsafe</span> { <span class="ident">core</span>::<span class="ident">hint</span>::<span class="ident">unreachable_unchecked</span>() },
+							<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">unsafe</span> { <span class="ident">core::hint::unreachable_unchecked</span>() },
 						};
 						<span class="ident">end</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 					}
@@ -1210,7 +1210,7 @@ as `Debug`.
 				};
 				<span class="comment">//  Break the source `BitSlice` into its element-wise components.</span>
 				<span class="kw">match</span> <span class="self">self</span>.<span class="ident">domain</span>() {
-					<span class="ident">Domain</span>::<span class="ident">Enclave</span> { <span class="ident">head</span>, <span class="ident">elem</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
+					<span class="ident">Domain::Enclave</span> { <span class="ident">head</span>, <span class="ident">elem</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
 						<span class="comment">//  Load a copy of `*elem` into the stack,</span>
 						<span class="kw">let</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="ident">elem</span>.<span class="ident">load_value</span>();
 						<span class="comment">//  View it as a `BitSlice` over the whole element,</span>
@@ -1224,7 +1224,7 @@ as `Debug`.
 						.<span class="ident">pipe</span>(<span class="ident">writer</span>);
 					},
 					<span class="comment">//  Same process as above, but with different truncations.</span>
-					<span class="ident">Domain</span>::<span class="ident">Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
+					<span class="ident">Domain::Region</span> { <span class="ident">head</span>, <span class="ident">body</span>, <span class="ident">tail</span> } <span class="op">=</span><span class="op">&gt;</span> {
 						<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">head</span>, <span class="ident">elem</span>)) <span class="op">=</span> <span class="ident">head</span> {
 							<span class="kw">let</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="ident">elem</span>.<span class="ident">load_value</span>();
 							<span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">tmp</span>.<span class="ident">view_bits</span>::<span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>();
@@ -1234,7 +1234,7 @@ as `Debug`.
 							.<span class="ident">pipe</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">writer</span>);
 						}
 						<span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="ident">body</span>.<span class="ident">iter</span>() {
-							<span class="ident">elem</span>.<span class="ident">pipe</span>(<span class="ident">BitSlice</span>::<span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span>::<span class="ident">Mem</span><span class="op">&gt;</span>::<span class="ident">from_element</span>)
+							<span class="ident">elem</span>.<span class="ident">pipe</span>(<span class="ident">BitSlice</span>::<span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T::Mem</span><span class="op">&gt;</span><span class="ident">::from_element</span>)
 								.<span class="ident">pipe</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">writer</span>);
 						}
 						<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">elem</span>, <span class="ident">tail</span>)) <span class="op">=</span> <span class="ident">tail</span> {
@@ -1253,10 +1253,10 @@ as `Debug`.
 	};
 }
 
-<span class="macro">fmt</span><span class="macro">!</span>(<span class="ident">Binary</span>, <span class="string">b&#39;0&#39;</span>, <span class="string">b&#39;b&#39;</span>, <span class="number">1</span>);
-<span class="macro">fmt</span><span class="macro">!</span>(<span class="ident">Octal</span>, <span class="string">b&#39;0&#39;</span>, <span class="string">b&#39;o&#39;</span>, <span class="number">3</span>);
-<span class="macro">fmt</span><span class="macro">!</span>(<span class="ident">LowerHex</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;x&#39;</span>, <span class="number">4</span>);
-<span class="macro">fmt</span><span class="macro">!</span>(<span class="ident">UpperHex</span>, <span class="string">b&#39;A&#39;</span>, <span class="string">b&#39;x&#39;</span>, <span class="number">4</span>);
+<span class="macro">fmt!</span>(<span class="ident">Binary</span>, <span class="string">b&#39;0&#39;</span>, <span class="string">b&#39;b&#39;</span>, <span class="number">1</span>);
+<span class="macro">fmt!</span>(<span class="ident">Octal</span>, <span class="string">b&#39;0&#39;</span>, <span class="string">b&#39;o&#39;</span>, <span class="number">3</span>);
+<span class="macro">fmt!</span>(<span class="ident">LowerHex</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;x&#39;</span>, <span class="number">4</span>);
+<span class="macro">fmt!</span>(<span class="ident">UpperHex</span>, <span class="string">b&#39;A&#39;</span>, <span class="string">b&#39;x&#39;</span>, <span class="number">4</span>);
 
 <span class="doccomment">/// Writes the contents of the `BitSlice`, in semantic bit order, into a hasher.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">tarpaulin_include</span>))]</span>
@@ -1278,7 +1278,7 @@ as `Debug`.
 <span class="kw">where</span>
 	<span class="ident">O</span>: <span class="ident">BitOrder</span>,
 	<span class="ident">T</span>: <span class="ident">BitStore</span>,
-	<span class="ident">T</span>::<span class="ident">Threadsafe</span>: <span class="ident">Send</span>,
+	<span class="ident">T::Threadsafe</span>: <span class="ident">Send</span>,
 {
 }
 
@@ -1286,7 +1286,7 @@ as `Debug`.
 <span class="kw">where</span>
 	<span class="ident">O</span>: <span class="ident">BitOrder</span>,
 	<span class="ident">T</span>: <span class="ident">BitStore</span>,
-	<span class="ident">T</span>::<span class="ident">Threadsafe</span>: <span class="ident">Sync</span>,
+	<span class="ident">T::Threadsafe</span>: <span class="ident">Sync</span>,
 {
 }
 
@@ -1299,14 +1299,14 @@ as `Debug`.
 	<span class="kw">type</span> <span class="ident">Owned</span> <span class="op">=</span> <span class="ident">BitVec</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>;
 
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">to_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Owned</span> {
-		<span class="ident">BitVec</span>::<span class="ident">from_bitslice</span>(<span class="self">self</span>)
+	<span class="kw">fn</span> <span class="ident">to_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Owned</span> {
+		<span class="ident">BitVec::from_bitslice</span>(<span class="self">self</span>)
 	}
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-	<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+	<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::<span class="kw-2">*</span>;
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">cmp</span>() {
@@ -1317,39 +1317,39 @@ as `Debug`.
 		<span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">5</span>]; <span class="comment">// 01000</span>
 		<span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]; <span class="comment">// 0101</span>
 
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">a</span> <span class="op">&lt;</span> <span class="ident">b</span>); <span class="comment">// by length</span>
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">b</span> <span class="op">&lt;</span> <span class="ident">c</span>); <span class="comment">// by length</span>
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">c</span> <span class="op">&lt;</span> <span class="ident">d</span>); <span class="comment">// by different bit</span>
+		<span class="macro">assert!</span>(<span class="ident">a</span> <span class="op">&lt;</span> <span class="ident">b</span>); <span class="comment">// by length</span>
+		<span class="macro">assert!</span>(<span class="ident">b</span> <span class="op">&lt;</span> <span class="ident">c</span>); <span class="comment">// by length</span>
+		<span class="macro">assert!</span>(<span class="ident">c</span> <span class="op">&lt;</span> <span class="ident">d</span>); <span class="comment">// by different bit</span>
 	}
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">format</span> {
-	<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+	<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::<span class="kw-2">*</span>;
 
 	<span class="comment">//  The `format!` macro is not in the `alloc` prelude.</span>
 	<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-	<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">format</span>;
+	<span class="kw">use</span> <span class="ident">alloc::format</span>;
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">binary</span>() {
 		<span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0u8</span>, <span class="number">0x0F</span>, <span class="op">!</span><span class="number">0</span>];
 		<span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">view_bits</span>::<span class="op">&lt;</span><span class="ident">Msb0</span><span class="op">&gt;</span>();
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]), <span class="string">&quot;[000111]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]), <span class="string">&quot;[000111]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]),
 			<span class="string">&quot;[
     0b000111,
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]), <span class="string">&quot;[0000, 00001111, 1111]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]), <span class="string">&quot;[0000, 00001111, 1111]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]),
 			<span class="string">&quot;[
     0b0000,
     0b00001111,
@@ -1357,9 +1357,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]), <span class="string">&quot;[0000, 00001111, 11111111]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]), <span class="string">&quot;[0000, 00001111, 11111111]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]),
 			<span class="string">&quot;[
     0b0000,
     0b00001111,
@@ -1367,9 +1367,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]), <span class="string">&quot;[00000000, 00001111, 1111]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]), <span class="string">&quot;[00000000, 00001111, 1111]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]),
 			<span class="string">&quot;[
     0b00000000,
     0b00001111,
@@ -1377,9 +1377,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="ident">bits</span>), <span class="string">&quot;[00000000, 00001111, 11111111]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="ident">bits</span>),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="ident">bits</span>), <span class="string">&quot;[00000000, 00001111, 11111111]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#b}&quot;</span>, <span class="ident">bits</span>),
 			<span class="string">&quot;[
     0b00000000,
     0b00001111,
@@ -1393,21 +1393,21 @@ as `Debug`.
 		<span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0u8</span>, <span class="number">0x0F</span>, <span class="op">!</span><span class="number">0</span>];
 		<span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">view_bits</span>::<span class="op">&lt;</span><span class="ident">Msb0</span><span class="op">&gt;</span>();
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]), <span class="string">&quot;[07]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]), <span class="string">&quot;[07]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]),
 			<span class="string">&quot;[
     0o07,
 ]&quot;</span>
 		);
 
 		<span class="comment">//  …0_000 00_001_111 1_111…</span>
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]), <span class="string">&quot;[00, 017, 17]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]), <span class="string">&quot;[00, 017, 17]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]),
 			<span class="string">&quot;[
     0o00,
     0o017,
@@ -1415,9 +1415,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]), <span class="string">&quot;[00, 017, 377]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]), <span class="string">&quot;[00, 017, 377]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]),
 			<span class="string">&quot;[
     0o00,
     0o017,
@@ -1425,9 +1425,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]), <span class="string">&quot;[000, 017, 17]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]), <span class="string">&quot;[000, 017, 17]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]),
 			<span class="string">&quot;[
     0o000,
     0o017,
@@ -1435,9 +1435,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="ident">bits</span>), <span class="string">&quot;[000, 017, 377]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="ident">bits</span>),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:o}&quot;</span>, <span class="ident">bits</span>), <span class="string">&quot;[000, 017, 377]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#o}&quot;</span>, <span class="ident">bits</span>),
 			<span class="string">&quot;[
     0o000,
     0o017,
@@ -1451,22 +1451,22 @@ as `Debug`.
 		<span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0u8</span>, <span class="number">0x0F</span>, <span class="op">!</span><span class="number">0</span>];
 		<span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">view_bits</span>::<span class="op">&lt;</span><span class="ident">Msb0</span><span class="op">&gt;</span>();
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
 
 		<span class="comment">//  …00_0111 …</span>
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]), <span class="string">&quot;[07]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]), <span class="string">&quot;[07]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]),
 			<span class="string">&quot;[
     0x07,
 ]&quot;</span>
 		);
 
 		<span class="comment">//  …0000 00001111 1111…</span>
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]), <span class="string">&quot;[0, 0f, f]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]), <span class="string">&quot;[0, 0f, f]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]),
 			<span class="string">&quot;[
     0x0,
     0x0f,
@@ -1474,9 +1474,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]), <span class="string">&quot;[0, 0f, ff]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]), <span class="string">&quot;[0, 0f, ff]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]),
 			<span class="string">&quot;[
     0x0,
     0x0f,
@@ -1484,9 +1484,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]), <span class="string">&quot;[00, 0f, f]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]), <span class="string">&quot;[00, 0f, f]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]),
 			<span class="string">&quot;[
     0x00,
     0x0f,
@@ -1494,9 +1494,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">bits</span>), <span class="string">&quot;[00, 0f, ff]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="ident">bits</span>),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">bits</span>), <span class="string">&quot;[00, 0f, ff]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#x}&quot;</span>, <span class="ident">bits</span>),
 			<span class="string">&quot;[
     0x00,
     0x0f,
@@ -1510,20 +1510,20 @@ as `Debug`.
 		<span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0u8</span>, <span class="number">0x0F</span>, <span class="op">!</span><span class="number">0</span>];
 		<span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">view_bits</span>::<span class="op">&lt;</span><span class="ident">Msb0</span><span class="op">&gt;</span>();
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">0</span>]), <span class="string">&quot;[]&quot;</span>);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]), <span class="string">&quot;[07]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]), <span class="string">&quot;[07]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">9</span> .. <span class="number">15</span>]),
 			<span class="string">&quot;[
     0x07,
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]), <span class="string">&quot;[0, 0F, F]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]), <span class="string">&quot;[0, 0F, F]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> .. <span class="number">20</span>]),
 			<span class="string">&quot;[
     0x0,
     0x0F,
@@ -1531,9 +1531,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]), <span class="string">&quot;[0, 0F, FF]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]), <span class="string">&quot;[0, 0F, FF]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[<span class="number">4</span> ..]),
 			<span class="string">&quot;[
     0x0,
     0x0F,
@@ -1541,9 +1541,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]), <span class="string">&quot;[00, 0F, F]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]), <span class="string">&quot;[00, 0F, F]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">bits</span>[.. <span class="number">20</span>]),
 			<span class="string">&quot;[
     0x00,
     0x0F,
@@ -1551,9 +1551,9 @@ as `Debug`.
 ]&quot;</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="ident">bits</span>), <span class="string">&quot;[00, 0F, FF]&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="ident">bits</span>),
+		<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:X}&quot;</span>, <span class="ident">bits</span>), <span class="string">&quot;[00, 0F, FF]&quot;</span>);
+		<span class="macro">assert_eq!</span>(
+			<span class="macro">format!</span>(<span class="string">&quot;{:#X}&quot;</span>, <span class="ident">bits</span>),
 			<span class="string">&quot;[
     0x00,
     0x0F,
@@ -1563,5 +1563,5 @@ as `Debug`.
 	}
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="bitvec" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="bitvec" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

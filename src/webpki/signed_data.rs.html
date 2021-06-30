@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/webpki-0.21.4/src/signed_data.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>signed_data.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../webpki/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../webpki/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -737,7 +737,7 @@
 <span class="comment">// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">der</span>, <span class="ident">Error</span>};
-<span class="kw">use</span> <span class="ident">ring</span>::<span class="ident">signature</span>;
+<span class="kw">use</span> <span class="ident">ring::signature</span>;
 
 <span class="doccomment">/// X.509 certificates and related items that are signed are almost always</span>
 <span class="doccomment">/// encoded in the format &quot;tbs||signatureAlgorithm||signature&quot;. This structure</span>
@@ -747,18 +747,18 @@
     <span class="doccomment">/// certificate, `tbsResponseData` in the case of an OCSP response, and the</span>
     <span class="doccomment">/// data nested in the `digitally-signed` construct for TLS 1.2 signed</span>
     <span class="doccomment">/// data.</span>
-    <span class="ident">data</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">data</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The value of the `AlgorithmIdentifier`. This would be</span>
     <span class="doccomment">/// `signatureAlgorithm` in the case of an X.509 certificate or OCSP</span>
     <span class="doccomment">/// response. This would have to be synthesized in the case of TLS 1.2</span>
     <span class="doccomment">/// signed data, since TLS does not identify algorithms by ASN.1 OIDs.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">algorithm</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">algorithm</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The value of the signature. This would be `signature` in an X.509</span>
     <span class="doccomment">/// certificate or OCSP response. This would be the value of</span>
     <span class="doccomment">/// `DigitallySigned.signature` for TLS 1.2 signed data.</span>
-    <span class="ident">signature</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">signature</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Parses the concatenation of &quot;tbs||signatureAlgorithm||signature&quot; that</span>
@@ -790,12 +790,12 @@
 <span class="doccomment">/// `tbsCertificate`/`tbsResponseData`; the second component is a `SignedData`</span>
 <span class="doccomment">/// structure that can be passed to `verify_signed_data`.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_signed_data</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="ident">der</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">untrusted</span>::<span class="ident">Reader</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">untrusted</span>::<span class="ident">Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">SignedData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="ident">der</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">untrusted::Reader</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">SignedData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">data</span>, <span class="ident">tbs</span>) <span class="op">=</span>
-        <span class="ident">der</span>.<span class="ident">read_partial</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> <span class="ident">der</span>::<span class="ident">expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der</span>::<span class="ident">Tag</span>::<span class="ident">Sequence</span>))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">algorithm</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">expect_tag_and_get_value</span>(<span class="ident">der</span>, <span class="ident">der</span>::<span class="ident">Tag</span>::<span class="ident">Sequence</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">bit_string_with_no_unused_bits</span>(<span class="ident">der</span>)<span class="question-mark">?</span>;
+        <span class="ident">der</span>.<span class="ident">read_partial</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> <span class="ident">der::expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der::Tag::Sequence</span>))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">algorithm</span> <span class="op">=</span> <span class="ident">der::expect_tag_and_get_value</span>(<span class="ident">der</span>, <span class="ident">der::Tag::Sequence</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">der::bit_string_with_no_unused_bits</span>(<span class="ident">der</span>)<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>((
         <span class="ident">tbs</span>,
@@ -817,7 +817,7 @@
 <span class="doccomment">/// but generally more common algorithms should go first, as it is scanned</span>
 <span class="doccomment">/// linearly for matches.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">verify_signed_data</span>(
-    <span class="ident">supported_algorithms</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>], <span class="ident">spki_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
+    <span class="ident">supported_algorithms</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>], <span class="ident">spki_value</span>: <span class="ident">untrusted::Input</span>,
     <span class="ident">signed_data</span>: <span class="kw-2">&amp;</span><span class="ident">SignedData</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="comment">// We need to verify the signature in `signed_data` using the public key</span>
@@ -850,7 +850,7 @@
             <span class="ident">signed_data</span>.<span class="ident">data</span>,
             <span class="ident">signed_data</span>.<span class="ident">signature</span>,
         ) {
-            <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithmForPublicKey</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithmForPublicKey</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">found_signature_alg_match</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 <span class="kw">continue</span>;
             },
@@ -861,44 +861,44 @@
     }
 
     <span class="kw">if</span> <span class="ident">found_signature_alg_match</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithmForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithmForPublicKey</span>)
     } <span class="kw">else</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     }
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">verify_signature</span>(
-    <span class="ident">signature_alg</span>: <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>, <span class="ident">spki_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>, <span class="ident">msg</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
-    <span class="ident">signature</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
+    <span class="ident">signature_alg</span>: <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>, <span class="ident">spki_value</span>: <span class="ident">untrusted::Input</span>, <span class="ident">msg</span>: <span class="ident">untrusted::Input</span>,
+    <span class="ident">signature</span>: <span class="ident">untrusted::Input</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">spki</span> <span class="op">=</span> <span class="ident">parse_spki_value</span>(<span class="ident">spki_value</span>)<span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="op">!</span><span class="ident">signature_alg</span>
         .<span class="ident">public_key_alg_id</span>
         .<span class="ident">matches_algorithm_id_value</span>(<span class="ident">spki</span>.<span class="ident">algorithm_id_value</span>)
     {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithmForPublicKey</span>);
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithmForPublicKey</span>);
     }
-    <span class="ident">signature</span>::<span class="ident">UnparsedPublicKey</span>::<span class="ident">new</span>(
+    <span class="ident">signature::UnparsedPublicKey::new</span>(
         <span class="ident">signature_alg</span>.<span class="ident">verification_alg</span>,
         <span class="ident">spki</span>.<span class="ident">key_value</span>.<span class="ident">as_slice_less_safe</span>(),
     )
     .<span class="ident">verify</span>(<span class="ident">msg</span>.<span class="ident">as_slice_less_safe</span>(), <span class="ident">signature</span>.<span class="ident">as_slice_less_safe</span>())
-    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">InvalidSignatureForPublicKey</span>)
+    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::InvalidSignatureForPublicKey</span>)
 }
 
 <span class="kw">struct</span> <span class="ident">SubjectPublicKeyInfo</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">algorithm_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">key_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">algorithm_id_value</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">key_value</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
 <span class="comment">// Parse the public key into an algorithm OID, an optional curve OID, and the</span>
 <span class="comment">// key value. The caller needs to check whether these match the</span>
 <span class="comment">// `PublicKeyAlgorithm` for the `SignatureAlgorithm` that is matched when</span>
 <span class="comment">// parsing the signature.</span>
-<span class="kw">fn</span> <span class="ident">parse_spki_value</span>(<span class="ident">input</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SubjectPublicKeyInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="ident">input</span>.<span class="ident">read_all</span>(<span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">algorithm_id_value</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der</span>::<span class="ident">Tag</span>::<span class="ident">Sequence</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">key_value</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">bit_string_with_no_unused_bits</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+<span class="kw">fn</span> <span class="ident">parse_spki_value</span>(<span class="ident">input</span>: <span class="ident">untrusted::Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SubjectPublicKeyInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="ident">input</span>.<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">algorithm_id_value</span> <span class="op">=</span> <span class="ident">der::expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der::Tag::Sequence</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">key_value</span> <span class="op">=</span> <span class="ident">der::bit_string_with_no_unused_bits</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">SubjectPublicKeyInfo</span> {
             <span class="ident">algorithm_id_value</span>,
             <span class="ident">key_value</span>,
@@ -910,63 +910,63 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">AlgorithmIdentifier</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">AlgorithmIdentifier</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw">dyn</span> <span class="ident">signature</span>::<span class="ident">VerificationAlgorithm</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw">dyn</span> <span class="ident">signature::VerificationAlgorithm</span>,
 }
 
 <span class="doccomment">/// ECDSA signatures using the P-256 curve and SHA-256.</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">ECDSA_P256_SHA256</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">ECDSA_P256</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">ECDSA_SHA256</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">ECDSA_P256_SHA256_ASN1</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P256_SHA256_ASN1</span>,
 };
 
 <span class="doccomment">/// ECDSA signatures using the P-256 curve and SHA-384. Deprecated.</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">ECDSA_P256_SHA384</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">ECDSA_P256</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">ECDSA_SHA384</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">ECDSA_P256_SHA384_ASN1</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P256_SHA384_ASN1</span>,
 };
 
 <span class="doccomment">/// ECDSA signatures using the P-384 curve and SHA-256. Deprecated.</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">ECDSA_P384_SHA256</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">ECDSA_P384</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">ECDSA_SHA256</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">ECDSA_P384_SHA256_ASN1</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P384_SHA256_ASN1</span>,
 };
 
 <span class="doccomment">/// ECDSA signatures using the P-384 curve and SHA-384.</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">ECDSA_P384_SHA384</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">ECDSA_P384</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">ECDSA_SHA384</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">ECDSA_P384_SHA384_ASN1</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P384_SHA384_ASN1</span>,
 };
 
 <span class="doccomment">/// RSA PKCS#1 1.5 signatures using SHA-256 for keys of 2048-8192 bits.</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">RSA_PKCS1_2048_8192_SHA256</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">RSA_ENCRYPTION</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">RSA_PKCS1_SHA256</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">RSA_PKCS1_2048_8192_SHA256</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PKCS1_2048_8192_SHA256</span>,
 };
 
 <span class="doccomment">/// RSA PKCS#1 1.5 signatures using SHA-384 for keys of 2048-8192 bits.</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">RSA_PKCS1_2048_8192_SHA384</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">RSA_ENCRYPTION</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">RSA_PKCS1_SHA384</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">RSA_PKCS1_2048_8192_SHA384</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PKCS1_2048_8192_SHA384</span>,
 };
 
 <span class="doccomment">/// RSA PKCS#1 1.5 signatures using SHA-512 for keys of 2048-8192 bits.</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">RSA_PKCS1_2048_8192_SHA512</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">RSA_ENCRYPTION</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">RSA_PKCS1_SHA512</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">RSA_PKCS1_2048_8192_SHA512</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PKCS1_2048_8192_SHA512</span>,
 };
 
 <span class="doccomment">/// RSA PKCS#1 1.5 signatures using SHA-384 for keys of 3072-8192 bits.</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">RSA_PKCS1_3072_8192_SHA384</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">RSA_ENCRYPTION</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">RSA_PKCS1_SHA384</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">RSA_PKCS1_3072_8192_SHA384</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PKCS1_3072_8192_SHA384</span>,
 };
 
 <span class="doccomment">/// RSA PSS signatures using SHA-256 for keys of 2048-8192 bits and of</span>
@@ -976,7 +976,7 @@
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">RSA_PSS_2048_8192_SHA256_LEGACY_KEY</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">RSA_ENCRYPTION</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">RSA_PSS_SHA256</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">RSA_PSS_2048_8192_SHA256</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PSS_2048_8192_SHA256</span>,
 };
 
 <span class="doccomment">/// RSA PSS signatures using SHA-384 for keys of 2048-8192 bits and of</span>
@@ -986,7 +986,7 @@
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">RSA_PSS_2048_8192_SHA384_LEGACY_KEY</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">RSA_ENCRYPTION</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">RSA_PSS_SHA384</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">RSA_PSS_2048_8192_SHA384</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PSS_2048_8192_SHA384</span>,
 };
 
 <span class="doccomment">/// RSA PSS signatures using SHA-512 for keys of 2048-8192 bits and of</span>
@@ -996,22 +996,22 @@
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">RSA_PSS_2048_8192_SHA512_LEGACY_KEY</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">RSA_ENCRYPTION</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">RSA_PSS_SHA512</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">RSA_PSS_2048_8192_SHA512</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PSS_2048_8192_SHA512</span>,
 };
 
 <span class="doccomment">/// ED25519 signatures according to RFC 8410</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">ED25519</span>: <span class="ident">SignatureAlgorithm</span> <span class="op">=</span> <span class="ident">SignatureAlgorithm</span> {
     <span class="ident">public_key_alg_id</span>: <span class="ident">ED_25519</span>,
     <span class="ident">signature_alg_id</span>: <span class="ident">ED_25519</span>,
-    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature</span>::<span class="ident">ED25519</span>,
+    <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="ident">signature::ED25519</span>,
 };
 
 <span class="kw">struct</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="kw">fn</span> <span class="ident">matches_algorithm_id_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">encoded</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">matches_algorithm_id_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">encoded</span>: <span class="ident">untrusted::Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="ident">encoded</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">asn1_id_value</span>
     }
 }
@@ -1019,51 +1019,51 @@
 <span class="comment">// See src/data/README.md.</span>
 
 <span class="kw">const</span> <span class="ident">ECDSA_P256</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-ecdsa-p256.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-ecdsa-p256.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">ECDSA_P384</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-ecdsa-p384.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-ecdsa-p384.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">ECDSA_SHA256</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-ecdsa-sha256.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-ecdsa-sha256.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">ECDSA_SHA384</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-ecdsa-sha384.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-ecdsa-sha384.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">RSA_ENCRYPTION</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-rsa-encryption.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-rsa-encryption.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">RSA_PKCS1_SHA256</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-rsa-pkcs1-sha256.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-rsa-pkcs1-sha256.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">RSA_PKCS1_SHA384</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-rsa-pkcs1-sha384.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-rsa-pkcs1-sha384.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">RSA_PKCS1_SHA512</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-rsa-pkcs1-sha512.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-rsa-pkcs1-sha512.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">RSA_PSS_SHA256</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-rsa-pss-sha256.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-rsa-pss-sha256.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">RSA_PSS_SHA384</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-rsa-pss-sha384.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-rsa-pss-sha384.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">RSA_PSS_SHA512</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-rsa-pss-sha512.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-rsa-pss-sha512.der&quot;</span>)),
 };
 
 <span class="kw">const</span> <span class="ident">ED_25519</span>: <span class="ident">AlgorithmIdentifier</span> <span class="op">=</span> <span class="ident">AlgorithmIdentifier</span> {
-    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="macro">include_bytes</span><span class="macro">!</span>(<span class="string">&quot;data/alg-ed25519.der&quot;</span>)),
+    <span class="ident">asn1_id_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;data/alg-ed25519.der&quot;</span>)),
 };
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -1071,11 +1071,11 @@
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">der</span>, <span class="ident">signed_data</span>, <span class="ident">Error</span>};
     <span class="kw">use</span> <span class="ident">base64</span>;
 
-    <span class="kw">use</span> <span class="ident">std</span>::{<span class="self">self</span>, <span class="ident">io</span>::<span class="ident">BufRead</span>, <span class="ident">string</span>::<span class="ident">String</span>, <span class="ident">vec</span>::<span class="ident">Vec</span>};
+    <span class="kw">use</span> <span class="ident">std</span>::{<span class="self">self</span>, <span class="ident">io::BufRead</span>, <span class="ident">string::String</span>, <span class="ident">vec::Vec</span>};
 
     <span class="comment">// TODO: The expected results need to be modified for SHA-1 deprecation.</span>
 
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">test_verify_signed_data</span> {
+    <span class="macro">macro_rules!</span> <span class="ident">test_verify_signed_data</span> {
         (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected_result</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="attribute">#[<span class="ident">test</span>]</span>
             <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>() { <span class="ident">test_verify_signed_data</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected_result</span>); }
@@ -1084,10 +1084,10 @@
 
     <span class="kw">fn</span> <span class="ident">test_verify_signed_data</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">expected_result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">tsd</span> <span class="op">=</span> <span class="ident">parse_test_signed_data</span>(<span class="ident">file_name</span>);
-        <span class="kw">let</span> <span class="ident">spki_value</span> <span class="op">=</span> <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">spki</span>);
+        <span class="kw">let</span> <span class="ident">spki_value</span> <span class="op">=</span> <span class="ident">untrusted::Input::from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">spki</span>);
         <span class="kw">let</span> <span class="ident">spki_value</span> <span class="op">=</span> <span class="ident">spki_value</span>
-            .<span class="ident">read_all</span>(<span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-                <span class="ident">der</span>::<span class="ident">expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der</span>::<span class="ident">Tag</span>::<span class="ident">Sequence</span>)
+            .<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+                <span class="ident">der::expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der::Tag::Sequence</span>)
             })
             .<span class="ident">unwrap</span>();
 
@@ -1097,29 +1097,29 @@
         <span class="comment">// expanded with SEQUENCE-wrapped data so that we can actually</span>
         <span class="comment">// test `parse_signed_data`.</span>
 
-        <span class="kw">let</span> <span class="ident">algorithm</span> <span class="op">=</span> <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">algorithm</span>);
+        <span class="kw">let</span> <span class="ident">algorithm</span> <span class="op">=</span> <span class="ident">untrusted::Input::from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">algorithm</span>);
         <span class="kw">let</span> <span class="ident">algorithm</span> <span class="op">=</span> <span class="ident">algorithm</span>
-            .<span class="ident">read_all</span>(<span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-                <span class="ident">der</span>::<span class="ident">expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der</span>::<span class="ident">Tag</span>::<span class="ident">Sequence</span>)
+            .<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+                <span class="ident">der::expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der::Tag::Sequence</span>)
             })
             .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">signature</span>);
+        <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">untrusted::Input::from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">signature</span>);
         <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">signature</span>
-            .<span class="ident">read_all</span>(<span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-                <span class="ident">der</span>::<span class="ident">bit_string_with_no_unused_bits</span>(<span class="ident">input</span>)
+            .<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+                <span class="ident">der::bit_string_with_no_unused_bits</span>(<span class="ident">input</span>)
             })
             .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">signed_data</span> <span class="op">=</span> <span class="ident">signed_data</span>::<span class="ident">SignedData</span> {
-            <span class="ident">data</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">data</span>),
+        <span class="kw">let</span> <span class="ident">signed_data</span> <span class="op">=</span> <span class="ident">signed_data::SignedData</span> {
+            <span class="ident">data</span>: <span class="ident">untrusted::Input::from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">data</span>),
             <span class="ident">algorithm</span>,
             <span class="ident">signature</span>,
         };
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">expected_result</span>,
-            <span class="ident">signed_data</span>::<span class="ident">verify_signed_data</span>(
+            <span class="ident">signed_data::verify_signed_data</span>(
                 <span class="ident">SUPPORTED_ALGORITHMS_IN_TESTS</span>,
                 <span class="ident">spki_value</span>,
                 <span class="kw-2">&amp;</span><span class="ident">signed_data</span>
@@ -1128,7 +1128,7 @@
     }
 
     <span class="comment">// XXX: This is testing code that isn&#39;t even in this module.</span>
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">test_verify_signed_data_signature_outer</span> {
+    <span class="macro">macro_rules!</span> <span class="ident">test_verify_signed_data_signature_outer</span> {
         (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected_result</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="attribute">#[<span class="ident">test</span>]</span>
             <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>() { <span class="ident">test_verify_signed_data_signature_outer</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected_result</span>); }
@@ -1137,17 +1137,17 @@
 
     <span class="kw">fn</span> <span class="ident">test_verify_signed_data_signature_outer</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">expected_error</span>: <span class="ident">Error</span>) {
         <span class="kw">let</span> <span class="ident">tsd</span> <span class="op">=</span> <span class="ident">parse_test_signed_data</span>(<span class="ident">file_name</span>);
-        <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">signature</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">untrusted::Input::from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">signature</span>);
+        <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Err</span>(<span class="ident">expected_error</span>),
-            <span class="ident">signature</span>.<span class="ident">read_all</span>(<span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-                <span class="ident">der</span>::<span class="ident">bit_string_with_no_unused_bits</span>(<span class="ident">input</span>)
+            <span class="ident">signature</span>.<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+                <span class="ident">der::bit_string_with_no_unused_bits</span>(<span class="ident">input</span>)
             })
         );
     }
 
     <span class="comment">// XXX: This is testing code that is not even in this module.</span>
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">test_parse_spki_bad_outer</span> {
+    <span class="macro">macro_rules!</span> <span class="ident">test_parse_spki_bad_outer</span> {
         (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">error</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="attribute">#[<span class="ident">test</span>]</span>
             <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fn_name</span>() { <span class="ident">test_parse_spki_bad_outer</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file_name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">error</span>) }
@@ -1156,11 +1156,11 @@
 
     <span class="kw">fn</span> <span class="ident">test_parse_spki_bad_outer</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">expected_error</span>: <span class="ident">Error</span>) {
         <span class="kw">let</span> <span class="ident">tsd</span> <span class="op">=</span> <span class="ident">parse_test_signed_data</span>(<span class="ident">file_name</span>);
-        <span class="kw">let</span> <span class="ident">spki</span> <span class="op">=</span> <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">spki</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">spki</span> <span class="op">=</span> <span class="ident">untrusted::Input::from</span>(<span class="kw-2">&amp;</span><span class="ident">tsd</span>.<span class="ident">spki</span>);
+        <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Err</span>(<span class="ident">expected_error</span>),
-            <span class="ident">spki</span>.<span class="ident">read_all</span>(<span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-                <span class="ident">der</span>::<span class="ident">expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der</span>::<span class="ident">Tag</span>::<span class="ident">Sequence</span>)
+            <span class="ident">spki</span>.<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+                <span class="ident">der::expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der::Tag::Sequence</span>)
             })
         );
     }
@@ -1169,204 +1169,204 @@
 
     <span class="comment">// XXX: We should have a variant of this test with a SHA-256 digest that gives</span>
     <span class="comment">// `Error::UnsupportedSignatureAlgorithmForPublicKey`.</span>
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_ecdsa_prime256v1_sha512_spki_params_null</span>,
         <span class="string">&quot;ecdsa-prime256v1-sha512-spki-params-null.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data_signature_outer</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data_signature_outer!</span>(
         <span class="ident">test_ecdsa_prime256v1_sha512_unused_bits_signature</span>,
         <span class="string">&quot;ecdsa-prime256v1-sha512-unused-bits-signature.pem&quot;</span>,
-        <span class="ident">Error</span>::<span class="ident">BadDER</span>
+        <span class="ident">Error::BadDER</span>
     );
     <span class="comment">// XXX: We should have a variant of this test with a SHA-256 digest that gives</span>
     <span class="comment">// `Error::UnsupportedSignatureAlgorithmForPublicKey`.</span>
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_ecdsa_prime256v1_sha512_using_ecdh_key</span>,
         <span class="string">&quot;ecdsa-prime256v1-sha512-using-ecdh-key.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
     <span class="comment">// XXX: We should have a variant of this test with a SHA-256 digest that gives</span>
     <span class="comment">// `Error::UnsupportedSignatureAlgorithmForPublicKey`.</span>
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_ecdsa_prime256v1_sha512_using_ecmqv_key</span>,
         <span class="string">&quot;ecdsa-prime256v1-sha512-using-ecmqv-key.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_ecdsa_prime256v1_sha512_using_rsa_algorithm</span>,
         <span class="string">&quot;ecdsa-prime256v1-sha512-using-rsa-algorithm.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithmForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithmForPublicKey</span>)
     );
     <span class="comment">// XXX: We should have a variant of this test with a SHA-256 digest that gives</span>
     <span class="comment">// `Error::InvalidSignatureForPublicKey`.</span>
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_ecdsa_prime256v1_sha512_wrong_signature_format</span>,
         <span class="string">&quot;ecdsa-prime256v1-sha512-wrong-signature-format.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
     <span class="comment">// Differs from Chromium because we don&#39;t support P-256 with SHA-512.</span>
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_ecdsa_prime256v1_sha512</span>,
         <span class="string">&quot;ecdsa-prime256v1-sha512.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_ecdsa_secp384r1_sha256_corrupted_data</span>,
         <span class="string">&quot;ecdsa-secp384r1-sha256-corrupted-data.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidSignatureForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidSignatureForPublicKey</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_ecdsa_secp384r1_sha256</span>,
         <span class="string">&quot;ecdsa-secp384r1-sha256.pem&quot;</span>,
         <span class="prelude-val">Ok</span>(())
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_ecdsa_using_rsa_key</span>,
         <span class="string">&quot;ecdsa-using-rsa-key.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithmForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithmForPublicKey</span>)
     );
 
-    <span class="macro">test_parse_spki_bad_outer</span><span class="macro">!</span>(
+    <span class="macro">test_parse_spki_bad_outer!</span>(
         <span class="ident">test_rsa_pkcs1_sha1_bad_key_der_length</span>,
         <span class="string">&quot;rsa-pkcs1-sha1-bad-key-der-length.pem&quot;</span>,
-        <span class="ident">Error</span>::<span class="ident">BadDER</span>
+        <span class="ident">Error::BadDER</span>
     );
-    <span class="macro">test_parse_spki_bad_outer</span><span class="macro">!</span>(
+    <span class="macro">test_parse_spki_bad_outer!</span>(
         <span class="ident">test_rsa_pkcs1_sha1_bad_key_der_null</span>,
         <span class="string">&quot;rsa-pkcs1-sha1-bad-key-der-null.pem&quot;</span>,
-        <span class="ident">Error</span>::<span class="ident">BadDER</span>
+        <span class="ident">Error::BadDER</span>
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pkcs1_sha1_key_params_absent</span>,
         <span class="string">&quot;rsa-pkcs1-sha1-key-params-absent.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pkcs1_sha1_using_pss_key_no_params</span>,
         <span class="string">&quot;rsa-pkcs1-sha1-using-pss-key-no-params.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pkcs1_sha1_wrong_algorithm</span>,
         <span class="string">&quot;rsa-pkcs1-sha1-wrong-algorithm.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidSignatureForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidSignatureForPublicKey</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pkcs1_sha1</span>,
         <span class="string">&quot;rsa-pkcs1-sha1.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
     <span class="comment">// XXX: RSA PKCS#1 with SHA-1 is a supported algorithm, but we only accept</span>
     <span class="comment">// 2048-8192 bit keys, and this test file is using a 1024 bit key. Thus,</span>
     <span class="comment">// our results differ from Chromium&#39;s. TODO: this means we need a 2048+ bit</span>
     <span class="comment">// version of this test.</span>
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pkcs1_sha256</span>,
         <span class="string">&quot;rsa-pkcs1-sha256.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidSignatureForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidSignatureForPublicKey</span>)
     );
-    <span class="macro">test_parse_spki_bad_outer</span><span class="macro">!</span>(
+    <span class="macro">test_parse_spki_bad_outer!</span>(
         <span class="ident">test_rsa_pkcs1_sha256_key_encoded_ber</span>,
         <span class="string">&quot;rsa-pkcs1-sha256-key-encoded-ber.pem&quot;</span>,
-        <span class="ident">Error</span>::<span class="ident">BadDER</span>
+        <span class="ident">Error::BadDER</span>
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pkcs1_sha256_spki_non_null_params</span>,
         <span class="string">&quot;rsa-pkcs1-sha256-spki-non-null-params.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithmForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithmForPublicKey</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pkcs1_sha256_using_ecdsa_algorithm</span>,
         <span class="string">&quot;rsa-pkcs1-sha256-using-ecdsa-algorithm.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithmForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithmForPublicKey</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pkcs1_sha256_using_id_ea_rsa</span>,
         <span class="string">&quot;rsa-pkcs1-sha256-using-id-ea-rsa.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithmForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithmForPublicKey</span>)
     );
 
     <span class="comment">// Chromium&#39;s PSS test are for parameter combinations we don&#39;t support.</span>
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha1_salt20_using_pss_key_no_params</span>,
         <span class="string">&quot;rsa-pss-sha1-salt20-using-pss-key-no-params.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha1_salt20_using_pss_key_with_null_params</span>,
         <span class="string">&quot;rsa-pss-sha1-salt20-using-pss-key-with-null-params.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha1_salt20</span>,
         <span class="string">&quot;rsa-pss-sha1-salt20.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha1_wrong_salt</span>,
         <span class="string">&quot;rsa-pss-sha1-wrong-salt.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha256_mgf1_sha512_salt33</span>,
         <span class="string">&quot;rsa-pss-sha256-mgf1-sha512-salt33.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha256_salt10_using_pss_key_with_params</span>,
         <span class="string">&quot;rsa-pss-sha256-salt10-using-pss-key-with-params.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha256_salt10_using_pss_key_with_wrong_params</span>,
         <span class="string">&quot;rsa-pss-sha256-salt10-using-pss-key-with-wrong-params.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha256_salt10</span>,
         <span class="string">&quot;rsa-pss-sha256-salt10.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithm</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithm</span>)
     );
 
     <span class="comment">// Our PSS tests that should work.</span>
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha256_salt32</span>,
         <span class="string">&quot;ours/rsa-pss-sha256-salt32.pem&quot;</span>,
         <span class="prelude-val">Ok</span>(())
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha384_salt48</span>,
         <span class="string">&quot;ours/rsa-pss-sha384-salt48.pem&quot;</span>,
         <span class="prelude-val">Ok</span>(())
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha512_salt64</span>,
         <span class="string">&quot;ours/rsa-pss-sha512-salt64.pem&quot;</span>,
         <span class="prelude-val">Ok</span>(())
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha256_salt32_corrupted_data</span>,
         <span class="string">&quot;ours/rsa-pss-sha256-salt32-corrupted-data.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidSignatureForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidSignatureForPublicKey</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha384_salt48_corrupted_data</span>,
         <span class="string">&quot;ours/rsa-pss-sha384-salt48-corrupted-data.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidSignatureForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidSignatureForPublicKey</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_pss_sha512_salt64_corrupted_data</span>,
         <span class="string">&quot;ours/rsa-pss-sha512-salt64-corrupted-data.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidSignatureForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidSignatureForPublicKey</span>)
     );
 
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa_using_ec_key</span>,
         <span class="string">&quot;rsa-using-ec-key.pem&quot;</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnsupportedSignatureAlgorithmForPublicKey</span>)
+        <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedSignatureAlgorithmForPublicKey</span>)
     );
-    <span class="macro">test_verify_signed_data</span><span class="macro">!</span>(
+    <span class="macro">test_verify_signed_data!</span>(
         <span class="ident">test_rsa2048_pkcs1_sha512</span>,
         <span class="string">&quot;rsa2048-pkcs1-sha512.pem&quot;</span>,
         <span class="prelude-val">Ok</span>(())
@@ -1380,10 +1380,10 @@
     }
 
     <span class="kw">fn</span> <span class="ident">parse_test_signed_data</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestSignedData</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">PathBuf</span>::<span class="ident">from</span>(<span class="string">&quot;third-party/chromium/data/verify_signed_data&quot;</span>)
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">std::path::PathBuf::from</span>(<span class="string">&quot;third-party/chromium/data/verify_signed_data&quot;</span>)
             .<span class="ident">join</span>(<span class="ident">file_name</span>);
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>).<span class="ident">lines</span>();
+        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">std::fs::File::open</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span> <span class="op">=</span> <span class="ident">std::io::BufReader::new</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>).<span class="ident">lines</span>();
 
         <span class="kw">let</span> <span class="ident">spki</span> <span class="op">=</span> <span class="ident">read_pem_section</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lines</span>, <span class="string">&quot;PUBLIC KEY&quot;</span>);
         <span class="kw">let</span> <span class="ident">algorithm</span> <span class="op">=</span> <span class="ident">read_pem_section</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lines</span>, <span class="string">&quot;ALGORITHM&quot;</span>);
@@ -1398,11 +1398,11 @@
         }
     }
 
-    <span class="kw">type</span> <span class="ident">FileLines</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Lines</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">BufReader</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">FileLines</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::io::Lines</span><span class="op">&lt;</span><span class="ident">std::io::BufReader</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">std::fs::File</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">read_pem_section</span>(<span class="ident">lines</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">FileLines</span>, <span class="ident">section_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
         <span class="comment">// Skip comments and header</span>
-        <span class="kw">let</span> <span class="ident">begin_section</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;-----BEGIN {}-----&quot;</span>, <span class="ident">section_name</span>);
+        <span class="kw">let</span> <span class="ident">begin_section</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;-----BEGIN {}-----&quot;</span>, <span class="ident">section_name</span>);
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">lines</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
             <span class="kw">if</span> <span class="ident">line</span> <span class="op">=</span><span class="op">=</span> <span class="ident">begin_section</span> {
@@ -1410,9 +1410,9 @@
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">base64</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">base64</span> <span class="op">=</span> <span class="ident">String::new</span>();
 
-        <span class="kw">let</span> <span class="ident">end_section</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;-----END {}-----&quot;</span>, <span class="ident">section_name</span>);
+        <span class="kw">let</span> <span class="ident">end_section</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;-----END {}-----&quot;</span>, <span class="ident">section_name</span>);
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">lines</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
             <span class="kw">if</span> <span class="ident">line</span> <span class="op">=</span><span class="op">=</span> <span class="ident">end_section</span> {
@@ -1421,27 +1421,27 @@
             <span class="ident">base64</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">line</span>);
         }
 
-        <span class="ident">base64</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="ident">base64</span>).<span class="ident">unwrap</span>()
+        <span class="ident">base64::decode</span>(<span class="kw-2">&amp;</span><span class="ident">base64</span>).<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">static</span> <span class="ident">SUPPORTED_ALGORITHMS_IN_TESTS</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">SignatureAlgorithm</span>] <span class="op">=</span> <span class="kw-2">&amp;</span>[
+    <span class="kw">static</span> <span class="ident">SUPPORTED_ALGORITHMS_IN_TESTS</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">signed_data::SignatureAlgorithm</span>] <span class="op">=</span> <span class="kw-2">&amp;</span>[
         <span class="comment">// Reasonable algorithms.</span>
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">RSA_PKCS1_2048_8192_SHA256</span>,
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">ECDSA_P256_SHA256</span>,
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">ECDSA_P384_SHA384</span>,
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">RSA_PKCS1_2048_8192_SHA384</span>,
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">RSA_PKCS1_2048_8192_SHA512</span>,
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">RSA_PKCS1_3072_8192_SHA384</span>,
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">RSA_PSS_2048_8192_SHA256_LEGACY_KEY</span>,
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">RSA_PSS_2048_8192_SHA384_LEGACY_KEY</span>,
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">RSA_PSS_2048_8192_SHA512_LEGACY_KEY</span>,
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">ED25519</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::RSA_PKCS1_2048_8192_SHA256</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::ECDSA_P256_SHA256</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::ECDSA_P384_SHA384</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::RSA_PKCS1_2048_8192_SHA384</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::RSA_PKCS1_2048_8192_SHA512</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::RSA_PKCS1_3072_8192_SHA384</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::RSA_PSS_2048_8192_SHA256_LEGACY_KEY</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::RSA_PSS_2048_8192_SHA384_LEGACY_KEY</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::RSA_PSS_2048_8192_SHA512_LEGACY_KEY</span>,
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::ED25519</span>,
         <span class="comment">// Algorithms deprecated because they are annoying (P-521) or because</span>
         <span class="comment">// they are nonsensical combinations.</span>
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">ECDSA_P256_SHA384</span>, <span class="comment">// Truncates digest.</span>
-        <span class="kw-2">&amp;</span><span class="ident">signed_data</span>::<span class="ident">ECDSA_P384_SHA256</span>, <span class="comment">// Digest is unnecessarily short.</span>
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::ECDSA_P256_SHA384</span>, <span class="comment">// Truncates digest.</span>
+        <span class="kw-2">&amp;</span><span class="ident">signed_data::ECDSA_P384_SHA256</span>, <span class="comment">// Digest is unnecessarily short.</span>
     ];
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="webpki" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="webpki" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

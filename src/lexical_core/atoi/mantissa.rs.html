@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lexical-core-0.7.6/src/atoi/mantissa.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mantissa.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../lexical_core/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../lexical_core/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
@@ -99,10 +99,10 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! String-to-integer routines specialized to parse the mantissa of a float.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::util</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;correct&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">shared</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::shared</span>::<span class="kw-2">*</span>;
 
 <span class="comment">// STANDALONE MANTISSA</span>
 <span class="comment">// -------------------</span>
@@ -114,7 +114,7 @@
 
 <span class="comment">// Calculate the mantissa and the number of truncated digits from a digits iterator.</span>
 <span class="comment">// Will stop once the iterators produce a non-valid digit character.</span>
-<span class="macro">perftools_inline</span><span class="macro">!</span>{
+<span class="macro">perftools_inline!</span>{
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;correct&quot;</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">standalone_mantissa</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">Iter1</span>, <span class="ident">Iter2</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">integer</span>: <span class="ident">Iter1</span>, <span class="kw-2">mut</span> <span class="ident">fraction</span>: <span class="ident">Iter2</span>, <span class="ident">radix</span>: <span class="ident">u32</span>)
     <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">T</span>, <span class="ident">usize</span>)
@@ -128,12 +128,12 @@
     <span class="comment">//  iter.chain() is patched, for older Rustc versions, it&#39;s nor</span>
     <span class="comment">//  worth the performance penalty.</span>
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span>: <span class="ident">T</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">ZERO</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span>: <span class="ident">T</span> <span class="op">=</span> <span class="ident">T::ZERO</span>;
     <span class="comment">// On overflow, validate that all the remaining characters are valid</span>
     <span class="comment">// digits, if not, return the first invalid digit. Otherwise,</span>
     <span class="comment">// calculate the number of truncated digits.</span>
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">integer</span>.<span class="ident">next</span>() {
-        <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">add_digit</span>(<span class="ident">value</span>, <span class="macro">to_digit</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">c</span>, <span class="ident">radix</span>).<span class="ident">unwrap</span>(), <span class="ident">radix</span>) {
+        <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">add_digit</span>(<span class="ident">value</span>, <span class="macro">to_digit!</span>(<span class="kw-2">*</span><span class="ident">c</span>, <span class="ident">radix</span>).<span class="ident">unwrap</span>(), <span class="ident">radix</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
             <span class="prelude-val">None</span>    <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">truncated</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">integer</span>.<span class="ident">count</span>() <span class="op">+</span> <span class="ident">fraction</span>.<span class="ident">count</span>();
@@ -142,7 +142,7 @@
         };
     }
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">fraction</span>.<span class="ident">next</span>() {
-        <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">add_digit</span>(<span class="ident">value</span>, <span class="macro">to_digit</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">c</span>, <span class="ident">radix</span>).<span class="ident">unwrap</span>(), <span class="ident">radix</span>) {
+        <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">add_digit</span>(<span class="ident">value</span>, <span class="macro">to_digit!</span>(<span class="kw-2">*</span><span class="ident">c</span>, <span class="ident">radix</span>).<span class="ident">unwrap</span>(), <span class="ident">radix</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
             <span class="prelude-val">None</span>    <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">truncated</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">fraction</span>.<span class="ident">count</span>();
@@ -154,7 +154,7 @@
 }}
 
 <span class="comment">// Calculate the mantissa when it cannot have sign or other invalid digits.</span>
-<span class="macro">perftools_inline</span><span class="macro">!</span>{
+<span class="macro">perftools_inline!</span>{
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;correct&quot;</span>))]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">standalone_mantissa</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">Iter</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">iter</span>: <span class="ident">Iter</span>, <span class="ident">radix</span>: <span class="ident">u32</span>)
     <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>
@@ -162,16 +162,16 @@
           <span class="ident">Iter</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">u8</span><span class="op">&gt;</span>
 {
     <span class="comment">// Parse the integer.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">ZERO</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">T::ZERO</span>;
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
         <span class="comment">// Cannot overflow, since using a wrapped float.</span>
-        <span class="ident">value</span> <span class="op">=</span> (<span class="ident">value</span> <span class="op">*</span> <span class="ident">as_cast</span>(<span class="ident">radix</span>)) <span class="op">+</span> <span class="ident">as_cast</span>(<span class="macro">to_digit</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">c</span>, <span class="ident">radix</span>).<span class="ident">unwrap</span>());
+        <span class="ident">value</span> <span class="op">=</span> (<span class="ident">value</span> <span class="op">*</span> <span class="ident">as_cast</span>(<span class="ident">radix</span>)) <span class="op">+</span> <span class="ident">as_cast</span>(<span class="macro">to_digit!</span>(<span class="kw-2">*</span><span class="ident">c</span>, <span class="ident">radix</span>).<span class="ident">unwrap</span>());
     }
    <span class="ident">value</span>
 }}
 
 <span class="comment">// Calculate mantissa and only take first N digits.</span>
-<span class="macro">perftools_inline</span><span class="macro">!</span>{
+<span class="macro">perftools_inline!</span>{
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;correct&quot;</span>))]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">standalone_mantissa_n</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">Iter</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Iter</span>, <span class="ident">radix</span>: <span class="ident">u32</span>, <span class="ident">max</span>: <span class="ident">usize</span>)
     <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">T</span>, <span class="ident">usize</span>)
@@ -179,13 +179,13 @@
           <span class="ident">Iter</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">u8</span><span class="op">&gt;</span>
 {
     <span class="comment">// Parse the integer.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">ZERO</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">T::ZERO</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">while</span> <span class="ident">index</span> <span class="op">&lt;</span> <span class="ident">max</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
             <span class="comment">// Cannot overflow, since we&#39;re limiting it to non-overflowing digit counts.</span>
             <span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">value</span> <span class="op">=</span> (<span class="ident">value</span> <span class="op">*</span> <span class="ident">as_cast</span>(<span class="ident">radix</span>)) <span class="op">+</span> <span class="ident">as_cast</span>(<span class="macro">to_digit</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">c</span>, <span class="ident">radix</span>).<span class="ident">unwrap</span>());
+            <span class="ident">value</span> <span class="op">=</span> (<span class="ident">value</span> <span class="op">*</span> <span class="ident">as_cast</span>(<span class="ident">radix</span>)) <span class="op">+</span> <span class="ident">as_cast</span>(<span class="macro">to_digit!</span>(<span class="kw-2">*</span><span class="ident">c</span>, <span class="ident">radix</span>).<span class="ident">unwrap</span>());
         } <span class="kw">else</span> {
             <span class="kw">break</span>;
         }
@@ -193,5 +193,5 @@
     (<span class="ident">value</span>, <span class="ident">index</span>)
 }}
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lexical_core" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lexical_core" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../brotli_decompressor/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../brotli_decompressor/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -479,18 +479,18 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">std</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
+<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc_stdlib</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc_no_stdlib</span> <span class="kw">as</span> <span class="ident">alloc</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">AllocatedStackMemory</span>, <span class="ident">Allocator</span>, <span class="ident">SliceWrapper</span>, <span class="ident">SliceWrapperMut</span>, <span class="ident">StackAllocator</span>, <span class="ident">bzero</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ops</span>;
+<span class="kw">use</span> <span class="ident">core::ops</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc_stdlib</span>::<span class="ident">StandardAlloc</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc_stdlib::StandardAlloc</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>,<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc_stdlib</span>::<span class="ident">HeapAllocUninitialized</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc_stdlib::HeapAllocUninitialized</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">mod</span> <span class="ident">memory</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dictionary</span>;
@@ -508,7 +508,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">reader</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">writer</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">huffman</span>::{<span class="ident">HuffmanCode</span>, <span class="ident">HuffmanTreeGroup</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">state</span>::<span class="ident">BrotliState</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">state::BrotliState</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ffi</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">reader</span>::{<span class="ident">DecompressorCustomIo</span>};
 
@@ -542,7 +542,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))))]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecompress</span><span class="op">&lt;</span><span class="ident">InputType</span>, <span class="ident">OutputType</span><span class="op">&gt;</span>(<span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">InputType</span>,
                                                <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">OutputType</span>)
-                                               <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+                                               <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">Read</span>,
         <span class="ident">OutputType</span>: <span class="ident">Write</span>
 {
@@ -552,9 +552,9 @@
                               <span class="ident">w</span>,
                               <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_buffer</span>[..],
                               <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output_buffer</span>[..],
-                              <span class="ident">StandardAlloc</span>::<span class="ident">default</span>(),
-                              <span class="ident">StandardAlloc</span>::<span class="ident">default</span>(),
-                              <span class="ident">StandardAlloc</span>::<span class="ident">default</span>(),
+                              <span class="ident">StandardAlloc::default</span>(),
+                              <span class="ident">StandardAlloc::default</span>(),
+                              <span class="ident">StandardAlloc::default</span>(),
   )
 }
 
@@ -563,12 +563,12 @@
                                                          <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">OutputType</span>,
                                                          <span class="ident">input_buffer</span>:<span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
                                                          <span class="ident">output_buffer</span>:<span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-                                                         <span class="ident">custom_dictionary</span>:<span class="ident">std</span>::<span class="ident">vec</span>::<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>)
-                                                          <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+                                                         <span class="ident">custom_dictionary</span>:<span class="ident">std</span><span class="ident">::vec::Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>)
+                                                          <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">Read</span>,
         <span class="ident">OutputType</span>: <span class="ident">Write</span>
 {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc_u8</span> <span class="op">=</span> <span class="ident">brotli_alloc</span>::<span class="ident">BrotliAlloc</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc_u8</span> <span class="op">=</span> <span class="ident">brotli_alloc::BrotliAlloc</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>();
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_buffer_backing</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_buffer_backing</span>;
   {
@@ -588,17 +588,17 @@
                               <span class="ident">borrowed_input_buffer</span>,
                               <span class="ident">borrowed_output_buffer</span>,
                               <span class="ident">alloc_u8</span>,
-                              <span class="ident">brotli_alloc</span>::<span class="ident">BrotliAlloc</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>::<span class="ident">new</span>(),
-                              <span class="ident">brotli_alloc</span>::<span class="ident">BrotliAlloc</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span>::<span class="ident">new</span>(),
+                              <span class="ident">brotli_alloc::BrotliAlloc</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::new</span>(),
+                              <span class="ident">brotli_alloc::BrotliAlloc</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="ident">::new</span>(),
                               <span class="ident">dict</span>,
-                              <span class="ident">Error</span>::<span class="ident">new</span>(<span class="ident">ErrorKind</span>::<span class="ident">UnexpectedEof</span>, <span class="string">&quot;Unexpected EOF&quot;</span>))
+                              <span class="ident">Error::new</span>(<span class="ident">ErrorKind::UnexpectedEof</span>, <span class="string">&quot;Unexpected EOF&quot;</span>))
   }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>,<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecompress</span><span class="op">&lt;</span><span class="ident">InputType</span>, <span class="ident">OutputType</span><span class="op">&gt;</span>(<span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">InputType</span>,
                                                <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">OutputType</span>)
-                                               <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+                                               <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">Read</span>,
         <span class="ident">OutputType</span>: <span class="ident">Write</span>
 {
@@ -608,9 +608,9 @@
                               <span class="ident">w</span>,
                               <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_buffer</span>[..],
                               <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output_buffer</span>[..],
-                              <span class="kw">unsafe</span> { <span class="ident">HeapAllocUninitialized</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>() },
-                              <span class="kw">unsafe</span> { <span class="ident">HeapAllocUninitialized</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>::<span class="ident">new</span>() },
-                              <span class="kw">unsafe</span> { <span class="ident">HeapAllocUninitialized</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span>::<span class="ident">new</span>() })
+                              <span class="kw">unsafe</span> { <span class="ident">HeapAllocUninitialized</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>() },
+                              <span class="kw">unsafe</span> { <span class="ident">HeapAllocUninitialized</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::new</span>() },
+                              <span class="kw">unsafe</span> { <span class="ident">HeapAllocUninitialized</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="ident">::new</span>() })
 }
 
 
@@ -627,7 +627,7 @@
    <span class="ident">alloc_u8</span>: <span class="ident">AllocU8</span>,
    <span class="ident">alloc_u32</span>: <span class="ident">AllocU32</span>,
    <span class="ident">alloc_hc</span>: <span class="ident">AllocHC</span>)
-   <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+   <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">Read</span>,
         <span class="ident">OutputType</span>: <span class="ident">Write</span>
 {
@@ -638,7 +638,7 @@
                            <span class="ident">alloc_u8</span>,
                            <span class="ident">alloc_u32</span>,
                            <span class="ident">alloc_hc</span>,
-                           <span class="ident">Error</span>::<span class="ident">new</span>(<span class="ident">ErrorKind</span>::<span class="ident">UnexpectedEof</span>, <span class="string">&quot;Unexpected EOF&quot;</span>))
+                           <span class="ident">Error::new</span>(<span class="ident">ErrorKind::UnexpectedEof</span>, <span class="string">&quot;Unexpected EOF&quot;</span>))
 }
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecompressCustomIo</span><span class="op">&lt;</span><span class="ident">ErrType</span>,
                                 <span class="ident">InputType</span>,
@@ -658,7 +658,7 @@
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">CustomRead</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>,
         <span class="ident">OutputType</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>
 {
-  <span class="ident">BrotliDecompressCustomIoCustomDict</span>(<span class="ident">r</span>, <span class="ident">w</span>, <span class="ident">input_buffer</span>, <span class="ident">output_buffer</span>, <span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">AllocU8</span>::<span class="ident">AllocatedMemory</span>::<span class="ident">default</span>(), <span class="ident">unexpected_eof_error_constant</span>)
+  <span class="ident">BrotliDecompressCustomIoCustomDict</span>(<span class="ident">r</span>, <span class="ident">w</span>, <span class="ident">input_buffer</span>, <span class="ident">output_buffer</span>, <span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">AllocU8::AllocatedMemory::default</span>(), <span class="ident">unexpected_eof_error_constant</span>)
 }
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecompressCustomIoCustomDict</span><span class="op">&lt;</span><span class="ident">ErrType</span>,
                                 <span class="ident">InputType</span>,
@@ -673,24 +673,24 @@
    <span class="ident">alloc_u8</span>: <span class="ident">AllocU8</span>,
    <span class="ident">alloc_u32</span>: <span class="ident">AllocU32</span>,
    <span class="ident">alloc_hc</span>: <span class="ident">AllocHC</span>,
-   <span class="ident">custom_dictionary</span>: <span class="ident">AllocU8</span>::<span class="ident">AllocatedMemory</span>,
+   <span class="ident">custom_dictionary</span>: <span class="ident">AllocU8::AllocatedMemory</span>,
    <span class="ident">unexpected_eof_error_constant</span>: <span class="ident">ErrType</span>)
    <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>
   <span class="kw">where</span> <span class="ident">InputType</span>: <span class="ident">CustomRead</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>,
         <span class="ident">OutputType</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>
 {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">brotli_state</span> <span class="op">=</span> <span class="ident">BrotliState</span>::<span class="ident">new_with_custom_dictionary</span>(<span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">custom_dictionary</span>);
-  <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">input_buffer</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
-  <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">output_buffer</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">brotli_state</span> <span class="op">=</span> <span class="ident">BrotliState::new_with_custom_dictionary</span>(<span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">custom_dictionary</span>);
+  <span class="macro">assert!</span>(<span class="ident">input_buffer</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+  <span class="macro">assert!</span>(<span class="ident">output_buffer</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_out</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">output_buffer</span>.<span class="ident">len</span>();
 
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_in</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">BrotliResult</span> <span class="op">=</span> <span class="ident">BrotliResult</span>::<span class="ident">NeedsMoreInput</span>;
+  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">BrotliResult</span> <span class="op">=</span> <span class="ident">BrotliResult::NeedsMoreInput</span>;
   <span class="kw">loop</span> {
     <span class="kw">match</span> <span class="ident">result</span> {
-      <span class="ident">BrotliResult</span>::<span class="ident">NeedsMoreInput</span> <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="ident">BrotliResult::NeedsMoreInput</span> <span class="op">=</span><span class="op">&gt;</span> {
         <span class="ident">input_offset</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">match</span> <span class="ident">r</span>.<span class="ident">read</span>(<span class="ident">input_buffer</span>) {
           <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -704,16 +704,16 @@
           }
         }
       }
-      <span class="ident">BrotliResult</span>::<span class="ident">NeedsMoreOutput</span> <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="ident">BrotliResult::NeedsMoreOutput</span> <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_written</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">while</span> <span class="ident">total_written</span> <span class="op">&lt;</span> <span class="ident">output_offset</span> {
           <span class="comment">// this would be a call to write_all</span>
           <span class="kw">match</span> <span class="ident">w</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">output_buffer</span>[<span class="ident">total_written</span>..<span class="ident">output_offset</span>]) {
             <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-              <span class="kw">return</span> <span class="prelude-ty">Result</span>::<span class="prelude-val">Err</span>(<span class="ident">e</span>);
+              <span class="kw">return</span> <span class="ident">Result::Err</span>(<span class="ident">e</span>);
             },
             <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) <span class="op">=</span><span class="op">&gt;</span> {
-              <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cur_written</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
+              <span class="macro">assert_eq!</span>(<span class="ident">cur_written</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
               <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">cur_written</span>;
             }
           }
@@ -721,8 +721,8 @@
 
         <span class="ident">output_offset</span> <span class="op">=</span> <span class="number">0</span>;
       }
-      <span class="ident">BrotliResult</span>::<span class="ident">ResultSuccess</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
-      <span class="ident">BrotliResult</span>::<span class="ident">ResultFailure</span> <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="ident">BrotliResult::ResultSuccess</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
+      <span class="ident">BrotliResult::ResultFailure</span> <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">unexpected_eof_error_constant</span>);
       }
     }
@@ -741,11 +741,11 @@
       <span class="kw">while</span> <span class="ident">total_written</span> <span class="op">&lt;</span> <span class="ident">output_offset</span> {
         <span class="kw">match</span> <span class="ident">w</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">output_buffer</span>[<span class="ident">total_written</span>..<span class="ident">output_offset</span>]) {
           <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">return</span> <span class="prelude-ty">Result</span>::<span class="prelude-val">Err</span>(<span class="ident">e</span>);
+            <span class="kw">return</span> <span class="ident">Result::Err</span>(<span class="ident">e</span>);
           },
           <span class="comment">// CustomResult::Transient(e) =&gt; continue,</span>
           <span class="prelude-val">Ok</span>(<span class="ident">cur_written</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cur_written</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
+            <span class="macro">assert_eq!</span>(<span class="ident">cur_written</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>, <span class="bool-val">false</span>); <span class="comment">// not allowed by the contract</span>
             <span class="ident">total_written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">cur_written</span>;
           }
         }
@@ -759,13 +759,13 @@
 
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_from_to</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">io</span>::<span class="ident">Read</span>, <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">r</span>: <span class="ident">R</span>, <span class="kw-2">mut</span> <span class="ident">w</span>: <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_from_to</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">io::Read</span>, <span class="ident">W</span>: <span class="ident">io::Write</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">r</span>: <span class="ident">R</span>, <span class="kw-2">mut</span> <span class="ident">w</span>: <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span>: [<span class="ident">u8</span>; <span class="number">65536</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">65536</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">loop</span> {
     <span class="kw">match</span> <span class="ident">r</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>[..]) {
       <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Interrupted</span> <span class="op">=</span>  <span class="ident">e</span>.<span class="ident">kind</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">io::ErrorKind::Interrupted</span> <span class="op">=</span>  <span class="ident">e</span>.<span class="ident">kind</span>() {
           <span class="kw">continue</span>
         }
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
@@ -776,7 +776,7 @@
         } <span class="kw">else</span> {
           <span class="kw">match</span> <span class="ident">w</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..<span class="ident">size</span>]) {
             <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
-              <span class="kw">if</span> <span class="kw">let</span> <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Interrupted</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
+              <span class="kw">if</span> <span class="kw">let</span> <span class="ident">io::ErrorKind::Interrupted</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">kind</span>() {
                 <span class="kw">continue</span>
               }
               <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
@@ -795,7 +795,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrotliDecoderReturnInfo</span> {
     <span class="kw">pub</span> <span class="ident">decoded_size</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span> <span class="ident">error_string</span>: [<span class="ident">u8</span>;<span class="number">256</span>],
-    <span class="kw">pub</span> <span class="ident">error_code</span>: <span class="ident">state</span>::<span class="ident">BrotliDecoderErrorCode</span>,
+    <span class="kw">pub</span> <span class="ident">error_code</span>: <span class="ident">state::BrotliDecoderErrorCode</span>,
     <span class="kw">pub</span> <span class="ident">result</span>: <span class="ident">BrotliResult</span>,
 }
 <span class="kw">impl</span> <span class="ident">BrotliDecoderReturnInfo</span> {
@@ -809,7 +809,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliDecoderReturnInfo</span>{
             <span class="ident">result</span>: <span class="ident">result</span>,
             <span class="ident">decoded_size</span>: <span class="ident">output_size</span>,
-            <span class="ident">error_code</span>: <span class="ident">decode</span>::<span class="ident">BrotliDecoderGetErrorCode</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>),  
+            <span class="ident">error_code</span>: <span class="ident">decode::BrotliDecoderGetErrorCode</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>),  
             <span class="ident">error_string</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="prelude-val">Err</span>(<span class="ident">msg</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">mtf_or_error_string</span> {
                 <span class="ident">msg</span>
             } <span class="kw">else</span> {
@@ -817,8 +817,8 @@
             },
         };
         <span class="kw">if</span> <span class="ident">ret</span>.<span class="ident">error_string</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="kw">let</span> <span class="ident">error_string</span> <span class="op">=</span> <span class="ident">state</span>::<span class="ident">BrotliDecoderErrorStr</span>(<span class="ident">ret</span>.<span class="ident">error_code</span>);
-            <span class="kw">let</span> <span class="ident">to_copy</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">error_string</span>.<span class="ident">len</span>(), <span class="ident">ret</span>.<span class="ident">error_string</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
+            <span class="kw">let</span> <span class="ident">error_string</span> <span class="op">=</span> <span class="ident">state::BrotliDecoderErrorStr</span>(<span class="ident">ret</span>.<span class="ident">error_code</span>);
+            <span class="kw">let</span> <span class="ident">to_copy</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">error_string</span>.<span class="ident">len</span>(), <span class="ident">ret</span>.<span class="ident">error_string</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
             <span class="kw">for</span> (<span class="ident">dst</span>, <span class="ident">src</span>) <span class="kw">in</span> <span class="ident">ret</span>.<span class="ident">error_string</span>[..<span class="ident">to_copy</span>].<span class="ident">iter_mut</span>().<span class="ident">zip</span>(<span class="ident">error_string</span>[..<span class="ident">to_copy</span>].<span class="ident">bytes</span>()) {
                 <span class="kw-2">*</span><span class="ident">dst</span> <span class="op">=</span> <span class="ident">src</span>;
             }
@@ -827,7 +827,7 @@
     }
 }
 
-<span class="macro">declare_stack_allocator_struct</span><span class="macro">!</span>(<span class="ident">MemPool</span>, <span class="number">512</span>, <span class="ident">stack</span>);
+<span class="macro">declare_stack_allocator_struct!</span>(<span class="ident">MemPool</span>, <span class="number">512</span>, <span class="ident">stack</span>);
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_decode_prealloc</span>(
   <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -836,17 +836,17 @@
   <span class="ident">scratch_u32</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>],
   <span class="ident">scratch_hc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanCode</span>],
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderReturnInfo</span> {
-  <span class="kw">let</span> <span class="ident">stack_u8_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new_allocator</span>(<span class="ident">scratch_u8</span>, <span class="ident">bzero</span>);
-  <span class="kw">let</span> <span class="ident">stack_u32_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>::<span class="ident">new_allocator</span>(<span class="ident">scratch_u32</span>, <span class="ident">bzero</span>);
-  <span class="kw">let</span> <span class="ident">stack_hc_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span>::<span class="ident">new_allocator</span>(<span class="ident">scratch_hc</span>, <span class="ident">bzero</span>);
+  <span class="kw">let</span> <span class="ident">stack_u8_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new_allocator</span>(<span class="ident">scratch_u8</span>, <span class="ident">bzero</span>);
+  <span class="kw">let</span> <span class="ident">stack_u32_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::new_allocator</span>(<span class="ident">scratch_u32</span>, <span class="ident">bzero</span>);
+  <span class="kw">let</span> <span class="ident">stack_hc_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="ident">::new_allocator</span>(<span class="ident">scratch_hc</span>, <span class="ident">bzero</span>);
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_out</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">len</span>();
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_in</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>();
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">written</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">brotli_state</span> <span class="op">=</span>
-    <span class="ident">BrotliState</span>::<span class="ident">new</span>(<span class="ident">stack_u8_allocator</span>, <span class="ident">stack_u32_allocator</span>, <span class="ident">stack_hc_allocator</span>);
-  <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> ::<span class="ident">BrotliDecompressStream</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">available_in</span>,
+    <span class="ident">BrotliState::new</span>(<span class="ident">stack_u8_allocator</span>, <span class="ident">stack_u32_allocator</span>, <span class="ident">stack_hc_allocator</span>);
+  <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">::BrotliDecompressStream</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">available_in</span>,
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_offset</span>,
                                       <span class="kw-2">&amp;</span><span class="ident">input</span>[..],
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">available_out</span>,
@@ -854,7 +854,7 @@
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>,
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">written</span>,
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">brotli_state</span>);
-  <span class="kw">let</span> <span class="ident">return_info</span> <span class="op">=</span> <span class="ident">BrotliDecoderReturnInfo</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">brotli_state</span>, <span class="ident">result</span>.<span class="ident">into</span>(), <span class="ident">output_offset</span>);
+  <span class="kw">let</span> <span class="ident">return_info</span> <span class="op">=</span> <span class="ident">BrotliDecoderReturnInfo::new</span>(<span class="kw-2">&amp;</span><span class="ident">brotli_state</span>, <span class="ident">result</span>.<span class="ident">into</span>(), <span class="ident">output_offset</span>);
   <span class="ident">return_info</span>    
 }
 
@@ -864,32 +864,32 @@
     <span class="ident">output_and_scratch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span>[<span class="ident">u8</span>],
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderReturnInfo</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack_u32_buffer</span> <span class="op">=</span> [<span class="number">0u32</span>; <span class="number">12</span> <span class="op">*</span> <span class="number">1024</span> <span class="op">*</span> <span class="number">6</span>];
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack_hc_buffer</span> <span class="op">=</span> [<span class="ident">HuffmanCode</span>::<span class="ident">default</span>(); <span class="number">128</span> <span class="op">*</span> (<span class="ident">decode</span>::<span class="ident">kNumInsertAndCopyCodes</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">decode</span>::<span class="ident">kNumLiteralCodes</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">+</span> <span class="number">6</span> <span class="op">*</span> <span class="ident">decode</span>::<span class="ident">kNumBlockLengthCodes</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="ident">huffman</span>::<span class="ident">BROTLI_HUFFMAN_MAX_TABLE_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>];
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guessed_output_size</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">min</span>(
-    <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">max</span>(<span class="ident">input</span>.<span class="ident">len</span>(), <span class="comment">// shouldn&#39;t shrink too much</span>
+  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack_hc_buffer</span> <span class="op">=</span> [<span class="ident">HuffmanCode::default</span>(); <span class="number">128</span> <span class="op">*</span> (<span class="ident">decode::kNumInsertAndCopyCodes</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">decode::kNumLiteralCodes</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">+</span> <span class="number">6</span> <span class="op">*</span> <span class="ident">decode::kNumBlockLengthCodes</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="ident">huffman::BROTLI_HUFFMAN_MAX_TABLE_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>];
+  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guessed_output_size</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(
+    <span class="ident">core::cmp::max</span>(<span class="ident">input</span>.<span class="ident">len</span>(), <span class="comment">// shouldn&#39;t shrink too much</span>
                    <span class="ident">output_and_scratch</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="number">3</span>),
       <span class="ident">output_and_scratch</span>.<span class="ident">len</span>());
   <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">2</span> {
       <span class="kw">let</span> <span class="ident">scratch_len</span> <span class="op">=</span> <span class="ident">output_and_scratch</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">guessed_output_size</span>;
-      <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">lgwin</span>) <span class="op">=</span> <span class="ident">decode</span>::<span class="ident">lg_window_size</span>(<span class="ident">input</span>[<span class="number">0</span>], <span class="ident">input</span>[<span class="number">1</span>]) {
-          <span class="kw">let</span> <span class="ident">extra_window_size</span> <span class="op">=</span> <span class="number">65536</span> <span class="op">+</span> (<span class="ident">decode</span>::<span class="ident">kNumLiteralCodes</span> <span class="op">+</span> <span class="ident">decode</span>::<span class="ident">kNumInsertAndCopyCodes</span>) <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="number">256</span> <span class="op">+</span> (<span class="number">1usize</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">lgwin</span>.<span class="number">0</span>) <span class="op">*</span> <span class="number">5</span> <span class="op">/</span> <span class="number">4</span>;
+      <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">lgwin</span>) <span class="op">=</span> <span class="ident">decode::lg_window_size</span>(<span class="ident">input</span>[<span class="number">0</span>], <span class="ident">input</span>[<span class="number">1</span>]) {
+          <span class="kw">let</span> <span class="ident">extra_window_size</span> <span class="op">=</span> <span class="number">65536</span> <span class="op">+</span> (<span class="ident">decode::kNumLiteralCodes</span> <span class="op">+</span> <span class="ident">decode::kNumInsertAndCopyCodes</span>) <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="number">256</span> <span class="op">+</span> (<span class="number">1usize</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">lgwin</span>.<span class="number">0</span>) <span class="op">*</span> <span class="number">5</span> <span class="op">/</span> <span class="number">4</span>;
           <span class="kw">if</span> <span class="ident">extra_window_size</span> <span class="op">&lt;</span> <span class="ident">scratch_len</span> {
               <span class="ident">guessed_output_size</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">scratch_len</span> <span class="op">-</span> <span class="ident">extra_window_size</span>) <span class="op">*</span> <span class="number">3</span><span class="op">/</span><span class="number">4</span>;
           }
       }
   }
   <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">output</span>, <span class="kw-2">mut</span> <span class="ident">scratch_space</span>) <span class="op">=</span> <span class="ident">output_and_scratch</span>.<span class="ident">split_at_mut</span>(<span class="ident">guessed_output_size</span>);
-  <span class="kw">let</span> <span class="ident">stack_u8_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new_allocator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">scratch_space</span>, <span class="ident">bzero</span>);
-  <span class="kw">let</span> <span class="ident">stack_u32_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>::<span class="ident">new_allocator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stack_u32_buffer</span>, <span class="ident">bzero</span>);
-  <span class="kw">let</span> <span class="ident">stack_hc_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span>::<span class="ident">new_allocator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stack_hc_buffer</span>, <span class="ident">bzero</span>);
+  <span class="kw">let</span> <span class="ident">stack_u8_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new_allocator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">scratch_space</span>, <span class="ident">bzero</span>);
+  <span class="kw">let</span> <span class="ident">stack_u32_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::new_allocator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stack_u32_buffer</span>, <span class="ident">bzero</span>);
+  <span class="kw">let</span> <span class="ident">stack_hc_allocator</span> <span class="op">=</span> <span class="ident">MemPool</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="ident">::new_allocator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stack_hc_buffer</span>, <span class="ident">bzero</span>);
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_out</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">len</span>();
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_in</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>();
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">written</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">brotli_state</span> <span class="op">=</span>
-    <span class="ident">BrotliState</span>::<span class="ident">new</span>(<span class="ident">stack_u8_allocator</span>, <span class="ident">stack_u32_allocator</span>, <span class="ident">stack_hc_allocator</span>);
-  <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> ::<span class="ident">BrotliDecompressStream</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">available_in</span>,
+    <span class="ident">BrotliState::new</span>(<span class="ident">stack_u8_allocator</span>, <span class="ident">stack_u32_allocator</span>, <span class="ident">stack_hc_allocator</span>);
+  <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">::BrotliDecompressStream</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">available_in</span>,
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_offset</span>,
                                       <span class="kw-2">&amp;</span><span class="ident">input</span>[..],
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">available_out</span>,
@@ -897,7 +897,7 @@
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>,
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">written</span>,
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">brotli_state</span>);
-  <span class="kw">let</span> <span class="ident">return_info</span> <span class="op">=</span> <span class="ident">BrotliDecoderReturnInfo</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">brotli_state</span>, <span class="ident">result</span>.<span class="ident">into</span>(), <span class="ident">output_offset</span>);
+  <span class="kw">let</span> <span class="ident">return_info</span> <span class="op">=</span> <span class="ident">BrotliDecoderReturnInfo::new</span>(<span class="kw-2">&amp;</span><span class="ident">brotli_state</span>, <span class="ident">result</span>.<span class="ident">into</span>(), <span class="ident">output_offset</span>);
   <span class="ident">return_info</span>    
 }
 
@@ -912,8 +912,8 @@
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">written</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">brotli_state</span> <span class="op">=</span>
-    <span class="ident">BrotliState</span>::<span class="ident">new</span>(<span class="ident">StandardAlloc</span>::<span class="ident">default</span>(), <span class="ident">StandardAlloc</span>::<span class="ident">default</span>(), <span class="ident">StandardAlloc</span>::<span class="ident">default</span>());
-  <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> ::<span class="ident">BrotliDecompressStream</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">available_in</span>,
+    <span class="ident">BrotliState::new</span>(<span class="ident">StandardAlloc::default</span>(), <span class="ident">StandardAlloc::default</span>(), <span class="ident">StandardAlloc::default</span>());
+  <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">::BrotliDecompressStream</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">available_in</span>,
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_offset</span>,
                                       <span class="kw-2">&amp;</span><span class="ident">input</span>[..],
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">available_out</span>,
@@ -921,9 +921,9 @@
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>,
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">written</span>,
                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">brotli_state</span>);
-  <span class="kw">let</span> <span class="ident">return_info</span> <span class="op">=</span> <span class="ident">BrotliDecoderReturnInfo</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">brotli_state</span>, <span class="ident">result</span>.<span class="ident">into</span>(), <span class="ident">output_offset</span>);
+  <span class="kw">let</span> <span class="ident">return_info</span> <span class="op">=</span> <span class="ident">BrotliDecoderReturnInfo::new</span>(<span class="kw-2">&amp;</span><span class="ident">brotli_state</span>, <span class="ident">result</span>.<span class="ident">into</span>(), <span class="ident">output_offset</span>);
   <span class="ident">return_info</span>
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="brotli_decompressor" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="brotli_decompressor" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

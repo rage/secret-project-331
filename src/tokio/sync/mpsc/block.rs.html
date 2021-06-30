@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/sync/mpsc/block.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>block.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -389,14 +389,14 @@
 <span id="386">386</span>
 <span id="387">387</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">cell</span>::<span class="ident">UnsafeCell</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicPtr</span>, <span class="ident">AtomicUsize</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">loom</span>::<span class="ident">thread</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::cell::UnsafeCell</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic</span>::{<span class="ident">AtomicPtr</span>, <span class="ident">AtomicUsize</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::thread</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">MaybeUninit</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>::{<span class="self">self</span>, <span class="ident">NonNull</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::<span class="ident">Ordering</span>::{<span class="self">self</span>, <span class="ident">AcqRel</span>, <span class="ident">Acquire</span>, <span class="ident">Release</span>};
+<span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
+<span class="kw">use</span> <span class="ident">std::ops</span>;
+<span class="kw">use</span> <span class="ident">std::ptr</span>::{<span class="self">self</span>, <span class="ident">NonNull</span>};
+<span class="kw">use</span> <span class="ident">std::sync::atomic::Ordering</span>::{<span class="self">self</span>, <span class="ident">AcqRel</span>, <span class="ident">Acquire</span>, <span class="ident">Release</span>};
 
 <span class="doccomment">/// A block in a linked list.</span>
 <span class="doccomment">///</span>
@@ -430,7 +430,7 @@
 
 <span class="kw">struct</span> <span class="ident">Values</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>([<span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>; <span class="ident">BLOCK_CAP</span>]);
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">BLOCK_CAP</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::BLOCK_CAP</span>;
 
 <span class="doccomment">/// Masks an index to get the block identifier</span>
 <span class="kw">const</span> <span class="ident">BLOCK_MASK</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="op">!</span>(<span class="ident">BLOCK_CAP</span> <span class="op">-</span> <span class="number">1</span>);
@@ -470,20 +470,20 @@
             <span class="ident">start_index</span>,
 
             <span class="comment">// Pointer to the next block in the linked list.</span>
-            <span class="ident">next</span>: <span class="ident">AtomicPtr</span>::<span class="ident">new</span>(<span class="ident">ptr</span>::<span class="ident">null_mut</span>()),
+            <span class="ident">next</span>: <span class="ident">AtomicPtr::new</span>(<span class="ident">ptr::null_mut</span>()),
 
-            <span class="ident">ready_slots</span>: <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>),
+            <span class="ident">ready_slots</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>),
 
-            <span class="ident">observed_tail_position</span>: <span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="number">0</span>),
+            <span class="ident">observed_tail_position</span>: <span class="ident">UnsafeCell::new</span>(<span class="number">0</span>),
 
             <span class="comment">// Value storage</span>
-            <span class="ident">values</span>: <span class="kw">unsafe</span> { <span class="ident">Values</span>::<span class="ident">uninitialized</span>() },
+            <span class="ident">values</span>: <span class="kw">unsafe</span> { <span class="ident">Values::uninitialized</span>() },
         }
     }
 
     <span class="doccomment">/// Returns `true` if the block matches the given index</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_at_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">offset</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">offset</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
         <span class="self">self</span>.<span class="ident">start_index</span> <span class="op">=</span><span class="op">=</span> <span class="ident">index</span>
     }
 
@@ -492,7 +492,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// `start_index` must represent a block *after* `self`.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other_index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">offset</span>(<span class="ident">other_index</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">offset</span>(<span class="ident">other_index</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
         <span class="ident">other_index</span>.<span class="ident">wrapping_sub</span>(<span class="self">self</span>.<span class="ident">start_index</span>) <span class="op">/</span> <span class="ident">BLOCK_CAP</span>
     }
 
@@ -512,16 +512,16 @@
 
         <span class="kw">if</span> <span class="op">!</span><span class="ident">is_ready</span>(<span class="ident">ready_bits</span>, <span class="ident">offset</span>) {
             <span class="kw">if</span> <span class="ident">is_tx_closed</span>(<span class="ident">ready_bits</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Read</span>::<span class="ident">Closed</span>);
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Read::Closed</span>);
             }
 
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
         <span class="comment">// Get the value</span>
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">values</span>[<span class="ident">offset</span>].<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="ident">ptr</span>::<span class="ident">read</span>(<span class="ident">ptr</span>));
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">values</span>[<span class="ident">offset</span>].<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="ident">ptr::read</span>(<span class="ident">ptr</span>));
 
-        <span class="prelude-val">Some</span>(<span class="ident">Read</span>::<span class="ident">Value</span>(<span class="ident">value</span>.<span class="ident">assume_init</span>()))
+        <span class="prelude-val">Some</span>(<span class="ident">Read::Value</span>(<span class="ident">value</span>.<span class="ident">assume_init</span>()))
     }
 
     <span class="doccomment">/// Writes a value to the block at the given offset.</span>
@@ -537,7 +537,7 @@
         <span class="kw">let</span> <span class="ident">slot_offset</span> <span class="op">=</span> <span class="ident">offset</span>(<span class="ident">slot_index</span>);
 
         <span class="self">self</span>.<span class="ident">values</span>[<span class="ident">slot_offset</span>].<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> {
-            <span class="ident">ptr</span>::<span class="ident">write</span>(<span class="ident">ptr</span>, <span class="ident">MaybeUninit</span>::<span class="ident">new</span>(<span class="ident">value</span>));
+            <span class="ident">ptr::write</span>(<span class="ident">ptr</span>, <span class="ident">MaybeUninit::new</span>(<span class="ident">value</span>));
         });
 
         <span class="comment">// Release the value. After this point, the slot ref may no longer</span>
@@ -562,8 +562,8 @@
     <span class="doccomment">/// * The caller holds a unique pointer to the block.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">reclaim</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">start_index</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">AtomicPtr</span>::<span class="ident">new</span>(<span class="ident">ptr</span>::<span class="ident">null_mut</span>());
-        <span class="self">self</span>.<span class="ident">ready_slots</span> <span class="op">=</span> <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>);
+        <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">AtomicPtr::new</span>(<span class="ident">ptr::null_mut</span>());
+        <span class="self">self</span>.<span class="ident">ready_slots</span> <span class="op">=</span> <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>);
     }
 
     <span class="doccomment">/// Releases the block to the rx half for freeing.</span>
@@ -620,9 +620,9 @@
 
     <span class="doccomment">/// Loads the next block</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">load_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ordering</span>: <span class="ident">Ordering</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">NonNull</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">next</span>.<span class="ident">load</span>(<span class="ident">ordering</span>));
+        <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">NonNull::new</span>(<span class="self">self</span>.<span class="ident">next</span>.<span class="ident">load</span>(<span class="ident">ordering</span>));
 
-        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="kw">unsafe</span> {
+        <span class="macro">debug_assert!</span>(<span class="kw">unsafe</span> {
             <span class="ident">ret</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">block</span><span class="op">|</span> <span class="ident">block</span>.<span class="ident">as_ref</span>().<span class="ident">start_index</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">start_index</span>.<span class="ident">wrapping_add</span>(<span class="ident">BLOCK_CAP</span>))
                 .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
         });
@@ -656,10 +656,10 @@
 
         <span class="kw">let</span> <span class="ident">next_ptr</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">next</span>
-            .<span class="ident">compare_exchange</span>(<span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="ident">block</span>.<span class="ident">as_ptr</span>(), <span class="ident">success</span>, <span class="ident">failure</span>)
+            .<span class="ident">compare_exchange</span>(<span class="ident">ptr::null_mut</span>(), <span class="ident">block</span>.<span class="ident">as_ptr</span>(), <span class="ident">success</span>, <span class="ident">failure</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>);
 
-        <span class="kw">match</span> <span class="ident">NonNull</span>::<span class="ident">new</span>(<span class="ident">next_ptr</span>) {
+        <span class="kw">match</span> <span class="ident">NonNull::new</span>(<span class="ident">next_ptr</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">next_ptr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">next_ptr</span>),
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
         }
@@ -683,9 +683,9 @@
         <span class="comment">// Create the new block. It is assumed that the block will become the</span>
         <span class="comment">// next one after `&amp;self`. If this turns out to not be the case,</span>
         <span class="comment">// `start_index` is updated accordingly.</span>
-        <span class="kw">let</span> <span class="ident">new_block</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Block</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">start_index</span> <span class="op">+</span> <span class="ident">BLOCK_CAP</span>));
+        <span class="kw">let</span> <span class="ident">new_block</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">Block::new</span>(<span class="self">self</span>.<span class="ident">start_index</span> <span class="op">+</span> <span class="ident">BLOCK_CAP</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_block</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">NonNull</span>::<span class="ident">new_unchecked</span>(<span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">new_block</span>)) };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_block</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">NonNull::new_unchecked</span>(<span class="ident">Box::into_raw</span>(<span class="ident">new_block</span>)) };
 
         <span class="comment">// Attempt to store the block. The first compare-and-swap attempt is</span>
         <span class="comment">// &quot;unrolled&quot; due to minor differences in logic</span>
@@ -699,9 +699,9 @@
         <span class="comment">//</span>
         <span class="comment">// `Release` ensures that the newly allocated block is available to</span>
         <span class="comment">// other threads acquiring the next pointer.</span>
-        <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">NonNull</span>::<span class="ident">new</span>(
+        <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">NonNull::new</span>(
             <span class="self">self</span>.<span class="ident">next</span>
-                .<span class="ident">compare_exchange</span>(<span class="ident">ptr</span>::<span class="ident">null_mut</span>(), <span class="ident">new_block</span>.<span class="ident">as_ptr</span>(), <span class="ident">AcqRel</span>, <span class="ident">Acquire</span>)
+                .<span class="ident">compare_exchange</span>(<span class="ident">ptr::null_mut</span>(), <span class="ident">new_block</span>.<span class="ident">as_ptr</span>(), <span class="ident">AcqRel</span>, <span class="ident">Acquire</span>)
                 .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>),
         );
 
@@ -736,7 +736,7 @@
             };
 
             <span class="comment">// When running outside of loom, this calls `spin_loop_hint`.</span>
-            <span class="ident">thread</span>::<span class="ident">yield_now</span>();
+            <span class="ident">thread::yield_now</span>();
         }
     }
 }
@@ -754,14 +754,14 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Values</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">uninitialized</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Values</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="ident">uninit</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
 
         <span class="comment">// When fuzzing, `UnsafeCell` needs to be initialized.</span>
-        <span class="macro">if_loom</span><span class="macro">!</span> {
+        <span class="macro">if_loom!</span> {
             <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">vals</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">BLOCK_CAP</span> {
                 <span class="ident">p</span>.<span class="ident">add</span>(<span class="ident">i</span>)
-                    .<span class="ident">write</span>(<span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="ident">MaybeUninit</span>::<span class="ident">uninit</span>()));
+                    .<span class="ident">write</span>(<span class="ident">UnsafeCell::new</span>(<span class="ident">MaybeUninit::uninit</span>()));
             }
         }
 
@@ -769,13 +769,13 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops</span>::<span class="ident">Index</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Values</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops::Index</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Values</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Output</span> {
+    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Output</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">index</span>(<span class="ident">index</span>)
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tokio" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

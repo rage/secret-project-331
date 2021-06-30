@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.0/src/enc/backward_references/hash_to_binary_tree.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hash_to_binary_tree.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -500,16 +500,16 @@
 <span id="497">497</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>, <span class="ident">unused_imports</span>)]</span>
-<span class="kw">use</span> <span class="ident">enc</span>::<span class="ident">command</span>::{<span class="ident">Command</span>, <span class="ident">ComputeDistanceCode</span>, <span class="ident">InitCommand</span>, <span class="ident">GetInsertLengthCode</span>, <span class="ident">GetCopyLengthCode</span>, <span class="ident">CombineLengthCodes</span>, <span class="ident">PrefixEncodeCopyDistance</span>, <span class="ident">CommandCopyLen</span>};
+<span class="kw">use</span> <span class="ident">enc::command</span>::{<span class="ident">Command</span>, <span class="ident">ComputeDistanceCode</span>, <span class="ident">InitCommand</span>, <span class="ident">GetInsertLengthCode</span>, <span class="ident">GetCopyLengthCode</span>, <span class="ident">CombineLengthCodes</span>, <span class="ident">PrefixEncodeCopyDistance</span>, <span class="ident">CommandCopyLen</span>};
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BrotliEncoderParams</span>, <span class="ident">kHashMul32</span>,<span class="ident">kHashMul64</span>, <span class="ident">kHashMul64Long</span>, <span class="ident">BrotliHasherParams</span>, <span class="ident">kInvalidMatch</span>, <span class="ident">kDistanceCacheIndex</span>, <span class="ident">kDistanceCacheOffset</span>, <span class="ident">Struct1</span>, <span class="ident">H9Opts</span>, <span class="ident">HowPrepared</span>, <span class="ident">AnyHasher</span>, <span class="ident">CloneWithAlloc</span>, <span class="ident">HasherSearchResult</span>};
-<span class="kw">use</span> <span class="ident">enc</span>::<span class="ident">dictionary_hash</span>::<span class="ident">kStaticDictionaryHash</span>;
-<span class="kw">use</span> <span class="ident">enc</span>::<span class="ident">static_dict</span>::{<span class="ident">BROTLI_UNALIGNED_LOAD32</span>, <span class="ident">BROTLI_UNALIGNED_LOAD64</span>, <span class="ident">FindMatchLengthWithLimit</span>};
-<span class="kw">use</span> <span class="ident">enc</span>::<span class="ident">static_dict</span>::{<span class="ident">BrotliDictionary</span>, <span class="ident">kBrotliEncDictionary</span>, <span class="ident">BrotliFindAllStaticDictionaryMatches</span>};
-<span class="kw">use</span> <span class="ident">enc</span>::<span class="ident">literal_cost</span>::<span class="ident">BrotliEstimateBitCostsForLiterals</span>;
-<span class="kw">use</span> <span class="ident">enc</span>::<span class="ident">constants</span>::{<span class="ident">kInsExtra</span>, <span class="ident">kCopyExtra</span>};
+<span class="kw">use</span> <span class="ident">enc::dictionary_hash::kStaticDictionaryHash</span>;
+<span class="kw">use</span> <span class="ident">enc::static_dict</span>::{<span class="ident">BROTLI_UNALIGNED_LOAD32</span>, <span class="ident">BROTLI_UNALIGNED_LOAD64</span>, <span class="ident">FindMatchLengthWithLimit</span>};
+<span class="kw">use</span> <span class="ident">enc::static_dict</span>::{<span class="ident">BrotliDictionary</span>, <span class="ident">kBrotliEncDictionary</span>, <span class="ident">BrotliFindAllStaticDictionaryMatches</span>};
+<span class="kw">use</span> <span class="ident">enc::literal_cost::BrotliEstimateBitCostsForLiterals</span>;
+<span class="kw">use</span> <span class="ident">enc::constants</span>::{<span class="ident">kInsExtra</span>, <span class="ident">kCopyExtra</span>};
 <span class="kw">use</span> <span class="ident">alloc</span>;
 <span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">SliceWrapper</span>, <span class="ident">SliceWrapperMut</span>, <span class="ident">Allocator</span>};
-<span class="kw">use</span> <span class="ident">enc</span>::<span class="ident">util</span>::{<span class="ident">Log2FloorNonZero</span>, <span class="ident">brotli_max_size_t</span>,<span class="ident">FastLog2</span>, <span class="ident">floatX</span>};
+<span class="kw">use</span> <span class="ident">enc::util</span>::{<span class="ident">Log2FloorNonZero</span>, <span class="ident">brotli_max_size_t</span>,<span class="ident">FastLog2</span>, <span class="ident">floatX</span>};
 <span class="kw">use</span> <span class="ident">core</span>;
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">kInfinity</span>: <span class="ident">floatX</span> <span class="op">=</span> <span class="number">1.7e38</span> <span class="kw">as</span> <span class="ident">floatX</span>;
@@ -536,7 +536,7 @@
             <span class="ident">length</span>: <span class="number">1</span>,
             <span class="ident">distance</span>: <span class="number">0</span>,
             <span class="ident">dcode_insert_length</span>: <span class="number">0</span>,
-            <span class="ident">u</span>: <span class="ident">Union1</span>::<span class="ident">cost</span>(<span class="ident">kInfinity</span>),
+            <span class="ident">u</span>: <span class="ident">Union1::cost</span>(<span class="ident">kInfinity</span>),
         }
     }
 }
@@ -565,7 +565,7 @@
 
 <span class="kw">const</span> <span class="ident">BUCKET_BITS</span>:<span class="ident">usize</span> <span class="op">=</span> <span class="number">17</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">H10Buckets</span><span class="op">&lt;</span><span class="ident">AllocU32</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">AllocU32</span>::<span class="ident">AllocatedMemory</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">H10Buckets</span><span class="op">&lt;</span><span class="ident">AllocU32</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">AllocU32::AllocatedMemory</span>);
 
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AllocU32</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Allocable</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">AllocU32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">H10Buckets</span><span class="op">&lt;</span><span class="ident">AllocU32</span><span class="op">&gt;</span> {
@@ -580,7 +580,7 @@
     <span class="ident">H10Buckets</span>::<span class="op">&lt;</span><span class="ident">AllocU32</span><span class="op">&gt;</span>(<span class="ident">m</span>.<span class="ident">alloc_cell</span>(<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">BUCKET_BITS</span>))
   }
   <span class="kw">fn</span> <span class="ident">free</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">m</span>:<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AllocU32</span>) {
-    <span class="ident">m</span>.<span class="ident">free_cell</span>(<span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>, <span class="ident">AllocU32</span>::<span class="ident">AllocatedMemory</span>::<span class="ident">default</span>()));
+    <span class="ident">m</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>, <span class="ident">AllocU32::AllocatedMemory::default</span>()));
   }
 }
 
@@ -611,8 +611,8 @@
     <span class="kw">pub</span> <span class="ident">common</span>: <span class="ident">Struct1</span>,
     <span class="kw">pub</span> <span class="ident">buckets_</span>: <span class="ident">Buckets</span>,
     <span class="kw">pub</span> <span class="ident">invalid_pos_</span>:<span class="ident">u32</span>,
-    <span class="kw">pub</span> <span class="ident">forest</span>: <span class="ident">AllocU32</span>::<span class="ident">AllocatedMemory</span>,
-    <span class="kw">pub</span> <span class="ident">_params</span>: <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">forest</span>: <span class="ident">AllocU32::AllocatedMemory</span>,
+    <span class="kw">pub</span> <span class="ident">_params</span>: <span class="ident">core::marker::PhantomData</span><span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="op">&lt;</span><span class="ident">AllocU32</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">Buckets</span>: <span class="ident">Allocable</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">AllocU32</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">Params</span>:<span class="ident">H10Params</span><span class="op">&gt;</span>
@@ -643,7 +643,7 @@
     }
     <span class="kw">let</span> <span class="ident">window_mask</span> <span class="op">=</span> (<span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">params</span>.<span class="ident">lgwin</span>) <span class="op">-</span> <span class="number">1</span>;
     <span class="kw">let</span> <span class="ident">invalid_pos</span> <span class="op">=</span> <span class="number">0u32</span>.<span class="ident">wrapping_sub</span>(<span class="ident">window_mask</span>) <span class="kw">as</span> <span class="ident">u32</span>;
-    <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Buckets</span> <span class="kw">as</span> <span class="ident">Allocable</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">AllocU32</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">m32</span>, <span class="ident">invalid_pos</span>);
+    <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Buckets</span> <span class="kw">as</span> <span class="ident">Allocable</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">AllocU32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">m32</span>, <span class="ident">invalid_pos</span>);
     <span class="ident">H10</span>::<span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">Buckets</span>, <span class="ident">H10DefaultParams</span><span class="op">&gt;</span> {
         <span class="ident">common</span>:<span class="ident">Struct1</span>{
             <span class="ident">params</span>:<span class="ident">params</span>.<span class="ident">hasher</span>,
@@ -651,7 +651,7 @@
             <span class="ident">dict_num_lookups</span>:<span class="number">0</span>,
             <span class="ident">dict_num_matches</span>:<span class="number">0</span>,
         },
-        <span class="ident">_params</span>: <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>::<span class="op">&lt;</span><span class="ident">H10DefaultParams</span><span class="op">&gt;</span>::<span class="ident">default</span>(),
+        <span class="ident">_params</span>: <span class="ident">core::marker::PhantomData</span>::<span class="op">&lt;</span><span class="ident">H10DefaultParams</span><span class="op">&gt;</span><span class="ident">::default</span>(),
         <span class="ident">window_mask_</span>: <span class="ident">window_mask</span> <span class="kw">as</span> <span class="ident">usize</span>,
         <span class="ident">invalid_pos_</span>: <span class="ident">invalid_pos</span>,
         <span class="ident">buckets_</span>: <span class="ident">buckets</span>,
@@ -663,20 +663,20 @@
      <span class="ident">Buckets</span>: <span class="ident">Allocable</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">AllocU32</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
      <span class="ident">Params</span>:<span class="ident">H10Params</span><span class="op">&gt;</span> <span class="ident">H10</span><span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">Buckets</span>, <span class="ident">Params</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">Buckets</span>:<span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">Buckets</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">m32</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AllocU32</span>) {
-        <span class="ident">m32</span>.<span class="ident">free_cell</span>(<span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">forest</span>, <span class="ident">AllocU32</span>::<span class="ident">AllocatedMemory</span>::<span class="ident">default</span>()));
+        <span class="ident">m32</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">forest</span>, <span class="ident">AllocU32::AllocatedMemory::default</span>()));
         <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">free</span>(<span class="ident">m32</span>);
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc</span>::<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc</span>::<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">Buckets</span>:<span class="ident">Allocable</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">Params</span>:<span class="ident">H10Params</span>,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">Buckets</span>:<span class="ident">Allocable</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">Params</span>:<span class="ident">H10Params</span>,
      <span class="op">&gt;</span> <span class="ident">CloneWithAlloc</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">H10</span><span class="op">&lt;</span><span class="ident">Alloc</span>, <span class="ident">Buckets</span>, <span class="ident">Params</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">Buckets</span>:<span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">Buckets</span><span class="op">&gt;</span> {
   <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">H10</span>::<span class="op">&lt;</span><span class="ident">Alloc</span>, <span class="ident">Buckets</span>, <span class="ident">Params</span><span class="op">&gt;</span> {
           <span class="ident">window_mask_</span>: <span class="self">self</span>.<span class="ident">window_mask_</span>,
           <span class="ident">common</span>: <span class="self">self</span>.<span class="ident">common</span>.<span class="ident">clone</span>(),
-          <span class="ident">buckets_</span>:<span class="ident">Buckets</span>::<span class="ident">new_uninit</span>(<span class="ident">m</span>),
+          <span class="ident">buckets_</span>:<span class="ident">Buckets</span><span class="ident">::new_uninit</span>(<span class="ident">m</span>),
           <span class="ident">invalid_pos_</span>:<span class="self">self</span>.<span class="ident">invalid_pos_</span>,
-          <span class="ident">forest</span>:<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">alloc_cell</span>(<span class="ident">m</span>, <span class="self">self</span>.<span class="ident">forest</span>.<span class="ident">len</span>()),
-          <span class="ident">_params</span>: <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>::<span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>::<span class="ident">default</span>(),
+          <span class="ident">forest</span>:<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">m</span>, <span class="self">self</span>.<span class="ident">forest</span>.<span class="ident">len</span>()),
+          <span class="ident">_params</span>: <span class="ident">core::marker::PhantomData</span>::<span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span><span class="ident">::default</span>(),
       };
       <span class="ident">ret</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>().<span class="ident">clone_from_slice</span>(<span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice</span>());
       <span class="ident">ret</span>.<span class="ident">forest</span>.<span class="ident">slice_mut</span>().<span class="ident">clone_from_slice</span>(<span class="self">self</span>.<span class="ident">forest</span>.<span class="ident">slice</span>());
@@ -702,14 +702,14 @@
   }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
   <span class="kw">fn</span> <span class="ident">StoreLookahead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-      <span class="ident">Params</span>::<span class="ident">max_tree_comp_length</span>() <span class="kw">as</span> <span class="ident">usize</span>
+      <span class="ident">Params::max_tree_comp_length</span>() <span class="kw">as</span> <span class="ident">usize</span>
   }
   <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
                            <span class="ident">num_bytes</span>: <span class="ident">usize</span>,
                            <span class="ident">position</span>: <span class="ident">usize</span>,
                            <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
                            <span class="ident">ringbuffer_mask</span>: <span class="ident">usize</span>) {
-      <span class="kw">super</span>::<span class="ident">hq</span>::<span class="ident">StitchToPreviousBlockH10</span>(<span class="self">self</span>, <span class="ident">num_bytes</span>, <span class="ident">position</span>, <span class="ident">ringbuffer</span>, <span class="ident">ringbuffer_mask</span>)
+      <span class="kw">super</span><span class="ident">::hq::StitchToPreviousBlockH10</span>(<span class="self">self</span>, <span class="ident">num_bytes</span>, <span class="ident">position</span>, <span class="ident">ringbuffer</span>, <span class="ident">ringbuffer_mask</span>)
   }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
   <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Struct1</span> {
@@ -736,7 +736,7 @@
         <span class="ident">data</span>,
         <span class="ident">ix</span>,
         <span class="ident">mask</span>,
-        <span class="ident">Params</span>::<span class="ident">max_tree_comp_length</span>() <span class="kw">as</span> <span class="ident">usize</span>,
+        <span class="ident">Params::max_tree_comp_length</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         <span class="ident">max_backward</span>,
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="number">0</span>,
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span>[], 
@@ -770,14 +770,14 @@
   }
   <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_one_shot</span>: <span class="ident">bool</span>, <span class="ident">_input_size</span>: <span class="ident">usize</span>, <span class="ident">_data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HowPrepared</span> {
     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">common</span>.<span class="ident">is_prepared_</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-      <span class="kw">return</span> <span class="ident">HowPrepared</span>::<span class="ident">ALREADY_PREPARED</span>;
+      <span class="kw">return</span> <span class="ident">HowPrepared::ALREADY_PREPARED</span>;
     }
     <span class="kw">let</span> <span class="ident">invalid_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">invalid_pos_</span>;
     <span class="kw">for</span> <span class="ident">bucket</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>().<span class="ident">iter_mut</span>() {
         <span class="kw-2">*</span><span class="ident">bucket</span> <span class="op">=</span> <span class="ident">invalid_pos</span>;
     }
     <span class="self">self</span>.<span class="ident">common</span>.<span class="ident">is_prepared_</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">HowPrepared</span>::<span class="ident">NEWLY_PREPARED</span>
+    <span class="ident">HowPrepared::NEWLY_PREPARED</span>
   }
 
   <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
@@ -793,7 +793,7 @@
                       <span class="ident">_max_distance</span>: <span class="ident">usize</span>,
                       <span class="ident">_out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HasherSearchResult</span>)
                       <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-      <span class="macro">unimplemented</span><span class="macro">!</span>();
+      <span class="macro">unimplemented!</span>();
   }
 }
 
@@ -827,11 +827,11 @@
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_distance</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">u32</span>) {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> <span class="op">&amp;=</span> <span class="number">0xffffffff00000000</span>;
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> <span class="op">|</span><span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from</span>(<span class="ident">data</span>)
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> <span class="op">|</span><span class="op">=</span> <span class="ident">u64::from</span>(<span class="ident">data</span>)
     }
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_length_and_code</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">u32</span>) {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from</span>((<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">|</span> (<span class="ident">u64</span>::<span class="ident">from</span>(<span class="ident">data</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>);
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> <span class="op">=</span> <span class="ident">u64::from</span>((<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">|</span> (<span class="ident">u64::from</span>(<span class="ident">data</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>);
     }
 }
 
@@ -844,12 +844,12 @@
 }
 
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">LeftChildIndexH10</span> {
+<span class="macro">macro_rules!</span> <span class="ident">LeftChildIndexH10</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">xself</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pos</span>: <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
         (<span class="number">2usize</span>).<span class="ident">wrapping_mul</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pos</span> <span class="op">&amp;</span> (<span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">xself</span>).<span class="ident">window_mask_</span>)    
     };
 }
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">RightChildIndexH10</span> {
+<span class="macro">macro_rules!</span> <span class="ident">RightChildIndexH10</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">xself</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pos</span>: <span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
         (<span class="number">2usize</span>).<span class="ident">wrapping_mul</span>(
             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pos</span> <span class="op">&amp;</span> (<span class="kw-2">*</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">xself</span>).<span class="ident">window_mask_</span>
@@ -895,7 +895,7 @@ fn RightChildIndexH10&lt;AllocU32: Allocator&lt;u32&gt;,
     <span class="kw">let</span> <span class="ident">cur_ix_masked</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="ident">cur_ix</span> <span class="op">&amp;</span> <span class="ident">ring_buffer_mask</span>;
     <span class="kw">let</span> <span class="ident">max_comp_len</span>
         : <span class="ident">usize</span>
-        <span class="op">=</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">max_length</span>,<span class="number">128usize</span>);
+        <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">max_length</span>,<span class="number">128usize</span>);
     <span class="kw">let</span> <span class="ident">should_reroot_tree</span>
         : <span class="ident">i32</span>
         <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="op">!</span>(<span class="ident">max_length</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">128usize</span>) { <span class="number">1i32</span> } <span class="kw">else</span> { <span class="number">0i32</span> };
@@ -907,8 +907,8 @@ fn RightChildIndexH10&lt;AllocU32: Allocator&lt;u32&gt;,
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prev_ix</span>
         : <span class="ident">usize</span>
         <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">buckets_</span>.<span class="ident">slice</span>()[<span class="ident">key</span>] <span class="kw">as</span> (<span class="ident">usize</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_left</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="macro">LeftChildIndexH10</span><span class="macro">!</span>(<span class="ident">xself</span>,<span class="ident">cur_ix</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_right</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="macro">RightChildIndexH10</span><span class="macro">!</span>(<span class="ident">xself</span>,<span class="ident">cur_ix</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_left</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="macro">LeftChildIndexH10!</span>(<span class="ident">xself</span>,<span class="ident">cur_ix</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_right</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="macro">RightChildIndexH10!</span>(<span class="ident">xself</span>,<span class="ident">cur_ix</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best_len_left</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">0usize</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best_len_right</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">0usize</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">depth_remaining</span> : <span class="ident">usize</span>;
@@ -930,7 +930,7 @@ fn RightChildIndexH10&lt;AllocU32: Allocator&lt;u32&gt;,
             {
                 <span class="kw">let</span> <span class="ident">cur_len</span>
                     : <span class="ident">usize</span>
-                    <span class="op">=</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">best_len_left</span>,<span class="ident">best_len_right</span>);
+                    <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">best_len_left</span>,<span class="ident">best_len_right</span>);
                 <span class="kw">let</span> <span class="ident">len</span> : <span class="ident">usize</span>;
                 <span class="ident">len</span> <span class="op">=</span> <span class="ident">cur_len</span>.<span class="ident">wrapping_add</span>(
                           <span class="ident">FindMatchLengthWithLimit</span>(
@@ -955,13 +955,13 @@ fn RightChildIndexH10&lt;AllocU32: Allocator&lt;u32&gt;,
                 <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">max_comp_len</span> {
                     <span class="kw">if</span> <span class="ident">should_reroot_tree</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="ident">forest</span>[(<span class="ident">node_left</span> <span class="kw">as</span> (<span class="ident">usize</span>)) ]<span class="op">=</span> <span class="ident">forest</span>[(
-                                                                    <span class="macro">LeftChildIndexH10</span><span class="macro">!</span>(
+                                                                    <span class="macro">LeftChildIndexH10!</span>(
                                                                         <span class="ident">xself</span>,
                                                                         <span class="ident">prev_ix</span>
                                                                     ) <span class="kw">as</span> (<span class="ident">usize</span>)
                                                                 )];
                         <span class="ident">forest</span>[(<span class="ident">node_right</span> <span class="kw">as</span> (<span class="ident">usize</span>)) ]<span class="op">=</span> <span class="ident">forest</span>[(
-                                                                     <span class="macro">RightChildIndexH10</span><span class="macro">!</span>(
+                                                                     <span class="macro">RightChildIndexH10!</span>(
                                                                          <span class="ident">xself</span>,
                                                                          <span class="ident">prev_ix</span>
                                                                      ) <span class="kw">as</span> (<span class="ident">usize</span>)
@@ -978,14 +978,14 @@ fn RightChildIndexH10&lt;AllocU32: Allocator&lt;u32&gt;,
                     <span class="kw">if</span> <span class="ident">should_reroot_tree</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="ident">forest</span>[(<span class="ident">node_left</span> <span class="kw">as</span> (<span class="ident">usize</span>)) ]<span class="op">=</span> <span class="ident">prev_ix</span> <span class="kw">as</span> (<span class="ident">u32</span>);
                     }
-                    <span class="ident">node_left</span> <span class="op">=</span> <span class="macro">RightChildIndexH10</span><span class="macro">!</span>(<span class="ident">xself</span>,<span class="ident">prev_ix</span>);
+                    <span class="ident">node_left</span> <span class="op">=</span> <span class="macro">RightChildIndexH10!</span>(<span class="ident">xself</span>,<span class="ident">prev_ix</span>);
                     <span class="ident">prev_ix</span> <span class="op">=</span> <span class="ident">forest</span>[(<span class="ident">node_left</span> <span class="kw">as</span> (<span class="ident">usize</span>)) ]<span class="kw">as</span> (<span class="ident">usize</span>);
                 } <span class="kw">else</span> {
                     <span class="ident">best_len_right</span> <span class="op">=</span> <span class="ident">len</span>;
                     <span class="kw">if</span> <span class="ident">should_reroot_tree</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="ident">forest</span>[(<span class="ident">node_right</span> <span class="kw">as</span> (<span class="ident">usize</span>)) ]<span class="op">=</span> <span class="ident">prev_ix</span> <span class="kw">as</span> (<span class="ident">u32</span>);
                     }
-                    <span class="ident">node_right</span> <span class="op">=</span> <span class="macro">LeftChildIndexH10</span><span class="macro">!</span>(<span class="ident">xself</span>,<span class="ident">prev_ix</span>);
+                    <span class="ident">node_right</span> <span class="op">=</span> <span class="macro">LeftChildIndexH10!</span>(<span class="ident">xself</span>,<span class="ident">prev_ix</span>);
                     <span class="ident">prev_ix</span> <span class="op">=</span> <span class="ident">forest</span>[(<span class="ident">node_right</span> <span class="kw">as</span> (<span class="ident">usize</span>)) ]<span class="kw">as</span> (<span class="ident">usize</span>);
                 }
             }
@@ -997,5 +997,5 @@ fn RightChildIndexH10&lt;AllocU32: Allocator&lt;u32&gt;,
 
 
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="brotli" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="brotli" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

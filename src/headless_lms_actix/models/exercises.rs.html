@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/models/exercises.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercises.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../headless_lms_actix/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../headless_lms_actix/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -351,15 +351,15 @@
 <span id="348">348</span>
 <span id="349">349</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sqlx</span>::<span class="ident">PgConnection</span>;
-<span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
+<span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
+<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">models</span>::<span class="ident">exercise_tasks</span>::<span class="ident">get_random_exercise_task</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::exercise_tasks::get_random_exercise_task</span>;
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">exercise_tasks</span>::<span class="ident">CourseMaterialExerciseTask</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::exercise_tasks::CourseMaterialExerciseTask</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Exercise</span> {
@@ -388,7 +388,7 @@ Indicates what is the user&#39;s completion status for a exercise.
 
 As close as possible to LTI&#39;s activity progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress.
 */</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">sqlx::Type</span>)]</span>
 <span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;activity_progress&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ActivityProgress</span> {
     <span class="doccomment">/// The user has not started the activity, or the activity has been reset for that student.</span>
@@ -409,7 +409,7 @@ Tells what&#39;s the status of the grading progress for a user and exercise.
 
 As close as possible LTI&#39;s grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
 */</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">sqlx</span>::<span class="ident">Type</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">sqlx::Type</span>)]</span>
 <span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;grading_progress&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GradingProgress</span> {
     <span class="doccomment">/// The grading process is completed; the score value, if any, represents the current Final Grade;</span>
@@ -426,7 +426,7 @@ As close as possible LTI&#39;s grading progress for compatibility: https://www.i
 
 <span class="kw">impl</span> <span class="ident">GradingProgress</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_complete</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="self">Self</span>::<span class="ident">FullyGraded</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="self">Self</span>::<span class="ident">Failed</span>
+        <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="self">Self</span><span class="ident">::FullyGraded</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="self">Self</span><span class="ident">::Failed</span>
     }
 }
 
@@ -445,7 +445,7 @@ As close as possible LTI&#39;s grading progress for compatibility: https://www.i
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">order_number</span>: <span class="ident">i32</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exercises (course_id, name, page_id, order_number)
 VALUES ($1, $2, $3, $4)
@@ -462,7 +462,7 @@ RETURNING id
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Exercise</span>,
         <span class="string">&quot;SELECT * FROM exercises WHERE id = $1;&quot;</span>,
         <span class="ident">exercise_id</span>
@@ -473,14 +473,14 @@ RETURNING id
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(<span class="ident">Exercise</span>, <span class="string">&quot;SELECT * FROM exercises WHERE id = $1;&quot;</span>, <span class="ident">id</span>)
+    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(<span class="ident">Exercise</span>, <span class="string">&quot;SELECT * FROM exercises WHERE id = $1;&quot;</span>, <span class="ident">id</span>)
         .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">exercise</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(<span class="string">&quot;SELECT course_id FROM exercises WHERE id = $1;&quot;</span>, <span class="ident">id</span>)
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT course_id FROM exercises WHERE id = $1;&quot;</span>, <span class="ident">id</span>)
         .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>
         .<span class="ident">course_id</span>;
@@ -497,7 +497,7 @@ RETURNING id
     <span class="comment">// if the user is logged in, take the previously selected task or select a new one</span>
     <span class="kw">let</span> <span class="ident">selected_exercise_task</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) <span class="op">=</span> <span class="ident">user_id</span> {
         <span class="comment">// user is logged in, see if they&#39;re enrolled on the course</span>
-        <span class="kw">let</span> <span class="ident">current_course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">current_course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;
 SELECT course_instance_id AS id
 FROM course_instance_enrollments
@@ -515,7 +515,7 @@ WHERE course_id = $1
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current_course_instance_id</span>) <span class="op">=</span> <span class="ident">current_course_instance_id</span> {
             <span class="comment">// user is enrolled on an instance of the given course, see if a task has already been selected</span>
-            <span class="kw">let</span> <span class="ident">selected_exercise_task_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
+            <span class="kw">let</span> <span class="ident">selected_exercise_task_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
                 <span class="string">r#&quot;
 SELECT selected_exercise_task_id AS &quot;id!&quot;
 FROM user_exercise_states
@@ -535,7 +535,7 @@ WHERE user_id = $1
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">selected_exercise_task_id</span>) <span class="op">=</span> <span class="ident">selected_exercise_task_id</span> {
                 <span class="comment">// a task has previously been selected, return it</span>
-                <span class="ident">sqlx</span>::<span class="macro">query_as</span><span class="macro">!</span>(
+                <span class="macro">sqlx::query_as!</span>(
                     <span class="ident">CourseMaterialExerciseTask</span>,
                     <span class="string">&quot;
 SELECT id,
@@ -557,7 +557,7 @@ WHERE id = $1
                 <span class="comment">// exercise -- for now we&#39;ll give a random exercise task to the student</span>
                 <span class="comment">// this could be changed by creating a policy in the exercise.</span>
                 <span class="kw">let</span> <span class="ident">selected_exercise_task</span> <span class="op">=</span> <span class="ident">get_random_exercise_task</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
+                <span class="macro">sqlx::query!</span>(
                     <span class="string">&quot;
 INSERT INTO user_exercise_states (
     user_id,
@@ -580,7 +580,7 @@ SET selected_exercise_task_id = $4
             }
         } <span class="kw">else</span> {
             <span class="comment">// user is not enrolled on the course, return error</span>
-            <span class="ident">anyhow</span>::<span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;User must be enrolled to the course&quot;</span>)
+            <span class="macro">anyhow::bail!</span>(<span class="string">&quot;User must be enrolled to the course&quot;</span>)
         }
     } <span class="kw">else</span> {
         <span class="comment">// user is not logged in, get a random task</span>
@@ -592,15 +592,15 @@ SET selected_exercise_task_id = $4
         <span class="ident">current_exercise_task</span>: <span class="ident">selected_exercise_task</span>,
         <span class="ident">exercise_status</span>: <span class="prelude-val">Some</span>(<span class="ident">ExerciseStatus</span> {
             <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
-            <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>::<span class="ident">Initialized</span>,
-            <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>::<span class="ident">NotReady</span>,
+            <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::Initialized</span>,
+            <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::NotReady</span>,
         }),
     })
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">serde_json</span>::<span class="ident">Value</span>;
+    <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -608,24 +608,24 @@ SET selected_exercise_task_id = $4
             <span class="ident">chapters</span>, <span class="ident">course_instance_enrollments</span>, <span class="ident">course_instances</span>, <span class="ident">courses</span>, <span class="ident">exercise_tasks</span>,
             <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">users</span>,
         },
-        <span class="ident">test_helper</span>::<span class="ident">Conn</span>,
-        <span class="ident">utils</span>::<span class="ident">document_schema_processor</span>::<span class="ident">GutenbergBlock</span>,
+        <span class="ident">test_helper::Conn</span>,
+        <span class="ident">utils::document_schema_processor::GutenbergBlock</span>,
     };
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">selects_course_material_exercise_for_enrolled_student</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn</span>::<span class="ident">init</span>().<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">users</span>::<span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">organizations</span>::<span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">courses</span>::<span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">organization_id</span>, <span class="string">&quot;&quot;</span>)
+        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">organization_id</span>, <span class="string">&quot;&quot;</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_instance_id</span> <span class="op">=</span> <span class="ident">course_instances</span>::<span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_id</span>, <span class="prelude-val">None</span>)
+        <span class="kw">let</span> <span class="ident">course_instance_id</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_id</span>, <span class="prelude-val">None</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="ident">course_instance_enrollments</span>::<span class="ident">insert</span>(
+        <span class="ident">course_instance_enrollments::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">user_id</span>,
             <span class="ident">course_id</span>,
@@ -634,33 +634,33 @@ SET selected_exercise_task_id = $4
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">chapters</span>::<span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">course_id</span>, <span class="number">0</span>)
+        <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">course_id</span>, <span class="number">0</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">page_id</span> <span class="op">=</span> <span class="ident">pages</span>::<span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_id</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="number">0</span>)
+        <span class="kw">let</span> <span class="ident">page_id</span> <span class="op">=</span> <span class="ident">pages::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_id</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="number">0</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">exercise_id</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_id</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page_id</span>, <span class="number">0</span>)
+        <span class="kw">let</span> <span class="ident">exercise_id</span> <span class="op">=</span> <span class="kw">super</span><span class="ident">::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_id</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page_id</span>, <span class="number">0</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">exercise_task_id</span> <span class="op">=</span> <span class="ident">exercise_tasks</span>::<span class="ident">insert</span>(
+        <span class="kw">let</span> <span class="ident">exercise_task_id</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">exercise_id</span>,
             <span class="string">&quot;&quot;</span>,
             <span class="ident">GutenbergBlock</span> {
-                <span class="ident">attributes</span>: <span class="ident">Value</span>::<span class="ident">Null</span>,
+                <span class="ident">attributes</span>: <span class="ident">Value::Null</span>,
                 <span class="ident">client_id</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">inner_blocks</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+                <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
             },
-            <span class="ident">Value</span>::<span class="ident">Null</span>,
-            <span class="ident">Value</span>::<span class="ident">Null</span>,
+            <span class="ident">Value::Null</span>,
+            <span class="ident">Value::Null</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;
 SELECT selected_exercise_task_id AS id
 FROM user_exercise_states
@@ -675,14 +675,14 @@ WHERE user_id = $1
         .<span class="ident">fetch_optional</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>())
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_none</span>());
 
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">get_course_material_exercise</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">exercise_id</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">exercise</span>.<span class="ident">current_exercise_task</span>.<span class="ident">id</span>, <span class="ident">exercise_task_id</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">exercise</span>.<span class="ident">current_exercise_task</span>.<span class="ident">id</span>, <span class="ident">exercise_task_id</span>);
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">sqlx</span>::<span class="macro">query</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;
 SELECT selected_exercise_task_id AS id
 FROM user_exercise_states
@@ -697,9 +697,9 @@ WHERE user_id = $1
         .<span class="ident">fetch_one</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>())
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">id</span>.<span class="ident">unwrap</span>(), <span class="ident">exercise_task_id</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">id</span>.<span class="ident">unwrap</span>(), <span class="ident">exercise_task_id</span>);
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

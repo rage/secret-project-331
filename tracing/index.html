@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A scoped, structured logging and diagnostics system."><meta name="keywords" content="rust, rustlang, rust-lang, tracing"><title>tracing - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../tracing/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png' alt='logo'></div></a><p class="location">Crate tracing</p><div class="block version"><p>Version 0.1.26</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all tracing's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="tracing" data-ty="mod" data-relpath="../"></div></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">tracing</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/tracing/lib.rs.html#1-1056" title="goto source code">[src]</a></span></h1><div class="docblock"><p>A scoped, structured logging and diagnostics system.</p>
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../tracing/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png' alt='logo'></div></a><p class="location">Crate tracing</p><div class="block version"><p>Version 0.1.26</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all tracing's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="tracing" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">tracing</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/tracing/lib.rs.html#1-1056" title="goto source code">[src]</a></span></h1><div class="docblock"><p>A scoped, structured logging and diagnostics system.</p>
 <h1 id="overview" class="section-header"><a href="#overview">Overview</a></h1>
 <p><code>tracing</code> is a framework for instrumenting Rust programs to collect
 structured, event-based diagnostic information.</p>
@@ -23,7 +23,7 @@ and applications to emit trace data.</p>
 <em>subscribers</em>. We’ll cover these in turn.</p>
 <h2 id="spans" class="section-header"><a href="#spans">Spans</a></h2>
 <p>To record the flow of execution through a program, <code>tracing</code> introduces the
-concept of <a href="../tracing/span/index.html">spans</a>. Unlike a log line that represents a <em>moment in
+concept of <a href="span/index.html">spans</a>. Unlike a log line that represents a <em>moment in
 time</em>, a span represents a <em>period of time</em> with a beginning and an end. When a
 program begins executing in a context or performing a unit of work, it
 <em>enters</em> that context’s span, and when it stops executing in that context,
@@ -33,12 +33,12 @@ referred to as that thread’s <em>current</em> span.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">span</span>, <span class="ident">Level</span>};
-<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;my_span&quot;</span>);
+<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span!</span>(<span class="ident">Level::TRACE</span>, <span class="string">&quot;my_span&quot;</span>);
 <span class="comment">// `enter` returns a RAII guard which, when dropped, exits the span. this</span>
 <span class="comment">// indicates that we are in the span for the current lexical scope.</span>
 <span class="kw">let</span> <span class="ident">_enter</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">enter</span>();
 <span class="comment">// perform some work in the context of `my_span`...</span></pre></div>
-<p>The <a href="../tracing/span/index.html"><code>span</code> module</a>’s documentation provides further details on how to
+<p>The <a href="span/index.html"><code>span</code> module</a>’s documentation provides further details on how to
 use spans.</p>
 <div class="information">
      <div class="tooltip compile_fail" style="">&#x26a0; &#xfe0f;<span class="tooltiptext">Warning</span></div>
@@ -50,7 +50,7 @@ use spans.</p>
      for details.
  </pre></div>
 <h2 id="events" class="section-header"><a href="#events">Events</a></h2>
-<p>An <a href="../tracing/event/struct.Event.html" title="Event"><code>Event</code></a> represents a <em>moment</em> in time. It signifies something that
+<p>An <a href="event/struct.Event.html" title="Event"><code>Event</code></a> represents a <em>moment</em> in time. It signifies something that
 happened while a trace was being recorded. <code>Event</code>s are comparable to the log
 records emitted by unstructured logging code, but unlike a typical log line,
 an <code>Event</code> may occur within the context of a span.</p>
@@ -60,30 +60,30 @@ an <code>Event</code> may occur within the context of a span.</p>
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">event</span>, <span class="ident">span</span>, <span class="ident">Level</span>};
 
 <span class="comment">// records an event outside of any span context:</span>
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="string">&quot;something happened&quot;</span>);
+<span class="macro">event!</span>(<span class="ident">Level::INFO</span>, <span class="string">&quot;something happened&quot;</span>);
 
-<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="string">&quot;my_span&quot;</span>);
+<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span!</span>(<span class="ident">Level::INFO</span>, <span class="string">&quot;my_span&quot;</span>);
 <span class="kw">let</span> <span class="ident">_guard</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">enter</span>();
 
 <span class="comment">// records an event within &quot;my_span&quot;.</span>
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">DEBUG</span>, <span class="string">&quot;something happened inside my_span&quot;</span>);</pre></div>
+<span class="macro">event!</span>(<span class="ident">Level::DEBUG</span>, <span class="string">&quot;something happened inside my_span&quot;</span>);</pre></div>
 <p>In general, events should be used to represent points in time <em>within</em> a
 span — a request returned with a given status code, <em>n</em> new items were
 taken from a queue, and so on.</p>
-<p>The <a href="../tracing/event/struct.Event.html" title="Event"><code>Event</code> struct</a> documentation provides further details on using
+<p>The <a href="event/struct.Event.html" title="Event"><code>Event</code> struct</a> documentation provides further details on using
 events.</p>
 <h2 id="subscribers" class="section-header"><a href="#subscribers">Subscribers</a></h2>
 <p>As <code>Span</code>s and <code>Event</code>s occur, they are recorded or aggregated by
-implementations of the <a href="../tracing/trait.Subscriber.html"><code>Subscriber</code></a> trait. <code>Subscriber</code>s are notified
+implementations of the <a href="trait.Subscriber.html"><code>Subscriber</code></a> trait. <code>Subscriber</code>s are notified
 when an <code>Event</code> takes place and when a <code>Span</code> is entered or exited. These
 notifications are represented by the following <code>Subscriber</code> trait methods:</p>
 <ul>
-<li><a href="../tracing/trait.Subscriber.html#tymethod.event"><code>event</code></a>, called when an <code>Event</code> takes place,</li>
-<li><a href="../tracing/trait.Subscriber.html#tymethod.enter"><code>enter</code></a>, called when execution enters a <code>Span</code>,</li>
-<li><a href="../tracing/trait.Subscriber.html#tymethod.exit"><code>exit</code></a>, called when execution exits a <code>Span</code></li>
+<li><a href="trait.Subscriber.html#tymethod.event"><code>event</code></a>, called when an <code>Event</code> takes place,</li>
+<li><a href="trait.Subscriber.html#tymethod.enter"><code>enter</code></a>, called when execution enters a <code>Span</code>,</li>
+<li><a href="trait.Subscriber.html#tymethod.exit"><code>exit</code></a>, called when execution exits a <code>Span</code></li>
 </ul>
-<p>In addition, subscribers may implement the <a href="../tracing/trait.Subscriber.html#tymethod.enabled"><code>enabled</code></a> function to <em>filter</em>
-the notifications they receive based on <a href="../tracing/struct.Metadata.html">metadata</a> describing each <code>Span</code>
+<p>In addition, subscribers may implement the <a href="trait.Subscriber.html#tymethod.enabled"><code>enabled</code></a> function to <em>filter</em>
+the notifications they receive based on <a href="struct.Metadata.html">metadata</a> describing each <code>Span</code>
 or <code>Event</code>. If a call to <code>Subscriber::enabled</code> returns <code>false</code> for a given
 set of metadata, that <code>Subscriber</code> will <em>not</em> be notified about the
 corresponding <code>Span</code> or <code>Event</code>. For performance reasons, if no currently
@@ -98,8 +98,8 @@ tracing = &quot;0.1&quot;
 <h2 id="recording-spans-and-events" class="section-header"><a href="#recording-spans-and-events">Recording Spans and Events</a></h2>
 <p>Spans and events are recorded using macros.</p>
 <h3 id="spans-1" class="section-header"><a href="#spans-1">Spans</a></h3>
-<p>The <a href="macro.span.html"><code>span!</code></a> macro expands to a <a href="../tracing/struct.Span.html"><code>Span</code> struct</a> which is used to
-record a span. The <a href="../tracing/struct.Span.html#method.enter" title="Span::enter"><code>Span::enter</code></a> method on that struct records that the
+<p>The <a href="macro.span.html"><code>span!</code></a> macro expands to a <a href="struct.Span.html"><code>Span</code> struct</a> which is used to
+record a span. The <a href="struct.Span.html#method.enter" title="Span::enter"><code>Span::enter</code></a> method on that struct records that the
 span has been entered, and returns a <a href="https://github.com/rust-unofficial/patterns/blob/master/patterns/RAII.md">RAII</a> guard object, which will exit
 the span when dropped.</p>
 <p>For example:</p>
@@ -107,7 +107,7 @@ the span when dropped.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">span</span>, <span class="ident">Level</span>};
 <span class="comment">// Construct a new span named &quot;my span&quot; with trace log level.</span>
-<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;my span&quot;</span>);
+<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span!</span>(<span class="ident">Level::TRACE</span>, <span class="string">&quot;my span&quot;</span>);
 
 <span class="comment">// Enter the span, returning a guard object.</span>
 <span class="kw">let</span> <span class="ident">_enter</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">enter</span>();
@@ -130,26 +130,26 @@ fields using <code>fmt::Debug</code>.</p>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_function</span>(<span class="ident">my_arg</span>: <span class="ident">usize</span>) {
     <span class="comment">// This event will be recorded inside a span named `my_function` with the</span>
     <span class="comment">// field `my_arg`.</span>
-    <span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="string">&quot;inside my_function!&quot;</span>);
+    <span class="macro">event!</span>(<span class="ident">Level::INFO</span>, <span class="string">&quot;inside my_function!&quot;</span>);
     <span class="comment">// ...</span>
 }</pre></div>
 <p>For functions which don’t have built-in tracing support and can’t have
 the <code>#[instrument]</code> attribute applied (such as from an external crate,
-the <a href="../tracing/struct.Span.html"><code>Span</code> struct</a> has a <a href="../tracing/struct.Span.html#method.in_scope"><code>in_scope()</code> method</a>
+the <a href="struct.Span.html"><code>Span</code> struct</a> has a <a href="struct.Span.html#method.in_scope"><code>in_scope()</code> method</a>
 which can be used to easily wrap synchonous code in a span.</p>
 <p>For example:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">tracing</span>::<span class="ident">info_span</span>;
+<span class="kw">use</span> <span class="ident">tracing::info_span</span>;
 
-<span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="macro">info_span</span><span class="macro">!</span>(<span class="string">&quot;json.parse&quot;</span>).<span class="ident">in_scope</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">serde_json</span>::<span class="ident">from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>))<span class="question-mark">?</span>;</pre></div>
+<span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="macro">info_span!</span>(<span class="string">&quot;json.parse&quot;</span>).<span class="ident">in_scope</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">serde_json::from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>))<span class="question-mark">?</span>;</pre></div>
 <p>You can find more examples showing how to use this crate <a href="https://github.com/tokio-rs/tracing/tree/master/examples">here</a>.</p>
 <h3 id="events-1" class="section-header"><a href="#events-1">Events</a></h3>
-<p><a href="../tracing/event/struct.Event.html" title="Event"><code>Event</code></a>s are recorded using the <a href="macro.event.html"><code>event!</code></a> macro:</p>
+<p><a href="event/struct.Event.html" title="Event"><code>Event</code></a>s are recorded using the <a href="macro.event.html"><code>event!</code></a> macro:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">event</span>, <span class="ident">Level</span>};
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="string">&quot;something has happened!&quot;</span>);</pre></div>
+<span class="macro">event!</span>(<span class="ident">Level::INFO</span>, <span class="string">&quot;something has happened!&quot;</span>);</pre></div>
 <h2 id="using-the-macros" class="section-header"><a href="#using-the-macros">Using the Macros</a></h2>
 <p>The <a href="macro.span.html"><code>span!</code></a> and <a href="macro.event.html"><code>event!</code></a> macros as well as the <code>#[instrument]</code> attribute
 use fairly similar syntax, with some exceptions.</p>
@@ -162,12 +162,12 @@ by the subscriber), respectively.</p>
 <p>For example:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="macro">span</span><span class="macro">!</span>(<span class="ident">target</span>: <span class="string">&quot;app_spans&quot;</span>, <span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;my span&quot;</span>);
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">target</span>: <span class="string">&quot;app_events&quot;</span>, <span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="string">&quot;something has happened!&quot;</span>);</pre></div>
+<span class="macro">span!</span>(<span class="ident">target</span>: <span class="string">&quot;app_spans&quot;</span>, <span class="ident">Level::TRACE</span>, <span class="string">&quot;my span&quot;</span>);
+<span class="macro">event!</span>(<span class="ident">target</span>: <span class="string">&quot;app_events&quot;</span>, <span class="ident">Level::INFO</span>, <span class="string">&quot;something has happened!&quot;</span>);</pre></div>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;my span&quot;</span>);
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span</span>, <span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="string">&quot;something has happened!&quot;</span>);</pre></div>
+<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">span!</span>(<span class="ident">Level::TRACE</span>, <span class="string">&quot;my span&quot;</span>);
+<span class="macro">event!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span</span>, <span class="ident">Level::INFO</span>, <span class="string">&quot;something has happened!&quot;</span>);</pre></div>
 <p>The span macros also take a string literal after the level, to set the name
 of the span.</p>
 <h3 id="recording-fields" class="section-header"><a href="#recording-fields">Recording Fields</a></h3>
@@ -178,22 +178,22 @@ of the span.</p>
 <span class="comment">// records an event with two fields:</span>
 <span class="comment">//  - &quot;answer&quot;, with the value 42</span>
 <span class="comment">//  - &quot;question&quot;, with the value &quot;life, the universe and everything&quot;</span>
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">INFO</span>, <span class="ident">answer</span> <span class="op">=</span> <span class="number">42</span>, <span class="ident">question</span> <span class="op">=</span> <span class="string">&quot;life, the universe, and everything&quot;</span>);</pre></div>
+<span class="macro">event!</span>(<span class="ident">Level::INFO</span>, <span class="ident">answer</span> <span class="op">=</span> <span class="number">42</span>, <span class="ident">question</span> <span class="op">=</span> <span class="string">&quot;life, the universe, and everything&quot;</span>);</pre></div>
 <p>As shorthand, local variables may be used as field values without an
 assignment, similar to <a href="https://doc.rust-lang.org/book/ch05-01-defining-structs.html#using-the-field-init-shorthand-when-variables-and-fields-have-the-same-name">struct initializers</a>. For example:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="string">&quot;ferris&quot;</span>;
 
-<span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;login&quot;</span>, <span class="ident">user</span>);
+<span class="macro">span!</span>(<span class="ident">Level::TRACE</span>, <span class="string">&quot;login&quot;</span>, <span class="ident">user</span>);
 <span class="comment">// is equivalent to:</span>
-<span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;login&quot;</span>, <span class="ident">user</span> <span class="op">=</span> <span class="ident">user</span>);</pre></div>
+<span class="macro">span!</span>(<span class="ident">Level::TRACE</span>, <span class="string">&quot;login&quot;</span>, <span class="ident">user</span> <span class="op">=</span> <span class="ident">user</span>);</pre></div>
 <p>Field names can include dots, but should not be terminated by them:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="string">&quot;ferris&quot;</span>;
 <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="string">&quot;ferris@rust-lang.org&quot;</span>;
-<span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;login&quot;</span>, <span class="ident">user</span>, <span class="ident">user</span>.<span class="ident">email</span> <span class="op">=</span> <span class="ident">email</span>);</pre></div>
+<span class="macro">span!</span>(<span class="ident">Level::TRACE</span>, <span class="string">&quot;login&quot;</span>, <span class="ident">user</span>, <span class="ident">user</span>.<span class="ident">email</span> <span class="op">=</span> <span class="ident">email</span>);</pre></div>
 <p>Since field names can include dots, fields on local structs can be used
 using the local variable shorthand:</p>
 
@@ -204,7 +204,7 @@ using the local variable shorthand:</p>
 };
 <span class="comment">// the span will have the fields `user.name = &quot;ferris&quot;` and</span>
 <span class="comment">// `user.email = &quot;ferris@rust-lang.org&quot;`.</span>
-<span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;login&quot;</span>, <span class="ident">user</span>.<span class="ident">name</span>, <span class="ident">user</span>.<span class="ident">email</span>);</pre></div>
+<span class="macro">span!</span>(<span class="ident">Level::TRACE</span>, <span class="string">&quot;login&quot;</span>, <span class="ident">user</span>.<span class="ident">name</span>, <span class="ident">user</span>.<span class="ident">email</span>);</pre></div>
 <p>Fields with names that are not Rust identifiers, or with names that are Rust reserved words,
 may be created using quoted string literals. However, this may not be used with the local
 variable shorthand.</p>
@@ -213,7 +213,7 @@ variable shorthand.</p>
 <span class="comment">// records an event with fields whose names are not Rust identifiers</span>
 <span class="comment">//  - &quot;guid:x-request-id&quot;, containing a `:`, with the value &quot;abcdef&quot;</span>
 <span class="comment">//  - &quot;type&quot;, which is a reserved word, with the value &quot;request&quot;</span>
-<span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;api&quot;</span>, <span class="string">&quot;guid:x-request-id&quot;</span> <span class="op">=</span> <span class="string">&quot;abcdef&quot;</span>, <span class="string">&quot;type&quot;</span> <span class="op">=</span> <span class="string">&quot;request&quot;</span>);</pre></div>
+<span class="macro">span!</span>(<span class="ident">Level::TRACE</span>, <span class="string">&quot;api&quot;</span>, <span class="string">&quot;guid:x-request-id&quot;</span> <span class="op">=</span> <span class="string">&quot;abcdef&quot;</span>, <span class="string">&quot;type&quot;</span> <span class="op">=</span> <span class="string">&quot;request&quot;</span>);</pre></div>
 <p>The <code>?</code> sigil is shorthand that specifies a field should be recorded using
 its <a href="https://doc.rust-lang.org/std/fmt/trait.Debug.html"><code>fmt::Debug</code></a> implementation:</p>
 
@@ -228,22 +228,22 @@ its <a href="https://doc.rust-lang.org/std/fmt/trait.Debug.html"><code>fmt::Debu
 };
 
 <span class="comment">// `my_struct` will be recorded using its `fmt::Debug` implementation.</span>
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">my_struct</span>);
+<span class="macro">event!</span>(<span class="ident">Level::TRACE</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">my_struct</span>);
 <span class="comment">// is equivalent to:</span>
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="ident">tracing</span>::<span class="ident">field</span>::<span class="ident">debug</span>(<span class="kw-2">&amp;</span><span class="ident">my_struct</span>));</pre></div>
+<span class="macro">event!</span>(<span class="ident">Level::TRACE</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="ident">tracing::field::debug</span>(<span class="kw-2">&amp;</span><span class="ident">my_struct</span>));</pre></div>
 <p>The <code>%</code> sigil operates similarly, but indicates that the value should be
 recorded using its <a href="https://doc.rust-lang.org/std/fmt/trait.Display.html"><code>fmt::Display</code></a> implementation:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="comment">// `my_struct.field` will be recorded using its `fmt::Display` implementation.</span>
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="op">%</span><span class="ident">my_struct</span>.<span class="ident">field</span>);
+<span class="macro">event!</span>(<span class="ident">Level::TRACE</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="op">%</span><span class="ident">my_struct</span>.<span class="ident">field</span>);
 <span class="comment">// is equivalent to:</span>
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="ident">tracing</span>::<span class="ident">field</span>::<span class="ident">display</span>(<span class="kw-2">&amp;</span><span class="ident">my_struct</span>.<span class="ident">field</span>));</pre></div>
+<span class="macro">event!</span>(<span class="ident">Level::TRACE</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="ident">tracing::field::display</span>(<span class="kw-2">&amp;</span><span class="ident">my_struct</span>.<span class="ident">field</span>));</pre></div>
 <p>The <code>%</code> and <code>?</code> sigils may also be used with local variable shorthand:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="comment">// `my_struct.field` will be recorded using its `fmt::Display` implementation.</span>
-<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="op">%</span><span class="ident">my_struct</span>.<span class="ident">field</span>);</pre></div>
+<span class="macro">event!</span>(<span class="ident">Level::TRACE</span>, <span class="op">%</span><span class="ident">my_struct</span>.<span class="ident">field</span>);</pre></div>
 <p>Additionally, a span may declare fields with the special value <a href="field/struct.Empty.html"><code>Empty</code></a>,
 which indicates that that the value for that field does not currently exist
 but may be recorded later. For example:</p>
@@ -253,7 +253,7 @@ but may be recorded later. For example:</p>
 
 <span class="comment">// Create a span with two fields: `greeting`, with the value &quot;hello world&quot;, and</span>
 <span class="comment">// `parting`, without a value.</span>
-<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">trace_span</span><span class="macro">!</span>(<span class="string">&quot;my_span&quot;</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="string">&quot;hello world&quot;</span>, <span class="ident">parting</span> <span class="op">=</span> <span class="ident">field</span>::<span class="ident">Empty</span>);
+<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">trace_span!</span>(<span class="string">&quot;my_span&quot;</span>, <span class="ident">greeting</span> <span class="op">=</span> <span class="string">&quot;hello world&quot;</span>, <span class="ident">parting</span> <span class="op">=</span> <span class="ident">field::Empty</span>);
 
 <span class="comment">// ...</span>
 
@@ -262,8 +262,8 @@ but may be recorded later. For example:</p>
 <p>Note that a span may have up to 32 fields. The following will not compile:</p>
 
 <div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail">
-<span class="kw">let</span> <span class="ident">bad_span</span> <span class="op">=</span> <span class="macro">span</span><span class="macro">!</span>(
-    <span class="ident">Level</span>::<span class="ident">TRACE</span>,
+<span class="kw">let</span> <span class="ident">bad_span</span> <span class="op">=</span> <span class="macro">span!</span>(
+    <span class="ident">Level::TRACE</span>,
     <span class="string">&quot;too many fields!&quot;</span>,
     <span class="ident">a</span> <span class="op">=</span> <span class="number">1</span>, <span class="ident">b</span> <span class="op">=</span> <span class="number">2</span>, <span class="ident">c</span> <span class="op">=</span> <span class="number">3</span>, <span class="ident">d</span> <span class="op">=</span> <span class="number">4</span>, <span class="ident">e</span> <span class="op">=</span> <span class="number">5</span>, <span class="ident">f</span> <span class="op">=</span> <span class="number">6</span>, <span class="ident">g</span> <span class="op">=</span> <span class="number">7</span>, <span class="ident">h</span> <span class="op">=</span> <span class="number">8</span>, <span class="ident">i</span> <span class="op">=</span> <span class="number">9</span>,
     <span class="ident">j</span> <span class="op">=</span> <span class="number">10</span>, <span class="ident">k</span> <span class="op">=</span> <span class="number">11</span>, <span class="ident">l</span> <span class="op">=</span> <span class="number">12</span>, <span class="ident">m</span> <span class="op">=</span> <span class="number">13</span>, <span class="ident">n</span> <span class="op">=</span> <span class="number">14</span>, <span class="ident">o</span> <span class="op">=</span> <span class="number">15</span>, <span class="ident">p</span> <span class="op">=</span> <span class="number">16</span>, <span class="ident">q</span> <span class="op">=</span> <span class="number">17</span>,
@@ -285,8 +285,8 @@ provided set of format arguments.</p>
 <span class="comment">// - `question.tricky` with the value `true`,</span>
 <span class="comment">// - &quot;message&quot;, with the value &quot;the answer to the ultimate question of life, the</span>
 <span class="comment">//    universe, and everything is 42.&quot;</span>
-<span class="macro">event</span><span class="macro">!</span>(
-    <span class="ident">Level</span>::<span class="ident">DEBUG</span>,
+<span class="macro">event!</span>(
+    <span class="ident">Level::DEBUG</span>,
     <span class="ident">question</span>.<span class="ident">answer</span> <span class="op">=</span> <span class="ident">answer</span>,
     <span class="ident">question</span>.<span class="ident">tricky</span> <span class="op">=</span> <span class="bool-val">true</span>,
     <span class="string">&quot;the answer to {} is {}.&quot;</span>, <span class="ident">question</span>, <span class="ident">answer</span>
@@ -310,28 +310,28 @@ use <code>tracing</code> can begin with a simple drop-in replacement.</p>
 <p>Let’s consider the <code>log</code> crate’s yak-shaving example:</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">io</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error::Error</span>, <span class="ident">io</span>};
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">debug</span>, <span class="ident">error</span>, <span class="ident">info</span>, <span class="ident">span</span>, <span class="ident">warn</span>, <span class="ident">Level</span>};
 
 <span class="comment">// the `#[tracing::instrument]` attribute creates and enters a span</span>
 <span class="comment">// every time the instrumented function is called. The span is named after the</span>
 <span class="comment">// the function or method. Parameters passed to the function are recorded as fields.</span>
-<span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>]</span>
+<span class="attribute">#[<span class="ident">tracing::instrument</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shave</span>(<span class="ident">yak</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// this creates an event at the DEBUG level with two fields:</span>
     <span class="comment">// - `excitement`, with the key &quot;excitement&quot; and the value &quot;yay!&quot;</span>
     <span class="comment">// - `message`, with the key &quot;message&quot; and the value &quot;hello! I&#39;m gonna shave a yak.&quot;</span>
     <span class="comment">//</span>
     <span class="comment">// unlike other fields, `message`&#39;s shorthand initialization is just the string itself.</span>
-    <span class="macro">debug</span><span class="macro">!</span>(<span class="ident">excitement</span> <span class="op">=</span> <span class="string">&quot;yay!&quot;</span>, <span class="string">&quot;hello! I&#39;m gonna shave a yak.&quot;</span>);
+    <span class="macro">debug!</span>(<span class="ident">excitement</span> <span class="op">=</span> <span class="string">&quot;yay!&quot;</span>, <span class="string">&quot;hello! I&#39;m gonna shave a yak.&quot;</span>);
     <span class="kw">if</span> <span class="ident">yak</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span> {
-        <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;could not locate yak!&quot;</span>);
+        <span class="macro">warn!</span>(<span class="string">&quot;could not locate yak!&quot;</span>);
         <span class="comment">// note that this is intended to demonstrate `tracing`&#39;s features, not idiomatic</span>
         <span class="comment">// error handling! in a library or application, you should consider returning</span>
         <span class="comment">// a dedicated `YakError`. libraries like snafu or thiserror make this easy.</span>
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Other</span>, <span class="string">&quot;shaving yak failed!&quot;</span>).<span class="ident">into</span>());
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="string">&quot;shaving yak failed!&quot;</span>).<span class="ident">into</span>());
     } <span class="kw">else</span> {
-        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;yak shaved successfully&quot;</span>);
+        <span class="macro">debug!</span>(<span class="string">&quot;yak shaved successfully&quot;</span>);
     }
     <span class="prelude-val">Ok</span>(())
 }
@@ -344,23 +344,23 @@ use <code>tracing</code> can begin with a simple drop-in replacement.</p>
     <span class="comment">//</span>
     <span class="comment">// local variables (`yaks`) can be used as field values</span>
     <span class="comment">// without an assignment, similar to struct initializers.</span>
-    <span class="kw">let</span> <span class="ident">_span</span> <span class="op">=</span> <span class="macro">span</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">TRACE</span>, <span class="string">&quot;shaving_yaks&quot;</span>, <span class="ident">yaks</span>).<span class="ident">entered</span>();
+    <span class="kw">let</span> <span class="ident">_span</span> <span class="op">=</span> <span class="macro">span!</span>(<span class="ident">Level::TRACE</span>, <span class="string">&quot;shaving_yaks&quot;</span>, <span class="ident">yaks</span>).<span class="ident">entered</span>();
 
-    <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;shaving yaks&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">&quot;shaving yaks&quot;</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">yaks_shaved</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">for</span> <span class="ident">yak</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="ident">yaks</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">shave</span>(<span class="ident">yak</span>);
-        <span class="macro">debug</span><span class="macro">!</span>(<span class="ident">yak</span>, <span class="ident">shaved</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">is_ok</span>());
+        <span class="macro">debug!</span>(<span class="ident">yak</span>, <span class="ident">shaved</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">is_ok</span>());
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">error</span>) <span class="op">=</span> <span class="ident">res</span> {
             <span class="comment">// Like spans, events can also use the field initialization shorthand.</span>
             <span class="comment">// In this instance, `yak` is the field being initalized.</span>
-            <span class="macro">error</span><span class="macro">!</span>(<span class="ident">yak</span>, <span class="ident">error</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">as_ref</span>(), <span class="string">&quot;failed to shave yak!&quot;</span>);
+            <span class="macro">error!</span>(<span class="ident">yak</span>, <span class="ident">error</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">as_ref</span>(), <span class="string">&quot;failed to shave yak!&quot;</span>);
         } <span class="kw">else</span> {
             <span class="ident">yaks_shaved</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
-        <span class="macro">debug</span><span class="macro">!</span>(<span class="ident">yaks_shaved</span>);
+        <span class="macro">debug!</span>(<span class="ident">yaks_shaved</span>);
     }
 
     <span class="ident">yaks_shaved</span>
@@ -375,14 +375,14 @@ implementation compatible with <code>tracing</code>. A <code>Subscriber</code> i
 way of collecting trace data, such as by logging it to standard output.</p>
 <p>This library does not contain any <code>Subscriber</code> implementations; these are
 provided by <a href="#related-crates">other crates</a>.</p>
-<p>The simplest way to use a subscriber is to call the <a href="../tracing/subscriber/fn.set_global_default.html"><code>set_global_default</code></a>
+<p>The simplest way to use a subscriber is to call the <a href="subscriber/fn.set_global_default.html"><code>set_global_default</code></a>
 function:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tracing</span>;
 
-<span class="kw">let</span> <span class="ident">my_subscriber</span> <span class="op">=</span> <span class="ident">FooSubscriber</span>::<span class="ident">new</span>();
-<span class="ident">tracing</span>::<span class="ident">subscriber</span>::<span class="ident">set_global_default</span>(<span class="ident">my_subscriber</span>)
+<span class="kw">let</span> <span class="ident">my_subscriber</span> <span class="op">=</span> <span class="ident">FooSubscriber::new</span>();
+<span class="ident">tracing::subscriber::set_global_default</span>(<span class="ident">my_subscriber</span>)
     .<span class="ident">expect</span>(<span class="string">&quot;setting tracing default failed&quot;</span>);</pre></div>
 <div class="information">
      <div class="tooltip compile_fail" style="">&#x26a0; &#xfe0f;<span class="tooltiptext">Warning</span></div>
@@ -395,14 +395,14 @@ function:</p>
 remainder of the duration of the program, similar to setting the logger
 in the <code>log</code> crate.</p>
 <p>In addition, the default subscriber can be set through using the
-<a href="../tracing/subscriber/fn.with_default.html"><code>with_default</code></a> function. This follows the <code>tokio</code> pattern of using
+<a href="subscriber/fn.with_default.html"><code>with_default</code></a> function. This follows the <code>tokio</code> pattern of using
 closures to represent executing code in a context that is exited at the end
 of the closure. For example:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 
-<span class="kw">let</span> <span class="ident">my_subscriber</span> <span class="op">=</span> <span class="ident">FooSubscriber</span>::<span class="ident">new</span>();
-<span class="ident">tracing</span>::<span class="ident">subscriber</span>::<span class="ident">with_default</span>(<span class="ident">my_subscriber</span>, <span class="op">|</span><span class="op">|</span> {
+<span class="kw">let</span> <span class="ident">my_subscriber</span> <span class="op">=</span> <span class="ident">FooSubscriber::new</span>();
+<span class="ident">tracing::subscriber::with_default</span>(<span class="ident">my_subscriber</span>, <span class="op">|</span><span class="op">|</span> {
     <span class="comment">// Any trace events generated in this closure or by functions it calls</span>
     <span class="comment">// will be collected by `my_subscriber`.</span>
 })</pre></div>
@@ -420,10 +420,10 @@ denominator” for text-based logging in Rust — a vast majority of Rust
 libraries and applications either emit or consume <code>log</code> records. Therefore,
 <code>tracing</code> provides multiple forms of interoperability with <code>log</code>: <code>tracing</code>
 instrumentation can emit <code>log</code> records, and a compatibility layer enables
-<code>tracing</code> <a href="../tracing/trait.Subscriber.html"><code>Subscriber</code></a>s to consume <code>log</code> records as <code>tracing</code> <a href="../tracing/event/struct.Event.html" title="Event"><code>Event</code></a>s.</p>
+<code>tracing</code> <a href="trait.Subscriber.html"><code>Subscriber</code></a>s to consume <code>log</code> records as <code>tracing</code> <a href="event/struct.Event.html" title="Event"><code>Event</code></a>s.</p>
 <h3 id="emitting-log-records" class="section-header"><a href="#emitting-log-records">Emitting <code>log</code> Records</a></h3>
 <p>This crate provides two feature flags, “log” and “log-always”, which will
-cause <a href="../tracing/span/index.html">spans</a> and <a href="../tracing/event/struct.Event.html">events</a> to emit <code>log</code> records. When the “log” feature is
+cause <a href="span/index.html">spans</a> and <a href="event/struct.Event.html">events</a> to emit <code>log</code> records. When the “log” feature is
 enabled, if no <code>tracing</code> <code>Subscriber</code> is active, invoking an event macro or
 creating a span with fields will emit a <code>log</code> record. This is intended
 primarily for use in libraries which wish to emit diagnostics that can be
@@ -452,8 +452,8 @@ may be enabled or disabled separately from other <code>log</code> records emitte
 <code>tracing</code>.</p>
 <h3 id="consuming-log-records" class="section-header"><a href="#consuming-log-records">Consuming <code>log</code> Records</a></h3>
 <p>The <a href="https://crates.io/crates/tracing-log"><code>tracing-log</code></a> crate provides a compatibility layer which
-allows a <code>tracing</code> <a href="../tracing/trait.Subscriber.html"><code>Subscriber</code></a> to consume <code>log</code> records as though they
-were <code>tracing</code> <a href="../tracing/event/struct.Event.html">events</a>. This allows applications using <code>tracing</code> to record
+allows a <code>tracing</code> <a href="trait.Subscriber.html"><code>Subscriber</code></a> to consume <code>log</code> records as though they
+were <code>tracing</code> <a href="event/struct.Event.html">events</a>. This allows applications using <code>tracing</code> to record
 the logs emitted by dependencies using <code>log</code> as events within the context of
 the application’s trace tree. See <a href="https://docs.rs/tracing-log/latest/tracing_log/#convert-log-records-to-tracing-events">that crate’s documentation</a>
 for details.</p>
@@ -609,5 +609,5 @@ exists.</p>
 </td></tr></table><h2 id="attributes" class="section-header"><a href="#attributes">Attribute Macros</a></h2>
 <table><tr class="module-item"><td><a class="attr" href="attr.instrument.html" title="tracing::instrument attr">instrument</a></td><td class="docblock-short"><p>Instruments a function to create and enter a <code>tracing</code> <a href="https://docs.rs/tracing/latest/tracing/span/index.html">span</a> every time
 the function is called.</p>
-</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="tracing" data-search-js="../search-index.js"></div>
+</td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="tracing" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
     <script src="../main.js"></script></body></html>

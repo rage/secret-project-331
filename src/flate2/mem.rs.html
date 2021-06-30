@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/flate2-1.0.20/src/mem.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mem.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../flate2/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../flate2/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -737,13 +737,13 @@
 <span id="734">734</span>
 <span id="735">735</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">slice</span>;
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::slice</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::{<span class="self">self</span>, <span class="ident">Backend</span>, <span class="ident">Deflate</span>, <span class="ident">DeflateBackend</span>, <span class="ident">Inflate</span>, <span class="ident">InflateBackend</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Compression</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ffi</span>::{<span class="self">self</span>, <span class="ident">Backend</span>, <span class="ident">Deflate</span>, <span class="ident">DeflateBackend</span>, <span class="ident">Inflate</span>, <span class="ident">InflateBackend</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Compression</span>;
 
 <span class="doccomment">/// Raw in-memory compression stream for blocks of data.</span>
 <span class="doccomment">///</span>
@@ -786,7 +786,7 @@
     <span class="doccomment">/// A typical parameter for passing to compression/decompression functions,</span>
     <span class="doccomment">/// this indicates that the underlying stream to decide how much data to</span>
     <span class="doccomment">/// accumulate before producing output in order to maximize compression.</span>
-    <span class="prelude-val">None</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">MZ_NO_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="prelude-val">None</span> <span class="op">=</span> <span class="ident">ffi::MZ_NO_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
 
     <span class="doccomment">/// All pending output is flushed to the output buffer and the output is</span>
     <span class="doccomment">/// aligned on a byte boundary so that the decompressor can get all input</span>
@@ -795,7 +795,7 @@
     <span class="doccomment">/// Flushing may degrade compression for some compression algorithms and so</span>
     <span class="doccomment">/// it should only be used when necessary. This will complete the current</span>
     <span class="doccomment">/// deflate block and follow it with an empty stored block.</span>
-    <span class="ident">Sync</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">MZ_SYNC_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Sync</span> <span class="op">=</span> <span class="ident">ffi::MZ_SYNC_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
 
     <span class="doccomment">/// All pending output is flushed to the output buffer, but the output is</span>
     <span class="doccomment">/// not aligned to a byte boundary.</span>
@@ -805,20 +805,20 @@
     <span class="doccomment">/// it with an empty fixed codes block that is 10 bites long, and it assures</span>
     <span class="doccomment">/// that enough bytes are output in order for the decompessor to finish the</span>
     <span class="doccomment">/// block before the empty fixed code block.</span>
-    <span class="ident">Partial</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">MZ_PARTIAL_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Partial</span> <span class="op">=</span> <span class="ident">ffi::MZ_PARTIAL_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
 
     <span class="doccomment">/// All output is flushed as with `Flush::Sync` and the compression state is</span>
     <span class="doccomment">/// reset so decompression can restart from this point if previous</span>
     <span class="doccomment">/// compressed data has been damaged or if random access is desired.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Using this option too often can seriously degrade compression.</span>
-    <span class="ident">Full</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">MZ_FULL_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Full</span> <span class="op">=</span> <span class="ident">ffi::MZ_FULL_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
 
     <span class="doccomment">/// Pending input is processed and pending output is flushed.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The return value may indicate that the stream is not yet done and more</span>
     <span class="doccomment">/// data has yet to be processed.</span>
-    <span class="ident">Finish</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">MZ_FINISH</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Finish</span> <span class="op">=</span> <span class="ident">ffi::MZ_FINISH</span> <span class="kw">as</span> <span class="ident">isize</span>,
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="ident">_Nonexhaustive</span>,
@@ -831,7 +831,7 @@
     <span class="doccomment">/// A typical parameter for passing to compression/decompression functions,</span>
     <span class="doccomment">/// this indicates that the underlying stream to decide how much data to</span>
     <span class="doccomment">/// accumulate before producing output in order to maximize compression.</span>
-    <span class="prelude-val">None</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">MZ_NO_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="prelude-val">None</span> <span class="op">=</span> <span class="ident">ffi::MZ_NO_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
 
     <span class="doccomment">/// All pending output is flushed to the output buffer and the output is</span>
     <span class="doccomment">/// aligned on a byte boundary so that the decompressor can get all input</span>
@@ -840,13 +840,13 @@
     <span class="doccomment">/// Flushing may degrade compression for some compression algorithms and so</span>
     <span class="doccomment">/// it should only be used when necessary. This will complete the current</span>
     <span class="doccomment">/// deflate block and follow it with an empty stored block.</span>
-    <span class="ident">Sync</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">MZ_SYNC_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Sync</span> <span class="op">=</span> <span class="ident">ffi::MZ_SYNC_FLUSH</span> <span class="kw">as</span> <span class="ident">isize</span>,
 
     <span class="doccomment">/// Pending input is processed and pending output is flushed.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The return value may indicate that the stream is not yet done and more</span>
     <span class="doccomment">/// data has yet to be processed.</span>
-    <span class="ident">Finish</span> <span class="op">=</span> <span class="ident">ffi</span>::<span class="ident">MZ_FINISH</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Finish</span> <span class="op">=</span> <span class="ident">ffi::MZ_FINISH</span> <span class="kw">as</span> <span class="ident">isize</span>,
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="ident">_Nonexhaustive</span>,
@@ -875,7 +875,7 @@
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">decompress_failed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Status</span>, <span class="ident">DecompressError</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Err</span>(<span class="ident">DecompressError</span>(<span class="ident">Default</span>::<span class="ident">default</span>()))
+    <span class="prelude-val">Err</span>(<span class="ident">DecompressError</span>(<span class="ident">Default::default</span>()))
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -927,7 +927,7 @@
     <span class="doccomment">/// output data should have a zlib header or not.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">level</span>: <span class="ident">Compression</span>, <span class="ident">zlib_header</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compress</span> {
         <span class="ident">Compress</span> {
-            <span class="ident">inner</span>: <span class="ident">Deflate</span>::<span class="ident">make</span>(<span class="ident">level</span>, <span class="ident">zlib_header</span>, <span class="ident">ffi</span>::<span class="ident">MZ_DEFAULT_WINDOW_BITS</span> <span class="kw">as</span> <span class="ident">u8</span>),
+            <span class="ident">inner</span>: <span class="ident">Deflate::make</span>(<span class="ident">level</span>, <span class="ident">zlib_header</span>, <span class="ident">ffi::MZ_DEFAULT_WINDOW_BITS</span> <span class="kw">as</span> <span class="ident">u8</span>),
         }
     }
 
@@ -954,12 +954,12 @@
         <span class="ident">zlib_header</span>: <span class="ident">bool</span>,
         <span class="ident">window_bits</span>: <span class="ident">u8</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compress</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="ident">window_bits</span> <span class="op">&gt;</span> <span class="number">8</span> <span class="op">&amp;&amp;</span> <span class="ident">window_bits</span> <span class="op">&lt;</span> <span class="number">16</span>,
             <span class="string">&quot;window_bits must be within 9 ..= 15&quot;</span>
         );
         <span class="ident">Compress</span> {
-            <span class="ident">inner</span>: <span class="ident">Deflate</span>::<span class="ident">make</span>(<span class="ident">level</span>, <span class="ident">zlib_header</span>, <span class="ident">window_bits</span>),
+            <span class="ident">inner</span>: <span class="ident">Deflate::make</span>(<span class="ident">level</span>, <span class="ident">zlib_header</span>, <span class="ident">window_bits</span>),
         }
     }
 
@@ -982,12 +982,12 @@
     <span class="doccomment">/// Other backends currently do not support gzip headers for Compress.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zlib&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_gzip</span>(<span class="ident">level</span>: <span class="ident">Compression</span>, <span class="ident">window_bits</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compress</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="ident">window_bits</span> <span class="op">&gt;</span> <span class="number">8</span> <span class="op">&amp;&amp;</span> <span class="ident">window_bits</span> <span class="op">&lt;</span> <span class="number">16</span>,
             <span class="string">&quot;window_bits must be within 9 ..= 15&quot;</span>
         );
         <span class="ident">Compress</span> {
-            <span class="ident">inner</span>: <span class="ident">Deflate</span>::<span class="ident">make</span>(<span class="ident">level</span>, <span class="bool-val">true</span>, <span class="ident">window_bits</span> <span class="op">+</span> <span class="number">16</span>),
+            <span class="ident">inner</span>: <span class="ident">Deflate::make</span>(<span class="ident">level</span>, <span class="bool-val">true</span>, <span class="ident">window_bits</span> <span class="op">+</span> <span class="number">16</span>),
         }
     }
 
@@ -1010,14 +1010,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_dictionary</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dictionary</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">CompressError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">inner</span>.<span class="ident">stream_wrapper</span>;
         <span class="kw">let</span> <span class="ident">rc</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dictionary</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">ffi</span>::<span class="ident">uInt</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
-            <span class="ident">ffi</span>::<span class="ident">deflateSetDictionary</span>(<span class="ident">stream</span>, <span class="ident">dictionary</span>.<span class="ident">as_ptr</span>(), <span class="ident">dictionary</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">ffi</span>::<span class="ident">uInt</span>)
+            <span class="macro">assert!</span>(<span class="ident">dictionary</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">ffi::uInt::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+            <span class="ident">ffi::deflateSetDictionary</span>(<span class="ident">stream</span>, <span class="ident">dictionary</span>.<span class="ident">as_ptr</span>(), <span class="ident">dictionary</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">ffi::uInt</span>)
         };
 
         <span class="kw">match</span> <span class="ident">rc</span> {
-            <span class="ident">ffi</span>::<span class="ident">MZ_STREAM_ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CompressError</span>(())),
-            <span class="ident">ffi</span>::<span class="ident">MZ_OK</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">stream</span>.<span class="ident">adler</span> <span class="kw">as</span> <span class="ident">u32</span>),
-            <span class="ident">c</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;unknown return code: {}&quot;</span>, <span class="ident">c</span>),
+            <span class="ident">ffi::MZ_STREAM_ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CompressError</span>(())),
+            <span class="ident">ffi::MZ_OK</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">stream</span>.<span class="ident">adler</span> <span class="kw">as</span> <span class="ident">u32</span>),
+            <span class="ident">c</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unknown return code: {}&quot;</span>, <span class="ident">c</span>),
         }
     }
 
@@ -1040,15 +1040,15 @@
     <span class="doccomment">/// ensures that the function will succeed on the first call.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any_zlib&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_level</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">level</span>: <span class="ident">Compression</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">CompressError</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">c_int</span>;
+        <span class="kw">use</span> <span class="ident">libc::c_int</span>;
         <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">inner</span>.<span class="ident">stream_wrapper</span>;
 
-        <span class="kw">let</span> <span class="ident">rc</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi</span>::<span class="ident">deflateParams</span>(<span class="ident">stream</span>, <span class="ident">level</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">c_int</span>, <span class="ident">ffi</span>::<span class="ident">MZ_DEFAULT_STRATEGY</span>) };
+        <span class="kw">let</span> <span class="ident">rc</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::deflateParams</span>(<span class="ident">stream</span>, <span class="ident">level</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">c_int</span>, <span class="ident">ffi::MZ_DEFAULT_STRATEGY</span>) };
 
         <span class="kw">match</span> <span class="ident">rc</span> {
-            <span class="ident">ffi</span>::<span class="ident">MZ_OK</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">ffi</span>::<span class="ident">MZ_BUF_ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CompressError</span>(())),
-            <span class="ident">c</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;unknown return code: {}&quot;</span>, <span class="ident">c</span>),
+            <span class="ident">ffi::MZ_OK</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">ffi::MZ_BUF_ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CompressError</span>(())),
+            <span class="ident">c</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unknown return code: {}&quot;</span>, <span class="ident">c</span>),
         }
     }
 
@@ -1089,7 +1089,7 @@
             <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">total_out</span>();
             <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> {
                 <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">as_mut_ptr</span>().<span class="ident">offset</span>(<span class="ident">len</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="ident">ptr</span>, <span class="ident">cap</span> <span class="op">-</span> <span class="ident">len</span>);
+                <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">slice::from_raw_parts_mut</span>(<span class="ident">ptr</span>, <span class="ident">cap</span> <span class="op">-</span> <span class="ident">len</span>);
                 <span class="self">self</span>.<span class="ident">compress</span>(<span class="ident">input</span>, <span class="ident">out</span>, <span class="ident">flush</span>)
             };
             <span class="ident">output</span>.<span class="ident">set_len</span>((<span class="self">self</span>.<span class="ident">total_out</span>() <span class="op">-</span> <span class="ident">before</span>) <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">len</span>);
@@ -1105,7 +1105,7 @@
     <span class="doccomment">/// to have a zlib header or not.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">zlib_header</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Decompress</span> {
         <span class="ident">Decompress</span> {
-            <span class="ident">inner</span>: <span class="ident">Inflate</span>::<span class="ident">make</span>(<span class="ident">zlib_header</span>, <span class="ident">ffi</span>::<span class="ident">MZ_DEFAULT_WINDOW_BITS</span> <span class="kw">as</span> <span class="ident">u8</span>),
+            <span class="ident">inner</span>: <span class="ident">Inflate::make</span>(<span class="ident">zlib_header</span>, <span class="ident">ffi::MZ_DEFAULT_WINDOW_BITS</span> <span class="kw">as</span> <span class="ident">u8</span>),
         }
     }
 
@@ -1126,12 +1126,12 @@
     <span class="doccomment">/// Other backends currently do not support custom window bits.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any_zlib&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_window_bits</span>(<span class="ident">zlib_header</span>: <span class="ident">bool</span>, <span class="ident">window_bits</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Decompress</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="ident">window_bits</span> <span class="op">&gt;</span> <span class="number">8</span> <span class="op">&amp;&amp;</span> <span class="ident">window_bits</span> <span class="op">&lt;</span> <span class="number">16</span>,
             <span class="string">&quot;window_bits must be within 9 ..= 15&quot;</span>
         );
         <span class="ident">Decompress</span> {
-            <span class="ident">inner</span>: <span class="ident">Inflate</span>::<span class="ident">make</span>(<span class="ident">zlib_header</span>, <span class="ident">window_bits</span>),
+            <span class="ident">inner</span>: <span class="ident">Inflate::make</span>(<span class="ident">zlib_header</span>, <span class="ident">window_bits</span>),
         }
     }
 
@@ -1151,12 +1151,12 @@
     <span class="doccomment">/// Other backends currently do not support gzip headers for Decompress.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zlib&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_gzip</span>(<span class="ident">window_bits</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Decompress</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="ident">window_bits</span> <span class="op">&gt;</span> <span class="number">8</span> <span class="op">&amp;&amp;</span> <span class="ident">window_bits</span> <span class="op">&lt;</span> <span class="number">16</span>,
             <span class="string">&quot;window_bits must be within 9 ..= 15&quot;</span>
         );
         <span class="ident">Decompress</span> {
-            <span class="ident">inner</span>: <span class="ident">Inflate</span>::<span class="ident">make</span>(<span class="bool-val">true</span>, <span class="ident">window_bits</span> <span class="op">+</span> <span class="number">16</span>),
+            <span class="ident">inner</span>: <span class="ident">Inflate::make</span>(<span class="bool-val">true</span>, <span class="ident">window_bits</span> <span class="op">+</span> <span class="number">16</span>),
         }
     }
 
@@ -1230,7 +1230,7 @@
             <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">total_out</span>();
             <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> {
                 <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">as_mut_ptr</span>().<span class="ident">offset</span>(<span class="ident">len</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="ident">ptr</span>, <span class="ident">cap</span> <span class="op">-</span> <span class="ident">len</span>);
+                <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">slice::from_raw_parts_mut</span>(<span class="ident">ptr</span>, <span class="ident">cap</span> <span class="op">-</span> <span class="ident">len</span>);
                 <span class="self">self</span>.<span class="ident">decompress</span>(<span class="ident">input</span>, <span class="ident">out</span>, <span class="ident">flush</span>)
             };
             <span class="ident">output</span>.<span class="ident">set_len</span>((<span class="self">self</span>.<span class="ident">total_out</span>() <span class="op">-</span> <span class="ident">before</span>) <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">len</span>);
@@ -1243,17 +1243,17 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_dictionary</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dictionary</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">DecompressError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">inner</span>.<span class="ident">stream_wrapper</span>;
         <span class="kw">let</span> <span class="ident">rc</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dictionary</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">ffi</span>::<span class="ident">uInt</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
-            <span class="ident">ffi</span>::<span class="ident">inflateSetDictionary</span>(<span class="ident">stream</span>, <span class="ident">dictionary</span>.<span class="ident">as_ptr</span>(), <span class="ident">dictionary</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">ffi</span>::<span class="ident">uInt</span>)
+            <span class="macro">assert!</span>(<span class="ident">dictionary</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">ffi::uInt::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+            <span class="ident">ffi::inflateSetDictionary</span>(<span class="ident">stream</span>, <span class="ident">dictionary</span>.<span class="ident">as_ptr</span>(), <span class="ident">dictionary</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">ffi::uInt</span>)
         };
 
         <span class="kw">match</span> <span class="ident">rc</span> {
-            <span class="ident">ffi</span>::<span class="ident">MZ_STREAM_ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">DecompressError</span>(<span class="ident">Default</span>::<span class="ident">default</span>())),
-            <span class="ident">ffi</span>::<span class="ident">MZ_DATA_ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">DecompressError</span>(<span class="ident">DecompressErrorInner</span> {
+            <span class="ident">ffi::MZ_STREAM_ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">DecompressError</span>(<span class="ident">Default::default</span>())),
+            <span class="ident">ffi::MZ_DATA_ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">DecompressError</span>(<span class="ident">DecompressErrorInner</span> {
                 <span class="ident">needs_dictionary</span>: <span class="prelude-val">Some</span>(<span class="ident">stream</span>.<span class="ident">adler</span> <span class="kw">as</span> <span class="ident">u32</span>),
             })),
-            <span class="ident">ffi</span>::<span class="ident">MZ_OK</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">stream</span>.<span class="ident">adler</span> <span class="kw">as</span> <span class="ident">u32</span>),
-            <span class="ident">c</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;unknown return code: {}&quot;</span>, <span class="ident">c</span>),
+            <span class="ident">ffi::MZ_OK</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">stream</span>.<span class="ident">adler</span> <span class="kw">as</span> <span class="ident">u32</span>),
+            <span class="ident">c</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;unknown return code: {}&quot;</span>, <span class="ident">c</span>),
         }
     }
 
@@ -1272,37 +1272,37 @@
 
 <span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">DecompressError</span> {}
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">DecompressError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">io</span>::<span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">data</span>: <span class="ident">DecompressError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="ident">Error</span> {
-        <span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Other</span>, <span class="ident">data</span>)
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">DecompressError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">io::Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">data</span>: <span class="ident">DecompressError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Error</span> {
+        <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">data</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DecompressError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;deflate decompression error&quot;</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">DecompressError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;deflate decompression error&quot;</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">CompressError</span> {}
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">CompressError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">io</span>::<span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">data</span>: <span class="ident">CompressError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="ident">Error</span> {
-        <span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Other</span>, <span class="ident">data</span>)
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">CompressError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">io::Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">data</span>: <span class="ident">CompressError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Error</span> {
+        <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">data</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">CompressError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;deflate decompression error&quot;</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">CompressError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;deflate decompression error&quot;</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
+    <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">write</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::write</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Compression</span>, <span class="ident">Decompress</span>, <span class="ident">FlushDecompress</span>};
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any_zlib&quot;</span>)]</span>
@@ -1310,7 +1310,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">issue51</span>() {
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="number">0x1f</span>, <span class="number">0x8b</span>, <span class="number">0x08</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0xb3</span>, <span class="number">0xc9</span>, <span class="number">0x28</span>, <span class="number">0xc9</span>,
             <span class="number">0xcd</span>, <span class="number">0xb1</span>, <span class="number">0xe3</span>, <span class="number">0xe5</span>, <span class="number">0xb2</span>, <span class="number">0xc9</span>, <span class="number">0x48</span>, <span class="number">0x4d</span>, <span class="number">0x4c</span>, <span class="number">0xb1</span>, <span class="number">0xb3</span>, <span class="number">0x29</span>, <span class="number">0xc9</span>, <span class="number">0x2c</span>,
             <span class="number">0xc9</span>, <span class="number">0x49</span>, <span class="number">0xb5</span>, <span class="number">0x33</span>, <span class="number">0x31</span>, <span class="number">0x30</span>, <span class="number">0x51</span>, <span class="number">0xf0</span>, <span class="number">0xcb</span>, <span class="number">0x2f</span>, <span class="number">0x51</span>, <span class="number">0x70</span>, <span class="number">0xcb</span>, <span class="number">0x2f</span>,
@@ -1323,47 +1323,47 @@
             <span class="number">0xe4</span>, <span class="number">0xa8</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
         ];
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">data</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">2</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">data</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">2</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">Decompress</span>::<span class="ident">new</span>(<span class="bool-val">false</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">Decompress::new</span>(<span class="bool-val">false</span>);
         <span class="comment">// decompressed whole deflate stream</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">d</span>
-            .<span class="ident">decompress_vec</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>[<span class="number">10</span>..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress</span>::<span class="ident">Finish</span>)
+        <span class="macro">assert!</span>(<span class="ident">d</span>
+            .<span class="ident">decompress_vec</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>[<span class="number">10</span>..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress::Finish</span>)
             .<span class="ident">is_ok</span>());
 
         <span class="comment">// decompress data that has nothing to do with the deflate stream (this</span>
         <span class="comment">// used to panic)</span>
-        <span class="ident">drop</span>(<span class="ident">d</span>.<span class="ident">decompress_vec</span>(<span class="kw-2">&amp;</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress</span>::<span class="prelude-val">None</span>));
+        <span class="ident">drop</span>(<span class="ident">d</span>.<span class="ident">decompress_vec</span>(<span class="kw-2">&amp;</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress::None</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">reset</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;hello world&quot;</span>.<span class="ident">as_bytes</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zlib</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deflate</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zlib</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deflate</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-        <span class="kw">let</span> <span class="ident">comp</span> <span class="op">=</span> <span class="ident">Compression</span>::<span class="ident">default</span>();
-        <span class="ident">write</span>::<span class="ident">ZlibEncoder</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">zlib</span>, <span class="ident">comp</span>)
+        <span class="kw">let</span> <span class="ident">comp</span> <span class="op">=</span> <span class="ident">Compression::default</span>();
+        <span class="ident">write::ZlibEncoder::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">zlib</span>, <span class="ident">comp</span>)
             .<span class="ident">write_all</span>(<span class="ident">string</span>)
             .<span class="ident">unwrap</span>();
-        <span class="ident">write</span>::<span class="ident">DeflateEncoder</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">deflate</span>, <span class="ident">comp</span>)
+        <span class="ident">write::DeflateEncoder::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">deflate</span>, <span class="ident">comp</span>)
             .<span class="ident">write_all</span>(<span class="ident">string</span>)
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dst</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">1024</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">Decompress</span>::<span class="ident">new</span>(<span class="bool-val">true</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">Decompress::new</span>(<span class="bool-val">true</span>);
         <span class="ident">decoder</span>
-            .<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">zlib</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dst</span>, <span class="ident">FlushDecompress</span>::<span class="ident">Finish</span>)
+            .<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">zlib</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dst</span>, <span class="ident">FlushDecompress::Finish</span>)
             .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">decoder</span>.<span class="ident">total_out</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dst</span>.<span class="ident">starts_with</span>(<span class="ident">string</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">decoder</span>.<span class="ident">total_out</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="macro">assert!</span>(<span class="ident">dst</span>.<span class="ident">starts_with</span>(<span class="ident">string</span>));
 
         <span class="ident">decoder</span>.<span class="ident">reset</span>(<span class="bool-val">false</span>);
         <span class="ident">decoder</span>
-            .<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">deflate</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dst</span>, <span class="ident">FlushDecompress</span>::<span class="ident">Finish</span>)
+            .<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">deflate</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dst</span>, <span class="ident">FlushDecompress::Finish</span>)
             .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">decoder</span>.<span class="ident">total_out</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dst</span>.<span class="ident">starts_with</span>(<span class="ident">string</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">decoder</span>.<span class="ident">total_out</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="macro">assert!</span>(<span class="ident">dst</span>.<span class="ident">starts_with</span>(<span class="ident">string</span>));
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any_zlib&quot;</span>)]</span>
@@ -1372,34 +1372,34 @@
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;hello, hello!&quot;</span>.<span class="ident">as_bytes</span>();
         <span class="kw">let</span> <span class="ident">dictionary</span> <span class="op">=</span> <span class="string">&quot;hello&quot;</span>.<span class="ident">as_bytes</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="number">1024</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">1024</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">Compress</span>::<span class="ident">new</span>(<span class="ident">Compression</span>::<span class="ident">default</span>(), <span class="bool-val">true</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">Compress::new</span>(<span class="ident">Compression::default</span>(), <span class="bool-val">true</span>);
 
         <span class="kw">let</span> <span class="ident">dictionary_adler</span> <span class="op">=</span> <span class="ident">encoder</span>.<span class="ident">set_dictionary</span>(<span class="kw-2">&amp;</span><span class="ident">dictionary</span>).<span class="ident">unwrap</span>();
 
         <span class="ident">encoder</span>
-            .<span class="ident">compress_vec</span>(<span class="ident">string</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">encoded</span>, <span class="ident">FlushCompress</span>::<span class="ident">Finish</span>)
+            .<span class="ident">compress_vec</span>(<span class="ident">string</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">encoded</span>, <span class="ident">FlushCompress::Finish</span>)
             .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">encoder</span>.<span class="ident">total_in</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">encoder</span>.<span class="ident">total_out</span>(), <span class="ident">encoded</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">encoder</span>.<span class="ident">total_in</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">encoder</span>.<span class="ident">total_out</span>(), <span class="ident">encoded</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">Decompress</span>::<span class="ident">new</span>(<span class="bool-val">true</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">Decompress::new</span>(<span class="bool-val">true</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">1024</span>];
         <span class="kw">let</span> <span class="ident">decompress_error</span> <span class="op">=</span> <span class="ident">decoder</span>
-            .<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress</span>::<span class="ident">Finish</span>)
+            .<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress::Finish</span>)
             .<span class="ident">expect_err</span>(<span class="string">&quot;decompression should fail due to requiring a dictionary&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">required_adler</span> <span class="op">=</span> <span class="ident">decompress_error</span>.<span class="ident">needs_dictionary</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;the first call to decompress should indicate a dictionary is required along with the required Adler-32 checksum&quot;</span>);
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">required_adler</span>, <span class="ident">dictionary_adler</span>,
+        <span class="macro">assert_eq!</span>(<span class="ident">required_adler</span>, <span class="ident">dictionary_adler</span>,
             <span class="string">&quot;the Adler-32 checksum should match the value when the dictionary was set on the compressor&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">actual_adler</span> <span class="op">=</span> <span class="ident">decoder</span>.<span class="ident">set_dictionary</span>(<span class="kw-2">&amp;</span><span class="ident">dictionary</span>).<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">required_adler</span>, <span class="ident">actual_adler</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">required_adler</span>, <span class="ident">actual_adler</span>);
 
         <span class="comment">// Decompress the rest of the input to the remainder of the output buffer</span>
         <span class="kw">let</span> <span class="ident">total_in</span> <span class="op">=</span> <span class="ident">decoder</span>.<span class="ident">total_in</span>();
@@ -1408,11 +1408,11 @@
         <span class="kw">let</span> <span class="ident">decompress_result</span> <span class="op">=</span> <span class="ident">decoder</span>.<span class="ident">decompress</span>(
             <span class="kw-2">&amp;</span><span class="ident">encoded</span>[<span class="ident">total_in</span> <span class="kw">as</span> <span class="ident">usize</span>..],
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>[<span class="ident">total_out</span> <span class="kw">as</span> <span class="ident">usize</span>..],
-            <span class="ident">FlushDecompress</span>::<span class="ident">Finish</span>,
+            <span class="ident">FlushDecompress::Finish</span>,
         );
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">decompress_result</span>.<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">decompress_result</span>.<span class="ident">is_ok</span>());
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">decoded</span>[..<span class="ident">decoder</span>.<span class="ident">total_out</span>() <span class="kw">as</span> <span class="ident">usize</span>], <span class="ident">string</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">decoded</span>[..<span class="ident">decoder</span>.<span class="ident">total_out</span>() <span class="kw">as</span> <span class="ident">usize</span>], <span class="ident">string</span>);
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any_zlib&quot;</span>)]</span>
@@ -1421,29 +1421,29 @@
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;hello, hello!&quot;</span>.<span class="ident">as_bytes</span>();
         <span class="kw">let</span> <span class="ident">dictionary</span> <span class="op">=</span> <span class="string">&quot;hello&quot;</span>.<span class="ident">as_bytes</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="number">1024</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">1024</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">Compress</span>::<span class="ident">new</span>(<span class="ident">Compression</span>::<span class="ident">default</span>(), <span class="bool-val">false</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">Compress::new</span>(<span class="ident">Compression::default</span>(), <span class="bool-val">false</span>);
 
         <span class="ident">encoder</span>.<span class="ident">set_dictionary</span>(<span class="kw-2">&amp;</span><span class="ident">dictionary</span>).<span class="ident">unwrap</span>();
 
         <span class="ident">encoder</span>
-            .<span class="ident">compress_vec</span>(<span class="ident">string</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">encoded</span>, <span class="ident">FlushCompress</span>::<span class="ident">Finish</span>)
+            .<span class="ident">compress_vec</span>(<span class="ident">string</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">encoded</span>, <span class="ident">FlushCompress::Finish</span>)
             .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">encoder</span>.<span class="ident">total_in</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">encoder</span>.<span class="ident">total_out</span>(), <span class="ident">encoded</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">encoder</span>.<span class="ident">total_in</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">encoder</span>.<span class="ident">total_out</span>(), <span class="ident">encoded</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">Decompress</span>::<span class="ident">new</span>(<span class="bool-val">false</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">Decompress::new</span>(<span class="bool-val">false</span>);
 
         <span class="ident">decoder</span>.<span class="ident">set_dictionary</span>(<span class="kw-2">&amp;</span><span class="ident">dictionary</span>).<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">1024</span>];
-        <span class="kw">let</span> <span class="ident">decompress_result</span> <span class="op">=</span> <span class="ident">decoder</span>.<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress</span>::<span class="ident">Finish</span>);
+        <span class="kw">let</span> <span class="ident">decompress_result</span> <span class="op">=</span> <span class="ident">decoder</span>.<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress::Finish</span>);
 
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">decompress_result</span>.<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="ident">decompress_result</span>.<span class="ident">is_ok</span>());
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">decoded</span>[..<span class="ident">decoder</span>.<span class="ident">total_out</span>() <span class="kw">as</span> <span class="ident">usize</span>], <span class="ident">string</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">decoded</span>[..<span class="ident">decoder</span>.<span class="ident">total_out</span>() <span class="kw">as</span> <span class="ident">usize</span>], <span class="ident">string</span>);
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zlib&quot;</span>)]</span>
@@ -1451,27 +1451,27 @@
     <span class="kw">fn</span> <span class="ident">test_gzip_flate</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;hello, hello!&quot;</span>.<span class="ident">as_bytes</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="number">1024</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">1024</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">Compress</span>::<span class="ident">new_gzip</span>(<span class="ident">Compression</span>::<span class="ident">default</span>(), <span class="number">9</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">Compress::new_gzip</span>(<span class="ident">Compression::default</span>(), <span class="number">9</span>);
 
         <span class="ident">encoder</span>
-            .<span class="ident">compress_vec</span>(<span class="ident">string</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">encoded</span>, <span class="ident">FlushCompress</span>::<span class="ident">Finish</span>)
+            .<span class="ident">compress_vec</span>(<span class="ident">string</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">encoded</span>, <span class="ident">FlushCompress::Finish</span>)
             .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">encoder</span>.<span class="ident">total_in</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">encoder</span>.<span class="ident">total_out</span>(), <span class="ident">encoded</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">encoder</span>.<span class="ident">total_in</span>(), <span class="ident">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">encoder</span>.<span class="ident">total_out</span>(), <span class="ident">encoded</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">Decompress</span>::<span class="ident">new_gzip</span>(<span class="number">9</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">Decompress::new_gzip</span>(<span class="number">9</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">1024</span>];
         <span class="ident">decoder</span>
-            .<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress</span>::<span class="ident">Finish</span>)
+            .<span class="ident">decompress</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded</span>, <span class="ident">FlushDecompress::Finish</span>)
             .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">decoded</span>[..<span class="ident">decoder</span>.<span class="ident">total_out</span>() <span class="kw">as</span> <span class="ident">usize</span>], <span class="ident">string</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">decoded</span>[..<span class="ident">decoder</span>.<span class="ident">total_out</span>() <span class="kw">as</span> <span class="ident">usize</span>], <span class="ident">string</span>);
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="flate2" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="flate2" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

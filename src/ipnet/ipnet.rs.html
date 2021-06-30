@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ipnet-2.3.0/src/ipnet.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ipnet.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ipnet/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ipnet/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1746,14 +1746,14 @@
 <span id="1743">1743</span>
 <span id="1744">1744</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::{<span class="ident">min</span>, <span class="ident">max</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::{<span class="ident">Less</span>, <span class="ident">Equal</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">From</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">FusedIterator</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">net</span>::{<span class="ident">IpAddr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">Ipv6Addr</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">option</span>::<span class="prelude-ty">Option</span>::{<span class="prelude-val">Some</span>, <span class="prelude-val">None</span>};
+<span class="kw">use</span> <span class="ident">std::cmp</span>::{<span class="ident">min</span>, <span class="ident">max</span>};
+<span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>::{<span class="ident">Less</span>, <span class="ident">Equal</span>};
+<span class="kw">use</span> <span class="ident">std::convert::From</span>;
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::iter::FusedIterator</span>;
+<span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">IpAddr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">Ipv6Addr</span>};
+<span class="kw">use</span> <span class="ident">std::option::Option</span>::{<span class="prelude-val">Some</span>, <span class="prelude-val">None</span>};
 
 <span class="kw">use</span> <span class="ident">ipext</span>::{<span class="ident">IpAdd</span>, <span class="ident">IpSub</span>, <span class="ident">IpStep</span>, <span class="ident">IpAddrRange</span>, <span class="ident">Ipv4AddrRange</span>, <span class="ident">Ipv6AddrRange</span>};
 
@@ -1859,8 +1859,8 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrefixLenError</span>;
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">PrefixLenError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">PrefixLenError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="self">self</span>.<span class="ident">description</span>())
     }
 }
@@ -1892,32 +1892,32 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trunc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpNet</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="ident">a</span>.<span class="ident">trunc</span>()),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="ident">a</span>.<span class="ident">trunc</span>()),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpNet::V4</span>(<span class="ident">a</span>.<span class="ident">trunc</span>()),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpNet::V6</span>(<span class="ident">a</span>.<span class="ident">trunc</span>()),
         }
     }
 
     <span class="doccomment">/// Returns the address.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpAddr</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V4</span>(<span class="ident">a</span>.<span class="ident">addr</span>),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V6</span>(<span class="ident">a</span>.<span class="ident">addr</span>),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V4</span>(<span class="ident">a</span>.<span class="ident">addr</span>),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V6</span>(<span class="ident">a</span>.<span class="ident">addr</span>),
         }
     }
 
     <span class="doccomment">/// Returns the prefix length.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prefix_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">prefix_len</span>(),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">prefix_len</span>(),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">prefix_len</span>(),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">prefix_len</span>(),
         }
     }
 
     <span class="doccomment">/// Returns the maximum valid prefix length.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_prefix_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">max_prefix_len</span>(),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">max_prefix_len</span>(),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">max_prefix_len</span>(),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">max_prefix_len</span>(),
         }
     }
 
@@ -1937,8 +1937,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">netmask</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpAddr</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V4</span>(<span class="ident">a</span>.<span class="ident">netmask</span>()),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V6</span>(<span class="ident">a</span>.<span class="ident">netmask</span>()),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V4</span>(<span class="ident">a</span>.<span class="ident">netmask</span>()),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V6</span>(<span class="ident">a</span>.<span class="ident">netmask</span>()),
         }
     }
 
@@ -1958,8 +1958,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostmask</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpAddr</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V4</span>(<span class="ident">a</span>.<span class="ident">hostmask</span>()),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V6</span>(<span class="ident">a</span>.<span class="ident">hostmask</span>()),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V4</span>(<span class="ident">a</span>.<span class="ident">hostmask</span>()),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V6</span>(<span class="ident">a</span>.<span class="ident">hostmask</span>()),
         }
     }
     
@@ -1979,8 +1979,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">network</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpAddr</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V4</span>(<span class="ident">a</span>.<span class="ident">network</span>()),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V6</span>(<span class="ident">a</span>.<span class="ident">network</span>()),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V4</span>(<span class="ident">a</span>.<span class="ident">network</span>()),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V6</span>(<span class="ident">a</span>.<span class="ident">network</span>()),
         }
     }    
     
@@ -2000,8 +2000,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">broadcast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpAddr</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V4</span>(<span class="ident">a</span>.<span class="ident">broadcast</span>()),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr</span>::<span class="ident">V6</span>(<span class="ident">a</span>.<span class="ident">broadcast</span>()),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V4</span>(<span class="ident">a</span>.<span class="ident">broadcast</span>()),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddr::V6</span>(<span class="ident">a</span>.<span class="ident">broadcast</span>()),
         }
     }
     
@@ -2028,8 +2028,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">supernet</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">supernet</span>().<span class="ident">map</span>(<span class="ident">IpNet</span>::<span class="ident">V4</span>),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">supernet</span>().<span class="ident">map</span>(<span class="ident">IpNet</span>::<span class="ident">V6</span>),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">supernet</span>().<span class="ident">map</span>(<span class="ident">IpNet::V4</span>),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">supernet</span>().<span class="ident">map</span>(<span class="ident">IpNet::V6</span>),
         }
     }
 
@@ -2056,8 +2056,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sibling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">IpNet</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> (<span class="kw-2">*</span><span class="self">self</span>, <span class="kw-2">*</span><span class="ident">other</span>) {
-            (<span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">is_sibling</span>(<span class="ident">b</span>),
-            (<span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">is_sibling</span>(<span class="ident">b</span>),
+            (<span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">is_sibling</span>(<span class="ident">b</span>),
+            (<span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">is_sibling</span>(<span class="ident">b</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
@@ -2092,8 +2092,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hosts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpAddrRange</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddrRange</span>::<span class="ident">V4</span>(<span class="ident">a</span>.<span class="ident">hosts</span>()),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddrRange</span>::<span class="ident">V6</span>(<span class="ident">a</span>.<span class="ident">hosts</span>()),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddrRange::V4</span>(<span class="ident">a</span>.<span class="ident">hosts</span>()),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpAddrRange::V6</span>(<span class="ident">a</span>.<span class="ident">hosts</span>()),
         }
     }
     
@@ -2135,8 +2135,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subnets</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">new_prefix_len</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IpSubnets</span>, <span class="ident">PrefixLenError</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">subnets</span>(<span class="ident">new_prefix_len</span>).<span class="ident">map</span>(<span class="ident">IpSubnets</span>::<span class="ident">V4</span>),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">subnets</span>(<span class="ident">new_prefix_len</span>).<span class="ident">map</span>(<span class="ident">IpSubnets</span>::<span class="ident">V6</span>),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">subnets</span>(<span class="ident">new_prefix_len</span>).<span class="ident">map</span>(<span class="ident">IpSubnets::V4</span>),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">subnets</span>(<span class="ident">new_prefix_len</span>).<span class="ident">map</span>(<span class="ident">IpSubnets::V6</span>),
         }
     }
 
@@ -2180,7 +2180,7 @@
     <span class="doccomment">/// assert!(!net6.contains(&amp;ip4_no));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Contains</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Contains</span>::<span class="ident">contains</span>(<span class="self">self</span>, <span class="ident">other</span>)
+        <span class="ident">Contains::contains</span>(<span class="self">self</span>, <span class="ident">other</span>)
     }
 
     <span class="doccomment">/// Aggregate a `Vec` of `IpNet`s and return the result as a new</span>
@@ -2211,63 +2211,63 @@
         <span class="comment">// It&#39;s 2.5x faster to split the input up and run them using the</span>
         <span class="comment">// specific IPv4 and IPV6 implementations. merge_intervals() and</span>
         <span class="comment">// the comparisons are much faster running over integers.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ipv4nets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ipv6nets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ipv4nets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ipv6nets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="ident">networks</span> {
             <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">n</span> {
-                <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ipv4nets</span>.<span class="ident">push</span>(<span class="ident">x</span>),
-                <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ipv6nets</span>.<span class="ident">push</span>(<span class="ident">x</span>),
+                <span class="ident">IpNet::V4</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ipv4nets</span>.<span class="ident">push</span>(<span class="ident">x</span>),
+                <span class="ident">IpNet::V6</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ipv6nets</span>.<span class="ident">push</span>(<span class="ident">x</span>),
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="ident">ipv4aggs</span> <span class="op">=</span> <span class="ident">Ipv4Net</span>::<span class="ident">aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ipv4nets</span>);
-        <span class="kw">let</span> <span class="ident">ipv6aggs</span> <span class="op">=</span> <span class="ident">Ipv6Net</span>::<span class="ident">aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ipv6nets</span>);
-        <span class="ident">res</span>.<span class="ident">extend</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ipv4aggs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">IpNet</span>::<span class="ident">V4</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>());
-        <span class="ident">res</span>.<span class="ident">extend</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ipv6aggs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">IpNet</span>::<span class="ident">V6</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="ident">ipv4aggs</span> <span class="op">=</span> <span class="ident">Ipv4Net::aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ipv4nets</span>);
+        <span class="kw">let</span> <span class="ident">ipv6aggs</span> <span class="op">=</span> <span class="ident">Ipv6Net::aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ipv6nets</span>);
+        <span class="ident">res</span>.<span class="ident">extend</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ipv4aggs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">IpNet::V4</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>());
+        <span class="ident">res</span>.<span class="ident">extend</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ipv6aggs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">IpNet::V6</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>());
         <span class="ident">res</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">V4</span>(<span class="ident">Ipv4Net</span>::<span class="ident">default</span>())
+        <span class="self">Self</span><span class="ident">::V4</span>(<span class="ident">Ipv4Net::default</span>())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="ident">fmt</span>::<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="ident">fmt::Display::fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">fmt</span>(<span class="ident">fmt</span>),
-            <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">fmt</span>(<span class="ident">fmt</span>),
+            <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">fmt</span>(<span class="ident">fmt</span>),
+            <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">fmt</span>(<span class="ident">fmt</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">net</span>: <span class="ident">Ipv4Net</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpNet</span> {
-        <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="ident">net</span>)
+        <span class="ident">IpNet::V4</span>(<span class="ident">net</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">net</span>: <span class="ident">Ipv6Net</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpNet</span> {
-        <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="ident">net</span>)
+        <span class="ident">IpNet::V6</span>(<span class="ident">net</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">addr</span>: <span class="ident">IpAddr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpNet</span> {
         <span class="kw">match</span> <span class="ident">addr</span> {
-            <span class="ident">IpAddr</span>::<span class="ident">V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="ident">a</span>.<span class="ident">into</span>()),
-            <span class="ident">IpAddr</span>::<span class="ident">V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="ident">a</span>.<span class="ident">into</span>()),
+            <span class="ident">IpAddr::V4</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpNet::V4</span>(<span class="ident">a</span>.<span class="ident">into</span>()),
+            <span class="ident">IpAddr::V6</span>(<span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">IpNet::V6</span>(<span class="ident">a</span>.<span class="ident">into</span>()),
         }
     }
 }
@@ -2309,7 +2309,7 @@
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trunc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv4Net</span> {
-        <span class="ident">Ipv4Net</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">network</span>(), <span class="self">self</span>.<span class="ident">prefix_len</span>).<span class="ident">unwrap</span>()
+        <span class="ident">Ipv4Net::new</span>(<span class="self">self</span>.<span class="ident">network</span>(), <span class="self">self</span>.<span class="ident">prefix_len</span>).<span class="ident">unwrap</span>()
     }
 
     <span class="doccomment">/// Returns the address.</span>
@@ -2339,11 +2339,11 @@
     <span class="doccomment">/// assert_eq!(Ok(net.netmask()), &quot;255.255.240.0&quot;.parse());</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">netmask</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv4Addr</span> {
-        <span class="ident">Ipv4Addr</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">netmask_u32</span>())
+        <span class="ident">Ipv4Addr::from</span>(<span class="self">self</span>.<span class="ident">netmask_u32</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">netmask_u32</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
-        <span class="ident">u32</span>::<span class="ident">max_value</span>().<span class="ident">checked_shl</span>(<span class="number">32</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">prefix_len</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>)
+        <span class="ident">u32::max_value</span>().<span class="ident">checked_shl</span>(<span class="number">32</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">prefix_len</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>)
     }
 
     <span class="doccomment">/// Returns the host mask.</span>
@@ -2358,11 +2358,11 @@
     <span class="doccomment">/// assert_eq!(Ok(net.hostmask()), &quot;0.0.15.255&quot;.parse());</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostmask</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv4Addr</span> {
-        <span class="ident">Ipv4Addr</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">hostmask_u32</span>())
+        <span class="ident">Ipv4Addr::from</span>(<span class="self">self</span>.<span class="ident">hostmask_u32</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">hostmask_u32</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
-        <span class="ident">u32</span>::<span class="ident">max_value</span>().<span class="ident">checked_shr</span>(<span class="self">self</span>.<span class="ident">prefix_len</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>)
+        <span class="ident">u32::max_value</span>().<span class="ident">checked_shr</span>(<span class="self">self</span>.<span class="ident">prefix_len</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>)
     }
 
     <span class="doccomment">/// Returns the network address.</span>
@@ -2377,7 +2377,7 @@
     <span class="doccomment">/// assert_eq!(Ok(net.network()), &quot;172.16.0.0&quot;.parse());</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">network</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv4Addr</span> {
-        <span class="ident">Ipv4Addr</span>::<span class="ident">from</span>(<span class="ident">u32</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">addr</span>) <span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">netmask_u32</span>())
+        <span class="ident">Ipv4Addr::from</span>(<span class="ident">u32::from</span>(<span class="self">self</span>.<span class="ident">addr</span>) <span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">netmask_u32</span>())
     }
 
     <span class="doccomment">/// Returns the broadcast address.</span>
@@ -2392,7 +2392,7 @@
     <span class="doccomment">/// assert_eq!(Ok(net.broadcast()), &quot;172.16.3.255&quot;.parse());</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">broadcast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv4Addr</span> {
-        <span class="ident">Ipv4Addr</span>::<span class="ident">from</span>(<span class="ident">u32</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">addr</span>) <span class="op">|</span> <span class="self">self</span>.<span class="ident">hostmask_u32</span>())
+        <span class="ident">Ipv4Addr::from</span>(<span class="ident">u32::from</span>(<span class="self">self</span>.<span class="ident">addr</span>) <span class="op">|</span> <span class="self">self</span>.<span class="ident">hostmask_u32</span>())
     }
 
     <span class="doccomment">/// Returns the `Ipv4Net` that contains this one.</span>
@@ -2410,7 +2410,7 @@
     <span class="doccomment">/// assert_eq!(n3.supernet(), None);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">supernet</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> {
-        <span class="ident">Ipv4Net</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">addr</span>, <span class="self">self</span>.<span class="ident">prefix_len</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">trunc</span>()).<span class="ident">ok</span>()
+        <span class="ident">Ipv4Net::new</span>(<span class="self">self</span>.<span class="ident">addr</span>, <span class="self">self</span>.<span class="ident">prefix_len</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">trunc</span>()).<span class="ident">ok</span>()
     }
 
     <span class="doccomment">/// Returns `true` if this network and the given network are </span>
@@ -2467,7 +2467,7 @@
             <span class="ident">end</span> <span class="op">=</span> <span class="ident">end</span>.<span class="ident">saturating_sub</span>(<span class="number">1</span>);
         }
         
-        <span class="ident">Ipv4AddrRange</span>::<span class="ident">new</span>(<span class="ident">start</span>, <span class="ident">end</span>)
+        <span class="ident">Ipv4AddrRange::new</span>(<span class="ident">start</span>, <span class="ident">end</span>)
     }
 
     <span class="doccomment">/// Returns an `Iterator` over the subnets of this network with the</span>
@@ -2505,7 +2505,7 @@
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PrefixLenError</span>);
         }
         
-        <span class="prelude-val">Ok</span>(<span class="ident">Ipv4Subnets</span>::<span class="ident">new</span>(
+        <span class="prelude-val">Ok</span>(<span class="ident">Ipv4Subnets::new</span>(
             <span class="self">self</span>.<span class="ident">network</span>(),
             <span class="self">self</span>.<span class="ident">broadcast</span>(),
             <span class="ident">new_prefix_len</span>,
@@ -2534,14 +2534,14 @@
     <span class="doccomment">/// assert!(!net.contains(&amp;ip_no));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Contains</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Contains</span>::<span class="ident">contains</span>(<span class="self">self</span>, <span class="ident">other</span>)
+        <span class="ident">Contains::contains</span>(<span class="self">self</span>, <span class="ident">other</span>)
     }
 
     <span class="comment">// It is significantly faster to work on u32 than Ipv4Addr.</span>
     <span class="kw">fn</span> <span class="ident">interval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u32</span>, <span class="ident">u32</span>) {
         (
-            <span class="ident">u32</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">network</span>()),
-            <span class="ident">u32</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">broadcast</span>()).<span class="ident">saturating_add</span>(<span class="number">1</span>),
+            <span class="ident">u32::from</span>(<span class="self">self</span>.<span class="ident">network</span>()),
+            <span class="ident">u32::from</span>(<span class="self">self</span>.<span class="ident">broadcast</span>()).<span class="ident">saturating_add</span>(<span class="number">1</span>),
         )
     }
 
@@ -2566,10 +2566,10 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aggregate</span>(<span class="ident">networks</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intervals</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw">_</span>, <span class="kw">_</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">networks</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">interval</span>()).<span class="ident">collect</span>();
         <span class="ident">intervals</span> <span class="op">=</span> <span class="ident">merge_intervals</span>(<span class="ident">intervals</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         
         <span class="kw">for</span> (<span class="ident">start</span>, <span class="ident">end</span>) <span class="kw">in</span> <span class="ident">intervals</span> {
-            <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">Ipv4Subnets</span>::<span class="ident">new</span>(<span class="ident">start</span>.<span class="ident">into</span>(), <span class="ident">end</span>.<span class="ident">saturating_sub</span>(<span class="number">1</span>).<span class="ident">into</span>(), <span class="number">0</span>);
+            <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">Ipv4Subnets::new</span>(<span class="ident">start</span>.<span class="ident">into</span>(), <span class="ident">end</span>.<span class="ident">saturating_sub</span>(<span class="number">1</span>).<span class="ident">into</span>(), <span class="number">0</span>);
             <span class="ident">res</span>.<span class="ident">extend</span>(<span class="ident">iter</span>);
         }
         <span class="ident">res</span>
@@ -2579,21 +2579,21 @@
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Ipv4Net</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">addr</span>: <span class="ident">Ipv4Addr</span>::<span class="ident">from</span>(<span class="number">0</span>),
+            <span class="ident">addr</span>: <span class="ident">Ipv4Addr::from</span>(<span class="number">0</span>),
             <span class="ident">prefix_len</span>: <span class="number">0</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Ipv4Net</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="ident">fmt</span>::<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Ipv4Net</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="ident">fmt::Display::fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Ipv4Net</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">addr</span>, <span class="self">self</span>.<span class="ident">prefix_len</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Ipv4Net</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">addr</span>, <span class="self">self</span>.<span class="ident">prefix_len</span>)
     }
 }
 
@@ -2640,7 +2640,7 @@
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trunc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv6Net</span> {
-        <span class="ident">Ipv6Net</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">network</span>(), <span class="self">self</span>.<span class="ident">prefix_len</span>).<span class="ident">unwrap</span>()
+        <span class="ident">Ipv6Net::new</span>(<span class="self">self</span>.<span class="ident">network</span>(), <span class="self">self</span>.<span class="ident">prefix_len</span>).<span class="ident">unwrap</span>()
     }
     
     <span class="doccomment">/// Returns the address.</span>
@@ -2674,7 +2674,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">netmask_u128</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u128</span> {
-        <span class="ident">u128</span>::<span class="ident">max_value</span>().<span class="ident">checked_shl</span>((<span class="number">128</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">prefix_len</span>) <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap_or</span>(<span class="ident">u128</span>::<span class="ident">min_value</span>())
+        <span class="ident">u128::max_value</span>().<span class="ident">checked_shl</span>((<span class="number">128</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">prefix_len</span>) <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap_or</span>(<span class="ident">u128::min_value</span>())
     }
 
     <span class="doccomment">/// Returns the host mask.</span>
@@ -2693,7 +2693,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">hostmask_u128</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u128</span> {
-        <span class="ident">u128</span>::<span class="ident">max_value</span>().<span class="ident">checked_shr</span>(<span class="self">self</span>.<span class="ident">prefix_len</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap_or</span>(<span class="ident">u128</span>::<span class="ident">min_value</span>())
+        <span class="ident">u128::max_value</span>().<span class="ident">checked_shr</span>(<span class="self">self</span>.<span class="ident">prefix_len</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap_or</span>(<span class="ident">u128::min_value</span>())
     }
 
     <span class="doccomment">/// Returns the network address.</span>
@@ -2708,7 +2708,7 @@
     <span class="doccomment">/// assert_eq!(Ok(net.network()), &quot;fd00:1200::&quot;.parse());</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">network</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv6Addr</span> {
-        (<span class="ident">u128</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">addr</span>) <span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">netmask_u128</span>()).<span class="ident">into</span>()
+        (<span class="ident">u128::from</span>(<span class="self">self</span>.<span class="ident">addr</span>) <span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">netmask_u128</span>()).<span class="ident">into</span>()
     }
     
     <span class="doccomment">/// Returns the last address.</span>
@@ -2726,7 +2726,7 @@
     <span class="doccomment">/// assert_eq!(Ok(net.broadcast()), &quot;fd00:12ff:ffff:ffff:ffff:ffff:ffff:ffff&quot;.parse());</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">broadcast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv6Addr</span> {
-        (<span class="ident">u128</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">addr</span>) <span class="op">|</span> <span class="self">self</span>.<span class="ident">hostmask_u128</span>()).<span class="ident">into</span>()
+        (<span class="ident">u128::from</span>(<span class="self">self</span>.<span class="ident">addr</span>) <span class="op">|</span> <span class="self">self</span>.<span class="ident">hostmask_u128</span>()).<span class="ident">into</span>()
     }
 
     <span class="doccomment">/// Returns the `Ipv6Net` that contains this one.</span>
@@ -2745,7 +2745,7 @@
     <span class="doccomment">/// assert_eq!(n3.supernet(), None);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">supernet</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> {
-        <span class="ident">Ipv6Net</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">addr</span>, <span class="self">self</span>.<span class="ident">prefix_len</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">trunc</span>()).<span class="ident">ok</span>()
+        <span class="ident">Ipv6Net::new</span>(<span class="self">self</span>.<span class="ident">addr</span>, <span class="self">self</span>.<span class="ident">prefix_len</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">trunc</span>()).<span class="ident">ok</span>()
     }
 
     <span class="doccomment">/// Returns `true` if this network and the given network are </span>
@@ -2786,7 +2786,7 @@
     <span class="doccomment">/// ]);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hosts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv6AddrRange</span> {
-        <span class="ident">Ipv6AddrRange</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">network</span>(), <span class="self">self</span>.<span class="ident">broadcast</span>())
+        <span class="ident">Ipv6AddrRange::new</span>(<span class="self">self</span>.<span class="ident">network</span>(), <span class="self">self</span>.<span class="ident">broadcast</span>())
     }
 
     <span class="doccomment">/// Returns an `Iterator` over the subnets of this network with the</span>
@@ -2824,7 +2824,7 @@
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PrefixLenError</span>);
         }
         
-        <span class="prelude-val">Ok</span>(<span class="ident">Ipv6Subnets</span>::<span class="ident">new</span>(
+        <span class="prelude-val">Ok</span>(<span class="ident">Ipv6Subnets::new</span>(
             <span class="self">self</span>.<span class="ident">network</span>(),
             <span class="self">self</span>.<span class="ident">broadcast</span>(),
             <span class="ident">new_prefix_len</span>,
@@ -2853,14 +2853,14 @@
     <span class="doccomment">/// assert!(!net.contains(&amp;ip_no));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Contains</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Contains</span>::<span class="ident">contains</span>(<span class="self">self</span>, <span class="ident">other</span>)
+        <span class="ident">Contains::contains</span>(<span class="self">self</span>, <span class="ident">other</span>)
     }
 
     <span class="comment">// It is significantly faster to work on u128 that Ipv6Addr.</span>
     <span class="kw">fn</span> <span class="ident">interval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u128</span>, <span class="ident">u128</span>) {
         (
-            <span class="ident">u128</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">network</span>()),
-            <span class="ident">u128</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">broadcast</span>()).<span class="ident">saturating_add</span>(<span class="number">1</span>),
+            <span class="ident">u128::from</span>(<span class="self">self</span>.<span class="ident">network</span>()),
+            <span class="ident">u128::from</span>(<span class="self">self</span>.<span class="ident">broadcast</span>()).<span class="ident">saturating_add</span>(<span class="number">1</span>),
         )
     }
 
@@ -2885,10 +2885,10 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aggregate</span>(<span class="ident">networks</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intervals</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw">_</span>, <span class="kw">_</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">networks</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">interval</span>()).<span class="ident">collect</span>();
         <span class="ident">intervals</span> <span class="op">=</span> <span class="ident">merge_intervals</span>(<span class="ident">intervals</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="kw">for</span> (<span class="ident">start</span>, <span class="ident">end</span>) <span class="kw">in</span> <span class="ident">intervals</span> {
-            <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">Ipv6Subnets</span>::<span class="ident">new</span>(<span class="ident">start</span>.<span class="ident">into</span>(), <span class="ident">end</span>.<span class="ident">saturating_sub</span>(<span class="number">1</span>).<span class="ident">into</span>(), <span class="number">0</span>);
+            <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">Ipv6Subnets::new</span>(<span class="ident">start</span>.<span class="ident">into</span>(), <span class="ident">end</span>.<span class="ident">saturating_sub</span>(<span class="number">1</span>).<span class="ident">into</span>(), <span class="number">0</span>);
             <span class="ident">res</span>.<span class="ident">extend</span>(<span class="ident">iter</span>);
         }
         <span class="ident">res</span>
@@ -2898,21 +2898,21 @@
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Ipv6Net</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">addr</span>: <span class="ident">Ipv6Addr</span>::<span class="ident">from</span>(<span class="number">0</span>),
+            <span class="ident">addr</span>: <span class="ident">Ipv6Addr::from</span>(<span class="number">0</span>),
             <span class="ident">prefix_len</span>: <span class="number">0</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Ipv6Net</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="ident">fmt</span>::<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Ipv6Net</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="ident">fmt::Display::fmt</span>(<span class="self">self</span>, <span class="ident">fmt</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Ipv6Net</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">addr</span>, <span class="self">self</span>.<span class="ident">prefix_len</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Ipv6Net</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">addr</span>, <span class="self">self</span>.<span class="ident">prefix_len</span>)
     }
 }
 
@@ -2963,8 +2963,8 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Contains</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">IpNet</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
     <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">IpNet</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> (<span class="kw-2">*</span><span class="self">self</span>, <span class="kw-2">*</span><span class="ident">other</span>) {
-            (<span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">contains</span>(<span class="ident">b</span>),
-            (<span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">contains</span>(<span class="ident">b</span>),
+            (<span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">contains</span>(<span class="ident">b</span>),
+            (<span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">contains</span>(<span class="ident">b</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
@@ -2973,8 +2973,8 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Contains</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">IpAddr</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IpNet</span> {
     <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">IpAddr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> (<span class="kw-2">*</span><span class="self">self</span>, <span class="kw-2">*</span><span class="ident">other</span>) {
-            (<span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpAddr</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">contains</span>(<span class="ident">b</span>),
-            (<span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpAddr</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">contains</span>(<span class="ident">b</span>),
+            (<span class="ident">IpNet::V4</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpAddr::V4</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">contains</span>(<span class="ident">b</span>),
+            (<span class="ident">IpNet::V6</span>(<span class="kw-2">ref</span> <span class="ident">a</span>), <span class="ident">IpAddr::V6</span>(<span class="kw-2">ref</span> <span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">contains</span>(<span class="ident">b</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
@@ -3142,23 +3142,23 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ipv4Subnets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IpSubnets</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">i</span>: <span class="ident">Ipv4Subnets</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpSubnets</span> {
-        <span class="ident">IpSubnets</span>::<span class="ident">V4</span>(<span class="ident">i</span>)
+        <span class="ident">IpSubnets::V4</span>(<span class="ident">i</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ipv6Subnets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IpSubnets</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">i</span>: <span class="ident">Ipv6Subnets</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IpSubnets</span> {
-        <span class="ident">IpSubnets</span>::<span class="ident">V6</span>(<span class="ident">i</span>)
+        <span class="ident">IpSubnets::V6</span>(<span class="ident">i</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IpSubnets</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">IpNet</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">IpSubnets</span>::<span class="ident">V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">IpNet</span>::<span class="ident">V4</span>),
-            <span class="ident">IpSubnets</span>::<span class="ident">V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">IpNet</span>::<span class="ident">V6</span>),
+            <span class="ident">IpSubnets::V4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">IpNet::V4</span>),
+            <span class="ident">IpSubnets::V6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">a</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">a</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">IpNet::V6</span>),
         }
     }
 }
@@ -3166,25 +3166,25 @@
 <span class="kw">fn</span> <span class="ident">next_ipv4_subnet</span>(<span class="ident">start</span>: <span class="ident">Ipv4Addr</span>, <span class="ident">end</span>: <span class="ident">Ipv4Addr</span>, <span class="ident">min_prefix_len</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv4Net</span> {
     <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">end</span>.<span class="ident">saturating_sub</span>(<span class="ident">start</span>).<span class="ident">saturating_add</span>(<span class="number">1</span>);
     <span class="kw">let</span> <span class="ident">range_bits</span> <span class="op">=</span> <span class="number">32u32</span>.<span class="ident">saturating_sub</span>(<span class="ident">range</span>.<span class="ident">leading_zeros</span>()).<span class="ident">saturating_sub</span>(<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">start_tz</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from</span>(<span class="ident">start</span>).<span class="ident">trailing_zeros</span>();
+    <span class="kw">let</span> <span class="ident">start_tz</span> <span class="op">=</span> <span class="ident">u32::from</span>(<span class="ident">start</span>).<span class="ident">trailing_zeros</span>();
     <span class="kw">let</span> <span class="ident">new_prefix_len</span> <span class="op">=</span> <span class="number">32</span> <span class="op">-</span> <span class="ident">min</span>(<span class="ident">range_bits</span>, <span class="ident">start_tz</span>);
     <span class="kw">let</span> <span class="ident">next_prefix_len</span> <span class="op">=</span> <span class="ident">max</span>(<span class="ident">new_prefix_len</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">min_prefix_len</span>);
-    <span class="ident">Ipv4Net</span>::<span class="ident">new</span>(<span class="ident">start</span>, <span class="ident">next_prefix_len</span>).<span class="ident">unwrap</span>()
+    <span class="ident">Ipv4Net::new</span>(<span class="ident">start</span>, <span class="ident">next_prefix_len</span>).<span class="ident">unwrap</span>()
 }
 
 <span class="kw">fn</span> <span class="ident">next_ipv6_subnet</span>(<span class="ident">start</span>: <span class="ident">Ipv6Addr</span>, <span class="ident">end</span>: <span class="ident">Ipv6Addr</span>, <span class="ident">min_prefix_len</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ipv6Net</span> {
     <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">end</span>.<span class="ident">saturating_sub</span>(<span class="ident">start</span>).<span class="ident">saturating_add</span>(<span class="number">1</span>);
     <span class="kw">let</span> <span class="ident">range_bits</span> <span class="op">=</span> <span class="number">128u32</span>.<span class="ident">saturating_sub</span>(<span class="ident">range</span>.<span class="ident">leading_zeros</span>()).<span class="ident">saturating_sub</span>(<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">start_tz</span> <span class="op">=</span> <span class="ident">u128</span>::<span class="ident">from</span>(<span class="ident">start</span>).<span class="ident">trailing_zeros</span>();
+    <span class="kw">let</span> <span class="ident">start_tz</span> <span class="op">=</span> <span class="ident">u128::from</span>(<span class="ident">start</span>).<span class="ident">trailing_zeros</span>();
     <span class="kw">let</span> <span class="ident">new_prefix_len</span> <span class="op">=</span> <span class="number">128</span> <span class="op">-</span> <span class="ident">min</span>(<span class="ident">range_bits</span>, <span class="ident">start_tz</span>);
     <span class="kw">let</span> <span class="ident">next_prefix_len</span> <span class="op">=</span> <span class="ident">max</span>(<span class="ident">new_prefix_len</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">min_prefix_len</span>);
-    <span class="ident">Ipv6Net</span>::<span class="ident">new</span>(<span class="ident">start</span>, <span class="ident">next_prefix_len</span>).<span class="ident">unwrap</span>()
+    <span class="ident">Ipv6Net::new</span>(<span class="ident">start</span>, <span class="ident">next_prefix_len</span>).<span class="ident">unwrap</span>()
 }
 
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Ipv4Subnets</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Ipv4Net</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">next_ipv4_subnet</span>(<span class="self">self</span>.<span class="ident">start</span>, <span class="self">self</span>.<span class="ident">end</span>, <span class="self">self</span>.<span class="ident">min_prefix_len</span>);
@@ -3213,7 +3213,7 @@
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Ipv6Subnets</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Ipv6Net</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">Less</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">next_ipv6_subnet</span>(<span class="self">self</span>.<span class="ident">start</span>, <span class="self">self</span>.<span class="ident">end</span>, <span class="self">self</span>.<span class="ident">min_prefix_len</span>);
@@ -3250,7 +3250,7 @@
     }
 
     <span class="ident">intervals</span>.<span class="ident">sort</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">T</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">T</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">start</span>, <span class="kw-2">mut</span> <span class="ident">end</span>) <span class="op">=</span> <span class="ident">intervals</span>[<span class="number">0</span>];
     
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">1</span>;
@@ -3277,19 +3277,19 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">make_ipnet_vec</span> {
-        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ( <span class="macro">vec</span><span class="macro">!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),)<span class="kw-2">*</span>] );
-        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ( <span class="macro">make_ipnet_vec</span><span class="macro">!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>] );
+    <span class="macro">macro_rules!</span> <span class="ident">make_ipnet_vec</span> {
+        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ( <span class="macro">vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),)<span class="kw-2">*</span>] );
+        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> ( <span class="macro">make_ipnet_vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>] );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_make_ipnet_vec</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="macro">make_ipnet_vec</span><span class="macro">!</span>[
+        <span class="macro">assert_eq!</span>(
+            <span class="macro">make_ipnet_vec!</span>[
                 <span class="string">&quot;10.1.1.1/32&quot;</span>, <span class="string">&quot;10.2.2.2/24&quot;</span>, <span class="string">&quot;10.3.3.3/16&quot;</span>,
                 <span class="string">&quot;fd00::1/128&quot;</span>, <span class="string">&quot;fd00::2/127&quot;</span>, <span class="string">&quot;fd00::3/126&quot;</span>,
             ],
-            <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="macro">vec!</span>[
                 <span class="string">&quot;10.1.1.1/32&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
                 <span class="string">&quot;10.2.2.2/24&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
                 <span class="string">&quot;10.3.3.3/16&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
@@ -3302,99 +3302,99 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_merge_intervals</span>() {
-        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[
             (<span class="number">0</span>, <span class="number">1</span>), (<span class="number">1</span>, <span class="number">2</span>), (<span class="number">2</span>, <span class="number">3</span>),
             (<span class="number">11</span>, <span class="number">12</span>), (<span class="number">13</span>, <span class="number">14</span>), (<span class="number">10</span>, <span class="number">15</span>), (<span class="number">11</span>, <span class="number">13</span>),
             (<span class="number">20</span>, <span class="number">25</span>), (<span class="number">24</span>, <span class="number">29</span>),
         ];
 
-        <span class="kw">let</span> <span class="ident">v_ok</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">v_ok</span> <span class="op">=</span> <span class="macro">vec!</span>[
             (<span class="number">0</span>, <span class="number">3</span>),
             (<span class="number">10</span>, <span class="number">15</span>),
             (<span class="number">20</span>, <span class="number">29</span>),
         ];
 
-        <span class="kw">let</span> <span class="ident">vv</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">vv</span> <span class="op">=</span> <span class="macro">vec!</span>[
             ([<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">2</span>]), ([<span class="number">0</span>, <span class="number">2</span>], [<span class="number">0</span>, <span class="number">3</span>]), ([<span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>]),
             ([<span class="number">10</span>, <span class="number">15</span>], [<span class="number">11</span>, <span class="number">0</span>]), ([<span class="number">10</span>, <span class="number">0</span>], [<span class="number">10</span>, <span class="number">16</span>]),
         ];
 
-        <span class="kw">let</span> <span class="ident">vv_ok</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">vv_ok</span> <span class="op">=</span> <span class="macro">vec!</span>[
             ([<span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">3</span>]),
             ([<span class="number">10</span>, <span class="number">0</span>], [<span class="number">11</span>, <span class="number">0</span>]),
         ];
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">merge_intervals</span>(<span class="ident">v</span>), <span class="ident">v_ok</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">merge_intervals</span>(<span class="ident">vv</span>), <span class="ident">vv_ok</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">merge_intervals</span>(<span class="ident">v</span>), <span class="ident">v_ok</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">merge_intervals</span>(<span class="ident">vv</span>), <span class="ident">vv_ok</span>);
     }
 
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">make_ipv4_subnets_test</span> {
+    <span class="macro">macro_rules!</span> <span class="ident">make_ipv4_subnets_test</span> {
         (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
             <span class="attribute">#[<span class="ident">test</span>]</span>
             <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>() {
-                <span class="kw">let</span> <span class="ident">subnets</span> <span class="op">=</span> <span class="ident">IpSubnets</span>::<span class="ident">from</span>(<span class="ident">Ipv4Subnets</span>::<span class="ident">new</span>(
+                <span class="kw">let</span> <span class="ident">subnets</span> <span class="op">=</span> <span class="ident">IpSubnets::from</span>(<span class="ident">Ipv4Subnets::new</span>(
                     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
                     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
                     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>,
                 ));
-                <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">make_ipnet_vec</span><span class="macro">!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>];
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">subnets</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="ident">results</span>);
+                <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">make_ipnet_vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>];
+                <span class="macro">assert_eq!</span>(<span class="ident">subnets</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="ident">results</span>);
             }
         );
         (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
-            <span class="macro">make_ipv4_subnets_test</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>);
+            <span class="macro">make_ipv4_subnets_test!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>);
         );
     }
 
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">make_ipv6_subnets_test</span> {
+    <span class="macro">macro_rules!</span> <span class="ident">make_ipv6_subnets_test</span> {
         (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
             <span class="attribute">#[<span class="ident">test</span>]</span>
             <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>() {
-                <span class="kw">let</span> <span class="ident">subnets</span> <span class="op">=</span> <span class="ident">IpSubnets</span>::<span class="ident">from</span>(<span class="ident">Ipv6Subnets</span>::<span class="ident">new</span>(
+                <span class="kw">let</span> <span class="ident">subnets</span> <span class="op">=</span> <span class="ident">IpSubnets::from</span>(<span class="ident">Ipv6Subnets::new</span>(
                     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
                     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
                     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>,
                 ));
-                <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">make_ipnet_vec</span><span class="macro">!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>];
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">subnets</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="ident">results</span>);
+                <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">make_ipnet_vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>];
+                <span class="macro">assert_eq!</span>(<span class="ident">subnets</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IpNet</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="ident">results</span>);
             }
         );
         (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
-            <span class="macro">make_ipv6_subnets_test</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>);
+            <span class="macro">make_ipv6_subnets_test!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">end</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">min_prefix_len</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="kw-2">*</span>);
         );
     }
 
-    <span class="macro">make_ipv4_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv4_subnets_test!</span>(
         <span class="ident">test_ipv4_subnets_zero_zero</span>,
         <span class="string">&quot;0.0.0.0&quot;</span>, <span class="string">&quot;0.0.0.0&quot;</span>, <span class="number">0</span>,
         <span class="string">&quot;0.0.0.0/32&quot;</span>,
     );
 
-    <span class="macro">make_ipv4_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv4_subnets_test!</span>(
         <span class="ident">test_ipv4_subnets_max_max</span>,
         <span class="string">&quot;255.255.255.255&quot;</span>, <span class="string">&quot;255.255.255.255&quot;</span>, <span class="number">0</span>,
         <span class="string">&quot;255.255.255.255/32&quot;</span>,
     );
     
-    <span class="macro">make_ipv4_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv4_subnets_test!</span>(
         <span class="ident">test_ipv4_subnets_none</span>,
         <span class="string">&quot;0.0.0.1&quot;</span>, <span class="string">&quot;0.0.0.0&quot;</span>, <span class="number">0</span>,
     );
     
-    <span class="macro">make_ipv4_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv4_subnets_test!</span>(
         <span class="ident">test_ipv4_subnets_one</span>,
         <span class="string">&quot;0.0.0.0&quot;</span>, <span class="string">&quot;0.0.0.1&quot;</span>, <span class="number">0</span>,
         <span class="string">&quot;0.0.0.0/31&quot;</span>,
     );
 
-    <span class="macro">make_ipv4_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv4_subnets_test!</span>(
         <span class="ident">test_ipv4_subnets_two</span>,
         <span class="string">&quot;0.0.0.0&quot;</span>, <span class="string">&quot;0.0.0.2&quot;</span>, <span class="number">0</span>,
         <span class="string">&quot;0.0.0.0/31&quot;</span>,
         <span class="string">&quot;0.0.0.2/32&quot;</span>,
     );
     
-    <span class="macro">make_ipv4_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv4_subnets_test!</span>(
         <span class="ident">test_ipv4_subnets_taper</span>,
         <span class="string">&quot;0.0.0.0&quot;</span>, <span class="string">&quot;0.0.0.10&quot;</span>, <span class="number">30</span>,
         <span class="string">&quot;0.0.0.0/30&quot;</span>,
@@ -3403,37 +3403,37 @@
         <span class="string">&quot;0.0.0.10/32&quot;</span>,
     );
     
-    <span class="macro">make_ipv6_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv6_subnets_test!</span>(
         <span class="ident">test_ipv6_subnets_zero_zero</span>,
         <span class="string">&quot;::&quot;</span>, <span class="string">&quot;::&quot;</span>, <span class="number">0</span>,
         <span class="string">&quot;::/128&quot;</span>,
     );
 
-    <span class="macro">make_ipv6_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv6_subnets_test!</span>(
         <span class="ident">test_ipv6_subnets_max_max</span>,
         <span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>, <span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff&quot;</span>, <span class="number">0</span>,
         <span class="string">&quot;ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128&quot;</span>,
     );
     
-    <span class="macro">make_ipv6_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv6_subnets_test!</span>(
         <span class="ident">test_ipv6_subnets_none</span>,
         <span class="string">&quot;::1&quot;</span>, <span class="string">&quot;::&quot;</span>, <span class="number">0</span>,
     );
     
-    <span class="macro">make_ipv6_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv6_subnets_test!</span>(
         <span class="ident">test_ipv6_subnets_one</span>,
         <span class="string">&quot;::&quot;</span>, <span class="string">&quot;::1&quot;</span>, <span class="number">0</span>,
         <span class="string">&quot;::/127&quot;</span>,
     );
 
-    <span class="macro">make_ipv6_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv6_subnets_test!</span>(
         <span class="ident">test_ipv6_subnets_two</span>,
         <span class="string">&quot;::&quot;</span>, <span class="string">&quot;::2&quot;</span>, <span class="number">0</span>,
         <span class="string">&quot;::/127&quot;</span>,
         <span class="string">&quot;::2/128&quot;</span>,
     );
 
-    <span class="macro">make_ipv6_subnets_test</span><span class="macro">!</span>(
+    <span class="macro">make_ipv6_subnets_test!</span>(
         <span class="ident">test_ipv6_subnets_taper</span>,
         <span class="string">&quot;::&quot;</span>, <span class="string">&quot;::a&quot;</span>, <span class="number">126</span>,
         <span class="string">&quot;::/126&quot;</span>,
@@ -3444,7 +3444,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_aggregate</span>() {
-        <span class="kw">let</span> <span class="ident">ip_nets</span> <span class="op">=</span> <span class="macro">make_ipnet_vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">ip_nets</span> <span class="op">=</span> <span class="macro">make_ipnet_vec!</span>[
             <span class="string">&quot;10.0.0.0/24&quot;</span>, <span class="string">&quot;10.0.1.0/24&quot;</span>, <span class="string">&quot;10.0.1.1/24&quot;</span>, <span class="string">&quot;10.0.1.2/24&quot;</span>,
             <span class="string">&quot;10.0.2.0/24&quot;</span>,
             <span class="string">&quot;10.1.0.0/24&quot;</span>, <span class="string">&quot;10.1.1.0/24&quot;</span>,
@@ -3453,7 +3453,7 @@
             <span class="string">&quot;fd00:2::/32&quot;</span>,
         ];
 
-        <span class="kw">let</span> <span class="ident">ip_aggs</span> <span class="op">=</span> <span class="macro">make_ipnet_vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">ip_aggs</span> <span class="op">=</span> <span class="macro">make_ipnet_vec!</span>[
             <span class="string">&quot;10.0.0.0/23&quot;</span>,
             <span class="string">&quot;10.0.2.0/24&quot;</span>,
             <span class="string">&quot;10.1.0.0/23&quot;</span>,
@@ -3462,34 +3462,34 @@
             <span class="string">&quot;fd00:2::/32&quot;</span>,
         ];
 
-        <span class="kw">let</span> <span class="ident">ipv4_nets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ip_nets</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span> { <span class="prelude-val">Some</span>(<span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">ipv4_aggs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ip_aggs</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">IpNet</span>::<span class="ident">V4</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span> { <span class="prelude-val">Some</span>(<span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">ipv6_nets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ip_nets</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span> { <span class="prelude-val">Some</span>(<span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">ipv6_aggs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ip_aggs</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">IpNet</span>::<span class="ident">V6</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span> { <span class="prelude-val">Some</span>(<span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">ipv4_nets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ip_nets</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">IpNet::V4</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span> { <span class="prelude-val">Some</span>(<span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">ipv4_aggs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv4Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ip_aggs</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">IpNet::V4</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span> { <span class="prelude-val">Some</span>(<span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">ipv6_nets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ip_nets</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">IpNet::V6</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span> { <span class="prelude-val">Some</span>(<span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">ipv6_aggs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ipv6Net</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ip_aggs</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">IpNet::V6</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span> { <span class="prelude-val">Some</span>(<span class="ident">x</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }).<span class="ident">collect</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">IpNet</span>::<span class="ident">aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ip_nets</span>), <span class="ident">ip_aggs</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Ipv4Net</span>::<span class="ident">aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ipv4_nets</span>), <span class="ident">ipv4_aggs</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Ipv6Net</span>::<span class="ident">aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ipv6_nets</span>), <span class="ident">ipv6_aggs</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">IpNet::aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ip_nets</span>), <span class="ident">ip_aggs</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">Ipv4Net::aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ipv4_nets</span>), <span class="ident">ipv4_aggs</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">Ipv6Net::aggregate</span>(<span class="kw-2">&amp;</span><span class="ident">ipv6_nets</span>), <span class="ident">ipv6_aggs</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">ipnet_default</span>() {
         <span class="kw">let</span> <span class="ident">ipnet</span>: <span class="ident">IpNet</span> <span class="op">=</span> <span class="string">&quot;0.0.0.0/0&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ipnet</span>, <span class="ident">IpNet</span>::<span class="ident">default</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ipnet</span>, <span class="ident">IpNet::default</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">ipv4net_default</span>() {
         <span class="kw">let</span> <span class="ident">ipnet</span>: <span class="ident">Ipv4Net</span> <span class="op">=</span> <span class="string">&quot;0.0.0.0/0&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ipnet</span>, <span class="ident">Ipv4Net</span>::<span class="ident">default</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ipnet</span>, <span class="ident">Ipv4Net::default</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">ipv6net_default</span>() {
         <span class="kw">let</span> <span class="ident">ipnet</span>: <span class="ident">Ipv6Net</span> <span class="op">=</span> <span class="string">&quot;::/0&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">ipnet</span>, <span class="ident">Ipv6Net</span>::<span class="ident">default</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">ipnet</span>, <span class="ident">Ipv6Net::default</span>());
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ipnet" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ipnet" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

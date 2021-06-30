@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.5/src/postgres/options/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -358,15 +358,15 @@
 <span id="355">355</span>
 <span id="356">356</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">var</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
+<span class="kw">use</span> <span class="ident">std::env::var</span>;
+<span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
 
 <span class="kw">mod</span> <span class="ident">connect</span>;
 <span class="kw">mod</span> <span class="ident">parse</span>;
 <span class="kw">mod</span> <span class="ident">pgpass</span>;
 <span class="kw">mod</span> <span class="ident">ssl_mode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connection</span>::<span class="ident">LogSettings</span>, <span class="ident">net</span>::<span class="ident">CertificateInput</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ssl_mode</span>::<span class="ident">PgSslMode</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connection::LogSettings</span>, <span class="ident">net::CertificateInput</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ssl_mode::PgSslMode</span>;
 
 <span class="doccomment">/// Options and flags which can be used to configure a PostgreSQL connection.</span>
 <span class="doccomment">///</span>
@@ -449,7 +449,7 @@
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PgConnectOptions</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>()
+        <span class="self">Self</span><span class="ident">::new</span>()
     }
 }
 
@@ -482,13 +482,13 @@
 
         <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGHOST&quot;</span>).<span class="ident">ok</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default_host</span>(<span class="ident">port</span>));
 
-        <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGUSER&quot;</span>).<span class="ident">ok</span>().<span class="ident">unwrap_or_else</span>(<span class="ident">whoami</span>::<span class="ident">username</span>);
+        <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGUSER&quot;</span>).<span class="ident">ok</span>().<span class="ident">unwrap_or_else</span>(<span class="ident">whoami::username</span>);
 
         <span class="kw">let</span> <span class="ident">database</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGDATABASE&quot;</span>).<span class="ident">ok</span>();
 
         <span class="kw">let</span> <span class="ident">password</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGPASSWORD&quot;</span>)
             .<span class="ident">ok</span>()
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">pgpass</span>::<span class="ident">load_password</span>(<span class="kw-2">&amp;</span><span class="ident">host</span>, <span class="ident">port</span>, <span class="kw-2">&amp;</span><span class="ident">username</span>, <span class="ident">database</span>.<span class="ident">as_deref</span>()));
+            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">pgpass::load_password</span>(<span class="kw-2">&amp;</span><span class="ident">host</span>, <span class="ident">port</span>, <span class="kw-2">&amp;</span><span class="ident">username</span>, <span class="ident">database</span>.<span class="ident">as_deref</span>()));
 
         <span class="ident">PgConnectOptions</span> {
             <span class="ident">port</span>,
@@ -497,14 +497,14 @@
             <span class="ident">username</span>,
             <span class="ident">password</span>,
             <span class="ident">database</span>,
-            <span class="ident">ssl_root_cert</span>: <span class="ident">var</span>(<span class="string">&quot;PGSSLROOTCERT&quot;</span>).<span class="ident">ok</span>().<span class="ident">map</span>(<span class="ident">CertificateInput</span>::<span class="ident">from</span>),
+            <span class="ident">ssl_root_cert</span>: <span class="ident">var</span>(<span class="string">&quot;PGSSLROOTCERT&quot;</span>).<span class="ident">ok</span>().<span class="ident">map</span>(<span class="ident">CertificateInput::from</span>),
             <span class="ident">ssl_mode</span>: <span class="ident">var</span>(<span class="string">&quot;PGSSLMODE&quot;</span>)
                 .<span class="ident">ok</span>()
                 .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">parse</span>().<span class="ident">ok</span>())
                 .<span class="ident">unwrap_or_default</span>(),
             <span class="ident">statement_cache_capacity</span>: <span class="number">100</span>,
             <span class="ident">application_name</span>: <span class="ident">var</span>(<span class="string">&quot;PGAPPNAME&quot;</span>).<span class="ident">ok</span>(),
-            <span class="ident">log_settings</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">log_settings</span>: <span class="ident">Default::default</span>(),
         }
     }
 
@@ -634,7 +634,7 @@
     <span class="doccomment">///     .ssl_root_cert(&quot;./ca-certificate.crt&quot;);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_root_cert</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cert</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ssl_root_cert</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CertificateInput</span>::<span class="ident">File</span>(<span class="ident">cert</span>.<span class="ident">as_ref</span>().<span class="ident">to_path_buf</span>()));
+        <span class="self">self</span>.<span class="ident">ssl_root_cert</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CertificateInput::File</span>(<span class="ident">cert</span>.<span class="ident">as_ref</span>().<span class="ident">to_path_buf</span>()));
         <span class="self">self</span>
     }
 
@@ -650,7 +650,7 @@
     <span class="doccomment">///     .ssl_root_cert_from_pem(vec![]);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_root_cert_from_pem</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pem_certificate</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ssl_root_cert</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CertificateInput</span>::<span class="ident">Inline</span>(<span class="ident">pem_certificate</span>));
+        <span class="self">self</span>.<span class="ident">ssl_root_cert</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CertificateInput::Inline</span>(<span class="ident">pem_certificate</span>));
         <span class="self">self</span>
     }
 
@@ -684,11 +684,11 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">fetch_socket</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">socket</span> {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">socket</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="ident">socket</span>.<span class="ident">display</span>(), <span class="self">self</span>.<span class="ident">port</span>);
+                <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="ident">socket</span>.<span class="ident">display</span>(), <span class="self">self</span>.<span class="ident">port</span>);
                 <span class="prelude-val">Some</span>(<span class="ident">full_path</span>)
             }
             <span class="prelude-val">None</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">host</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="self">self</span>.<span class="ident">host</span>, <span class="self">self</span>.<span class="ident">port</span>);
+                <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="self">self</span>.<span class="ident">host</span>, <span class="self">self</span>.<span class="ident">port</span>);
                 <span class="prelude-val">Some</span>(<span class="ident">full_path</span>)
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
@@ -698,7 +698,7 @@
 
 <span class="kw">fn</span> <span class="ident">default_host</span>(<span class="ident">port</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="comment">// try to check for the existence of a unix socket and uses that</span>
-    <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;.s.PGSQL.{}&quot;</span>, <span class="ident">port</span>);
+    <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;.s.PGSQL.{}&quot;</span>, <span class="ident">port</span>);
     <span class="kw">let</span> <span class="ident">candidates</span> <span class="op">=</span> [
         <span class="string">&quot;/var/run/postgresql&quot;</span>, <span class="comment">// Debian</span>
         <span class="string">&quot;/private/tmp&quot;</span>,        <span class="comment">// OSX (homebrew)</span>
@@ -706,7 +706,7 @@
     ];
 
     <span class="kw">for</span> <span class="ident">candidate</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {
-        <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">candidate</span>).<span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="ident">socket</span>).<span class="ident">exists</span>() {
+        <span class="kw">if</span> <span class="ident">Path::new</span>(<span class="ident">candidate</span>).<span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="ident">socket</span>).<span class="ident">exists</span>() {
             <span class="kw">return</span> <span class="ident">candidate</span>.<span class="ident">to_string</span>();
         }
     }
@@ -715,5 +715,5 @@
     <span class="string">&quot;localhost&quot;</span>.<span class="ident">to_owned</span>()
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

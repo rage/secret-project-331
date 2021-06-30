@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/webpki-0.21.4/src/verify_cert.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>verify_cert.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../webpki/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../webpki/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -358,7 +358,7 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_chain</span>(
     <span class="ident">required_eku_if_present</span>: <span class="ident">KeyPurposeId</span>, <span class="ident">supported_sig_algs</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>],
-    <span class="ident">trust_anchors</span>: <span class="kw-2">&amp;</span>[<span class="ident">TrustAnchor</span>], <span class="ident">intermediate_certs</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]], <span class="ident">cert</span>: <span class="kw-2">&amp;</span><span class="ident">Cert</span>, <span class="ident">time</span>: <span class="ident">time</span>::<span class="ident">Time</span>,
+    <span class="ident">trust_anchors</span>: <span class="kw-2">&amp;</span>[<span class="ident">TrustAnchor</span>], <span class="ident">intermediate_certs</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]], <span class="ident">cert</span>: <span class="kw-2">&amp;</span><span class="ident">Cert</span>, <span class="ident">time</span>: <span class="ident">time::Time</span>,
     <span class="ident">sub_ca_count</span>: <span class="ident">usize</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">used_as_ca</span> <span class="op">=</span> <span class="ident">used_as_ca</span>(<span class="kw-2">&amp;</span><span class="ident">cert</span>.<span class="ident">ee_or_ca</span>);
@@ -374,33 +374,33 @@
     <span class="comment">// TODO: HPKP checks.</span>
 
     <span class="kw">match</span> <span class="ident">used_as_ca</span> {
-        <span class="ident">UsedAsCA</span>::<span class="ident">Yes</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">UsedAsCA::Yes</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">const</span> <span class="ident">MAX_SUB_CA_COUNT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">6</span>;
 
             <span class="kw">if</span> <span class="ident">sub_ca_count</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_SUB_CA_COUNT</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnknownIssuer</span>);
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownIssuer</span>);
             }
         },
-        <span class="ident">UsedAsCA</span>::<span class="ident">No</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">0</span>, <span class="ident">sub_ca_count</span>);
+        <span class="ident">UsedAsCA::No</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">sub_ca_count</span>);
         },
     }
 
     <span class="comment">// TODO: revocation.</span>
 
     <span class="kw">match</span> <span class="ident">loop_while_non_fatal_error</span>(<span class="ident">trust_anchors</span>, <span class="op">|</span><span class="ident">trust_anchor</span>: <span class="kw-2">&amp;</span><span class="ident">TrustAnchor</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">trust_anchor_subject</span> <span class="op">=</span> <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="ident">trust_anchor</span>.<span class="ident">subject</span>);
+        <span class="kw">let</span> <span class="ident">trust_anchor_subject</span> <span class="op">=</span> <span class="ident">untrusted::Input::from</span>(<span class="ident">trust_anchor</span>.<span class="ident">subject</span>);
         <span class="kw">if</span> <span class="ident">cert</span>.<span class="ident">issuer</span> <span class="op">!</span><span class="op">=</span> <span class="ident">trust_anchor_subject</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnknownIssuer</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownIssuer</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">name_constraints</span> <span class="op">=</span> <span class="ident">trust_anchor</span>.<span class="ident">name_constraints</span>.<span class="ident">map</span>(<span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>);
+        <span class="kw">let</span> <span class="ident">name_constraints</span> <span class="op">=</span> <span class="ident">trust_anchor</span>.<span class="ident">name_constraints</span>.<span class="ident">map</span>(<span class="ident">untrusted::Input::from</span>);
 
-        <span class="ident">untrusted</span>::<span class="ident">read_all_optional</span>(<span class="ident">name_constraints</span>, <span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
-            <span class="ident">name</span>::<span class="ident">check_name_constraints</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">cert</span>)
+        <span class="ident">untrusted::read_all_optional</span>(<span class="ident">name_constraints</span>, <span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
+            <span class="ident">name::check_name_constraints</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">cert</span>)
         })<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">trust_anchor_spki</span> <span class="op">=</span> <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="ident">trust_anchor</span>.<span class="ident">spki</span>);
+        <span class="kw">let</span> <span class="ident">trust_anchor_spki</span> <span class="op">=</span> <span class="ident">untrusted::Input::from</span>(<span class="ident">trust_anchor</span>.<span class="ident">spki</span>);
 
         <span class="comment">// TODO: check_distrust(trust_anchor_subject, trust_anchor_spki)?;</span>
 
@@ -418,10 +418,10 @@
 
     <span class="ident">loop_while_non_fatal_error</span>(<span class="ident">intermediate_certs</span>, <span class="op">|</span><span class="ident">cert_der</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">potential_issuer</span> <span class="op">=</span>
-            <span class="ident">cert</span>::<span class="ident">parse_cert</span>(<span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">cert_der</span>), <span class="ident">EndEntityOrCA</span>::<span class="ident">CA</span>(<span class="kw-2">&amp;</span><span class="ident">cert</span>))<span class="question-mark">?</span>;
+            <span class="ident">cert::parse_cert</span>(<span class="ident">untrusted::Input::from</span>(<span class="kw-2">*</span><span class="ident">cert_der</span>), <span class="ident">EndEntityOrCA::CA</span>(<span class="kw-2">&amp;</span><span class="ident">cert</span>))<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="ident">potential_issuer</span>.<span class="ident">subject</span> <span class="op">!</span><span class="op">=</span> <span class="ident">cert</span>.<span class="ident">issuer</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnknownIssuer</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownIssuer</span>);
         }
 
         <span class="comment">// Prevent loops; see RFC 4158 section 5.2.</span>
@@ -430,25 +430,25 @@
             <span class="kw">if</span> <span class="ident">potential_issuer</span>.<span class="ident">spki</span>.<span class="ident">value</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">prev</span>.<span class="ident">spki</span>.<span class="ident">value</span>()
                 <span class="op">&amp;&amp;</span> <span class="ident">potential_issuer</span>.<span class="ident">subject</span> <span class="op">=</span><span class="op">=</span> <span class="ident">prev</span>.<span class="ident">subject</span>
             {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnknownIssuer</span>);
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownIssuer</span>);
             }
             <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">prev</span>.<span class="ident">ee_or_ca</span> {
-                <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA</span>::<span class="ident">EndEntity</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA::EndEntity</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">break</span>;
                 },
-                <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA</span>::<span class="ident">CA</span>(<span class="ident">child_cert</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA::CA</span>(<span class="ident">child_cert</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">prev</span> <span class="op">=</span> <span class="ident">child_cert</span>;
                 },
             }
         }
 
-        <span class="ident">untrusted</span>::<span class="ident">read_all_optional</span>(<span class="ident">potential_issuer</span>.<span class="ident">name_constraints</span>, <span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
-            <span class="ident">name</span>::<span class="ident">check_name_constraints</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">cert</span>)
+        <span class="ident">untrusted::read_all_optional</span>(<span class="ident">potential_issuer</span>.<span class="ident">name_constraints</span>, <span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
+            <span class="ident">name::check_name_constraints</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">cert</span>)
         })<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">next_sub_ca_count</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">used_as_ca</span> {
-            <span class="ident">UsedAsCA</span>::<span class="ident">No</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sub_ca_count</span>,
-            <span class="ident">UsedAsCA</span>::<span class="ident">Yes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sub_ca_count</span> <span class="op">+</span> <span class="number">1</span>,
+            <span class="ident">UsedAsCA::No</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sub_ca_count</span>,
+            <span class="ident">UsedAsCA::Yes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sub_ca_count</span> <span class="op">+</span> <span class="number">1</span>,
         };
 
         <span class="ident">build_chain</span>(
@@ -465,21 +465,21 @@
 
 <span class="kw">fn</span> <span class="ident">check_signatures</span>(
     <span class="ident">supported_sig_algs</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>], <span class="ident">cert_chain</span>: <span class="kw-2">&amp;</span><span class="ident">Cert</span>,
-    <span class="ident">trust_anchor_key</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>,
+    <span class="ident">trust_anchor_key</span>: <span class="ident">untrusted::Input</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spki_value</span> <span class="op">=</span> <span class="ident">trust_anchor_key</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cert</span> <span class="op">=</span> <span class="ident">cert_chain</span>;
     <span class="kw">loop</span> {
-        <span class="ident">signed_data</span>::<span class="ident">verify_signed_data</span>(<span class="ident">supported_sig_algs</span>, <span class="ident">spki_value</span>, <span class="kw-2">&amp;</span><span class="ident">cert</span>.<span class="ident">signed_data</span>)<span class="question-mark">?</span>;
+        <span class="ident">signed_data::verify_signed_data</span>(<span class="ident">supported_sig_algs</span>, <span class="ident">spki_value</span>, <span class="kw-2">&amp;</span><span class="ident">cert</span>.<span class="ident">signed_data</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// TODO: check revocation</span>
 
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">cert</span>.<span class="ident">ee_or_ca</span> {
-            <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA</span>::<span class="ident">CA</span>(<span class="ident">child_cert</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA::CA</span>(<span class="ident">child_cert</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">spki_value</span> <span class="op">=</span> <span class="ident">cert</span>.<span class="ident">spki</span>.<span class="ident">value</span>();
                 <span class="ident">cert</span> <span class="op">=</span> <span class="ident">child_cert</span>;
             },
-            <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA</span>::<span class="ident">EndEntity</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA::EndEntity</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">break</span>;
             },
         }
@@ -489,7 +489,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">check_issuer_independent_properties</span>(
-    <span class="ident">cert</span>: <span class="kw-2">&amp;</span><span class="ident">Cert</span>, <span class="ident">time</span>: <span class="ident">time</span>::<span class="ident">Time</span>, <span class="ident">used_as_ca</span>: <span class="ident">UsedAsCA</span>, <span class="ident">sub_ca_count</span>: <span class="ident">usize</span>,
+    <span class="ident">cert</span>: <span class="kw-2">&amp;</span><span class="ident">Cert</span>, <span class="ident">time</span>: <span class="ident">time::Time</span>, <span class="ident">used_as_ca</span>: <span class="ident">UsedAsCA</span>, <span class="ident">sub_ca_count</span>: <span class="ident">usize</span>,
     <span class="ident">required_eku_if_present</span>: <span class="ident">KeyPurposeId</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="comment">// TODO: check_distrust(trust_anchor_subject, trust_anchor_spki)?;</span>
@@ -501,11 +501,11 @@
     <span class="comment">// KeyUsage extension.</span>
 
     <span class="ident">cert</span>.<span class="ident">validity</span>
-        .<span class="ident">read_all</span>(<span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">check_validity</span>(<span class="ident">value</span>, <span class="ident">time</span>))<span class="question-mark">?</span>;
-    <span class="ident">untrusted</span>::<span class="ident">read_all_optional</span>(<span class="ident">cert</span>.<span class="ident">basic_constraints</span>, <span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
+        .<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">check_validity</span>(<span class="ident">value</span>, <span class="ident">time</span>))<span class="question-mark">?</span>;
+    <span class="ident">untrusted::read_all_optional</span>(<span class="ident">cert</span>.<span class="ident">basic_constraints</span>, <span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
         <span class="ident">check_basic_constraints</span>(<span class="ident">value</span>, <span class="ident">used_as_ca</span>, <span class="ident">sub_ca_count</span>)
     })<span class="question-mark">?</span>;
-    <span class="ident">untrusted</span>::<span class="ident">read_all_optional</span>(<span class="ident">cert</span>.<span class="ident">eku</span>, <span class="ident">Error</span>::<span class="ident">BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
+    <span class="ident">untrusted::read_all_optional</span>(<span class="ident">cert</span>.<span class="ident">eku</span>, <span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
         <span class="ident">check_eku</span>(<span class="ident">value</span>, <span class="ident">required_eku_if_present</span>)
     })<span class="question-mark">?</span>;
 
@@ -513,18 +513,18 @@
 }
 
 <span class="comment">// https://tools.ietf.org/html/rfc5280#section-4.1.2.5</span>
-<span class="kw">fn</span> <span class="ident">check_validity</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">untrusted</span>::<span class="ident">Reader</span>, <span class="ident">time</span>: <span class="ident">time</span>::<span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">not_before</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">time_choice</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">not_after</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">time_choice</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+<span class="kw">fn</span> <span class="ident">check_validity</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">untrusted::Reader</span>, <span class="ident">time</span>: <span class="ident">time::Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">not_before</span> <span class="op">=</span> <span class="ident">der::time_choice</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">not_after</span> <span class="op">=</span> <span class="ident">der::time_choice</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
 
     <span class="kw">if</span> <span class="ident">not_before</span> <span class="op">&gt;</span> <span class="ident">not_after</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidCertValidity</span>);
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidCertValidity</span>);
     }
     <span class="kw">if</span> <span class="ident">time</span> <span class="op">&lt;</span> <span class="ident">not_before</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">CertNotValidYet</span>);
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::CertNotValidYet</span>);
     }
     <span class="kw">if</span> <span class="ident">time</span> <span class="op">&gt;</span> <span class="ident">not_after</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">CertExpired</span>);
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::CertExpired</span>);
     }
 
     <span class="comment">// TODO: mozilla::pkix allows the TrustDomain to check not_before and</span>
@@ -542,25 +542,25 @@
 
 <span class="kw">fn</span> <span class="ident">used_as_ca</span>(<span class="ident">ee_or_ca</span>: <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UsedAsCA</span> {
     <span class="kw">match</span> <span class="ident">ee_or_ca</span> {
-        <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA</span>::<span class="ident">EndEntity</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">UsedAsCA</span>::<span class="ident">No</span>,
-        <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA</span>::<span class="ident">CA</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">UsedAsCA</span>::<span class="ident">Yes</span>,
+        <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA::EndEntity</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">UsedAsCA::No</span>,
+        <span class="kw-2">&amp;</span><span class="ident">EndEntityOrCA::CA</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">UsedAsCA::Yes</span>,
     }
 }
 
 <span class="comment">// https://tools.ietf.org/html/rfc5280#section-4.2.1.9</span>
 <span class="kw">fn</span> <span class="ident">check_basic_constraints</span>(
-    <span class="ident">input</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">untrusted</span>::<span class="ident">Reader</span><span class="op">&gt;</span>, <span class="ident">used_as_ca</span>: <span class="ident">UsedAsCA</span>, <span class="ident">sub_ca_count</span>: <span class="ident">usize</span>,
+    <span class="ident">input</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">untrusted::Reader</span><span class="op">&gt;</span>, <span class="ident">used_as_ca</span>: <span class="ident">UsedAsCA</span>, <span class="ident">sub_ca_count</span>: <span class="ident">usize</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">is_ca</span>, <span class="ident">path_len_constraint</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span> {
         <span class="prelude-val">Some</span>(<span class="ident">input</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">is_ca</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">optional_boolean</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">is_ca</span> <span class="op">=</span> <span class="ident">der::optional_boolean</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
 
             <span class="comment">// https://bugzilla.mozilla.org/show_bug.cgi?id=985025: RFC 5280</span>
             <span class="comment">// says that a certificate must not have pathLenConstraint unless</span>
             <span class="comment">// it is a CA certificate, but some real-world end-entity</span>
             <span class="comment">// certificates have pathLenConstraint.</span>
             <span class="kw">let</span> <span class="ident">path_len_constraint</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">input</span>.<span class="ident">at_end</span>() {
-                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">small_nonnegative_integer</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">der::small_nonnegative_integer</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
                 <span class="prelude-val">Some</span>(<span class="ident">value</span> <span class="kw">as</span> <span class="ident">usize</span>)
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
@@ -572,17 +572,17 @@
     };
 
     <span class="kw">match</span> (<span class="ident">used_as_ca</span>, <span class="ident">is_ca</span>, <span class="ident">path_len_constraint</span>) {
-        (<span class="ident">UsedAsCA</span>::<span class="ident">No</span>, <span class="bool-val">true</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">CAUsedAsEndEntity</span>),
-        (<span class="ident">UsedAsCA</span>::<span class="ident">Yes</span>, <span class="bool-val">false</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">EndEntityUsedAsCA</span>),
-        (<span class="ident">UsedAsCA</span>::<span class="ident">Yes</span>, <span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="ident">len</span>)) <span class="kw">if</span> <span class="ident">sub_ca_count</span> <span class="op">&gt;</span> <span class="ident">len</span> <span class="op">=</span><span class="op">&gt;</span>
-            <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">PathLenConstraintViolated</span>),
+        (<span class="ident">UsedAsCA::No</span>, <span class="bool-val">true</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error::CAUsedAsEndEntity</span>),
+        (<span class="ident">UsedAsCA::Yes</span>, <span class="bool-val">false</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error::EndEntityUsedAsCA</span>),
+        (<span class="ident">UsedAsCA::Yes</span>, <span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="ident">len</span>)) <span class="kw">if</span> <span class="ident">sub_ca_count</span> <span class="op">&gt;</span> <span class="ident">len</span> <span class="op">=</span><span class="op">&gt;</span>
+            <span class="prelude-val">Err</span>(<span class="ident">Error::PathLenConstraintViolated</span>),
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
     }
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">KeyPurposeId</span> {
-    <span class="ident">oid_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
+    <span class="ident">oid_value</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
 }
 
 <span class="comment">// id-pkix            OBJECT IDENTIFIER ::= { 1 3 6 1 5 5 7 }</span>
@@ -590,17 +590,17 @@
 
 <span class="comment">// id-kp-serverAuth   OBJECT IDENTIFIER ::= { id-kp 1 }</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">EKU_SERVER_AUTH</span>: <span class="ident">KeyPurposeId</span> <span class="op">=</span> <span class="ident">KeyPurposeId</span> {
-    <span class="ident">oid_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span>[(<span class="number">40</span> <span class="op">*</span> <span class="number">1</span>) <span class="op">+</span> <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">1</span>]),
+    <span class="ident">oid_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="kw-2">&amp;</span>[(<span class="number">40</span> <span class="op">*</span> <span class="number">1</span>) <span class="op">+</span> <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">1</span>]),
 };
 
 <span class="comment">// id-kp-clientAuth   OBJECT IDENTIFIER ::= { id-kp 2 }</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">EKU_CLIENT_AUTH</span>: <span class="ident">KeyPurposeId</span> <span class="op">=</span> <span class="ident">KeyPurposeId</span> {
-    <span class="ident">oid_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span>[(<span class="number">40</span> <span class="op">*</span> <span class="number">1</span>) <span class="op">+</span> <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">2</span>]),
+    <span class="ident">oid_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="kw-2">&amp;</span>[(<span class="number">40</span> <span class="op">*</span> <span class="number">1</span>) <span class="op">+</span> <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">2</span>]),
 };
 
 <span class="comment">// id-kp-OCSPSigning  OBJECT IDENTIFIER ::= { id-kp 9 }</span>
 <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">EKU_OCSP_SIGNING</span>: <span class="ident">KeyPurposeId</span> <span class="op">=</span> <span class="ident">KeyPurposeId</span> {
-    <span class="ident">oid_value</span>: <span class="ident">untrusted</span>::<span class="ident">Input</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span>[(<span class="number">40</span> <span class="op">*</span> <span class="number">1</span>) <span class="op">+</span> <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">9</span>]),
+    <span class="ident">oid_value</span>: <span class="ident">untrusted::Input::from</span>(<span class="kw-2">&amp;</span>[(<span class="number">40</span> <span class="op">*</span> <span class="number">1</span>) <span class="op">+</span> <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">9</span>]),
 };
 
 <span class="comment">// https://tools.ietf.org/html/rfc5280#section-4.2.1.12</span>
@@ -620,18 +620,18 @@
 <span class="comment">//   certificates (only). Comodo has issued certificates that require this</span>
 <span class="comment">//   behavior that don&#39;t expire until June 2020. See https://bugzilla.mozilla.org/show_bug.cgi?id=982292.</span>
 <span class="kw">fn</span> <span class="ident">check_eku</span>(
-    <span class="ident">input</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">untrusted</span>::<span class="ident">Reader</span><span class="op">&gt;</span>, <span class="ident">required_eku_if_present</span>: <span class="ident">KeyPurposeId</span>,
+    <span class="ident">input</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">untrusted::Reader</span><span class="op">&gt;</span>, <span class="ident">required_eku_if_present</span>: <span class="ident">KeyPurposeId</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">input</span> {
         <span class="prelude-val">Some</span>(<span class="ident">input</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">loop</span> {
-                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">der</span>::<span class="ident">expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der</span>::<span class="ident">Tag</span>::<span class="ident">OID</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">der::expect_tag_and_get_value</span>(<span class="ident">input</span>, <span class="ident">der::Tag::OID</span>)<span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="ident">required_eku_if_present</span>.<span class="ident">oid_value</span> {
                     <span class="ident">input</span>.<span class="ident">skip_to_end</span>();
                     <span class="kw">break</span>;
                 }
                 <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">at_end</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">RequiredEKUNotFound</span>);
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::RequiredEKUNotFound</span>);
                 }
             }
             <span class="prelude-val">Ok</span>(())
@@ -647,7 +647,7 @@
             <span class="comment">// end-entity certificate isn&#39;t able to sign trusted OCSP responses</span>
             <span class="comment">// for itself or for other certificates issued by its issuing CA.</span>
             <span class="kw">if</span> <span class="ident">required_eku_if_present</span>.<span class="ident">oid_value</span> <span class="op">=</span><span class="op">=</span> <span class="ident">EKU_OCSP_SIGNING</span>.<span class="ident">oid_value</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">RequiredEKUNotFound</span>);
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::RequiredEKUNotFound</span>);
             }
 
             <span class="prelude-val">Ok</span>(())
@@ -658,7 +658,7 @@
 <span class="kw">fn</span> <span class="ident">loop_while_non_fatal_error</span><span class="op">&lt;</span><span class="ident">V</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">values</span>: <span class="ident">V</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">V</span>: <span class="ident">IntoIterator</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">V</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">V::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span>,
 {
     <span class="kw">for</span> <span class="ident">v</span> <span class="kw">in</span> <span class="ident">values</span> {
         <span class="kw">match</span> <span class="ident">f</span>(<span class="ident">v</span>) {
@@ -670,8 +670,8 @@
             },
         }
     }
-    <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnknownIssuer</span>)
+    <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownIssuer</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="webpki" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="webpki" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

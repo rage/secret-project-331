@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/runtime/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -748,46 +748,46 @@
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">task</span>;
 
-<span class="macro">cfg_rt</span><span class="macro">!</span> {
+<span class="macro">cfg_rt!</span> {
     <span class="kw">mod</span> <span class="ident">basic_scheduler</span>;
-    <span class="kw">use</span> <span class="ident">basic_scheduler</span>::<span class="ident">BasicScheduler</span>;
+    <span class="kw">use</span> <span class="ident">basic_scheduler::BasicScheduler</span>;
 
     <span class="kw">mod</span> <span class="ident">blocking</span>;
-    <span class="kw">use</span> <span class="ident">blocking</span>::<span class="ident">BlockingPool</span>;
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">blocking</span>::<span class="ident">spawn_blocking</span>;
+    <span class="kw">use</span> <span class="ident">blocking::BlockingPool</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">blocking::spawn_blocking</span>;
 
     <span class="kw">mod</span> <span class="ident">builder</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">builder</span>::<span class="ident">Builder</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::builder::Builder</span>;
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">context</span>;
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">driver</span>;
 
-    <span class="kw">use</span> <span class="self">self</span>::<span class="ident">enter</span>::<span class="ident">enter</span>;
+    <span class="kw">use</span> <span class="self">self</span><span class="ident">::enter::enter</span>;
 
     <span class="kw">mod</span> <span class="ident">handle</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">handle</span>::{<span class="ident">EnterGuard</span>, <span class="ident">Handle</span>};
 
     <span class="kw">mod</span> <span class="ident">spawner</span>;
-    <span class="kw">use</span> <span class="self">self</span>::<span class="ident">spawner</span>::<span class="ident">Spawner</span>;
+    <span class="kw">use</span> <span class="self">self</span><span class="ident">::spawner::Spawner</span>;
 }
 
-<span class="macro">cfg_rt_multi_thread</span><span class="macro">!</span> {
+<span class="macro">cfg_rt_multi_thread!</span> {
     <span class="kw">mod</span> <span class="ident">park</span>;
-    <span class="kw">use</span> <span class="ident">park</span>::<span class="ident">Parker</span>;
+    <span class="kw">use</span> <span class="ident">park::Parker</span>;
 }
 
-<span class="macro">cfg_rt_multi_thread</span><span class="macro">!</span> {
+<span class="macro">cfg_rt_multi_thread!</span> {
     <span class="kw">mod</span> <span class="ident">queue</span>;
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">thread_pool</span>;
-    <span class="kw">use</span> <span class="self">self</span>::<span class="ident">thread_pool</span>::<span class="ident">ThreadPool</span>;
+    <span class="kw">use</span> <span class="self">self</span><span class="ident">::thread_pool::ThreadPool</span>;
 }
 
-<span class="macro">cfg_rt</span><span class="macro">!</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">task</span>::<span class="ident">JoinHandle</span>;
+<span class="macro">cfg_rt!</span> {
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::task::JoinHandle</span>;
 
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
+    <span class="kw">use</span> <span class="ident">std::future::Future</span>;
+    <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
     <span class="doccomment">/// The Tokio runtime.</span>
     <span class="doccomment">///</span>
@@ -843,7 +843,7 @@
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
     <span class="kw">enum</span> <span class="ident">Kind</span> {
         <span class="doccomment">/// Execute all tasks on the current-thread.</span>
-        <span class="ident">CurrentThread</span>(<span class="ident">BasicScheduler</span><span class="op">&lt;</span><span class="ident">driver</span>::<span class="ident">Driver</span><span class="op">&gt;</span>),
+        <span class="ident">CurrentThread</span>(<span class="ident">BasicScheduler</span><span class="op">&lt;</span><span class="ident">driver::Driver</span><span class="op">&gt;</span>),
 
         <span class="doccomment">/// Execute tasks across multiple threads.</span>
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)]</span>
@@ -851,7 +851,7 @@
     }
 
     <span class="doccomment">/// After thread starts / before thread stops</span>
-    <span class="kw">type</span> <span class="ident">Callback</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>() <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Callback</span> <span class="op">=</span> <span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>() <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>;
 
     <span class="kw">impl</span> <span class="ident">Runtime</span> {
         <span class="doccomment">/// Create a new runtime instance with default configuration values.</span>
@@ -885,8 +885,8 @@
         <span class="doccomment">/// [runtime builder]: crate::runtime::Builder</span>
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)]</span>
         <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)))]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span> {
-            <span class="ident">Builder</span>::<span class="ident">new_multi_thread</span>().<span class="ident">enable_all</span>().<span class="ident">build</span>()
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span> {
+            <span class="ident">Builder::new_multi_thread</span>().<span class="ident">enable_all</span>().<span class="ident">build</span>()
         }
 
         <span class="doccomment">/// Return a handle to the runtime&#39;s spawner.</span>
@@ -936,10 +936,10 @@
         <span class="doccomment">/// # }</span>
         <span class="doccomment">/// ```</span>
         <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">tokio_track_caller</span>, <span class="ident">track_caller</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spawn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">F</span>::<span class="ident">Output</span><span class="op">&gt;</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spawn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">F::Output</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="ident">F</span>: <span class="ident">Future</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-            <span class="ident">F</span>::<span class="ident">Output</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+            <span class="ident">F::Output</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         {
             <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">spawn</span>(<span class="ident">future</span>)
         }
@@ -1010,13 +1010,13 @@
         <span class="doccomment">/// ```</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// [handle]: fn@Handle::block_on</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Future</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>::<span class="ident">Output</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Future</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F::Output</span> {
             <span class="kw">let</span> <span class="ident">_enter</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">enter</span>();
 
             <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">kind</span> {
-                <span class="ident">Kind</span>::<span class="ident">CurrentThread</span>(<span class="ident">exec</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exec</span>.<span class="ident">block_on</span>(<span class="ident">future</span>),
+                <span class="ident">Kind::CurrentThread</span>(<span class="ident">exec</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exec</span>.<span class="ident">block_on</span>(<span class="ident">future</span>),
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)]</span>
-                <span class="ident">Kind</span>::<span class="ident">ThreadPool</span>(<span class="ident">exec</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exec</span>.<span class="ident">block_on</span>(<span class="ident">future</span>),
+                <span class="ident">Kind::ThreadPool</span>(<span class="ident">exec</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">exec</span>.<span class="ident">block_on</span>(<span class="ident">future</span>),
             }
         }
 
@@ -1124,10 +1124,10 @@
         <span class="doccomment">/// }</span>
         <span class="doccomment">/// ```</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shutdown_background</span>(<span class="self">self</span>) {
-            <span class="self">self</span>.<span class="ident">shutdown_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_nanos</span>(<span class="number">0</span>))
+            <span class="self">self</span>.<span class="ident">shutdown_timeout</span>(<span class="ident">Duration::from_nanos</span>(<span class="number">0</span>))
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/native-tls-0.2.7/src/imp/openssl.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>openssl.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../native_tls/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../native_tls/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -459,22 +459,22 @@
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">openssl</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">openssl_probe</span>;
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">error</span>::<span class="ident">ErrorStack</span>;
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">hash</span>::<span class="ident">MessageDigest</span>;
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">nid</span>::<span class="ident">Nid</span>;
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">pkcs12</span>::<span class="ident">Pkcs12</span>;
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">pkey</span>::<span class="ident">PKey</span>;
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">ssl</span>::{
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::error::ErrorStack</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::hash::MessageDigest</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::nid::Nid</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::pkcs12::Pkcs12</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::pkey::PKey</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::ssl</span>::{
     <span class="self">self</span>, <span class="ident">MidHandshakeSslStream</span>, <span class="ident">SslAcceptor</span>, <span class="ident">SslConnector</span>, <span class="ident">SslContextBuilder</span>, <span class="ident">SslMethod</span>,
     <span class="ident">SslVerifyMode</span>,
 };
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">x509</span>::{<span class="ident">store</span>::<span class="ident">X509StoreBuilder</span>, <span class="ident">X509VerifyResult</span>, <span class="ident">X509</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Once</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::x509</span>::{<span class="ident">store::X509StoreBuilder</span>, <span class="ident">X509VerifyResult</span>, <span class="ident">X509</span>};
+<span class="kw">use</span> <span class="ident">std::error</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Once</span>;
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">pkey</span>::<span class="ident">Private</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::pkey::Private</span>;
 <span class="kw">use</span> {<span class="ident">Protocol</span>, <span class="ident">TlsAcceptorBuilder</span>, <span class="ident">TlsConnectorBuilder</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">have_min_max_version</span>)]</span>
@@ -483,15 +483,15 @@
     <span class="ident">max</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Protocol</span><span class="op">&gt;</span>,
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SslContextBuilder</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">ssl</span>::<span class="ident">SslVersion</span>;
+    <span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::ssl::SslVersion</span>;
 
     <span class="kw">fn</span> <span class="ident">cvt</span>(<span class="ident">p</span>: <span class="ident">Protocol</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SslVersion</span> {
         <span class="kw">match</span> <span class="ident">p</span> {
-            <span class="ident">Protocol</span>::<span class="ident">Sslv3</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslVersion</span>::<span class="ident">SSL3</span>,
-            <span class="ident">Protocol</span>::<span class="ident">Tlsv10</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslVersion</span>::<span class="ident">TLS1</span>,
-            <span class="ident">Protocol</span>::<span class="ident">Tlsv11</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslVersion</span>::<span class="ident">TLS1_1</span>,
-            <span class="ident">Protocol</span>::<span class="ident">Tlsv12</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslVersion</span>::<span class="ident">TLS1_2</span>,
-            <span class="ident">Protocol</span>::<span class="ident">__NonExhaustive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">Protocol::Sslv3</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslVersion::SSL3</span>,
+            <span class="ident">Protocol::Tlsv10</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslVersion::TLS1</span>,
+            <span class="ident">Protocol::Tlsv11</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslVersion::TLS1_1</span>,
+            <span class="ident">Protocol::Tlsv12</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslVersion::TLS1_2</span>,
+            <span class="ident">Protocol::__NonExhaustive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -507,39 +507,39 @@
     <span class="ident">max</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Protocol</span><span class="op">&gt;</span>,
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SslContextBuilder</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="self">self</span>::<span class="ident">openssl</span>::<span class="ident">ssl</span>::<span class="ident">SslOptions</span>;
+    <span class="kw">use</span> <span class="self">self</span><span class="ident">::openssl::ssl::SslOptions</span>;
 
-    <span class="kw">let</span> <span class="ident">no_ssl_mask</span> <span class="op">=</span> <span class="ident">SslOptions</span>::<span class="ident">NO_SSLV2</span>
-        <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_SSLV3</span>
-        <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1</span>
-        <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1_1</span>
-        <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1_2</span>;
+    <span class="kw">let</span> <span class="ident">no_ssl_mask</span> <span class="op">=</span> <span class="ident">SslOptions::NO_SSLV2</span>
+        <span class="op">|</span> <span class="ident">SslOptions::NO_SSLV3</span>
+        <span class="op">|</span> <span class="ident">SslOptions::NO_TLSV1</span>
+        <span class="op">|</span> <span class="ident">SslOptions::NO_TLSV1_1</span>
+        <span class="op">|</span> <span class="ident">SslOptions::NO_TLSV1_2</span>;
 
     <span class="ident">ctx</span>.<span class="ident">clear_options</span>(<span class="ident">no_ssl_mask</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">SslOptions</span>::<span class="ident">empty</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">SslOptions::empty</span>();
     <span class="ident">options</span> <span class="op">|</span><span class="op">=</span> <span class="kw">match</span> <span class="ident">min</span> {
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions</span>::<span class="ident">empty</span>(),
-        <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">Sslv3</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions</span>::<span class="ident">NO_SSLV2</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">Tlsv10</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions</span>::<span class="ident">NO_SSLV2</span> <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_SSLV3</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">Tlsv11</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="ident">SslOptions</span>::<span class="ident">NO_SSLV2</span> <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_SSLV3</span> <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1</span>
+        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions::empty</span>(),
+        <span class="prelude-val">Some</span>(<span class="ident">Protocol::Sslv3</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions::NO_SSLV2</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">Protocol::Tlsv10</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions::NO_SSLV2</span> <span class="op">|</span> <span class="ident">SslOptions::NO_SSLV3</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">Protocol::Tlsv11</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SslOptions::NO_SSLV2</span> <span class="op">|</span> <span class="ident">SslOptions::NO_SSLV3</span> <span class="op">|</span> <span class="ident">SslOptions::NO_TLSV1</span>
         }
-        <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">Tlsv12</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="ident">SslOptions</span>::<span class="ident">NO_SSLV2</span>
-                <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_SSLV3</span>
-                <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1</span>
-                <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1_1</span>
+        <span class="prelude-val">Some</span>(<span class="ident">Protocol::Tlsv12</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SslOptions::NO_SSLV2</span>
+                <span class="op">|</span> <span class="ident">SslOptions::NO_SSLV3</span>
+                <span class="op">|</span> <span class="ident">SslOptions::NO_TLSV1</span>
+                <span class="op">|</span> <span class="ident">SslOptions::NO_TLSV1_1</span>
         }
-        <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">__NonExhaustive</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        <span class="prelude-val">Some</span>(<span class="ident">Protocol::__NonExhaustive</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
     <span class="ident">options</span> <span class="op">|</span><span class="op">=</span> <span class="kw">match</span> <span class="ident">max</span> {
-        <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">Tlsv12</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions</span>::<span class="ident">empty</span>(),
-        <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">Tlsv11</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1_2</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">Tlsv10</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1_1</span> <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1_2</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">Sslv3</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1</span> <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1_1</span> <span class="op">|</span> <span class="ident">SslOptions</span>::<span class="ident">NO_TLSV1_2</span>
+        <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Protocol::Tlsv12</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions::empty</span>(),
+        <span class="prelude-val">Some</span>(<span class="ident">Protocol::Tlsv11</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions::NO_TLSV1_2</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">Protocol::Tlsv10</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SslOptions::NO_TLSV1_1</span> <span class="op">|</span> <span class="ident">SslOptions::NO_TLSV1_2</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">Protocol::Sslv3</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SslOptions::NO_TLSV1</span> <span class="op">|</span> <span class="ident">SslOptions::NO_TLSV1_1</span> <span class="op">|</span> <span class="ident">SslOptions::NO_TLSV1_2</span>
         }
-        <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>::<span class="ident">__NonExhaustive</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        <span class="prelude-val">Some</span>(<span class="ident">Protocol::__NonExhaustive</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
 
     <span class="ident">ctx</span>.<span class="ident">set_options</span>(<span class="ident">options</span>);
@@ -548,22 +548,22 @@
 }
 
 <span class="kw">fn</span> <span class="ident">init_trust</span>() {
-    <span class="kw">static</span> <span class="ident">ONCE</span>: <span class="ident">Once</span> <span class="op">=</span> <span class="ident">Once</span>::<span class="ident">new</span>();
-    <span class="ident">ONCE</span>.<span class="ident">call_once</span>(<span class="ident">openssl_probe</span>::<span class="ident">init_ssl_cert_env_vars</span>);
+    <span class="kw">static</span> <span class="ident">ONCE</span>: <span class="ident">Once</span> <span class="op">=</span> <span class="ident">Once::new</span>();
+    <span class="ident">ONCE</span>.<span class="ident">call_once</span>(<span class="ident">openssl_probe::init_ssl_cert_env_vars</span>);
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>)]</span>
 <span class="kw">fn</span> <span class="ident">load_android_root_certs</span>(<span class="ident">connector</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SslContextBuilder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>;
+    <span class="kw">use</span> <span class="ident">std::fs</span>;
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">dir</span>) <span class="op">=</span> <span class="ident">fs</span>::<span class="ident">read_dir</span>(<span class="string">&quot;/system/etc/security/cacerts&quot;</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">dir</span>) <span class="op">=</span> <span class="ident">fs::read_dir</span>(<span class="string">&quot;/system/etc/security/cacerts&quot;</span>) {
         <span class="kw">let</span> <span class="ident">certs</span> <span class="op">=</span> <span class="ident">dir</span>
             .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">ok</span>())
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">fs</span>::<span class="ident">read</span>(<span class="ident">e</span>.<span class="ident">path</span>()).<span class="ident">ok</span>())
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">X509</span>::<span class="ident">from_pem</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">ok</span>());
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">fs::read</span>(<span class="ident">e</span>.<span class="ident">path</span>()).<span class="ident">ok</span>())
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">X509::from_pem</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>).<span class="ident">ok</span>());
         <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="ident">certs</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">connector</span>.<span class="ident">cert_store_mut</span>().<span class="ident">add_cert</span>(<span class="ident">cert</span>) {
-                <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;load_android_root_certs error: {:?}&quot;</span>, <span class="ident">err</span>);
+                <span class="macro">debug!</span>(<span class="string">&quot;load_android_root_certs error: {:?}&quot;</span>, <span class="ident">err</span>);
             }
         }
     }
@@ -574,31 +574,31 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
     <span class="ident">Normal</span>(<span class="ident">ErrorStack</span>),
-    <span class="ident">Ssl</span>(<span class="ident">ssl</span>::<span class="ident">Error</span>, <span class="ident">X509VerifyResult</span>),
+    <span class="ident">Ssl</span>(<span class="ident">ssl::Error</span>, <span class="ident">X509VerifyResult</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="ident">dyn</span> <span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">error::Error</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="ident">dyn</span> <span class="ident">error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Error</span>::<span class="ident">Normal</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>::<span class="ident">Error</span>::<span class="ident">source</span>(<span class="ident">e</span>),
-            <span class="ident">Error</span>::<span class="ident">Ssl</span>(<span class="kw-2">ref</span> <span class="ident">e</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>::<span class="ident">Error</span>::<span class="ident">source</span>(<span class="ident">e</span>),
+            <span class="ident">Error::Normal</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error::Error::source</span>(<span class="ident">e</span>),
+            <span class="ident">Error::Ssl</span>(<span class="kw-2">ref</span> <span class="ident">e</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error::Error::source</span>(<span class="ident">e</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Error</span>::<span class="ident">Normal</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="ident">e</span>, <span class="ident">fmt</span>),
-            <span class="ident">Error</span>::<span class="ident">Ssl</span>(<span class="kw-2">ref</span> <span class="ident">e</span>, <span class="ident">X509VerifyResult</span>::<span class="ident">OK</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="ident">e</span>, <span class="ident">fmt</span>),
-            <span class="ident">Error</span>::<span class="ident">Ssl</span>(<span class="kw-2">ref</span> <span class="ident">e</span>, <span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{} ({})&quot;</span>, <span class="ident">e</span>, <span class="ident">v</span>),
+            <span class="ident">Error::Normal</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fmt::Display::fmt</span>(<span class="ident">e</span>, <span class="ident">fmt</span>),
+            <span class="ident">Error::Ssl</span>(<span class="kw-2">ref</span> <span class="ident">e</span>, <span class="ident">X509VerifyResult::OK</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fmt::Display::fmt</span>(<span class="ident">e</span>, <span class="ident">fmt</span>),
+            <span class="ident">Error::Ssl</span>(<span class="kw-2">ref</span> <span class="ident">e</span>, <span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{} ({})&quot;</span>, <span class="ident">e</span>, <span class="ident">v</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ErrorStack</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ErrorStack</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
-        <span class="ident">Error</span>::<span class="ident">Normal</span>(<span class="ident">err</span>)
+        <span class="ident">Error::Normal</span>(<span class="ident">err</span>)
     }
 }
 
@@ -611,7 +611,7 @@
 
 <span class="kw">impl</span> <span class="ident">Identity</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pkcs12</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">pass</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Identity</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pkcs12</span> <span class="op">=</span> <span class="ident">Pkcs12</span>::<span class="ident">from_der</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">pkcs12</span> <span class="op">=</span> <span class="ident">Pkcs12::from_der</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">parsed</span> <span class="op">=</span> <span class="ident">pkcs12</span>.<span class="ident">parse</span>(<span class="ident">pass</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">Identity</span> {
             <span class="ident">pkey</span>: <span class="ident">parsed</span>.<span class="ident">pkey</span>,
@@ -626,12 +626,12 @@
 
 <span class="kw">impl</span> <span class="ident">Certificate</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Certificate</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">cert</span> <span class="op">=</span> <span class="ident">X509</span>::<span class="ident">from_der</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">cert</span> <span class="op">=</span> <span class="ident">X509::from_der</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">Certificate</span>(<span class="ident">cert</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pem</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Certificate</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">cert</span> <span class="op">=</span> <span class="ident">X509</span>::<span class="ident">from_pem</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">cert</span> <span class="op">=</span> <span class="ident">X509::from_pem</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">Certificate</span>(<span class="ident">cert</span>))
     }
 
@@ -643,12 +643,12 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MidHandshakeTlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">MidHandshakeSslStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">MidHandshakeTlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">MidHandshakeTlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">S</span>: <span class="ident">fmt::Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="ident">fmt</span>::<span class="ident">Debug</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, <span class="ident">fmt</span>)
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="ident">fmt::Debug::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, <span class="ident">fmt</span>)
     }
 }
 
@@ -664,7 +664,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">MidHandshakeTlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">io</span>::<span class="ident">Read</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Write</span>,
+    <span class="ident">S</span>: <span class="ident">io::Read</span> <span class="op">+</span> <span class="ident">io::Write</span>,
 {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>, <span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">handshake</span>() {
@@ -679,16 +679,16 @@
     <span class="ident">WouldBlock</span>(<span class="ident">MidHandshakeTlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>),
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ssl</span>::<span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">ssl</span>::<span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ssl::HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">ssl::HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">e</span> {
-            <span class="ident">ssl</span>::<span class="ident">HandshakeError</span>::<span class="ident">SetupFailure</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HandshakeError</span>::<span class="ident">Failure</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
-            <span class="ident">ssl</span>::<span class="ident">HandshakeError</span>::<span class="ident">Failure</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ssl::HandshakeError::SetupFailure</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HandshakeError::Failure</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">ssl::HandshakeError::Failure</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">ssl</span>().<span class="ident">verify_result</span>();
-                <span class="ident">HandshakeError</span>::<span class="ident">Failure</span>(<span class="ident">Error</span>::<span class="ident">Ssl</span>(<span class="ident">e</span>.<span class="ident">into_error</span>(), <span class="ident">v</span>))
+                <span class="ident">HandshakeError::Failure</span>(<span class="ident">Error::Ssl</span>(<span class="ident">e</span>.<span class="ident">into_error</span>(), <span class="ident">v</span>))
             }
-            <span class="ident">ssl</span>::<span class="ident">HandshakeError</span>::<span class="ident">WouldBlock</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">HandshakeError</span>::<span class="ident">WouldBlock</span>(<span class="ident">MidHandshakeTlsStream</span>(<span class="ident">s</span>))
+            <span class="ident">ssl::HandshakeError::WouldBlock</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">HandshakeError::WouldBlock</span>(<span class="ident">MidHandshakeTlsStream</span>(<span class="ident">s</span>))
             }
         }
     }
@@ -696,7 +696,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ErrorStack</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">ErrorStack</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="ident">HandshakeError</span>::<span class="ident">Failure</span>(<span class="ident">e</span>.<span class="ident">into</span>())
+        <span class="ident">HandshakeError::Failure</span>(<span class="ident">e</span>.<span class="ident">into</span>())
     }
 }
 
@@ -712,7 +712,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="ident">TlsConnectorBuilder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsConnector</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">init_trust</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connector</span> <span class="op">=</span> <span class="ident">SslConnector</span>::<span class="ident">builder</span>(<span class="ident">SslMethod</span>::<span class="ident">tls</span>())<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connector</span> <span class="op">=</span> <span class="ident">SslConnector::builder</span>(<span class="ident">SslMethod::tls</span>())<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">identity</span>) <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">identity</span> {
             <span class="ident">connector</span>.<span class="ident">set_certificate</span>(<span class="kw-2">&amp;</span><span class="ident">identity</span>.<span class="number">0</span>.<span class="ident">cert</span>)<span class="question-mark">?</span>;
             <span class="ident">connector</span>.<span class="ident">set_private_key</span>(<span class="kw-2">&amp;</span><span class="ident">identity</span>.<span class="number">0</span>.<span class="ident">pkey</span>)<span class="question-mark">?</span>;
@@ -723,12 +723,12 @@
         <span class="ident">supported_protocols</span>(<span class="ident">builder</span>.<span class="ident">min_protocol</span>, <span class="ident">builder</span>.<span class="ident">max_protocol</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connector</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="ident">builder</span>.<span class="ident">disable_built_in_roots</span> {
-            <span class="ident">connector</span>.<span class="ident">set_cert_store</span>(<span class="ident">X509StoreBuilder</span>::<span class="ident">new</span>()<span class="question-mark">?</span>.<span class="ident">build</span>());
+            <span class="ident">connector</span>.<span class="ident">set_cert_store</span>(<span class="ident">X509StoreBuilder::new</span>()<span class="question-mark">?</span>.<span class="ident">build</span>());
         }
 
         <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">builder</span>.<span class="ident">root_certificates</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">connector</span>.<span class="ident">cert_store_mut</span>().<span class="ident">add_cert</span>((<span class="ident">cert</span>.<span class="number">0</span>).<span class="number">0</span>.<span class="ident">clone</span>()) {
-                <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;add_cert error: {:?}&quot;</span>, <span class="ident">err</span>);
+                <span class="macro">debug!</span>(<span class="string">&quot;add_cert error: {:?}&quot;</span>, <span class="ident">err</span>);
             }
         }
 
@@ -736,7 +736,7 @@
         {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">builder</span>.<span class="ident">alpn</span>.<span class="ident">is_empty</span>() {
                 <span class="comment">// Wire format is each alpn preceded by its length as a byte.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alpn_wire_format</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alpn_wire_format</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(
                     <span class="ident">builder</span>
                         .<span class="ident">alpn</span>
                         .<span class="ident">iter</span>()
@@ -765,7 +765,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">domain</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">stream</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>, <span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">io</span>::<span class="ident">Read</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Write</span>,
+        <span class="ident">S</span>: <span class="ident">io::Read</span> <span class="op">+</span> <span class="ident">io::Write</span>,
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ssl</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">connector</span>
@@ -773,7 +773,7 @@
             .<span class="ident">use_server_name_indication</span>(<span class="self">self</span>.<span class="ident">use_sni</span>)
             .<span class="ident">verify_hostname</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">accept_invalid_hostnames</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">accept_invalid_certs</span> {
-            <span class="ident">ssl</span>.<span class="ident">set_verify</span>(<span class="ident">SslVerifyMode</span>::<span class="ident">NONE</span>);
+            <span class="ident">ssl</span>.<span class="ident">set_verify</span>(<span class="ident">SslVerifyMode::NONE</span>);
         }
 
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ssl</span>.<span class="ident">connect</span>(<span class="ident">domain</span>, <span class="ident">stream</span>)<span class="question-mark">?</span>;
@@ -781,8 +781,8 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">TlsConnector</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">TlsConnector</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;TlsConnector&quot;</span>)
             <span class="comment">// n.b. SslConnector is a newtype on SslContext which implements a noop Debug so it&#39;s omitted</span>
             .<span class="ident">field</span>(<span class="string">&quot;use_sni&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">use_sni</span>)
@@ -797,7 +797,7 @@
 
 <span class="kw">impl</span> <span class="ident">TlsAcceptor</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="ident">TlsAcceptorBuilder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsAcceptor</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acceptor</span> <span class="op">=</span> <span class="ident">SslAcceptor</span>::<span class="ident">mozilla_intermediate</span>(<span class="ident">SslMethod</span>::<span class="ident">tls</span>())<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acceptor</span> <span class="op">=</span> <span class="ident">SslAcceptor::mozilla_intermediate</span>(<span class="ident">SslMethod::tls</span>())<span class="question-mark">?</span>;
         <span class="ident">acceptor</span>.<span class="ident">set_private_key</span>(<span class="kw-2">&amp;</span><span class="ident">builder</span>.<span class="ident">identity</span>.<span class="number">0</span>.<span class="ident">pkey</span>)<span class="question-mark">?</span>;
         <span class="ident">acceptor</span>.<span class="ident">set_certificate</span>(<span class="kw-2">&amp;</span><span class="ident">builder</span>.<span class="ident">identity</span>.<span class="number">0</span>.<span class="ident">cert</span>)<span class="question-mark">?</span>;
         <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="ident">builder</span>.<span class="ident">identity</span>.<span class="number">0</span>.<span class="ident">chain</span>.<span class="ident">iter</span>().<span class="ident">rev</span>() {
@@ -810,18 +810,18 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">accept</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>, <span class="ident">HandshakeError</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">io</span>::<span class="ident">Read</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Write</span>,
+        <span class="ident">S</span>: <span class="ident">io::Read</span> <span class="op">+</span> <span class="ident">io::Write</span>,
     {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">accept</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">TlsStream</span>(<span class="ident">s</span>))
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">ssl</span>::<span class="ident">SslStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">ssl::SslStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">fmt</span>::<span class="ident">Debug</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="ident">fmt</span>::<span class="ident">Debug</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, <span class="ident">fmt</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">fmt::Debug</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="ident">fmt::Debug::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, <span class="ident">fmt</span>)
     }
 }
 
@@ -835,7 +835,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">io</span>::<span class="ident">Read</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">io::Read</span> <span class="op">+</span> <span class="ident">io::Write</span><span class="op">&gt;</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buffered_read_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">ssl</span>().<span class="ident">pending</span>())
     }
@@ -872,8 +872,8 @@
         };
 
         <span class="kw">let</span> <span class="ident">md</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">signature_algorithms</span>.<span class="ident">digest</span> {
-            <span class="ident">Nid</span>::<span class="ident">MD5</span> <span class="op">|</span> <span class="ident">Nid</span>::<span class="ident">SHA1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MessageDigest</span>::<span class="ident">sha256</span>(),
-            <span class="ident">nid</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">MessageDigest</span>::<span class="ident">from_nid</span>(<span class="ident">nid</span>) {
+            <span class="ident">Nid::MD5</span> <span class="op">|</span> <span class="ident">Nid::SHA1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MessageDigest::sha256</span>(),
+            <span class="ident">nid</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">MessageDigest::from_nid</span>(<span class="ident">nid</span>) {
                 <span class="prelude-val">Some</span>(<span class="ident">md</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">md</span>,
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             },
@@ -884,32 +884,32 @@
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">digest</span>.<span class="ident">to_vec</span>()))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shutdown</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shutdown</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">shutdown</span>() {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">code</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">ssl</span>::<span class="ident">ErrorCode</span>::<span class="ident">ZERO_RETURN</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">code</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">ssl::ErrorCode::ZERO_RETURN</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
             <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>
                 .<span class="ident">into_io_error</span>()
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Other</span>, <span class="ident">e</span>))),
+                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">e</span>))),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">io</span>::<span class="ident">Read</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="ident">Read</span> <span class="kw">for</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">io::Read</span> <span class="op">+</span> <span class="ident">io::Write</span><span class="op">&gt;</span> <span class="ident">io::Read</span> <span class="kw">for</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">read</span>(<span class="ident">buf</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">io</span>::<span class="ident">Read</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="ident">Write</span> <span class="kw">for</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">io::Read</span> <span class="op">+</span> <span class="ident">io::Write</span><span class="op">&gt;</span> <span class="ident">io::Write</span> <span class="kw">for</span> <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">write</span>(<span class="ident">buf</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">flush</span>()
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="native_tls" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="native_tls" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

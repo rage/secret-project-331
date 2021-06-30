@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.5/src/transaction.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transaction.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -247,15 +247,15 @@
 <span id="244">244</span>
 <span id="245">245</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
+<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
+<span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
 
-<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">future</span>::<span class="ident">BoxFuture</span>;
+<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">database</span>::<span class="ident">Database</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pool</span>::<span class="ident">MaybePoolConnection</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::database::Database</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Error</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pool::MaybePoolConnection</span>;
 
 <span class="doccomment">/// Generic management of database transactions.</span>
 <span class="doccomment">///</span>
@@ -266,21 +266,21 @@
 
     <span class="doccomment">/// Begin a new transaction or establish a savepoint within the active transaction.</span>
     <span class="kw">fn</span> <span class="ident">begin</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">Connection</span>,
+        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Commit the active transaction or release the most recent savepoint.</span>
     <span class="kw">fn</span> <span class="ident">commit</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">Connection</span>,
+        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Abort the active transaction or restore from the most recent savepoint.</span>
     <span class="kw">fn</span> <span class="ident">rollback</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">Connection</span>,
+        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Starts to abort the active transaction or restore from the most recent snapshot.</span>
-    <span class="kw">fn</span> <span class="ident">start_rollback</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">Connection</span>);
+    <span class="kw">fn</span> <span class="ident">start_rollback</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>);
 }
 
 <span class="doccomment">/// An in-progress database transaction or savepoint.</span>
@@ -316,8 +316,8 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">into</span>();
 
-        <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="ident">DB</span>::<span class="ident">TransactionManager</span>::<span class="ident">begin</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
+            <span class="ident">DB::TransactionManager::begin</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
                 <span class="ident">connection</span>: <span class="ident">conn</span>,
@@ -328,7 +328,7 @@
 
     <span class="doccomment">/// Commits this transaction or savepoint.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">commit</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">DB</span>::<span class="ident">TransactionManager</span>::<span class="ident">commit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">DB::TransactionManager::commit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">open</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -336,7 +336,7 @@
 
     <span class="doccomment">/// Aborts this transaction or savepoint.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">rollback</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">DB</span>::<span class="ident">TransactionManager</span>::<span class="ident">rollback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">DB::TransactionManager::rollback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">open</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -345,26 +345,26 @@
 
 <span class="comment">// NOTE: required due to lack of lazy normalization</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_macros</span>)]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_executor_for_transaction</span> {
+<span class="macro">macro_rules!</span> <span class="ident">impl_executor_for_transaction</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Row</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="lifetime">&#39;t</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">executor</span>::<span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span><span class="op">&gt;</span>
-            <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;t</span> <span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">transaction</span>::<span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span><span class="op">&gt;</span>
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="lifetime">&#39;t</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::executor::Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span><span class="op">&gt;</span>
+            <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;t</span> <span class="kw-2">mut</span> <span class="kw">crate</span><span class="ident">::transaction::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span><span class="op">&gt;</span>
         {
             <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span>;
 
             <span class="kw">fn</span> <span class="ident">fetch_many</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
                 <span class="self">self</span>,
                 <span class="ident">query</span>: <span class="ident">E</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">futures_core</span>::<span class="ident">stream</span>::<span class="ident">BoxStream</span><span class="op">&lt;</span>
+            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">futures_core::stream::BoxStream</span><span class="op">&lt;</span>
                 <span class="lifetime">&#39;e</span>,
                 <span class="prelude-ty">Result</span><span class="op">&lt;</span>
-                    <span class="ident">either</span>::<span class="ident">Either</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span> <span class="kw">as</span> <span class="kw">crate</span>::<span class="ident">database</span>::<span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">QueryResult</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Row</span><span class="op">&gt;</span>,
-                    <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>,
+                    <span class="ident">either::Either</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span> <span class="kw">as</span> <span class="kw">crate</span><span class="ident">::database::Database</span><span class="op">&gt;</span><span class="ident">::QueryResult</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Row</span><span class="op">&gt;</span>,
+                    <span class="kw">crate</span><span class="ident">::error::Error</span>,
                 <span class="op">&gt;</span>,
             <span class="op">&gt;</span>
             <span class="kw">where</span>
                 <span class="lifetime">&#39;t</span>: <span class="lifetime">&#39;e</span>,
-                <span class="ident">E</span>: <span class="kw">crate</span>::<span class="ident">executor</span>::<span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>,
+                <span class="ident">E</span>: <span class="kw">crate</span><span class="ident">::executor::Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>,
             {
                 (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">fetch_many</span>(<span class="ident">query</span>)
             }
@@ -372,10 +372,10 @@
             <span class="kw">fn</span> <span class="ident">fetch_optional</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
                 <span class="self">self</span>,
                 <span class="ident">query</span>: <span class="ident">E</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">futures_core</span>::<span class="ident">future</span>::<span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Row</span><span class="op">&gt;</span>, <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Row</span><span class="op">&gt;</span>, <span class="kw">crate</span><span class="ident">::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
             <span class="kw">where</span>
                 <span class="lifetime">&#39;t</span>: <span class="lifetime">&#39;e</span>,
-                <span class="ident">E</span>: <span class="kw">crate</span>::<span class="ident">executor</span>::<span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>,
+                <span class="ident">E</span>: <span class="kw">crate</span><span class="ident">::executor::Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>,
             {
                 (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">fetch_optional</span>(<span class="ident">query</span>)
             }
@@ -383,12 +383,12 @@
             <span class="kw">fn</span> <span class="ident">prepare_with</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
                 <span class="self">self</span>,
                 <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-                <span class="ident">parameters</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;e</span> [<span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="kw">crate</span>::<span class="ident">database</span>::<span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">TypeInfo</span>],
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">futures_core</span>::<span class="ident">future</span>::<span class="ident">BoxFuture</span><span class="op">&lt;</span>
+                <span class="ident">parameters</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;e</span> [<span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="kw">crate</span><span class="ident">::database::Database</span><span class="op">&gt;</span><span class="ident">::TypeInfo</span>],
+            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span>
                 <span class="lifetime">&#39;e</span>,
                 <span class="prelude-ty">Result</span><span class="op">&lt;</span>
-                    <span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="kw">crate</span>::<span class="ident">database</span>::<span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Statement</span>,
-                    <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>,
+                    <span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="kw">crate</span><span class="ident">::database::HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span>,
+                    <span class="kw">crate</span><span class="ident">::error::Error</span>,
                 <span class="op">&gt;</span>,
             <span class="op">&gt;</span>
             <span class="kw">where</span>
@@ -401,9 +401,9 @@
             <span class="kw">fn</span> <span class="ident">describe</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
                 <span class="self">self</span>,
                 <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">futures_core</span>::<span class="ident">future</span>::<span class="ident">BoxFuture</span><span class="op">&lt;</span>
+            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span>
                 <span class="lifetime">&#39;e</span>,
-                <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">crate</span>::<span class="ident">describe</span>::<span class="ident">Describe</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span><span class="op">&gt;</span>, <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span>,
+                <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::describe::Describe</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span><span class="op">&gt;</span>, <span class="kw">crate</span><span class="ident">::error::Error</span><span class="op">&gt;</span>,
             <span class="op">&gt;</span>
             <span class="kw">where</span>
                 <span class="lifetime">&#39;t</span>: <span class="lifetime">&#39;e</span>,
@@ -418,7 +418,7 @@
 <span class="kw">where</span>
     <span class="ident">DB</span>: <span class="ident">Database</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="comment">// TODO: Show the full type &lt;..&lt;..&lt;..</span>
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Transaction&quot;</span>).<span class="ident">finish</span>()
     }
@@ -428,10 +428,10 @@
 <span class="kw">where</span>
     <span class="ident">DB</span>: <span class="ident">Database</span>,
 {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">DB</span>::<span class="ident">Connection</span>;
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">DB::Connection</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Target</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">connection</span>
     }
 }
@@ -441,7 +441,7 @@
     <span class="ident">DB</span>: <span class="ident">Database</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="ident">::Target</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>
     }
 }
@@ -458,7 +458,7 @@
             <span class="comment">// operation that will happen on the next asynchronous invocation of the underlying</span>
             <span class="comment">// connection (including if the connection is returned to a pool)</span>
 
-            <span class="ident">DB</span>::<span class="ident">TransactionManager</span>::<span class="ident">start_rollback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>);
+            <span class="ident">DB::TransactionManager::start_rollback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>);
         }
     }
 }
@@ -466,32 +466,32 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">begin_ansi_transaction_sql</span>(<span class="ident">depth</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">depth</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">Cow</span>::<span class="ident">Borrowed</span>(<span class="string">&quot;BEGIN&quot;</span>)
+        <span class="ident">Cow::Borrowed</span>(<span class="string">&quot;BEGIN&quot;</span>)
     } <span class="kw">else</span> {
-        <span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;SAVEPOINT _sqlx_savepoint_{}&quot;</span>, <span class="ident">depth</span>))
+        <span class="ident">Cow::Owned</span>(<span class="macro">format!</span>(<span class="string">&quot;SAVEPOINT _sqlx_savepoint_{}&quot;</span>, <span class="ident">depth</span>))
     }
 }
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">commit_ansi_transaction_sql</span>(<span class="ident">depth</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">depth</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="ident">Cow</span>::<span class="ident">Borrowed</span>(<span class="string">&quot;COMMIT&quot;</span>)
+        <span class="ident">Cow::Borrowed</span>(<span class="string">&quot;COMMIT&quot;</span>)
     } <span class="kw">else</span> {
-        <span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;RELEASE SAVEPOINT _sqlx_savepoint_{}&quot;</span>, <span class="ident">depth</span> <span class="op">-</span> <span class="number">1</span>))
+        <span class="ident">Cow::Owned</span>(<span class="macro">format!</span>(<span class="string">&quot;RELEASE SAVEPOINT _sqlx_savepoint_{}&quot;</span>, <span class="ident">depth</span> <span class="op">-</span> <span class="number">1</span>))
     }
 }
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">rollback_ansi_transaction_sql</span>(<span class="ident">depth</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">depth</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="ident">Cow</span>::<span class="ident">Borrowed</span>(<span class="string">&quot;ROLLBACK&quot;</span>)
+        <span class="ident">Cow::Borrowed</span>(<span class="string">&quot;ROLLBACK&quot;</span>)
     } <span class="kw">else</span> {
-        <span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="ident">Cow::Owned</span>(<span class="macro">format!</span>(
             <span class="string">&quot;ROLLBACK TO SAVEPOINT _sqlx_savepoint_{}&quot;</span>,
             <span class="ident">depth</span> <span class="op">-</span> <span class="number">1</span>
         ))
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

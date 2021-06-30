@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.8.4/src/resources/hmac_key.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hmac_key.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../cloud_storage/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../cloud_storage/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -451,7 +451,7 @@
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">GoogleResponse</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::GoogleResponse</span>;
 
 <span class="doccomment">/// The `HmacKey` resource represents an HMAC key within Cloud Storage. The resource consists of a</span>
 <span class="doccomment">/// secret and `HmacMeta`. HMAC keys can be used as credentials for service accounts. For more</span>
@@ -459,7 +459,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Note that the `HmacKey` resource is only returned when you use `HmacKey::create`. Other</span>
 <span class="doccomment">/// methods, such as `HmacKey::read`, return the metadata portion of the HMAC key resource.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HmacKey</span> {
     <span class="doccomment">/// The kind of item this is. For HMAC keys, this is always `storage#hmacKey`.</span>
@@ -471,7 +471,7 @@
 }
 
 <span class="doccomment">/// Contains information about an Hmac Key.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HmacMeta</span> {
     <span class="doccomment">/// The kind of item this is. For HMAC key metadata, this is always `storage#hmacKeyMetadata`.</span>
@@ -489,15 +489,15 @@
     <span class="doccomment">/// The state of the key.</span>
     <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">HmacState</span>,
     <span class="doccomment">/// The creation time of the HMAC key.</span>
-    <span class="kw">pub</span> <span class="ident">time_created</span>: <span class="ident">chrono</span>::<span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">chrono</span>::<span class="ident">Utc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">time_created</span>: <span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::Utc</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The last modification time of the HMAC key metadata.</span>
-    <span class="kw">pub</span> <span class="ident">updated</span>: <span class="ident">chrono</span>::<span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">chrono</span>::<span class="ident">Utc</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">updated</span>: <span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::Utc</span><span class="op">&gt;</span>,
     <span class="doccomment">/// HTTP 1.1 Entity tag for the HMAC key.</span>
     <span class="kw">pub</span> <span class="ident">etag</span>: <span class="ident">String</span>,
 }
 
 <span class="doccomment">/// The state of an Hmac Key.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">serde</span>::<span class="ident">Serialize</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;UPPERCASE&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HmacState</span> {
     <span class="doccomment">/// This Hmac key is currently used.</span>
@@ -508,18 +508,18 @@
     <span class="ident">Deleted</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde</span>::<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">ListResponse</span> {
     <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde::Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">UpdateRequest</span> {
     <span class="ident">secret</span>: <span class="ident">String</span>,
     <span class="ident">metadata</span>: <span class="ident">UpdateMeta</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde</span>::<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde::Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">UpdateMeta</span> {
     <span class="ident">state</span>: <span class="ident">HmacState</span>,
 }
@@ -545,18 +545,18 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">reqwest</span>::<span class="ident">header</span>::<span class="ident">CONTENT_LENGTH</span>;
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="ident">reqwest::header::CONTENT_LENGTH</span>;
 
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys&quot;</span>,
-            <span class="kw">crate</span>::<span class="ident">BASE_URL</span>,
-            <span class="kw">crate</span>::<span class="ident">SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>
+            <span class="kw">crate</span><span class="ident">::BASE_URL</span>,
+            <span class="kw">crate</span><span class="ident">::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>
         );
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> [(<span class="string">&quot;serviceAccountEmail&quot;</span>, <span class="kw-2">&amp;</span><span class="kw">crate</span>::<span class="ident">SERVICE_ACCOUNT</span>.<span class="ident">client_email</span>)];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> [(<span class="string">&quot;serviceAccountEmail&quot;</span>, <span class="kw-2">&amp;</span><span class="kw">crate</span><span class="ident">::SERVICE_ACCOUNT</span>.<span class="ident">client_email</span>)];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="number">0</span>.<span class="ident">into</span>());
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
             .<span class="ident">headers</span>(<span class="ident">headers</span>)
             .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>)
@@ -565,8 +565,8 @@
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -575,8 +575,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_sync</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span>::<span class="ident">create</span>())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_sync</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span><span class="ident">::create</span>())
     }
 
     <span class="doccomment">/// Retrieves a list of HMAC keys matching the criteria. Since the HmacKey is secret, this does</span>
@@ -598,30 +598,30 @@
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys&quot;</span>,
-            <span class="kw">crate</span>::<span class="ident">BASE_URL</span>,
-            <span class="kw">crate</span>::<span class="ident">SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>
+            <span class="kw">crate</span><span class="ident">::BASE_URL</span>,
+            <span class="kw">crate</span><span class="ident">::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>
         );
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">text</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">ListResponse</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">response</span>);
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">ListResponse</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">response</span>);
 
         <span class="comment">// This function rquires more complicated error handling because when there is only one</span>
         <span class="comment">// entry, Google will return the response `{ &quot;kind&quot;: &quot;storage#hmacKeysMetadata&quot; }` instead</span>
         <span class="comment">// of a list with one element. This breaks the parser.</span>
         <span class="kw">match</span> <span class="ident">result</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">parsed</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">parsed</span> {
-                <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">items</span>),
-                <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+                <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">items</span>),
+                <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
             },
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="macro">vec</span><span class="macro">!</span>[]),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[]),
         }
     }
 
@@ -630,8 +630,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_sync</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span>::<span class="ident">list</span>())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_sync</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span><span class="ident">::list</span>())
     }
 
     <span class="doccomment">/// Retrieves an HMAC key&#39;s metadata. Since the HmacKey is secret, this does not return a</span>
@@ -652,23 +652,23 @@
     <span class="doccomment">/// let key = HmacKey::read(&quot;some identifier&quot;).await?;</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys/{}&quot;</span>,
-            <span class="kw">crate</span>::<span class="ident">BASE_URL</span>,
-            <span class="kw">crate</span>::<span class="ident">SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>,
+            <span class="kw">crate</span><span class="ident">::BASE_URL</span>,
+            <span class="kw">crate</span><span class="ident">::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>,
             <span class="ident">access_id</span>
         );
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -677,8 +677,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_sync</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span>::<span class="ident">read</span>(<span class="ident">access_id</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_sync</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span><span class="ident">::read</span>(<span class="ident">access_id</span>))
     }
 
     <span class="doccomment">/// Updates the state of an HMAC key. See the HMAC Key resource descriptor for valid states.</span>
@@ -699,25 +699,25 @@
     <span class="doccomment">/// let key = HmacKey::update(&quot;your key&quot;, HmacState::Active).await?;</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">state</span>: <span class="ident">HmacState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">state</span>: <span class="ident">HmacState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys/{}&quot;</span>,
-            <span class="kw">crate</span>::<span class="ident">BASE_URL</span>,
-            <span class="kw">crate</span>::<span class="ident">SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>,
+            <span class="kw">crate</span><span class="ident">::BASE_URL</span>,
+            <span class="kw">crate</span><span class="ident">::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>,
             <span class="ident">access_id</span>
         );
-        <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UpdateMeta</span> { <span class="ident">state</span> })<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+        <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UpdateMeta</span> { <span class="ident">state</span> })<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">UpdateMeta</span> { <span class="ident">state</span> })
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">json</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse</span>::<span class="ident">Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse</span>::<span class="ident">Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
+            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
         }
     }
 
@@ -726,8 +726,8 @@
     <span class="doccomment">/// ### Features</span>
     <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_sync</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">state</span>: <span class="ident">HmacState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span>::<span class="ident">update</span>(<span class="ident">access_id</span>, <span class="ident">state</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_sync</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">state</span>: <span class="ident">HmacState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span><span class="ident">::update</span>(<span class="ident">access_id</span>, <span class="ident">state</span>))
     }
 
     <span class="doccomment">/// Deletes an HMAC key. Note that a key must be set to `Inactive` first.</span>
@@ -747,29 +747,29 @@
     <span class="doccomment">/// HmacKey::delete(&amp;key.access_id).await?;</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys/{}&quot;</span>,
-            <span class="kw">crate</span>::<span class="ident">BASE_URL</span>,
-            <span class="kw">crate</span>::<span class="ident">SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>,
+            <span class="kw">crate</span><span class="ident">::BASE_URL</span>,
+            <span class="kw">crate</span><span class="ident">::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>,
             <span class="ident">access_id</span>
         );
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">CLIENT</span>
+        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::CLIENT</span>
             .<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="kw">crate</span>::<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
+            .<span class="ident">headers</span>(<span class="kw">crate</span><span class="ident">::get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
             .<span class="ident">send</span>()
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">response</span>.<span class="ident">status</span>().<span class="ident">is_success</span>() {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">Google</span>(<span class="ident">response</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>))
+            <span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::Google</span>(<span class="ident">response</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>))
         }
     }
 
     <span class="doccomment">/// The synchronous equivalent of `HmacKey::delete`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_sync</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span>::<span class="ident">delete</span>(<span class="ident">access_id</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_sync</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">Self</span><span class="ident">::delete</span>(<span class="ident">access_id</span>))
     }
 }
 
@@ -778,64 +778,64 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_test_hmac</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HmacMeta</span> {
-        <span class="kw">match</span> <span class="ident">HmacKey</span>::<span class="ident">create</span>().<span class="kw">await</span> {
+        <span class="kw">match</span> <span class="ident">HmacKey::create</span>().<span class="kw">await</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">key</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">key</span>.<span class="ident">metadata</span>,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HmacKey</span>::<span class="ident">list</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">pop</span>().<span class="ident">unwrap</span>(),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HmacKey::list</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">pop</span>().<span class="ident">unwrap</span>(),
         }
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_test_hmac</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="ident">HmacKey</span>::<span class="ident">update</span>(<span class="ident">access_id</span>, <span class="ident">HmacState</span>::<span class="ident">Inactive</span>)
+        <span class="ident">HmacKey::update</span>(<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="ident">HmacKey</span>::<span class="ident">delete</span>(<span class="ident">access_id</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">HmacKey::delete</span>(<span class="ident">access_id</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">HmacKey</span>::<span class="ident">create</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">HmacKey::create</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="ident">remove_test_hmac</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">metadata</span>.<span class="ident">access_id</span>).<span class="kw">await</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">HmacKey</span>::<span class="ident">list</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">HmacKey::list</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>().<span class="kw">await</span>;
-        <span class="ident">HmacKey</span>::<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">HmacKey::read</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="ident">remove_test_hmac</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>().<span class="kw">await</span>;
-        <span class="ident">HmacKey</span>::<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState</span>::<span class="ident">Inactive</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">HmacKey</span>::<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">HmacKey::update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">HmacKey::delete</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>().<span class="kw">await</span>;
-        <span class="ident">HmacKey</span>::<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState</span>::<span class="ident">Inactive</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">HmacKey</span>::<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">HmacKey::update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">HmacKey::delete</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">clear_keys</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">keys</span> <span class="op">=</span> <span class="ident">HmacKey</span>::<span class="ident">list</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">clear_keys</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">keys</span> <span class="op">=</span> <span class="ident">HmacKey::list</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">keys</span> {
-            <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">HmacState</span>::<span class="ident">Inactive</span> {
-                <span class="ident">HmacKey</span>::<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState</span>::<span class="ident">Inactive</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">HmacState::Inactive</span> {
+                <span class="ident">HmacKey::update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             }
-            <span class="ident">HmacKey</span>::<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">HmacKey::delete</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -845,55 +845,55 @@
         <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
         <span class="kw">fn</span> <span class="ident">get_test_hmac</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HmacMeta</span> {
-            <span class="kw">match</span> <span class="ident">HmacKey</span>::<span class="ident">create_sync</span>() {
+            <span class="kw">match</span> <span class="ident">HmacKey::create_sync</span>() {
                 <span class="prelude-val">Ok</span>(<span class="ident">key</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">key</span>.<span class="ident">metadata</span>,
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HmacKey</span>::<span class="ident">list_sync</span>().<span class="ident">unwrap</span>().<span class="ident">pop</span>().<span class="ident">unwrap</span>(),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HmacKey::list_sync</span>().<span class="ident">unwrap</span>().<span class="ident">pop</span>().<span class="ident">unwrap</span>(),
             }
         }
 
         <span class="kw">fn</span> <span class="ident">remove_test_hmac</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-            <span class="ident">HmacKey</span>::<span class="ident">update_sync</span>(<span class="ident">access_id</span>, <span class="ident">HmacState</span>::<span class="ident">Inactive</span>).<span class="ident">unwrap</span>();
-            <span class="ident">HmacKey</span>::<span class="ident">delete_sync</span>(<span class="ident">access_id</span>).<span class="ident">unwrap</span>();
+            <span class="ident">HmacKey::update_sync</span>(<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>).<span class="ident">unwrap</span>();
+            <span class="ident">HmacKey::delete_sync</span>(<span class="ident">access_id</span>).<span class="ident">unwrap</span>();
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">HmacKey</span>::<span class="ident">create_sync</span>()<span class="question-mark">?</span>;
+        <span class="kw">fn</span> <span class="ident">create</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">HmacKey::create_sync</span>()<span class="question-mark">?</span>;
             <span class="ident">remove_test_hmac</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">metadata</span>.<span class="ident">access_id</span>);
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="ident">HmacKey</span>::<span class="ident">list_sync</span>()<span class="question-mark">?</span>;
+        <span class="kw">fn</span> <span class="ident">list</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="ident">HmacKey::list_sync</span>()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">read</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">read</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>();
-            <span class="ident">HmacKey</span>::<span class="ident">read_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>)<span class="question-mark">?</span>;
+            <span class="ident">HmacKey::read_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>)<span class="question-mark">?</span>;
             <span class="ident">remove_test_hmac</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>);
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">update</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">update</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>();
-            <span class="ident">HmacKey</span>::<span class="ident">update_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState</span>::<span class="ident">Inactive</span>)<span class="question-mark">?</span>;
-            <span class="ident">HmacKey</span>::<span class="ident">delete_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>)<span class="question-mark">?</span>;
+            <span class="ident">HmacKey::update_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>)<span class="question-mark">?</span>;
+            <span class="ident">HmacKey::delete_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">delete</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">delete</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>();
-            <span class="ident">HmacKey</span>::<span class="ident">update_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState</span>::<span class="ident">Inactive</span>)<span class="question-mark">?</span>;
-            <span class="ident">HmacKey</span>::<span class="ident">delete_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>)<span class="question-mark">?</span>;
+            <span class="ident">HmacKey::update_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>)<span class="question-mark">?</span>;
+            <span class="ident">HmacKey::delete_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

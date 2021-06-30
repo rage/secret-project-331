@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tracing-subscriber-0.2.18/src/fmt/format/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tracing_subscriber/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tracing_subscriber/index.html'><div class='logo-container'><img src='https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1539,12 +1539,12 @@
 <span id="1536">1536</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Formatters for logging `tracing` events.</span>
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">time</span>::{<span class="ident">FormatTime</span>, <span class="ident">SystemTime</span>};
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::time</span>::{<span class="ident">FormatTime</span>, <span class="ident">SystemTime</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">field</span>::{<span class="ident">MakeOutput</span>, <span class="ident">MakeVisitor</span>, <span class="ident">RecordFields</span>, <span class="ident">VisitFmt</span>, <span class="ident">VisitOutput</span>},
-    <span class="ident">fmt</span>::<span class="ident">fmt_layer</span>::<span class="ident">FmtContext</span>,
-    <span class="ident">fmt</span>::<span class="ident">fmt_layer</span>::<span class="ident">FormattedFields</span>,
-    <span class="ident">registry</span>::<span class="ident">LookupSpan</span>,
+    <span class="ident">fmt::fmt_layer::FmtContext</span>,
+    <span class="ident">fmt::fmt_layer::FormattedFields</span>,
+    <span class="ident">registry::LookupSpan</span>,
 };
 
 <span class="kw">use</span> <span class="ident">std</span>::{
@@ -1557,7 +1557,7 @@
 };
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">tracing_log</span>::<span class="ident">NormalizeEvent</span>;
+<span class="kw">use</span> <span class="ident">tracing_log::NormalizeEvent</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ansi_term</span>::{<span class="ident">Colour</span>, <span class="ident">Style</span>};
@@ -1664,13 +1664,13 @@
     <span class="kw">fn</span> <span class="ident">format_event</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>,
-        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>,
+        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>,
         <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>;
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">FormatEvent</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="kw">fn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>, <span class="kw-2">&amp;</span><span class="ident">Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>
+    <span class="kw">for</span> <span class="kw">fn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>, <span class="kw-2">&amp;</span><span class="ident">Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Subscriber</span> <span class="op">+</span> <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">LookupSpan</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="ident">N</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FormatFields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -1678,9 +1678,9 @@
     <span class="kw">fn</span> <span class="ident">format_event</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>,
-        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>,
+        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>,
         <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         (<span class="kw-2">*</span><span class="self">self</span>)(<span class="ident">ctx</span>, <span class="ident">writer</span>, <span class="ident">event</span>)
     }
 }
@@ -1696,16 +1696,16 @@
     <span class="doccomment">/// Format the provided `fields` to the provided `writer`, returning a result.</span>
     <span class="kw">fn</span> <span class="ident">format_fields</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">RecordFields</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;writer</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>,
+        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;writer</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>,
         <span class="ident">fields</span>: <span class="ident">R</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>;
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>;
 
     <span class="doccomment">/// Record additional field(s) on an existing span.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default, this appends a space to the current set of fields if it is</span>
     <span class="doccomment">/// non-empty, and then calls `self.format_fields`. If different behavior is</span>
     <span class="doccomment">/// required, the default implementation of this method can be overridden.</span>
-    <span class="kw">fn</span> <span class="ident">add_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;writer</span> <span class="kw-2">mut</span> <span class="ident">String</span>, <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">span</span>::<span class="ident">Record</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">add_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;writer</span> <span class="kw-2">mut</span> <span class="ident">String</span>, <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">span::Record</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">current</span>.<span class="ident">is_empty</span>() {
             <span class="ident">current</span>.<span class="ident">push</span>(<span class="string">&#39; &#39;</span>);
         }
@@ -1731,7 +1731,7 @@
 <span class="doccomment">///     .init();</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">format</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Format</span> {
-    <span class="ident">Format</span>::<span class="ident">default</span>()
+    <span class="ident">Format::default</span>()
 }
 
 <span class="doccomment">/// Returns the default configuration for a JSON [event formatter].</span>
@@ -1747,7 +1747,7 @@
 <span class="doccomment">/// [`FormatFields`]: trait.FormatFields.html</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_fn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FieldFn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> <span class="op">+</span> <span class="ident">Clone</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt::Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
     <span class="ident">FieldFn</span>(<span class="ident">f</span>)
 }
@@ -1765,8 +1765,8 @@
 <span class="doccomment">/// [`MakeVisitor`]: ../../field/trait.MakeVisitor.html</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FieldFnVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> {
     <span class="ident">f</span>: <span class="ident">F</span>,
-    <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>,
-    <span class="ident">result</span>: <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>,
+    <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>,
+    <span class="ident">result</span>: <span class="ident">fmt::Result</span>,
 }
 <span class="doccomment">/// Marker for `Format` that indicates that the compact log format should be used.</span>
 <span class="doccomment">///</span>
@@ -1857,7 +1857,7 @@
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pretty</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Format</span><span class="op">&lt;</span><span class="ident">Pretty</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Format</span> {
-            <span class="ident">format</span>: <span class="ident">Pretty</span>::<span class="ident">default</span>(),
+            <span class="ident">format</span>: <span class="ident">Pretty::default</span>(),
             <span class="ident">timer</span>: <span class="self">self</span>.<span class="ident">timer</span>,
             <span class="ident">ansi</span>: <span class="self">self</span>.<span class="ident">ansi</span>,
             <span class="ident">display_target</span>: <span class="self">self</span>.<span class="ident">display_target</span>,
@@ -1888,7 +1888,7 @@
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">json</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Format</span><span class="op">&lt;</span><span class="ident">Json</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Format</span> {
-            <span class="ident">format</span>: <span class="ident">Json</span>::<span class="ident">default</span>(),
+            <span class="ident">format</span>: <span class="ident">Json::default</span>(),
             <span class="ident">timer</span>: <span class="self">self</span>.<span class="ident">timer</span>,
             <span class="ident">ansi</span>: <span class="self">self</span>.<span class="ident">ansi</span>,
             <span class="ident">display_target</span>: <span class="self">self</span>.<span class="ident">display_target</span>,
@@ -1981,7 +1981,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_timestamp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>
+    <span class="kw">fn</span> <span class="ident">format_timestamp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">FormatTime</span>,
     {
@@ -1995,10 +1995,10 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ansi</span> {
-                <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="ident">Style</span>::<span class="ident">new</span>().<span class="ident">dimmed</span>();
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">style</span>.<span class="ident">prefix</span>())<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="ident">Style::new</span>().<span class="ident">dimmed</span>();
+                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">style</span>.<span class="ident">prefix</span>())<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">timer</span>.<span class="ident">format_time</span>(<span class="ident">writer</span>)<span class="question-mark">?</span>;
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">style</span>.<span class="ident">suffix</span>())<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">style</span>.<span class="ident">suffix</span>())<span class="question-mark">?</span>;
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
             }
         }
@@ -2059,9 +2059,9 @@
     <span class="kw">fn</span> <span class="ident">format_event</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>,
-        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>,
+        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>,
         <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
         <span class="kw">let</span> <span class="ident">normalized_meta</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">normalized_metadata</span>();
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
@@ -2075,51 +2075,51 @@
             <span class="kw">let</span> <span class="ident">fmt_level</span> <span class="op">=</span> {
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
                 {
-                    <span class="ident">FmtLevel</span>::<span class="ident">new</span>(<span class="ident">meta</span>.<span class="ident">level</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
+                    <span class="ident">FmtLevel::new</span>(<span class="ident">meta</span>.<span class="ident">level</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
                 }
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>))]</span>
                 {
-                    <span class="ident">FmtLevel</span>::<span class="ident">new</span>(<span class="ident">meta</span>.<span class="ident">level</span>())
+                    <span class="ident">FmtLevel::new</span>(<span class="ident">meta</span>.<span class="ident">level</span>())
                 }
             };
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">fmt_level</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">fmt_level</span>)<span class="question-mark">?</span>;
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">display_thread_name</span> {
-            <span class="kw">let</span> <span class="ident">current_thread</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">current</span>();
+            <span class="kw">let</span> <span class="ident">current_thread</span> <span class="op">=</span> <span class="ident">std::thread::current</span>();
             <span class="kw">match</span> <span class="ident">current_thread</span>.<span class="ident">name</span>() {
                 <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">FmtThreadName</span>::<span class="ident">new</span>(<span class="ident">name</span>))<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">FmtThreadName::new</span>(<span class="ident">name</span>))<span class="question-mark">?</span>;
                 }
                 <span class="comment">// fall-back to thread id when name is absent and ids are not enabled</span>
                 <span class="prelude-val">None</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">display_thread_id</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:0&gt;2?} &quot;</span>, <span class="ident">current_thread</span>.<span class="ident">id</span>())<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:0&gt;2?} &quot;</span>, <span class="ident">current_thread</span>.<span class="ident">id</span>())<span class="question-mark">?</span>;
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">display_thread_id</span> {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:0&gt;2?} &quot;</span>, <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">current</span>().<span class="ident">id</span>())<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:0&gt;2?} &quot;</span>, <span class="ident">std::thread::current</span>().<span class="ident">id</span>())<span class="question-mark">?</span>;
         }
 
         <span class="kw">let</span> <span class="ident">full_ctx</span> <span class="op">=</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
             {
-                <span class="ident">FullCtx</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
+                <span class="ident">FullCtx::new</span>(<span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>))]</span>
             {
-                <span class="ident">FullCtx</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>())
+                <span class="ident">FullCtx::new</span>(<span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>())
             }
         };
 
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">full_ctx</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">full_ctx</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">display_target</span> {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}: &quot;</span>, <span class="ident">meta</span>.<span class="ident">target</span>())<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}: &quot;</span>, <span class="ident">meta</span>.<span class="ident">target</span>())<span class="question-mark">?</span>;
         }
         <span class="ident">ctx</span>.<span class="ident">format_fields</span>(<span class="ident">writer</span>, <span class="ident">event</span>)<span class="question-mark">?</span>;
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">writer</span>)
+        <span class="macro">writeln!</span>(<span class="ident">writer</span>)
     }
 }
 
@@ -2132,9 +2132,9 @@
     <span class="kw">fn</span> <span class="ident">format_event</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>,
-        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>,
+        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>,
         <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
         <span class="kw">let</span> <span class="ident">normalized_meta</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">normalized_metadata</span>();
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
@@ -2148,56 +2148,56 @@
             <span class="kw">let</span> <span class="ident">fmt_level</span> <span class="op">=</span> {
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
                 {
-                    <span class="ident">FmtLevel</span>::<span class="ident">new</span>(<span class="ident">meta</span>.<span class="ident">level</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
+                    <span class="ident">FmtLevel::new</span>(<span class="ident">meta</span>.<span class="ident">level</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
                 }
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>))]</span>
                 {
-                    <span class="ident">FmtLevel</span>::<span class="ident">new</span>(<span class="ident">meta</span>.<span class="ident">level</span>())
+                    <span class="ident">FmtLevel::new</span>(<span class="ident">meta</span>.<span class="ident">level</span>())
                 }
             };
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">fmt_level</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">fmt_level</span>)<span class="question-mark">?</span>;
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">display_thread_name</span> {
-            <span class="kw">let</span> <span class="ident">current_thread</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">current</span>();
+            <span class="kw">let</span> <span class="ident">current_thread</span> <span class="op">=</span> <span class="ident">std::thread::current</span>();
             <span class="kw">match</span> <span class="ident">current_thread</span>.<span class="ident">name</span>() {
                 <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">FmtThreadName</span>::<span class="ident">new</span>(<span class="ident">name</span>))<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{} &quot;</span>, <span class="ident">FmtThreadName::new</span>(<span class="ident">name</span>))<span class="question-mark">?</span>;
                 }
                 <span class="comment">// fall-back to thread id when name is absent and ids are not enabled</span>
                 <span class="prelude-val">None</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">display_thread_id</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:0&gt;2?} &quot;</span>, <span class="ident">current_thread</span>.<span class="ident">id</span>())<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:0&gt;2?} &quot;</span>, <span class="ident">current_thread</span>.<span class="ident">id</span>())<span class="question-mark">?</span>;
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
             }
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">display_thread_id</span> {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:0&gt;2?} &quot;</span>, <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">current</span>().<span class="ident">id</span>())<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:0&gt;2?} &quot;</span>, <span class="ident">std::thread::current</span>().<span class="ident">id</span>())<span class="question-mark">?</span>;
         }
 
         <span class="kw">let</span> <span class="ident">fmt_ctx</span> <span class="op">=</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
             {
-                <span class="ident">FmtCtx</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
+                <span class="ident">FmtCtx::new</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>(), <span class="self">self</span>.<span class="ident">ansi</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>))]</span>
             {
-                <span class="ident">FmtCtx</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>())
+                <span class="ident">FmtCtx::new</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>, <span class="ident">event</span>.<span class="ident">parent</span>())
             }
         };
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">fmt_ctx</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">fmt_ctx</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">display_target</span> {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}:&quot;</span>, <span class="ident">meta</span>.<span class="ident">target</span>())<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}:&quot;</span>, <span class="ident">meta</span>.<span class="ident">target</span>())<span class="question-mark">?</span>;
         }
         <span class="ident">ctx</span>.<span class="ident">format_fields</span>(<span class="ident">writer</span>, <span class="ident">event</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">current_span</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">span</span>.<span class="ident">id</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">span</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">ctx</span>.<span class="ident">metadata</span>(<span class="ident">id</span>) {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">span</span>.<span class="ident">fields</span>()).<span class="ident">unwrap_or</span>(());
+                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">span</span>.<span class="ident">fields</span>()).<span class="ident">unwrap_or</span>(());
             }
         }
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">writer</span>)
+        <span class="macro">writeln!</span>(<span class="ident">writer</span>)
     }
 }
 
@@ -2205,14 +2205,14 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;writer</span>, <span class="ident">M</span><span class="op">&gt;</span> <span class="ident">FormatFields</span><span class="op">&lt;</span><span class="lifetime">&#39;writer</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">M</span>
 <span class="kw">where</span>
-    <span class="ident">M</span>: <span class="ident">MakeOutput</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;writer</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>, <span class="ident">fmt</span>::<span class="prelude-ty">Result</span><span class="op">&gt;</span>,
-    <span class="ident">M</span>::<span class="ident">Visitor</span>: <span class="ident">VisitFmt</span> <span class="op">+</span> <span class="ident">VisitOutput</span><span class="op">&lt;</span><span class="ident">fmt</span>::<span class="prelude-ty">Result</span><span class="op">&gt;</span>,
+    <span class="ident">M</span>: <span class="ident">MakeOutput</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;writer</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>, <span class="ident">fmt::Result</span><span class="op">&gt;</span>,
+    <span class="ident">M::Visitor</span>: <span class="ident">VisitFmt</span> <span class="op">+</span> <span class="ident">VisitOutput</span><span class="op">&lt;</span><span class="ident">fmt::Result</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">format_fields</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">RecordFields</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;writer</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>,
+        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;writer</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>,
         <span class="ident">fields</span>: <span class="ident">R</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_visitor</span>(<span class="ident">writer</span>);
         <span class="ident">fields</span>.<span class="ident">record</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v</span>);
         <span class="ident">v</span>.<span class="ident">finish</span>()
@@ -2236,7 +2236,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Write</span>,
     <span class="ident">is_empty</span>: <span class="ident">bool</span>,
-    <span class="ident">result</span>: <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>,
+    <span class="ident">result</span>: <span class="ident">fmt::Result</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DefaultFields</span> {
@@ -2250,7 +2250,7 @@
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">DefaultFields</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>()
+        <span class="self">Self</span><span class="ident">::new</span>()
     }
 }
 
@@ -2258,8 +2258,8 @@
     <span class="kw">type</span> <span class="ident">Visitor</span> <span class="op">=</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">make_visitor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">target</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Visitor</span> {
-        <span class="ident">DefaultVisitor</span>::<span class="ident">new</span>(<span class="ident">target</span>, <span class="bool-val">true</span>)
+    <span class="kw">fn</span> <span class="ident">make_visitor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">target</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Visitor</span> {
+        <span class="ident">DefaultVisitor::new</span>(<span class="ident">target</span>, <span class="bool-val">true</span>)
     }
 }
 
@@ -2284,65 +2284,65 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span> {
             <span class="self">self</span>.<span class="ident">is_empty</span> <span class="op">=</span> <span class="bool-val">false</span>;
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">result</span> <span class="op">=</span> <span class="macro">write</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot; &quot;</span>);
+            <span class="self">self</span>.<span class="ident">result</span> <span class="op">=</span> <span class="macro">write!</span>(<span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot; &quot;</span>);
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">field</span>::<span class="ident">Visit</span> <span class="kw">for</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">field::Visit</span> <span class="kw">for</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">record_str</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">result</span>.<span class="ident">is_err</span>() {
             <span class="kw">return</span>;
         }
 
         <span class="kw">if</span> <span class="ident">field</span>.<span class="ident">name</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;message&quot;</span> {
-            <span class="self">self</span>.<span class="ident">record_debug</span>(<span class="ident">field</span>, <span class="kw-2">&amp;</span><span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>))
+            <span class="self">self</span>.<span class="ident">record_debug</span>(<span class="ident">field</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>))
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">record_debug</span>(<span class="ident">field</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">record_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)) {
+    <span class="kw">fn</span> <span class="ident">record_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>) <span class="op">=</span> <span class="ident">value</span>.<span class="ident">source</span>() {
-            <span class="self">self</span>.<span class="ident">record_debug</span>(<span class="ident">field</span>, <span class="kw-2">&amp;</span><span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;{}, {}: {}&quot;</span>, <span class="ident">value</span>, <span class="ident">field</span>, <span class="ident">source</span>))
+            <span class="self">self</span>.<span class="ident">record_debug</span>(<span class="ident">field</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}, {}: {}&quot;</span>, <span class="ident">value</span>, <span class="ident">field</span>, <span class="ident">source</span>))
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">record_debug</span>(<span class="ident">field</span>, <span class="kw-2">&amp;</span><span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>))
+            <span class="self">self</span>.<span class="ident">record_debug</span>(<span class="ident">field</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>))
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">record_debug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Debug</span>) {
+    <span class="kw">fn</span> <span class="ident">record_debug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt::Debug</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">result</span>.<span class="ident">is_err</span>() {
             <span class="kw">return</span>;
         }
 
         <span class="self">self</span>.<span class="ident">maybe_pad</span>();
         <span class="self">self</span>.<span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">name</span>() {
-            <span class="string">&quot;message&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">value</span>),
+            <span class="string">&quot;message&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">value</span>),
             <span class="comment">// Skip fields that are actually log metadata that have already been handled</span>
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
             <span class="ident">name</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;log.&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">name</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;r#&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}={:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>[<span class="number">2</span>..], <span class="ident">value</span>),
-            <span class="ident">name</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}={:?}&quot;</span>, <span class="ident">name</span>, <span class="ident">value</span>),
+            <span class="ident">name</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;r#&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}={:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>[<span class="number">2</span>..], <span class="ident">value</span>),
+            <span class="ident">name</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}={:?}&quot;</span>, <span class="ident">name</span>, <span class="ident">value</span>),
         };
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">field</span>::<span class="ident">VisitOutput</span><span class="op">&lt;</span><span class="ident">fmt</span>::<span class="prelude-ty">Result</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::field::VisitOutput</span><span class="op">&lt;</span><span class="ident">fmt::Result</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">result</span>
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">field</span>::<span class="ident">VisitFmt</span> <span class="kw">for</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">writer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::field::VisitFmt</span> <span class="kw">for</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">writer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span> {
         <span class="self">self</span>.<span class="ident">writer</span>
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">DefaultVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;DefaultVisitor&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;writer&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;&lt;dyn fmt::Write&gt;&quot;</span>))
+            .<span class="ident">field</span>(<span class="string">&quot;writer&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;&lt;dyn fmt::Write&gt;&quot;</span>))
             .<span class="ident">field</span>(<span class="string">&quot;is_empty&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">is_empty</span>)
             .<span class="ident">field</span>(<span class="string">&quot;result&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">result</span>)
             .<span class="ident">finish</span>()
@@ -2351,7 +2351,7 @@
 
 <span class="kw">struct</span> <span class="ident">FmtCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span> {
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>,
-    <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span</span>::<span class="ident">Id</span><span class="op">&gt;</span>,
+    <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span::Id</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
     <span class="ident">ansi</span>: <span class="ident">bool</span>,
 }
@@ -2364,14 +2364,14 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>,
-        <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span</span>::<span class="ident">Id</span><span class="op">&gt;</span>,
+        <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span::Id</span><span class="op">&gt;</span>,
         <span class="ident">ansi</span>: <span class="ident">bool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">ctx</span>, <span class="ident">ansi</span>, <span class="ident">span</span> }
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>))]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span</span>::<span class="ident">Id</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span::Id</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">ctx</span>, <span class="ident">span</span> }
     }
 
@@ -2379,20 +2379,20 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ansi</span> {
-                <span class="kw">return</span> <span class="ident">Style</span>::<span class="ident">new</span>().<span class="ident">bold</span>();
+                <span class="kw">return</span> <span class="ident">Style::new</span>().<span class="ident">bold</span>();
             }
         }
 
-        <span class="ident">Style</span>::<span class="ident">new</span>()
+        <span class="ident">Style::new</span>()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">FmtCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FmtCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Subscriber</span> <span class="op">+</span> <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;lookup</span><span class="op">&gt;</span> <span class="ident">LookupSpan</span><span class="op">&lt;</span><span class="lifetime">&#39;lookup</span><span class="op">&gt;</span>,
     <span class="ident">N</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;writer</span><span class="op">&gt;</span> <span class="ident">FormatFields</span><span class="op">&lt;</span><span class="lifetime">&#39;writer</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">bold</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bold</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
@@ -2403,11 +2403,11 @@
 
         <span class="kw">let</span> <span class="ident">scope</span> <span class="op">=</span> <span class="ident">span</span>
             .<span class="ident">into_iter</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">span</span><span class="op">|</span> <span class="ident">span</span>.<span class="ident">from_root</span>().<span class="ident">chain</span>(<span class="ident">iter</span>::<span class="ident">once</span>(<span class="ident">span</span>)));
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">span</span><span class="op">|</span> <span class="ident">span</span>.<span class="ident">from_root</span>().<span class="ident">chain</span>(<span class="ident">iter::once</span>(<span class="ident">span</span>)));
 
         <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">scope</span> {
             <span class="ident">seen</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}:&quot;</span>, <span class="ident">bold</span>.<span class="ident">paint</span>(<span class="ident">span</span>.<span class="ident">metadata</span>().<span class="ident">name</span>()))<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}:&quot;</span>, <span class="ident">bold</span>.<span class="ident">paint</span>(<span class="ident">span</span>.<span class="ident">metadata</span>().<span class="ident">name</span>()))<span class="question-mark">?</span>;
         }
 
         <span class="kw">if</span> <span class="ident">seen</span> {
@@ -2423,7 +2423,7 @@
     <span class="ident">N</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;writer</span><span class="op">&gt;</span> <span class="ident">FormatFields</span><span class="op">&lt;</span><span class="lifetime">&#39;writer</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>,
-    <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span</span>::<span class="ident">Id</span><span class="op">&gt;</span>,
+    <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span::Id</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
     <span class="ident">ansi</span>: <span class="ident">bool</span>,
 }
@@ -2436,14 +2436,14 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>,
-        <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span</span>::<span class="ident">Id</span><span class="op">&gt;</span>,
+        <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span::Id</span><span class="op">&gt;</span>,
         <span class="ident">ansi</span>: <span class="ident">bool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">ctx</span>, <span class="ident">span</span>, <span class="ident">ansi</span> }
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>))]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span</span>::<span class="ident">Id</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">span::Id</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">ctx</span>, <span class="ident">span</span> }
     }
 
@@ -2451,20 +2451,20 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ansi</span> {
-                <span class="kw">return</span> <span class="ident">Style</span>::<span class="ident">new</span>().<span class="ident">bold</span>();
+                <span class="kw">return</span> <span class="ident">Style::new</span>().<span class="ident">bold</span>();
             }
         }
 
-        <span class="ident">Style</span>::<span class="ident">new</span>()
+        <span class="ident">Style::new</span>()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">FullCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FullCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Subscriber</span> <span class="op">+</span> <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;lookup</span><span class="op">&gt;</span> <span class="ident">LookupSpan</span><span class="op">&lt;</span><span class="lifetime">&#39;lookup</span><span class="op">&gt;</span>,
     <span class="ident">N</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;writer</span><span class="op">&gt;</span> <span class="ident">FormatFields</span><span class="op">&lt;</span><span class="lifetime">&#39;writer</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">bold</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bold</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
@@ -2475,10 +2475,10 @@
 
         <span class="kw">let</span> <span class="ident">scope</span> <span class="op">=</span> <span class="ident">span</span>
             .<span class="ident">into_iter</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">span</span><span class="op">|</span> <span class="ident">span</span>.<span class="ident">from_root</span>().<span class="ident">chain</span>(<span class="ident">iter</span>::<span class="ident">once</span>(<span class="ident">span</span>)));
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">span</span><span class="op">|</span> <span class="ident">span</span>.<span class="ident">from_root</span>().<span class="ident">chain</span>(<span class="ident">iter::once</span>(<span class="ident">span</span>)));
 
         <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">scope</span> {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">bold</span>.<span class="ident">paint</span>(<span class="ident">span</span>.<span class="ident">metadata</span>().<span class="ident">name</span>()))<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">bold</span>.<span class="ident">paint</span>(<span class="ident">span</span>.<span class="ident">metadata</span>().<span class="ident">name</span>()))<span class="question-mark">?</span>;
             <span class="ident">seen</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
             <span class="kw">let</span> <span class="ident">ext</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">extensions</span>();
@@ -2486,7 +2486,7 @@
                 .<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">FormattedFields</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span><span class="op">&gt;</span>()
                 .<span class="ident">expect</span>(<span class="string">&quot;Unable to find FormattedFields in extensions; this is a bug&quot;</span>);
             <span class="kw">if</span> <span class="op">!</span><span class="ident">fields</span>.<span class="ident">is_empty</span>() {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}{}{}&quot;</span>, <span class="ident">bold</span>.<span class="ident">paint</span>(<span class="string">&quot;{&quot;</span>), <span class="ident">fields</span>, <span class="ident">bold</span>.<span class="ident">paint</span>(<span class="string">&quot;}&quot;</span>))<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}{}{}&quot;</span>, <span class="ident">bold</span>.<span class="ident">paint</span>(<span class="string">&quot;{&quot;</span>), <span class="ident">fields</span>, <span class="ident">bold</span>.<span class="ident">paint</span>(<span class="string">&quot;}&quot;</span>))<span class="question-mark">?</span>;
             }
             <span class="ident">f</span>.<span class="ident">write_char</span>(<span class="string">&#39;:&#39;</span>)<span class="question-mark">?</span>;
         }
@@ -2506,7 +2506,7 @@
     <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Style</span>
     }
-    <span class="kw">fn</span> <span class="ident">paint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">d</span>: <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> {
+    <span class="kw">fn</span> <span class="ident">paint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">d</span>: <span class="kw">impl</span> <span class="ident">fmt::Display</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">fmt::Display</span> {
         <span class="ident">d</span>
     }
 }
@@ -2521,16 +2521,16 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">FmtThreadName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FmtThreadName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{
             <span class="ident">AtomicUsize</span>,
             <span class="ident">Ordering</span>::{<span class="ident">AcqRel</span>, <span class="ident">Acquire</span>, <span class="ident">Relaxed</span>},
         };
 
         <span class="comment">// Track the longest thread name length we&#39;ve seen so far in an atomic,</span>
         <span class="comment">// so that it can be updated by any thread.</span>
-        <span class="kw">static</span> <span class="ident">MAX_LEN</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>);
+        <span class="kw">static</span> <span class="ident">MAX_LEN</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>);
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">len</span>();
         <span class="comment">// Snapshot the current max thread name length.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_len</span> <span class="op">=</span> <span class="ident">MAX_LEN</span>.<span class="ident">load</span>(<span class="ident">Relaxed</span>);
@@ -2550,7 +2550,7 @@
         }
 
         <span class="comment">// pad thread name using `max_len`</span>
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{:&gt;width$}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>, <span class="ident">width</span> <span class="op">=</span> <span class="ident">max_len</span>)
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:&gt;width$}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>, <span class="ident">width</span> <span class="op">=</span> <span class="ident">max_len</span>)
     }
 }
 
@@ -2579,36 +2579,36 @@
 <span class="kw">const</span> <span class="ident">ERROR_STR</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;ERROR&quot;</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">FmtLevel</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FmtLevel</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">level</span> {
-            <span class="ident">Level</span>::<span class="ident">TRACE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">TRACE_STR</span>),
-            <span class="ident">Level</span>::<span class="ident">DEBUG</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">DEBUG_STR</span>),
-            <span class="ident">Level</span>::<span class="ident">INFO</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">INFO_STR</span>),
-            <span class="ident">Level</span>::<span class="ident">WARN</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">WARN_STR</span>),
-            <span class="ident">Level</span>::<span class="ident">ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">ERROR_STR</span>),
+            <span class="ident">Level::TRACE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">TRACE_STR</span>),
+            <span class="ident">Level::DEBUG</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">DEBUG_STR</span>),
+            <span class="ident">Level::INFO</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">INFO_STR</span>),
+            <span class="ident">Level::WARN</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">WARN_STR</span>),
+            <span class="ident">Level::ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">ERROR_STR</span>),
         }
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">FmtLevel</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FmtLevel</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ansi</span> {
             <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">level</span> {
-                <span class="ident">Level</span>::<span class="ident">TRACE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour</span>::<span class="ident">Purple</span>.<span class="ident">paint</span>(<span class="ident">TRACE_STR</span>)),
-                <span class="ident">Level</span>::<span class="ident">DEBUG</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour</span>::<span class="ident">Blue</span>.<span class="ident">paint</span>(<span class="ident">DEBUG_STR</span>)),
-                <span class="ident">Level</span>::<span class="ident">INFO</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour</span>::<span class="ident">Green</span>.<span class="ident">paint</span>(<span class="ident">INFO_STR</span>)),
-                <span class="ident">Level</span>::<span class="ident">WARN</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour</span>::<span class="ident">Yellow</span>.<span class="ident">paint</span>(<span class="ident">WARN_STR</span>)),
-                <span class="ident">Level</span>::<span class="ident">ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour</span>::<span class="ident">Red</span>.<span class="ident">paint</span>(<span class="ident">ERROR_STR</span>)),
+                <span class="ident">Level::TRACE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour::Purple</span>.<span class="ident">paint</span>(<span class="ident">TRACE_STR</span>)),
+                <span class="ident">Level::DEBUG</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour::Blue</span>.<span class="ident">paint</span>(<span class="ident">DEBUG_STR</span>)),
+                <span class="ident">Level::INFO</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour::Green</span>.<span class="ident">paint</span>(<span class="ident">INFO_STR</span>)),
+                <span class="ident">Level::WARN</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour::Yellow</span>.<span class="ident">paint</span>(<span class="ident">WARN_STR</span>)),
+                <span class="ident">Level::ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">Colour::Red</span>.<span class="ident">paint</span>(<span class="ident">ERROR_STR</span>)),
             }
         } <span class="kw">else</span> {
             <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">level</span> {
-                <span class="ident">Level</span>::<span class="ident">TRACE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">TRACE_STR</span>),
-                <span class="ident">Level</span>::<span class="ident">DEBUG</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">DEBUG_STR</span>),
-                <span class="ident">Level</span>::<span class="ident">INFO</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">INFO_STR</span>),
-                <span class="ident">Level</span>::<span class="ident">WARN</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">WARN_STR</span>),
-                <span class="ident">Level</span>::<span class="ident">ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">ERROR_STR</span>),
+                <span class="ident">Level::TRACE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">TRACE_STR</span>),
+                <span class="ident">Level::DEBUG</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">DEBUG_STR</span>),
+                <span class="ident">Level::INFO</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">INFO_STR</span>),
+                <span class="ident">Level::WARN</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">WARN_STR</span>),
+                <span class="ident">Level::ERROR</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">pad</span>(<span class="ident">ERROR_STR</span>),
             }
         }
     }
@@ -2616,13 +2616,13 @@
 
 <span class="comment">// === impl FieldFn ===</span>
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">MakeVisitor</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FieldFn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">MakeVisitor</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FieldFn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> <span class="op">+</span> <span class="ident">Clone</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt::Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
     <span class="kw">type</span> <span class="ident">Visitor</span> <span class="op">=</span> <span class="ident">FieldFnVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">make_visitor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Visitor</span> {
+    <span class="kw">fn</span> <span class="ident">make_visitor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Visitor</span> {
         <span class="ident">FieldFnVisitor</span> {
             <span class="ident">writer</span>,
             <span class="ident">f</span>: <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>(),
@@ -2633,38 +2633,38 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">Visit</span> <span class="kw">for</span> <span class="ident">FieldFnVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt::Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>,
 {
-    <span class="kw">fn</span> <span class="ident">record_debug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Debug</span>) {
+    <span class="kw">fn</span> <span class="ident">record_debug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt::Debug</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">result</span>.<span class="ident">is_ok</span>() {
             <span class="self">self</span>.<span class="ident">result</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">f</span>)(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">field</span>, <span class="ident">value</span>)
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">VisitOutput</span><span class="op">&lt;</span><span class="ident">fmt</span>::<span class="prelude-ty">Result</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FieldFnVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">VisitOutput</span><span class="op">&lt;</span><span class="ident">fmt::Result</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FieldFnVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt::Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>,
 {
-    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">result</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">VisitFmt</span> <span class="kw">for</span> <span class="ident">FieldFnVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>, <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">fmt::Debug</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span>,
 {
-    <span class="kw">fn</span> <span class="ident">writer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span> {
+    <span class="kw">fn</span> <span class="ident">writer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">writer</span>
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">FieldFnVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">FieldFnVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;FieldFnVisitor&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;f&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;&lt;Fn&gt;&quot;</span>))
-            .<span class="ident">field</span>(<span class="string">&quot;writer&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;&lt;dyn fmt::Write&gt;&quot;</span>))
+            .<span class="ident">field</span>(<span class="string">&quot;f&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;&lt;Fn&gt;&quot;</span>))
+            .<span class="ident">field</span>(<span class="string">&quot;writer&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;&lt;dyn fmt::Write&gt;&quot;</span>))
             .<span class="ident">field</span>(<span class="string">&quot;result&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">result</span>)
             .<span class="ident">finish</span>()
     }
@@ -2691,10 +2691,10 @@
     <span class="doccomment">/// spans are ignored (this is the default)</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">NONE</span>: <span class="ident">FmtSpan</span> <span class="op">=</span> <span class="ident">FmtSpan</span>(<span class="number">0</span>);
     <span class="doccomment">/// one event per enter/exit of a span</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ACTIVE</span>: <span class="ident">FmtSpan</span> <span class="op">=</span> <span class="ident">FmtSpan</span>(<span class="ident">FmtSpan</span>::<span class="ident">ENTER</span>.<span class="number">0</span> <span class="op">|</span> <span class="ident">FmtSpan</span>::<span class="ident">EXIT</span>.<span class="number">0</span>);
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ACTIVE</span>: <span class="ident">FmtSpan</span> <span class="op">=</span> <span class="ident">FmtSpan</span>(<span class="ident">FmtSpan::ENTER</span>.<span class="number">0</span> <span class="op">|</span> <span class="ident">FmtSpan::EXIT</span>.<span class="number">0</span>);
     <span class="doccomment">/// events at all points (new, enter, exit, drop)</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">FULL</span>: <span class="ident">FmtSpan</span> <span class="op">=</span>
-        <span class="ident">FmtSpan</span>(<span class="ident">FmtSpan</span>::<span class="ident">NEW</span>.<span class="number">0</span> <span class="op">|</span> <span class="ident">FmtSpan</span>::<span class="ident">ENTER</span>.<span class="number">0</span> <span class="op">|</span> <span class="ident">FmtSpan</span>::<span class="ident">EXIT</span>.<span class="number">0</span> <span class="op">|</span> <span class="ident">FmtSpan</span>::<span class="ident">CLOSE</span>.<span class="number">0</span>);
+        <span class="ident">FmtSpan</span>(<span class="ident">FmtSpan::NEW</span>.<span class="number">0</span> <span class="op">|</span> <span class="ident">FmtSpan::ENTER</span>.<span class="number">0</span> <span class="op">|</span> <span class="ident">FmtSpan::EXIT</span>.<span class="number">0</span> <span class="op">|</span> <span class="ident">FmtSpan::CLOSE</span>.<span class="number">0</span>);
 
     <span class="doccomment">/// Check whether or not a certain flag is set for this [`FmtSpan`]</span>
     <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">FmtSpan</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
@@ -2702,21 +2702,21 @@
     }
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_fmt_span_bit_op</span> {
+<span class="macro">macro_rules!</span> <span class="ident">impl_fmt_span_bit_op</span> {
     (<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">func</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="macro-nonterminal">$</span><span class="kw">trait</span> <span class="kw">for</span> <span class="macro-nonterminal">FmtSpan</span> {
+        <span class="kw">impl</span> <span class="ident">std::ops</span>::<span class="macro-nonterminal">$</span><span class="kw">trait</span> <span class="kw">for</span> <span class="macro-nonterminal">FmtSpan</span> {
             <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">FmtSpan</span>;
 
-            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">func</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">func</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
                 <span class="ident">FmtSpan</span>(<span class="self">self</span>.<span class="number">0</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span> <span class="ident">rhs</span>.<span class="number">0</span>)
             }
         }
     };
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_fmt_span_bit_assign_op</span> {
+<span class="macro">macro_rules!</span> <span class="ident">impl_fmt_span_bit_assign_op</span> {
     (<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">func</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="macro-nonterminal">$</span><span class="kw">trait</span> <span class="kw">for</span> <span class="macro-nonterminal">FmtSpan</span> {
+        <span class="kw">impl</span> <span class="ident">std::ops</span>::<span class="macro-nonterminal">$</span><span class="kw">trait</span> <span class="kw">for</span> <span class="macro-nonterminal">FmtSpan</span> {
             <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">func</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) {
                 <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">FmtSpan</span>(<span class="self">self</span>.<span class="number">0</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span> <span class="ident">rhs</span>.<span class="number">0</span>)
             }
@@ -2724,18 +2724,18 @@
     };
 }
 
-<span class="macro">impl_fmt_span_bit_op</span><span class="macro">!</span>(<span class="ident">BitAnd</span>, <span class="ident">bitand</span>, <span class="kw-2">&amp;</span>);
-<span class="macro">impl_fmt_span_bit_op</span><span class="macro">!</span>(<span class="ident">BitOr</span>, <span class="ident">bitor</span>, <span class="op">|</span>);
-<span class="macro">impl_fmt_span_bit_op</span><span class="macro">!</span>(<span class="ident">BitXor</span>, <span class="ident">bitxor</span>, <span class="op">^</span>);
+<span class="macro">impl_fmt_span_bit_op!</span>(<span class="ident">BitAnd</span>, <span class="ident">bitand</span>, <span class="kw-2">&amp;</span>);
+<span class="macro">impl_fmt_span_bit_op!</span>(<span class="ident">BitOr</span>, <span class="ident">bitor</span>, <span class="op">|</span>);
+<span class="macro">impl_fmt_span_bit_op!</span>(<span class="ident">BitXor</span>, <span class="ident">bitxor</span>, <span class="op">^</span>);
 
-<span class="macro">impl_fmt_span_bit_assign_op</span><span class="macro">!</span>(<span class="ident">BitAndAssign</span>, <span class="ident">bitand_assign</span>, <span class="kw-2">&amp;</span>);
-<span class="macro">impl_fmt_span_bit_assign_op</span><span class="macro">!</span>(<span class="ident">BitOrAssign</span>, <span class="ident">bitor_assign</span>, <span class="op">|</span>);
-<span class="macro">impl_fmt_span_bit_assign_op</span><span class="macro">!</span>(<span class="ident">BitXorAssign</span>, <span class="ident">bitxor_assign</span>, <span class="op">^</span>);
+<span class="macro">impl_fmt_span_bit_assign_op!</span>(<span class="ident">BitAndAssign</span>, <span class="ident">bitand_assign</span>, <span class="kw-2">&amp;</span>);
+<span class="macro">impl_fmt_span_bit_assign_op!</span>(<span class="ident">BitOrAssign</span>, <span class="ident">bitor_assign</span>, <span class="op">|</span>);
+<span class="macro">impl_fmt_span_bit_assign_op!</span>(<span class="ident">BitXorAssign</span>, <span class="ident">bitxor_assign</span>, <span class="op">^</span>);
 
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">FmtSpan</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wrote_flag</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">write_flags</span> <span class="op">=</span> <span class="op">|</span><span class="ident">flag</span>, <span class="ident">flag_str</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">write_flags</span> <span class="op">=</span> <span class="op">|</span><span class="ident">flag</span>, <span class="ident">flag_str</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">contains</span>(<span class="ident">flag</span>) {
                 <span class="kw">if</span> <span class="ident">wrote_flag</span> {
                     <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot; | &quot;</span>)<span class="question-mark">?</span>;
@@ -2748,13 +2748,13 @@
             <span class="prelude-val">Ok</span>(())
         };
 
-        <span class="kw">if</span> <span class="ident">FmtSpan</span>::<span class="ident">NONE</span> <span class="op">|</span> <span class="self">self</span>.<span class="ident">clone</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">FmtSpan</span>::<span class="ident">NONE</span> {
+        <span class="kw">if</span> <span class="ident">FmtSpan::NONE</span> <span class="op">|</span> <span class="self">self</span>.<span class="ident">clone</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">FmtSpan::NONE</span> {
             <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;FmtSpan::NONE&quot;</span>)<span class="question-mark">?</span>;
         } <span class="kw">else</span> {
-            <span class="ident">write_flags</span>(<span class="ident">FmtSpan</span>::<span class="ident">NEW</span>, <span class="string">&quot;FmtSpan::NEW&quot;</span>)<span class="question-mark">?</span>;
-            <span class="ident">write_flags</span>(<span class="ident">FmtSpan</span>::<span class="ident">ENTER</span>, <span class="string">&quot;FmtSpan::ENTER&quot;</span>)<span class="question-mark">?</span>;
-            <span class="ident">write_flags</span>(<span class="ident">FmtSpan</span>::<span class="ident">EXIT</span>, <span class="string">&quot;FmtSpan::EXIT&quot;</span>)<span class="question-mark">?</span>;
-            <span class="ident">write_flags</span>(<span class="ident">FmtSpan</span>::<span class="ident">CLOSE</span>, <span class="string">&quot;FmtSpan::CLOSE&quot;</span>)<span class="question-mark">?</span>;
+            <span class="ident">write_flags</span>(<span class="ident">FmtSpan::NEW</span>, <span class="string">&quot;FmtSpan::NEW&quot;</span>)<span class="question-mark">?</span>;
+            <span class="ident">write_flags</span>(<span class="ident">FmtSpan::ENTER</span>, <span class="string">&quot;FmtSpan::ENTER&quot;</span>)<span class="question-mark">?</span>;
+            <span class="ident">write_flags</span>(<span class="ident">FmtSpan::EXIT</span>, <span class="string">&quot;FmtSpan::EXIT&quot;</span>)<span class="question-mark">?</span>;
+            <span class="ident">write_flags</span>(<span class="ident">FmtSpan::CLOSE</span>, <span class="string">&quot;FmtSpan::CLOSE&quot;</span>)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -2780,21 +2780,21 @@
         }
     }
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">trace_new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">NEW</span>)
+        <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::NEW</span>)
     }
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">trace_enter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">ENTER</span>)
+        <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::ENTER</span>)
     }
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">trace_exit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">EXIT</span>)
+        <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::EXIT</span>)
     }
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">trace_close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">CLOSE</span>)
+        <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::CLOSE</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">FmtSpanConfig</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
     }
 }
@@ -2802,7 +2802,7 @@
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">FmtSpanConfig</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">kind</span>: <span class="ident">FmtSpan</span>::<span class="ident">NONE</span>,
+            <span class="ident">kind</span>: <span class="ident">FmtSpan::NONE</span>,
             <span class="ident">fmt_timing</span>: <span class="bool-val">true</span>,
         }
     }
@@ -2810,48 +2810,48 @@
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">TimingDisplay</span>(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">u64</span>);
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">TimingDisplay</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">f64</span>;
         <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> [<span class="string">&quot;ns&quot;</span>, <span class="string">&quot;µs&quot;</span>, <span class="string">&quot;ms&quot;</span>, <span class="string">&quot;s&quot;</span>].<span class="ident">iter</span>() {
             <span class="kw">if</span> <span class="ident">t</span> <span class="op">&lt;</span> <span class="number">10.0</span> {
-                <span class="kw">return</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.2}{}&quot;</span>, <span class="ident">t</span>, <span class="ident">unit</span>);
+                <span class="kw">return</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.2}{}&quot;</span>, <span class="ident">t</span>, <span class="ident">unit</span>);
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">t</span> <span class="op">&lt;</span> <span class="number">100.0</span> {
-                <span class="kw">return</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.1}{}&quot;</span>, <span class="ident">t</span>, <span class="ident">unit</span>);
+                <span class="kw">return</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.1}{}&quot;</span>, <span class="ident">t</span>, <span class="ident">unit</span>);
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">t</span> <span class="op">&lt;</span> <span class="number">1000.0</span> {
-                <span class="kw">return</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.0}{}&quot;</span>, <span class="ident">t</span>, <span class="ident">unit</span>);
+                <span class="kw">return</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.0}{}&quot;</span>, <span class="ident">t</span>, <span class="ident">unit</span>);
             }
             <span class="ident">t</span> <span class="op">/</span><span class="op">=</span> <span class="number">1000.0</span>;
         }
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.0}s&quot;</span>, <span class="ident">t</span> <span class="op">*</span> <span class="number">1000.0</span>)
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.0}s&quot;</span>, <span class="ident">t</span> <span class="op">*</span> <span class="number">1000.0</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod</span> <span class="ident">test</span> {
 
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">fmt</span>::{<span class="ident">test</span>::<span class="ident">MockWriter</span>, <span class="ident">time</span>::<span class="ident">FormatTime</span>};
-    <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
-    <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="self">self</span>, <span class="ident">subscriber</span>::<span class="ident">with_default</span>};
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::fmt</span>::{<span class="ident">test::MockWriter</span>, <span class="ident">time::FormatTime</span>};
+    <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
+    <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="self">self</span>, <span class="ident">subscriber::with_default</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">FmtSpan</span>, <span class="ident">TimingDisplay</span>};
-    <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">sync</span>::<span class="ident">Mutex</span>};
+    <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">sync::Mutex</span>};
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">MockTime</span>;
     <span class="kw">impl</span> <span class="ident">FormatTime</span> <span class="kw">for</span> <span class="ident">MockTime</span> {
-        <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt</span>::<span class="ident">Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">w</span>, <span class="string">&quot;fake time&quot;</span>)
+        <span class="kw">fn</span> <span class="ident">format_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+            <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot;fake time&quot;</span>)
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">disable_everything</span>() {
         <span class="comment">// This test reproduces https://github.com/tokio-rs/tracing/issues/1354</span>
-        <span class="macro">lazy_static</span><span class="macro">!</span> {
-            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]);
+        <span class="macro">lazy_static!</span> {
+            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex::new</span>(<span class="macro">vec!</span>[]);
         }
 
-        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
-        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">fmt</span>::<span class="ident">Subscriber</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter::new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
+        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::fmt::Subscriber::builder</span>()
             .<span class="ident">with_writer</span>(<span class="ident">make_writer</span>)
             .<span class="ident">without_time</span>()
             .<span class="ident">with_level</span>(<span class="bool-val">false</span>)
@@ -2862,21 +2862,21 @@
         <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">subscriber</span>.<span class="ident">with_ansi</span>(<span class="bool-val">false</span>);
 
         <span class="ident">with_default</span>(<span class="ident">subscriber</span>.<span class="ident">finish</span>(), <span class="op">|</span><span class="op">|</span> {
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;hello&quot;</span>);
+            <span class="macro">tracing::info!</span>(<span class="string">&quot;hello&quot;</span>);
         });
 
-        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">BUF</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;hello\n&quot;</span>, <span class="ident">actual</span>.<span class="ident">as_str</span>());
+        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">BUF</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;hello\n&quot;</span>, <span class="ident">actual</span>.<span class="ident">as_str</span>());
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">with_ansi_true</span>() {
-        <span class="macro">lazy_static</span><span class="macro">!</span> {
-            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]);
+        <span class="macro">lazy_static!</span> {
+            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex::new</span>(<span class="macro">vec!</span>[]);
         }
 
-        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
+        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter::new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;\u{1b}[2mfake time\u{1b}[0m \u{1b}[32m INFO\u{1b}[0m tracing_subscriber::fmt::format::test: some ansi test\n&quot;</span>;
         <span class="ident">test_ansi</span>(<span class="ident">make_writer</span>, <span class="ident">expected</span>, <span class="bool-val">true</span>, <span class="kw-2">&amp;</span><span class="ident">BUF</span>);
     }
@@ -2884,11 +2884,11 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">with_ansi_false</span>() {
-        <span class="macro">lazy_static</span><span class="macro">!</span> {
-            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]);
+        <span class="macro">lazy_static!</span> {
+            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex::new</span>(<span class="macro">vec!</span>[]);
         }
 
-        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
+        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter::new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;fake time  INFO tracing_subscriber::fmt::format::test: some ansi test\n&quot;</span>;
 
         <span class="ident">test_ansi</span>(<span class="ident">make_writer</span>, <span class="ident">expected</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">BUF</span>);
@@ -2897,52 +2897,52 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>))]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">without_ansi</span>() {
-        <span class="macro">lazy_static</span><span class="macro">!</span> {
-            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]);
+        <span class="macro">lazy_static!</span> {
+            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex::new</span>(<span class="macro">vec!</span>[]);
         }
 
-        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
+        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter::new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;fake time  INFO tracing_subscriber::fmt::format::test: some ansi test\n&quot;</span>;
-        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">fmt</span>::<span class="ident">Subscriber</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::fmt::Subscriber::builder</span>()
             .<span class="ident">with_writer</span>(<span class="ident">make_writer</span>)
             .<span class="ident">with_timer</span>(<span class="ident">MockTime</span>)
             .<span class="ident">finish</span>();
 
         <span class="ident">with_default</span>(<span class="ident">subscriber</span>, <span class="op">|</span><span class="op">|</span> {
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;some ansi test&quot;</span>);
+            <span class="macro">tracing::info!</span>(<span class="string">&quot;some ansi test&quot;</span>);
         });
 
-        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">BUF</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>, <span class="ident">actual</span>.<span class="ident">as_str</span>());
+        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">BUF</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">actual</span>.<span class="ident">as_str</span>());
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ansi&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_ansi</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">make_writer</span>: <span class="ident">T</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">is_ansi</span>: <span class="ident">bool</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>)
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="kw">crate</span>::<span class="ident">fmt</span>::<span class="ident">MakeWriter</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="kw">crate</span><span class="ident">::fmt::MakeWriter</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">fmt</span>::<span class="ident">Subscriber</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::fmt::Subscriber::builder</span>()
             .<span class="ident">with_writer</span>(<span class="ident">make_writer</span>)
             .<span class="ident">with_ansi</span>(<span class="ident">is_ansi</span>)
             .<span class="ident">with_timer</span>(<span class="ident">MockTime</span>)
             .<span class="ident">finish</span>();
 
         <span class="ident">with_default</span>(<span class="ident">subscriber</span>, <span class="op">|</span><span class="op">|</span> {
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;some ansi test&quot;</span>);
+            <span class="macro">tracing::info!</span>(<span class="string">&quot;some ansi test&quot;</span>);
         });
 
-        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">buf</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>, <span class="ident">actual</span>.<span class="ident">as_str</span>());
+        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">buf</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">actual</span>.<span class="ident">as_str</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">without_level</span>() {
-        <span class="macro">lazy_static</span><span class="macro">!</span> {
-            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]);
+        <span class="macro">lazy_static!</span> {
+            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex::new</span>(<span class="macro">vec!</span>[]);
         }
 
-        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
-        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">fmt</span>::<span class="ident">Subscriber</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter::new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
+        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::fmt::Subscriber::builder</span>()
             .<span class="ident">with_writer</span>(<span class="ident">make_writer</span>)
             .<span class="ident">with_level</span>(<span class="bool-val">false</span>)
             .<span class="ident">with_ansi</span>(<span class="bool-val">false</span>)
@@ -2950,10 +2950,10 @@
             .<span class="ident">finish</span>();
 
         <span class="ident">with_default</span>(<span class="ident">subscriber</span>, <span class="op">|</span><span class="op">|</span> {
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;hello&quot;</span>);
+            <span class="macro">tracing::info!</span>(<span class="string">&quot;hello&quot;</span>);
         });
-        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">BUF</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">BUF</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(
             <span class="string">&quot;fake time tracing_subscriber::fmt::format::test: hello\n&quot;</span>,
             <span class="ident">actual</span>.<span class="ident">as_str</span>()
         );
@@ -2961,12 +2961,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">overridden_parents</span>() {
-        <span class="macro">lazy_static</span><span class="macro">!</span> {
-            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]);
+        <span class="macro">lazy_static!</span> {
+            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex::new</span>(<span class="macro">vec!</span>[]);
         }
 
-        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
-        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">fmt</span>::<span class="ident">Subscriber</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter::new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
+        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::fmt::Subscriber::builder</span>()
             .<span class="ident">with_writer</span>(<span class="ident">make_writer</span>)
             .<span class="ident">with_level</span>(<span class="bool-val">false</span>)
             .<span class="ident">with_ansi</span>(<span class="bool-val">false</span>)
@@ -2974,12 +2974,12 @@
             .<span class="ident">finish</span>();
 
         <span class="ident">with_default</span>(<span class="ident">subscriber</span>, <span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">span1</span> <span class="op">=</span> <span class="ident">tracing</span>::<span class="macro">info_span</span><span class="macro">!</span>(<span class="string">&quot;span1&quot;</span>);
-            <span class="kw">let</span> <span class="ident">span2</span> <span class="op">=</span> <span class="ident">tracing</span>::<span class="macro">info_span</span><span class="macro">!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span1</span>, <span class="string">&quot;span2&quot;</span>);
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span2</span>, <span class="string">&quot;hello&quot;</span>);
+            <span class="kw">let</span> <span class="ident">span1</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span1&quot;</span>);
+            <span class="kw">let</span> <span class="ident">span2</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span1</span>, <span class="string">&quot;span2&quot;</span>);
+            <span class="macro">tracing::info!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span2</span>, <span class="string">&quot;hello&quot;</span>);
         });
-        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">BUF</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">BUF</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(
             <span class="string">&quot;fake time span1:span2: tracing_subscriber::fmt::format::test: hello\n&quot;</span>,
             <span class="ident">actual</span>.<span class="ident">as_str</span>()
         );
@@ -2987,12 +2987,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">overridden_parents_in_scope</span>() {
-        <span class="macro">lazy_static</span><span class="macro">!</span> {
-            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[]);
+        <span class="macro">lazy_static!</span> {
+            <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUF</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex::new</span>(<span class="macro">vec!</span>[]);
         }
 
-        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
-        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">fmt</span>::<span class="ident">Subscriber</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">make_writer</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">MockWriter::new</span>(<span class="kw-2">&amp;</span><span class="ident">BUF</span>);
+        <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::fmt::Subscriber::builder</span>()
             .<span class="ident">with_writer</span>(<span class="ident">make_writer</span>)
             .<span class="ident">with_level</span>(<span class="bool-val">false</span>)
             .<span class="ident">with_ansi</span>(<span class="bool-val">false</span>)
@@ -3001,25 +3001,25 @@
 
         <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BUF</span>.<span class="ident">try_lock</span>().<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">buf</span>.<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">buf</span>.<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
             <span class="ident">buf</span>.<span class="ident">clear</span>();
             <span class="ident">val</span>
         };
 
         <span class="ident">with_default</span>(<span class="ident">subscriber</span>, <span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">span1</span> <span class="op">=</span> <span class="ident">tracing</span>::<span class="macro">info_span</span><span class="macro">!</span>(<span class="string">&quot;span1&quot;</span>);
-            <span class="kw">let</span> <span class="ident">span2</span> <span class="op">=</span> <span class="ident">tracing</span>::<span class="macro">info_span</span><span class="macro">!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span1</span>, <span class="string">&quot;span2&quot;</span>);
-            <span class="kw">let</span> <span class="ident">span3</span> <span class="op">=</span> <span class="ident">tracing</span>::<span class="macro">info_span</span><span class="macro">!</span>(<span class="string">&quot;span3&quot;</span>);
+            <span class="kw">let</span> <span class="ident">span1</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span1&quot;</span>);
+            <span class="kw">let</span> <span class="ident">span2</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span1</span>, <span class="string">&quot;span2&quot;</span>);
+            <span class="kw">let</span> <span class="ident">span3</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span3&quot;</span>);
             <span class="kw">let</span> <span class="ident">_e3</span> <span class="op">=</span> <span class="ident">span3</span>.<span class="ident">enter</span>();
 
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;hello&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="macro">tracing::info!</span>(<span class="string">&quot;hello&quot;</span>);
+            <span class="macro">assert_eq!</span>(
                 <span class="string">&quot;fake time span3: tracing_subscriber::fmt::format::test: hello\n&quot;</span>,
                 <span class="ident">actual</span>().<span class="ident">as_str</span>()
             );
 
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span2</span>, <span class="string">&quot;hello&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="macro">tracing::info!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">span2</span>, <span class="string">&quot;hello&quot;</span>);
+            <span class="macro">assert_eq!</span>(
                 <span class="string">&quot;fake time span1:span2: tracing_subscriber::fmt::format::test: hello\n&quot;</span>,
                 <span class="ident">actual</span>().<span class="ident">as_str</span>()
             );
@@ -3032,48 +3032,48 @@
             <span class="ident">TimingDisplay</span>(<span class="ident">t</span>).<span class="ident">to_string</span>()
         }
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">1</span>), <span class="string">&quot;1.00ns&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">12</span>), <span class="string">&quot;12.0ns&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">123</span>), <span class="string">&quot;123ns&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">1234</span>), <span class="string">&quot;1.23µs&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">12345</span>), <span class="string">&quot;12.3µs&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">123456</span>), <span class="string">&quot;123µs&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">1234567</span>), <span class="string">&quot;1.23ms&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">12345678</span>), <span class="string">&quot;12.3ms&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">123456789</span>), <span class="string">&quot;123ms&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">1234567890</span>), <span class="string">&quot;1.23s&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">12345678901</span>), <span class="string">&quot;12.3s&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">123456789012</span>), <span class="string">&quot;123s&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fmt</span>(<span class="number">1234567890123</span>), <span class="string">&quot;1235s&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">1</span>), <span class="string">&quot;1.00ns&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">12</span>), <span class="string">&quot;12.0ns&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">123</span>), <span class="string">&quot;123ns&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">1234</span>), <span class="string">&quot;1.23µs&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">12345</span>), <span class="string">&quot;12.3µs&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">123456</span>), <span class="string">&quot;123µs&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">1234567</span>), <span class="string">&quot;1.23ms&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">12345678</span>), <span class="string">&quot;12.3ms&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">123456789</span>), <span class="string">&quot;123ms&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">1234567890</span>), <span class="string">&quot;1.23s&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">12345678901</span>), <span class="string">&quot;12.3s&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">123456789012</span>), <span class="string">&quot;123s&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fmt</span>(<span class="number">1234567890123</span>), <span class="string">&quot;1235s&quot;</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">fmt_span_combinations</span>() {
-        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">FmtSpan</span>::<span class="ident">NONE</span>;
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">NEW</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">ENTER</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">EXIT</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">CLOSE</span>), <span class="bool-val">false</span>);
+        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">FmtSpan::NONE</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::NEW</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::ENTER</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::EXIT</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::CLOSE</span>), <span class="bool-val">false</span>);
 
-        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">FmtSpan</span>::<span class="ident">ACTIVE</span>;
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">NEW</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">ENTER</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">EXIT</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">CLOSE</span>), <span class="bool-val">false</span>);
+        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">FmtSpan::ACTIVE</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::NEW</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::ENTER</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::EXIT</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::CLOSE</span>), <span class="bool-val">false</span>);
 
-        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">FmtSpan</span>::<span class="ident">FULL</span>;
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">NEW</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">ENTER</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">EXIT</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">CLOSE</span>), <span class="bool-val">true</span>);
+        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">FmtSpan::FULL</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::NEW</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::ENTER</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::EXIT</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::CLOSE</span>), <span class="bool-val">true</span>);
 
-        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">FmtSpan</span>::<span class="ident">NEW</span> <span class="op">|</span> <span class="ident">FmtSpan</span>::<span class="ident">CLOSE</span>;
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">NEW</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">ENTER</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">EXIT</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan</span>::<span class="ident">CLOSE</span>), <span class="bool-val">true</span>);
+        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">FmtSpan::NEW</span> <span class="op">|</span> <span class="ident">FmtSpan::CLOSE</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::NEW</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::ENTER</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::EXIT</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">contains</span>(<span class="ident">FmtSpan::CLOSE</span>), <span class="bool-val">true</span>);
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tracing_subscriber" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="tracing_subscriber" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

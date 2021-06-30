@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.5/src/column.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>column.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
@@ -99,11 +99,11 @@
 <span id="96">96</span>
 <span id="97">97</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">database</span>::<span class="ident">Database</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::database::Database</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Column</span>: <span class="ident">private_column</span>::<span class="ident">Sealed</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">Debug</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Column</span>: <span class="ident">private_column::Sealed</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">Debug</span> {
     <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
 
     <span class="doccomment">/// Gets the column ordinal.</span>
@@ -119,7 +119,7 @@
     <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span>;
 
     <span class="doccomment">/// Gets the type information for the column.</span>
-    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span>::<span class="ident">TypeInfo</span>;
+    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::TypeInfo</span>;
 }
 
 <span class="comment">// Prevent users from implementing the `Row` trait.</span>
@@ -140,7 +140,7 @@
 <span class="doccomment">/// [`get`]: crate::row::Row::get</span>
 <span class="doccomment">/// [`try_get`]: crate::row::Row::try_get</span>
 <span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>: <span class="ident">private_column_index</span>::<span class="ident">Sealed</span> <span class="op">+</span> <span class="ident">Debug</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>: <span class="ident">private_column_index::Sealed</span> <span class="op">+</span> <span class="ident">Debug</span> {
     <span class="doccomment">/// Returns a valid positional index into the row or statement, [`ColumnIndexOutOfBounds`], or,</span>
     <span class="doccomment">/// [`ColumnNotFound`].</span>
     <span class="doccomment">///</span>
@@ -156,14 +156,14 @@
     }
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_column_index_for_row</span> {
+<span class="macro">macro_rules!</span> <span class="ident">impl_column_index_for_row</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">impl</span> <span class="kw">crate</span>::<span class="ident">column</span>::<span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
-            <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">row</span>::<span class="ident">Row</span>::<span class="ident">len</span>(<span class="ident">row</span>);
+        <span class="kw">impl</span> <span class="kw">crate</span><span class="ident">::column::ColumnIndex</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
+            <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="kw">crate</span><span class="ident">::error::Error</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::row::Row::len</span>(<span class="ident">row</span>);
 
                 <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">len</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>::<span class="ident">ColumnIndexOutOfBounds</span> { <span class="ident">len</span>, <span class="ident">index</span>: <span class="kw-2">*</span><span class="self">self</span> });
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::error::Error::ColumnIndexOutOfBounds</span> { <span class="ident">len</span>, <span class="ident">index</span>: <span class="kw-2">*</span><span class="self">self</span> });
                 }
 
                 <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self</span>)
@@ -172,14 +172,14 @@
     };
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_column_index_for_statement</span> {
+<span class="macro">macro_rules!</span> <span class="ident">impl_column_index_for_statement</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">S</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">impl</span> <span class="kw">crate</span>::<span class="ident">column</span>::<span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">S</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
-            <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">statement</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">S</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">statement</span>::<span class="ident">Statement</span>::<span class="ident">columns</span>(<span class="ident">statement</span>).<span class="ident">len</span>();
+        <span class="kw">impl</span> <span class="kw">crate</span><span class="ident">::column::ColumnIndex</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">S</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
+            <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">statement</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">S</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="kw">crate</span><span class="ident">::error::Error</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::statement::Statement::columns</span>(<span class="ident">statement</span>).<span class="ident">len</span>();
 
                 <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">len</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>::<span class="ident">ColumnIndexOutOfBounds</span> { <span class="ident">len</span>, <span class="ident">index</span>: <span class="kw-2">*</span><span class="self">self</span> });
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::error::Error::ColumnIndexOutOfBounds</span> { <span class="ident">len</span>, <span class="ident">index</span>: <span class="kw-2">*</span><span class="self">self</span> });
                 }
 
                 <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self</span>)
@@ -197,5 +197,5 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Sealed</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> {}
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

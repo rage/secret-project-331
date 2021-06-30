@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/h2-0.3.3/src/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../h2/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../h2/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1660,21 +1660,21 @@
 <span class="doccomment">//! [`Builder`]: struct.Builder.html</span>
 <span class="doccomment">//! [`Error`]: ../struct.Error.html</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">codec</span>::{<span class="ident">Codec</span>, <span class="ident">RecvError</span>, <span class="ident">SendError</span>, <span class="ident">UserError</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">frame</span>::{<span class="ident">Headers</span>, <span class="ident">Pseudo</span>, <span class="ident">Reason</span>, <span class="ident">Settings</span>, <span class="ident">StreamId</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">proto</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::codec</span>::{<span class="ident">Codec</span>, <span class="ident">RecvError</span>, <span class="ident">SendError</span>, <span class="ident">UserError</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::frame</span>::{<span class="ident">Headers</span>, <span class="ident">Pseudo</span>, <span class="ident">Reason</span>, <span class="ident">Settings</span>, <span class="ident">StreamId</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::proto</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">FlowControl</span>, <span class="ident">PingPong</span>, <span class="ident">RecvStream</span>, <span class="ident">SendStream</span>};
 
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">Bytes</span>};
 <span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">uri</span>, <span class="ident">HeaderMap</span>, <span class="ident">Method</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">Version</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">usize</span>;
-<span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">io</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">AsyncWriteExt</span>};
-<span class="kw">use</span> <span class="ident">tracing</span>::<span class="ident">Instrument</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::future::Future</span>;
+<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
+<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use</span> <span class="ident">std::usize</span>;
+<span class="kw">use</span> <span class="ident">tokio::io</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">AsyncWriteExt</span>};
+<span class="kw">use</span> <span class="ident">tracing::Instrument</span>;
 
 <span class="doccomment">/// Initializes new HTTP/2.0 streams on a connection by sending a request.</span>
 <span class="doccomment">///</span>
@@ -1698,8 +1698,8 @@
 <span class="doccomment">/// [`Clone`]: https://doc.rust-lang.org/std/clone/trait.Clone.html</span>
 <span class="doccomment">/// [`Error`]: ../struct.Error.html</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Buf</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">proto</span>::<span class="ident">Streams</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">Peer</span><span class="op">&gt;</span>,
-    <span class="ident">pending</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">proto</span>::<span class="ident">OpaqueStreamRef</span><span class="op">&gt;</span>,
+    <span class="ident">inner</span>: <span class="ident">proto::Streams</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">Peer</span><span class="op">&gt;</span>,
+    <span class="ident">pending</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">proto::OpaqueStreamRef</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Returns a `SendRequest` instance once it is ready to send at least one</span>
@@ -1754,14 +1754,14 @@
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span>: <span class="ident">Buf</span> <span class="op">=</span> <span class="ident">Bytes</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">proto</span>::<span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Peer</span>, <span class="ident">B</span><span class="op">&gt;</span>,
+    <span class="ident">inner</span>: <span class="ident">proto::Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Peer</span>, <span class="ident">B</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// A future of an HTTP response.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResponseFuture</span> {
-    <span class="ident">inner</span>: <span class="ident">proto</span>::<span class="ident">OpaqueStreamRef</span>,
+    <span class="ident">inner</span>: <span class="ident">proto::OpaqueStreamRef</span>,
     <span class="ident">push_promise_consumed</span>: <span class="ident">bool</span>,
 }
 
@@ -1791,7 +1791,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;streams do nothing unless polled&quot;</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PushPromises</span> {
-    <span class="ident">inner</span>: <span class="ident">proto</span>::<span class="ident">OpaqueStreamRef</span>,
+    <span class="ident">inner</span>: <span class="ident">proto::OpaqueStreamRef</span>,
 }
 
 <span class="doccomment">/// Builds client connections with custom configuration values.</span>
@@ -1874,10 +1874,10 @@
     <span class="doccomment">/// See [module] level docs for more details.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [module]: index.html</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_pending_open</span>(<span class="ident">cx</span>, <span class="self">self</span>.<span class="ident">pending</span>.<span class="ident">as_ref</span>()))<span class="question-mark">?</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_pending_open</span>(<span class="ident">cx</span>, <span class="self">self</span>.<span class="ident">pending</span>.<span class="ident">as_ref</span>()))<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">pending</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()))
+        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
     }
 
     <span class="doccomment">/// Consumes `self`, returning a future that returns `self` back once it is</span>
@@ -2023,10 +2023,10 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">request</span>: <span class="ident">Request</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
         <span class="ident">end_of_stream</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">ResponseFuture</span>, <span class="ident">SendStream</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>), <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">ResponseFuture</span>, <span class="ident">SendStream</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner</span>
             .<span class="ident">send_request</span>(<span class="ident">request</span>, <span class="ident">end_of_stream</span>, <span class="self">self</span>.<span class="ident">pending</span>.<span class="ident">as_ref</span>())
-            .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">stream</span><span class="op">|</span> {
                 <span class="kw">if</span> <span class="ident">stream</span>.<span class="ident">is_pending_open</span>() {
                     <span class="self">self</span>.<span class="ident">pending</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">stream</span>.<span class="ident">clone_to_opaque</span>());
@@ -2037,18 +2037,18 @@
                     <span class="ident">push_promise_consumed</span>: <span class="bool-val">false</span>,
                 };
 
-                <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">SendStream</span>::<span class="ident">new</span>(<span class="ident">stream</span>);
+                <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">SendStream::new</span>(<span class="ident">stream</span>);
 
                 (<span class="ident">response</span>, <span class="ident">stream</span>)
             })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">B</span>: <span class="ident">Buf</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;SendRequest&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -2094,17 +2094,17 @@
 <span class="kw">where</span>
     <span class="ident">B</span>: <span class="ident">Buf</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Output</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span> {
             <span class="prelude-val">Some</span>(<span class="ident">send_request</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">send_request</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+                <span class="macro">ready!</span>(<span class="ident">send_request</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;called `poll` after future completed&quot;</span>),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;called `poll` after future completed&quot;</span>),
         }
 
-        <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>()))
+        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>()))
     }
 }
 
@@ -2139,11 +2139,11 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Builder</span> {
         <span class="ident">Builder</span> {
-            <span class="ident">reset_stream_duration</span>: <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="ident">proto</span>::<span class="ident">DEFAULT_RESET_STREAM_SECS</span>),
-            <span class="ident">reset_stream_max</span>: <span class="ident">proto</span>::<span class="ident">DEFAULT_RESET_STREAM_MAX</span>,
+            <span class="ident">reset_stream_duration</span>: <span class="ident">Duration::from_secs</span>(<span class="ident">proto::DEFAULT_RESET_STREAM_SECS</span>),
+            <span class="ident">reset_stream_max</span>: <span class="ident">proto::DEFAULT_RESET_STREAM_MAX</span>,
             <span class="ident">initial_target_connection_window_size</span>: <span class="prelude-val">None</span>,
-            <span class="ident">initial_max_send_streams</span>: <span class="ident">usize</span>::<span class="ident">MAX</span>,
-            <span class="ident">settings</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">initial_max_send_streams</span>: <span class="ident">usize::MAX</span>,
+            <span class="ident">settings</span>: <span class="ident">Default::default</span>(),
             <span class="ident">stream_id</span>: <span class="number">1</span>.<span class="ident">into</span>(),
         }
     }
@@ -2515,7 +2515,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;unstable&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initial_stream_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">stream_id</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">stream_id</span> <span class="op">=</span> <span class="ident">stream_id</span>.<span class="ident">into</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="self">self</span>.<span class="ident">stream_id</span>.<span class="ident">is_client_initiated</span>(),
             <span class="string">&quot;stream id must be odd&quot;</span>
         );
@@ -2586,18 +2586,18 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">io</span>: <span class="ident">T</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>), <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
         <span class="ident">B</span>: <span class="ident">Buf</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="ident">Connection</span>::<span class="ident">handshake2</span>(<span class="ident">io</span>, <span class="self">self</span>.<span class="ident">clone</span>())
+        <span class="ident">Connection::handshake2</span>(<span class="ident">io</span>, <span class="self">self</span>.<span class="ident">clone</span>())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Builder</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Builder</span> {
-        <span class="ident">Builder</span>::<span class="ident">new</span>()
+        <span class="ident">Builder::new</span>()
     }
 }
 
@@ -2636,29 +2636,29 @@
 <span class="doccomment">/// #</span>
 <span class="doccomment">/// # pub fn main() {}</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handshake</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">io</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>, <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Bytes</span><span class="op">&gt;</span>), <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handshake</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">io</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>, <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Bytes</span><span class="op">&gt;</span>), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
 {
-    <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder::new</span>();
     <span class="ident">builder</span>
         .<span class="ident">handshake</span>(<span class="ident">io</span>)
-        .<span class="ident">instrument</span>(<span class="ident">tracing</span>::<span class="macro">trace_span</span><span class="macro">!</span>(<span class="string">&quot;client_handshake&quot;</span>, <span class="ident">io</span> <span class="op">=</span> <span class="op">%</span><span class="ident">std</span>::<span class="ident">any</span>::<span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()))
+        .<span class="ident">instrument</span>(<span class="macro">tracing::trace_span!</span>(<span class="string">&quot;client_handshake&quot;</span>, <span class="ident">io</span> <span class="op">=</span> <span class="op">%</span><span class="ident">std::any::type_name</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()))
         .<span class="kw">await</span>
 }
 
 <span class="comment">// ===== impl Connection =====</span>
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">bind_connection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">io</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">bind_connection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">io</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
 {
-    <span class="ident">tracing</span>::<span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;binding client connection&quot;</span>);
+    <span class="macro">tracing::debug!</span>(<span class="string">&quot;binding client connection&quot;</span>);
 
     <span class="kw">let</span> <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n&quot;</span>;
-    <span class="ident">io</span>.<span class="ident">write_all</span>(<span class="ident">msg</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">from_io</span>)<span class="question-mark">?</span>;
+    <span class="ident">io</span>.<span class="ident">write_all</span>(<span class="ident">msg</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="kw">crate</span><span class="ident">::Error::from_io</span>)<span class="question-mark">?</span>;
 
-    <span class="ident">tracing</span>::<span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;client connection bound&quot;</span>);
+    <span class="macro">tracing::debug!</span>(<span class="string">&quot;client connection bound&quot;</span>);
 
     <span class="prelude-val">Ok</span>(())
 }
@@ -2671,11 +2671,11 @@
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handshake2</span>(
         <span class="kw-2">mut</span> <span class="ident">io</span>: <span class="ident">T</span>,
         <span class="ident">builder</span>: <span class="ident">Builder</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>), <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">SendRequest</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span> {
         <span class="ident">bind_connection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">io</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="comment">// Create the codec</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">codec</span> <span class="op">=</span> <span class="ident">Codec</span>::<span class="ident">new</span>(<span class="ident">io</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">codec</span> <span class="op">=</span> <span class="ident">Codec::new</span>(<span class="ident">io</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max</span>) <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">settings</span>.<span class="ident">max_frame_size</span>() {
             <span class="ident">codec</span>.<span class="ident">set_max_recv_frame_size</span>(<span class="ident">max</span> <span class="kw">as</span> <span class="ident">usize</span>);
@@ -2690,9 +2690,9 @@
             .<span class="ident">buffer</span>(<span class="ident">builder</span>.<span class="ident">settings</span>.<span class="ident">clone</span>().<span class="ident">into</span>())
             .<span class="ident">expect</span>(<span class="string">&quot;invalid SETTINGS frame&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">proto</span>::<span class="ident">Connection</span>::<span class="ident">new</span>(
+        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">proto::Connection::new</span>(
             <span class="ident">codec</span>,
-            <span class="ident">proto</span>::<span class="ident">Config</span> {
+            <span class="ident">proto::Config</span> {
                 <span class="ident">next_stream_id</span>: <span class="ident">builder</span>.<span class="ident">stream_id</span>,
                 <span class="ident">initial_max_send_streams</span>: <span class="ident">builder</span>.<span class="ident">initial_max_send_streams</span>,
                 <span class="ident">reset_stream_duration</span>: <span class="ident">builder</span>.<span class="ident">reset_stream_duration</span>,
@@ -2731,7 +2731,7 @@
     <span class="doccomment">/// [`FlowControl`]: ../struct.FlowControl.html</span>
     <span class="doccomment">/// [library level]: ../index.html#flow-control</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_target_window_size</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">size</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">proto</span>::<span class="ident">MAX_WINDOW_SIZE</span>);
+        <span class="macro">assert!</span>(<span class="ident">size</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">proto::MAX_WINDOW_SIZE</span>);
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">set_target_window_size</span>(<span class="ident">size</span>);
     }
 
@@ -2748,8 +2748,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns an error if a previous call is still pending acknowledgement</span>
     <span class="doccomment">/// from the remote endpoint.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_initial_window_size</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">size</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">proto</span>::<span class="ident">MAX_WINDOW_SIZE</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_initial_window_size</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+        <span class="macro">assert!</span>(<span class="ident">size</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">proto::MAX_WINDOW_SIZE</span>);
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">set_initial_window_size</span>(<span class="ident">size</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
@@ -2760,7 +2760,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This may only be called once. Calling multiple times will return `None`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ping_pong</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PingPong</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">take_user_pings</span>().<span class="ident">map</span>(<span class="ident">PingPong</span>::<span class="ident">new</span>)
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">take_user_pings</span>().<span class="ident">map</span>(<span class="ident">PingPong::new</span>)
     }
 
     <span class="doccomment">/// Returns the maximum number of concurrent streams that may be initiated</span>
@@ -2797,35 +2797,35 @@
     <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
     <span class="ident">B</span>: <span class="ident">Buf</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Output</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">maybe_close_connection_if_no_streams</span>();
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span>,
-    <span class="ident">T</span>: <span class="ident">fmt</span>::<span class="ident">Debug</span>,
-    <span class="ident">B</span>: <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Buf</span>,
+    <span class="ident">T</span>: <span class="ident">fmt::Debug</span>,
+    <span class="ident">B</span>: <span class="ident">fmt::Debug</span> <span class="op">+</span> <span class="ident">Buf</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="ident">fmt</span>::<span class="ident">Debug</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">fmt</span>)
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="ident">fmt::Debug::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">fmt</span>)
     }
 }
 
 <span class="comment">// ===== impl ResponseFuture =====</span>
 
 <span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ResponseFuture</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">RecvStream</span><span class="op">&gt;</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">RecvStream</span><span class="op">&gt;</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">parts</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_response</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>.<span class="ident">into_parts</span>();
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">RecvStream</span>::<span class="ident">new</span>(<span class="ident">FlowControl</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>()));
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Output</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">parts</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_response</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>.<span class="ident">into_parts</span>();
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">RecvStream::new</span>(<span class="ident">FlowControl::new</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>()));
 
-        <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">Response</span>::<span class="ident">from_parts</span>(<span class="ident">parts</span>, <span class="ident">body</span>)))
+        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">Response::from_parts</span>(<span class="ident">parts</span>, <span class="ident">body</span>)))
     }
 }
 
@@ -2835,8 +2835,8 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the lock on the stream store has been poisoned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stream_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">StreamId</span> {
-        <span class="kw">crate</span>::<span class="ident">StreamId</span>::<span class="ident">from_internal</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">stream_id</span>())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stream_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::StreamId</span> {
+        <span class="kw">crate</span><span class="ident">::StreamId::from_internal</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">stream_id</span>())
     }
     <span class="doccomment">/// Returns a stream of PushPromises</span>
     <span class="doccomment">///</span>
@@ -2846,7 +2846,7 @@
     <span class="doccomment">/// or the stream was itself was pushed</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_promises</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PushPromises</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">push_promise_consumed</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Reference to push promises stream taken!&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;Reference to push promises stream taken!&quot;</span>);
         }
         <span class="self">self</span>.<span class="ident">push_promise_consumed</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">PushPromises</span> {
@@ -2859,37 +2859,37 @@
 
 <span class="kw">impl</span> <span class="ident">PushPromises</span> {
     <span class="doccomment">/// Get the next `PushPromise`.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">push_promise</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PushPromise</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">futures_util</span>::<span class="ident">future</span>::<span class="ident">poll_fn</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">poll_push_promise</span>(<span class="ident">cx</span>)).<span class="kw">await</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">push_promise</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PushPromise</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">futures_util::future::poll_fn</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">poll_push_promise</span>(<span class="ident">cx</span>)).<span class="kw">await</span>
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">poll_push_promise</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PushPromise</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PushPromise</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_pushed</span>(<span class="ident">cx</span>) {
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>((<span class="ident">request</span>, <span class="ident">response</span>)))) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>((<span class="ident">request</span>, <span class="ident">response</span>)))) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">PushedResponseFuture</span> {
                     <span class="ident">inner</span>: <span class="ident">ResponseFuture</span> {
                         <span class="ident">inner</span>: <span class="ident">response</span>,
                         <span class="ident">push_promise_consumed</span>: <span class="bool-val">false</span>,
                     },
                 };
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">PushPromise</span> { <span class="ident">request</span>, <span class="ident">response</span> })))
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">PushPromise</span> { <span class="ident">request</span>, <span class="ident">response</span> })))
             }
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()))),
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">None</span>),
-            <span class="ident">Poll</span>::<span class="ident">Pending</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>,
+            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()))),
+            <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
+            <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Pending</span>,
         }
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">futures_core</span>::<span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">PushPromises</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PushPromise</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="kw">impl</span> <span class="ident">futures_core::Stream</span> <span class="kw">for</span> <span class="ident">PushPromises</span> {
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PushPromise</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">poll_push_promise</span>(<span class="ident">cx</span>)
     }
 }
@@ -2917,10 +2917,10 @@
 <span class="comment">// ===== impl PushedResponseFuture =====</span>
 
 <span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">PushedResponseFuture</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">RecvStream</span><span class="op">&gt;</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">RecvStream</span><span class="op">&gt;</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
-        <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span>).<span class="ident">poll</span>(<span class="ident">cx</span>)
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Output</span><span class="op">&gt;</span> {
+        <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span>).<span class="ident">poll</span>(<span class="ident">cx</span>)
     }
 }
 
@@ -2930,7 +2930,7 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the lock on the stream store has been poisoned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stream_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">StreamId</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stream_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::StreamId</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">stream_id</span>()
     }
 }
@@ -2943,7 +2943,7 @@
         <span class="ident">request</span>: <span class="ident">Request</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
         <span class="ident">end_of_stream</span>: <span class="ident">bool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Headers</span>, <span class="ident">SendError</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">http</span>::<span class="ident">request</span>::<span class="ident">Parts</span>;
+        <span class="kw">use</span> <span class="ident">http::request::Parts</span>;
 
         <span class="kw">let</span> (
             <span class="ident">Parts</span> {
@@ -2956,11 +2956,11 @@
             <span class="kw">_</span>,
         ) <span class="op">=</span> <span class="ident">request</span>.<span class="ident">into_parts</span>();
 
-        <span class="kw">let</span> <span class="ident">is_connect</span> <span class="op">=</span> <span class="ident">method</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Method</span>::<span class="ident">CONNECT</span>;
+        <span class="kw">let</span> <span class="ident">is_connect</span> <span class="op">=</span> <span class="ident">method</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Method::CONNECT</span>;
 
         <span class="comment">// Build the set pseudo header set. All requests will include `method`</span>
         <span class="comment">// and `path`.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pseudo</span> <span class="op">=</span> <span class="ident">Pseudo</span>::<span class="ident">request</span>(<span class="ident">method</span>, <span class="ident">uri</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pseudo</span> <span class="op">=</span> <span class="ident">Pseudo::request</span>(<span class="ident">method</span>, <span class="ident">uri</span>);
 
         <span class="kw">if</span> <span class="ident">pseudo</span>.<span class="ident">scheme</span>.<span class="ident">is_none</span>() {
             <span class="comment">// If the scheme is not set, then there are a two options.</span>
@@ -2976,14 +2976,14 @@
             <span class="comment">// `http` crate does not allow it).</span>
             <span class="comment">//</span>
             <span class="kw">if</span> <span class="ident">pseudo</span>.<span class="ident">authority</span>.<span class="ident">is_none</span>() {
-                <span class="kw">if</span> <span class="ident">version</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Version</span>::<span class="ident">HTTP_2</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UserError</span>::<span class="ident">MissingUriSchemeAndAuthority</span>.<span class="ident">into</span>());
+                <span class="kw">if</span> <span class="ident">version</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Version::HTTP_2</span> {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UserError::MissingUriSchemeAndAuthority</span>.<span class="ident">into</span>());
                 } <span class="kw">else</span> {
                     <span class="comment">// This is acceptable as per the above comment. However,</span>
                     <span class="comment">// HTTP/2.0 requires that a scheme is set. Since we are</span>
                     <span class="comment">// forwarding an HTTP 1.1 request, the scheme is set to</span>
                     <span class="comment">// &quot;http&quot;.</span>
-                    <span class="ident">pseudo</span>.<span class="ident">set_scheme</span>(<span class="ident">uri</span>::<span class="ident">Scheme</span>::<span class="ident">HTTP</span>);
+                    <span class="ident">pseudo</span>.<span class="ident">set_scheme</span>(<span class="ident">uri::Scheme::HTTP</span>);
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">is_connect</span> {
                 <span class="comment">// TODO: Error</span>
@@ -2991,7 +2991,7 @@
         }
 
         <span class="comment">// Create the HEADERS frame</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">Headers</span>::<span class="ident">new</span>(<span class="ident">id</span>, <span class="ident">pseudo</span>, <span class="ident">headers</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">Headers::new</span>(<span class="ident">id</span>, <span class="ident">pseudo</span>, <span class="ident">headers</span>);
 
         <span class="kw">if</span> <span class="ident">end_of_stream</span> {
             <span class="ident">frame</span>.<span class="ident">set_end_stream</span>()
@@ -3001,13 +3001,13 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">proto</span>::<span class="ident">Peer</span> <span class="kw">for</span> <span class="ident">Peer</span> {
+<span class="kw">impl</span> <span class="ident">proto::Peer</span> <span class="kw">for</span> <span class="ident">Peer</span> {
     <span class="kw">type</span> <span class="ident">Poll</span> <span class="op">=</span> <span class="ident">Response</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
     <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;Client&quot;</span>;
 
-    <span class="kw">fn</span> <span class="ident">r#dyn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proto</span>::<span class="ident">DynPeer</span> {
-        <span class="ident">proto</span>::<span class="ident">DynPeer</span>::<span class="ident">Client</span>
+    <span class="kw">fn</span> <span class="ident">r#dyn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proto::DynPeer</span> {
+        <span class="ident">proto::DynPeer::Client</span>
     }
 
     <span class="kw">fn</span> <span class="ident">is_server</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
@@ -3018,10 +3018,10 @@
         <span class="ident">pseudo</span>: <span class="ident">Pseudo</span>,
         <span class="ident">fields</span>: <span class="ident">HeaderMap</span>,
         <span class="ident">stream_id</span>: <span class="ident">StreamId</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Poll</span>, <span class="ident">RecvError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Response</span>::<span class="ident">builder</span>();
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Poll</span>, <span class="ident">RecvError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Response::builder</span>();
 
-        <span class="ident">b</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">version</span>(<span class="ident">Version</span>::<span class="ident">HTTP_2</span>);
+        <span class="ident">b</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">version</span>(<span class="ident">Version::HTTP_2</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">status</span>) <span class="op">=</span> <span class="ident">pseudo</span>.<span class="ident">status</span> {
             <span class="ident">b</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">status</span>(<span class="ident">status</span>);
@@ -3032,9 +3032,9 @@
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO: Should there be more specialized handling for different</span>
                 <span class="comment">// kinds of errors</span>
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">RecvError</span>::<span class="ident">Stream</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">RecvError::Stream</span> {
                     <span class="ident">id</span>: <span class="ident">stream_id</span>,
-                    <span class="ident">reason</span>: <span class="ident">Reason</span>::<span class="ident">PROTOCOL_ERROR</span>,
+                    <span class="ident">reason</span>: <span class="ident">Reason::PROTOCOL_ERROR</span>,
                 });
             }
         };
@@ -3045,5 +3045,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="h2" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="h2" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

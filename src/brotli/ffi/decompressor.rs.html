@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.0/src/ffi/decompressor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decompressor.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -160,9 +160,9 @@
 <span id="157">157</span>
 <span id="158">158</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">brotli_decompressor</span>::<span class="ident">ffi</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">brotli_decompressor::ffi</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">brotli_decompressor</span>::{<span class="ident">BrotliDecoderReturnInfo</span>, <span class="ident">HuffmanCode</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">brotli_decompressor</span>::<span class="ident">ffi</span>::<span class="ident">interface</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">brotli_decompressor::ffi::interface</span>::{
   <span class="ident">brotli_alloc_func</span>,
   <span class="ident">brotli_free_func</span>,
   <span class="ident">c_void</span>,
@@ -172,14 +172,14 @@
     <span class="ident">alloc_func</span>: <span class="ident">brotli_alloc_func</span>,
     <span class="ident">free_func</span>: <span class="ident">brotli_free_func</span>,
     <span class="ident">opaque</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span> {
-   <span class="ident">ffi</span>::<span class="ident">BrotliDecoderCreateInstance</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">opaque</span>)
+) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span> {
+   <span class="ident">ffi::BrotliDecoderCreateInstance</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">opaque</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderSetParameter</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>,
-                                       <span class="ident">selector</span>: <span class="ident">ffi</span>::<span class="ident">interface</span>::<span class="ident">BrotliDecoderParameter</span>,
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderSetParameter</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span>,
+                                       <span class="ident">selector</span>: <span class="ident">ffi::interface::BrotliDecoderParameter</span>,
                                        <span class="ident">value</span>: <span class="ident">u32</span>) {
-    <span class="ident">ffi</span>::<span class="ident">BrotliDecoderSetParameter</span>(<span class="ident">state_ptr</span>,  <span class="ident">selector</span>, <span class="ident">value</span>)
+    <span class="ident">ffi::BrotliDecoderSetParameter</span>(<span class="ident">state_ptr</span>,  <span class="ident">selector</span>, <span class="ident">value</span>)
 } 
      
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span> <span class="comment">// this requires a default allocator</span>
@@ -187,19 +187,19 @@
   <span class="ident">encoded_size</span>: <span class="ident">usize</span>,
   <span class="ident">encoded_buffer</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
   <span class="ident">decoded_size</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-  <span class="ident">decoded_buffer</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ffi</span>::<span class="ident">interface</span>::<span class="ident">BrotliDecoderResult</span> {
-    <span class="ident">ffi</span>::<span class="ident">BrotliDecoderDecompress</span>(<span class="ident">encoded_size</span>, <span class="ident">encoded_buffer</span>, <span class="ident">decoded_size</span>, <span class="ident">decoded_buffer</span>)
+  <span class="ident">decoded_buffer</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ffi::interface::BrotliDecoderResult</span> {
+    <span class="ident">ffi::BrotliDecoderDecompress</span>(<span class="ident">encoded_size</span>, <span class="ident">encoded_buffer</span>, <span class="ident">decoded_size</span>, <span class="ident">decoded_buffer</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderDecompressStream</span>(
-    <span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>,
+    <span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span>,
     <span class="ident">available_in</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
     <span class="ident">input_buf_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span><span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
     <span class="ident">available_out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
     <span class="ident">output_buf_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span><span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>,
     <span class="ident">total_out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ffi</span>::<span class="ident">interface</span>::<span class="ident">BrotliDecoderResult</span> {
-<span class="ident">ffi</span>::<span class="ident">BrotliDecoderDecompressStream</span>(
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ffi::interface::BrotliDecoderResult</span> {
+<span class="ident">ffi::BrotliDecoderDecompressStream</span>(
   <span class="ident">state_ptr</span>,
   <span class="ident">available_in</span>,
   <span class="ident">input_buf_ptr</span>,
@@ -209,13 +209,13 @@
 }
 
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderDecompressStreaming</span>(
-    <span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>,
+    <span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span>,
     <span class="ident">available_in</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
     <span class="ident">input_buf_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
     <span class="ident">available_out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
     <span class="ident">output_buf_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ffi</span>::<span class="ident">interface</span>::<span class="ident">BrotliDecoderResult</span> {
-<span class="ident">ffi</span>::<span class="ident">BrotliDecoderDecompressStreaming</span>(
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ffi::interface::BrotliDecoderResult</span> {
+<span class="ident">ffi::BrotliDecoderDecompressStreaming</span>(
   <span class="ident">state_ptr</span>,
   <span class="ident">available_in</span>,
   <span class="ident">input_buf_ptr</span>,
@@ -229,7 +229,7 @@
     <span class="ident">available_out_and_scratch</span>: <span class="ident">usize</span>,
     <span class="ident">output_buf_and_scratch</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderReturnInfo</span> {
-<span class="ident">ffi</span>::<span class="ident">BrotliDecoderDecompressWithReturnInfo</span>(
+<span class="ident">ffi::BrotliDecoderDecompressWithReturnInfo</span>(
   <span class="ident">available_in</span>,
   <span class="ident">input_buf_ptr</span>,
   <span class="ident">available_out_and_scratch</span>,
@@ -248,7 +248,7 @@
     <span class="ident">available_hc</span>: <span class="ident">usize</span>,
     <span class="ident">hc_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">HuffmanCode</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BrotliDecoderReturnInfo</span> {
-<span class="ident">ffi</span>::<span class="ident">BrotliDecoderDecompressPrealloc</span>(
+<span class="ident">ffi::BrotliDecoderDecompressPrealloc</span>(
   <span class="ident">available_in</span>,
   <span class="ident">input_buf_ptr</span>,
   <span class="ident">available_out</span>,
@@ -261,63 +261,63 @@
   <span class="ident">hc_ptr</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderMallocU8</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderMallocU8</span>(<span class="ident">state_ptr</span>, <span class="ident">size</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderMallocU8</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span> {
+  <span class="ident">ffi::BrotliDecoderMallocU8</span>(<span class="ident">state_ptr</span>, <span class="ident">size</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderFreeU8</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>, <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>, <span class="ident">size</span>: <span class="ident">usize</span>) {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderFreeU8</span>(<span class="ident">state_ptr</span>, <span class="ident">data</span>, <span class="ident">size</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderFreeU8</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span>, <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>, <span class="ident">size</span>: <span class="ident">usize</span>) {
+  <span class="ident">ffi::BrotliDecoderFreeU8</span>(<span class="ident">state_ptr</span>, <span class="ident">data</span>, <span class="ident">size</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderMallocUsize</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderMallocUsize</span>(<span class="ident">state_ptr</span>, <span class="ident">size</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderMallocUsize</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span> {
+  <span class="ident">ffi::BrotliDecoderMallocUsize</span>(<span class="ident">state_ptr</span>, <span class="ident">size</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderFreeUsize</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>, <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">size</span>: <span class="ident">usize</span>) {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderFreeUsize</span>(<span class="ident">state_ptr</span>, <span class="ident">data</span>, <span class="ident">size</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderFreeUsize</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span>, <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">size</span>: <span class="ident">usize</span>) {
+  <span class="ident">ffi::BrotliDecoderFreeUsize</span>(<span class="ident">state_ptr</span>, <span class="ident">data</span>, <span class="ident">size</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderDestroyInstance</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>) {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderDestroyInstance</span>(<span class="ident">state_ptr</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderDestroyInstance</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span>) {
+  <span class="ident">ffi::BrotliDecoderDestroyInstance</span>(<span class="ident">state_ptr</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderVersion</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderVersion</span>()
+  <span class="ident">ffi::BrotliDecoderVersion</span>()
 }
 
 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderErrorString</span>(<span class="ident">c</span>: <span class="ident">ffi</span>::<span class="ident">BrotliDecoderErrorCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderErrorString</span>(<span class="ident">c</span>)
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderErrorString</span>(<span class="ident">c</span>: <span class="ident">ffi::BrotliDecoderErrorCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> {
+  <span class="ident">ffi::BrotliDecoderErrorString</span>(<span class="ident">c</span>)
 }
 
 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderHasMoreOutput</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderHasMoreOutput</span>(<span class="ident">state_ptr</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderHasMoreOutput</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+  <span class="ident">ffi::BrotliDecoderHasMoreOutput</span>(<span class="ident">state_ptr</span>)
 }
 
 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderTakeOutput</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>, <span class="ident">size</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderTakeOutput</span>(<span class="ident">state_ptr</span>, <span class="ident">size</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderTakeOutput</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">ffi::BrotliDecoderState</span>, <span class="ident">size</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> {
+  <span class="ident">ffi::BrotliDecoderTakeOutput</span>(<span class="ident">state_ptr</span>, <span class="ident">size</span>)
 }
 
 
 
 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderIsUsed</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderIsUsed</span>(<span class="ident">state_ptr</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderIsUsed</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+  <span class="ident">ffi::BrotliDecoderIsUsed</span>(<span class="ident">state_ptr</span>)
 }
 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderIsFinished</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderIsFinished</span>(<span class="ident">state_ptr</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderIsFinished</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+  <span class="ident">ffi::BrotliDecoderIsFinished</span>(<span class="ident">state_ptr</span>)
 }
 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderGetErrorCode</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderErrorCode</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderGetErrorCode</span>(<span class="ident">state_ptr</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderGetErrorCode</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ffi::BrotliDecoderErrorCode</span> {
+  <span class="ident">ffi::BrotliDecoderGetErrorCode</span>(<span class="ident">state_ptr</span>)
 }
 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderGetErrorString</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi</span>::<span class="ident">BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> {
-  <span class="ident">ffi</span>::<span class="ident">BrotliDecoderGetErrorString</span>(<span class="ident">state_ptr</span>)
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">CBrotliDecoderGetErrorString</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">ffi::BrotliDecoderState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span> {
+  <span class="ident">ffi::BrotliDecoderGetErrorString</span>(<span class="ident">state_ptr</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

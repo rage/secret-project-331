@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bitvec-0.19.5/src/index.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>index.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../bitvec/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../bitvec/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1289,13 +1289,13 @@ create selection masks of `BitSel` and `BitMask`.
 !*/</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-	<span class="ident">mem</span>::<span class="ident">BitMemory</span>,
-	<span class="ident">order</span>::<span class="ident">BitOrder</span>,
-	<span class="ident">store</span>::<span class="ident">BitStore</span>,
+	<span class="ident">mem::BitMemory</span>,
+	<span class="ident">order::BitOrder</span>,
+	<span class="ident">store::BitStore</span>,
 };
 
 <span class="kw">use</span> <span class="ident">core</span>::{
-	<span class="ident">any</span>::<span class="ident">type_name</span>,
+	<span class="ident">any::type_name</span>,
 	<span class="ident">fmt</span>::{
 		<span class="self">self</span>,
 		<span class="ident">Binary</span>,
@@ -1307,7 +1307,7 @@ create selection masks of `BitSel` and `BitMask`.
 		<span class="ident">FusedIterator</span>,
 		<span class="ident">Sum</span>,
 	},
-	<span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+	<span class="ident">marker::PhantomData</span>,
 	<span class="ident">ops</span>::{
 		<span class="ident">BitAnd</span>,
 		<span class="ident">BitOr</span>,
@@ -1315,12 +1315,12 @@ create selection masks of `BitSel` and `BitMask`.
 	},
 };
 
-<span class="kw">use</span> <span class="ident">radium</span>::<span class="ident">marker</span>::<span class="ident">BitOps</span>;
+<span class="kw">use</span> <span class="ident">radium::marker::BitOps</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
+<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">make</span> {
+<span class="macro">macro_rules!</span> <span class="ident">make</span> {
 	(<span class="ident">idx</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
 		<span class="ident">BitIdx</span> {
 			<span class="ident">idx</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>,
@@ -1350,14 +1350,14 @@ create selection masks of `BitSel` and `BitMask`.
 <span class="doccomment">/// Marks that an integer can be used in a processor register.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BitRegister</span>: <span class="ident">BitMemory</span> <span class="op">+</span> <span class="ident">BitOps</span> <span class="op">+</span> <span class="ident">BitStore</span> {}
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">register</span> {
+<span class="macro">macro_rules!</span> <span class="ident">register</span> {
 	($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>) <span class="op">=</span><span class="op">&gt;</span> { $(
 		<span class="kw">impl</span> <span class="ident">BitRegister</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> {
 		}
 	)<span class="op">*</span> };
 }
 
-<span class="macro">register</span><span class="macro">!</span>(<span class="ident">u8</span>, <span class="ident">u16</span>, <span class="ident">u32</span>);
+<span class="macro">register!</span>(<span class="ident">u8</span>, <span class="ident">u16</span>, <span class="ident">u32</span>);
 
 <span class="doccomment">/** `u64` can only be used as a register on processors whose word size is at
 least 64 bits.
@@ -1368,7 +1368,7 @@ This implementation is not present on targets with 32-bit processor words.
 <span class="kw">impl</span> <span class="ident">BitRegister</span> <span class="kw">for</span> <span class="ident">u64</span> {
 }
 
-<span class="macro">register</span><span class="macro">!</span>(<span class="ident">usize</span>);
+<span class="macro">register!</span>(<span class="ident">usize</span>);
 
 <span class="doccomment">/** A semantic index of a single bit within a register `R`.
 
@@ -1411,9 +1411,9 @@ to construct other index types from them. All values of this type constructed by
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="doccomment">/// The inclusive-maximum index.</span>
-	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">LAST</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">R</span>::<span class="ident">MASK</span>);
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">LAST</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">R::MASK</span>);
 	<span class="doccomment">/// The zero index.</span>
-	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="number">0</span>);
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">idx</span> <span class="number">0</span>);
 
 	<span class="doccomment">/// Wraps a counter value as a known-good index into an `R` register.</span>
 	<span class="doccomment">///</span>
@@ -1428,10 +1428,10 @@ to construct other index types from them. All values of this type constructed by
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">idx</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-		<span class="kw">if</span> <span class="ident">idx</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">R</span>::<span class="ident">BITS</span> {
+		<span class="kw">if</span> <span class="ident">idx</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">R::BITS</span> {
 			<span class="kw">return</span> <span class="prelude-val">None</span>;
 		}
-		<span class="prelude-val">Some</span>(<span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">idx</span>))
+		<span class="prelude-val">Some</span>(<span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">idx</span>))
 	}
 
 	<span class="doccomment">/// Wraps a counter value as an assumed-good index into an `R` register.</span>
@@ -1452,13 +1452,13 @@ to construct other index types from them. All values of this type constructed by
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">idx</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="macro">debug_assert</span><span class="macro">!</span>(
-			<span class="ident">idx</span> <span class="op">&lt;</span> <span class="ident">R</span>::<span class="ident">BITS</span>,
+		<span class="macro">debug_assert!</span>(
+			<span class="ident">idx</span> <span class="op">&lt;</span> <span class="ident">R::BITS</span>,
 			<span class="string">&quot;Bit index {} cannot exceed type width {}&quot;</span>,
 			<span class="ident">idx</span>,
-			<span class="ident">R</span>::<span class="ident">BITS</span>
+			<span class="ident">R::BITS</span>
 		);
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">idx</span>)
+		<span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">idx</span>)
 	}
 
 	<span class="doccomment">/// Increments an index counter, wrapping at the back edge of the register.</span>
@@ -1474,7 +1474,7 @@ to construct other index types from them. All values of this type constructed by
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">incr</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">bool</span>) {
 		<span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>;
-		(<span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">next</span> <span class="op">&amp;</span> <span class="ident">R</span>::<span class="ident">MASK</span>), <span class="ident">next</span> <span class="op">=</span><span class="op">=</span> <span class="ident">R</span>::<span class="ident">BITS</span>)
+		(<span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">next</span> <span class="op">&amp;</span> <span class="ident">R::MASK</span>), <span class="ident">next</span> <span class="op">=</span><span class="op">=</span> <span class="ident">R::BITS</span>)
 	}
 
 	<span class="doccomment">/// Decrements an index counter, wrapping at the front edge of the register.</span>
@@ -1490,7 +1490,7 @@ to construct other index types from them. All values of this type constructed by
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">decr</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">bool</span>) {
 		<span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">idx</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>);
-		(<span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">next</span> <span class="op">&amp;</span> <span class="ident">R</span>::<span class="ident">MASK</span>), <span class="self">self</span>.<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
+		(<span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">next</span> <span class="op">&amp;</span> <span class="ident">R::MASK</span>), <span class="self">self</span>.<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
 	}
 
 	<span class="doccomment">/// Computes the bit position corresponding to `self` under some ordering.</span>
@@ -1500,7 +1500,7 @@ to construct other index types from them. All values of this type constructed by
 	<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">position</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BitPos</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
 	<span class="kw">where</span> <span class="ident">O</span>: <span class="ident">BitOrder</span> {
-		<span class="ident">O</span>::<span class="ident">at</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>)
+		<span class="ident">O::at</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>)
 	}
 
 	<span class="doccomment">/// Computes the bit selector corresponding to `self` under an ordering.</span>
@@ -1510,7 +1510,7 @@ to construct other index types from them. All values of this type constructed by
 	<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">select</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BitSel</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
 	<span class="kw">where</span> <span class="ident">O</span>: <span class="ident">BitOrder</span> {
-		<span class="ident">O</span>::<span class="ident">select</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>)
+		<span class="ident">O::select</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>)
 	}
 
 	<span class="doccomment">/// Computes the bit selector for `self` as an accessor mask.</span>
@@ -1536,7 +1536,7 @@ to construct other index types from them. All values of this type constructed by
 	<span class="op">+</span> <span class="ident">DoubleEndedIterator</span>
 	<span class="op">+</span> <span class="ident">ExactSizeIterator</span>
 	<span class="op">+</span> <span class="ident">FusedIterator</span> {
-		(<span class="self">Self</span>::<span class="ident">ZERO</span>.<span class="ident">idx</span> ..<span class="op">=</span> <span class="self">Self</span>::<span class="ident">LAST</span>.<span class="ident">idx</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">val</span>))
+		(<span class="self">Self</span><span class="ident">::ZERO</span>.<span class="ident">idx</span> ..<span class="op">=</span> <span class="self">Self</span><span class="ident">::LAST</span>.<span class="ident">idx</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">val</span>))
 	}
 
 	<span class="doccomment">/// Constructs a range over all indices between a start and end point.</span>
@@ -1568,11 +1568,11 @@ to construct other index types from them. All values of this type constructed by
 	<span class="op">+</span> <span class="ident">ExactSizeIterator</span>
 	<span class="op">+</span> <span class="ident">FusedIterator</span>
 	{
-		<span class="macro">debug_assert</span><span class="macro">!</span>(
+		<span class="macro">debug_assert!</span>(
 			<span class="ident">from</span>.<span class="ident">value</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">upto</span>.<span class="ident">value</span>(),
 			<span class="string">&quot;Ranges must run from low to high&quot;</span>
 		);
-		(<span class="ident">from</span>.<span class="ident">value</span>() .. <span class="ident">upto</span>.<span class="ident">value</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">val</span>))
+		(<span class="ident">from</span>.<span class="ident">value</span>() .. <span class="ident">upto</span>.<span class="ident">value</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">val</span>))
 	}
 
 	<span class="doccomment">/// Computes the the jump distance for a number of bits away from a start.</span>
@@ -1613,15 +1613,15 @@ to construct other index types from them. All values of this type constructed by
 		<span class="kw">if</span> <span class="op">!</span><span class="ident">ovf</span> {
 			<span class="comment">//  If `far` is in the origin element, then the jump moves zero</span>
 			<span class="comment">//  elements and produces `far` as an absolute index directly.</span>
-			<span class="kw">if</span> (<span class="number">0</span> .. <span class="ident">R</span>::<span class="ident">BITS</span> <span class="kw">as</span> <span class="ident">isize</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">far</span>) {
-				(<span class="number">0</span>, <span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">far</span> <span class="kw">as</span> <span class="ident">u8</span>))
+			<span class="kw">if</span> (<span class="number">0</span> .. <span class="ident">R::BITS</span> <span class="kw">as</span> <span class="ident">isize</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">far</span>) {
+				(<span class="number">0</span>, <span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">far</span> <span class="kw">as</span> <span class="ident">u8</span>))
 			}
 			<span class="comment">/* Otherwise, downshift the bit distance to compute the number of
 			elements moved in either direction, and mask to compute the absolute
 			bit index in the destination element.
 			*/</span>
 			<span class="kw">else</span> {
-				(<span class="ident">far</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">R</span>::<span class="ident">INDX</span>, <span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">far</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="ident">R</span>::<span class="ident">MASK</span>))
+				(<span class="ident">far</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">R::INDX</span>, <span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">far</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="ident">R::MASK</span>))
 			}
 		}
 		<span class="kw">else</span> {
@@ -1634,7 +1634,7 @@ to construct other index types from them. All values of this type constructed by
 			<span class="kw">let</span> <span class="ident">far</span> <span class="op">=</span> <span class="ident">far</span> <span class="kw">as</span> <span class="ident">usize</span>;
 			<span class="comment">//  This is really only needed in order to prevent sign-extension of</span>
 			<span class="comment">//  the downshift; once shifted, the value can be safely re-signed.</span>
-			((<span class="ident">far</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">R</span>::<span class="ident">INDX</span>) <span class="kw">as</span> <span class="ident">isize</span>, <span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="ident">far</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="ident">R</span>::<span class="ident">MASK</span>))
+			((<span class="ident">far</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">R::INDX</span>) <span class="kw">as</span> <span class="ident">isize</span>, <span class="macro">make!</span>(<span class="ident">idx</span> <span class="ident">far</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="ident">R::MASK</span>))
 		}
 	}
 
@@ -1660,7 +1660,7 @@ to construct other index types from them. All values of this type constructed by
 	<span class="doccomment">/// - `.1`: The tail counter of the span’s end point.</span>
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">span</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>) {
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span> <span class="self">self</span>.<span class="ident">value</span>()).<span class="ident">span</span>(<span class="ident">len</span>)
+		<span class="macro">make!</span>(<span class="ident">tail</span> <span class="self">self</span>.<span class="ident">value</span>()).<span class="ident">span</span>(<span class="ident">len</span>)
 	}
 }
 
@@ -1669,8 +1669,8 @@ to construct other index types from them. All values of this type constructed by
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{:0&gt;1$b}&quot;</span>, <span class="self">self</span>.<span class="ident">idx</span>, <span class="ident">R</span>::<span class="ident">INDX</span> <span class="kw">as</span> <span class="ident">usize</span>)
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{:0&gt;1$b}&quot;</span>, <span class="self">self</span>.<span class="ident">idx</span>, <span class="ident">R::INDX</span> <span class="kw">as</span> <span class="ident">usize</span>)
 	}
 }
 
@@ -1679,9 +1679,9 @@ to construct other index types from them. All values of this type constructed by
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitIdx&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-		<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">idx</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitIdx&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
+		<span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">idx</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
 		<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;)&quot;</span>)
 	}
 }
@@ -1691,8 +1691,8 @@ to construct other index types from them. All values of this type constructed by
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">idx</span>, <span class="ident">fmt</span>)
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">idx</span>, <span class="ident">fmt</span>)
 	}
 }
 
@@ -1715,8 +1715,8 @@ to construct other index types from them. All values of this type constructed by
 	<span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">BitIdxErr</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>;
 
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">idx</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-		<span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">idx</span>).<span class="ident">ok_or</span>(<span class="ident">BitIdxErr</span> {
+	<span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">idx</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+		<span class="self">Self</span><span class="ident">::new</span>(<span class="ident">idx</span>).<span class="ident">ok_or</span>(<span class="ident">BitIdxErr</span> {
 			<span class="ident">err</span>: <span class="ident">idx</span>,
 			<span class="ident">_ty</span>: <span class="ident">PhantomData</span>,
 		})
@@ -1729,9 +1729,9 @@ to construct other index types from them. All values of this type constructed by
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitIdxErr&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-		<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">err</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitIdxErr&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
+		<span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">err</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
 		<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;)&quot;</span>)
 	}
 }
@@ -1742,19 +1742,19 @@ to construct other index types from them. All values of this type constructed by
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(
 			<span class="ident">fmt</span>,
 			<span class="string">&quot;The value {} is too large to index into {}&quot;</span>,
 			<span class="self">self</span>.<span class="ident">err</span>,
-			<span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>()
+			<span class="ident">core::any::type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>()
 		)
 	}
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">tarpaulin_include</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">for</span> <span class="ident">BitIdxErr</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">BitIdxErr</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 }
 
@@ -1806,9 +1806,9 @@ known to be correct based on user input to the crate.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="doccomment">/// The inclusive-maximum tail counter.</span>
-	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">END</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span> <span class="ident">R</span>::<span class="ident">BITS</span>);
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">END</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">tail</span> <span class="ident">R::BITS</span>);
 	<span class="doccomment">/// The zero tail.</span>
-	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span> <span class="number">0</span>);
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">tail</span> <span class="number">0</span>);
 
 	<span class="doccomment">/// Wraps a counter value as an assumed-good tail of an `R` register.</span>
 	<span class="doccomment">///</span>
@@ -1827,13 +1827,13 @@ known to be correct based on user input to the crate.
 	<span class="doccomment">/// the input.</span>
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">end</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="macro">debug_assert</span><span class="macro">!</span>(
-			<span class="ident">end</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">R</span>::<span class="ident">BITS</span>,
+		<span class="macro">debug_assert!</span>(
+			<span class="ident">end</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">R::BITS</span>,
 			<span class="string">&quot;Bit tail {} cannot exceed type width {}&quot;</span>,
 			<span class="ident">end</span>,
-			<span class="ident">R</span>::<span class="ident">BITS</span>
+			<span class="ident">R::BITS</span>
 		);
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span> <span class="ident">end</span>)
+		<span class="macro">make!</span>(<span class="ident">tail</span> <span class="ident">end</span>)
 	}
 
 	<span class="doccomment">/// Views the internal tail value.</span>
@@ -1852,7 +1852,7 @@ known to be correct based on user input to the crate.
 	<span class="op">+</span> <span class="ident">DoubleEndedIterator</span>
 	<span class="op">+</span> <span class="ident">ExactSizeIterator</span>
 	<span class="op">+</span> <span class="ident">FusedIterator</span> {
-		(<span class="ident">start</span>.<span class="ident">idx</span> ..<span class="op">=</span> <span class="self">Self</span>::<span class="ident">END</span>.<span class="ident">end</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span> <span class="ident">val</span>))
+		(<span class="ident">start</span>.<span class="ident">idx</span> ..<span class="op">=</span> <span class="self">Self</span><span class="ident">::END</span>.<span class="ident">end</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="macro">make!</span>(<span class="ident">tail</span> <span class="ident">val</span>))
 	}
 
 	<span class="doccomment">/// Computes span information for a region beginning immediately after a</span>
@@ -1886,20 +1886,20 @@ known to be correct based on user input to the crate.
 
 		<span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">end</span>;
 
-		<span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">val</span> <span class="op">&amp;</span> <span class="ident">R</span>::<span class="ident">MASK</span>;
-		<span class="kw">let</span> <span class="ident">bits_in_head</span> <span class="op">=</span> (<span class="ident">R</span>::<span class="ident">BITS</span> <span class="op">-</span> <span class="ident">head</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+		<span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">val</span> <span class="op">&amp;</span> <span class="ident">R::MASK</span>;
+		<span class="kw">let</span> <span class="ident">bits_in_head</span> <span class="op">=</span> (<span class="ident">R::BITS</span> <span class="op">-</span> <span class="ident">head</span>) <span class="kw">as</span> <span class="ident">usize</span>;
 
 		<span class="kw">if</span> <span class="ident">len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">bits_in_head</span> {
-			<span class="kw">return</span> (<span class="number">1</span>, <span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span> <span class="ident">head</span> <span class="op">+</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u8</span>));
+			<span class="kw">return</span> (<span class="number">1</span>, <span class="macro">make!</span>(<span class="ident">tail</span> <span class="ident">head</span> <span class="op">+</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u8</span>));
 		}
 
 		<span class="kw">let</span> <span class="ident">bits_after_head</span> <span class="op">=</span> <span class="ident">len</span> <span class="op">-</span> <span class="ident">bits_in_head</span>;
-		<span class="kw">let</span> <span class="ident">elts</span> <span class="op">=</span> <span class="ident">bits_after_head</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">R</span>::<span class="ident">INDX</span>;
-		<span class="kw">let</span> <span class="ident">tail</span> <span class="op">=</span> <span class="ident">bits_after_head</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="ident">R</span>::<span class="ident">MASK</span>;
+		<span class="kw">let</span> <span class="ident">elts</span> <span class="op">=</span> <span class="ident">bits_after_head</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">R::INDX</span>;
+		<span class="kw">let</span> <span class="ident">tail</span> <span class="op">=</span> <span class="ident">bits_after_head</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="ident">R::MASK</span>;
 
 		<span class="kw">let</span> <span class="ident">is_zero</span> <span class="op">=</span> (<span class="ident">tail</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">u8</span>;
 		<span class="kw">let</span> <span class="ident">edges</span> <span class="op">=</span> <span class="number">2</span> <span class="op">-</span> <span class="ident">is_zero</span> <span class="kw">as</span> <span class="ident">usize</span>;
-		(<span class="ident">elts</span> <span class="op">+</span> <span class="ident">edges</span>, <span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span>(<span class="ident">is_zero</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">R</span>::<span class="ident">INDX</span>) <span class="op">|</span> <span class="ident">tail</span>))
+		(<span class="ident">elts</span> <span class="op">+</span> <span class="ident">edges</span>, <span class="macro">make!</span>(<span class="ident">tail</span>(<span class="ident">is_zero</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">R::INDX</span>) <span class="op">|</span> <span class="ident">tail</span>))
 	}
 }
 
@@ -1908,9 +1908,9 @@ known to be correct based on user input to the crate.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitTail&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-		<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitTail&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
+		<span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
 		<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;)&quot;</span>)
 	}
 }
@@ -1920,8 +1920,8 @@ known to be correct based on user input to the crate.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>, <span class="ident">fmt</span>)
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">end</span>, <span class="ident">fmt</span>)
 	}
 }
 
@@ -1985,10 +1985,10 @@ all constructed `BitPos` values are known to be memory-correct.
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pos</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
 		<span class="comment">//  Reject a position value that is not within the range `0 .. R::BITS`.</span>
-		<span class="kw">if</span> <span class="ident">pos</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">R</span>::<span class="ident">BITS</span> {
+		<span class="kw">if</span> <span class="ident">pos</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">R::BITS</span> {
 			<span class="kw">return</span> <span class="prelude-val">None</span>;
 		}
-		<span class="prelude-val">Some</span>(<span class="macro">make</span><span class="macro">!</span>(<span class="ident">pos</span> <span class="ident">pos</span>))
+		<span class="prelude-val">Some</span>(<span class="macro">make!</span>(<span class="ident">pos</span> <span class="ident">pos</span>))
 	}
 
 	<span class="doccomment">/// Wraps a value as an assumed-good position within an `R` register.</span>
@@ -2011,13 +2011,13 @@ all constructed `BitPos` values are known to be memory-correct.
 	<span class="doccomment">/// implementation.</span>
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">pos</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="macro">debug_assert</span><span class="macro">!</span>(
-			<span class="ident">pos</span> <span class="op">&lt;</span> <span class="ident">R</span>::<span class="ident">BITS</span>,
+		<span class="macro">debug_assert!</span>(
+			<span class="ident">pos</span> <span class="op">&lt;</span> <span class="ident">R::BITS</span>,
 			<span class="string">&quot;Bit position {} cannot exceed type width {}&quot;</span>,
 			<span class="ident">pos</span>,
-			<span class="ident">R</span>::<span class="ident">BITS</span>
+			<span class="ident">R::BITS</span>
 		);
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">pos</span> <span class="ident">pos</span>)
+		<span class="macro">make!</span>(<span class="ident">pos</span> <span class="ident">pos</span>)
 	}
 
 	<span class="doccomment">/// Constructs a one-hot selection mask from the position counter.</span>
@@ -2033,7 +2033,7 @@ all constructed `BitPos` values are known to be memory-correct.
 	<span class="doccomment">/// A one-hot mask for `R` selecting the bit specified by `self`.</span>
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">select</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BitSel</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">sel</span> <span class="ident">R</span>::<span class="ident">ONE</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">pos</span>)
+		<span class="macro">make!</span>(<span class="ident">sel</span> <span class="ident">R::ONE</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">pos</span>)
 	}
 
 	<span class="doccomment">/// Constructs an untyped bitmask from the position counter.</span>
@@ -2049,7 +2049,7 @@ all constructed `BitPos` values are known to be memory-correct.
 	<span class="doccomment">/// A mask for `R` selecting only the bit specified by `self`.</span>
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mask</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BitMask</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">mask</span> <span class="self">self</span>.<span class="ident">select</span>().<span class="ident">sel</span>)
+		<span class="macro">make!</span>(<span class="ident">mask</span> <span class="self">self</span>.<span class="ident">select</span>().<span class="ident">sel</span>)
 	}
 
 	<span class="doccomment">/// Views the internal position value.</span>
@@ -2064,9 +2064,9 @@ all constructed `BitPos` values are known to be memory-correct.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitPos&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-		<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pos</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitPos&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
+		<span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pos</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
 		<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;)&quot;</span>)
 	}
 }
@@ -2076,8 +2076,8 @@ all constructed `BitPos` values are known to be memory-correct.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pos</span>, <span class="ident">fmt</span>)
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pos</span>, <span class="ident">fmt</span>)
 	}
 }
 
@@ -2136,7 +2136,7 @@ confidence that they are correct in the surrounding context.
 		<span class="kw">if</span> <span class="ident">sel</span>.<span class="ident">count_ones</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
 			<span class="kw">return</span> <span class="prelude-val">None</span>;
 		}
-		<span class="prelude-val">Some</span>(<span class="macro">make</span><span class="macro">!</span>(<span class="ident">sel</span> <span class="ident">sel</span>))
+		<span class="prelude-val">Some</span>(<span class="macro">make!</span>(<span class="ident">sel</span> <span class="ident">sel</span>))
 	}
 
 	<span class="doccomment">/// Wraps a selector value as an assumed-good selection of an `R` register.</span>
@@ -2159,13 +2159,13 @@ confidence that they are correct in the surrounding context.
 	<span class="doccomment">/// implementation.</span>
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">sel</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="macro">debug_assert</span><span class="macro">!</span>(
+		<span class="macro">debug_assert!</span>(
 			<span class="ident">sel</span>.<span class="ident">count_ones</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>,
 			<span class="string">&quot;Selections are required to have exactly one set bit: {:0&gt;1$b}&quot;</span>,
 			<span class="ident">sel</span>,
-			<span class="ident">R</span>::<span class="ident">BITS</span> <span class="kw">as</span> <span class="ident">usize</span>
+			<span class="ident">R::BITS</span> <span class="kw">as</span> <span class="ident">usize</span>
 		);
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">sel</span> <span class="ident">sel</span>)
+		<span class="macro">make!</span>(<span class="ident">sel</span> <span class="ident">sel</span>)
 	}
 
 	<span class="doccomment">/// Converts the selector into a bit mask.</span>
@@ -2174,7 +2174,7 @@ confidence that they are correct in the surrounding context.
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mask</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BitMask</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
 	<span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span> {
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">mask</span> <span class="self">self</span>.<span class="ident">sel</span>)
+		<span class="macro">make!</span>(<span class="ident">mask</span> <span class="self">self</span>.<span class="ident">sel</span>)
 	}
 
 	<span class="doccomment">/// Views the internal selector value.</span>
@@ -2188,7 +2188,7 @@ confidence that they are correct in the surrounding context.
 	<span class="op">+</span> <span class="ident">DoubleEndedIterator</span>
 	<span class="op">+</span> <span class="ident">ExactSizeIterator</span>
 	<span class="op">+</span> <span class="ident">FusedIterator</span> {
-		<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>::<span class="ident">range_all</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">pos</span> <span class="ident">i</span>.<span class="ident">idx</span>).<span class="ident">select</span>())
+		<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="ident">::range_all</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="macro">make!</span>(<span class="ident">pos</span> <span class="ident">i</span>.<span class="ident">idx</span>).<span class="ident">select</span>())
 	}
 }
 
@@ -2197,8 +2197,8 @@ confidence that they are correct in the surrounding context.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{:0&gt;1$b}&quot;</span>, <span class="self">self</span>.<span class="ident">sel</span>, <span class="ident">R</span>::<span class="ident">BITS</span> <span class="kw">as</span> <span class="ident">usize</span>)
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{:0&gt;1$b}&quot;</span>, <span class="self">self</span>.<span class="ident">sel</span>, <span class="ident">R::BITS</span> <span class="kw">as</span> <span class="ident">usize</span>)
 	}
 }
 
@@ -2207,9 +2207,9 @@ confidence that they are correct in the surrounding context.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitSel&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-		<span class="ident">Binary</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitSel&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
+		<span class="ident">Binary::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
 		<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;)&quot;</span>)
 	}
 }
@@ -2219,8 +2219,8 @@ confidence that they are correct in the surrounding context.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sel</span>, <span class="ident">fmt</span>)
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sel</span>, <span class="ident">fmt</span>)
 	}
 }
 
@@ -2249,9 +2249,9 @@ applied to register values can be trusted to not cause memory unsafety.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="doccomment">/// A full mask.</span>
-	<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ALL</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">mask</span> <span class="ident">R</span>::<span class="ident">ALL</span>);
+	<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ALL</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">mask</span> <span class="ident">R::ALL</span>);
 	<span class="doccomment">/// An empty mask.</span>
-	<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">mask</span> <span class="ident">R</span>::<span class="ident">ZERO</span>);
+	<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="self">Self</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">mask</span> <span class="ident">R::ZERO</span>);
 
 	<span class="doccomment">/// Wraps any `R` value as a bit-mask.</span>
 	<span class="doccomment">///</span>
@@ -2275,7 +2275,7 @@ applied to register values can be trusted to not cause memory unsafety.
 	<span class="doccomment">/// Prefer accumulating `BitSel` values using the `Sum` implementation.</span>
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">mask</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">mask</span> <span class="ident">mask</span>)
+		<span class="macro">make!</span>(<span class="ident">mask</span> <span class="ident">mask</span>)
 	}
 
 	<span class="doccomment">/// Creates a new mask with a selector bit activated.</span>
@@ -2321,7 +2321,7 @@ applied to register values can be trusted to not cause memory unsafety.
 	<span class="doccomment">/// Whether `self` has set the bit at `sel`.</span>
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test</span>(<span class="self">self</span>, <span class="ident">sel</span>: <span class="ident">BitSel</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-		<span class="self">self</span>.<span class="ident">mask</span> <span class="op">&amp;</span> <span class="ident">sel</span>.<span class="ident">sel</span> <span class="op">!</span><span class="op">=</span> <span class="ident">R</span>::<span class="ident">ZERO</span>
+		<span class="self">self</span>.<span class="ident">mask</span> <span class="op">&amp;</span> <span class="ident">sel</span>.<span class="ident">sel</span> <span class="op">!</span><span class="op">=</span> <span class="ident">R::ZERO</span>
 	}
 
 	<span class="doccomment">/// Views the internal mask value.</span>
@@ -2336,8 +2336,8 @@ applied to register values can be trusted to not cause memory unsafety.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{:0&gt;1$b}&quot;</span>, <span class="self">self</span>.<span class="ident">mask</span>, <span class="ident">R</span>::<span class="ident">BITS</span> <span class="kw">as</span> <span class="ident">usize</span>)
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{:0&gt;1$b}&quot;</span>, <span class="self">self</span>.<span class="ident">mask</span>, <span class="ident">R::BITS</span> <span class="kw">as</span> <span class="ident">usize</span>)
 	}
 }
 
@@ -2346,9 +2346,9 @@ applied to register values can be trusted to not cause memory unsafety.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitMask&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-		<span class="ident">Binary</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;BitMask&lt;{}&gt;(&quot;</span>, <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
+		<span class="ident">Binary::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>)<span class="question-mark">?</span>;
 		<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;)&quot;</span>)
 	}
 }
@@ -2358,8 +2358,8 @@ applied to register values can be trusted to not cause memory unsafety.
 <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">BitRegister</span>
 {
 	<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-		<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mask</span>, <span class="ident">fmt</span>)
+	<span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+		<span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mask</span>, <span class="ident">fmt</span>)
 	}
 }
 
@@ -2368,7 +2368,7 @@ applied to register values can be trusted to not cause memory unsafety.
 {
 	<span class="kw">fn</span> <span class="ident">sum</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
 	<span class="kw">where</span> <span class="ident">I</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">BitSel</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-		<span class="ident">iter</span>.<span class="ident">fold</span>(<span class="self">Self</span>::<span class="ident">ZERO</span>, <span class="self">Self</span>::<span class="ident">combine</span>)
+		<span class="ident">iter</span>.<span class="ident">fold</span>(<span class="self">Self</span><span class="ident">::ZERO</span>, <span class="self">Self</span><span class="ident">::combine</span>)
 	}
 }
 
@@ -2378,7 +2378,7 @@ applied to register values can be trusted to not cause memory unsafety.
 	<span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
 
 	<span class="kw">fn</span> <span class="ident">bitand</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">mask</span> <span class="self">self</span>.<span class="ident">mask</span> <span class="op">&amp;</span> <span class="ident">rhs</span>)
+		<span class="macro">make!</span>(<span class="ident">mask</span> <span class="self">self</span>.<span class="ident">mask</span> <span class="op">&amp;</span> <span class="ident">rhs</span>)
 	}
 }
 
@@ -2388,7 +2388,7 @@ applied to register values can be trusted to not cause memory unsafety.
 	<span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
 
 	<span class="kw">fn</span> <span class="ident">bitor</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">mask</span> <span class="self">self</span>.<span class="ident">mask</span> <span class="op">|</span> <span class="ident">rhs</span>)
+		<span class="macro">make!</span>(<span class="ident">mask</span> <span class="self">self</span>.<span class="ident">mask</span> <span class="op">|</span> <span class="ident">rhs</span>)
 	}
 }
 
@@ -2397,121 +2397,121 @@ applied to register values can be trusted to not cause memory unsafety.
 {
 	<span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
 
-	<span class="kw">fn</span> <span class="ident">not</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
-		<span class="macro">make</span><span class="macro">!</span>(<span class="ident">mask</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">mask</span>)
+	<span class="kw">fn</span> <span class="ident">not</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+		<span class="macro">make!</span>(<span class="ident">mask</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">mask</span>)
 	}
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
 	<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-	<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">order</span>::{
+	<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::order</span>::{
 		<span class="ident">Lsb0</span>,
 		<span class="ident">Msb0</span>,
 	};
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">index_fns</span>() {
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="number">8</span>).<span class="ident">is_none</span>());
+		<span class="macro">assert!</span>(<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="number">8</span>).<span class="ident">is_none</span>());
 
 		<span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="number">8</span> {
-			<span class="macro">assert_eq</span><span class="macro">!</span>(
-				<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">position</span>::<span class="op">&lt;</span><span class="ident">Lsb0</span><span class="op">&gt;</span>().<span class="ident">value</span>(),
+			<span class="macro">assert_eq!</span>(
+				<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">position</span>::<span class="op">&lt;</span><span class="ident">Lsb0</span><span class="op">&gt;</span>().<span class="ident">value</span>(),
 				<span class="ident">n</span>
 			);
 		}
 
 		<span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="number">8</span> {
-			<span class="macro">assert_eq</span><span class="macro">!</span>(
-				<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">position</span>::<span class="op">&lt;</span><span class="ident">Msb0</span><span class="op">&gt;</span>().<span class="ident">value</span>(),
+			<span class="macro">assert_eq!</span>(
+				<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">position</span>::<span class="op">&lt;</span><span class="ident">Msb0</span><span class="op">&gt;</span>().<span class="ident">value</span>(),
 				<span class="number">7</span> <span class="op">-</span> <span class="ident">n</span>
 			);
 		}
 
 		<span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="number">8</span> {
-			<span class="macro">assert_eq</span><span class="macro">!</span>(
-				<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">mask</span>::<span class="op">&lt;</span><span class="ident">Lsb0</span><span class="op">&gt;</span>().<span class="ident">value</span>(),
+			<span class="macro">assert_eq!</span>(
+				<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">mask</span>::<span class="op">&lt;</span><span class="ident">Lsb0</span><span class="op">&gt;</span>().<span class="ident">value</span>(),
 				<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n</span>
 			);
 		}
 
 		<span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="number">8</span> {
-			<span class="macro">assert_eq</span><span class="macro">!</span>(
-				<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">mask</span>::<span class="op">&lt;</span><span class="ident">Msb0</span><span class="op">&gt;</span>().<span class="ident">value</span>(),
+			<span class="macro">assert_eq!</span>(
+				<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">mask</span>::<span class="op">&lt;</span><span class="ident">Msb0</span><span class="op">&gt;</span>().<span class="ident">value</span>(),
 				<span class="number">128</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">n</span>
 			);
 		}
 
 		<span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="number">8</span> {
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">value</span>(), <span class="ident">n</span>);
+			<span class="macro">assert_eq!</span>(<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="ident">value</span>(), <span class="ident">n</span>);
 		}
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">tail_fns</span>() {
 		<span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="number">8</span> {
-			<span class="kw">let</span> <span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span> <span class="ident">n</span>);
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">tail</span>.<span class="ident">value</span>(), <span class="ident">n</span>);
+			<span class="kw">let</span> <span class="ident">tail</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">tail</span> <span class="ident">n</span>);
+			<span class="macro">assert_eq!</span>(<span class="ident">tail</span>.<span class="ident">value</span>(), <span class="ident">n</span>);
 		}
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">position_fns</span>() {
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="kw">unsafe</span> { <span class="ident">BitPos</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="number">8</span>) }.<span class="ident">is_none</span>());
+		<span class="macro">assert!</span>(<span class="kw">unsafe</span> { <span class="ident">BitPos</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="number">8</span>) }.<span class="ident">is_none</span>());
 
 		<span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="number">8</span> {
-			<span class="kw">let</span> <span class="ident">pos</span>: <span class="ident">BitPos</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">pos</span> <span class="ident">n</span>);
-			<span class="kw">let</span> <span class="ident">mask</span>: <span class="ident">BitMask</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">mask</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n</span>);
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">pos</span>.<span class="ident">mask</span>(), <span class="ident">mask</span>);
+			<span class="kw">let</span> <span class="ident">pos</span>: <span class="ident">BitPos</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">pos</span> <span class="ident">n</span>);
+			<span class="kw">let</span> <span class="ident">mask</span>: <span class="ident">BitMask</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">mask</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n</span>);
+			<span class="macro">assert_eq!</span>(<span class="ident">pos</span>.<span class="ident">mask</span>(), <span class="ident">mask</span>);
 		}
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">select_fns</span>() {
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="kw">unsafe</span> { <span class="ident">BitSel</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="number">1</span>) }.<span class="ident">is_some</span>());
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="kw">unsafe</span> { <span class="ident">BitSel</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="number">3</span>) }.<span class="ident">is_none</span>());
+		<span class="macro">assert!</span>(<span class="kw">unsafe</span> { <span class="ident">BitSel</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="number">1</span>) }.<span class="ident">is_some</span>());
+		<span class="macro">assert!</span>(<span class="kw">unsafe</span> { <span class="ident">BitSel</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="number">3</span>) }.<span class="ident">is_none</span>());
 
-		<span class="kw">for</span> (<span class="ident">n</span>, <span class="ident">sel</span>) <span class="kw">in</span> <span class="ident">BitSel</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">range_all</span>().<span class="ident">enumerate</span>() {
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">sel</span>, <span class="macro">make</span><span class="macro">!</span>(<span class="ident">sel</span>(<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n</span>) <span class="kw">as</span> <span class="ident">u8</span>));
+		<span class="kw">for</span> (<span class="ident">n</span>, <span class="ident">sel</span>) <span class="kw">in</span> <span class="ident">BitSel</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::range_all</span>().<span class="ident">enumerate</span>() {
+			<span class="macro">assert_eq!</span>(<span class="ident">sel</span>, <span class="macro">make!</span>(<span class="ident">sel</span>(<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n</span>) <span class="kw">as</span> <span class="ident">u8</span>));
 		}
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">fold_masks</span>() {
-		<span class="macro">assert_eq</span><span class="macro">!</span>(
-			<span class="ident">BitSel</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">range_all</span>()
-				.<span class="ident">map</span>(<span class="ident">BitSel</span>::<span class="ident">mask</span>)
-				.<span class="ident">fold</span>(<span class="ident">BitMask</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">ZERO</span>, <span class="op">|</span><span class="ident">accum</span>, <span class="ident">mask</span><span class="op">|</span> <span class="ident">accum</span> <span class="op">|</span> <span class="ident">mask</span>.<span class="ident">value</span>()),
-			<span class="ident">BitMask</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">ALL</span>
+		<span class="macro">assert_eq!</span>(
+			<span class="ident">BitSel</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::range_all</span>()
+				.<span class="ident">map</span>(<span class="ident">BitSel::mask</span>)
+				.<span class="ident">fold</span>(<span class="ident">BitMask</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::ZERO</span>, <span class="op">|</span><span class="ident">accum</span>, <span class="ident">mask</span><span class="op">|</span> <span class="ident">accum</span> <span class="op">|</span> <span class="ident">mask</span>.<span class="ident">value</span>()),
+			<span class="ident">BitMask</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::ALL</span>
 		);
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">BitMask</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>::<span class="ident">ALL</span>, <span class="ident">BitMask</span>::<span class="ident">ZERO</span>);
+		<span class="macro">assert_eq!</span>(<span class="op">!</span><span class="ident">BitMask</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::ALL</span>, <span class="ident">BitMask::ZERO</span>);
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">offset</span>() {
 		<span class="kw">let</span> (<span class="ident">elts</span>, <span class="ident">idx</span>) <span class="op">=</span>
-			<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="number">31</span>).<span class="ident">unwrap</span>().<span class="ident">offset</span>(<span class="ident">isize</span>::<span class="ident">max_value</span>());
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">elts</span>, (<span class="ident">isize</span>::<span class="ident">max_value</span>() <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">5</span>) <span class="op">+</span> <span class="number">1</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">idx</span>, <span class="ident">BitIdx</span>::<span class="ident">new</span>(<span class="number">30</span>).<span class="ident">unwrap</span>());
+			<span class="ident">BitIdx</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="number">31</span>).<span class="ident">unwrap</span>().<span class="ident">offset</span>(<span class="ident">isize::max_value</span>());
+		<span class="macro">assert_eq!</span>(<span class="ident">elts</span>, (<span class="ident">isize::max_value</span>() <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">5</span>) <span class="op">+</span> <span class="number">1</span>);
+		<span class="macro">assert_eq!</span>(<span class="ident">idx</span>, <span class="ident">BitIdx::new</span>(<span class="number">30</span>).<span class="ident">unwrap</span>());
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">span</span>() {
-		<span class="kw">let</span> <span class="ident">start</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span> <span class="number">4</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">start</span>.<span class="ident">span</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="ident">start</span>));
+		<span class="kw">let</span> <span class="ident">start</span>: <span class="ident">BitTail</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">tail</span> <span class="number">4</span>);
+		<span class="macro">assert_eq!</span>(<span class="ident">start</span>.<span class="ident">span</span>(<span class="number">0</span>), (<span class="number">0</span>, <span class="ident">start</span>));
 
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">start</span>.<span class="ident">span</span>(<span class="number">4</span>), (<span class="number">1</span>, <span class="macro">make</span><span class="macro">!</span>(<span class="ident">tail</span> <span class="number">8</span>)));
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">start</span>.<span class="ident">span</span>(<span class="number">8</span>), (<span class="number">2</span>, <span class="ident">start</span>));
+		<span class="macro">assert_eq!</span>(<span class="ident">start</span>.<span class="ident">span</span>(<span class="number">4</span>), (<span class="number">1</span>, <span class="macro">make!</span>(<span class="ident">tail</span> <span class="number">8</span>)));
+		<span class="macro">assert_eq!</span>(<span class="ident">start</span>.<span class="ident">span</span>(<span class="number">8</span>), (<span class="number">2</span>, <span class="ident">start</span>));
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">walk</span>() {
-		<span class="kw">let</span> <span class="ident">end</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="number">7</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">end</span>.<span class="ident">incr</span>(), (<span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="number">0</span>), <span class="bool-val">true</span>));
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">end</span>.<span class="ident">decr</span>(), (<span class="macro">make</span><span class="macro">!</span>(<span class="ident">idx</span> <span class="number">6</span>), <span class="bool-val">false</span>));
+		<span class="kw">let</span> <span class="ident">end</span>: <span class="ident">BitIdx</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">make!</span>(<span class="ident">idx</span> <span class="number">7</span>);
+		<span class="macro">assert_eq!</span>(<span class="ident">end</span>.<span class="ident">incr</span>(), (<span class="macro">make!</span>(<span class="ident">idx</span> <span class="number">0</span>), <span class="bool-val">true</span>));
+		<span class="macro">assert_eq!</span>(<span class="ident">end</span>.<span class="ident">decr</span>(), (<span class="macro">make!</span>(<span class="ident">idx</span> <span class="number">6</span>), <span class="bool-val">false</span>));
 	}
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="bitvec" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="bitvec" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

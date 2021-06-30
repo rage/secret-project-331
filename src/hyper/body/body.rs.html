@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.14.9/src/body/body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>body.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../hyper/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../hyper/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -782,32 +782,32 @@
 <span id="779">779</span>
 <span id="780">780</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
+<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="kw">use</span> <span class="ident">bytes</span>::<span class="ident">Bytes</span>;
-<span class="kw">use</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>;
-<span class="kw">use</span> <span class="ident">futures_channel</span>::<span class="ident">oneshot</span>;
-<span class="kw">use</span> <span class="ident">futures_core</span>::<span class="ident">Stream</span>; <span class="comment">// for mpsc::Receiver</span>
+<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+<span class="kw">use</span> <span class="ident">futures_channel::mpsc</span>;
+<span class="kw">use</span> <span class="ident">futures_channel::oneshot</span>;
+<span class="kw">use</span> <span class="ident">futures_core::Stream</span>; <span class="comment">// for mpsc::Receiver</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">futures_util</span>::<span class="ident">TryStreamExt</span>;
-<span class="kw">use</span> <span class="ident">http</span>::<span class="ident">HeaderMap</span>;
+<span class="kw">use</span> <span class="ident">futures_util::TryStreamExt</span>;
+<span class="kw">use</span> <span class="ident">http::HeaderMap</span>;
 <span class="kw">use</span> <span class="ident">http_body</span>::{<span class="ident">Body</span> <span class="kw">as</span> <span class="ident">HttpBody</span>, <span class="ident">SizeHint</span>};
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">DecodedLength</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::DecodedLength</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">sync_wrapper</span>::<span class="ident">SyncWrapper</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Future</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::sync_wrapper::SyncWrapper</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Future</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)))]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Never</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">task</span>, <span class="ident">watch</span>, <span class="ident">Pin</span>, <span class="ident">Poll</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Never</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common</span>::{<span class="ident">task</span>, <span class="ident">watch</span>, <span class="ident">Pin</span>, <span class="ident">Poll</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>)))]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">proto</span>::<span class="ident">h2</span>::<span class="ident">ping</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::proto::h2::ping</span>;
 
-<span class="kw">type</span> <span class="ident">BodySender</span> <span class="op">=</span> <span class="ident">mpsc</span>::<span class="ident">Sender</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-<span class="kw">type</span> <span class="ident">TrailersSender</span> <span class="op">=</span> <span class="ident">oneshot</span>::<span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">BodySender</span> <span class="op">=</span> <span class="ident">mpsc::Sender</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">TrailersSender</span> <span class="op">=</span> <span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// A stream of `Bytes`, used when receiving bodies.</span>
 <span class="doccomment">///</span>
@@ -828,18 +828,18 @@
     <span class="ident">Once</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>),
     <span class="ident">Chan</span> {
         <span class="ident">content_length</span>: <span class="ident">DecodedLength</span>,
-        <span class="ident">want_tx</span>: <span class="ident">watch</span>::<span class="ident">Sender</span>,
-        <span class="ident">data_rx</span>: <span class="ident">mpsc</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">trailers_rx</span>: <span class="ident">oneshot</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span>,
+        <span class="ident">want_tx</span>: <span class="ident">watch::Sender</span>,
+        <span class="ident">data_rx</span>: <span class="ident">mpsc::Receiver</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">trailers_rx</span>: <span class="ident">oneshot::Receiver</span><span class="op">&lt;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span>,
     },
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>)))]</span>
     <span class="ident">H2</span> {
-        <span class="ident">ping</span>: <span class="ident">ping</span>::<span class="ident">Recorder</span>,
+        <span class="ident">ping</span>: <span class="ident">ping::Recorder</span>,
         <span class="ident">content_length</span>: <span class="ident">DecodedLength</span>,
-        <span class="ident">recv</span>: <span class="ident">h2</span>::<span class="ident">RecvStream</span>,
+        <span class="ident">recv</span>: <span class="ident">h2::RecvStream</span>,
     },
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
-    <span class="ident">Ffi</span>(<span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">UserBody</span>),
+    <span class="ident">Ffi</span>(<span class="kw">crate</span><span class="ident">::ffi::UserBody</span>),
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
     <span class="ident">Wrapped</span>(
         <span class="ident">SyncWrapper</span><span class="op">&lt;</span>
@@ -861,7 +861,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)))]</span>
-<span class="kw">type</span> <span class="ident">DelayEofUntil</span> <span class="op">=</span> <span class="ident">oneshot</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">Never</span><span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">DelayEofUntil</span> <span class="op">=</span> <span class="ident">oneshot::Receiver</span><span class="op">&lt;</span><span class="ident">Never</span><span class="op">&gt;</span>;
 
 <span class="kw">enum</span> <span class="ident">DelayEof</span> {
     <span class="doccomment">/// Initial state, stream hasn&#39;t seen EOF yet.</span>
@@ -891,7 +891,7 @@
 <span class="doccomment">/// [`Sender::abort()`]: struct.Sender.html#method.abort</span>
 <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;Sender does nothing unless sent on&quot;</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sender</span> {
-    <span class="ident">want_rx</span>: <span class="ident">watch</span>::<span class="ident">Receiver</span>,
+    <span class="ident">want_rx</span>: <span class="ident">watch::Receiver</span>,
     <span class="ident">data_tx</span>: <span class="ident">BodySender</span>,
     <span class="ident">trailers_tx</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TrailersSender</span><span class="op">&gt;</span>,
 }
@@ -912,7 +912,7 @@
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
-        <span class="ident">Body</span>::<span class="ident">new</span>(<span class="ident">Kind</span>::<span class="ident">Once</span>(<span class="prelude-val">None</span>))
+        <span class="ident">Body::new</span>(<span class="ident">Kind::Once</span>(<span class="prelude-val">None</span>))
     }
 
     <span class="doccomment">/// Create a `Body` stream with an associated sender half.</span>
@@ -920,25 +920,25 @@
     <span class="doccomment">/// Useful when wanting to stream chunks from another thread.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">channel</span>() <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Sender</span>, <span class="ident">Body</span>) {
-        <span class="self">Self</span>::<span class="ident">new_channel</span>(<span class="ident">DecodedLength</span>::<span class="ident">CHUNKED</span>, <span class="comment">/*wanter =*/</span> <span class="bool-val">false</span>)
+        <span class="self">Self</span><span class="ident">::new_channel</span>(<span class="ident">DecodedLength::CHUNKED</span>, <span class="comment">/*wanter =*/</span> <span class="bool-val">false</span>)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_channel</span>(<span class="ident">content_length</span>: <span class="ident">DecodedLength</span>, <span class="ident">wanter</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Sender</span>, <span class="ident">Body</span>) {
-        <span class="kw">let</span> (<span class="ident">data_tx</span>, <span class="ident">data_rx</span>) <span class="op">=</span> <span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">0</span>);
-        <span class="kw">let</span> (<span class="ident">trailers_tx</span>, <span class="ident">trailers_rx</span>) <span class="op">=</span> <span class="ident">oneshot</span>::<span class="ident">channel</span>();
+        <span class="kw">let</span> (<span class="ident">data_tx</span>, <span class="ident">data_rx</span>) <span class="op">=</span> <span class="ident">mpsc::channel</span>(<span class="number">0</span>);
+        <span class="kw">let</span> (<span class="ident">trailers_tx</span>, <span class="ident">trailers_rx</span>) <span class="op">=</span> <span class="ident">oneshot::channel</span>();
 
         <span class="comment">// If wanter is true, `Sender::poll_ready()` won&#39;t becoming ready</span>
         <span class="comment">// until the `Body` has been polled for data once.</span>
         <span class="kw">let</span> <span class="ident">want</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">wanter</span> { <span class="ident">WANT_PENDING</span> } <span class="kw">else</span> { <span class="ident">WANT_READY</span> };
 
-        <span class="kw">let</span> (<span class="ident">want_tx</span>, <span class="ident">want_rx</span>) <span class="op">=</span> <span class="ident">watch</span>::<span class="ident">channel</span>(<span class="ident">want</span>);
+        <span class="kw">let</span> (<span class="ident">want_tx</span>, <span class="ident">want_rx</span>) <span class="op">=</span> <span class="ident">watch::channel</span>(<span class="ident">want</span>);
 
         <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">Sender</span> {
             <span class="ident">want_rx</span>,
             <span class="ident">data_tx</span>,
             <span class="ident">trailers_tx</span>: <span class="prelude-val">Some</span>(<span class="ident">trailers_tx</span>),
         };
-        <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">Body</span>::<span class="ident">new</span>(<span class="ident">Kind</span>::<span class="ident">Chan</span> {
+        <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">Kind::Chan</span> {
             <span class="ident">content_length</span>,
             <span class="ident">want_tx</span>,
             <span class="ident">data_rx</span>,
@@ -977,8 +977,8 @@
         <span class="ident">O</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="kw">let</span> <span class="ident">mapped</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">map_ok</span>(<span class="ident">Into</span>::<span class="ident">into</span>).<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>);
-        <span class="ident">Body</span>::<span class="ident">new</span>(<span class="ident">Kind</span>::<span class="ident">Wrapped</span>(<span class="ident">SyncWrapper</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">pin</span>(<span class="ident">mapped</span>))))
+        <span class="kw">let</span> <span class="ident">mapped</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">map_ok</span>(<span class="ident">Into::into</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>);
+        <span class="ident">Body::new</span>(<span class="ident">Kind::Wrapped</span>(<span class="ident">SyncWrapper::new</span>(<span class="ident">Box::pin</span>(<span class="ident">mapped</span>))))
     }
 
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">kind</span>: <span class="ident">Kind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
@@ -987,11 +987,11 @@
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>)))]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">h2</span>(
-        <span class="ident">recv</span>: <span class="ident">h2</span>::<span class="ident">RecvStream</span>,
+        <span class="ident">recv</span>: <span class="ident">h2::RecvStream</span>,
         <span class="ident">content_length</span>: <span class="ident">DecodedLength</span>,
-        <span class="ident">ping</span>: <span class="ident">ping</span>::<span class="ident">Recorder</span>,
+        <span class="ident">ping</span>: <span class="ident">ping::Recorder</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Body</span>::<span class="ident">new</span>(<span class="ident">Kind</span>::<span class="ident">H2</span> {
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">Kind::H2</span> {
             <span class="ident">ping</span>,
             <span class="ident">content_length</span>,
             <span class="ident">recv</span>,
@@ -1003,7 +1003,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">delayed_eof</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fut</span>: <span class="ident">DelayEofUntil</span>) {
-        <span class="self">self</span>.<span class="ident">extra_mut</span>().<span class="ident">delayed_eof</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DelayEof</span>::<span class="ident">NotEof</span>(<span class="ident">fut</span>));
+        <span class="self">self</span>.<span class="ident">extra_mut</span>().<span class="ident">delayed_eof</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DelayEof::NotEof</span>(<span class="ident">fut</span>));
     }
 
     <span class="kw">fn</span> <span class="ident">take_delayed_eof</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DelayEof</span><span class="op">&gt;</span> {
@@ -1015,37 +1015,37 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
     <span class="kw">fn</span> <span class="ident">extra_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Extra</span> {
         <span class="self">self</span>.<span class="ident">extra</span>
-            .<span class="ident">get_or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Extra</span> { <span class="ident">delayed_eof</span>: <span class="prelude-val">None</span> }))
+            .<span class="ident">get_or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Box::new</span>(<span class="ident">Extra</span> { <span class="ident">delayed_eof</span>: <span class="prelude-val">None</span> }))
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_eof</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_eof</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">take_delayed_eof</span>() {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>)]</span>
-            <span class="prelude-val">Some</span>(<span class="ident">DelayEof</span>::<span class="ident">NotEof</span>(<span class="kw-2">mut</span> <span class="ident">delay</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">poll_inner</span>(<span class="ident">cx</span>) {
-                <span class="ident">ok</span> @ <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(..))) <span class="op">|</span> <span class="ident">ok</span> @ <span class="ident">Poll</span>::<span class="ident">Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">extra_mut</span>().<span class="ident">delayed_eof</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DelayEof</span>::<span class="ident">NotEof</span>(<span class="ident">delay</span>));
+            <span class="prelude-val">Some</span>(<span class="ident">DelayEof::NotEof</span>(<span class="kw-2">mut</span> <span class="ident">delay</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">poll_inner</span>(<span class="ident">cx</span>) {
+                <span class="ident">ok</span> @ <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(..))) <span class="op">|</span> <span class="ident">ok</span> @ <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">extra_mut</span>().<span class="ident">delayed_eof</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DelayEof::NotEof</span>(<span class="ident">delay</span>));
                     <span class="ident">ok</span>
                 }
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">delay</span>).<span class="ident">poll</span>(<span class="ident">cx</span>) {
-                    <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">never</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">never</span> {},
-                    <span class="ident">Poll</span>::<span class="ident">Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">self</span>.<span class="ident">extra_mut</span>().<span class="ident">delayed_eof</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DelayEof</span>::<span class="ident">Eof</span>(<span class="ident">delay</span>));
-                        <span class="ident">Poll</span>::<span class="ident">Pending</span>
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">delay</span>).<span class="ident">poll</span>(<span class="ident">cx</span>) {
+                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">never</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">never</span> {},
+                    <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">self</span>.<span class="ident">extra_mut</span>().<span class="ident">delayed_eof</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DelayEof::Eof</span>(<span class="ident">delay</span>));
+                        <span class="ident">Poll::Pending</span>
                     }
-                    <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">_done</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">None</span>),
+                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">_done</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
                 },
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))),
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))),
             },
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>)]</span>
-            <span class="prelude-val">Some</span>(<span class="ident">DelayEof</span>::<span class="ident">Eof</span>(<span class="kw-2">mut</span> <span class="ident">delay</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">delay</span>).<span class="ident">poll</span>(<span class="ident">cx</span>) {
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">never</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">never</span> {},
-                <span class="ident">Poll</span>::<span class="ident">Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">extra_mut</span>().<span class="ident">delayed_eof</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DelayEof</span>::<span class="ident">Eof</span>(<span class="ident">delay</span>));
-                    <span class="ident">Poll</span>::<span class="ident">Pending</span>
+            <span class="prelude-val">Some</span>(<span class="ident">DelayEof::Eof</span>(<span class="kw-2">mut</span> <span class="ident">delay</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">delay</span>).<span class="ident">poll</span>(<span class="ident">cx</span>) {
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">never</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">never</span> {},
+                <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">extra_mut</span>().<span class="ident">delayed_eof</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DelayEof::Eof</span>(<span class="ident">delay</span>));
+                    <span class="ident">Poll::Pending</span>
                 }
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">_done</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">None</span>),
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">_done</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
             },
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
                 <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)),
@@ -1057,24 +1057,24 @@
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">as_ffi_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">UserBody</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">as_ffi_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span><span class="ident">::ffi::UserBody</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind</span>::<span class="ident">Ffi</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">body</span>,
+            <span class="ident">Kind::Ffi</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">body</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">kind</span> <span class="op">=</span> <span class="ident">Kind</span>::<span class="ident">Ffi</span>(<span class="kw">crate</span>::<span class="ident">ffi</span>::<span class="ident">UserBody</span>::<span class="ident">new</span>());
+                <span class="self">self</span>.<span class="ident">kind</span> <span class="op">=</span> <span class="ident">Kind::Ffi</span>(<span class="kw">crate</span><span class="ident">::ffi::UserBody::new</span>());
             }
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind</span>::<span class="ident">Ffi</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">body</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">Kind::Ffi</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">body</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_inner</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind</span>::<span class="ident">Once</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">val</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="prelude-val">Ok</span>)),
-            <span class="ident">Kind</span>::<span class="ident">Chan</span> {
+            <span class="ident">Kind::Once</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="ident">val</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="prelude-val">Ok</span>)),
+            <span class="ident">Kind::Chan</span> {
                 <span class="ident">content_length</span>: <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">len</span>,
                 <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">data_rx</span>,
                 <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">want_tx</span>,
@@ -1082,44 +1082,44 @@
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">want_tx</span>.<span class="ident">send</span>(<span class="ident">WANT_READY</span>);
 
-                <span class="kw">match</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">Pin</span>::<span class="ident">new</span>(<span class="ident">data_rx</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>)<span class="question-mark">?</span>) {
+                <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="ident">data_rx</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>)<span class="question-mark">?</span>) {
                     <span class="prelude-val">Some</span>(<span class="ident">chunk</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">len</span>.<span class="ident">sub_if</span>(<span class="ident">chunk</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
-                        <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">chunk</span>)))
+                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">chunk</span>)))
                     }
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
                 }
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>)))]</span>
-            <span class="ident">Kind</span>::<span class="ident">H2</span> {
+            <span class="ident">Kind::H2</span> {
                 <span class="kw-2">ref</span> <span class="ident">ping</span>,
                 <span class="ident">recv</span>: <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">h2</span>,
                 <span class="ident">content_length</span>: <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">len</span>,
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">h2</span>.<span class="ident">poll_data</span>(<span class="ident">cx</span>)) {
+            } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">h2</span>.<span class="ident">poll_data</span>(<span class="ident">cx</span>)) {
                 <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">h2</span>.<span class="ident">flow_control</span>().<span class="ident">release_capacity</span>(<span class="ident">bytes</span>.<span class="ident">len</span>());
                     <span class="ident">len</span>.<span class="ident">sub_if</span>(<span class="ident">bytes</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
                     <span class="ident">ping</span>.<span class="ident">record_data</span>(<span class="ident">bytes</span>.<span class="ident">len</span>());
-                    <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)))
+                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)))
                 }
-                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">new_body</span>(<span class="ident">e</span>)))),
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">None</span>),
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::new_body</span>(<span class="ident">e</span>)))),
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
             },
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
-            <span class="ident">Kind</span>::<span class="ident">Ffi</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">body</span>.<span class="ident">poll_data</span>(<span class="ident">cx</span>),
+            <span class="ident">Kind::Ffi</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">body</span>.<span class="ident">poll_data</span>(<span class="ident">cx</span>),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
-            <span class="ident">Kind</span>::<span class="ident">Wrapped</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">s</span>.<span class="ident">get_mut</span>().<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>)) {
-                <span class="prelude-val">Some</span>(<span class="ident">res</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Some</span>(<span class="ident">res</span>.<span class="ident">map_err</span>(<span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">new_body</span>))),
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">None</span>),
+            <span class="ident">Kind::Wrapped</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">s</span>.<span class="ident">get_mut</span>().<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>)) {
+                <span class="prelude-val">Some</span>(<span class="ident">res</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="ident">res</span>.<span class="ident">map_err</span>(<span class="kw">crate</span><span class="ident">::Error::new_body</span>))),
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
             },
         }
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">take_full_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Kind</span>::<span class="ident">Once</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">chunk</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">kind</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Kind::Once</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">chunk</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">kind</span> {
             <span class="ident">chunk</span>.<span class="ident">take</span>()
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
@@ -1131,68 +1131,68 @@
     <span class="doccomment">/// Returns `Body::empty()`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
-        <span class="ident">Body</span>::<span class="ident">empty</span>()
+        <span class="ident">Body::empty</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">HttpBody</span> <span class="kw">for</span> <span class="ident">Body</span> {
     <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> <span class="ident">Bytes</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">Error</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::Error</span>;
 
     <span class="kw">fn</span> <span class="ident">poll_data</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Data</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Data</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">poll_eof</span>(<span class="ident">cx</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">poll_trailers</span>(
         <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>), <span class="ident">allow</span>(<span class="ident">unused_mut</span>))]</span> <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>), <span class="ident">allow</span>(<span class="ident">unused</span>))]</span> <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>), <span class="ident">allow</span>(<span class="ident">unused</span>))]</span> <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>)))]</span>
-            <span class="ident">Kind</span>::<span class="ident">H2</span> {
+            <span class="ident">Kind::H2</span> {
                 <span class="ident">recv</span>: <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">h2</span>,
                 <span class="kw-2">ref</span> <span class="ident">ping</span>,
                 ..
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">h2</span>.<span class="ident">poll_trailers</span>(<span class="ident">cx</span>)) {
+            } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">h2</span>.<span class="ident">poll_trailers</span>(<span class="ident">cx</span>)) {
                 <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">ping</span>.<span class="ident">record_non_data</span>();
-                    <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">t</span>))
+                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">t</span>))
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">new_h2</span>(<span class="ident">e</span>))),
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::new_h2</span>(<span class="ident">e</span>))),
             },
-            <span class="ident">Kind</span>::<span class="ident">Chan</span> {
+            <span class="ident">Kind::Chan</span> {
                 <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">trailers_rx</span>,
                 ..
-            } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">Pin</span>::<span class="ident">new</span>(<span class="ident">trailers_rx</span>).<span class="ident">poll</span>(<span class="ident">cx</span>)) {
-                <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">t</span>))),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)),
+            } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="ident">trailers_rx</span>).<span class="ident">poll</span>(<span class="ident">cx</span>)) {
+                <span class="prelude-val">Ok</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">t</span>))),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)),
             },
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
-            <span class="ident">Kind</span>::<span class="ident">Ffi</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">body</span>.<span class="ident">poll_trailers</span>(<span class="ident">cx</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)),
+            <span class="ident">Kind::Ffi</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">body</span>.<span class="ident">poll_trailers</span>(<span class="ident">cx</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">is_end_stream</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind</span>::<span class="ident">Once</span>(<span class="kw-2">ref</span> <span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">is_none</span>(),
-            <span class="ident">Kind</span>::<span class="ident">Chan</span> { <span class="ident">content_length</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">content_length</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DecodedLength</span>::<span class="ident">ZERO</span>,
+            <span class="ident">Kind::Once</span>(<span class="kw-2">ref</span> <span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">is_none</span>(),
+            <span class="ident">Kind::Chan</span> { <span class="ident">content_length</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">content_length</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DecodedLength::ZERO</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>)))]</span>
-            <span class="ident">Kind</span>::<span class="ident">H2</span> { <span class="ident">recv</span>: <span class="kw-2">ref</span> <span class="ident">h2</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">h2</span>.<span class="ident">is_end_stream</span>(),
+            <span class="ident">Kind::H2</span> { <span class="ident">recv</span>: <span class="kw-2">ref</span> <span class="ident">h2</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">h2</span>.<span class="ident">is_end_stream</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
-            <span class="ident">Kind</span>::<span class="ident">Ffi</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Kind::Ffi</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
-            <span class="ident">Kind</span>::<span class="ident">Wrapped</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">Kind::Wrapped</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SizeHint</span> {
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">opt_len</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">opt_len</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">content_length</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {{
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hint</span> <span class="op">=</span> <span class="ident">SizeHint</span>::<span class="ident">default</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hint</span> <span class="op">=</span> <span class="ident">SizeHint::default</span>();
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">content_length</span>) <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">content_length</span>.<span class="ident">into_opt</span>() {
                     <span class="ident">hint</span>.<span class="ident">set_exact</span>(<span class="ident">content_length</span>);
@@ -1203,21 +1203,21 @@
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind</span>::<span class="ident">Once</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">val</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SizeHint</span>::<span class="ident">with_exact</span>(<span class="ident">val</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>),
-            <span class="ident">Kind</span>::<span class="ident">Once</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SizeHint</span>::<span class="ident">with_exact</span>(<span class="number">0</span>),
+            <span class="ident">Kind::Once</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">val</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SizeHint::with_exact</span>(<span class="ident">val</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>),
+            <span class="ident">Kind::Once</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SizeHint::with_exact</span>(<span class="number">0</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
-            <span class="ident">Kind</span>::<span class="ident">Wrapped</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SizeHint</span>::<span class="ident">default</span>(),
-            <span class="ident">Kind</span>::<span class="ident">Chan</span> { <span class="ident">content_length</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">opt_len</span><span class="macro">!</span>(<span class="ident">content_length</span>),
+            <span class="ident">Kind::Wrapped</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SizeHint::default</span>(),
+            <span class="ident">Kind::Chan</span> { <span class="ident">content_length</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">opt_len!</span>(<span class="ident">content_length</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>)))]</span>
-            <span class="ident">Kind</span>::<span class="ident">H2</span> { <span class="ident">content_length</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">opt_len</span><span class="macro">!</span>(<span class="ident">content_length</span>),
+            <span class="ident">Kind::H2</span> { <span class="ident">content_length</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">opt_len!</span>(<span class="ident">content_length</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
-            <span class="ident">Kind</span>::<span class="ident">Ffi</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SizeHint</span>::<span class="ident">default</span>(),
+            <span class="ident">Kind::Ffi</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SizeHint::default</span>(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Body</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
         <span class="kw">struct</span> <span class="ident">Streaming</span>;
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
@@ -1227,8 +1227,8 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="string">&quot;Body&quot;</span>);
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind</span>::<span class="ident">Once</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">Empty</span>),
-            <span class="ident">Kind</span>::<span class="ident">Once</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">chunk</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">Full</span>(<span class="ident">chunk</span>)),
+            <span class="ident">Kind::Once</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">Empty</span>),
+            <span class="ident">Kind::Once</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">chunk</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">Full</span>(<span class="ident">chunk</span>)),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">Streaming</span>),
         };
 
@@ -1242,10 +1242,10 @@
 <span class="doccomment">/// `Cargo.toml`.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">HttpBody</span>::<span class="ident">poll_data</span>(<span class="self">self</span>, <span class="ident">cx</span>)
+    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">HttpBody::poll_data</span>(<span class="self">self</span>, <span class="ident">cx</span>)
     }
 }
 
@@ -1259,7 +1259,7 @@
     <span class="kw">fn</span> <span class="ident">from</span>(
         <span class="ident">stream</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
-        <span class="ident">Body</span>::<span class="ident">new</span>(<span class="ident">Kind</span>::<span class="ident">Wrapped</span>(<span class="ident">SyncWrapper</span>::<span class="ident">new</span>(<span class="ident">stream</span>.<span class="ident">into</span>())))
+        <span class="ident">Body::new</span>(<span class="ident">Kind::Wrapped</span>(<span class="ident">SyncWrapper::new</span>(<span class="ident">stream</span>.<span class="ident">into</span>())))
     }
 }
 
@@ -1267,9 +1267,9 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">chunk</span>: <span class="ident">Bytes</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
         <span class="kw">if</span> <span class="ident">chunk</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">Body</span>::<span class="ident">empty</span>()
+            <span class="ident">Body::empty</span>()
         } <span class="kw">else</span> {
-            <span class="ident">Body</span>::<span class="ident">new</span>(<span class="ident">Kind</span>::<span class="ident">Once</span>(<span class="prelude-val">Some</span>(<span class="ident">chunk</span>)))
+            <span class="ident">Body::new</span>(<span class="ident">Kind::Once</span>(<span class="prelude-val">Some</span>(<span class="ident">chunk</span>)))
         }
     }
 }
@@ -1277,14 +1277,14 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
-        <span class="ident">Body</span>::<span class="ident">from</span>(<span class="ident">Bytes</span>::<span class="ident">from</span>(<span class="ident">vec</span>))
+        <span class="ident">Body::from</span>(<span class="ident">Bytes::from</span>(<span class="ident">vec</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
-        <span class="ident">Body</span>::<span class="ident">from</span>(<span class="ident">Bytes</span>::<span class="ident">from</span>(<span class="ident">slice</span>))
+        <span class="ident">Body::from</span>(<span class="ident">Bytes::from</span>(<span class="ident">slice</span>))
     }
 }
 
@@ -1292,8 +1292,8 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">cow</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, [<span class="ident">u8</span>]<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow</span>::<span class="ident">Borrowed</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body</span>::<span class="ident">from</span>(<span class="ident">b</span>),
-            <span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">o</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body</span>::<span class="ident">from</span>(<span class="ident">o</span>),
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body::from</span>(<span class="ident">b</span>),
+            <span class="ident">Cow::Owned</span>(<span class="ident">o</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body::from</span>(<span class="ident">o</span>),
         }
     }
 }
@@ -1301,14 +1301,14 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
-        <span class="ident">Body</span>::<span class="ident">from</span>(<span class="ident">Bytes</span>::<span class="ident">from</span>(<span class="ident">s</span>.<span class="ident">into_bytes</span>()))
+        <span class="ident">Body::from</span>(<span class="ident">Bytes::from</span>(<span class="ident">s</span>.<span class="ident">into_bytes</span>()))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
-        <span class="ident">Body</span>::<span class="ident">from</span>(<span class="ident">Bytes</span>::<span class="ident">from</span>(<span class="ident">slice</span>.<span class="ident">as_bytes</span>()))
+        <span class="ident">Body::from</span>(<span class="ident">Bytes::from</span>(<span class="ident">slice</span>.<span class="ident">as_bytes</span>()))
     }
 }
 
@@ -1316,50 +1316,50 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">cow</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Body</span> {
         <span class="kw">match</span> <span class="ident">cow</span> {
-            <span class="ident">Cow</span>::<span class="ident">Borrowed</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body</span>::<span class="ident">from</span>(<span class="ident">b</span>),
-            <span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">o</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body</span>::<span class="ident">from</span>(<span class="ident">o</span>),
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body::from</span>(<span class="ident">b</span>),
+            <span class="ident">Cow::Owned</span>(<span class="ident">o</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Body::from</span>(<span class="ident">o</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Sender</span> {
     <span class="doccomment">/// Check to see if this `Sender` can send more data.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// Check if the receiver end has tried polling for the body yet</span>
-        <span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">poll_want</span>(<span class="ident">cx</span>)<span class="question-mark">?</span>);
+        <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">poll_want</span>(<span class="ident">cx</span>)<span class="question-mark">?</span>);
         <span class="self">self</span>.<span class="ident">data_tx</span>
             .<span class="ident">poll_ready</span>(<span class="ident">cx</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">new_closed</span>())
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">crate</span><span class="ident">::Error::new_closed</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_want</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_want</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">want_rx</span>.<span class="ident">load</span>(<span class="ident">cx</span>) {
-            <span class="ident">WANT_READY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(())),
-            <span class="ident">WANT_PENDING</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>,
-            <span class="ident">watch</span>::<span class="ident">CLOSED</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">new_closed</span>())),
-            <span class="ident">unexpected</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;want_rx value: {}&quot;</span>, <span class="ident">unexpected</span>),
+            <span class="ident">WANT_READY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())),
+            <span class="ident">WANT_PENDING</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Pending</span>,
+            <span class="ident">watch::CLOSED</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::new_closed</span>())),
+            <span class="ident">unexpected</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;want_rx value: {}&quot;</span>, <span class="ident">unexpected</span>),
         }
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">futures_util</span>::<span class="ident">future</span>::<span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>)).<span class="kw">await</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ready</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="ident">futures_util::future::poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>)).<span class="kw">await</span>
     }
 
     <span class="doccomment">/// Send data on data channel when it is ready.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">chunk</span>: <span class="ident">Bytes</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">chunk</span>: <span class="ident">Bytes</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">ready</span>().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">data_tx</span>
             .<span class="ident">try_send</span>(<span class="prelude-val">Ok</span>(<span class="ident">chunk</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">new_closed</span>())
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">crate</span><span class="ident">::Error::new_closed</span>())
     }
 
     <span class="doccomment">/// Send trailers on trailers channel.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_trailers</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">trailers</span>: <span class="ident">HeaderMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_trailers</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">trailers</span>: <span class="ident">HeaderMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">trailers_tx</span>.<span class="ident">take</span>() {
             <span class="prelude-val">Some</span>(<span class="ident">tx</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">tx</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">new_closed</span>()),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::new_closed</span>()),
         };
-        <span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">trailers</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">new_closed</span>())
+        <span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">trailers</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">crate</span><span class="ident">::Error::new_closed</span>())
     }
 
     <span class="doccomment">/// Try to send data on this channel.</span>
@@ -1386,17 +1386,17 @@
             .<span class="ident">data_tx</span>
             <span class="comment">// clone so the send works even if buffer is full</span>
             .<span class="ident">clone</span>()
-            .<span class="ident">try_send</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">new_body_write_aborted</span>()));
+            .<span class="ident">try_send</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span><span class="ident">::Error::new_body_write_aborted</span>()));
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http1&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">send_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">err</span>: <span class="kw">crate</span>::<span class="ident">Error</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">send_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">err</span>: <span class="kw">crate</span><span class="ident">::Error</span>) {
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data_tx</span>.<span class="ident">try_send</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Sender</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Sender</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
         <span class="kw">struct</span> <span class="ident">Open</span>;
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
@@ -1404,7 +1404,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="string">&quot;Sender&quot;</span>);
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">want_rx</span>.<span class="ident">peek</span>() {
-            <span class="ident">watch</span>::<span class="ident">CLOSED</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">Closed</span>),
+            <span class="ident">watch::CLOSED</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">Closed</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">builder</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="ident">Open</span>),
         };
 
@@ -1414,8 +1414,8 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::<span class="ident">Poll</span>;
+    <span class="kw">use</span> <span class="ident">std::mem</span>;
+    <span class="kw">use</span> <span class="ident">std::task::Poll</span>;
 
     <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Body</span>, <span class="ident">DecodedLength</span>, <span class="ident">HttpBody</span>, <span class="ident">Sender</span>, <span class="ident">SizeHint</span>};
 
@@ -1424,26 +1424,26 @@
         <span class="comment">// These are mostly to help catch *accidentally* increasing</span>
         <span class="comment">// the size by too much.</span>
 
-        <span class="kw">let</span> <span class="ident">body_size</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">body_expected_size</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>() <span class="op">*</span> <span class="number">6</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">body_size</span> <span class="op">=</span> <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">body_expected_size</span> <span class="op">=</span> <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>() <span class="op">*</span> <span class="number">6</span>;
+        <span class="macro">assert!</span>(
             <span class="ident">body_size</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">body_expected_size</span>,
             <span class="string">&quot;Body size = {} &lt;= {}&quot;</span>,
             <span class="ident">body_size</span>,
             <span class="ident">body_expected_size</span>,
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">body_size</span>, <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="string">&quot;Option&lt;Body&gt;&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">body_size</span>, <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="string">&quot;Option&lt;Body&gt;&quot;</span>);
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">Sender</span><span class="op">&gt;</span>(),
-            <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() <span class="op">*</span> <span class="number">5</span>,
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Sender</span><span class="op">&gt;</span>(),
+            <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() <span class="op">*</span> <span class="number">5</span>,
             <span class="string">&quot;Sender&quot;</span>
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">Sender</span><span class="op">&gt;</span>(),
-            <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sender</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Sender</span><span class="op">&gt;</span>(),
+            <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sender</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
             <span class="string">&quot;Option&lt;Sender&gt;&quot;</span>
         );
     }
@@ -1452,91 +1452,91 @@
     <span class="kw">fn</span> <span class="ident">size_hint</span>() {
         <span class="kw">fn</span> <span class="ident">eq</span>(<span class="ident">body</span>: <span class="ident">Body</span>, <span class="ident">b</span>: <span class="ident">SizeHint</span>, <span class="ident">note</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
             <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">size_hint</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">lower</span>(), <span class="ident">b</span>.<span class="ident">lower</span>(), <span class="string">&quot;lower for {:?}&quot;</span>, <span class="ident">note</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">a</span>.<span class="ident">upper</span>(), <span class="ident">b</span>.<span class="ident">upper</span>(), <span class="string">&quot;upper for {:?}&quot;</span>, <span class="ident">note</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">lower</span>(), <span class="ident">b</span>.<span class="ident">lower</span>(), <span class="string">&quot;lower for {:?}&quot;</span>, <span class="ident">note</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">upper</span>(), <span class="ident">b</span>.<span class="ident">upper</span>(), <span class="string">&quot;upper for {:?}&quot;</span>, <span class="ident">note</span>);
         }
 
-        <span class="ident">eq</span>(<span class="ident">Body</span>::<span class="ident">from</span>(<span class="string">&quot;Hello&quot;</span>), <span class="ident">SizeHint</span>::<span class="ident">with_exact</span>(<span class="number">5</span>), <span class="string">&quot;from str&quot;</span>);
+        <span class="ident">eq</span>(<span class="ident">Body::from</span>(<span class="string">&quot;Hello&quot;</span>), <span class="ident">SizeHint::with_exact</span>(<span class="number">5</span>), <span class="string">&quot;from str&quot;</span>);
 
-        <span class="ident">eq</span>(<span class="ident">Body</span>::<span class="ident">empty</span>(), <span class="ident">SizeHint</span>::<span class="ident">with_exact</span>(<span class="number">0</span>), <span class="string">&quot;empty&quot;</span>);
+        <span class="ident">eq</span>(<span class="ident">Body::empty</span>(), <span class="ident">SizeHint::with_exact</span>(<span class="number">0</span>), <span class="string">&quot;empty&quot;</span>);
 
-        <span class="ident">eq</span>(<span class="ident">Body</span>::<span class="ident">channel</span>().<span class="number">1</span>, <span class="ident">SizeHint</span>::<span class="ident">new</span>(), <span class="string">&quot;channel&quot;</span>);
+        <span class="ident">eq</span>(<span class="ident">Body::channel</span>().<span class="number">1</span>, <span class="ident">SizeHint::new</span>(), <span class="string">&quot;channel&quot;</span>);
 
         <span class="ident">eq</span>(
-            <span class="ident">Body</span>::<span class="ident">new_channel</span>(<span class="ident">DecodedLength</span>::<span class="ident">new</span>(<span class="number">4</span>), <span class="comment">/*wanter =*/</span> <span class="bool-val">false</span>).<span class="number">1</span>,
-            <span class="ident">SizeHint</span>::<span class="ident">with_exact</span>(<span class="number">4</span>),
+            <span class="ident">Body::new_channel</span>(<span class="ident">DecodedLength::new</span>(<span class="number">4</span>), <span class="comment">/*wanter =*/</span> <span class="bool-val">false</span>).<span class="number">1</span>,
+            <span class="ident">SizeHint::with_exact</span>(<span class="number">4</span>),
             <span class="string">&quot;channel with length&quot;</span>,
         );
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">channel_abort</span>() {
-        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body</span>::<span class="ident">channel</span>();
+        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body::channel</span>();
 
         <span class="ident">tx</span>.<span class="ident">abort</span>();
 
         <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">data</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">unwrap_err</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">err</span>.<span class="ident">is_body_write_aborted</span>(), <span class="string">&quot;{:?}&quot;</span>, <span class="ident">err</span>);
+        <span class="macro">assert!</span>(<span class="ident">err</span>.<span class="ident">is_body_write_aborted</span>(), <span class="string">&quot;{:?}&quot;</span>, <span class="ident">err</span>);
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">channel_abort_when_buffer_is_full</span>() {
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body</span>::<span class="ident">channel</span>();
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body::channel</span>();
 
         <span class="ident">tx</span>.<span class="ident">try_send_data</span>(<span class="string">&quot;chunk 1&quot;</span>.<span class="ident">into</span>()).<span class="ident">expect</span>(<span class="string">&quot;send 1&quot;</span>);
         <span class="comment">// buffer is full, but can still send abort</span>
         <span class="ident">tx</span>.<span class="ident">abort</span>();
 
         <span class="kw">let</span> <span class="ident">chunk1</span> <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">data</span>().<span class="kw">await</span>.<span class="ident">expect</span>(<span class="string">&quot;item 1&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;chunk 1&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk1</span>, <span class="string">&quot;chunk 1&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">chunk1</span>, <span class="string">&quot;chunk 1&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">data</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">unwrap_err</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">err</span>.<span class="ident">is_body_write_aborted</span>(), <span class="string">&quot;{:?}&quot;</span>, <span class="ident">err</span>);
+        <span class="macro">assert!</span>(<span class="ident">err</span>.<span class="ident">is_body_write_aborted</span>(), <span class="string">&quot;{:?}&quot;</span>, <span class="ident">err</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">channel_buffers_one</span>() {
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">_rx</span>) <span class="op">=</span> <span class="ident">Body</span>::<span class="ident">channel</span>();
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">_rx</span>) <span class="op">=</span> <span class="ident">Body::channel</span>();
 
         <span class="ident">tx</span>.<span class="ident">try_send_data</span>(<span class="string">&quot;chunk 1&quot;</span>.<span class="ident">into</span>()).<span class="ident">expect</span>(<span class="string">&quot;send 1&quot;</span>);
 
         <span class="comment">// buffer is now full</span>
         <span class="kw">let</span> <span class="ident">chunk2</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">try_send_data</span>(<span class="string">&quot;chunk 2&quot;</span>.<span class="ident">into</span>()).<span class="ident">expect_err</span>(<span class="string">&quot;send 2&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk2</span>, <span class="string">&quot;chunk 2&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">chunk2</span>, <span class="string">&quot;chunk 2&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">channel_empty</span>() {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body</span>::<span class="ident">channel</span>();
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body::channel</span>();
 
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">rx</span>.<span class="ident">data</span>().<span class="kw">await</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">rx</span>.<span class="ident">data</span>().<span class="kw">await</span>.<span class="ident">is_none</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">channel_ready</span>() {
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">_rx</span>) <span class="op">=</span> <span class="ident">Body</span>::<span class="ident">new_channel</span>(<span class="ident">DecodedLength</span>::<span class="ident">CHUNKED</span>, <span class="comment">/*wanter = */</span> <span class="bool-val">false</span>);
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">_rx</span>) <span class="op">=</span> <span class="ident">Body::new_channel</span>(<span class="ident">DecodedLength::CHUNKED</span>, <span class="comment">/*wanter = */</span> <span class="bool-val">false</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx_ready</span> <span class="op">=</span> <span class="ident">tokio_test</span>::<span class="ident">task</span>::<span class="ident">spawn</span>(<span class="ident">tx</span>.<span class="ident">ready</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx_ready</span> <span class="op">=</span> <span class="ident">tokio_test::task::spawn</span>(<span class="ident">tx</span>.<span class="ident">ready</span>());
 
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">tx_ready</span>.<span class="ident">poll</span>().<span class="ident">is_ready</span>(), <span class="string">&quot;tx is ready immediately&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">tx_ready</span>.<span class="ident">poll</span>().<span class="ident">is_ready</span>(), <span class="string">&quot;tx is ready immediately&quot;</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">channel_wanter</span>() {
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body</span>::<span class="ident">new_channel</span>(<span class="ident">DecodedLength</span>::<span class="ident">CHUNKED</span>, <span class="comment">/*wanter = */</span> <span class="bool-val">true</span>);
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body::new_channel</span>(<span class="ident">DecodedLength::CHUNKED</span>, <span class="comment">/*wanter = */</span> <span class="bool-val">true</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx_ready</span> <span class="op">=</span> <span class="ident">tokio_test</span>::<span class="ident">task</span>::<span class="ident">spawn</span>(<span class="ident">tx</span>.<span class="ident">ready</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rx_data</span> <span class="op">=</span> <span class="ident">tokio_test</span>::<span class="ident">task</span>::<span class="ident">spawn</span>(<span class="ident">rx</span>.<span class="ident">data</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx_ready</span> <span class="op">=</span> <span class="ident">tokio_test::task::spawn</span>(<span class="ident">tx</span>.<span class="ident">ready</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rx_data</span> <span class="op">=</span> <span class="ident">tokio_test::task::spawn</span>(<span class="ident">rx</span>.<span class="ident">data</span>());
 
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="ident">tx_ready</span>.<span class="ident">poll</span>().<span class="ident">is_pending</span>(),
             <span class="string">&quot;tx isn&#39;t ready before rx has been polled&quot;</span>
         );
 
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">rx_data</span>.<span class="ident">poll</span>().<span class="ident">is_pending</span>(), <span class="string">&quot;poll rx.data&quot;</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">tx_ready</span>.<span class="ident">is_woken</span>(), <span class="string">&quot;rx poll wakes tx&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">rx_data</span>.<span class="ident">poll</span>().<span class="ident">is_pending</span>(), <span class="string">&quot;poll rx.data&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">tx_ready</span>.<span class="ident">is_woken</span>(), <span class="string">&quot;rx poll wakes tx&quot;</span>);
 
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="ident">tx_ready</span>.<span class="ident">poll</span>().<span class="ident">is_ready</span>(),
             <span class="string">&quot;tx is ready after rx has been polled&quot;</span>
         );
@@ -1544,24 +1544,24 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">channel_notices_closure</span>() {
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body</span>::<span class="ident">new_channel</span>(<span class="ident">DecodedLength</span>::<span class="ident">CHUNKED</span>, <span class="comment">/*wanter = */</span> <span class="bool-val">true</span>);
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">Body::new_channel</span>(<span class="ident">DecodedLength::CHUNKED</span>, <span class="comment">/*wanter = */</span> <span class="bool-val">true</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx_ready</span> <span class="op">=</span> <span class="ident">tokio_test</span>::<span class="ident">task</span>::<span class="ident">spawn</span>(<span class="ident">tx</span>.<span class="ident">ready</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx_ready</span> <span class="op">=</span> <span class="ident">tokio_test::task::spawn</span>(<span class="ident">tx</span>.<span class="ident">ready</span>());
 
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="ident">tx_ready</span>.<span class="ident">poll</span>().<span class="ident">is_pending</span>(),
             <span class="string">&quot;tx isn&#39;t ready before rx has been polled&quot;</span>
         );
 
         <span class="ident">drop</span>(<span class="ident">rx</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">tx_ready</span>.<span class="ident">is_woken</span>(), <span class="string">&quot;dropping rx wakes tx&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">tx_ready</span>.<span class="ident">is_woken</span>(), <span class="string">&quot;dropping rx wakes tx&quot;</span>);
 
         <span class="kw">match</span> <span class="ident">tx_ready</span>.<span class="ident">poll</span>() {
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>)) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">is_closed</span>() <span class="op">=</span><span class="op">&gt;</span> (),
-            <span class="ident">unexpected</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;tx poll ready unexpected: {:?}&quot;</span>, <span class="ident">unexpected</span>),
+            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>)) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">is_closed</span>() <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident">unexpected</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;tx poll ready unexpected: {:?}&quot;</span>, <span class="ident">unexpected</span>),
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="hyper" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="hyper" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

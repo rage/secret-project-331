@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/utils/folder_checksum.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>folder_checksum.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../headless_lms_actix/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../headless_lms_actix/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -187,16 +187,16 @@ This is meant for checking whether a exercise in a exercise template repository
 has changed after a refresh.
 */</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fs</span>::<span class="ident">Permissions</span>, <span class="ident">path</span>::<span class="ident">Path</span>, <span class="ident">u32</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fs::Permissions</span>, <span class="ident">path::Path</span>, <span class="ident">u32</span>};
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
-<span class="kw">use</span> <span class="ident">blake3</span>::<span class="ident">Hash</span>;
-<span class="kw">use</span> <span class="ident">futures</span>::<span class="ident">StreamExt</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">blake3::Hash</span>;
+<span class="kw">use</span> <span class="ident">futures::StreamExt</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">unix</span>::<span class="ident">fs</span>::<span class="ident">PermissionsExt</span>;
-<span class="kw">use</span> <span class="ident">tokio</span>::{<span class="ident">fs</span>::<span class="ident">File</span>, <span class="ident">io</span>::<span class="ident">BufReader</span>};
-<span class="kw">use</span> <span class="ident">tokio_util</span>::<span class="ident">io</span>::<span class="ident">ReaderStream</span>;
-<span class="kw">use</span> <span class="ident">walkdir</span>::<span class="ident">WalkDir</span>;
+<span class="kw">use</span> <span class="ident">std::os::unix::fs::PermissionsExt</span>;
+<span class="kw">use</span> <span class="ident">tokio</span>::{<span class="ident">fs::File</span>, <span class="ident">io::BufReader</span>};
+<span class="kw">use</span> <span class="ident">tokio_util::io::ReaderStream</span>;
+<span class="kw">use</span> <span class="ident">walkdir::WalkDir</span>;
 
 <span class="doccomment">/**
 Recursively hashes a folder returning a checksum.
@@ -209,9 +209,9 @@ might take a while since reading a lot of data from disk is not fast.
 */</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">hash_folder</span>(<span class="ident">root_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Hash</span><span class="op">&gt;</span> {
     <span class="comment">// Blake3 hasher lets us build the hash incrementally, avoiding the need to load everything to be hashed to memory at once.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">blake3</span>::<span class="ident">Hasher</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">blake3::Hasher::new</span>();
 
-    <span class="kw">let</span> <span class="ident">walker</span> <span class="op">=</span> <span class="ident">WalkDir</span>::<span class="ident">new</span>(<span class="ident">root_path</span>)
+    <span class="kw">let</span> <span class="ident">walker</span> <span class="op">=</span> <span class="ident">WalkDir::new</span>(<span class="ident">root_path</span>)
         <span class="comment">// Instead of following a symbolic link, we just hash the link itself.</span>
         <span class="comment">// Following the link would lead to recursion problems.</span>
         .<span class="ident">follow_links</span>(<span class="bool-val">false</span>)
@@ -237,7 +237,7 @@ might take a while since reading a lot of data from disk is not fast.
 
         <span class="comment">// The extra separators at the end and at the beginning are to prevent</span>
         <span class="comment">// accidental collisions in the hashed string.</span>
-        <span class="kw">let</span> <span class="ident">serialized_metadata</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">serialized_metadata</span> <span class="op">=</span> <span class="macro">format!</span>(
             <span class="string">&quot;-{}{}{}{}{:?}-&quot;</span>,
             <span class="ident">directory</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">file</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">symlink</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="kw-2">&amp;</span><span class="ident">permissions_mode</span>, <span class="kw-2">&amp;</span><span class="ident">relative_path</span>
         );
@@ -245,16 +245,16 @@ might take a while since reading a lot of data from disk is not fast.
         <span class="ident">hasher</span>.<span class="ident">update</span>(<span class="ident">serialized_metadata</span>.<span class="ident">as_bytes</span>());
 
         <span class="kw">if</span> <span class="ident">file</span> {
-            <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">full_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">full_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="comment">// We read the file contents with a bufreader so that handling really big files wouldn&#39;t cause us problems.</span>
-            <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="ident">file</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">ReaderStream</span>::<span class="ident">new</span>(<span class="ident">reader</span>);
+            <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">file</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">ReaderStream::new</span>(<span class="ident">reader</span>);
             <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chunk</span>) <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">next</span>().<span class="kw">await</span> {
                 <span class="ident">hasher</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">chunk</span><span class="question-mark">?</span>);
             }
         }
         <span class="kw">if</span> <span class="ident">symlink</span> {
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">tokio</span>::<span class="ident">fs</span>::<span class="ident">read_link</span>(<span class="ident">full_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">tokio::fs::read_link</span>(<span class="ident">full_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="comment">// Only relative links would work here since the files should origitate from a remote repository</span>
             <span class="comment">// so relativizing this would be pointless.</span>
             <span class="ident">hasher</span>.<span class="ident">update</span>(<span class="ident">res</span>.<span class="ident">display</span>().<span class="ident">to_string</span>().<span class="ident">as_bytes</span>());
@@ -265,7 +265,7 @@ might take a while since reading a lot of data from disk is not fast.
 }
 
 <span class="kw">fn</span> <span class="ident">determine_permissions_mode_for_hashing</span>(<span class="ident">permissions</span>: <span class="kw-2">&amp;</span><span class="ident">Permissions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
-    <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">unix</span>) {
+    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">unix</span>) {
         <span class="kw">return</span> <span class="ident">permissions</span>.<span class="ident">mode</span>();
     }
     <span class="comment">// Default implementation for mostly windows that has no unix like modes.</span>
@@ -279,29 +279,29 @@ might take a while since reading a lot of data from disk is not fast.
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">tempdir</span>::<span class="ident">TempDir</span>;
+    <span class="kw">use</span> <span class="ident">tempdir::TempDir</span>;
     <span class="kw">use</span> <span class="ident">tokio</span>::{
         <span class="ident">fs</span>::{<span class="self">self</span>, <span class="ident">create_dir</span>, <span class="ident">remove_dir</span>, <span class="ident">symlink</span>},
-        <span class="ident">io</span>::<span class="ident">AsyncWriteExt</span>,
+        <span class="ident">io::AsyncWriteExt</span>,
     };
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">it_works</span>() {
-        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">TempDir</span>::<span class="ident">new</span>(<span class="string">&quot;test-folder-checksum&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;Failed to create a temp dir&quot;</span>);
+        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">TempDir::new</span>(<span class="string">&quot;test-folder-checksum&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;Failed to create a temp dir&quot;</span>);
         <span class="kw">let</span> <span class="ident">first_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">first_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;01444ae9678097d0214e449568b68eb351c4743b2697bfc3d517b5c601535823&quot;</span>
         );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;test-file&quot;</span>)).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;test-file&quot;</span>)).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="ident">file</span>.<span class="ident">write_all</span>(<span class="string">b&quot;Test file&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">second_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">second_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;c2f4caaaafeb41dfd5e5381ea9c1583ccaa7d09378745def8c979b1e1f0e5c2a&quot;</span>
         );
@@ -309,13 +309,13 @@ might take a while since reading a lot of data from disk is not fast.
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">permissions</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">metadata</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">permissions</span>();
         <span class="ident">permissions</span>.<span class="ident">set_readonly</span>(<span class="bool-val">true</span>);
 
-        <span class="ident">fs</span>::<span class="ident">set_permissions</span>(<span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;test-file&quot;</span>), <span class="ident">permissions</span>)
+        <span class="ident">fs::set_permissions</span>(<span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;test-file&quot;</span>), <span class="ident">permissions</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">third_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">third_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;1b1820abcb400974e0eb751c103303864f7b0ae7ad387c5135521d9968dbb4de&quot;</span>
         );
@@ -324,7 +324,7 @@ might take a while since reading a lot of data from disk is not fast.
 
         <span class="kw">let</span> <span class="ident">fourth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">fourth_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;f1113337a98c5fe5d7ed0f2a9fc17490993b1149ea44784a027e53d1a1884c9e&quot;</span>
         );
@@ -333,31 +333,31 @@ might take a while since reading a lot of data from disk is not fast.
 
         <span class="kw">let</span> <span class="ident">fifth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">fifth_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;1b1820abcb400974e0eb751c103303864f7b0ae7ad387c5135521d9968dbb4de&quot;</span>
         );
 
         <span class="comment">// Should not have the same checksum as with the directory created before</span>
-        <span class="ident">File</span>::<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;directory&quot;</span>)).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">File::create</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;directory&quot;</span>)).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">sixth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">sixth_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;28708cf92385c9da899ddf346baed1b61a300ae0d8aa2fa2468789860a4cb425&quot;</span>
         );
 
-        <span class="ident">symlink</span>(<span class="kw-2">&amp;</span><span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;directory&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;symlink&quot;</span>))
+        <span class="ident">symlink</span>(<span class="kw-2">&amp;</span><span class="ident">Path::new</span>(<span class="string">&quot;directory&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;symlink&quot;</span>))
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">seventh_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">seventh_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;5144015ff90807ec6448a0b6bfcc470de495182441e0af019c6483da8edaa05c&quot;</span>
         );
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

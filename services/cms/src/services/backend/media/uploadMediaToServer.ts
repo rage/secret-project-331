@@ -36,9 +36,9 @@ export async function uploadMedia({
     try {
       const uploadedMedia = await uploadFileFromPage(file, pageId)
       res = {
-        alt: uploadedMedia.alt,
-        caption: uploadedMedia.caption,
-        title: uploadedMedia.title,
+        alt: "Add alt",
+        caption: "Add caption",
+        title: "Add title",
         url: uploadedMedia.url,
       }
     } catch (error) {

@@ -227,9 +227,6 @@ async fn delete_page(
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 struct UploadResult {
     url: String,
-    alt: Option<String>,
-    caption: Option<String>,
-    title: Option<String>,
 }
 
 /**
@@ -246,25 +243,12 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 
-Response image:
+Response:
 ```json
 {
     "url": "/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
-    "alt": "Add image alt",
-    "caption": "Add caption",
-    "title": "Add image title",
 }
-Response audio:
-```json
-{
-    "url": "/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/audios/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
-}
-Response file:
-```json
-{
-    "url": "/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/files/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
-    "title": "Add file title",
-}
+
 ```
 */
 #[instrument(skip(payload, request, pool))]
@@ -285,9 +269,10 @@ async fn upload_media_for_course(
     let content_type_string = String::from_utf8_lossy(content_type.as_bytes()).to_string();
 
     if !content_type_string.contains("multipart/form-data") {
-        return Err(ApplicationError::BadRequest(
-            ["Unsupported type:", &content_type_string].join(" "),
-        ));
+        return Err(ApplicationError::BadRequest(format!(
+            "Unsupported type: {}",
+            content_type_string
+        )));
     }
 
     let content_length = headers.get(header::CONTENT_LENGTH).ok_or_else(|| {
@@ -298,6 +283,7 @@ async fn upload_media_for_course(
         .parse::<i32>()
         .map_err(|original_err| ApplicationError::InternalServerError(original_err.to_string()))?;
 
+    // This does not enforce the size of the file since the client can lie about the content length
     if content_length_number > 10485760 {
         return Err(ApplicationError::BadRequest(
             "Content length over 10 MB".into(),
@@ -334,14 +320,11 @@ async fn upload_media_for_course(
                 ApplicationError::BadRequest("Missing file name in content-disposition".into())
             })?;
 
-            let uploaded_file_extension = get_extension_from_filename(field_content_name)
-                .ok_or_else(|| {
-                    ApplicationError::InternalServerError(
-                        "Could not determine file extension".into(),
-                    )
-                })?;
+            let uploaded_file_extension = get_extension_from_filename(field_content_name);
+            if let Some(extension) = uploaded_file_extension {
+                file_name.push_str(extension);
+            }
 
-            file_name.push_str(uploaded_file_extension);
             let path = course_file_path(&course, file_name)
                 .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
 
@@ -349,9 +332,6 @@ async fn upload_media_for_course(
 
             return Ok(Json(UploadResult {
                 url: format!("/api/v0/files/{}", path.to_string_lossy()),
-                title: Some("Add file title".to_string()),
-                alt: None,
-                caption: None,
             }));
         }
         Err(err) => Err(ApplicationError::InternalServerError(err.to_string())),
@@ -372,9 +352,10 @@ async fn upload_image_for_course(
         "image/webp" => ".webp",
         "image/gif" => ".gif",
         unsupported => {
-            return Err(ApplicationError::BadRequest(
-                ["Unsupported image Mime type: ", unsupported].join(""),
-            ))
+            return Err(ApplicationError::BadRequest(format!(
+                "Unsupported image Mime type: {}",
+                unsupported
+            )))
         }
     };
     file_name.push_str(extension);
@@ -385,9 +366,6 @@ async fn upload_image_for_course(
 
     return Ok(Json(UploadResult {
         url: format!("/api/v0/files/{}", path.to_string_lossy()),
-        alt: Some("Add image alt".to_string()),
-        caption: Some("Add caption".to_string()),
-        title: Some("Add image title".to_string()),
     }));
 }
 
@@ -405,9 +383,10 @@ async fn upload_audio_for_course(
         "audio/webm" => ".weba",
         "audio/midi" => ".midi",
         unsupported => {
-            return Err(ApplicationError::BadRequest(
-                ["Unsupported audio Mime type: ", unsupported].join(""),
-            ))
+            return Err(ApplicationError::BadRequest(format!(
+                "Unsupported audio Mime type: {}",
+                unsupported
+            )))
         }
     };
     file_name.push_str(extension);
@@ -418,9 +397,6 @@ async fn upload_audio_for_course(
 
     return Ok(Json(UploadResult {
         url: format!("/api/v0/files/{}", path.to_string_lossy()),
-        alt: None,
-        caption: None,
-        title: None,
     }));
 }
 

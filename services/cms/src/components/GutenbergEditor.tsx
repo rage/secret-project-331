@@ -46,7 +46,7 @@ import DebugModal from "./DebugModal"
 import { blockTypeMap } from "../blocks"
 import mediaUploadBuilder, { MediaUploadProps } from "../services/backend/media/mediaUpload"
 import useQueryParameter from "../hooks/useQueryParameter"
-import { assign } from "lodash"
+import { modifyBlockAttributes } from "../utils/Gutenberg/modifyBlockAttributes"
 
 interface GutenbergEditor {
   content: BlockInstance[]
@@ -64,21 +64,6 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
     onContentChange(page)
   }
 
-  function modifyBlockAttributes(settings, name) {
-    if (name !== "core/image") {
-      return settings
-    }
-
-    settings.attributes.linkDestination.default = "media"
-    settings.attributes = assign(settings.attributes, {
-      blurDataUrl: {
-        type: "string",
-        default: "",
-      },
-    })
-
-    return settings
-  }
   // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
   // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
   addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)

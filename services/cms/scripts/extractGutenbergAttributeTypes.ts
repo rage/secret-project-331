@@ -11,7 +11,7 @@ const { JSDOM } = jsdom
 const dom = new JSDOM(`<body>
 <script>document.body.appendChild(document.createElement("hr"));</script>
 </body>`)
-const mock = () => {}
+const mock = () => { }
 Object.defineProperty(dom.window, "matchMedia", {
   writable: true,
   value: (query) => {
@@ -33,25 +33,10 @@ global.navigator = dom.window.navigator
 const blockLibrary = require("@wordpress/block-library")
 const blocks = require("@wordpress/blocks")
 import { addFilter } from "@wordpress/hooks"
-import { assign } from "lodash"
+import { modifyBlockAttributes } from "../src/utils/Gutenberg/modifyBlockAttributes"
+
 
 addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
-
-function modifyBlockAttributes(settings, name) {
-  if (name !== "core/image") {
-    return settings
-  }
-
-  settings.attributes.linkDestination.default = "media"
-  settings.attributes = assign(settings.attributes, {
-    blurDataUrl: {
-      type: "string",
-      default: "",
-    },
-  })
-
-  return settings
-}
 
 async function main() {
   blockLibrary.registerCoreBlocks()

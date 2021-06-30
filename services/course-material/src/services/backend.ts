@@ -179,3 +179,18 @@ export const fetchChaptersPagesExcludeFrontpage = async (
 ): Promise<ChapterPages[]> => {
   return (await courseMaterialClient.get(`/chapters/${chapterId}/pages-exclude-mainfrontpage`)).data
 }
+
+export interface ChapterInTheCourse {
+  id: string
+  created_at: Date
+  updated_at: Date
+  name: string
+  course_id: string
+  deleted_at: Date | null
+  chapter_number: number
+  front_page_id: string | null
+}
+
+export const fetchChaptersInTheCourse = async (courseId: string): Promise<ChapterInTheCourse[]> => {
+  return (await courseMaterialClient.get(`/courses/${courseId}/chapters`)).data
+}

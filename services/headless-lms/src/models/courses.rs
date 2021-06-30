@@ -129,7 +129,7 @@ pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result
     .await?;
 
     let course_front_page_content = serde_json::to_value(vec![
-        ContentBlock::empty_block_from_name("moocfi/course-grid".to_owned()),
+        ContentBlock::empty_block_from_name("moocfi/course-chapter-grid".to_owned()),
         ContentBlock::empty_block_from_name("moocfi/course-progress".to_owned()),
     ])
     .map_err(|original_error| ApplicationError::InternalServerError(original_error.to_string()))?;

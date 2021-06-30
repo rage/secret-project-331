@@ -19,6 +19,7 @@ import CoverBlock from "./CoverBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
 import PagesListBlock from "./PagesListBlock"
 import React from "react"
+import CourseChapterGrid from "./CourseChapterGrid"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -46,6 +47,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/exercise": ExerciseBlock,
   "moocfi/exercises-in-chapter": ExerciseListBlock,
   "moocfi/pages-in-chapter": PagesListBlock,
+  "moocfi/course-chapter-grid": CourseChapterGrid,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

@@ -160,6 +160,42 @@
       "nullable": [null, null]
     }
   },
+  "13baaaa4365e9ec8bfafe2504080eafdc369bd22e4444cd8035647fcd31d0fe5": {
+    "query": "\nSELECT id,\n  exercise_id,\n  exercise_type,\n  assignment,\n  public_spec\nFROM exercise_tasks\nWHERE id = $1\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "exercise_type",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "assignment",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 4,
+          "name": "public_spec",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true]
+    }
+  },
   "154577d6eb687de28cba5811dbfeb0660cfc10e838577fe8a94c3b7dc6cc41e9": {
     "query": "SELECT course_id FROM exercises WHERE id = (SELECT exercise_id FROM exercise_tasks WHERE id = $1)",
     "describe": {
@@ -638,6 +674,22 @@
       "nullable": [false, false, false, true, true]
     }
   },
+  "3e925fb3e5a135d876037e1424238f4c88a4d9a76a739e16c2c6d8d17151cd06": {
+    "query": "\nSELECT selected_exercise_task_id AS \"id!\"\nFROM user_exercise_states\nWHERE user_id = $1\n  AND selected_exercise_task_id IS NOT NULL\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id!",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [true]
+    }
+  },
   "3fe37166761219fc5d832aff78c2ae81f963c9b1fa42ac8519e80bc436c54200": {
     "query": "SELECT * FROM pages WHERE course_id = $1 AND deleted_at IS NULL;",
     "describe": {
@@ -1096,6 +1148,22 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
+  "5ea8da4e3eda78a497074f73167d994b0e9791d7d9eb21ab7cfd07b8a7262c64": {
+    "query": "\nSELECT course_instance_id AS id\nFROM course_instance_enrollments\nWHERE course_id = $1\n  AND user_id = $2\n  AND current = TRUE\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "6452399d7421bdd1ea2cc99b432783f3aa24444c1e1dfbd51d76d33869584073": {
     "query": "\n  UPDATE exercise_tasks\n  SET deleted_at = now()\n  WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1)\n          ",
     "describe": {
@@ -1165,6 +1233,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, true, false, true, false, false, false]
+    }
+  },
+  "6bd95f1c7298f117e046d351cf2326c37ff3347283997ca98ba97aa8c70bb450": {
+    "query": "\nINSERT INTO user_exercise_states (\n    user_id,\n    exercise_id,\n    course_instance_id,\n    selected_exercise_task_id\n  )\nVALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO\nUPDATE\nSET selected_exercise_task_id = $4\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "766a0d121d9fae40d872a1b4a5756610cdefb07f81fbfa11e4f112d11e9b2702": {
@@ -2665,6 +2743,16 @@
         "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4"]
       },
       "nullable": [false]
+    }
+  },
+  "ddc62ff5809a951ea9904da0f19e585ee6dd78efa938ca36aa58f22fd8036797": {
+    "query": "\nINSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id, current)\nVALUES ($1, $2, $3, $4)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Bool"]
+      },
+      "nullable": []
     }
   },
   "de76984bac431ab8e341d3ffe8d0c90658c9950c0933d2632976a2c8567a620c": {

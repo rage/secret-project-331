@@ -1,6 +1,6 @@
 use anyhow::Result;
 use futures::StreamExt;
-use std::{env, thread, time};
+use std::{env, time};
 
 use headless_lms_actix::models::email_deliveries::{
     fetch_emails, mark_as_sent, save_err_to_email, EmailDelivery,
@@ -8,6 +8,7 @@ use headless_lms_actix::models::email_deliveries::{
 use sqlx::PgPool;
 
 use lettre::{Message, SmtpTransport, Transport};
+use tokio::time::sleep;
 
 const BATCH_SIZE: usize = 100;
 
@@ -26,7 +27,8 @@ pub async fn mail_sender() -> Result<()> {
     let result = tokio_stream::iter(emails)
         .map(|email| send_message(email, &mailer, pool.clone()))
         .buffer_unordered(BATCH_SIZE)
-        .collect::<Vec<_>>();
+        .collect::<Vec<_>>()
+        .await;
 
     print!("{}", result.len());
 
@@ -61,6 +63,6 @@ pub async fn main() -> Result<()> {
     let ten_second = time::Duration::from_millis(10000);
     loop {
         mail_sender().await?;
-        thread::sleep(ten_second);
+        sleep(ten_second).await;
     }
 }

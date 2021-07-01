@@ -990,57 +990,6 @@
       ]
     }
   },
-  "574a901c8e23711205bd8e0d6bcefbeeebf389a4e344a47c6565b123e329b3ff": {
-    "query": "\nselect *\nfrom email_deliveries ed\nwhere ed.deleted_at IS NULL\n  and ed.sent = FALSE\n  and ed.error IS NULL;\n  ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "email_template_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "error",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "sent",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 7,
-          "name": "user_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [false, false, false, true, false, true, false, false]
-    }
-  },
   "5c55b14104bfdc1b23bb335ce5a747f7d9bba291bfa8ffd6abf84decd936040b": {
     "query": "\n    INSERT INTO\n      courses(name, slug, organization_id)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
     "describe": {
@@ -2428,6 +2377,16 @@
       "nullable": []
     }
   },
+  "d309be59564d69ecad6e11cc6976649092966ea2236abd7c8ca72e64f78f8fcc": {
+    "query": "\nupdate email_deliveries\nset sent = TRUE\nwhere id = $1;\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "d5305aa4ee1aefda2f427281711994f0cfb9308f018f02a1c30344b6a125f3a3": {
     "query": "\nUPDATE gradings\n  SET\n    grading_progress = $2,\n    unscaled_score_maximum = $3,\n    unscaled_max_points = $4,\n    feedback_text = $5,\n    feedback_json = $6,\n    grading_completed_at = $7,\n    score_given = $8\nWHERE id = $1\nRETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as \"grading_progress: _\", user_points_update_strategy as \"user_points_update_strategy: _\", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at\n        ",
     "describe": {
@@ -2668,6 +2627,16 @@
       "nullable": [false]
     }
   },
+  "d9d230419fb264ebddeaa022bc8ac0061d8caa8bf83e3a5742a140bd056f3005": {
+    "query": "\nupdate email_deliveries\nset sent = FALSE,\n  error = $1\nwhere id = $2;\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Varchar", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "da896f936aafd16dba8e38e8e97b7907310051fa453acf242dccab1776995e48": {
     "query": "SELECT pages.* FROM pages\n        JOIN courses ON (pages.course_id = courses.id)\n        WHERE courses.slug = $1\n        AND url_path = $2\n        AND courses.deleted_at IS NULL\n        AND pages.deleted_at IS NULL;",
     "describe": {
@@ -2891,6 +2860,57 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, true, false]
+    }
+  },
+  "f12a67ab9bdbd108231797044b48fccf4028c2ab151e08888c81702e659479f4": {
+    "query": "\nselect *\nfrom email_deliveries ed\nwhere ed.deleted_at IS NULL\n  and ed.sent = FALSE\n  and ed.error IS NULL\nlimit 10000;\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "email_template_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "error",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "sent",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 7,
+          "name": "user_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [false, false, false, true, false, true, false, false]
     }
   },
   "f344ce135ffc19dfbf4176348181e9a876c8ed92ec853f8c62d2350d80fa3e2f": {

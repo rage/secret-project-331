@@ -1,7 +1,7 @@
 FROM node:14
 
 RUN apt-get update \
-  && apt-get install -y build-essential \
+  && apt-get install -y build-essential vim \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /app && chown -R node /app

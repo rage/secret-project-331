@@ -268,6 +268,38 @@
 <span id="265">265</span>
 <span id="266">266</span>
 <span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -275,6 +307,7 @@
     <span class="ident">domain::authorization::AuthUser</span>,
     <span class="ident">models</span>::{
         <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
+        <span class="ident">exercises::Exercise</span>,
         <span class="ident">submissions</span>::{<span class="ident">SubmissionCount</span>, <span class="ident">SubmissionCountByExercise</span>, <span class="ident">SubmissionCountByWeekAndHour</span>},
     },
 };
@@ -421,6 +454,36 @@ DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 }
 
 <span class="doccomment">/**
+GET `/api/v0/main-frontend/courses/:id/exercises` + Returns all exercises for the course.
+
+# Example
+```json
+[
+  {
+    &quot;id&quot;: &quot;ab4541d8-6db4-4561-bdb2-45f35b2544a1&quot;,
+    &quot;slug&quot;: &quot;introduction-to-introduction&quot;,
+    &quot;created_at&quot;: &quot;2021-04-21T18:34:21.795388&quot;,
+    &quot;updated_at&quot;: &quot;2021-04-21T18:49:21.398638&quot;,
+    &quot;name&quot;: &quot;Introduction to Introduction&quot;,
+    &quot;organization_id&quot;: &quot;1b89e57e-8b57-42f2-9fed-c7a6736e3eec&quot;,
+    &quot;deleted_at&quot;: null
+  }
+]
+```
+*/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_exercises</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span>
+        <span class="kw">crate</span><span class="ident">::models::exercises::get_exercises_by_course_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">exercises</span>))
+}
+
+<span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 
 # Example
@@ -527,6 +590,7 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="string">&quot;/{course_id}/daily-submission-counts&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_daily_submission_counts</span>),
         )
+        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/exercises&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_all_exercises</span>))
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/weekday-hour-submission-counts&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_weekday_hour_submission_counts</span>),

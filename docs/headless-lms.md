@@ -1,18 +1,5 @@
 # Notes on headless lms
 
-- [Notes on headless lms](#notes-on-headless-lms)
-  - [sqlx prepare](#sqlx-prepare)
-  - [Sqlx data types](#sqlx-data-types)
-  - [New migrations](#new-migrations)
-  - [Using postgres enums in SQLx queries](#using-postgres-enums-in-sqlx-queries)
-    - [Adding new tables](#adding-new-tables)
-  - [Setup development with a local Postgres](#setup-development-with-a-local-postgres)
-  - [New struct/enum](#new-structenum)
-  - [New endpoint](#new-endpoint)
-    - [Requiring authentication](#requiring-authentication)
-    - [Adding documentation to an endpoint](#adding-documentation-to-an-endpoint)
-  - [Adding new dependency to cargo.toml](#adding-new-dependency-to-cargotoml)
-
 ## sqlx prepare
 
 Creating new SQL queries in headless-lms using Sqlx requires running `bin/sqlx-prepare` so that it builds.

@@ -20,7 +20,7 @@ async fn main() -> Result<()> {
         CourseInstance,
         r#"
 SELECT
-    id, variant_status as "variant_status: VariantStatus", starts_at, ends_at
+    id, created_at, updated_at, deleted_at, course_id, starts_at, ends_at, name, description, variant_status as "variant_status: VariantStatus"
 FROM course_instances
 WHERE deleted_at IS NOT NULL;
 "#

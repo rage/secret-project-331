@@ -1,8 +1,11 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
-use crate::models::chapters::Chapter;
-use crate::{controllers::ApplicationResult, models::pages::Page};
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
+use crate::{
+    controllers::ApplicationResult,
+    domain::authorization::AuthUser,
+    models::pages::Page,
+    models::{chapters::Chapter, course_instances::CourseInstance},
+};
+use actix_web::web::{self, Json, ServiceConfig};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -42,6 +45,34 @@ async fn get_course_page_by_path(
 
     let page = crate::models::pages::get_page_by_path(&mut conn, course_slug, &path).await?;
     Ok(Json(page))
+}
+
+/**
+GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
+
+# Example
+```json
+null
+```
+*/
+#[instrument(skip(pool))]
+async fn get_current_course_instance(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+    user: Option<AuthUser>,
+) -> ApplicationResult<Json<Option<CourseInstance>>> {
+    let mut conn = pool.acquire().await?;
+    if let Some(user) = user {
+        let instance = crate::models::course_instances::current_course_instance_of_user(
+            &mut conn,
+            user.id,
+            *request_course_id,
+        )
+        .await?;
+        Ok(Json(instance))
+    } else {
+        Ok(Json(None))
+    }
 }
 
 /**
@@ -119,5 +150,9 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_course_page_by_path),
     )
     .route("/{course_id}/pages", web::get().to(get_course_pages))
-    .route("/{course_id}/chapters", web::get().to(get_chapters));
+    .route("/{course_id}/chapters", web::get().to(get_chapters))
+    .route(
+        "/{course_id}/current-instance",
+        web::get().to(get_current_course_instance),
+    );
 }

@@ -1,5 +1,4 @@
-use super::{path_to_str, FileStore};
-use actix_http::Payload;
+use super::{path_to_str, FileStore, GenericPayload};
 use anyhow::Result;
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -48,7 +47,7 @@ impl FileStore for GoogleCloudFileStore {
     async fn upload_stream(
         &self,
         path: &Path,
-        mut contents: Payload,
+        mut contents: GenericPayload,
         mime_type: String,
     ) -> Result<()> {
         let (sender, receiver) = tokio::sync::mpsc::channel(BUFFER_SIZE);

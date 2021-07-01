@@ -4,22 +4,12 @@
 // This import is needed for bold, italics, ... formatting
 import "@wordpress/format-library"
 
-// @wordpress package styles
-// @import "~@wordpress/components/src/style.scss";
-// @import "~@wordpress/block-editor/src/style.scss";
-// @import "~@wordpress/block-library/src/style.scss";
-// @import "~@wordpress/block-library/src/theme.scss";
-// @import "~@wordpress/block-library/src/editor.scss";
-// @import "~@wordpress/format-library/src/style.scss";
-
 import "@wordpress/components/build-style/style.css"
 import "@wordpress/block-editor/build-style/style.css"
 import "@wordpress/block-library/build-style/style.css"
 import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
 import "@wordpress/format-library/build-style/style.css"
-// import "@wordpress/editor/build-style/style.css"
-// import "@wordpress/edit-post/build-style/style.css"
 
 import {
   BlockEditorKeyboardShortcuts,
@@ -36,6 +26,7 @@ import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
 import { addFilter } from "@wordpress/hooks"
 import {
+  BlockConfiguration,
   BlockInstance,
   getBlockType,
   getBlockTypes,
@@ -49,26 +40,33 @@ import {
  * Internal dependencies
  */
 import React, { useEffect } from "react"
-import { blockTypeMap } from "../blocks"
 import mediaUploadBuilder, { MediaUploadProps } from "../services/backend/media/mediaUpload"
 import useQueryParameter from "../hooks/useQueryParameter"
 import { modifyBlockAttributes } from "../utils/Gutenberg/modifyBlockAttributes"
-import { supportedCoreBlocks, allowedEmbedBlocks } from "../blocks/supportedGutenbergBlocks"
 
-interface GutenbergEditor {
+interface GutenbergEditorProps {
   content: BlockInstance[]
   onContentChange: React.Dispatch<BlockInstance[]>
+  allowedBlocks?: string[]
+  allowedBlockVariations?: Record<string, string[]>
+  customBlocks?: [string, BlockConfiguration<unknown>][]
 }
 
-const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
+const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
+  content,
+  onContentChange,
+  allowedBlockVariations,
+  allowedBlocks,
+  customBlocks,
+}: GutenbergEditorProps) => {
   const pageId = useQueryParameter("id")
-  const { content, onContentChange } = props
-
-  const handleChanges = (page: BlockInstance[]): void => {
-    onContentChange(page)
+  const handleChanges = (newContent: BlockInstance[]): void => {
+    console.log(newContent)
+    onContentChange(newContent)
   }
-  const handleInput = (page: BlockInstance[]): void => {
-    onContentChange(page)
+  const handleInput = (newContent: BlockInstance[]): void => {
+    console.log(newContent)
+    onContentChange(newContent)
   }
 
   // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
@@ -78,24 +76,35 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
   useEffect(() => {
     // Register all core blocks
     registerCoreBlocks()
-    // Register own blocks
-    // Unregister unwanted blocks
-    getBlockTypes().forEach((block) => {
-      if (supportedCoreBlocks.indexOf(block.name) === -1) {
-        unregisterBlockType(block.name)
-      }
-    })
-    /* @ts-ignore: type signature incorrect */
-    getBlockType("core/embed").variations.forEach((variation) => {
-      if (allowedEmbedBlocks.indexOf(variation.name) === -1) {
-        unregisterBlockVariation("core/embed", variation.name)
-      }
-    })
 
-    blockTypeMap.forEach(([blockName, block]) => {
-      registerBlockType(blockName, block)
-    })
-  }, [])
+    // Unregister unwanted blocks
+    if (allowedBlocks) {
+      getBlockTypes().forEach((block) => {
+        if (allowedBlocks.indexOf(block.name) === -1) {
+          unregisterBlockType(block.name)
+        }
+      })
+    }
+
+    // Unregister unwanted block variations
+    if (allowedBlockVariations) {
+      for (const [blockName, allowedVariations] of Object.entries(allowedBlockVariations)) {
+        /* @ts-ignore: type signature incorrect */
+        getBlockType(blockName).variations.forEach((variation) => {
+          if (allowedVariations.indexOf(variation.name) === -1) {
+            unregisterBlockVariation(blockName, variation.name)
+          }
+        })
+      }
+    }
+
+    // Register own blocks
+    if (customBlocks) {
+      customBlocks.forEach(([blockName, block]) => {
+        registerBlockType(blockName, block)
+      })
+    }
+  }, [allowedBlockVariations, allowedBlocks, customBlocks])
 
   const editorSettings: Partial<
     EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }

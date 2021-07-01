@@ -326,7 +326,7 @@ async fn upload_media_for_course<T: FileStore>(
 
             let uploaded_file_extension = get_extension_from_filename(field_content_name);
             if let Some(extension) = uploaded_file_extension {
-                file_name.push_str(extension);
+                file_name.push_str(format!(".{}", extension).as_str());
             }
 
             let path = course_file_path(&course, file_name)
@@ -352,7 +352,7 @@ async fn upload_image_for_course(
         "image/jpeg" => ".jpg",
         "image/png" => ".png",
         "image/svg+xml" => ".svg",
-        "image/tiff" => ".tiff",
+        "image/tiff" => ".tif",
         "image/bmp" => ".bmp",
         "image/webp" => ".webp",
         "image/gif" => ".gif",
@@ -387,7 +387,8 @@ async fn upload_audio_for_course(
         "audio/opus" => ".opus",
         "audio/wav" => ".wav",
         "audio/webm" => ".weba",
-        "audio/midi" => ".midi",
+        "audio/midi" => ".mid",
+        "audio/x-midi" => ".mid",
         unsupported => {
             return Err(ApplicationError::BadRequest(format!(
                 "Unsupported audio Mime type: {}",

@@ -113,6 +113,16 @@ export interface Course extends DatabaseItem {
   organization_id: string
 }
 
+export interface Exercise extends DatabaseItem {
+  course_id: string
+  deleted_at: Date | null
+  name: string
+  deadline: Date | null
+  page_id: string
+  score_maximum: number
+  order_number: number
+}
+
 /**
  * POST
  * `${API_URL}/api/v0/main-frontend/courses

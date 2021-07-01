@@ -126,6 +126,25 @@ pub async fn get_exercise_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Exe
     Ok(exercise)
 }
 
+pub async fn get_exercises_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> Result<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE course_id = $1
+  AND deleted_at IS NULL
+"#,
+        course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = $1;", id)
         .fetch_one(conn)

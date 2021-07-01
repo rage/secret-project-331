@@ -5,7 +5,7 @@ use actix_session::CookieSession;
 use actix_web::{App, HttpServer};
 use anyhow::Result;
 use dotenv::dotenv;
-use headless_lms_actix::OAuthClient;
+use headless_lms_actix::{utils::file_store::local_file_store::LocalFileStore, OAuthClient};
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
 use sqlx::PgPool;
@@ -52,8 +52,16 @@ async fn main() -> Result<()> {
     ));
 
     let mut server = HttpServer::new(move || {
+        let file_store = futures::executor::block_on(async {
+            LocalFileStore::new(
+                "uploads".into(),
+                "http://project-331.local/api/v0/files/uploads/".into(),
+            )
+            .await
+            .expect("Failed to initialize file store")
+        });
         App::new()
-            .configure(headless_lms_actix::configure)
+            .configure(move |config| headless_lms_actix::configure(config, file_store))
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())

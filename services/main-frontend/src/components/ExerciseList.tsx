@@ -1,3 +1,4 @@
+import Link from "next/link"
 import React from "react"
 import { useQuery } from "react-query"
 
@@ -23,7 +24,9 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
   return (
     <ul>
       {data.map((x) => (
-        <li key={x.id}>{x.name}</li>
+        <li key={x.id}>
+          {x.name} <Link href={`/manage/exercises/${x.id}/submissions`}>view submissions</Link>
+        </li>
       ))}
     </ul>
   )

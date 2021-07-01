@@ -4,6 +4,7 @@ use crate::{
     domain::authorization::AuthUser,
     models::{
         courses::{Course, CourseUpdate, NewCourse},
+        exercises::Exercise,
         submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
     },
 };
@@ -150,6 +151,36 @@ async fn delete_course(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/:id/exercises` + Returns all exercises for the course.
+
+# Example
+```json
+[
+  {
+    "id": "ab4541d8-6db4-4561-bdb2-45f35b2544a1",
+    "slug": "introduction-to-introduction",
+    "created_at": "2021-04-21T18:34:21.795388",
+    "updated_at": "2021-04-21T18:49:21.398638",
+    "name": "Introduction to Introduction",
+    "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+    "deleted_at": null
+  }
+]
+```
+*/
+#[instrument(skip(pool))]
+async fn get_all_exercises(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ApplicationResult<Json<Vec<Exercise>>> {
+    let mut conn = pool.acquire().await?;
+    let exercises =
+        crate::models::exercises::get_exercises_by_course_id(&mut conn, *request_course_id).await?;
+    Ok(Json(exercises))
+}
+
+/**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 
 # Example
@@ -256,6 +287,7 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/daily-submission-counts",
             web::get().to(get_daily_submission_counts),
         )
+        .route("/{course_id}/exercises", web::get().to(get_all_exercises))
         .route(
             "/{course_id}/weekday-hour-submission-counts",
             web::get().to(get_weekday_hour_submission_counts),

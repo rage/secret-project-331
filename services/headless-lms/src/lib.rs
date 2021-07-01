@@ -14,10 +14,11 @@ use actix_web::web::{self, HttpResponse, ServiceConfig};
 use oauth2::basic::BasicClient;
 use std::sync::Arc;
 use tracing_actix_web::TracingLogger;
+use utils::file_store::FileStore;
 
 pub type OAuthClient = Arc<BasicClient>;
 
-pub fn configure(config: &mut ServiceConfig) {
+pub fn configure<T: 'static + FileStore>(config: &mut ServiceConfig, file_store: T) {
     let json_config = web::JsonConfig::default()
         .limit(81920)
         .error_handler(|err, _req| {
@@ -29,9 +30,12 @@ pub fn configure(config: &mut ServiceConfig) {
             ));
             InternalError::from_response(err, response).into()
         });
-    config.app_data(json_config).service(
-        web::scope("/api/v0")
-            .wrap(TracingLogger::default())
-            .configure(controllers::configure_controllers),
-    );
+    config
+        .app_data(json_config)
+        .service(
+            web::scope("/api/v0")
+                .wrap(TracingLogger::default())
+                .configure(controllers::configure_controllers::<T>),
+        )
+        .data(file_store);
 }

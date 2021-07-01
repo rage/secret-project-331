@@ -1,17 +1,21 @@
 //! Allows storing files to a file storage backend.
+pub mod file_utils;
 pub mod google_cloud_file_store;
 pub mod local_file_store;
 
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    pin::Pin,
+};
 
-use actix_http::Payload;
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::Stream;
 
 use crate::models::courses::Course;
-use std::str::FromStr;
+
+pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes>>>>;
 /**
 Allows storing files to a file storage backend.
 */
@@ -23,7 +27,7 @@ pub trait FileStore {
     async fn upload_stream(
         &self,
         path: &Path,
-        mut contents: Payload,
+        mut contents: GenericPayload,
         mime_type: String,
     ) -> Result<()>;
     /// Download a file to memory.
@@ -50,9 +54,25 @@ fn path_to_str(path: &Path) -> Result<&str> {
 }
 
 pub fn course_image_path(course: &Course, image_name: String) -> Result<PathBuf> {
-    let path = PathBuf::from_str(&format!(
+    let path = PathBuf::from(format!(
         "organizations/{}/courses/{}/images/{}",
         course.organization_id, course.id, image_name
-    ))?;
+    ));
+    Ok(path)
+}
+
+pub fn course_audio_path(course: &Course, audio_name: String) -> Result<PathBuf> {
+    let path = PathBuf::from(format!(
+        "organizations/{}/courses/{}/audios/{}",
+        course.organization_id, course.id, audio_name
+    ));
+    Ok(path)
+}
+
+pub fn course_file_path(course: &Course, file_name: String) -> Result<PathBuf> {
+    let path = PathBuf::from(format!(
+        "organizations/{}/courses/{}/files/{}",
+        course.organization_id, course.id, file_name
+    ));
     Ok(path)
 }

@@ -16,6 +16,10 @@ actix-web = "=4.0.0-beta.5"
 actix-rt = "2.1.0"
 # Static file serving for Actix Web
 actix-files = "0.5.0"
+# Multipart form support for Actix web.
+actix-multipart = "0.4.0-beta.4"
+# Strongly Typed Mimes
+mime = "0.3.16"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio = { version = "1.2.0", features = ["fs", "io-util"] }
 # Additional utilities for working with Tokio.

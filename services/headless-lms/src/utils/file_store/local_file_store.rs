@@ -1,6 +1,5 @@
-use super::{path_to_str, FileStore};
-use actix_http::Payload;
-use anyhow::{anyhow, Result};
+use super::{path_to_str, FileStore, GenericPayload};
+use anyhow::Result;
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::{Stream, StreamExt};
@@ -22,7 +21,7 @@ impl LocalFileStore {
     pub async fn new(base_path: PathBuf, base_url: String) -> Result<Self> {
         if base_path.exists() {
             if !base_path.is_dir() {
-                return Err(anyhow!("Base path should be a folder"));
+                anyhow::bail!("Base path should be a folder");
             }
         } else {
             fs::create_dir_all(&base_path).await?;
@@ -55,7 +54,7 @@ impl FileStore for LocalFileStore {
     async fn get_download_url(&self, path: &Path) -> Result<String> {
         let full_path = self.base_path.join(path);
         if !full_path.exists() {
-            return Err(anyhow!("File does not exist"));
+            anyhow::bail!("File does not exist");
         }
         let path_str = path_to_str(path)?;
         if self.base_url.ends_with('/') {
@@ -67,18 +66,18 @@ impl FileStore for LocalFileStore {
     async fn upload_stream(
         &self,
         path: &Path,
-        mut contents: Payload,
+        mut contents: GenericPayload,
         _mime_type: String,
     ) -> Result<()> {
         let full_path = self.base_path.join(path);
         let parent_option = full_path.parent();
         if parent_option.is_none() {
-            return Err(anyhow!("Image path did not have a parent folder"));
+            anyhow::bail!("Media path did not have a parent folder");
         }
         let parent = parent_option.unwrap();
         if parent.exists() {
             if !parent.is_dir() {
-                return Err(anyhow!("Base path should be a folder"));
+                anyhow::bail!("Base path should be a folder");
             }
         } else {
             fs::create_dir_all(&parent).await?;

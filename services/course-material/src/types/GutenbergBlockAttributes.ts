@@ -28,13 +28,14 @@ export interface ImageAttributes {
   width?: number
   height?: number
   sizeSlug?: string
-  linkDestination?: string
+  linkDestination: string
   linkTarget?: string
   anchor?: string
   className?: string
   style?: {
     [k: string]: unknown
   }
+  blurDataUrl: string
 }
 
 export interface HeadingAttributes {

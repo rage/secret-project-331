@@ -14,10 +14,11 @@ use tokio_util::io::ReaderStream;
 #[derive(Debug, Clone)]
 pub struct LocalFileStore {
     pub base_path: PathBuf,
+    pub base_url: String,
 }
 
 impl LocalFileStore {
-    pub async fn new(base_path: PathBuf) -> Result<Self> {
+    pub async fn new(base_path: PathBuf, base_url: String) -> Result<Self> {
         if base_path.exists() {
             if !base_path.is_dir() {
                 anyhow::bail!("Base path should be a folder");
@@ -25,7 +26,10 @@ impl LocalFileStore {
         } else {
             fs::create_dir_all(&base_path).await?;
         }
-        Ok(Self { base_path })
+        Ok(Self {
+            base_path,
+            base_url,
+        })
     }
 }
 #[async_trait(?Send)]
@@ -53,8 +57,10 @@ impl FileStore for LocalFileStore {
             anyhow::bail!("File does not exist");
         }
         let path_str = path_to_str(path)?;
-
-        Ok(path_str.to_string())
+        if self.base_url.ends_with('/') {
+            return Ok(format!("{}{}", self.base_url, path_str));
+        }
+        Ok(format!("{}/{}", self.base_url, path_str))
     }
 
     async fn upload_stream(
@@ -118,9 +124,10 @@ mod tests {
     async fn upload_download_delete_works() {
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();
-        let local_file_store = LocalFileStore::new(base_path.clone())
-            .await
-            .expect("Could not create local file storage");
+        let local_file_store =
+            LocalFileStore::new(base_path.clone(), "http://localhost:3000".to_string())
+                .await
+                .expect("Could not create local file storage");
 
         let path1 = Path::new("file1");
         let test_file_contents = "Test file contents".as_bytes().to_vec();
@@ -149,9 +156,10 @@ mod tests {
     async fn get_download_url_works() {
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();
-        let local_file_store = LocalFileStore::new(base_path.clone())
-            .await
-            .expect("Could not create local file storage");
+        let local_file_store =
+            LocalFileStore::new(base_path.clone(), "http://localhost:3000".to_string())
+                .await
+                .expect("Could not create local file storage");
         let test_file_contents = "Test file contents 2".as_bytes().to_vec();
         let path1 = Path::new("file1");
         local_file_store
@@ -162,7 +170,7 @@ mod tests {
             .get_download_url(&path1)
             .await
             .expect("Failed to get a download url");
-        let expected_url = path1.to_string_lossy();
+        let expected_url = format!("http://localhost:3000/{}", path1.to_string_lossy());
         assert_eq!(url, expected_url);
 
         let nonexistant_file = Path::new("does-not-exist");

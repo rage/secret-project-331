@@ -53,9 +53,12 @@ async fn main() -> Result<()> {
 
     let mut server = HttpServer::new(move || {
         let file_store = futures::executor::block_on(async {
-            LocalFileStore::new("uploads".into())
-                .await
-                .expect("Failed to initialize file store")
+            LocalFileStore::new(
+                "uploads".into(),
+                "http://project-331.local/api/v0/files/uploads/".into(),
+            )
+            .await
+            .expect("Failed to initialize file store")
         });
         App::new()
             .configure(move |config| headless_lms_actix::configure(config, file_store))

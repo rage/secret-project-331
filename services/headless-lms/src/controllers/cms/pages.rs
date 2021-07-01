@@ -335,7 +335,7 @@ async fn upload_media_for_course<T: FileStore>(
             upload_media_to_storage(&path, field, file_store.as_ref()).await?;
 
             return Ok(Json(UploadResult {
-                url: format!("/api/v0/files/{}", path.to_string_lossy()),
+                url: file_store.get_download_url(&path.as_path()).await?,
             }));
         }
         Err(err) => Err(ApplicationError::InternalServerError(err.to_string())),
@@ -370,7 +370,7 @@ async fn upload_image_for_course(
     upload_media_to_storage(&path, field, file_store).await?;
 
     return Ok(Json(UploadResult {
-        url: format!("/api/v0/files/{}", path.to_string_lossy()),
+        url: file_store.get_download_url(&path.as_path()).await?,
     }));
 }
 
@@ -402,7 +402,7 @@ async fn upload_audio_for_course(
     upload_media_to_storage(&path, field, file_store).await?;
 
     return Ok(Json(UploadResult {
-        url: format!("/api/v0/files/{}", path.to_string_lossy()),
+        url: file_store.get_download_url(&path.as_path()).await?,
     }));
 }
 

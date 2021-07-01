@@ -55,7 +55,7 @@ fn path_to_str(path: &Path) -> Result<&str> {
 
 pub fn course_image_path(course: &Course, image_name: String) -> Result<PathBuf> {
     let path = PathBuf::from(format!(
-        "/api/v0/images/organizations/{}/courses/{}/images/{}",
+        "organizations/{}/courses/{}/images/{}",
         course.organization_id, course.id, image_name
     ));
     Ok(path)
@@ -63,7 +63,7 @@ pub fn course_image_path(course: &Course, image_name: String) -> Result<PathBuf>
 
 pub fn course_audio_path(course: &Course, audio_name: String) -> Result<PathBuf> {
     let path = PathBuf::from(format!(
-        "/api/v0/audios/organizations/{}/courses/{}/audios/{}",
+        "organizations/{}/courses/{}/audios/{}",
         course.organization_id, course.id, audio_name
     ));
     Ok(path)
@@ -71,7 +71,7 @@ pub fn course_audio_path(course: &Course, audio_name: String) -> Result<PathBuf>
 
 pub fn course_file_path(course: &Course, file_name: String) -> Result<PathBuf> {
     let path = PathBuf::from(format!(
-        "/api/v0/files/organizations/{}/courses/{}/files/{}",
+        "organizations/{}/courses/{}/files/{}",
         course.organization_id, course.id, file_name
     ));
     Ok(path)

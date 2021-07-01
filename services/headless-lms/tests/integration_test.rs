@@ -56,7 +56,7 @@ pub async fn init_actix() -> (
         .await
         .expect("failed to connect to test db");
     let file_store = futures::executor::block_on(async {
-        LocalFileStore::new("uploads".into())
+        LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
             .await
             .expect("Failed to initialize test file store")
     });

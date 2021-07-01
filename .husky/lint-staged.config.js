@@ -5,7 +5,7 @@ module.exports = {
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml -- --files-with-diff",
     "cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings",
   ],
-  "**/models/*.rs": () => [
+  "**/models/**/*.rs": () => [
     "./services/headless-lms/bin/sqlx-prepare-check",
   ],
 }

@@ -21,7 +21,6 @@ import "@wordpress/format-library/build-style/style.css"
 // import "@wordpress/editor/build-style/style.css"
 // import "@wordpress/edit-post/build-style/style.css"
 
-import React, { useEffect } from "react"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -30,9 +29,12 @@ import {
   BlockInspector,
   WritingFlow,
   ObserveTyping,
+  EditorSettings,
+  EditorBlockListSettings,
 } from "@wordpress/block-editor"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
+import { addFilter } from "@wordpress/hooks"
 import {
   BlockInstance,
   getBlockType,
@@ -46,7 +48,11 @@ import {
 /**
  * Internal dependencies
  */
+import React, { useEffect } from "react"
 import { blockTypeMap } from "../blocks"
+import mediaUploadBuilder, { MediaUploadProps } from "../services/backend/media/mediaUpload"
+import useQueryParameter from "../hooks/useQueryParameter"
+import { modifyBlockAttributes } from "../utils/Gutenberg/modifyBlockAttributes"
 import { supportedCoreBlocks, allowedEmbedBlocks } from "../blocks/supportedGutenbergBlocks"
 
 interface GutenbergEditor {
@@ -55,16 +61,19 @@ interface GutenbergEditor {
 }
 
 const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
+  const pageId = useQueryParameter("id")
   const { content, onContentChange } = props
 
   const handleChanges = (page: BlockInstance[]): void => {
-    console.log(page)
     onContentChange(page)
   }
   const handleInput = (page: BlockInstance[]): void => {
-    console.log(page)
     onContentChange(page)
   }
+
+  // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
+  // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
+  addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 
   useEffect(() => {
     // Register all core blocks
@@ -88,10 +97,21 @@ const GutenbergEditor: React.FC<GutenbergEditor> = (props: GutenbergEditor) => {
     })
   }, [])
 
+  const editorSettings: Partial<
+    EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
+  > = {}
+  // Enables uploading media
+  editorSettings.mediaUpload = mediaUploadBuilder(pageId)
+
   return (
     <div className="editor">
       <SlotFillProvider>
-        <BlockEditorProvider value={content} onInput={handleInput} onChange={handleChanges}>
+        <BlockEditorProvider
+          settings={editorSettings}
+          value={content}
+          onInput={handleInput}
+          onChange={handleChanges}
+        >
           <div className="editor__sidebar">
             <BlockInspector />
           </div>

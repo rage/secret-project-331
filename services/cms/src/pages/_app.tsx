@@ -6,6 +6,7 @@ import { RecoilRoot } from "recoil"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
 import { StylesProvider } from "@material-ui/core/styles"
+import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 
 import { ThemeProvider } from "@material-ui/core/styles"
 import React from "react"
@@ -142,7 +143,9 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
                 }
               `}
             />
-            <Component {...pageProps} />
+            <LoginStateContextProvider>
+              <Component {...pageProps} />
+            </LoginStateContextProvider>
             <ReactQueryDevtools initialIsOpen={false} />
           </ThemeProvider>
         </StylesProvider>

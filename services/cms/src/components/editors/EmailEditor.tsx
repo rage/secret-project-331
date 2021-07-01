@@ -3,6 +3,7 @@ import LoadingButton from "@material-ui/lab/LoadingButton"
 import SaveIcon from "@material-ui/icons/Save"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
+import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 
 interface EmailEditorProps {
   data: any
@@ -11,7 +12,7 @@ interface EmailEditorProps {
 
 const EditorLoading = <div>Loading e-mail editor...</div>
 
-const EmailGutenbergEditor = dynamic(() => import("./EmailGutenbergEditor"), {
+const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   ssr: false,
   loading: () => EditorLoading,
 })
@@ -40,7 +41,11 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
         Save
       </LoadingButton>
 
-      <EmailGutenbergEditor content={content} onContentChange={setContent} />
+      <EmailGutenbergEditor
+        content={content}
+        onContentChange={setContent}
+        allowedBlocks={allowedEmailCoreBlocks}
+      />
     </>
   )
 }

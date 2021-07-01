@@ -3,10 +3,12 @@ import LoadingButton from "@material-ui/lab/LoadingButton"
 import SaveIcon from "@material-ui/icons/Save"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
-import { Page, PageUpdate } from "../services/services.types"
-import UpdatePageDetailsForm from "./forms/UpdatePageDetailsForm"
-import SerializeGutenbergModal from "./SerializeGutenbergModal"
-import DebugModal from "./DebugModal"
+import { Page, PageUpdate } from "../../services/services.types"
+import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
+import SerializeGutenbergModal from "../SerializeGutenbergModal"
+import DebugModal from "../DebugModal"
+import { blockTypeMap } from "../../blocks"
+import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 
 interface PageEditorProps {
   data: Page
@@ -57,7 +59,13 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         setUrlPath={setUrlPath}
       />
 
-      <GutenbergEditor content={content} onContentChange={setContent} />
+      <GutenbergEditor
+        content={content}
+        onContentChange={setContent}
+        customBlocks={blockTypeMap}
+        allowedBlocks={supportedCoreBlocks}
+        allowedBlockVariations={allowedBlockVariants}
+      />
       <SerializeGutenbergModal content={content} />
       <DebugModal content={content} />
     </>

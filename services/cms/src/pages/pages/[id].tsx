@@ -5,7 +5,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "../../utils/dontRenderUntilQueryParametersReady"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { Page, PageUpdate } from "../../services/services.types"
-import PageEditor from "../../components/PageEditor"
+import PageEditor from "../../components/editors/PageEditor"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 
 interface PagesProps {

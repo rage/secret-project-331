@@ -40,9 +40,9 @@ import {
  * Internal dependencies
  */
 import React, { useEffect } from "react"
-import mediaUploadBuilder, { MediaUploadProps } from "../services/backend/media/mediaUpload"
-import useQueryParameter from "../hooks/useQueryParameter"
-import { modifyBlockAttributes } from "../utils/Gutenberg/modifyBlockAttributes"
+import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import useQueryParameter from "../../hooks/useQueryParameter"
+import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 
 interface GutenbergEditorProps {
   content: BlockInstance[]

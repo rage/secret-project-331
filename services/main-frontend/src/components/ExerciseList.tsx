@@ -25,7 +25,15 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
     <ul>
       {data.map((x) => (
         <li key={x.id}>
-          {x.name} <Link href={`/manage/exercises/${x.id}/submissions`}>view submissions</Link>
+          {x.name}{" "}
+          <Link
+            href={{
+              pathname: "/manage/exercises/[exerciseId]/submissions",
+              query: { exerciseId: x.id },
+            }}
+          >
+            view submissions
+          </Link>
         </li>
       ))}
     </ul>

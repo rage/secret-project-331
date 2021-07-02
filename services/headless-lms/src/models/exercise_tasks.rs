@@ -33,7 +33,7 @@ pub async fn insert(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     exercise_type: &str,
-    assignment: GutenbergBlock,
+    assignment: Vec<GutenbergBlock>,
     private_spec: Value,
     public_spec: Value,
 ) -> Result<Uuid> {

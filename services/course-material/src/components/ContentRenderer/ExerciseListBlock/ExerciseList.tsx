@@ -10,7 +10,7 @@ const ExerciseList: React.FC<{ chapterId: string }> = ({ chapterId }) => {
   )
 
   if (error) {
-return <pre>{JSON.stringify(error, undefined, 3)}</pre>
+    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
 
   if (isLoading || !data) {

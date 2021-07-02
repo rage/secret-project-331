@@ -23,4 +23,4 @@ CREATE TABLE exercise_service_info (
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON exercise_service_info FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-COMMENT ON TABLE exercise_service_info IS 'Information that exercise service has reported';
+COMMENT ON TABLE exercise_service_info IS 'Information that exercise service has reported. Contains for example endpoints where the functionalities of this service can be accessed.';

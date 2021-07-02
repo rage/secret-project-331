@@ -11,16 +11,15 @@ const savedCommitHashesPath = `${projectRoot}/.husky/_/saved-hashes`
 
 async function main(): Promise<void> {
   await mkdir(savedCommitHashesPath, { recursive: true })
-  await detectChange("shared-module/src", "shared-module", async () => {
-    console.log("Installing the shared module again.")
-    console.log(`> npm run postinstall`)
-    await runCommandWithVisibleOutput("npm", ["run", "postinstall"])
-  })
-
   await detectChange("package-lock.json", "package-lock", async () => {
     console.log("Running npm ci to install latest dependencies.")
     console.log(`> npm ci`)
     await runCommandWithVisibleOutput("npm", ["ci"])
+  })
+  await detectChange("shared-module/src", "shared-module", async () => {
+    console.log("Installing the shared module again.")
+    console.log(`> npm run postinstall`)
+    await runCommandWithVisibleOutput("npm", ["run", "postinstall"])
   })
 }
 

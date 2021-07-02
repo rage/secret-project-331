@@ -6,7 +6,7 @@ import styled from "@emotion/styled"
 import { BlockInstance } from "@wordpress/blocks"
 
 export interface DebugModalProps {
-  content: BlockInstance[]
+  content: unknown
   readOnly?: boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateDataOnClose?: Dispatch<any>

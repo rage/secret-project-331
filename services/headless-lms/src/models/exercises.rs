@@ -318,7 +318,7 @@ mod test {
         )
         .await
         .unwrap();
-        let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
+        let _chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();
         let page_id = pages::insert(tx.as_mut(), course_id, "", "", 0)
@@ -331,13 +331,13 @@ mod test {
             tx.as_mut(),
             exercise_id,
             "",
-            GutenbergBlock {
+            vec![GutenbergBlock {
                 attributes: Value::Null,
                 client_id: "".to_string(),
                 inner_blocks: vec![],
                 is_valid: true,
                 name: "".to_string(),
-            },
+            }],
             Value::Null,
             Value::Null,
         )

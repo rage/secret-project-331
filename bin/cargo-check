@@ -1,6 +1,4 @@
 #!/bin/bash
-# Only meant to be ran against the database in minikube. You can start it with
-# either `bin/dev` or `bin/dev-only-db`.
 set -euo pipefail
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"

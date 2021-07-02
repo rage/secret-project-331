@@ -1,12 +1,13 @@
 use anyhow::Result;
+use headless_lms_actix::models::course_instances::VariantStatus;
 use headless_lms_actix::models::roles::UserRole;
 use headless_lms_actix::models::{
-    chapters, course_instances, courses, exercise_services, exercise_tasks, exercises,
-    organizations, pages, roles, submissions, users,
+    chapters, course_instances, courses, exercise_tasks, exercises, organizations, pages, roles,
+    submissions, users,
 };
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
-use headless_lms_actix::{models::course_instances::VariantStatus, setup_tracing};
-use sqlx::{Connection, PgConnection};
+use sqlx::migrate::MigrateDatabase;
+use sqlx::{Connection, PgConnection, Postgres};
 use std::env;
 use std::fs::File;
 use std::process::Command;
@@ -14,12 +15,21 @@ use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    tracing_subscriber::fmt().init();
     dotenv::dotenv().ok();
-    setup_tracing()?;
 
-    let db_url = env::var("DATABASE_URL").unwrap();
+    let clean = env::args().any(|a| a == "clean");
+    let db_url = env::var("DATABASE_URL")?;
     let seed_path = "./db/seed";
+
+    if clean {
+        Postgres::drop_database(&db_url).await?;
+        Postgres::create_database(&db_url).await?;
+    }
     let mut conn = PgConnection::connect(&db_url).await?;
+    if clean {
+        sqlx::migrate!("./migrations").run(&mut conn).await?;
+    }
 
     // users
     let admin = users::insert(&mut conn).await?;
@@ -31,15 +41,6 @@ async fn main() -> Result<()> {
         &mut conn,
         "University of Helsinki, Department of Computer Science",
         "uh-cs",
-    )
-    .await?;
-
-    let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
-        &mut conn,
-        "Example Exercise",
-        "example-exercise",
-        "http://project-331.local/example-exercise/api/service-info",
-        "http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info",
     )
     .await?;
 
@@ -195,7 +196,7 @@ async fn main() -> Result<()> {
     let intro_exercise_task_1_1 = exercise_tasks::insert(
         &mut conn,
         intro_exercise_page1_1,
-        "example-exercise",
+        "example",
         vec![GutenbergBlock {
             name: "core/paragraph".to_string(),
             is_valid: true,
@@ -242,7 +243,7 @@ async fn main() -> Result<()> {
     let _intro_exercise_task_2_1 = exercise_tasks::insert(
         &mut conn,
         intro_exercise_page2_1,
-        "example-exercise",
+        "example",
         vec![GutenbergBlock {
             name: "core/paragraph".to_string(),
             is_valid: true,
@@ -284,7 +285,7 @@ async fn main() -> Result<()> {
     let _intro_exercise_task_2_2 = exercise_tasks::insert(
         &mut conn,
         intro_exercise_page2_2,
-        "example-exercise",
+        "example",
         vec![GutenbergBlock {
             name: "core/paragraph".to_string(),
             is_valid: true,
@@ -326,7 +327,7 @@ async fn main() -> Result<()> {
     let _intro_exercise_task_2_3 = exercise_tasks::insert(
         &mut conn,
         intro_exercise_page2_3,
-        "example-exercise",
+        "example",
         vec![GutenbergBlock {
             name: "core/paragraph".to_string(),
             is_valid: true,

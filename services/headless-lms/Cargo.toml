@@ -8,7 +8,6 @@ default-run = "headless-lms-actix"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
-
 [dependencies]
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
 actix-web = "=4.0.0-beta.5"
@@ -31,11 +30,18 @@ listenfd = "0.3.3"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.38"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
-sqlx = { version = "0.5.1", features = [ "postgres", "runtime-actix-rustls", "uuid", "chrono", "json", "offline" ] }
+sqlx = { version = "0.5.1", features = [
+  "postgres",
+  "runtime-actix-rustls",
+  "uuid",
+  "chrono",
+  "json",
+  "offline"
+] }
 # A library to generate and parse UUIDs.
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.123", features = ["derive"]}
+serde = { version = "1.0.123", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.19", features = ["serde"] }
 # A JSON serialization file format
@@ -61,7 +67,7 @@ blake3 = "0.3.7"
 # Recursively walk a directory.
 walkdir = "2.3.2"
 # higher level HTTP client library
-reqwest = { version = "0.11.3", features=["brotli", "gzip"] }
+reqwest = { version = "0.11.3", features = ["brotli", "gzip"] }
 # Sessions for Actix web
 actix-session = "0.5.0-beta.1"
 # An extensible, strongly-typed implementation of OAuth2
@@ -78,11 +84,10 @@ tracing-actix-web = "=0.4.0-beta.4"
 tracing-error = "0.1"
 # Provides compatibility between `tracing` and the `log` crate.
 tracing-log = "0.1"
-
 # restricting the transitive dependencies of actix-web during beta
 actix-http = "=3.0.0-beta.5"
 actix-service = "=2.0.0-beta.5"
-
+# Email client
 lettre = "0.10.0-rc.3"
 
 [dev-dependencies]

@@ -93,47 +93,36 @@ pub fn process_content_to_html(block: EmailGutenbergBlock) -> Result<()> {
         .into_iter()
         .map(|block| match block.attributes {
             BlockAttributes::Paragraph { content, .. } => {
-                let mut result: String = String::from("<p>");
-                result.push_str(&content);
-                result.push_str("</p>");
+                let result = format!("<p>{}</p>", content);
                 result
             }
             BlockAttributes::Image { alt, src, .. } => {
-                let mut result: String = String::from("<p>");
-                result.push_str(&alt);
-                result.push_str("</p>");
+                let result = format!(r#"<img src="{}" alt="{}"></img>"#, src, alt);
                 result
             }
             BlockAttributes::Heading { content, level, .. } => {
-                let mut result: String = String::from("<p>");
-                result.push_str(&content);
-                result.push_str("</p>");
+                let result: String = format!("<h{}>{}</h{}>", level, content, level);
                 result
             }
             BlockAttributes::List {
                 values, ordered, ..
             } => {
-                let mut result: String = String::from("<p>");
-                result.push_str(&values);
-                result.push_str("</p>");
+                let result = construct_list(values, ordered);
                 result
             }
-            BlockAttributes::Quote { citation, .. } => {
-                let mut result: String = String::from("<p>");
-                result.push_str(&citation);
-                result.push_str("</p>");
+            BlockAttributes::Quote {
+                citation, value, ..
+            } => {
+                let result = format!(r#"<blockquote cite="{}">{}</blockquote>"#, citation, value);
                 result
             }
             BlockAttributes::PreFormatted { content, .. } => {
-                let mut result: String = String::from("<pre>");
-                result.push_str(&content);
-                result.push_str("</pre>");
+                let result = format!("<pre>{}</pre>", content);
+
                 result
             }
             BlockAttributes::PullQuote { citation, .. } => {
-                let mut result: String = String::from("<p>");
-                result.push_str(&citation);
-                result.push_str("</p>");
+                let result: String = format!("<q>{}</q>", citation);
                 result
             }
         })
@@ -142,4 +131,9 @@ pub fn process_content_to_html(block: EmailGutenbergBlock) -> Result<()> {
     //save results to email_templates table
     let result = contents.join("");
     Ok(())
+}
+
+//implement this in the future
+pub fn construct_list(values: String, ordered: bool) -> String {
+    String::from("list")
 }

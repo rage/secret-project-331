@@ -42,7 +42,7 @@ pub async fn init_db() -> String {
         .run(&mut conn)
         .await
         .expect("failed to run migrations");
-    setup_tracing()?;
+    setup_tracing().expect("Could not setup tracing.");
     db
 }
 

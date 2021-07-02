@@ -49,7 +49,8 @@ Sets up tokio tracing. Also makes sure that log statements from libraries respec
 settings that have been set with RUST_LOG, for example:
 
 ```no_run
- env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+use std::env;
+env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
 ```
 */
 pub fn setup_tracing() -> Result<()> {

@@ -8,6 +8,7 @@ const CourseProgressConfiguration: BlockConfiguration = {
   category: "design",
   edit: CourseProgressEditor,
   save: CourseProgressSave,
+  attributes: {},
 }
 
 export default CourseProgressConfiguration

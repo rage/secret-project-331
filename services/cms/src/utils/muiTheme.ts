@@ -6,11 +6,6 @@ const muiTheme = createMuiTheme({
       textTransform: "none",
     },
   },
-  props: {
-    MuiButton: {
-      variant: "outlined",
-    },
-  },
 })
 
 export default muiTheme

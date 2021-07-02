@@ -15,7 +15,6 @@ import NewPartForm from "../../../components/forms/NewChapterForm"
 import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
 import { groupBy, max } from "lodash"
-import { createBlockInstance } from "../../../utils/blockUtils"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 
 const CoursePages: React.FC<unknown> = () => {
@@ -133,7 +132,7 @@ const CoursePages: React.FC<unknown> = () => {
         </div>
       </div>
 
-      <DebugModal data={data} />
+      <DebugModal content={data} />
     </Layout>
   )
 }

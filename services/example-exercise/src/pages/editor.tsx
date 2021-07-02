@@ -1,4 +1,3 @@
-import { useRouter } from "next/dist/client/router"
 import { useEffect, useState } from "react"
 import Editor from "../components/Editor"
 import useStateWithOnChange from "../hooks/useStateWithOnChange"
@@ -17,12 +16,12 @@ const EditorPage: React.FC = () => {
   })
 
   const [port, setPort] = useState<MessagePort | null>(null)
-  const router = useRouter()
-  const rawMaxWidth = router?.query?.width
-  let maxWidth: number | null = null
-  if (rawMaxWidth) {
-    maxWidth = Number(rawMaxWidth)
-  }
+  // const router = useRouter()
+  // const rawMaxWidth = router?.query?.width
+  // let _maxWidth: number | null = null
+  // if (rawMaxWidth) {
+  //   _maxWidth = Number(rawMaxWidth)
+  // }
 
   useEffect(() => {
     const handler = (message: WindowEventMap["message"]) => {

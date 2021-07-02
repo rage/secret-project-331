@@ -1,7 +1,10 @@
 use actix_http::{body::Body, Request};
 use actix_session::CookieSession;
 use actix_web::{dev::ServiceResponse, test, App};
-use headless_lms_actix::models::organizations::{self, Organization};
+use headless_lms_actix::{
+    models::organizations::{self, Organization},
+    utils::file_store::local_file_store::LocalFileStore,
+};
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use std::env;
 use tokio::sync::Mutex;
@@ -9,7 +12,9 @@ use tokio::sync::Mutex;
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
 
-/// Reinitializes the test database once per `cargo test` call
+/// Reinitializes the test database once per `cargo test` call.
+/// This is done because there's no good way to clean up the database after testing,
+/// so there may be leftover data.
 pub async fn init_db() -> String {
     if let Some(db) = DB_URL.lock().await.as_ref() {
         return db.clone();
@@ -46,13 +51,17 @@ pub async fn init_actix() -> (
     PgPool,
 ) {
     let db = init_db().await;
-    let private_cookie_key =
-        env::var("PRIVATE_COOKIE_KEY").expect("PRIVATE_COOKIE_KEY must be defined");
+    let private_cookie_key = "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=";
     let pool = PgPool::connect(&db)
         .await
         .expect("failed to connect to test db");
+    let file_store = futures::executor::block_on(async {
+        LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
+            .await
+            .expect("Failed to initialize test file store")
+    });
     let app = App::new()
-        .configure(headless_lms_actix::configure)
+        .configure(move |config| headless_lms_actix::configure(config, file_store))
         .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
         // .data(oauth_client.clone())
         .data(pool.clone());
@@ -60,7 +69,6 @@ pub async fn init_actix() -> (
 }
 
 #[tokio::test]
-#[ignore = "db not set up in CI, still useful as an example test"]
 async fn gets_organizations() {
     let (actix, pool) = init_actix().await;
     let mut conn = pool.acquire().await.unwrap();

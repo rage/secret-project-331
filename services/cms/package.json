@@ -68,6 +68,7 @@
     "@types/wordpress__components": "^9.8.6",
     "@types/wordpress__data": "^4.6.9",
     "@types/wordpress__deprecated": "^2.4.2",
+    "@types/wordpress__media-utils": "^0.2.4",
     "@wordpress/scripts": "^16.1.2",
     "jest": "^27.0.4",
     "jsdom": "^16.6.0",

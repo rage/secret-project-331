@@ -1,18 +1,8 @@
 //! Controllers for requests starting with `/api/v0/cms/courses`.
-use crate::{
-    controllers::{ApplicationError, ApplicationResult},
-    domain::authorization::AuthUser,
-    models::courses::CourseStructure,
-    utils::file_store::{course_image_path, local_file_store::LocalFileStore, FileStore},
-};
-use actix_web::{
-    http::header,
-    web::{self, Json},
-};
-use actix_web::{web::ServiceConfig, HttpRequest};
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
-use serde::{Deserialize, Serialize};
+use crate::domain::authorization::AuthUser;
+use crate::{controllers::ApplicationResult, models::courses::CourseStructure};
+use actix_web::web::ServiceConfig;
+use actix_web::web::{self, Json};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -69,89 +59,6 @@ async fn get_course_structure(
         crate::models::courses::get_course_structure(&mut conn, *request_course_id).await?;
     Ok(Json(course_structure))
 }
-/// Result of a image upload. Tells where the uploaded image can be retrieved from.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct ImageUploadResult {
-    url: String,
-}
-
-/**
-POST `/api/v0/cms/courses/:course_id/images` - Upload a image.
-
-Put the the contents of the image in the request body and add a content type header. such as image/jpeg.
-# Example
-
-Request:
-```http
-POST /api/v0/cms/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images HTTP/1.1
-Content-Type: image/png
-
-BINARY_DATA
-```
-
-Response:
-```json
-{
-    "url": "/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
-}
-```
-*/
-#[instrument(skip(payload))]
-async fn upload_image(
-    request_course_id: web::Path<Uuid>,
-    payload: web::Payload,
-    request: HttpRequest,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ApplicationResult<Json<ImageUploadResult>> {
-    let mut conn = pool.acquire().await?;
-    // TODO: add max image size
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
-    let headers = request.headers();
-    let content_type_option = headers.get(header::CONTENT_TYPE);
-    if content_type_option.is_none() {
-        return Err(ApplicationError::BadRequest(
-            "Please provide a Content-Type header".into(),
-        ));
-    }
-    let content_type = content_type_option.unwrap();
-    let content_type_string = String::from_utf8_lossy(content_type.as_bytes()).to_string();
-
-    let extension = match content_type_string.as_str() {
-        "image/jpg" => ".jpg",
-        "image/jpeg" => ".jpg",
-        "image/png" => ".png",
-        "image/svg+xml" => ".svg",
-        "image/webp" => ".webp",
-        "image/gif" => ".gif",
-        _ => return Err(ApplicationError::BadRequest("Unsupported mime type".into())),
-    };
-
-    let local_file_store =
-        LocalFileStore::new("uploads".into(), "/api/v0/images".to_string()).await?;
-
-    // using a random string for the image name because
-    // a) we don't want the filename to be user controllable
-    // b) we don't want the filename to be too easily guessable (so no uuid)
-    let mut image_name: String = thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(30)
-        .map(char::from)
-        .collect();
-
-    image_name.push_str(extension);
-
-    let path = course_image_path(&course, image_name)
-        .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
-
-    local_file_store
-        .upload_stream(&path, payload.into_inner(), content_type_string)
-        .await?;
-
-    Ok(Json(ImageUploadResult {
-        url: format!("/api/v0/files/{}", path.to_string_lossy()),
-    }))
-}
 
 /**
 Add a route for each controller in this module.
@@ -161,9 +68,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{course_id}/images", web::post().to(upload_image))
-        .route(
-            "/{course_id}/structure",
-            web::get().to(get_course_structure),
-        );
+    cfg.route(
+        "/{course_id}/structure",
+        web::get().to(get_course_structure),
+    );
 }

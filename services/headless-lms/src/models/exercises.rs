@@ -137,6 +137,25 @@ pub async fn get_exercise_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Exe
     Ok(exercise)
 }
 
+pub async fn get_exercises_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> Result<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE course_id = $1
+  AND deleted_at IS NULL
+"#,
+        course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = $1;", id)
         .fetch_one(conn)
@@ -147,28 +166,113 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
 
 pub async fn get_course_material_exercise(
     conn: &mut PgConnection,
+    user_id: Option<Uuid>,
     exercise_id: Uuid,
 ) -> Result<CourseMaterialExercise> {
-    let exercise = sqlx::query_as!(
-        Exercise,
-        "SELECT * FROM exercises WHERE id = $1;",
-        exercise_id
-    )
-    .fetch_one(&mut *conn)
-    .await?;
-    // Exercise task contains the actual assignment and activity
-    // What exercise task to give for the student depends on the
-    // exercise -- for now we'll give a random exercise task to the student
-    // this could be changed by creating a policy in the exercise.
-    let current_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
+    let exercise = get_exercise_by_id(conn, exercise_id).await?;
+
+    // if the user is logged in, take the previously selected task or select a new one
+    let selected_exercise_task = if let Some(user_id) = user_id {
+        // user is logged in, see if they're enrolled on the course
+        let current_course_instance_id: Option<Uuid> = sqlx::query!(
+            r#"
+SELECT course_instance_id AS id
+FROM course_instance_enrollments
+WHERE course_id = $1
+  AND user_id = $2
+  AND current = TRUE
+  AND deleted_at IS NULL
+"#,
+            exercise.course_id,
+            user_id
+        )
+        .fetch_optional(&mut *conn)
+        .await?
+        .map(|r| r.id);
+
+        if let Some(current_course_instance_id) = current_course_instance_id {
+            // user is enrolled on an instance of the given course, see if a task has already been selected
+            let selected_exercise_task_id: Option<Uuid> = sqlx::query!(
+                r#"
+SELECT selected_exercise_task_id AS "id!"
+FROM user_exercise_states
+WHERE user_id = $1
+  AND selected_exercise_task_id IS NOT NULL
+  AND exercise_id = $2
+  AND course_instance_id = $3
+  AND deleted_at IS NULL
+            "#,
+                user_id,
+                exercise.id,
+                current_course_instance_id
+            )
+            .fetch_optional(&mut *conn)
+            .await?
+            .map(|r| r.id);
+
+            if let Some(selected_exercise_task_id) = selected_exercise_task_id {
+                // a task has previously been selected, return it
+                sqlx::query_as!(
+                    CourseMaterialExerciseTask,
+                    "
+SELECT id,
+  exercise_id,
+  exercise_type,
+  assignment,
+  public_spec
+FROM exercise_tasks
+WHERE id = $1
+                ",
+                    selected_exercise_task_id
+                )
+                .fetch_one(&mut *conn)
+                .await?
+            } else {
+                // no task has been selected
+                // Exercise task contains the actual assignment and activity
+                // What exercise task to give for the student depends on the
+                // exercise -- for now we'll give a random exercise task to the student
+                // this could be changed by creating a policy in the exercise.
+                let selected_exercise_task = get_random_exercise_task(conn, exercise_id).await?;
+                sqlx::query!(
+                    "
+INSERT INTO user_exercise_states (
+    user_id,
+    exercise_id,
+    course_instance_id,
+    selected_exercise_task_id
+  )
+VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
+UPDATE
+SET selected_exercise_task_id = $4
+",
+                    user_id,
+                    exercise_id,
+                    current_course_instance_id,
+                    selected_exercise_task.id,
+                )
+                .execute(&mut *conn)
+                .await?;
+                selected_exercise_task
+            }
+        } else {
+            // user is not enrolled on the course, return error
+            anyhow::bail!("User must be enrolled to the course")
+        }
+    } else {
+        // user is not logged in, get a random task
+        get_random_exercise_task(conn, exercise_id).await?
+    };
+
     let current_exercise_task_service_info = get_course_material_service_info_by_exercise_type(
         conn,
-        &current_exercise_task.exercise_type,
+        &selected_exercise_task.exercise_type,
     )
     .await;
+
     Ok(CourseMaterialExercise {
         exercise,
-        current_exercise_task,
+        current_exercise_task: selected_exercise_task,
         exercise_status: Some(ExerciseStatus {
             score_given: None,
             activity_progress: ActivityProgress::Initialized,
@@ -176,4 +280,107 @@ pub async fn get_course_material_exercise(
         }),
         current_exercise_task_service_info,
     })
+}
+
+#[cfg(test)]
+mod test {
+    use serde_json::Value;
+
+    use super::*;
+    use crate::{
+        models::{
+            chapters, course_instance_enrollments, course_instances, courses, exercise_tasks,
+            organizations, pages, users,
+        },
+        test_helper::Conn,
+        utils::document_schema_processor::GutenbergBlock,
+    };
+
+    #[tokio::test]
+    async fn selects_course_material_exercise_for_enrolled_student() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+
+        let user_id = users::insert(tx.as_mut()).await.unwrap();
+        let organization_id = organizations::insert(tx.as_mut(), "", "").await.unwrap();
+        let course_id = courses::insert(tx.as_mut(), "", organization_id, "")
+            .await
+            .unwrap();
+        let course_instance_id = course_instances::insert(tx.as_mut(), course_id, None)
+            .await
+            .unwrap();
+        course_instance_enrollments::insert(
+            tx.as_mut(),
+            user_id,
+            course_id,
+            course_instance_id,
+            true,
+        )
+        .await
+        .unwrap();
+        let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
+            .await
+            .unwrap();
+        let page_id = pages::insert(tx.as_mut(), course_id, "", "", 0)
+            .await
+            .unwrap();
+        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, 0)
+            .await
+            .unwrap();
+        let exercise_task_id = exercise_tasks::insert(
+            tx.as_mut(),
+            exercise_id,
+            "",
+            GutenbergBlock {
+                attributes: Value::Null,
+                client_id: "".to_string(),
+                inner_blocks: vec![],
+                is_valid: true,
+                name: "".to_string(),
+            },
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
+
+        let res = sqlx::query!(
+            "
+SELECT selected_exercise_task_id AS id
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+",
+            user_id,
+            exercise_id,
+            course_instance_id
+        )
+        .fetch_optional(tx.as_mut())
+        .await
+        .unwrap();
+        assert!(res.is_none());
+
+        let exercise = get_course_material_exercise(tx.as_mut(), Some(user_id), exercise_id)
+            .await
+            .unwrap();
+        assert_eq!(exercise.current_exercise_task.id, exercise_task_id);
+
+        let res = sqlx::query!(
+            "
+SELECT selected_exercise_task_id AS id
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+",
+            user_id,
+            exercise_id,
+            course_instance_id
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(res.id.unwrap(), exercise_task_id);
+    }
 }

@@ -15,7 +15,7 @@ import NewPartForm from "../../../components/forms/NewChapterForm"
 import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
 import { groupBy, max } from "lodash"
-import { createBlockInstance } from "../../../utils/blockUtils"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 
 const CoursePages: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
@@ -33,10 +33,8 @@ const CoursePages: React.FC<unknown> = () => {
   }
 
   const handleCreateFrontPage = async () => {
-    const courseGrid = createBlockInstance("moocfi/course-grid")
-    const courseProgress = createBlockInstance("moocfi/course-progress")
     await postNewPage({
-      content: [courseGrid, courseProgress],
+      content: [],
       url_path: "/",
       title: data.course.name,
       course_id: data.course.id,
@@ -45,12 +43,9 @@ const CoursePages: React.FC<unknown> = () => {
     await refetch()
   }
 
-  const handleCreatePartFrontPage = async (chapter: Chapter) => {
-    const partsBlock = createBlockInstance("moocfi/pages-in-chapter")
-    const exercisesInChapter = createBlockInstance("moocfi/exercises-in-chapter")
-    const ChapterProgress = createBlockInstance("moocfi/chapter-progress")
+  const handleCreateChapterFrontPage = async (chapter: Chapter) => {
     await postNewPage({
-      content: [partsBlock, exercisesInChapter, ChapterProgress],
+      content: [],
       url_path: `/chapter-${chapter.chapter_number}`,
       title: chapter.name,
       course_id: chapter.course_id,
@@ -60,7 +55,7 @@ const CoursePages: React.FC<unknown> = () => {
     await refetch()
   }
 
-  const handleCreatePart = async () => {
+  const handleCreateChapter = async () => {
     setShowForm(!showForm)
     await refetch()
   }
@@ -105,7 +100,7 @@ const CoursePages: React.FC<unknown> = () => {
                   Chapter {chapter.chapter_number}: {chapter.name}
                 </h3>
                 {!chapter.front_page_id && (
-                  <Button onClick={async () => await handleCreatePartFrontPage(chapter)}>
+                  <Button onClick={async () => await handleCreateChapterFrontPage(chapter)}>
                     Create chapter front page
                   </Button>
                 )}
@@ -129,7 +124,7 @@ const CoursePages: React.FC<unknown> = () => {
               <Button onClick={() => setShowForm(!showForm)}>Close</Button>
               <NewPartForm
                 courseId={id}
-                onSubmitForm={handleCreatePart}
+                onSubmitForm={handleCreateChapter}
                 chapterNumber={maxPart + 1 || 1}
               />
             </div>
@@ -137,9 +132,9 @@ const CoursePages: React.FC<unknown> = () => {
         </div>
       </div>
 
-      <DebugModal data={data} />
+      <DebugModal content={data} />
     </Layout>
   )
 }
 
-export default dontRenderUntilQueryParametersReady(CoursePages)
+export default withSignedIn(dontRenderUntilQueryParametersReady(CoursePages))

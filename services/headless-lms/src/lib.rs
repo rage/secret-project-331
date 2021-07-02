@@ -18,10 +18,11 @@ use tracing_actix_web::TracingLogger;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
+use utils::file_store::FileStore;
 
 pub type OAuthClient = Arc<BasicClient>;
 
-pub fn configure(config: &mut ServiceConfig) {
+pub fn configure<T: 'static + FileStore>(config: &mut ServiceConfig, file_store: T) {
     let json_config = web::JsonConfig::default()
         .limit(81920)
         .error_handler(|err, _req| {
@@ -33,11 +34,14 @@ pub fn configure(config: &mut ServiceConfig) {
             ));
             InternalError::from_response(err, response).into()
         });
-    config.app_data(json_config).service(
-        web::scope("/api/v0")
-            .wrap(TracingLogger::default())
-            .configure(controllers::configure_controllers),
-    );
+    config
+        .app_data(json_config)
+        .service(
+            web::scope("/api/v0")
+                .wrap(TracingLogger::default())
+                .configure(controllers::configure_controllers::<T>),
+        )
+        .data(file_store);
 }
 
 /**

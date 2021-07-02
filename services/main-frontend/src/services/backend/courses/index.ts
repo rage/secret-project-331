@@ -4,6 +4,7 @@ import {
   CourseSubmissionCount,
   CourseSubmissionCountByWeekdayAndHour,
   CourseUpdate,
+  Exercise,
   NewCourse,
 } from "../../services.types"
 
@@ -36,6 +37,15 @@ export const fetchCourseDailySubmissionCounts = async (
 ): Promise<CourseSubmissionCount[]> => {
   const data = (
     await mainFrontendClient.get(`/courses/${courseId}/daily-submission-counts`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
+export const fetchCourseExercises = async (courseId: string): Promise<Array<Exercise>> => {
+  const data = (
+    await mainFrontendClient.get(`/courses/${courseId}/exercises`, {
       responseType: "json",
     })
   ).data

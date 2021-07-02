@@ -1,4 +1,3 @@
-import { useRouter } from "next/router"
 import React, { ComponentType, useContext, useEffect, useState } from "react"
 import { useQuery } from "react-query"
 

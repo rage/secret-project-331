@@ -6,7 +6,7 @@ CREATE TABLE email_deliveries (
   email_template_id UUID NOT NULL,
   error VARCHAR(255) DEFAULT NULL,
   sent BOOLEAN DEFAULT FALSE NOT NULL,
-  user_id UUID NOT NULL
+  user_id UUID NOT NULL REFERENCES users
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON email_deliveries FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

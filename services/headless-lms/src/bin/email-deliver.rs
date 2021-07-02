@@ -1,13 +1,12 @@
 use anyhow::Result;
 use futures::StreamExt;
-use std::{env, time};
-
 use headless_lms_actix::models::email_deliveries::{
     fetch_emails, mark_as_sent, save_err_to_email, EmailDelivery,
 };
-use sqlx::PgPool;
-
+use lettre::message::{header, MultiPart, SinglePart};
 use lettre::{Message, SmtpTransport, Transport};
+use sqlx::PgPool;
+use std::{env, time};
 use tokio::time::sleep;
 
 const BATCH_SIZE: usize = 100;
@@ -45,8 +44,20 @@ pub async fn send_message(
         .from("NoBody <nobody@domain.tld>".parse().unwrap())
         .to("Hei <hei@domain.tld>".parse().unwrap())
         .subject("email template subject")
-        .body(String::from("email template body"))
-        .unwrap();
+        .multipart(
+            MultiPart::alternative()
+                .singlepart(
+                    SinglePart::builder()
+                        .header(header::ContentType::TEXT_PLAIN)
+                        .body(String::from("message as plain text")),
+                )
+                .singlepart(
+                    SinglePart::builder()
+                        .header(header::ContentType::TEXT_HTML)
+                        .body(String::from("message as html")),
+                ),
+        )
+        .expect("Failed to build email");
 
     match mailer.send(&msg) {
         Ok(_) => mark_as_sent(email.id, &mut conn).await.expect("msg"),

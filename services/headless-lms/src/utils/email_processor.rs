@@ -33,25 +33,6 @@ pub enum BlockAttributes {
         #[serde(flatten)]
         rest: HashMap<String, serde_json::Value>,
     },
-    #[serde(rename = "core/quote")]
-    Quote {
-        value: String,
-        citation: String,
-        #[serde(flatten)]
-        rest: HashMap<String, serde_json::Value>,
-    },
-    #[serde(rename = "core/pre")]
-    PreFormatted {
-        content: String,
-        #[serde(flatten)]
-        rest: HashMap<String, serde_json::Value>,
-    },
-    #[serde(rename = "core/pullquote")]
-    PullQuote {
-        citation: String,
-        #[serde(flatten)]
-        rest: HashMap<String, serde_json::Value>,
-    },
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -75,9 +56,6 @@ pub fn process_content_to_plaintext(block: EmailGutenbergBlock) -> Result<()> {
             BlockAttributes::Image { alt, .. } => alt,
             BlockAttributes::Heading { content, .. } => content,
             BlockAttributes::List { values, .. } => values,
-            BlockAttributes::Quote { citation, .. } => citation,
-            BlockAttributes::PreFormatted { content, .. } => content,
-            BlockAttributes::PullQuote { citation, .. } => citation,
         })
         .collect();
 
@@ -108,21 +86,6 @@ pub fn process_content_to_html(block: EmailGutenbergBlock) -> Result<()> {
                 values, ordered, ..
             } => {
                 let result = construct_list(values, ordered);
-                result
-            }
-            BlockAttributes::Quote {
-                citation, value, ..
-            } => {
-                let result = format!(r#"<blockquote cite="{}">{}</blockquote>"#, citation, value);
-                result
-            }
-            BlockAttributes::PreFormatted { content, .. } => {
-                let result = format!("<pre>{}</pre>", content);
-
-                result
-            }
-            BlockAttributes::PullQuote { citation, .. } => {
-                let result: String = format!("<q>{}</q>", citation);
                 result
             }
         })

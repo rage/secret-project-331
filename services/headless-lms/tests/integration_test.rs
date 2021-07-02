@@ -1,7 +1,10 @@
 use actix_http::{body::Body, Request};
 use actix_session::CookieSession;
 use actix_web::{dev::ServiceResponse, test, App};
-use headless_lms_actix::models::organizations::{self, Organization};
+use headless_lms_actix::{
+    models::organizations::{self, Organization},
+    setup_tracing,
+};
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use std::env;
 use tokio::sync::Mutex;
@@ -36,7 +39,7 @@ pub async fn init_db() -> String {
         .run(&mut conn)
         .await
         .expect("failed to run migrations");
-    let _ = tracing_subscriber::fmt().try_init();
+    setup_tracing()?;
     db
 }
 

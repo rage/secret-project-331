@@ -1,0 +1,17 @@
+#!/bin/bash
+# Only meant to be ran against the database in minikube. You can start it with
+# either `bin/dev` or `bin/dev-only-db`.
+set -euo pipefail
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/headless-lms/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+echo "> cd $RELATIVE_PATH"
+cd "$RELATIVE_PATH" || exit
+
+COMMAND="cargo"
+ARGUMENTS=(check "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

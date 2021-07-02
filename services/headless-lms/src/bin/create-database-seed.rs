@@ -1,11 +1,11 @@
 use anyhow::Result;
-use headless_lms_actix::models::course_instances::VariantStatus;
 use headless_lms_actix::models::roles::UserRole;
 use headless_lms_actix::models::{
     chapters, course_instances, courses, exercise_services, exercise_tasks, exercises,
     organizations, pages, roles, submissions, users,
 };
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
+use headless_lms_actix::{models::course_instances::VariantStatus, setup_tracing};
 use sqlx::{Connection, PgConnection};
 use std::env;
 use std::fs::File;
@@ -14,8 +14,8 @@ use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::fmt().init();
     dotenv::dotenv().ok();
+    setup_tracing()?;
 
     let db_url = env::var("DATABASE_URL").unwrap();
     let seed_path = "./db/seed";

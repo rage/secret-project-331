@@ -1,10 +1,11 @@
 use anyhow::Result;
 use dotenv::dotenv;
 use futures::stream::{self, StreamExt};
-use headless_lms_actix::models::exercise_service_info::{
-    fetch_and_upsert_service_info, ExerciseServiceInfo,
-};
 use headless_lms_actix::models::exercise_services::ExerciseService;
+use headless_lms_actix::{
+    models::exercise_service_info::{fetch_and_upsert_service_info, ExerciseServiceInfo},
+    setup_tracing,
+};
 use sqlx::PgPool;
 use std::{env, usize};
 use tokio::time::{sleep, Duration};
@@ -14,9 +15,12 @@ const N: usize = 10;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=error");
+    // Setting the sqlx log level to warn stops sql statements being printed to the console.
+    // This is useful here since this is being run in a loop in background and the sql statements
+    // would create a lot of noise to the log.
+    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
     dotenv().ok();
-    tracing_subscriber::fmt().init();
+    setup_tracing()?;
 
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());

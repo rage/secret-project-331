@@ -135,7 +135,14 @@ pub async fn exercise_submissions(
 ) -> Result<Vec<Submission>> {
     let submissions = sqlx::query_as!(
         Submission,
-        "SELECT * FROM submissions WHERE exercise_id = $1 LIMIT $2 OFFSET $3;",
+        r#"
+SELECT *
+FROM submissions
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+LIMIT $2
+OFFSET $3;
+        "#,
         exercise_id,
         pagination.limit(),
         pagination.offset(),

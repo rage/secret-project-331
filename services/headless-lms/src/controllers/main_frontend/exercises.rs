@@ -1,4 +1,4 @@
-//! Controllers for requests starting with `/api/v0/cms/exercises`.
+//! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 use crate::{
     controllers::ApplicationResult, domain::authorization::AuthUser,
     models::submissions::Submission, utils::pagination::Pagination,
@@ -16,7 +16,7 @@ pub struct ExerciseSubmissions {
 }
 
 /**
-GET `/api/v0/cms/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
+GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
 
 # Example
 ```json

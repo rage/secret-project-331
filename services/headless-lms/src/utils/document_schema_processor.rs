@@ -1,6 +1,5 @@
 use crate::models::pages::PageUpdateExercise;
 use crate::models::pages::PageUpdateExerciseTask;
-
 use anyhow::anyhow;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};

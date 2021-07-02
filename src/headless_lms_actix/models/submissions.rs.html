@@ -252,6 +252,13 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">models</span>::{<span class="ident">exercise_tasks::get_exercise_task_by_id</span>, <span class="ident">gradings::grade_submission</span>},
@@ -390,7 +397,14 @@ RETURNING id
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Submission</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">submissions</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Submission</span>,
-        <span class="string">&quot;SELECT * FROM submissions WHERE exercise_id = $1 LIMIT $2 OFFSET $3;&quot;</span>,
+        <span class="string">r#&quot;
+SELECT *
+FROM submissions
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+LIMIT $2
+OFFSET $3;
+        &quot;#</span>,
         <span class="ident">exercise_id</span>,
         <span class="ident">pagination</span>.<span class="ident">limit</span>(),
         <span class="ident">pagination</span>.<span class="ident">offset</span>(),

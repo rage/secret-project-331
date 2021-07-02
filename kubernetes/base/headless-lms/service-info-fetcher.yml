@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-info-fetcher
+  labels:
+    app: service-info-fetcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-info-fetcher
+  template:
+    metadata:
+      labels:
+        app: service-info-fetcher
+    spec:
+      containers:
+        - name: service-info-fetcher
+          image: headless-lms
+          command: ["cargo", "run", "--bin", "service_info_fetcher"]
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m

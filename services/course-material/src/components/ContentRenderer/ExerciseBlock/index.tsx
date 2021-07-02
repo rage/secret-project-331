@@ -15,10 +15,6 @@ interface ExerciseBlockAttributes {
   id: string
 }
 
-const exericseTypeToIframeUrl: { [key: string]: string | undefined } = {
-  example: "/example-exercise/exercise",
-}
-
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
@@ -34,8 +30,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     return <GenericLoading />
   }
 
-  const currentType = data.current_exercise_task.exercise_type
-  const url = exericseTypeToIframeUrl[currentType]
+  const url = data.current_exercise_task_service_info.exercise_iframe_path
 
   const currentExerciseTaskAssignment = data.current_exercise_task
     .assignment as unknown as Block<unknown>[]

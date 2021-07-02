@@ -33,7 +33,7 @@ pub async fn insert(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     exercise_type: &str,
-    assignment: GutenbergBlock,
+    assignment: Vec<GutenbergBlock>,
     private_spec: Value,
     public_spec: Value,
 ) -> Result<Uuid> {
@@ -74,7 +74,17 @@ pub async fn get_random_exercise_task(
 ) -> Result<CourseMaterialExerciseTask> {
     let exercise_task = sqlx::query_as!(
         CourseMaterialExerciseTask,
-        "SELECT id, exercise_id, exercise_type, assignment, public_spec FROM exercise_tasks WHERE exercise_id = $1 AND deleted_at IS NULL ORDER BY random();",
+        r#"
+SELECT id,
+  exercise_id,
+  exercise_type,
+  assignment,
+  public_spec
+FROM exercise_tasks
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+ORDER BY random();
+        "#,
         exercise_id
     )
     .fetch_one(conn)

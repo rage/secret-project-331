@@ -3,6 +3,7 @@ use actix_session::CookieSession;
 use actix_web::{dev::ServiceResponse, test, App};
 use headless_lms_actix::{
     models::organizations::{self, Organization},
+    setup_tracing,
     utils::file_store::local_file_store::LocalFileStore,
 };
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
@@ -41,7 +42,7 @@ pub async fn init_db() -> String {
         .run(&mut conn)
         .await
         .expect("failed to run migrations");
-    let _ = tracing_subscriber::fmt().try_init();
+    setup_tracing().expect("Could not setup tracing.");
     db
 }
 

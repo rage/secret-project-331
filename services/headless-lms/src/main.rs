@@ -5,26 +5,20 @@ use actix_session::CookieSession;
 use actix_web::{App, HttpServer};
 use anyhow::Result;
 use dotenv::dotenv;
-use headless_lms_actix::{utils::file_store::local_file_store::LocalFileStore, OAuthClient};
+use headless_lms_actix::{
+    setup_tracing, utils::file_store::local_file_store::LocalFileStore, OAuthClient,
+};
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
 use sqlx::PgPool;
 use std::{env, sync::Arc};
-use tracing_error::ErrorLayer;
-use tracing_log::LogTracer;
-use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
 use url::Url;
 
 /// The entrypoint to the application.
 #[actix_web::main]
 async fn main() -> Result<()> {
     dotenv().ok();
-    let subscriber = tracing_subscriber::Registry::default()
-        .with(tracing_subscriber::fmt::layer())
-        .with(ErrorLayer::default())
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")));
-    tracing::subscriber::set_global_default(subscriber)?;
-    LogTracer::init()?;
+    setup_tracing()?;
 
     // read environment variables
     let database_url = env::var("DATABASE_URL")

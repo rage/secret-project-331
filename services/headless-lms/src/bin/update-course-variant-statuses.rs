@@ -1,7 +1,10 @@
 use anyhow::Result;
 use chrono::Utc;
 use dotenv::dotenv;
-use headless_lms_actix::models::course_instances::{CourseInstance, VariantStatus};
+use headless_lms_actix::{
+    models::course_instances::{CourseInstance, VariantStatus},
+    setup_tracing,
+};
 use sqlx::PgPool;
 use std::env;
 
@@ -9,7 +12,7 @@ use std::env;
 async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "info,actix_web=info");
     dotenv().ok();
-    tracing_subscriber::fmt().init();
+    setup_tracing()?;
 
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());

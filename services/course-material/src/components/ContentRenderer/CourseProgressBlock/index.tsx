@@ -5,10 +5,10 @@ import GenericLoading from "../../GenericLoading"
 import CourseProgress from "./CourseProgress"
 
 const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
-  const courseId = useContext(PageContext)?.course_id
+  const courseInstanceId = useContext(PageContext)?.instance?.id
 
-  if (courseId) {
-    return <CourseProgress courseId={courseId} />
+  if (courseInstanceId) {
+    return <CourseProgress courseInstanceId={courseInstanceId} />
   }
 
   return <GenericLoading />

@@ -1,6 +1,10 @@
 import React from "react"
-import { CoursePage } from "../services/backend"
+import { CourseInstance, CoursePage } from "../services/backend"
 
-const PageContext = React.createContext<CoursePage | null>(null)
+export interface CoursePageWithInstance extends CoursePage {
+  instance: CourseInstance | null | undefined
+}
+
+const PageContext = React.createContext<CoursePageWithInstance | null>(null)
 
 export default PageContext

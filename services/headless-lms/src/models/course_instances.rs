@@ -74,7 +74,9 @@ FROM course_instances i
   JOIN course_instance_enrollments e ON i.id = e.course_instance_id
 WHERE e.user_id = $1
   AND e.course_id = $2
-  AND e.current = true;
+  AND e.current = 't'
+  AND e.deleted_at IS NULL
+  AND i.deleted_at IS NULL;
     "#,
         user_id,
         course_id,

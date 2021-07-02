@@ -450,15 +450,24 @@
 <span id="447">447</span>
 <span id="448">448</span>
 <span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::course_instances::VariantStatus</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models::roles::UserRole</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{
-    <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">courses</span>, <span class="ident">exercise_tasks</span>, <span class="ident">exercises</span>, <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">roles</span>,
-    <span class="ident">submissions</span>, <span class="ident">users</span>,
+    <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">courses</span>, <span class="ident">exercise_services</span>, <span class="ident">exercise_tasks</span>, <span class="ident">exercises</span>,
+    <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">roles</span>, <span class="ident">submissions</span>, <span class="ident">users</span>,
 };
 <span class="kw">use</span> <span class="ident">headless_lms_actix::utils::document_schema_processor::GutenbergBlock</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_actix</span>::{<span class="ident">models::course_instances::VariantStatus</span>, <span class="ident">setup_tracing</span>};
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Connection</span>, <span class="ident">PgConnection</span>};
 <span class="kw">use</span> <span class="ident">std::env</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -467,8 +476,8 @@
 
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="ident">tracing_subscriber::fmt</span>().<span class="ident">init</span>();
     <span class="ident">dotenv::dotenv</span>().<span class="ident">ok</span>();
+    <span class="ident">setup_tracing</span>()<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">db_url</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;DATABASE_URL&quot;</span>).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">seed_path</span> <span class="op">=</span> <span class="string">&quot;./db/seed&quot;</span>;
@@ -484,6 +493,15 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;University of Helsinki, Department of Computer Science&quot;</span>,
         <span class="string">&quot;uh-cs&quot;</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">_example_exercise_exercise_service</span> <span class="op">=</span> <span class="ident">exercise_services::insert_exercise_service</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="string">&quot;Example Exercise&quot;</span>,
+        <span class="string">&quot;example-exercise&quot;</span>,
+        <span class="string">&quot;http://project-331.local/example-exercise/api/service-info&quot;</span>,
+        <span class="string">&quot;http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info&quot;</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -639,8 +657,8 @@
     <span class="kw">let</span> <span class="ident">intro_exercise_task_1_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">intro_exercise_page1_1</span>,
-        <span class="string">&quot;example&quot;</span>,
-        <span class="ident">GutenbergBlock</span> {
+        <span class="string">&quot;example-exercise&quot;</span>,
+        <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
             <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
             <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
@@ -649,7 +667,7 @@
                 <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
             }),
             <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
-        },
+        }],
         <span class="macro">serde_json::json!</span>([{
             <span class="string">&quot;id&quot;</span>: <span class="ident">id_1</span>,
             <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>,
@@ -686,8 +704,8 @@
     <span class="kw">let</span> <span class="ident">_intro_exercise_task_2_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">intro_exercise_page2_1</span>,
-        <span class="string">&quot;example&quot;</span>,
-        <span class="ident">GutenbergBlock</span> {
+        <span class="string">&quot;example-exercise&quot;</span>,
+        <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
             <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
             <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
@@ -696,7 +714,7 @@
                 <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
             }),
             <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
-        },
+        }],
         <span class="macro">serde_json::json!</span>([{
             <span class="string">&quot;id&quot;</span>: <span class="ident">id_1</span>,
             <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>,
@@ -728,8 +746,8 @@
     <span class="kw">let</span> <span class="ident">_intro_exercise_task_2_2</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">intro_exercise_page2_2</span>,
-        <span class="string">&quot;example&quot;</span>,
-        <span class="ident">GutenbergBlock</span> {
+        <span class="string">&quot;example-exercise&quot;</span>,
+        <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
             <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
             <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
@@ -738,7 +756,7 @@
                 <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
             }),
             <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
-        },
+        }],
         <span class="macro">serde_json::json!</span>([{
             <span class="string">&quot;id&quot;</span>: <span class="ident">id_1</span>,
             <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>,
@@ -770,8 +788,8 @@
     <span class="kw">let</span> <span class="ident">_intro_exercise_task_2_3</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">intro_exercise_page2_3</span>,
-        <span class="string">&quot;example&quot;</span>,
-        <span class="ident">GutenbergBlock</span> {
+        <span class="string">&quot;example-exercise&quot;</span>,
+        <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
             <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
             <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
@@ -780,7 +798,7 @@
                 <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
             }),
             <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
-        },
+        }],
         <span class="macro">serde_json::json!</span>([{
             <span class="string">&quot;id&quot;</span>: <span class="ident">id_1</span>,
             <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>,

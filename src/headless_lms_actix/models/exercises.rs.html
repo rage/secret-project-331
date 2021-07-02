@@ -369,6 +369,24 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -376,9 +394,15 @@
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::exercise_tasks::get_random_exercise_task</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models</span>::{
+    <span class="ident">exercise_service_info::get_course_material_service_info_by_exercise_type</span>,
+    <span class="ident">exercise_tasks::get_random_exercise_task</span>,
+};
 
-<span class="kw">use</span> <span class="kw">super</span><span class="ident">::exercise_tasks::CourseMaterialExerciseTask</span>;
+<span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">exercise_service_info::CourseMaterialExerciseServiceInfo</span>,
+    <span class="ident">exercise_tasks::CourseMaterialExerciseTask</span>,
+};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Exercise</span> {
@@ -398,6 +422,11 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialExercise</span> {
     <span class="kw">pub</span> <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
     <span class="kw">pub</span> <span class="ident">current_exercise_task</span>: <span class="ident">CourseMaterialExerciseTask</span>,
+    <span class="doccomment">/**
+    If none, the task is not completable at the moment because the service needs to
+    be configured to the system.
+    */</span>
+    <span class="kw">pub</span> <span class="ident">current_exercise_task_service_info</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseMaterialExerciseServiceInfo</span><span class="op">&gt;</span>,
     <span class="doccomment">/// None for logged out users.</span>
     <span class="kw">pub</span> <span class="ident">exercise_status</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseStatus</span><span class="op">&gt;</span>,
 }
@@ -625,6 +654,12 @@ SET selected_exercise_task_id = $4
         <span class="ident">get_random_exercise_task</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>
     };
 
+    <span class="kw">let</span> <span class="ident">current_exercise_task_service_info</span> <span class="op">=</span> <span class="ident">get_course_material_service_info_by_exercise_type</span>(
+        <span class="ident">conn</span>,
+        <span class="kw-2">&amp;</span><span class="ident">selected_exercise_task</span>.<span class="ident">exercise_type</span>,
+    )
+    .<span class="kw">await</span>;
+
     <span class="prelude-val">Ok</span>(<span class="ident">CourseMaterialExercise</span> {
         <span class="ident">exercise</span>,
         <span class="ident">current_exercise_task</span>: <span class="ident">selected_exercise_task</span>,
@@ -633,6 +668,7 @@ SET selected_exercise_task_id = $4
             <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::Initialized</span>,
             <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::NotReady</span>,
         }),
+        <span class="ident">current_exercise_task_service_info</span>,
     })
 }
 
@@ -672,7 +708,7 @@ SET selected_exercise_task_id = $4
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">course_id</span>, <span class="number">0</span>)
+        <span class="kw">let</span> <span class="ident">_chapter_id</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">course_id</span>, <span class="number">0</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">page_id</span> <span class="op">=</span> <span class="ident">pages::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_id</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="number">0</span>)
@@ -685,13 +721,13 @@ SET selected_exercise_task_id = $4
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">exercise_id</span>,
             <span class="string">&quot;&quot;</span>,
-            <span class="ident">GutenbergBlock</span> {
+            <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
                 <span class="ident">attributes</span>: <span class="ident">Value::Null</span>,
                 <span class="ident">client_id</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-            },
+            }],
             <span class="ident">Value::Null</span>,
             <span class="ident">Value::Null</span>,
         )

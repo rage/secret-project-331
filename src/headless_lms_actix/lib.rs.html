@@ -42,6 +42,29 @@
 <span id="39">39</span>
 <span id="40">40</span>
 <span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">controllers</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">domain</span>;
@@ -56,9 +79,13 @@
 
 <span class="kw">use</span> <span class="ident">actix_http::error::InternalError</span>;
 <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">HttpResponse</span>, <span class="ident">ServiceConfig</span>};
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">oauth2::basic::BasicClient</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">tracing_actix_web::TracingLogger</span>;
+<span class="kw">use</span> <span class="ident">tracing_error::ErrorLayer</span>;
+<span class="kw">use</span> <span class="ident">tracing_log::LogTracer</span>;
+<span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">prelude::__tracing_subscriber_SubscriberExt</span>, <span class="ident">EnvFilter</span>};
 <span class="kw">use</span> <span class="ident">utils::file_store::FileStore</span>;
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OAuthClient</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">BasicClient</span><span class="op">&gt;</span>;
@@ -83,6 +110,25 @@
                 .<span class="ident">configure</span>(<span class="ident">controllers::configure_controllers</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
         )
         .<span class="ident">data</span>(<span class="ident">file_store</span>);
+}
+
+<span class="doccomment">/**
+Sets up tokio tracing. Also makes sure that log statements from libraries respect the log level
+settings that have been set with RUST_LOG, for example:
+
+```no_run
+use std::env;
+env::set_var(&quot;RUST_LOG&quot;, &quot;info,actix_web=info,sqlx=warn&quot;);
+```
+*/</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup_tracing</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">tracing_subscriber::Registry::default</span>()
+        .<span class="ident">with</span>(<span class="ident">tracing_subscriber::fmt::layer</span>())
+        .<span class="ident">with</span>(<span class="ident">ErrorLayer::default</span>())
+        .<span class="ident">with</span>(<span class="ident">EnvFilter::try_from_default_env</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">EnvFilter::new</span>(<span class="string">&quot;info&quot;</span>)));
+    <span class="ident">tracing::subscriber::set_global_default</span>(<span class="ident">subscriber</span>)<span class="question-mark">?</span>;
+    <span class="ident">LogTracer::init</span>()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_actix" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

@@ -71,11 +71,17 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
 <span class="kw">use</span> <span class="ident">dotenv::dotenv</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::course_instances</span>::{<span class="ident">CourseInstance</span>, <span class="ident">VariantStatus</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_actix</span>::{
+    <span class="ident">models::course_instances</span>::{<span class="ident">CourseInstance</span>, <span class="ident">VariantStatus</span>},
+    <span class="ident">setup_tracing</span>,
+};
 <span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
 <span class="kw">use</span> <span class="ident">std::env</span>;
 
@@ -83,7 +89,7 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="ident">env::set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,actix_web=info&quot;</span>);
     <span class="ident">dotenv</span>().<span class="ident">ok</span>();
-    <span class="ident">tracing_subscriber::fmt</span>().<span class="ident">init</span>();
+    <span class="ident">setup_tracing</span>()<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">database_url</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;DATABASE_URL&quot;</span>)
         .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;postgres://localhost/headless_lms_dev&quot;</span>.<span class="ident">to_string</span>());

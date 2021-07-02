@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["get_exercise_service",""],["get_exercise_service_by_exercise_type",""],["get_exercise_services",""],["insert_exercise_service",""]],"struct":[["ExerciseService",""]]});

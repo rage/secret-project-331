@@ -93,3 +93,5 @@ lettre = "0.10.0-rc.3"
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "0.7.1"
+# An implementation of regular expressions for Rust.
+regex = "1.5.4"

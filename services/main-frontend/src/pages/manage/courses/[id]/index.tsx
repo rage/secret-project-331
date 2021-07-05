@@ -6,33 +6,45 @@ import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRende
 import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
 import { css } from "@emotion/css"
 import { useQuery } from "react-query"
-import { deleteCourse, getCourse } from "../../../../services/backend/courses"
+import { deleteCourse, fetchCourseInstances, getCourse } from "../../../../services/backend/courses"
 import { Dialog, Button } from "@material-ui/core"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
 import ExerciseList from "../../../../components/ExerciseList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import Link from "next/link"
 
-const StatsPage: React.FC<unknown> = () => {
+const ManageCoursePage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
-  const { isLoading, error, data: course, refetch } = useQuery(`course-${id}`, () => getCourse(id))
+  const {
+    isLoading: loadingCourse,
+    error: errorCourse,
+    data: course,
+    refetch: refetchCourse,
+  } = useQuery(`course-${id}`, () => getCourse(id))
+  const {
+    isLoading: loadingCourseInstances,
+    error: errorInstances,
+    data: courseInstances,
+    refetch: refetchCourseInstances,
+  } = useQuery(`course-${id}-course-instances`, () => fetchCourseInstances(id))
   const [showForm, setShowForm] = useState(false)
 
-  if (error) {
+  if (errorCourse || errorInstances) {
     return <div>Error fetching course data.</div>
   }
 
-  if (isLoading || !course) {
+  if (loadingCourse || loadingCourseInstances || !courseInstances || !course) {
     return <div>Loading...</div>
   }
 
   const handleOnDelete = async (courseId: string) => {
     await deleteCourse(courseId)
-    await refetch()
+    await refetchCourse()
   }
 
   const handleOnUpdateCourse = async () => {
     setShowForm(!showForm)
-    await refetch()
+    await refetchCourse()
   }
 
   return (
@@ -61,10 +73,32 @@ const StatsPage: React.FC<unknown> = () => {
           </div>
         </Dialog>
       </div>
+      <Link
+        href={{
+          pathname: "/manage/courses/[id]/stats",
+          query: {
+            id: course.id,
+          },
+        }}
+      >
+        Stats
+      </Link>
+      <a href={`/cms/courses/${course.id}/manage-pages`}>Manage pages</a>{" "}
+      <h3>All course instances</h3>
+      <ul>
+        {courseInstances.map((instance) => {
+          return (
+            <li key={instance.id}>
+              {instance?.name}{" "}
+              <a href={`/cms/course-instances/${instance.id}/manage-emails`}>Manage e-mails</a>
+            </li>
+          )
+        })}
+      </ul>
       <h3>All exercises</h3>
       <ExerciseList courseId={id} />
     </Layout>
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(StatsPage))
+export default withSignedIn(dontRenderUntilQueryParametersReady(ManageCoursePage))

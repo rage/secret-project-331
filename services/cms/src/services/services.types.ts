@@ -1,4 +1,5 @@
 import { BlockInstance } from "@wordpress/blocks"
+import { String } from "lodash"
 
 interface DatabaseItem {
   id: string
@@ -153,4 +154,13 @@ export interface CourseSubmissionCountByWeekdayAndHour {
   isodow: number
   hour: number
   count: number
+}
+
+export interface EmailTemplate extends DatabaseItem {
+  content: BlockInstance[]
+  name: string
+  subject: string
+  exercise_completions_threshold: number
+  points_threshold: number
+  course_instance_id: string
 }

@@ -10,7 +10,7 @@ const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const hasCourseInstance = pageContext?.instance !== null
   const courseInstanceId = pageContext?.instance?.id
 
-  if (hasCourseInstance) {
+  if (!hasCourseInstance) {
     return <div>Select course version to see your progress.</div>
   }
 

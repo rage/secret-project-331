@@ -52,7 +52,18 @@ GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the 
 
 # Example
 ```json
-null
+{
+  "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
+  "created_at": "2021-06-28T00:21:11.780420Z",
+  "updated_at": "2021-06-28T00:21:11.780420Z",
+  "deleted_at": null,
+  "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
+  "starts_at": null,
+  "ends_at": null,
+  "name": null,
+  "description": null,
+  "variant_status": "Active"
+}
 ```
 */
 #[instrument(skip(pool))]

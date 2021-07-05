@@ -41,7 +41,7 @@ import {
  */
 import React, { useEffect } from "react"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
-import useQueryParameter from "../../hooks/useQueryParameter"
+import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 
 interface GutenbergEditorProps {

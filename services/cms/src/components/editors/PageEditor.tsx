@@ -67,7 +67,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         allowedBlockVariations={allowedBlockVariants}
       />
       <SerializeGutenbergModal content={content} />
-      <DebugModal content={content} />
+      <DebugModal data={content} />
     </>
   )
 }

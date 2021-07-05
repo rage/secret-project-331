@@ -85,3 +85,37 @@ WHERE e.user_id = $1
     .await?;
     Ok(course_instance_enrollment)
 }
+
+pub async fn get_all_course_instances(conn: &mut PgConnection) -> Result<Vec<CourseInstance>> {
+    let course_instances = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT
+    id, created_at, updated_at, deleted_at, course_id, starts_at, ends_at, name, description, variant_status as "variant_status: VariantStatus"
+FROM course_instances
+WHERE deleted_at IS NOT NULL;
+"#
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(course_instances)
+}
+
+pub async fn update_course_instance_variant_status(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    variant_status: VariantStatus,
+) -> Result<()> {
+    sqlx::query!(
+        r#"
+UPDATE course_instances
+SET variant_status = $1
+WHERE id = $2;
+"#,
+        variant_status as _,
+        course_instance_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}

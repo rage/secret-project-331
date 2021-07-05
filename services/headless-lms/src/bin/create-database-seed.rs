@@ -1,15 +1,13 @@
 use anyhow::Result;
-use headless_lms_actix::models::roles::UserRole;
 use headless_lms_actix::models::{
-    chapters, course_instances, courses, exercise_services, exercise_tasks, exercises,
-    organizations, pages, roles, submissions, users,
+    chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
+    exercise_tasks, exercises, organizations, pages, roles, roles::UserRole, submissions, users,
 };
+use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
-use headless_lms_actix::{models::course_instances::VariantStatus, setup_tracing};
-use sqlx::{Connection, PgConnection};
-use std::env;
-use std::fs::File;
-use std::process::Command;
+use sqlx::migrate::MigrateDatabase;
+use sqlx::{Connection, PgConnection, Postgres};
+use std::{env, fs::File, process::Command};
 use uuid::Uuid;
 
 #[tokio::main]
@@ -17,9 +15,27 @@ async fn main() -> Result<()> {
     dotenv::dotenv().ok();
     setup_tracing()?;
 
-    let db_url = env::var("DATABASE_URL").unwrap();
+    let clean = env::args().any(|a| a == "clean");
+    let db_url = env::var("DATABASE_URL")?;
     let seed_path = "./db/seed";
+
+    if clean {
+        // hardcoded for now
+        let status = Command::new("dropdb")
+            .args(["-U", "headless-lms"])
+            .args(["-h", "localhost"])
+            .args(["-p", "54328"])
+            .arg("--force")
+            .arg("-e")
+            .arg("headless_lms_dev")
+            .status()?;
+        assert!(status.success());
+        Postgres::create_database(&db_url).await?;
+    }
     let mut conn = PgConnection::connect(&db_url).await?;
+    if clean {
+        sqlx::migrate!("./migrations").run(&mut conn).await?;
+    }
 
     // users
     let admin = users::insert(&mut conn).await?;

@@ -47,6 +47,40 @@
 <span id="44">44</span>
 <span id="45">45</span>
 <span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -93,6 +127,40 @@ RETURNING id
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_course_instances</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">course_instances</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">CourseInstance</span>,
+        <span class="string">r#&quot;
+SELECT
+    id, variant_status as &quot;variant_status: VariantStatus&quot;, starts_at, ends_at
+FROM course_instances
+WHERE deleted_at IS NOT NULL;
+&quot;#</span>
+    )
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">course_instances</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_course_instance_variant_status</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">variant_status</span>: <span class="ident">VariantStatus</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">r#&quot;
+UPDATE course_instances
+SET variant_status = $1
+WHERE id = $2;
+&quot;#</span>,
+        <span class="ident">variant_status</span> <span class="kw">as</span> <span class="kw">_</span>,
+        <span class="ident">course_instance_id</span>
+    )
+    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

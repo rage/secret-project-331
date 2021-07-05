@@ -56,6 +56,9 @@ pub enum ApplicationError {
 
     #[display(fmt = "Unauthorized")]
     Unauthorized,
+
+    #[display(fmt = "Forbidden")]
+    Forbidden(String),
 }
 
 impl std::error::Error for ApplicationError {}
@@ -84,6 +87,7 @@ impl error::ResponseError for ApplicationError {
             ApplicationError::BadRequest(_) => StatusCode::BAD_REQUEST,
             ApplicationError::NotFound => StatusCode::NOT_FOUND,
             ApplicationError::Unauthorized => StatusCode::UNAUTHORIZED,
+            ApplicationError::Forbidden(_) => StatusCode::FORBIDDEN,
         }
     }
 }

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrono::Utc;
 use headless_lms_actix::models::{
     chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
     exercise_tasks, exercises, organizations, pages, roles, roles::UserRole, submissions, users,
@@ -49,6 +50,33 @@ async fn main() -> Result<()> {
         "uh-cs",
     )
     .await?;
+    let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin).await?;
+    let cs_course = courses::insert(
+        &mut conn,
+        "Introduction to Computer Science",
+        uh_cs,
+        "Introduction to Computer Science",
+    )
+    .await?;
+    let _cs_course_instance =
+        course_instances::insert(&mut conn, cs_course, Some(VariantStatus::Upcoming)).await?;
+
+    // uh-mathstat
+    let uh_mathstat = organizations::insert(
+        &mut conn,
+        "University of Helsinki, Department of Mathematics and Statistics",
+        "uh-mathstat",
+    )
+    .await?;
+    let statistics_course = courses::insert(
+        &mut conn,
+        "Introduction to Statistics",
+        uh_mathstat,
+        "introduction-to-statistics",
+    )
+    .await?;
+    let _statistics_course_instance =
+        course_instances::insert(&mut conn, statistics_course, Some(VariantStatus::Active)).await?;
 
     let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
         &mut conn,
@@ -59,66 +87,89 @@ async fn main() -> Result<()> {
     )
     .await?;
 
-    // uh-cs intro
-    let intro_course = courses::insert(
+    // roles
+    roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
+    roles::insert(&mut conn, teacher, Some(uh_cs), None, UserRole::Teacher).await?;
+    roles::insert(
         &mut conn,
+        assistant,
+        Some(uh_cs),
+        Some(cs_intro),
+        UserRole::Assistant,
+    )
+    .await?;
+
+    // dump database
+    let output = tokio::task::spawn_blocking(move || {
+        let file = File::create(seed_path).unwrap();
+        Command::new("pg_dump")
+            .arg("--data-only")
+            .arg("--format=custom")
+            .arg("--exclude-table=_sqlx_migrations")
+            .arg(db_url)
+            .stdout(file)
+            .status()
+    })
+    .await??;
+    assert!(output.success());
+
+    Ok(())
+}
+
+async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Result<Uuid> {
+    let course = courses::insert(
+        conn,
         "Introduction to everything",
-        uh_cs,
+        org,
         "Introduction to everything",
     )
     .await?;
-    let intro_course_instance = course_instances::insert(&mut conn, intro_course, None).await?;
-    // uh-cs intro pages and chapters
-    let intro_page_1 = pages::insert(
-        &mut conn,
-        intro_course,
+    let course_instance = course_instances::insert(conn, course, None).await?;
+
+    // pages and chapters
+    let page_ch1 = pages::insert(
+        conn,
+        course,
         "/",
         "Welcome to Introduction to Everything",
         1,
     )
     .await?;
-    let intro_page_2 =
-        pages::insert(&mut conn, intro_course, "/chapter-1/page-2", "page 2", 2).await?;
-    let intro_page_3 =
-        pages::insert(&mut conn, intro_course, "/", "In the second chapter...", 1).await?;
-    let intro_chapter_1 = chapters::insert(&mut conn, "The Basics", intro_course, 1).await?;
-    let intro_chapter_2 =
-        chapters::insert(&mut conn, "The intermediaries", intro_course, 2).await?;
-    chapters::set_front_page(&mut conn, intro_chapter_1, intro_page_1).await?;
-    chapters::set_front_page(&mut conn, intro_chapter_2, intro_page_3).await?;
-    pages::set_chapter(&mut conn, intro_page_1, intro_chapter_1).await?;
-    pages::set_chapter(&mut conn, intro_page_2, intro_chapter_1).await?;
-    pages::set_chapter(&mut conn, intro_page_3, intro_chapter_2).await?;
-    // uh-cs intro exercises
-    let intro_exercise_page1_1 =
-        exercises::insert(&mut conn, intro_course, "Best exercise", intro_page_1, 1).await?;
-    let intro_exercise_page2_1 = exercises::insert(
-        &mut conn,
-        intro_course,
-        "Second page, first exercise",
-        intro_page_2,
-        1,
+    let page_ch1_1 = pages::insert(conn, course, "/chapter-1", "Chapter One", 1).await?;
+    let page_ch1_2 = pages::insert(conn, course, "/chapter-1/page-2", "page 2", 2).await?;
+    let page_ch2 = pages::insert(conn, course, "/chapter-2", "In the second chapter...", 1).await?;
+    let chapter_1 = chapters::insert(conn, "The Basics", course, 1).await?;
+    chapters::set_status(conn, chapter_1, chapters::ChapterStatus::Open).await?;
+    let chapter_2 = chapters::insert(conn, "The intermediaries", course, 2).await?;
+    chapters::open_at(conn, chapter_2, Utc::now() + chrono::Duration::minutes(10)).await?;
+    let chapter_3 = chapters::insert(conn, "Advanced studies", course, 3).await?;
+    chapters::open_at(conn, chapter_3, Utc::now() + chrono::Duration::minutes(20)).await?;
+    let chapter_4 = chapters::insert(conn, "Forbidden magicks", course, 4).await?;
+    chapters::open_at(
+        conn,
+        chapter_4,
+        Utc::now() + (chrono::Duration::days(365) * 100),
     )
     .await?;
-    let intro_exercise_page2_2 = exercises::insert(
-        &mut conn,
-        intro_course,
-        "second page, second exercise",
-        intro_page_2,
-        2,
-    )
-    .await?;
-    let intro_exercise_page2_3 = exercises::insert(
-        &mut conn,
-        intro_course,
-        "second page, third exercise",
-        intro_page_2,
-        3,
-    )
-    .await?;
+    chapters::set_front_page(conn, chapter_1, page_ch1).await?;
+    chapters::set_front_page(conn, chapter_2, page_ch2).await?;
+    pages::set_chapter(conn, page_ch1_1, chapter_1).await?;
+    pages::set_chapter(conn, page_ch1_2, chapter_1).await?;
+    pages::set_chapter(conn, page_ch2, chapter_2).await?;
+
+    // exercises
+    let exercise_c1p1_1 = exercises::insert(conn, course, "Best exercise", page_ch1_1, 1).await?;
+    let exercise_c1p2_1 =
+        exercises::insert(conn, course, "Second page, first exercise", page_ch1_2, 1).await?;
+    let exercise_c1p2_2 =
+        exercises::insert(conn, course, "second page, second exercise", page_ch1_2, 2).await?;
+    let exercise_c1p2_3 =
+        exercises::insert(conn, course, "second page, third exercise", page_ch1_2, 3).await?;
+    let exercise_c2p1_1 =
+        exercises::insert(conn, course, "first exercise of chapter two", page_ch2, 3).await?;
     pages::update_content(
-        &mut conn,
-        intro_page_1,
+        conn,
+        page_ch1_1,
         &[
             GutenbergBlock {
                 name: "core/paragraph".to_string(),
@@ -135,7 +186,7 @@ async fn main() -> Result<()> {
                 is_valid: true,
                 client_id: Uuid::new_v4().to_string(),
                 attributes: serde_json::json!({
-                    "id": intro_exercise_page1_1.to_string(),
+                    "id": exercise_c1p1_1.to_string(),
                 }),
                 inner_blocks: vec![],
             },
@@ -143,8 +194,8 @@ async fn main() -> Result<()> {
     )
     .await?;
     pages::update_content(
-        &mut conn,
-        intro_page_2,
+        conn,
+        page_ch1_2,
         &[
             GutenbergBlock {
                 name: "core/paragraph".to_string(),
@@ -160,29 +211,29 @@ async fn main() -> Result<()> {
                 name: "moocfi/exercise".to_string(),
                 is_valid: true,
                 client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({"id": intro_exercise_page2_1.to_string()}),
+                attributes: serde_json::json!({"id": exercise_c1p2_1.to_string()}),
                 inner_blocks: vec![],
             },
             GutenbergBlock {
                 name: "moocfi/exercise".to_string(),
                 is_valid: true,
                 client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({"id": intro_exercise_page2_2.to_string()}),
+                attributes: serde_json::json!({"id": exercise_c1p2_2.to_string()}),
                 inner_blocks: vec![],
             },
             GutenbergBlock {
                 name: "moocfi/exercise".to_string(),
                 is_valid: true,
                 client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({"id": intro_exercise_page2_3.to_string()}),
+                attributes: serde_json::json!({"id": exercise_c1p2_3.to_string()}),
                 inner_blocks: vec![],
             },
         ],
     )
     .await?;
     pages::update_content(
-        &mut conn,
-        intro_page_3,
+        conn,
+        page_ch2,
         &[
             GutenbergBlock {
                 name: "core/paragraph".to_string(),
@@ -198,19 +249,20 @@ async fn main() -> Result<()> {
                 name: "moocfi/exercise".to_string(),
                 is_valid: true,
                 client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({"id": Uuid::new_v4().to_string()}),
+                attributes: serde_json::json!({ "id": exercise_c2p1_1 }),
                 inner_blocks: vec![],
             },
         ],
     )
     .await?;
-    // uh-cs intro exercise tasks
+
+    // exercise tasks
     let id_1 = Uuid::new_v4().to_string();
     let id_2 = Uuid::new_v4().to_string();
     let id_3 = Uuid::new_v4().to_string();
-    let intro_exercise_task_1_1 = exercise_tasks::insert(
-        &mut conn,
-        intro_exercise_page1_1,
+    let exercise_task_c1p1e1_1 = exercise_tasks::insert(
+        conn,
+        exercise_c1p1_1,
         "example-exercise",
         vec![GutenbergBlock {
             name: "core/paragraph".to_string(),
@@ -255,9 +307,9 @@ async fn main() -> Result<()> {
     let id_1 = Uuid::new_v4().to_string();
     let id_2 = Uuid::new_v4().to_string();
     let id_3 = Uuid::new_v4().to_string();
-    let _intro_exercise_task_2_1 = exercise_tasks::insert(
-        &mut conn,
-        intro_exercise_page2_1,
+    let _exercise_task_c2p1e1_1 = exercise_tasks::insert(
+        conn,
+        exercise_c1p2_1,
         "example-exercise",
         vec![GutenbergBlock {
             name: "core/paragraph".to_string(),
@@ -297,9 +349,9 @@ async fn main() -> Result<()> {
     let id_1 = Uuid::new_v4().to_string();
     let id_2 = Uuid::new_v4().to_string();
     let id_3 = Uuid::new_v4().to_string();
-    let _intro_exercise_task_2_2 = exercise_tasks::insert(
-        &mut conn,
-        intro_exercise_page2_2,
+    let _exercise_task_c1p2e2_1 = exercise_tasks::insert(
+        conn,
+        exercise_c1p2_2,
         "example-exercise",
         vec![GutenbergBlock {
             name: "core/paragraph".to_string(),
@@ -339,9 +391,9 @@ async fn main() -> Result<()> {
     let id_1 = Uuid::new_v4().to_string();
     let id_2 = Uuid::new_v4().to_string();
     let id_3 = Uuid::new_v4().to_string();
-    let _intro_exercise_task_2_3 = exercise_tasks::insert(
-        &mut conn,
-        intro_exercise_page2_3,
+    let _exercise_task_c2p1e1_1 = exercise_tasks::insert(
+        conn,
+        exercise_c2p1_1,
         "example-exercise",
         vec![GutenbergBlock {
             name: "core/paragraph".to_string(),
@@ -378,97 +430,44 @@ async fn main() -> Result<()> {
         }]),
     )
     .await?;
+
     // uh-cs intro submissions
     let _submission_1 = submissions::insert(
-        &mut conn,
-        intro_exercise_page1_1,
-        intro_course,
-        intro_exercise_task_1_1,
+        conn,
+        exercise_c1p1_1,
+        course,
+        exercise_task_c1p1e1_1,
         admin,
-        intro_course_instance,
+        course_instance,
     )
     .await?;
     let _submission_2 = submissions::insert(
-        &mut conn,
-        intro_exercise_page1_1,
-        intro_course,
-        intro_exercise_task_1_1,
+        conn,
+        exercise_c1p1_1,
+        course,
+        exercise_task_c1p1e1_1,
         admin,
-        intro_course_instance,
+        course_instance,
     )
     .await?;
     let _submission_3 = submissions::insert(
-        &mut conn,
-        intro_exercise_page1_1,
-        intro_course,
-        intro_exercise_task_1_1,
+        conn,
+        exercise_c1p1_1,
+        course,
+        exercise_task_c1p1e1_1,
         admin,
-        intro_course_instance,
+        course_instance,
     )
     .await?;
     let _submission_4 = submissions::insert(
-        &mut conn,
-        intro_exercise_page1_1,
-        intro_course,
-        intro_exercise_task_1_1,
+        conn,
+        exercise_c1p1_1,
+        course,
+        exercise_task_c1p1e1_1,
         admin,
-        intro_course_instance,
+        course_instance,
     )
     .await?;
 
-    // uh-cs cs
-    let cs_course = courses::insert(
-        &mut conn,
-        "Introduction to Computer Science",
-        uh_cs,
-        "Introduction to Computer Science",
-    )
-    .await?;
-    let _cs_course_instance =
-        course_instances::insert(&mut conn, cs_course, Some(VariantStatus::Upcoming)).await?;
-
-    // uh-mathstat
-    let uh_mathstat = organizations::insert(
-        &mut conn,
-        "University of Helsinki, Department of Mathematics and Statistics",
-        "uh-mathstat",
-    )
-    .await?;
-    let statistics_course = courses::insert(
-        &mut conn,
-        "Introduction to Statistics",
-        uh_mathstat,
-        "introduction-to-statistics",
-    )
-    .await?;
-    let _statistics_course_instance =
-        course_instances::insert(&mut conn, statistics_course, Some(VariantStatus::Active)).await?;
-
-    // roles
-    roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
-    roles::insert(&mut conn, teacher, Some(uh_cs), None, UserRole::Teacher).await?;
-    roles::insert(
-        &mut conn,
-        assistant,
-        Some(uh_cs),
-        Some(intro_course),
-        UserRole::Assistant,
-    )
-    .await?;
-
-    // dump database
-    let output = tokio::task::spawn_blocking(move || {
-        let file = File::create(seed_path).unwrap();
-        Command::new("pg_dump")
-            .arg("--data-only")
-            .arg("--format=custom")
-            .arg("--exclude-table=_sqlx_migrations")
-            .arg(db_url)
-            .stdout(file)
-            .status()
-    })
-    .await??;
-    assert!(output.success());
-
-    Ok(())
+    Ok(course)
 }

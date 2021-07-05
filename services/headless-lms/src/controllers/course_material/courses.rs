@@ -1,4 +1,5 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
+use crate::controllers::ApplicationError;
 use crate::models::chapters::Chapter;
 use crate::{controllers::ApplicationResult, models::pages::Page};
 use actix_web::web::ServiceConfig;
@@ -41,6 +42,15 @@ async fn get_course_page_by_path(
     };
 
     let page = crate::models::pages::get_page_by_path(&mut conn, course_slug, &path).await?;
+
+    if let Some(chapter_id) = page.chapter_id {
+        if !crate::models::chapters::is_open(&mut conn, chapter_id).await? {
+            return Err(ApplicationError::Forbidden(
+                "Chapter is not open yet".to_string(),
+            ));
+        }
+    }
+
     Ok(Json(page))
 }
 

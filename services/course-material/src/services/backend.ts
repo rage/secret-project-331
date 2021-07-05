@@ -194,6 +194,8 @@ export interface ChapterInTheCourse {
   deleted_at: Date | null
   chapter_number: number
   front_page_id: string | null
+  opens_at: Date | null
+  status: "open" | "closed"
 }
 
 export const fetchChaptersInTheCourse = async (courseId: string): Promise<ChapterInTheCourse[]> => {

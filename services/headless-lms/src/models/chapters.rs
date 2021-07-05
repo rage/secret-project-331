@@ -26,6 +26,7 @@ pub struct Chapter {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[sqlx(type_name = "chapter_status", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum ChapterStatus {
     Open,
     Closed,
@@ -101,6 +102,21 @@ pub async fn set_front_page(
     Ok(())
 }
 
+pub async fn set_status(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    status: ChapterStatus,
+) -> Result<()> {
+    sqlx::query!(
+        "UPDATE chapters SET status = $1 WHERE id = $2",
+        status as ChapterStatus,
+        chapter_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn open_at(
     conn: &mut PgConnection,
     chapter_id: Uuid,
@@ -114,6 +130,20 @@ pub async fn open_at(
     .execute(conn)
     .await?;
     Ok(())
+}
+
+pub async fn is_open(conn: &mut PgConnection, chapter_id: Uuid) -> Result<bool> {
+    let res = sqlx::query!(
+        r#"
+SELECT status AS "status: ChapterStatus"
+FROM chapters
+WHERE id = $1
+"#,
+        chapter_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.status == ChapterStatus::Open)
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Uuid> {

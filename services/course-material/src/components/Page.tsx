@@ -8,6 +8,7 @@ import NavigationContainer from "./NavigationContainer"
 import { useContext } from "react"
 import PageContext from "../contexts/PageContext"
 import GenericLoading from "./GenericLoading"
+import ChapterGrid from "./ContentRenderer/CourseChapterGrid/ChapterGrid"
 
 interface Props {
   data: CoursePage
@@ -40,6 +41,7 @@ const Page: React.FC<Props> = ({ data }) => {
       >
         {editedData.title}
       </h1>
+      <ChapterGrid courseId={data.course_id} />
       <ContentRenderer data={editedData.content} />
       {pageContext.chapter_id && <NavigationContainer />}
     </>

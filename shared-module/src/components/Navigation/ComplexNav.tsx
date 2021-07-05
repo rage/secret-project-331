@@ -1,92 +1,59 @@
-import { cx, css } from "@emotion/css"
+import React, { useState } from "react"
+import { Link } from "@reach/router"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faBullseye, faSearch } from "@fortawesome/free-solid-svg-icons"
+import styled from "@emotion/styled"
 
-const stylednav = css`
-  position: absolute;
-  background: #f1f1f1;
+import Hamburger from "../Hamburger"
+import Button from "../Button"
+import "./Navbar.css"
+
+const StyledIcon = styled(FontAwesomeIcon)`
+  font-size: 1.6rem;
   color: #333;
-  box-shadow: 0 1px rgba(0 0 0 / 0%);
-  width: 100%;
-  padding: 0px 20px;
-  top: 0;
-  left: 0;
-  vertical-align: top !important;
-  height: auto;
-  font-size: 15px;
-  font-weight: 400;
-`
-const section = css`
-  padding: 0;
-  display: table;
-  margin-right: auto;
-  margin-left: auto;
-  width: 100%;
-
-  > div {
-    display: table-cell;
-    vertical-align: middle;
-    font-size: 16px;
-    height: 50px;
-    pointer-events: all;
-  }
-`
-const left = css`
-  width: 165px;
-  text-align: left !important;
-`
-const center = css`
-  width: 70%;
-  text-align: center;
-`
-const right = css`
-  width: 165px;
-  text-align: right;
-  white-space: nowrap;
-`
-const menuItems = css`
-  list-style: none;
-  margin: 0 !important;
-
-  > li {
-    display: inline-block;
-  }
-`
-const menuLink = css`
-  padding: 0 15px;
-  font-size: 17px;
-  font-weight: 500;
-  line-height: 70px;
-  vertical-align: middle;
-  display: inline-block;
-  letter-spacing: -0.013em;
-  position: relative;
 `
 
-const Navigation: React.FC = ({ children }) => {
+const Navigation: React.FC = (props) => {
+  const [clicked, setClicked] = useState(false)
+
   return (
-    <nav className={cx(stylednav)}>
-      <section className={cx(section)}>
-        <div className={cx(left)}>Logo</div>
-        <div className={cx(center)}>
-          <ul className={cx(menuItems)}>
-            <li>
-              <a className={cx(menuLink)}>Courses</a>
-            </li>
-            <li>
-              <a className={cx(menuLink)}>Modules</a>
-            </li>
-            <li>
-              <a className={cx(menuLink)}>Email Template</a>
-            </li>
-          </ul>
+    <div className="wrapper">
+      <nav className="NavbarItems">
+        <h1 className="navbar-logo">
+          <Link to="/" aria-label="Kotisivulle" role="button">
+            <StyledIcon icon={faBullseye} aria-hidden="true"></StyledIcon>
+          </Link>
+        </h1>
+        <div
+          className="menu-icon"
+          onClick={() => setClicked(!clicked)}
+          role="button"
+          aria-label="Avaa valikko"
+        >
+          <Hamburger />
         </div>
-        <div className={cx(right)}>
-          <a className={cx(menuLink)}>SVG search icon</a>
-          <a className={cx(menuLink)}>Login controls</a>
-          <a className={cx(menuLink)}>Button</a>
-        </div>
-      </section>
-    </nav>
+        <ul
+          aria-expanded='true'
+          role="navigation"
+        >
+          <ol className={clicked ? "nav-menu active" : "nav-menu"}>
+          <li className="nav-links">Courses</li>
+          <li className="nav-links">Modules</li>
+          <li className="nav-links">Mail Template</li>
+          <li className="nav-links hide"><a> Login Controls</a></li> 
+          <li className="nav-links hide" ><Button variant='primary'>Translate</Button></li>
+          </ol>
+        </ul>
+
+        <ul className="secondary-link">
+          <li><a> Login Controls</a></li> 
+          <li><Button variant='primary'>Translate</Button></li>
+        </ul>
+        
+      </nav>
+    </div>
   )
 }
+
 
 export default Navigation

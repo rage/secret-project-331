@@ -11,6 +11,7 @@ const StyledIcon = css`
   color: #333;
 `
 const NavbarItems = css`
+  background: #f1f1f1;
   height: 90px;
   display: flex;
   justify-content: center;
@@ -92,11 +93,11 @@ const Container = css`
   display: relative;
 `
 const ToolTip = css`
-  background: black;
+  background: cyan;
   /*   display: none; */
   top: 100px;
-  right: 42px;
-  border-radius: 8px;
+  right: 130px;
+  border-radius: 4px;
   position: absolute;
   padding: 5px 15px;
   margin-bottom: 10px;
@@ -104,7 +105,7 @@ const ToolTip = css`
   cursor: default;
   animation: show 0.4s ease-in-out forwards;
 
-  &:after {
+  &::after {
     bottom: 100%;
     left: 50%;
     border: solid transparent;
@@ -114,7 +115,7 @@ const ToolTip = css`
     position: absolute;
     pointer-events: none;
     border-color: rgba(0, 151, 167, 0);
-    border-bottom-color: rgba(255, 255, 255, 0.53);
+    border-bottom-color: cyan;
     border-width: 12px;
     margin-left: -12px;
   }

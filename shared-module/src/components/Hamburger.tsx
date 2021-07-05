@@ -14,7 +14,7 @@ const Hamburger = () => {
   return (
     <HamburgerSpring
       barColor="#333"
-      buttonWidth={35}
+      buttonWidth={30}
       {...{ isActive, toggleButton }}
       className={cx(Default)}
     />

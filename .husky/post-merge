@@ -1,0 +1,3 @@
+#!/bin/sh
+# Runs after git pull
+npx ts-node .husky/ensure-dependencies-up-to-date.ts

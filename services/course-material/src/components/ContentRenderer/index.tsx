@@ -8,6 +8,11 @@ import ButtonBlock from "./ButtonBlock"
 import CodeBlock from "./CodeBlock"
 import QuoteBlock from "./QuoteBlock"
 import AudioBlock from "./AudioBlock"
+<<<<<<< HEAD
+=======
+import TableBlock from "./TableBlock"
+import CourseProgressBlock from "./CourseProgressBlock"
+>>>>>>> 3023ee28a37037bebb83edaf55696acd9cf2d582
 import ExerciseBlock from "./ExerciseBlock"
 import CustomHTMLBlock from "./CustomHTMLBlock"
 import PreformatterBlock from "./PreformatterBlock"
@@ -17,6 +22,7 @@ import CoverBlock from "./CoverBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
 import PagesListBlock from "./PagesListBlock"
 import React from "react"
+import CourseChapterGrid from "./CourseChapterGrid"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -39,9 +45,15 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/cover": CoverBlock,
   "core/pullquote": PullquoteBlock,
   "core/preformatted": PreformatterBlock,
+<<<<<<< HEAD
+=======
+  "core/columns": TableBlock,
+  "moocfi/course-progress": CourseProgressBlock,
+>>>>>>> 3023ee28a37037bebb83edaf55696acd9cf2d582
   "moocfi/exercise": ExerciseBlock,
   "moocfi/exercises-in-chapter": ExerciseListBlock,
   "moocfi/pages-in-chapter": PagesListBlock,
+  "moocfi/course-chapter-grid": CourseChapterGrid,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

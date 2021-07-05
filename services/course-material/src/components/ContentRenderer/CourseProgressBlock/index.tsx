@@ -4,20 +4,21 @@ import CourseProgress from "./CourseProgress"
 import { BlockRendererProps } from ".."
 import PageContext from "../../../contexts/PageContext"
 import GenericLoading from "../../GenericLoading"
-import OnlyForSignedUser from "../../../shared-module/components/OnlyForSignedUser"
 
 const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
-  const courseInstanceId = useContext(PageContext)?.instance?.id
+  const pageContext = useContext(PageContext)
+  const hasCourseInstance = pageContext?.instance !== null
+  const courseInstanceId = pageContext?.instance?.id
 
-  return (
-    <OnlyForSignedUser guestMessage="Sign in to see your progress.">
-      {courseInstanceId ? (
-        <CourseProgress courseInstanceId={courseInstanceId} />
-      ) : (
-        <GenericLoading />
-      )}
-    </OnlyForSignedUser>
-  )
+  if (hasCourseInstance) {
+    return <div>Select course version to see your progress.</div>
+  }
+
+  if (courseInstanceId) {
+    return <CourseProgress courseInstanceId={courseInstanceId} />
+  } else {
+    return <GenericLoading />
+  }
 }
 
 export default ExerciseListBlock

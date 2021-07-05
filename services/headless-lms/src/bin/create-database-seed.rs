@@ -121,7 +121,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         conn,
         "Introduction to everything",
         org,
-        "Introduction to everything",
+        "introduction-to-everything",
     )
     .await?;
     let course_instance = course_instances::insert(conn, course, None).await?;

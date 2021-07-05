@@ -12,3 +12,4 @@ CREATE TABLE email_templates (
   course_instance_id UUID REFERENCES course_instances NOT NULL,
   CHECK (TRIM(subject) <> '')
 );
+COMMENT ON TABLE email_templates IS 'An email template table, which contains the e-mail subject and content written in the Gutenberg Editor. Supports adding exercise points/completions threshold templates for course instances.';

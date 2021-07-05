@@ -1,10 +1,10 @@
 use anyhow::Result;
 use chrono::Utc;
 use dotenv::dotenv;
-use headless_lms_actix::{
-    models::course_instances::{CourseInstance, VariantStatus},
-    setup_tracing,
+use headless_lms_actix::models::course_instances::{
+    get_all_course_instances, update_course_instance_variant_status, VariantStatus,
 };
+use headless_lms_actix::setup_tracing;
 use sqlx::PgPool;
 use std::env;
 
@@ -19,48 +19,28 @@ async fn main() -> Result<()> {
     let db_pool = PgPool::connect(&database_url).await?;
     let mut transaction = db_pool.begin().await?;
 
-    let course_instances = sqlx::query_as!(
-        CourseInstance,
-        r#"
-SELECT
-    id, variant_status as "variant_status: VariantStatus", starts_at, ends_at
-FROM course_instances
-WHERE deleted_at IS NOT NULL;
-"#
-    )
-    .fetch_all(&mut transaction)
-    .await?;
+    let course_instances = get_all_course_instances(&mut transaction).await?;
 
     for course_instance in course_instances {
         if course_instance.variant_status == VariantStatus::Upcoming {
             if let Some(starts_at) = course_instance.starts_at {
                 if starts_at <= Utc::now() {
-                    sqlx::query!(
-                        r#"
-UPDATE course_instances
-SET variant_status = $1
-WHERE id = $2;
-"#,
-                        VariantStatus::Active as _,
-                        course_instance.id
+                    update_course_instance_variant_status(
+                        &mut transaction,
+                        course_instance.id,
+                        VariantStatus::Active,
                     )
-                    .execute(&mut transaction)
                     .await?;
                 }
             }
         } else if course_instance.variant_status == VariantStatus::Active {
             if let Some(ends_at) = course_instance.ends_at {
                 if ends_at <= Utc::now() {
-                    sqlx::query!(
-                        r#"
-UPDATE course_instances
-SET variant_status = $1
-WHERE id = $2;
-"#,
-                        VariantStatus::Ended as _,
-                        course_instance.id
+                    update_course_instance_variant_status(
+                        &mut transaction,
+                        course_instance.id,
+                        VariantStatus::Ended,
                     )
-                    .execute(&mut transaction)
                     .await?;
                 }
             }

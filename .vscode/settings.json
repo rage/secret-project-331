@@ -19,5 +19,13 @@
   },
   "[rust]": {
     "editor.defaultFormatter": "matklad.rust-analyzer"
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.hg/store/**": true,
+    "**/target/**": true,
+    "**/.next/**": true
   }
 }

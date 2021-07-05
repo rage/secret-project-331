@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["VariantStatus",""]],"fn":[["current_course_instance_of_user",""],["get_all_course_instances",""],["insert",""],["update_course_instance_variant_status",""]],"struct":[["CourseInstance",""]]});
+initSidebarItems({"enum":[["VariantStatus",""]],"fn":[["current_course_instance_of_user",""],["get_all_course_instances",""],["get_course_instances_for_course",""],["insert",""],["update_course_instance_variant_status",""]],"struct":[["CourseInstance",""]]});

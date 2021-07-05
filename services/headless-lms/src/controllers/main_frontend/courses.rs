@@ -3,6 +3,7 @@ use crate::{
     controllers::ApplicationResult,
     domain::authorization::AuthUser,
     models::{
+        course_instances::CourseInstance,
         courses::{Course, CourseUpdate, NewCourse},
         exercises::Exercise,
         submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
@@ -272,6 +273,41 @@ async fn get_submission_counts_by_exercise(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
+
+# Example
+```json
+[
+  {
+    "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
+    "created_at": "2021-06-28T00:21:11.780420Z",
+    "updated_at": "2021-06-28T00:21:11.780420Z",
+    "deleted_at": null,
+    "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
+    "starts_at": null,
+    "ends_at": null,
+    "name": null,
+    "description": null,
+    "variant_status": "Active"
+  }
+]
+```
+*/
+#[instrument(skip(pool))]
+async fn get_course_instances(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+) -> ApplicationResult<Json<Vec<CourseInstance>>> {
+    let mut conn = pool.acquire().await?;
+    let course_instances = crate::models::course_instances::get_course_instances_for_course(
+        &mut conn,
+        *request_course_id,
+    )
+    .await?;
+    Ok(Json(course_instances))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -295,5 +331,9 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/submission-counts-by-exercise",
             web::get().to(get_submission_counts_by_exercise),
+        )
+        .route(
+            "/{course_id}/course-instances",
+            web::get().to(get_course_instances),
         );
 }

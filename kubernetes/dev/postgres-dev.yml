@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:12
+          image: postgres:13
           envFrom:
             - configMapRef:
                 name: postgres-configuration

@@ -11,9 +11,13 @@ extern crate tracing;
 
 use actix_http::error::InternalError;
 use actix_web::web::{self, HttpResponse, ServiceConfig};
+use anyhow::Result;
 use oauth2::basic::BasicClient;
 use std::sync::Arc;
 use tracing_actix_web::TracingLogger;
+use tracing_error::ErrorLayer;
+use tracing_log::LogTracer;
+use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
 use utils::file_store::FileStore;
 
 pub type OAuthClient = Arc<BasicClient>;
@@ -38,4 +42,23 @@ pub fn configure<T: 'static + FileStore>(config: &mut ServiceConfig, file_store:
                 .configure(controllers::configure_controllers::<T>),
         )
         .data(file_store);
+}
+
+/**
+Sets up tokio tracing. Also makes sure that log statements from libraries respect the log level
+settings that have been set with RUST_LOG, for example:
+
+```no_run
+use std::env;
+env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
+```
+*/
+pub fn setup_tracing() -> Result<()> {
+    let subscriber = tracing_subscriber::Registry::default()
+        .with(tracing_subscriber::fmt::layer())
+        .with(ErrorLayer::default())
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")));
+    tracing::subscriber::set_global_default(subscriber)?;
+    LogTracer::init()?;
+    Ok(())
 }

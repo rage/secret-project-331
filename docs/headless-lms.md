@@ -1,14 +1,18 @@
 # Notes on headless lms
 
-## sqlx prepare
+## Database
 
-Creating new SQL queries in headless-lms using Sqlx requires running `bin/sqlx-prepare` so that it builds.
+Interaction with the database is done with the SQLx library. Please place all your SQL queries inside the `models`-folder.
 
-## Sqlx data types
+### SQLx prepare
+
+Creating new SQL queries in headless-lms using SQLx requires running `bin/sqlx-prepare` so that it builds.
+
+### SQLx data types
 
 https://docs.rs/sqlx/0.5.5/sqlx/postgres/types/index.html
 
-## New migrations
+### New migrations
 
 First, stop `bin/dev` if you have that running and start `bin/dev-only-db`. This is because `bin/dev` automatically runs migrations and you don't want to run your new migration before it's ready.
 
@@ -22,7 +26,7 @@ Then write your migration in `services/headless-lms/migrations/<>.up.sql` and wr
 
 Run migrations with `bin/sqlx-migrate-run` or `bin/sqlx-migrate-revert`. Once done with the migration, test the migration by running the migration, then reverting it, and finally running it again.
 
-## Using postgres enums in SQLx queries
+### Using postgres enums in SQLx queries
 
 SQLx isn't able to automatically use postgres enums in its queries; it needs a type hint. For example, given the following postgres enum
 
@@ -84,7 +88,7 @@ COMMENT ON TABLE table_templates IS 'An example';
 
 When you come up with the table name, make sure to make it plural. If you want to look at other examples, you can observe the create statements for other tables by running `bin/database-dump-schema`.
 
-## Setup development with a local Postgres
+### Setup development with a local Postgres
 
 Usually you don't need this as you can use the Postgres started by either `bin/dev` or `bin/dev-only-db`.
 

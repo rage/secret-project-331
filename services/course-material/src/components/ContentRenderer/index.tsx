@@ -51,6 +51,14 @@ const blockToRendererMap: { [blockName: string]: any } = {
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
+  if (props.data.constructor !== Array) {
+    return (
+      <div>
+        <p>Error: tried to render something that was not an array.</p>
+        <pre>{JSON.stringify(props.data, undefined, 2)}</pre>
+      </div>
+    )
+  }
   return (
     <>
       {props.data.map((block) => {

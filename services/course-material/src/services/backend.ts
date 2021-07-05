@@ -68,6 +68,30 @@ export const fetchCoursePageByPath = async (
   return data
 }
 
+export type CourseInstanceVariantStatus = "draft" | "upcoming" | "active" | "ended"
+
+export interface CourseInstance {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: string
+  course_id: string
+  starts_at: Date | null
+  ends_at: Date | null
+  name: string | null
+  description: string | null
+  variant_status: CourseInstanceVariantStatus
+}
+
+export const fetchCourseInstance = async (courseId: string): Promise<CourseInstance | null> => {
+  const data = (
+    await courseMaterialClient.get(`/courses/${courseId}/current-instance`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
 export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[]> => {
   const data = (
     await courseMaterialClient.get(`/courses/${courseId}/pages`, {
@@ -94,6 +118,11 @@ export interface CourseMaterialExercise {
   exercise: Exercise
   current_exercise_task: CurrentExerciseTask
   exercise_status?: ExerciseStatus
+  current_exercise_task_service_info: CurrentExerciseTaskServiceInfo
+}
+
+export interface CurrentExerciseTaskServiceInfo {
+  exercise_iframe_path: string
 }
 
 export interface CurrentExerciseTask {

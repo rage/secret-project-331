@@ -64,7 +64,7 @@ async fn main() -> Result<()> {
         &mut conn,
         "Introduction to everything",
         uh_cs,
-        "Introduction to everything",
+        "introduction-to-everything",
     )
     .await?;
     let intro_course_instance = course_instances::insert(&mut conn, intro_course, None).await?;
@@ -421,7 +421,7 @@ async fn main() -> Result<()> {
         &mut conn,
         "Introduction to Computer Science",
         uh_cs,
-        "Introduction to Computer Science",
+        "introduction-to-computer-science",
     )
     .await?;
     let _cs_course_instance =

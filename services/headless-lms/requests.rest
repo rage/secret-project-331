@@ -140,6 +140,10 @@ GET http://project-331.local/api/v0/course-material/courses/d86cf910-4d26-40e9-8
 
 ####
 
+GET http://project-331.local/api/v0/course-material/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/current-instance
+
+####
+
 POST http://project-331.local/api/v0/course-material/submissions HTTP/1.1
 Content-Type: application/json
 

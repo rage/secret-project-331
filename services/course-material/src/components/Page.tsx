@@ -6,19 +6,20 @@ import DebugModal from "./DebugModal"
 import React, { useState } from "react"
 import NavigationContainer from "./NavigationContainer"
 import { useContext } from "react"
-import PageContext from "../contexts/PageContext"
+import PageContext, { CoursePageWithInstance } from "../contexts/PageContext"
 import GenericLoading from "./GenericLoading"
 
 interface Props {
   data: CoursePage
 }
 
-const Page: React.FC<Props> = ({ data }) => {
-  // Make data editable so that we can edit it in the debug view
-  const [editedData, setEditedData] = useState(data)
-
+const Page: React.FC<Props> = () => {
   const pageContext = useContext(PageContext)
-  if (!pageContext) {
+
+  // Make data editable so that we can edit it in the debug view
+  const [editedData, setEditedData] = useState<CoursePageWithInstance | null>(pageContext)
+
+  if (!editedData) {
     return <GenericLoading />
   }
 
@@ -41,7 +42,7 @@ const Page: React.FC<Props> = ({ data }) => {
         {editedData.title}
       </h1>
       <ContentRenderer data={editedData.content} />
-      {pageContext.chapter_id && <NavigationContainer />}
+      {editedData.chapter_id && <NavigationContainer />}
     </>
   )
 }

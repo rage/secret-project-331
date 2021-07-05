@@ -87,6 +87,40 @@ async fn get_current_course_instance(
 }
 
 /**
+GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
+
+# Example
+```json
+[
+  {
+    "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
+    "created_at": "2021-06-28T00:21:11.780420Z",
+    "updated_at": "2021-06-28T00:21:11.780420Z",
+    "deleted_at": null,
+    "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
+    "starts_at": null,
+    "ends_at": null,
+    "name": null,
+    "description": null,
+    "variant_status": "Active"
+  }
+]
+```
+*/
+async fn get_course_instances(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+) -> ApplicationResult<Json<Vec<CourseInstance>>> {
+    let mut conn = pool.acquire().await?;
+    let instances = crate::models::course_instances::get_course_instances_for_course(
+        &mut conn,
+        *request_course_id,
+    )
+    .await?;
+    Ok(Json(instances))
+}
+
+/**
 GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages in a course.
 # Example
 ```json
@@ -162,6 +196,10 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
     )
     .route("/{course_id}/pages", web::get().to(get_course_pages))
     .route("/{course_id}/chapters", web::get().to(get_chapters))
+    .route(
+        "/{course_id}/course-instances",
+        web::get().to(get_course_instances),
+    )
     .route(
         "/{course_id}/current-instance",
         web::get().to(get_current_course_instance),

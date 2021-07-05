@@ -1,9 +1,10 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
 use crate::controllers::ApplicationError;
-use crate::models::chapters::Chapter;
+use crate::models::chapters::{ChapterStatus, ChapterWithStatus};
 use crate::{controllers::ApplicationResult, models::pages::Page};
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
+use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -88,7 +89,7 @@ async fn get_course_pages(
 }
 
 /**
-GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts in a course.
+GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 # Example
 ```json
 [
@@ -101,6 +102,8 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
     "deleted_at": null,
     "chapter_number": 1,
     "front_page_id": null
+    "opens_at": null
+    "status": "open"
   }
 ]
 ```
@@ -109,10 +112,35 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
 async fn get_chapters(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<Chapter>>> {
+) -> ApplicationResult<Json<Vec<ChapterWithStatus>>> {
     let mut conn = pool.acquire().await?;
-    let chapters: Vec<Chapter> =
-        crate::models::chapters::course_chapters(&mut conn, *request_course_id).await?;
+    let chapters = crate::models::chapters::course_chapters(&mut conn, *request_course_id).await?;
+    let chapters = chapters
+        .into_iter()
+        .map(|chapter| {
+            let open = chapter
+                .opens_at
+                .map(|o| o >= Utc::now())
+                .unwrap_or_default();
+            let status = if open {
+                ChapterStatus::Open
+            } else {
+                ChapterStatus::Closed
+            };
+            ChapterWithStatus {
+                id: chapter.id,
+                created_at: chapter.created_at,
+                updated_at: chapter.updated_at,
+                name: chapter.name,
+                course_id: chapter.course_id,
+                deleted_at: chapter.deleted_at,
+                chapter_number: chapter.chapter_number,
+                front_page_id: chapter.front_page_id,
+                opens_at: chapter.opens_at,
+                status,
+            }
+        })
+        .collect();
     Ok(Json(chapters))
 }
 

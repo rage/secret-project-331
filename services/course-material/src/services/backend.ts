@@ -201,3 +201,7 @@ export interface ChapterInTheCourse {
 export const fetchChaptersInTheCourse = async (courseId: string): Promise<ChapterInTheCourse[]> => {
   return (await courseMaterialClient.get(`/courses/${courseId}/chapters`)).data
 }
+
+export const fetchPageUrl = async (pageId: string): Promise<string> => {
+  return (await courseMaterialClient.get(`/pages/${pageId}/url-path`)).data
+}

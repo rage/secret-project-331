@@ -1,5 +1,5 @@
 use crate::{
-    models::chapters::{Chapter, ChapterStatus},
+    models::chapters::Chapter,
     models::exercise_tasks::ExerciseTask,
     utils::document_schema_processor::{
         denormalize, normalize_from_json, GutenbergBlock, NormalizedDocument,
@@ -613,7 +613,6 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> Result<P
     })?;
 
     if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
-        dbg!(&front_page_of_chapter_id);
         let _res = sqlx::query_as!(
             Chapter,
             r#"
@@ -628,8 +627,7 @@ RETURNING id,
   deleted_at,
   chapter_number,
   front_page_id,
-  opens_at,
-  status AS "status: ChapterStatus"
+  opens_at
         "#,
             page.id,
             front_page_of_chapter_id

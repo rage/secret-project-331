@@ -139,13 +139,13 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     let page_ch1_2 = pages::insert(conn, course, "/chapter-1/page-2", "page 2", 2).await?;
     let page_ch2 = pages::insert(conn, course, "/chapter-2", "In the second chapter...", 1).await?;
     let chapter_1 = chapters::insert(conn, "The Basics", course, 1).await?;
-    chapters::set_status(conn, chapter_1, chapters::ChapterStatus::Open).await?;
+    chapters::set_opens_at(conn, chapter_1, Utc::now()).await?;
     let chapter_2 = chapters::insert(conn, "The intermediaries", course, 2).await?;
-    chapters::open_at(conn, chapter_2, Utc::now() + chrono::Duration::minutes(10)).await?;
+    chapters::set_opens_at(conn, chapter_2, Utc::now() + chrono::Duration::minutes(10)).await?;
     let chapter_3 = chapters::insert(conn, "Advanced studies", course, 3).await?;
-    chapters::open_at(conn, chapter_3, Utc::now() + chrono::Duration::minutes(20)).await?;
+    chapters::set_opens_at(conn, chapter_3, Utc::now() + chrono::Duration::minutes(20)).await?;
     let chapter_4 = chapters::insert(conn, "Forbidden magicks", course, 4).await?;
-    chapters::open_at(
+    chapters::set_opens_at(
         conn,
         chapter_4,
         Utc::now() + (chrono::Duration::days(365) * 100),

@@ -21,11 +21,9 @@ pub struct Chapter {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
-    pub status: ChapterStatus,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[sqlx(type_name = "chapter_status", rename_all = "snake_case")]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum ChapterStatus {
     Open,
@@ -102,22 +100,7 @@ pub async fn set_front_page(
     Ok(())
 }
 
-pub async fn set_status(
-    conn: &mut PgConnection,
-    chapter_id: Uuid,
-    status: ChapterStatus,
-) -> Result<()> {
-    sqlx::query!(
-        "UPDATE chapters SET status = $1 WHERE id = $2",
-        status as ChapterStatus,
-        chapter_id,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn open_at(
+pub async fn set_opens_at(
     conn: &mut PgConnection,
     chapter_id: Uuid,
     opens_at: DateTime<Utc>,
@@ -135,7 +118,7 @@ pub async fn open_at(
 pub async fn is_open(conn: &mut PgConnection, chapter_id: Uuid) -> Result<bool> {
     let res = sqlx::query!(
         r#"
-SELECT status AS "status: ChapterStatus"
+SELECT opens_at
 FROM chapters
 WHERE id = $1
 "#,
@@ -143,7 +126,8 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok(res.status == ChapterStatus::Open)
+    let open = res.opens_at.map(|o| o >= Utc::now()).unwrap_or_default();
+    Ok(open)
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Uuid> {
@@ -174,8 +158,7 @@ RETURNING id,
   deleted_at,
   chapter_number,
   front_page_id,
-  opens_at,
-  status AS "status: ChapterStatus"
+  opens_at
     "#,
         chapter_update.name,
         chapter_update.chapter_number,
@@ -184,6 +167,20 @@ RETURNING id,
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct ChapterWithStatus {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub name: String,
+    pub course_id: Uuid,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub chapter_number: i32,
+    pub front_page_id: Option<Uuid>,
+    pub opens_at: Option<DateTime<Utc>>,
+    pub status: ChapterStatus,
 }
 
 pub async fn course_chapters(conn: &mut PgConnection, course_id: Uuid) -> Result<Vec<Chapter>> {
@@ -198,8 +195,7 @@ SELECT id,
   deleted_at,
   chapter_number,
   front_page_id,
-  opens_at,
-  status AS "status: ChapterStatus"
+  opens_at
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -227,8 +223,7 @@ RETURNING id,
   deleted_at,
   chapter_number,
   front_page_id,
-  opens_at,
-  status AS "status: ChapterStatus"
+  opens_at
 "#,
         chapter.name,
         chapter.course_id,
@@ -272,8 +267,7 @@ RETURNING id,
   deleted_at,
   chapter_number,
   front_page_id,
-  opens_at,
-  status AS "status: ChapterStatus"
+  opens_at
 "#,
         chapter_id
     )

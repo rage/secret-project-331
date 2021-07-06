@@ -164,3 +164,7 @@ export interface EmailTemplate extends DatabaseItem {
   points_threshold: number
   course_instance_id: string
 }
+
+export interface NewEmailTemplate {
+  name: string
+}

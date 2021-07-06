@@ -1,8 +1,11 @@
 import { css } from "@emotion/css"
+import { Button, Dialog } from "@material-ui/core"
+import React, { useState } from "react"
 
 import { useQuery } from "react-query"
+import NewEmailTemplateForm from "../../../components/forms/NewEmailTemplateForm"
 import Layout from "../../../components/Layout"
-import { fetchCourseInstanceEmailTemplates } from "../../../services/backend/courses"
+import { fetchCourseInstanceEmailTemplates } from "../../../services/backend/course-instances"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
@@ -13,6 +16,7 @@ const CourseInstanceEmailTemplates = () => {
     `course-instance-${courseInstanceId}-emails`,
     () => fetchCourseInstanceEmailTemplates(courseInstanceId),
   )
+  const [showForm, setShowForm] = useState(false)
 
   if (error) {
     return (
@@ -27,6 +31,11 @@ const CourseInstanceEmailTemplates = () => {
     return <div>Loading page...</div>
   }
 
+  const handleCreateEmailTemplate = async () => {
+    setShowForm(!showForm)
+    await refetch()
+  }
+
   return (
     <Layout>
       <div
@@ -35,7 +44,27 @@ const CourseInstanceEmailTemplates = () => {
           margin-bottom: 1rem;
         `}
       >
-        <h1>E-mail templates for course.</h1>
+        <h1>E-mail templates for course instance.</h1>
+        <Button onClick={() => setShowForm(!showForm)}>Create new e-mail</Button>
+
+        <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
+          <div
+            className={css`
+              margin: 1rem;
+            `}
+          >
+            <Button onClick={() => setShowForm(!showForm)}>Close</Button>
+            <NewEmailTemplateForm
+              courseInstanceId={courseInstanceId}
+              onSubmitForm={handleCreateEmailTemplate}
+            />
+          </div>
+        </Dialog>
+        <ul>
+          {data.map((et) => {
+            return <li key={et.id}>{et.name}</li>
+          })}
+        </ul>
       </div>
     </Layout>
   )

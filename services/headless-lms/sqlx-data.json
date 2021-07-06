@@ -620,7 +620,7 @@
       "parameters": {
         "Left": ["Varchar", "Varchar", "Jsonb", "Int4", "Int4", "Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, false]
+      "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
   "28d85f709ff96819aec1e135cef78a3f2674c747c3b1140c7857c85f5facff56": {
@@ -999,7 +999,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, false]
+      "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
   "45a3380b45f6c12e86e8ed31d0e2c7490f2487c08d6cedc711cecabc0fbf6af7": {
@@ -1299,7 +1299,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, false]
+      "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
   "5c55b14104bfdc1b23bb335ce5a747f7d9bba291bfa8ffd6abf84decd936040b": {
@@ -1992,7 +1992,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, false]
+      "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
   "95dd409bd722442fe75d3b3aba428f811687752e1df10dc30ad7a1ce0250e76d": {
@@ -2487,7 +2487,7 @@
       "parameters": {
         "Left": ["Varchar", "Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, false]
+      "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
   "b01cf38acb69872577027c3975b8cecc8247585a7fdbc5b35f526bf5b2a490e2": {

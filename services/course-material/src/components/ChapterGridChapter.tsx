@@ -5,13 +5,14 @@ import { ChapterInTheCourse } from "../services/backend"
 import { fetchPageUrl } from "../services/backend"
 import { useQuery } from "react-query"
 import GenericLoading from "./GenericLoading"
-import { formatDuration } from "date-fns/esm"
+import { formatDuration } from "date-fns"
 
 interface ChapterProps {
   now: Date
   chapter: ChapterInTheCourse
   courseSlug: string
 }
+
 const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }) => {
   const { data, error, isLoading } = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
     if (chapter.front_page_id) {
@@ -32,7 +33,7 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
   if (chapter.status == "open") {
     return (
       <div key={chapter.id} className={chapterBox}>
-        <Link href={`/${courseSlug}/${data}`}>
+        <Link href={`/${courseSlug}${data}`}>
           <a>
             Chapter {chapter.chapter_number}: {chapter.name}
           </a>
@@ -43,8 +44,8 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
     let closedUntil
     if (chapter.opens_at) {
       const diffSeconds = differenceInSeconds(chapter.opens_at, now)
-      if (diffSeconds < 1) {
-        closedUntil = "Opens soon"
+      if (diffSeconds < 0) {
+        chapter.status = "open"
       } else if (diffSeconds < 60 * 10) {
         const minutes = Math.floor(diffSeconds / 60)
         const seconds = diffSeconds % 60

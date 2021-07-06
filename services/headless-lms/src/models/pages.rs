@@ -47,6 +47,7 @@ pub struct Page {
     pub url_path: String,
     pub title: String,
     pub deleted_at: Option<DateTime<Utc>>,
+    // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value for sqlx
     pub content: serde_json::Value,
     pub order_number: i32,
 }
@@ -190,7 +191,7 @@ VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         course_id,
-        serde_json::Value::Null,
+        serde_json::Value::Array(vec![]),
         url_path,
         title,
         order_number

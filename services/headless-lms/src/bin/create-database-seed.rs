@@ -127,7 +127,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     let course_instance = course_instances::insert(conn, course, None).await?;
 
     // pages and chapters
-    let page_ch1 = pages::insert(
+    let _page = pages::insert(
         conn,
         course,
         "/",
@@ -151,7 +151,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         Utc::now() + (chrono::Duration::days(365) * 100),
     )
     .await?;
-    chapters::set_front_page(conn, chapter_1, page_ch1).await?;
+    chapters::set_front_page(conn, chapter_1, page_ch1_1).await?;
     chapters::set_front_page(conn, chapter_2, page_ch2).await?;
     pages::set_chapter(conn, page_ch1_1, chapter_1).await?;
     pages::set_chapter(conn, page_ch1_2, chapter_1).await?;

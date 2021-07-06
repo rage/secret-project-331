@@ -126,7 +126,7 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    let open = res.opens_at.map(|o| o >= Utc::now()).unwrap_or_default();
+    let open = res.opens_at.map(|o| o <= Utc::now()).unwrap_or_default();
     Ok(open)
 }
 

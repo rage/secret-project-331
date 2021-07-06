@@ -42,7 +42,7 @@ const Page: React.FC<Props> = () => {
       >
         {editedData.title}
       </h1>
-      <ChapterGrid courseId={data.course_id} />
+      <ChapterGrid courseId={editedData.course_id} />
       <ContentRenderer data={editedData.content} />
       {editedData.chapter_id && <NavigationContainer />}
     </>

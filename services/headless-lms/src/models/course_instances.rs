@@ -175,3 +175,33 @@ WHERE id = $2;
     .await?;
     Ok(())
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{
+        models::{courses, organizations},
+        test_helper::Conn,
+    };
+
+    #[tokio::test]
+    async fn allows_only_one_instance_per_course_without_name() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+
+        let organization_id = organizations::insert(tx.as_mut(), "", "").await.unwrap();
+        let course_1_id = courses::insert(tx.as_mut(), "", organization_id, "course-1")
+            .await
+            .unwrap();
+        let course_2_id = courses::insert(tx.as_mut(), "", organization_id, "course-2")
+            .await
+            .unwrap();
+
+        let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None).await.unwrap();
+        let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None).await;
+        assert!(course_2_instance_1.is_ok());
+
+        let course_1_instance_2 = insert(tx.as_mut(), course_1_id, None).await;
+        assert!(course_1_instance_2.is_err());
+    }
+}

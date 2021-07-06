@@ -1,16 +1,20 @@
-import { BlockInstance } from "@wordpress/blocks"
+import { EmailTemplate, EmailTemplateUpdate } from "../../services.types"
 import { cmsClient } from "../cmsClient"
 
-export const fetchEmailTemplateWithId = async (emailTemplateId: string): Promise<any> => {
-  return (
-    await cmsClient.get(`/course-instances/${emailTemplateId}/emails`, { responseType: "json" })
-  ).data
+export const fetchEmailTemplateWithId = async (emailTemplateId: string): Promise<EmailTemplate> => {
+  return (await cmsClient.get(`/email-templates/${emailTemplateId}`, { responseType: "json" })).data
 }
 
 export const updateExistingEmailTemplate = async (
-  email_template_id: string,
-  subject: string,
-  content: BlockInstance[],
-): Promise<any> => {
-  return content
+  id: string,
+  { content, name, subject }: EmailTemplateUpdate,
+): Promise<EmailTemplate> => {
+  const response = await cmsClient.put(
+    `/email-templates/${id}`,
+    { content, name, subject },
+    {
+      headers: { "Content-Type": "application/json" },
+    },
+  )
+  return response.data
 }

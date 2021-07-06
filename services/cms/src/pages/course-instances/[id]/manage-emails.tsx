@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { Button, Dialog } from "@material-ui/core"
+import Link from "next/link"
 import React, { useState } from "react"
 
 import { useQuery } from "react-query"
@@ -62,7 +63,19 @@ const CourseInstanceEmailTemplates = () => {
         </Dialog>
         <ul>
           {data.map((et) => {
-            return <li key={et.id}>{et.name}</li>
+            return (
+              <li key={et.id}>
+                {et.name}{" "}
+                <Link
+                  href={{
+                    pathname: "/email-templates/[id]/edit",
+                    query: { id: et.id },
+                  }}
+                >
+                  Edit
+                </Link>
+              </li>
+            )
           })}
         </ul>
       </div>

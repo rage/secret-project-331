@@ -165,6 +165,14 @@ export interface EmailTemplate extends DatabaseItem {
   course_instance_id: string
 }
 
-export interface NewEmailTemplate {
+export interface EmailTemplateNew {
   name: string
+}
+
+export interface EmailTemplateUpdate {
+  name: string
+  subject: string
+  content: BlockInstance[]
+  exercise_completions_threshold?: number
+  points_threshold?: number
 }

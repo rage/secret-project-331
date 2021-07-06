@@ -19,12 +19,12 @@ pub struct EmailTemplate {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct NewEmailTemplate {
+pub struct EmailTemplateNew {
     pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct UpdateEmailTemplate {
+pub struct EmailTemplateUpdate {
     pub name: String,
     pub subject: String,
     pub content: serde_json::Value,
@@ -49,7 +49,7 @@ pub async fn get_email_templates(
 pub async fn insert_email_template(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-    email_template: NewEmailTemplate,
+    email_template: EmailTemplateNew,
 ) -> Result<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,
@@ -66,7 +66,7 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn get_email_template_by_id(
+pub async fn get_email_template(
     conn: &mut PgConnection,
     email_template_id: Uuid,
 ) -> Result<EmailTemplate> {
@@ -83,7 +83,7 @@ pub async fn get_email_template_by_id(
 pub async fn update_email_template(
     conn: &mut PgConnection,
     email_template_id: Uuid,
-    email_template_update: UpdateEmailTemplate,
+    email_template_update: EmailTemplateUpdate,
 ) -> Result<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,

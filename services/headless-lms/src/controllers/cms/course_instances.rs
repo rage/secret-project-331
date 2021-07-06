@@ -3,7 +3,7 @@
 use crate::{
     controllers::ApplicationResult,
     domain::authorization::AuthUser,
-    models::email_templates::{EmailTemplate, NewEmailTemplate},
+    models::email_templates::{EmailTemplate, EmailTemplateNew},
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -13,7 +13,7 @@ use uuid::Uuid;
 #[instrument(skip(payload, pool))]
 async fn post_new_email_template(
     request_course_instance_id: web::Path<Uuid>,
-    payload: web::Json<NewEmailTemplate>,
+    payload: web::Json<EmailTemplateNew>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ApplicationResult<Json<EmailTemplate>> {
@@ -29,7 +29,7 @@ async fn post_new_email_template(
 }
 
 #[instrument(skip(pool))]
-async fn get_email_templates(
+async fn get_email_templates_by_course_instance_id(
     request_course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -56,6 +56,6 @@ pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
     )
     .route(
         "/{course_instance_id}/email-templates",
-        web::get().to(get_email_templates),
+        web::get().to(get_email_templates_by_course_instance_id),
     );
 }

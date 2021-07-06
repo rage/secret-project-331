@@ -8,8 +8,8 @@ import {
   fetchEmailTemplateWithId,
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
-import { EmailTemplate } from "../../../services/services.types"
-import { BlockInstance } from "@wordpress/blocks"
+import { EmailTemplate, EmailTemplateUpdate } from "../../../services/services.types"
+import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
 
 const EditorLoading = <div>Loading editor...</div>
 
@@ -37,12 +37,11 @@ const EmailTemplateEdit = () => {
     return <div>Loading email editor...</div>
   }
 
-  const handleSave = async (
-    emailTemplateId: string,
-    subject: string,
-    content: BlockInstance[],
-  ): Promise<EmailTemplate> => {
-    const res = await updateExistingEmailTemplate(emailTemplateId, subject, content)
+  const handleSave = async (template: EmailTemplateUpdate): Promise<EmailTemplate> => {
+    const res = await updateExistingEmailTemplate(emailTemplateId, {
+      ...template,
+    })
+    console.log(res)
     await refetch()
     return res
   }
@@ -54,4 +53,4 @@ const EmailTemplateEdit = () => {
   )
 }
 
-export default withSignedIn(EmailTemplateEdit)
+export default withSignedIn(dontRenderUntilQueryParametersReady(EmailTemplateEdit))

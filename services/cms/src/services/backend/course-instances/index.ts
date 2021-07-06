@@ -1,9 +1,9 @@
-import { EmailTemplate, NewEmailTemplate } from "../../services.types"
+import { EmailTemplate, EmailTemplateNew } from "../../services.types"
 import { cmsClient } from "../cmsClient"
 
 export const postNewEmailTemplateForCourseInstance = async (
   courseInstanceId: string,
-  data: NewEmailTemplate,
+  data: EmailTemplateNew,
 ): Promise<EmailTemplate> => {
   const response = await cmsClient.post(
     `/course-instances/${courseInstanceId}/email-templates`,

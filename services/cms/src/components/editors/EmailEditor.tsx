@@ -4,15 +4,12 @@ import SaveIcon from "@material-ui/icons/Save"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import { EmailTemplate } from "../../services/services.types"
+import { EmailTemplate, EmailTemplateUpdate } from "../../services/services.types"
+import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
 interface EmailEditorProps {
   data: EmailTemplate
-  handleSave: (
-    emailTemplateId: string,
-    subject: string,
-    content: BlockInstance[],
-  ) => Promise<EmailTemplate>
+  handleSave: (template: EmailTemplateUpdate) => Promise<EmailTemplate>
 }
 
 const EditorLoading = <div>Loading e-mail editor...</div>
@@ -24,14 +21,16 @@ const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 
 const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
   const [content, setContent] = useState<BlockInstance[]>(data.content)
+  const [name, setName] = useState(data.name)
   const [subject, setSubject] = useState(data.subject)
 
   const [saving, setSaving] = useState(false)
 
   const handleOnSave = async () => {
     setSaving(true)
-    const res = await handleSave(data.id, subject, content)
+    const res = await handleSave({ subject, name, content })
     setContent(res.content)
+    setName(res.name)
     setSubject(res.subject)
     setSaving(false)
   }
@@ -46,6 +45,13 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
       >
         Save
       </LoadingButton>
+
+      <UpdateEmailDetailsForm
+        name={name}
+        subject={subject}
+        setName={setName}
+        setSubject={setSubject}
+      />
 
       <EmailGutenbergEditor
         content={content}

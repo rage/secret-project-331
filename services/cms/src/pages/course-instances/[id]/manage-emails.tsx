@@ -7,6 +7,7 @@ import { useQuery } from "react-query"
 import NewEmailTemplateForm from "../../../components/forms/NewEmailTemplateForm"
 import Layout from "../../../components/Layout"
 import { fetchCourseInstanceEmailTemplates } from "../../../services/backend/course-instances"
+import { deleteEmailTemplate } from "../../../services/backend/email-templates"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
@@ -38,6 +39,11 @@ const CourseInstanceEmailTemplates = () => {
 
   const handleCreateEmailTemplate = async () => {
     setShowForm(!showForm)
+    await refetch()
+  }
+
+  const handleOnDelete = async (templateId: string) => {
+    await deleteEmailTemplate(templateId)
     await refetch()
   }
 
@@ -78,7 +84,8 @@ const CourseInstanceEmailTemplates = () => {
                   }}
                 >
                   Edit
-                </Link>
+                </Link>{" "}
+                <Button onClick={async () => await handleOnDelete(template.id)}>Delete</Button>
               </li>
             )
           })}

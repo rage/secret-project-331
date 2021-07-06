@@ -18,3 +18,8 @@ export const updateExistingEmailTemplate = async (
   )
   return response.data
 }
+
+export const deleteEmailTemplate = async (id: string): Promise<EmailTemplate> => {
+  const response = await cmsClient.delete(`/email-templates/${id}`)
+  return response.data
+}

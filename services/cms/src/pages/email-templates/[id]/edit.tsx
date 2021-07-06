@@ -34,14 +34,13 @@ const EmailTemplateEdit = () => {
   }
 
   if (isLoading || !data) {
-    return <div>Loading email editor...</div>
+    return <div>Loading editor data...</div>
   }
 
   const handleSave = async (template: EmailTemplateUpdate): Promise<EmailTemplate> => {
     const res = await updateExistingEmailTemplate(emailTemplateId, {
       ...template,
     })
-    console.log(res)
     await refetch()
     return res
   }

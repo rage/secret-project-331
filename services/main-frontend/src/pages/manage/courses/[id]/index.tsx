@@ -6,45 +6,35 @@ import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRende
 import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
 import { css } from "@emotion/css"
 import { useQuery } from "react-query"
-import { deleteCourse, fetchCourseInstances, getCourse } from "../../../../services/backend/courses"
+import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import { Dialog, Button } from "@material-ui/core"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
-import ExerciseList from "../../../../components/ExerciseList"
+import ExerciseList from "../../../../components/lists/ExerciseList"
+import CourseInstancesList from "../../../../components/lists/CourseInstancesList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import Link from "next/link"
 
 const ManageCoursePage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
-  const {
-    isLoading: loadingCourse,
-    error: errorCourse,
-    data: course,
-    refetch: refetchCourse,
-  } = useQuery(`course-${id}`, () => getCourse(id))
-  const {
-    isLoading: loadingCourseInstances,
-    error: errorInstances,
-    data: courseInstances,
-    refetch: refetchCourseInstances,
-  } = useQuery(`course-${id}-course-instances`, () => fetchCourseInstances(id))
+  const { isLoading, error, data: course, refetch } = useQuery(`course-${id}`, () => getCourse(id))
   const [showForm, setShowForm] = useState(false)
 
-  if (errorCourse || errorInstances) {
+  if (error) {
     return <div>Error fetching course data.</div>
   }
 
-  if (loadingCourse || loadingCourseInstances || !courseInstances || !course) {
+  if (isLoading || !course) {
     return <div>Loading...</div>
   }
 
   const handleOnDelete = async (courseId: string) => {
     await deleteCourse(courseId)
-    await refetchCourse()
+    await refetch()
   }
 
   const handleOnUpdateCourse = async () => {
     setShowForm(!showForm)
-    await refetchCourse()
+    await refetch()
   }
 
   return (
@@ -83,18 +73,10 @@ const ManageCoursePage: React.FC<unknown> = () => {
       >
         Stats
       </Link>
+      <br />
       <a href={`/cms/courses/${course.id}/manage-pages`}>Manage pages</a>{" "}
       <h3>All course instances</h3>
-      <ul>
-        {courseInstances.map((instance) => {
-          return (
-            <li key={instance.id}>
-              {instance?.name}{" "}
-              <a href={`/cms/course-instances/${instance.id}/manage-emails`}>Manage e-mails</a>
-            </li>
-          )
-        })}
-      </ul>
+      <CourseInstancesList courseId={id} />
       <h3>All exercises</h3>
       <ExerciseList courseId={id} />
     </Layout>

@@ -13,9 +13,13 @@ import { normalWidthCenteredComponentStyles } from "../../../styles/componentSty
 
 const CourseInstanceEmailTemplates = () => {
   const courseInstanceId = useQueryParameter("id")
-  const { isLoading, error, data, refetch } = useQuery(
-    `course-instance-${courseInstanceId}-emails`,
-    () => fetchCourseInstanceEmailTemplates(courseInstanceId),
+  const {
+    isLoading,
+    error,
+    data: courseInstanceEmailTemplates,
+    refetch,
+  } = useQuery(`course-instance-${courseInstanceId}-emails`, () =>
+    fetchCourseInstanceEmailTemplates(courseInstanceId),
   )
   const [showForm, setShowForm] = useState(false)
 
@@ -28,7 +32,7 @@ const CourseInstanceEmailTemplates = () => {
     )
   }
 
-  if (isLoading || !data) {
+  if (isLoading || !courseInstanceEmailTemplates) {
     return <div>Loading page...</div>
   }
 
@@ -45,6 +49,7 @@ const CourseInstanceEmailTemplates = () => {
           margin-bottom: 1rem;
         `}
       >
+        {/* TODO: Perhaps insert some data regarding the course instance */}
         <h1>E-mail templates for course instance.</h1>
         <Button onClick={() => setShowForm(!showForm)}>Create new e-mail</Button>
 
@@ -62,14 +67,14 @@ const CourseInstanceEmailTemplates = () => {
           </div>
         </Dialog>
         <ul>
-          {data.map((et) => {
+          {courseInstanceEmailTemplates.map((template) => {
             return (
-              <li key={et.id}>
-                {et.name}{" "}
+              <li key={template.id}>
+                {template.name}{" "}
                 <Link
                   href={{
                     pathname: "/email-templates/[id]/edit",
-                    query: { id: et.id },
+                    query: { id: template.id },
                   }}
                 >
                   Edit

@@ -12,7 +12,6 @@ export const postNewEmailTemplateForCourseInstance = async (
       headers: { "Content-Type": "application/json" },
     },
   )
-  console.log(response)
   return response.data
 }
 

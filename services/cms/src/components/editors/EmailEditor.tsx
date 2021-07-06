@@ -9,7 +9,7 @@ import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
 interface EmailEditorProps {
   data: EmailTemplate
-  handleSave: (template: EmailTemplateUpdate) => Promise<EmailTemplate>
+  handleSave: (updatedTemplate: EmailTemplateUpdate) => Promise<EmailTemplate>
 }
 
 const EditorLoading = <div>Loading e-mail editor...</div>
@@ -23,7 +23,6 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
   const [content, setContent] = useState<BlockInstance[]>(data.content)
   const [name, setName] = useState(data.name)
   const [subject, setSubject] = useState(data.subject)
-
   const [saving, setSaving] = useState(false)
 
   const handleOnSave = async () => {

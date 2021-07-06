@@ -101,6 +101,34 @@ WHERE deleted_at IS NOT NULL;
     Ok(course_instances)
 }
 
+pub async fn get_course_instances_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> Result<Vec<CourseInstance>> {
+    let course_instances = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  starts_at,
+  ends_at,
+  name,
+  description,
+  variant_status as "variant_status: VariantStatus"
+FROM course_instances
+WHERE course_id = $1
+  AND deleted_at IS NOT NULL;
+        "#,
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(course_instances)
+}
+
 pub async fn update_course_instance_variant_status(
     conn: &mut PgConnection,
     course_instance_id: Uuid,

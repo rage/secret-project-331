@@ -52,6 +52,34 @@ RETURNING id
     Ok(res.id)
 }
 
+pub async fn get_course_instance(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> Result<CourseInstance> {
+    let course_instance = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  starts_at,
+  ends_at,
+  name,
+  description,
+  variant_status AS "variant_status: VariantStatus"
+FROM course_instances
+WHERE id = $1
+  AND deleted_at IS NULL;
+    "#,
+        course_instance_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course_instance)
+}
+
 pub async fn current_course_instance_of_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -93,7 +121,7 @@ pub async fn get_all_course_instances(conn: &mut PgConnection) -> Result<Vec<Cou
 SELECT
     id, created_at, updated_at, deleted_at, course_id, starts_at, ends_at, name, description, variant_status as "variant_status: VariantStatus"
 FROM course_instances
-WHERE deleted_at IS NOT NULL;
+WHERE deleted_at IS NULL;
 "#
     )
     .fetch_all(conn)
@@ -120,7 +148,7 @@ SELECT id,
   variant_status as "variant_status: VariantStatus"
 FROM course_instances
 WHERE course_id = $1
-  AND deleted_at IS NOT NULL;
+  AND deleted_at IS NULL;
         "#,
         course_id,
     )

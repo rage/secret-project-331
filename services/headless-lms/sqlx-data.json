@@ -119,74 +119,6 @@
       "nullable": []
     }
   },
-  "095b4758aad5b661f108d494d1f980002ba75d2a9d67df0420fe371f96d28902": {
-    "query": "\nSELECT\n    id, created_at, updated_at, deleted_at, course_id, starts_at, ends_at, name, description, variant_status as \"variant_status: VariantStatus\"\nFROM course_instances\nWHERE deleted_at IS NOT NULL;\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "starts_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "ends_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 7,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 8,
-          "name": "description",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 9,
-          "name": "variant_status: VariantStatus",
-          "type_info": {
-            "Custom": {
-              "name": "variant_status",
-              "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [false, false, false, true, false, true, true, true, true, false]
-    }
-  },
   "1354fbf47a4a0f22b9b9f30143dd425b05aef41d55a178bc39eb1eb4140a6e0c": {
     "query": "\nUPDATE course_instances\nSET variant_status = $1\nWHERE id = $2;\n",
     "describe": {
@@ -428,6 +360,74 @@
         "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
       },
       "nullable": [false, false, false, false, false, false, false, true, true, false]
+    }
+  },
+  "2279c575464d39a9a4fa338b3d839de39e68c2453dd51b544f6459ab0f72b238": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  variant_status as \"variant_status: VariantStatus\"\nFROM course_instances\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "starts_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "ends_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "description",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 9,
+          "name": "variant_status: VariantStatus",
+          "type_info": {
+            "Custom": {
+              "name": "variant_status",
+              "kind": {
+                "Enum": ["draft", "upcoming", "active", "ended"]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, true, true, true, true, false]
     }
   },
   "2395ca73bcdd330e31c0d42fdf6ec062602d06d67ce40ffcf1b71fd90982b2f7": {
@@ -801,74 +801,6 @@
         "Left": ["Int4"]
       },
       "nullable": [false, false, false, true, true]
-    }
-  },
-  "395747ea157b5db71a0a5a35145f8febf5c81a8c4f5f42a4ca8e854523eed51d": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  variant_status as \"variant_status: VariantStatus\"\nFROM course_instances\nWHERE course_id = $1\n  AND deleted_at IS NOT NULL;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "starts_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "ends_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 7,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 8,
-          "name": "description",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 9,
-          "name": "variant_status: VariantStatus",
-          "type_info": {
-            "Custom": {
-              "name": "variant_status",
-              "kind": {
-                "Enum": ["draft", "upcoming", "active", "ended"]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, true, false, true, true, true, true, false]
     }
   },
   "3e925fb3e5a135d876037e1424238f4c88a4d9a76a739e16c2c6d8d17151cd06": {
@@ -2305,6 +2237,74 @@
       "nullable": [false]
     }
   },
+  "b4f5a52e896eba983c4002aa6c4ad7b6560079a8b7573c43315562e8bd3fb03b": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  variant_status AS \"variant_status: VariantStatus\"\nFROM course_instances\nWHERE id = $1\n  AND deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "starts_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "ends_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "description",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 9,
+          "name": "variant_status: VariantStatus",
+          "type_info": {
+            "Custom": {
+              "name": "variant_status",
+              "kind": {
+                "Enum": ["draft", "upcoming", "active", "ended"]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, true, true, true, true, false]
+    }
+  },
   "b7c1d6419ba5258f9768f21c871f7e20ec929aeb83445e8a09a5cbd4e9425def": {
     "query": "SELECT * FROM courses WHERE deleted_at IS NULL;",
     "describe": {
@@ -2958,6 +2958,74 @@
         "Left": ["Uuid"]
       },
       "nullable": [false]
+    }
+  },
+  "d9038990f8ce9517b957e6a9a1e347142a2c899026003390f50383be1690e2a1": {
+    "query": "\nSELECT\n    id, created_at, updated_at, deleted_at, course_id, starts_at, ends_at, name, description, variant_status as \"variant_status: VariantStatus\"\nFROM course_instances\nWHERE deleted_at IS NULL;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "starts_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "ends_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "description",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 9,
+          "name": "variant_status: VariantStatus",
+          "type_info": {
+            "Custom": {
+              "name": "variant_status",
+              "kind": {
+                "Enum": ["draft", "upcoming", "active", "ended"]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [false, false, false, true, false, true, true, true, true, false]
     }
   },
   "da896f936aafd16dba8e38e8e97b7907310051fa453acf242dccab1776995e48": {

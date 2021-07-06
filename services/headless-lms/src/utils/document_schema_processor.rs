@@ -18,6 +18,18 @@ pub struct GutenbergBlock {
     pub inner_blocks: Vec<GutenbergBlock>,
 }
 
+impl GutenbergBlock {
+    pub fn empty_block_from_name(name: String) -> Self {
+        GutenbergBlock {
+            client_id: Uuid::new_v4().to_string(),
+            name,
+            is_valid: true,
+            attributes: serde_json::json!({}),
+            inner_blocks: vec![],
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NormalizedDocument {
     pub content: Vec<GutenbergBlock>,

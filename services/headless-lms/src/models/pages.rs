@@ -9,46 +9,22 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use sqlx::{Acquire, FromRow, PgConnection};
 use std::collections::HashMap;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-// Gutenberg expects these fields to be in camelCase.
-#[serde(rename_all = "camelCase")]
-pub struct ContentBlock {
-    pub client_id: Uuid,
-    pub name: String,
-    pub is_valid: bool,
-    pub attributes: serde_json::Value,
-    pub inner_blocks: serde_json::Value,
-}
-
-impl ContentBlock {
-    pub fn empty_block_from_name(name: String) -> Self {
-        ContentBlock {
-            client_id: Uuid::new_v4(),
-            name,
-            is_valid: true,
-            attributes: json!({}),
-            inner_blocks: json!([]),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Page {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    course_id: Uuid,
-    chapter_id: Option<Uuid>,
-    url_path: String,
-    title: String,
-    deleted_at: Option<DateTime<Utc>>,
-    content: serde_json::Value,
-    order_number: i32,
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub course_id: Uuid,
+    pub chapter_id: Option<Uuid>,
+    pub url_path: String,
+    pub title: String,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub content: serde_json::Value,
+    pub order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

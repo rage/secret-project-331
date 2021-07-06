@@ -1,7 +1,8 @@
 use anyhow::Result;
+use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::{
-    chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
-    exercise_tasks, exercises, organizations, pages, roles, roles::UserRole, submissions, users,
+    chapters, course_instances, courses, exercise_services, exercise_tasks, exercises,
+    organizations, pages, roles, roles::UserRole, submissions, users,
 };
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
@@ -69,7 +70,7 @@ async fn main() -> Result<()> {
     .await?;
     let intro_course_instance = course_instances::insert(&mut conn, intro_course, None).await?;
     // uh-cs intro pages and chapters
-    let intro_page_1 = pages::insert(
+    let _intro_front_page = pages::insert(
         &mut conn,
         intro_course,
         "/",
@@ -77,10 +78,18 @@ async fn main() -> Result<()> {
         1,
     )
     .await?;
+    let intro_page_1 =
+        pages::insert(&mut conn, intro_course, "/chapter-1", "The Basics", 1).await?;
     let intro_page_2 =
         pages::insert(&mut conn, intro_course, "/chapter-1/page-2", "page 2", 2).await?;
-    let intro_page_3 =
-        pages::insert(&mut conn, intro_course, "/", "In the second chapter...", 1).await?;
+    let intro_page_3 = pages::insert(
+        &mut conn,
+        intro_course,
+        "/chapter-2",
+        "In the second chapter...",
+        1,
+    )
+    .await?;
     let intro_chapter_1 = chapters::insert(&mut conn, "The Basics", intro_course, 1).await?;
     let intro_chapter_2 =
         chapters::insert(&mut conn, "The intermediaries", intro_course, 2).await?;
@@ -417,15 +426,15 @@ async fn main() -> Result<()> {
     .await?;
 
     // uh-cs cs
-    let cs_course = courses::insert(
+    let _cs_course = courses::insert_course(
         &mut conn,
-        "Introduction to Computer Science",
-        uh_cs,
-        "introduction-to-computer-science",
+        NewCourse {
+            name: "Introduction to Computer Science".to_string(),
+            organization_id: uh_cs,
+            slug: "introduction-to-computer-science".to_string(),
+        },
     )
     .await?;
-    let _cs_course_instance =
-        course_instances::insert(&mut conn, cs_course, Some(VariantStatus::Upcoming)).await?;
 
     // uh-mathstat
     let uh_mathstat = organizations::insert(
@@ -434,15 +443,15 @@ async fn main() -> Result<()> {
         "uh-mathstat",
     )
     .await?;
-    let statistics_course = courses::insert(
+    let _statistics_course = courses::insert_course(
         &mut conn,
-        "Introduction to Statistics",
-        uh_mathstat,
-        "introduction-to-statistics",
+        NewCourse {
+            name: "Introduction to Statistics".to_string(),
+            organization_id: uh_mathstat,
+            slug: "introduction-to-statistics".to_string(),
+        },
     )
     .await?;
-    let _statistics_course_instance =
-        course_instances::insert(&mut conn, statistics_course, Some(VariantStatus::Active)).await?;
 
     // roles
     roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;

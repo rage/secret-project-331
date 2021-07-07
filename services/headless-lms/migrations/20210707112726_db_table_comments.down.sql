@@ -1,0 +1,14 @@
+-- Add down migration script here
+-- Add up migration script here
+COMMENT ON TABLE organizations IS NULL;
+COMMENT ON TABLE courses IS NULL;
+COMMENT ON TABLE pages IS NULL;
+COMMENT ON TABLE chapters IS NULL;
+COMMENT ON TABLE submissions IS NULL;
+COMMENT ON TABLE exercise_tasks IS NULL;
+COMMENT ON TABLE course_instance_enrollments IS NULL;
+COMMENT ON TABLE users IS NULL;
+COMMENT ON TABLE roles IS NULL;
+COMMENT ON TABLE gradings IS NULL;
+COMMENT ON TABLE regradings IS NULL;
+COMMENT ON TABLE regrading_submissions IS NULL;

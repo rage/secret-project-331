@@ -20,6 +20,20 @@ pub struct Chapter {
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
+    pub opens_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[serde(rename_all = "snake_case")]
+pub enum ChapterStatus {
+    Open,
+    Closed,
+}
+
+impl Default for ChapterStatus {
+    fn default() -> Self {
+        Self::Closed
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -86,6 +100,36 @@ pub async fn set_front_page(
     Ok(())
 }
 
+pub async fn set_opens_at(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    opens_at: DateTime<Utc>,
+) -> Result<()> {
+    sqlx::query!(
+        "UPDATE chapters SET opens_at = $1 WHERE id = $2",
+        opens_at,
+        chapter_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn is_open(conn: &mut PgConnection, chapter_id: Uuid) -> Result<bool> {
+    let res = sqlx::query!(
+        r#"
+SELECT opens_at
+FROM chapters
+WHERE id = $1
+"#,
+        chapter_id
+    )
+    .fetch_one(conn)
+    .await?;
+    let open = res.opens_at.map(|o| o <= Utc::now()).unwrap_or_default();
+    Ok(open)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id from chapters where id = $1", chapter_id)
         .fetch_one(conn)
@@ -103,11 +147,18 @@ pub async fn update_chapter(
         Chapter,
         r#"
 UPDATE chapters
-    SET name = $1,
-    chapter_number = $2
-WHERE
-    id = $3
-    RETURNING *
+SET name = $1,
+  chapter_number = $2
+WHERE id = $3
+RETURNING id,
+  created_at,
+  updated_at,
+  name,
+  course_id,
+  deleted_at,
+  chapter_number,
+  front_page_id,
+  opens_at
     "#,
         chapter_update.name,
         chapter_update.chapter_number,
@@ -118,10 +169,37 @@ WHERE
     Ok(res)
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct ChapterWithStatus {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub name: String,
+    pub course_id: Uuid,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub chapter_number: i32,
+    pub front_page_id: Option<Uuid>,
+    pub opens_at: Option<DateTime<Utc>>,
+    pub status: ChapterStatus,
+}
+
 pub async fn course_chapters(conn: &mut PgConnection, course_id: Uuid) -> Result<Vec<Chapter>> {
     let chapters = sqlx::query_as!(
         Chapter,
-        "SELECT * FROM chapters WHERE course_id = $1 AND deleted_at IS NULL;",
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  name,
+  course_id,
+  deleted_at,
+  chapter_number,
+  front_page_id,
+  opens_at
+FROM chapters
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+"#,
         course_id
     )
     .fetch_all(conn)
@@ -135,11 +213,18 @@ pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> Res
     let chapter = sqlx::query_as!(
         Chapter,
         r#"
-    INSERT INTO
-      chapters(name, course_id, chapter_number)
-    VALUES($1, $2, $3)
-    RETURNING *
-            "#,
+INSERT INTO chapters(name, course_id, chapter_number)
+VALUES($1, $2, $3)
+RETURNING id,
+  created_at,
+  updated_at,
+  name,
+  course_id,
+  deleted_at,
+  chapter_number,
+  front_page_id,
+  opens_at
+"#,
         chapter.name,
         chapter.course_id,
         chapter.chapter_number
@@ -172,11 +257,18 @@ pub async fn delete_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> Result
         Chapter,
         r#"
 UPDATE chapters
-    SET deleted_at = now()
-WHERE
-    id = $1
-RETURNING *
-    "#,
+SET deleted_at = now()
+WHERE id = $1
+RETURNING id,
+  created_at,
+  updated_at,
+  name,
+  course_id,
+  deleted_at,
+  chapter_number,
+  front_page_id,
+  opens_at
+"#,
         chapter_id
     )
     .fetch_one(conn)

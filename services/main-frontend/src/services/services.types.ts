@@ -123,6 +123,26 @@ export interface Exercise extends DatabaseItem {
   order_number: number
 }
 
+enum VariantStatus {
+  Draft,
+  Upcoming,
+  Active,
+  Ended,
+}
+
+/**
+ * GET
+ * `/main-frontend/courses/:course_id/course-instances`
+ */
+export interface CourseInstance extends DatabaseItem {
+  course_id: string
+  starts_at?: Date
+  ends_at?: Date
+  name?: string
+  description?: string
+  variant_status: VariantStatus
+}
+
 /**
  * POST
  * `${API_URL}/api/v0/main-frontend/courses

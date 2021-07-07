@@ -2,7 +2,7 @@ import Link from "next/link"
 import React from "react"
 import { useQuery } from "react-query"
 
-import { fetchCourseExercises } from "../services/backend/courses"
+import { fetchCourseExercises } from "../../services/backend/courses"
 
 export interface ExerciseListProps {
   courseId: string

@@ -42,7 +42,6 @@ const Organization: React.FC<unknown> = () => {
             <a href={`/courses/${course.slug}`}>{course.name}</a>{" "}
             {loginStateContext.signedIn && (
               <>
-                <a href={`/cms/courses/${course.id}/overview`}>Edit</a>{" "}
                 <Link
                   href={{
                     pathname: "/manage/courses/[id]",
@@ -53,16 +52,6 @@ const Organization: React.FC<unknown> = () => {
                 >
                   Manage
                 </Link>{" "}
-                <Link
-                  href={{
-                    pathname: "/manage/courses/[id]/stats",
-                    query: {
-                      id: course.id,
-                    },
-                  }}
-                >
-                  Stats
-                </Link>
               </>
             )}
           </div>

@@ -27,19 +27,29 @@ export const supportedCoreBlocks: string[] = [
   "core/verse",
 ]
 
-export const allowedEmbedBlocks: string[] = [
-  "twitter",
-  "youtube",
-  "facebook",
-  "instagram",
-  "wordpress",
-  "soundcloud",
-  "spotify",
-  "flickr",
-  "vimeo",
-  "imgur",
-  "reddit",
-  "slideshare",
-  "ted",
-  "tumblr",
+export const allowedBlockVariants: Record<string, string[]> = {
+  "core/embed": [
+    "twitter",
+    "youtube",
+    "facebook",
+    "instagram",
+    "wordpress",
+    "soundcloud",
+    "spotify",
+    "flickr",
+    "vimeo",
+    "imgur",
+    "reddit",
+    "slideshare",
+    "ted",
+    "tumblr",
+  ],
+}
+
+export const allowedEmailCoreBlocks: string[] = [
+  "core/paragraph",
+  "core/image",
+  "core/heading",
+  "core/list",
+  "core/table",
 ]

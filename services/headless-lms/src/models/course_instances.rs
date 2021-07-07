@@ -93,7 +93,7 @@ pub async fn get_all_course_instances(conn: &mut PgConnection) -> Result<Vec<Cou
 SELECT
     id, created_at, updated_at, deleted_at, course_id, starts_at, ends_at, name, description, variant_status as "variant_status: VariantStatus"
 FROM course_instances
-WHERE deleted_at IS NOT NULL;
+WHERE deleted_at IS NULL;
 "#
     )
     .fetch_all(conn)
@@ -120,7 +120,7 @@ SELECT id,
   variant_status as "variant_status: VariantStatus"
 FROM course_instances
 WHERE course_id = $1
-  AND deleted_at IS NOT NULL;
+  AND deleted_at IS NULL;
         "#,
         course_id,
     )

@@ -58,10 +58,10 @@ pub struct EmailGutenbergBlock {
     pub inner_blocks: Vec<EmailGutenbergBlock>,
 }
 
-pub fn process_content_to_plaintext(blocks: Vec<EmailGutenbergBlock>) -> String {
+pub fn process_content_to_plaintext(blocks: &[EmailGutenbergBlock]) -> String {
     let contents: Vec<String> = blocks
-        .into_iter()
-        .map(|block| match block.attributes {
+        .iter()
+        .map(|block| match &block.attributes {
             BlockAttributes::Paragraph { content, .. } => {
                 let res = ALL_TAG_REGEX.replace_all(&content, "").to_string();
                 format!("{}\n\n", res)
@@ -74,7 +74,7 @@ pub fn process_content_to_plaintext(blocks: Vec<EmailGutenbergBlock>) -> String 
             BlockAttributes::List {
                 values, ordered, ..
             } => {
-                if ordered {
+                if *ordered {
                     let mut counter = 0;
                     let first_tags: String = LI_START_TAG_REGEX
                         .replace_all(&values, |_caps: &Captures| {
@@ -100,10 +100,10 @@ pub fn process_content_to_plaintext(blocks: Vec<EmailGutenbergBlock>) -> String 
     contents.join("\n")
 }
 
-pub fn process_content_to_html(blocks: Vec<EmailGutenbergBlock>) -> String {
+pub fn process_content_to_html(blocks: &[EmailGutenbergBlock]) -> String {
     let contents: Vec<String> = blocks
-        .into_iter()
-        .map(|block| match block.attributes {
+        .iter()
+        .map(|block| match &block.attributes {
             BlockAttributes::Paragraph {
                 content,
                 drop_cap: _,
@@ -123,7 +123,7 @@ pub fn process_content_to_html(blocks: Vec<EmailGutenbergBlock>) -> String {
             BlockAttributes::List {
                 values, ordered, ..
             } => {
-                let result = if ordered {
+                let result = if *ordered {
                     format!("<ol>{}</ol>", values)
                 } else {
                     format!("<ul>{}</ul>", values)
@@ -154,7 +154,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_plaintext(input);
+        let result = process_content_to_plaintext(&input);
 
         assert_eq!(String::from("testi paragraph.\n\n"), result);
     }
@@ -172,7 +172,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_plaintext(input);
+        let result = process_content_to_plaintext(&input);
 
         assert_eq!(String::from("testi paragraph.\n\n"), result);
     }
@@ -190,7 +190,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_plaintext(input);
+        let result = process_content_to_plaintext(&input);
 
         assert_eq!(String::from("Email heading\n\n\n"), result);
     }
@@ -208,7 +208,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_plaintext(input);
+        let result = process_content_to_plaintext(&input);
 
         assert_eq!(
             String::from("\"Alternative title\", <URL -of an image>"),
@@ -228,7 +228,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_plaintext(input);
+        let result = process_content_to_plaintext(&input);
 
         assert_eq!(
             String::from("\"Alternative title\", <URL -of an image>"),
@@ -249,7 +249,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_plaintext(input);
+        let result = process_content_to_plaintext(&input);
 
         assert_eq!(String::from("* 1\n* 2\n* 3\n* 4\n"), result);
     }
@@ -269,7 +269,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_plaintext(input);
+        let result = process_content_to_plaintext(&input);
 
         assert_eq!(String::from("* 1\n* 2\n* 3\n* 4\n"), result);
     }
@@ -287,7 +287,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_plaintext(input);
+        let result = process_content_to_plaintext(&input);
 
         assert_eq!(
             String::from("1. first\n2. second\n3. third\n4. fourth\n"),
@@ -310,7 +310,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_plaintext(input);
+        let result = process_content_to_plaintext(&input);
 
         assert_eq!(
             String::from("1. first\n2. second\n3. third\n4. fourth\n"),
@@ -331,7 +331,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_html(input);
+        let result = process_content_to_html(&input);
 
         assert_eq!(String::from("<p>testi paragraph.</p>"), result);
     }
@@ -349,7 +349,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_html(input);
+        let result = process_content_to_html(&input);
 
         assert_eq!(String::from("<h2>Email heading</h2>"), result);
     }
@@ -367,7 +367,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_html(input);
+        let result = process_content_to_html(&input);
 
         assert_eq!(
             String::from(r#"<img src="URL -of an image" alt="Alternative title"></img>"#),
@@ -388,7 +388,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_html(input);
+        let result = process_content_to_html(&input);
 
         assert_eq!(
             String::from("<ul><li>1</li><li>2</li><li>3</li><li>4</li></ul>"),
@@ -411,7 +411,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_html(input);
+        let result = process_content_to_html(&input);
 
         assert_eq!(
             String::from(
@@ -434,7 +434,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_html(input);
+        let result = process_content_to_html(&input);
 
         assert_eq!(
             String::from("<ol><li>first</li><li>second</li><li>third</li><li>fourth</li></ol>"),
@@ -457,7 +457,7 @@ mod email_processor_tests {
             inner_blocks: vec![],
         }];
 
-        let result = process_content_to_html(input);
+        let result = process_content_to_html(&input);
 
         assert_eq!(
             String::from("<ol><li><code>first</code></li><li><kbd>second</kbd></li><li>third</li><li>fourth</li></ol>"),

@@ -10,6 +10,7 @@ const EditorPage: React.FC = () => {
     if (!port) {
       return
     }
+    console.log("newValue", newValue)
     port.postMessage({
       message: "current-state",
       data: convertStateToSpecs(newValue),

@@ -20,7 +20,7 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
       url={url}
       onCommunicationChannelEstabilished={(port) => {
         console.log("communication channel established")
-        port.postMessage({ message: "set-state", data: props.attributes.private_spec })
+        port.postMessage({ message: "set-state", data: JSON.parse(props.attributes.private_spec) })
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         console.log("on message from iframe")
@@ -39,7 +39,7 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
           }
           props.setAttributes({
             public_spec: JSON.stringify(uncheckedData.public_spec),
-            private_spec: JSON.stringify(uncheckedData.public_spec),
+            private_spec: JSON.stringify(uncheckedData.private_spec),
           })
         }
       }}

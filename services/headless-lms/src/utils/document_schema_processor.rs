@@ -193,7 +193,7 @@ mod tests {
                 name: "test/example-block".to_string(),
                 is_valid: true,
                 attributes: serde_json::to_value(ExampleBlockAttributes {
-                    example: "example".to_string(),
+                    example: "example-exercise".to_string(),
                 })
                 .unwrap(),
                 inner_blocks: Vec::new(),
@@ -230,7 +230,7 @@ mod tests {
                 name: "test/example-block".to_string(),
                 is_valid: true,
                 attributes: serde_json::to_value(ExampleBlockAttributes {
-                    example: "example".to_string(),
+                    example: "example-exercise".to_string(),
                 })
                 .unwrap(),
                 inner_blocks: Vec::new(),
@@ -274,7 +274,7 @@ mod tests {
                             name: "test/example-block".to_string(),
                             is_valid: true,
                             attributes: serde_json::to_value(ExampleBlockAttributes {
-                                example: "example".to_string(),
+                                example: "example-exercise".to_string(),
                             })
                             .unwrap(),
                             inner_blocks: Vec::new(),
@@ -311,7 +311,7 @@ mod tests {
                             name: "test/example-block".to_string(),
                             is_valid: true,
                             attributes: serde_json::to_value(ExampleBlockAttributes {
-                                example: "example".to_string(),
+                                example: "example-exercise".to_string(),
                             })
                             .unwrap(),
                             inner_blocks: Vec::new(),
@@ -329,7 +329,7 @@ mod tests {
                     name: "test/example-block".to_string(),
                     is_valid: true,
                     attributes: serde_json::to_value(ExampleBlockAttributes {
-                        example: "example".to_string(),
+                        example: "example-exercise".to_string(),
                     })
                     .unwrap(),
                     inner_blocks: Vec::new(),
@@ -372,7 +372,7 @@ mod tests {
                         name: "test/example-block".to_string(),
                         is_valid: true,
                         attributes: serde_json::to_value(ExampleBlockAttributes {
-                            example: "example".to_string(),
+                            example: "example-exercise".to_string(),
                         })
                         .unwrap(),
                         inner_blocks: Vec::new(),
@@ -387,7 +387,7 @@ mod tests {
                 name: "test/example-block".to_string(),
                 is_valid: true,
                 attributes: serde_json::to_value(ExampleBlockAttributes {
-                    example: "example".to_string(),
+                    example: "example-exercise".to_string(),
                 })
                 .unwrap(),
                 inner_blocks: Vec::new(),
@@ -442,7 +442,7 @@ mod tests {
                 name: "test/example-block".to_string(),
                 is_valid: true,
                 attributes: serde_json::to_value(ExampleBlockAttributes {
-                    example: "example".to_string(),
+                    example: "example-exercise".to_string(),
                 })
                 .unwrap(),
                 inner_blocks: Vec::new(),

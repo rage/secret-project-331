@@ -22,7 +22,7 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({ url, public_spe
       onMessageFromIframe={(messageContainer, _responsePort) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const uncheckedMessage = (messageContainer as any).message
-        if (uncheckedMessage) {
+        if (!uncheckedMessage) {
           console.error("Invalid message. No message field")
           return
         }

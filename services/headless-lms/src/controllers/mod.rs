@@ -73,6 +73,9 @@ impl error::ResponseError for ApplicationError {
         if let ApplicationError::BadRequest(reason) = self {
             detail = reason;
         }
+        if let ApplicationError::Forbidden(reason) = self {
+            detail = reason;
+        }
         let problem_description =
             HttpApiProblem::with_title_and_type_from_status(status).set_detail(detail);
 

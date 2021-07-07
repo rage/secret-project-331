@@ -15,6 +15,9 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   onMessageFromIframe,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  // needed because we cannot execute again the temporary event handler useEffect
+  // whenever this changes.
+  const onCommunicationChannelEstabilishedRef = useRef(onCommunicationChannelEstabilished)
 
   const messageChannel = useMessageChannel()
 
@@ -65,7 +68,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
           messageChannel.port2,
         ])
         try {
-          onCommunicationChannelEstabilished(messageChannel.port1)
+          onCommunicationChannelEstabilishedRef.current(messageChannel.port1)
         } catch (e) {
           console.error("onCommunicationChannelEstabilished crashed", e)
         }
@@ -80,7 +83,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     return () => {
       removeEventListener("message", temporaryEventHandler)
     }
-  }, [messageChannel, onCommunicationChannelEstabilished])
+  }, [messageChannel])
 
   if (!messageChannel) {
     return null

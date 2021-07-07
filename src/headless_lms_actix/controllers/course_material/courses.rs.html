@@ -208,15 +208,55 @@
 <span id="205">205</span>
 <span id="206">206</span>
 <span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::ApplicationResult</span>,
+    <span class="ident">controllers</span>::{<span class="ident">ApplicationError</span>, <span class="ident">ApplicationResult</span>},
     <span class="ident">domain::authorization::AuthUser</span>,
+    <span class="ident">models::chapters</span>::{<span class="ident">ChapterStatus</span>, <span class="ident">ChapterWithStatus</span>},
+    <span class="ident">models::course_instances::CourseInstance</span>,
     <span class="ident">models::pages::Page</span>,
-    <span class="ident">models</span>::{<span class="ident">chapters::Chapter</span>, <span class="ident">course_instances::CourseInstance</span>},
 };
 <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>, <span class="ident">ServiceConfig</span>};
+<span class="kw">use</span> <span class="ident">chrono::Utc</span>;
 <span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
@@ -255,6 +295,15 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     };
 
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::pages::get_page_by_path</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">course_slug</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>) <span class="op">=</span> <span class="ident">page</span>.<span class="ident">chapter_id</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="kw">crate</span><span class="ident">::models::chapters::is_open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ApplicationError::Forbidden</span>(
+                <span class="string">&quot;Chapter is not open yet&quot;</span>.<span class="ident">to_string</span>(),
+            ));
+        }
+    }
+
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">page</span>))
 }
 
@@ -365,7 +414,7 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 }
 
 <span class="doccomment">/**
-GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts in a course.
+GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 # Example
 ```json
 [
@@ -378,6 +427,8 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
     &quot;deleted_at&quot;: null,
     &quot;chapter_number&quot;: 1,
     &quot;front_page_id&quot;: null
+    &quot;opens_at&quot;: null
+    &quot;status&quot;: &quot;open&quot;
   }
 ]
 ```
@@ -386,10 +437,35 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters</span>(
     <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChapterWithStatus</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="kw">crate</span><span class="ident">::models::chapters::course_chapters</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::chapters::course_chapters</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="ident">chapters</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">chapter</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">open</span> <span class="op">=</span> <span class="ident">chapter</span>
+                .<span class="ident">opens_at</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Utc::now</span>())
+                .<span class="ident">unwrap_or_default</span>();
+            <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">open</span> {
+                <span class="ident">ChapterStatus::Open</span>
+            } <span class="kw">else</span> {
+                <span class="ident">ChapterStatus::Closed</span>
+            };
+            <span class="ident">ChapterWithStatus</span> {
+                <span class="ident">id</span>: <span class="ident">chapter</span>.<span class="ident">id</span>,
+                <span class="ident">created_at</span>: <span class="ident">chapter</span>.<span class="ident">created_at</span>,
+                <span class="ident">updated_at</span>: <span class="ident">chapter</span>.<span class="ident">updated_at</span>,
+                <span class="ident">name</span>: <span class="ident">chapter</span>.<span class="ident">name</span>,
+                <span class="ident">course_id</span>: <span class="ident">chapter</span>.<span class="ident">course_id</span>,
+                <span class="ident">deleted_at</span>: <span class="ident">chapter</span>.<span class="ident">deleted_at</span>,
+                <span class="ident">chapter_number</span>: <span class="ident">chapter</span>.<span class="ident">chapter_number</span>,
+                <span class="ident">front_page_id</span>: <span class="ident">chapter</span>.<span class="ident">front_page_id</span>,
+                <span class="ident">opens_at</span>: <span class="ident">chapter</span>.<span class="ident">opens_at</span>,
+                <span class="ident">status</span>,
+            }
+        })
+        .<span class="ident">collect</span>();
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">chapters</span>))
 }
 

@@ -474,9 +474,9 @@
 <span id="471">471</span>
 <span id="472">472</span>
 <span id="473">473</span>
-<span id="474">474</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">chrono::Utc</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{
     <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">course_instances::VariantStatus</span>, <span class="ident">courses</span>, <span class="ident">exercise_services</span>,
     <span class="ident">exercise_tasks</span>, <span class="ident">exercises</span>, <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">roles</span>, <span class="ident">roles::UserRole</span>, <span class="ident">submissions</span>, <span class="ident">users</span>,
@@ -527,6 +527,33 @@
         <span class="string">&quot;uh-cs&quot;</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">cs_intro</span> <span class="op">=</span> <span class="ident">seed_cs_intro</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">uh_cs</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">cs_course</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="string">&quot;Introduction to Computer Science&quot;</span>,
+        <span class="ident">uh_cs</span>,
+        <span class="string">&quot;Introduction to Computer Science&quot;</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">_cs_course_instance</span> <span class="op">=</span>
+        <span class="ident">course_instances::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">cs_course</span>, <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Upcoming</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// uh-mathstat</span>
+    <span class="kw">let</span> <span class="ident">uh_mathstat</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="string">&quot;University of Helsinki, Department of Mathematics and Statistics&quot;</span>,
+        <span class="string">&quot;uh-mathstat&quot;</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">statistics_course</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="string">&quot;Introduction to Statistics&quot;</span>,
+        <span class="ident">uh_mathstat</span>,
+        <span class="string">&quot;introduction-to-statistics&quot;</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">_statistics_course_instance</span> <span class="op">=</span>
+        <span class="ident">course_instances::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">statistics_course</span>, <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Active</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">_example_exercise_exercise_service</span> <span class="op">=</span> <span class="ident">exercise_services::insert_exercise_service</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
@@ -537,66 +564,89 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// uh-cs intro</span>
-    <span class="kw">let</span> <span class="ident">intro_course</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
+    <span class="comment">// roles</span>
+    <span class="ident">roles::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">admin</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="ident">UserRole::Admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">roles::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">teacher</span>, <span class="prelude-val">Some</span>(<span class="ident">uh_cs</span>), <span class="prelude-val">None</span>, <span class="ident">UserRole::Teacher</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">roles::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">assistant</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">uh_cs</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">cs_intro</span>),
+        <span class="ident">UserRole::Assistant</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// dump database</span>
+    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">tokio::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">seed_path</span>).<span class="ident">unwrap</span>();
+        <span class="ident">Command::new</span>(<span class="string">&quot;pg_dump&quot;</span>)
+            .<span class="ident">arg</span>(<span class="string">&quot;--data-only&quot;</span>)
+            .<span class="ident">arg</span>(<span class="string">&quot;--format=custom&quot;</span>)
+            .<span class="ident">arg</span>(<span class="string">&quot;--exclude-table=_sqlx_migrations&quot;</span>)
+            .<span class="ident">arg</span>(<span class="ident">db_url</span>)
+            .<span class="ident">stdout</span>(<span class="ident">file</span>)
+            .<span class="ident">status</span>()
+    })
+    .<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
+    <span class="macro">assert!</span>(<span class="ident">output</span>.<span class="ident">success</span>());
+
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">seed_cs_intro</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">org</span>: <span class="ident">Uuid</span>, <span class="ident">admin</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
+        <span class="ident">conn</span>,
         <span class="string">&quot;Introduction to everything&quot;</span>,
-        <span class="ident">uh_cs</span>,
+        <span class="ident">org</span>,
         <span class="string">&quot;introduction-to-everything&quot;</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">intro_course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">intro_course</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// uh-cs intro pages and chapters</span>
-    <span class="kw">let</span> <span class="ident">intro_page_1</span> <span class="op">=</span> <span class="ident">pages::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_course</span>,
+    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// pages and chapters</span>
+    <span class="kw">let</span> <span class="ident">_page</span> <span class="op">=</span> <span class="ident">pages::insert</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">course</span>,
         <span class="string">&quot;/&quot;</span>,
         <span class="string">&quot;Welcome to Introduction to Everything&quot;</span>,
         <span class="number">1</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">intro_page_2</span> <span class="op">=</span>
-        <span class="ident">pages::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">intro_course</span>, <span class="string">&quot;/chapter-1/page-2&quot;</span>, <span class="string">&quot;page 2&quot;</span>, <span class="number">2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">intro_page_3</span> <span class="op">=</span>
-        <span class="ident">pages::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">intro_course</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;In the second chapter...&quot;</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">intro_chapter_1</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="string">&quot;The Basics&quot;</span>, <span class="ident">intro_course</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">intro_chapter_2</span> <span class="op">=</span>
-        <span class="ident">chapters::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="string">&quot;The intermediaries&quot;</span>, <span class="ident">intro_course</span>, <span class="number">2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">chapters::set_front_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">intro_chapter_1</span>, <span class="ident">intro_page_1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">chapters::set_front_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">intro_chapter_2</span>, <span class="ident">intro_page_3</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">pages::set_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">intro_page_1</span>, <span class="ident">intro_chapter_1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">pages::set_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">intro_page_2</span>, <span class="ident">intro_chapter_1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">pages::set_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">intro_page_3</span>, <span class="ident">intro_chapter_2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// uh-cs intro exercises</span>
-    <span class="kw">let</span> <span class="ident">intro_exercise_page1_1</span> <span class="op">=</span>
-        <span class="ident">exercises::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">intro_course</span>, <span class="string">&quot;Best exercise&quot;</span>, <span class="ident">intro_page_1</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">intro_exercise_page2_1</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_course</span>,
-        <span class="string">&quot;Second page, first exercise&quot;</span>,
-        <span class="ident">intro_page_2</span>,
-        <span class="number">1</span>,
+    <span class="kw">let</span> <span class="ident">page_ch1_1</span> <span class="op">=</span> <span class="ident">pages::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>, <span class="string">&quot;/chapter-1&quot;</span>, <span class="string">&quot;Chapter One&quot;</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page_ch1_2</span> <span class="op">=</span> <span class="ident">pages::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>, <span class="string">&quot;/chapter-1/page-2&quot;</span>, <span class="string">&quot;page 2&quot;</span>, <span class="number">2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page_ch2</span> <span class="op">=</span> <span class="ident">pages::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>, <span class="string">&quot;/chapter-2&quot;</span>, <span class="string">&quot;In the second chapter...&quot;</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapter_1</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;The Basics&quot;</span>, <span class="ident">course</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">chapters::set_opens_at</span>(<span class="ident">conn</span>, <span class="ident">chapter_1</span>, <span class="ident">Utc::now</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapter_2</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;The intermediaries&quot;</span>, <span class="ident">course</span>, <span class="number">2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">chapters::set_opens_at</span>(<span class="ident">conn</span>, <span class="ident">chapter_2</span>, <span class="ident">Utc::now</span>() <span class="op">+</span> <span class="ident">chrono::Duration::minutes</span>(<span class="number">10</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapter_3</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;Advanced studies&quot;</span>, <span class="ident">course</span>, <span class="number">3</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">chapters::set_opens_at</span>(<span class="ident">conn</span>, <span class="ident">chapter_3</span>, <span class="ident">Utc::now</span>() <span class="op">+</span> <span class="ident">chrono::Duration::minutes</span>(<span class="number">20</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapter_4</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;Forbidden magicks&quot;</span>, <span class="ident">course</span>, <span class="number">4</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">chapters::set_opens_at</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">chapter_4</span>,
+        <span class="ident">Utc::now</span>() <span class="op">+</span> (<span class="ident">chrono::Duration::days</span>(<span class="number">365</span>) <span class="op">*</span> <span class="number">100</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">intro_exercise_page2_2</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_course</span>,
-        <span class="string">&quot;second page, second exercise&quot;</span>,
-        <span class="ident">intro_page_2</span>,
-        <span class="number">2</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">intro_exercise_page2_3</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_course</span>,
-        <span class="string">&quot;second page, third exercise&quot;</span>,
-        <span class="ident">intro_page_2</span>,
-        <span class="number">3</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">chapters::set_front_page</span>(<span class="ident">conn</span>, <span class="ident">chapter_1</span>, <span class="ident">page_ch1_1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">chapters::set_front_page</span>(<span class="ident">conn</span>, <span class="ident">chapter_2</span>, <span class="ident">page_ch2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">pages::set_chapter</span>(<span class="ident">conn</span>, <span class="ident">page_ch1_1</span>, <span class="ident">chapter_1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">pages::set_chapter</span>(<span class="ident">conn</span>, <span class="ident">page_ch1_2</span>, <span class="ident">chapter_1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">pages::set_chapter</span>(<span class="ident">conn</span>, <span class="ident">page_ch2</span>, <span class="ident">chapter_2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// exercises</span>
+    <span class="kw">let</span> <span class="ident">exercise_c1p1_1</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>, <span class="string">&quot;Best exercise&quot;</span>, <span class="ident">page_ch1_1</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercise_c1p2_1</span> <span class="op">=</span>
+        <span class="ident">exercises::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>, <span class="string">&quot;Second page, first exercise&quot;</span>, <span class="ident">page_ch1_2</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercise_c1p2_2</span> <span class="op">=</span>
+        <span class="ident">exercises::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>, <span class="string">&quot;second page, second exercise&quot;</span>, <span class="ident">page_ch1_2</span>, <span class="number">2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercise_c1p2_3</span> <span class="op">=</span>
+        <span class="ident">exercises::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>, <span class="string">&quot;second page, third exercise&quot;</span>, <span class="ident">page_ch1_2</span>, <span class="number">3</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercise_c2p1_1</span> <span class="op">=</span>
+        <span class="ident">exercises::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>, <span class="string">&quot;first exercise of chapter two&quot;</span>, <span class="ident">page_ch2</span>, <span class="number">3</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">pages::update_content</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_page_1</span>,
+        <span class="ident">conn</span>,
+        <span class="ident">page_ch1_1</span>,
         <span class="kw-2">&amp;</span>[
             <span class="ident">GutenbergBlock</span> {
                 <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
@@ -613,7 +663,7 @@
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
                 <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({
-                    <span class="string">&quot;id&quot;</span>: <span class="ident">intro_exercise_page1_1</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;id&quot;</span>: <span class="ident">exercise_c1p1_1</span>.<span class="ident">to_string</span>(),
                 }),
                 <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
             },
@@ -621,8 +671,8 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">pages::update_content</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_page_2</span>,
+        <span class="ident">conn</span>,
+        <span class="ident">page_ch1_2</span>,
         <span class="kw-2">&amp;</span>[
             <span class="ident">GutenbergBlock</span> {
                 <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
@@ -638,29 +688,29 @@
                 <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;id&quot;</span>: <span class="ident">intro_exercise_page2_1</span>.<span class="ident">to_string</span>()}),
+                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;id&quot;</span>: <span class="ident">exercise_c1p2_1</span>.<span class="ident">to_string</span>()}),
                 <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
             },
             <span class="ident">GutenbergBlock</span> {
                 <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;id&quot;</span>: <span class="ident">intro_exercise_page2_2</span>.<span class="ident">to_string</span>()}),
+                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;id&quot;</span>: <span class="ident">exercise_c1p2_2</span>.<span class="ident">to_string</span>()}),
                 <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
             },
             <span class="ident">GutenbergBlock</span> {
                 <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;id&quot;</span>: <span class="ident">intro_exercise_page2_3</span>.<span class="ident">to_string</span>()}),
+                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;id&quot;</span>: <span class="ident">exercise_c1p2_3</span>.<span class="ident">to_string</span>()}),
                 <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
             },
         ],
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">pages::update_content</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_page_3</span>,
+        <span class="ident">conn</span>,
+        <span class="ident">page_ch2</span>,
         <span class="kw-2">&amp;</span>[
             <span class="ident">GutenbergBlock</span> {
                 <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
@@ -676,19 +726,20 @@
                 <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;id&quot;</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>()}),
+                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({ <span class="string">&quot;id&quot;</span>: <span class="ident">exercise_c2p1_1</span> }),
                 <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
             },
         ],
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// uh-cs intro exercise tasks</span>
+
+    <span class="comment">// exercise tasks</span>
     <span class="kw">let</span> <span class="ident">id_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">id_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">id_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
-    <span class="kw">let</span> <span class="ident">intro_exercise_task_1_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_exercise_page1_1</span>,
+    <span class="kw">let</span> <span class="ident">exercise_task_c1p1e1_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">exercise_c1p1_1</span>,
         <span class="string">&quot;example-exercise&quot;</span>,
         <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
             <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
@@ -733,9 +784,9 @@
     <span class="kw">let</span> <span class="ident">id_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">id_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">id_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
-    <span class="kw">let</span> <span class="ident">_intro_exercise_task_2_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_exercise_page2_1</span>,
+    <span class="kw">let</span> <span class="ident">_exercise_task_c2p1e1_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">exercise_c1p2_1</span>,
         <span class="string">&quot;example-exercise&quot;</span>,
         <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
             <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
@@ -775,9 +826,9 @@
     <span class="kw">let</span> <span class="ident">id_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">id_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">id_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
-    <span class="kw">let</span> <span class="ident">_intro_exercise_task_2_2</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_exercise_page2_2</span>,
+    <span class="kw">let</span> <span class="ident">_exercise_task_c1p2e2_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">exercise_c1p2_2</span>,
         <span class="string">&quot;example-exercise&quot;</span>,
         <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
             <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
@@ -817,9 +868,9 @@
     <span class="kw">let</span> <span class="ident">id_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">id_2</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">id_3</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>();
-    <span class="kw">let</span> <span class="ident">_intro_exercise_task_2_3</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_exercise_page2_3</span>,
+    <span class="kw">let</span> <span class="ident">_exercise_task_c2p1e1_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">exercise_c2p1_1</span>,
         <span class="string">&quot;example-exercise&quot;</span>,
         <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
             <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
@@ -856,99 +907,46 @@
         }]),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="comment">// uh-cs intro submissions</span>
     <span class="kw">let</span> <span class="ident">_submission_1</span> <span class="op">=</span> <span class="ident">submissions::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_exercise_page1_1</span>,
-        <span class="ident">intro_course</span>,
-        <span class="ident">intro_exercise_task_1_1</span>,
+        <span class="ident">conn</span>,
+        <span class="ident">exercise_c1p1_1</span>,
+        <span class="ident">course</span>,
+        <span class="ident">exercise_task_c1p1e1_1</span>,
         <span class="ident">admin</span>,
-        <span class="ident">intro_course_instance</span>,
+        <span class="ident">course_instance</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">_submission_2</span> <span class="op">=</span> <span class="ident">submissions::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_exercise_page1_1</span>,
-        <span class="ident">intro_course</span>,
-        <span class="ident">intro_exercise_task_1_1</span>,
+        <span class="ident">conn</span>,
+        <span class="ident">exercise_c1p1_1</span>,
+        <span class="ident">course</span>,
+        <span class="ident">exercise_task_c1p1e1_1</span>,
         <span class="ident">admin</span>,
-        <span class="ident">intro_course_instance</span>,
+        <span class="ident">course_instance</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">_submission_3</span> <span class="op">=</span> <span class="ident">submissions::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_exercise_page1_1</span>,
-        <span class="ident">intro_course</span>,
-        <span class="ident">intro_exercise_task_1_1</span>,
+        <span class="ident">conn</span>,
+        <span class="ident">exercise_c1p1_1</span>,
+        <span class="ident">course</span>,
+        <span class="ident">exercise_task_c1p1e1_1</span>,
         <span class="ident">admin</span>,
-        <span class="ident">intro_course_instance</span>,
+        <span class="ident">course_instance</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">_submission_4</span> <span class="op">=</span> <span class="ident">submissions::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">intro_exercise_page1_1</span>,
-        <span class="ident">intro_course</span>,
-        <span class="ident">intro_exercise_task_1_1</span>,
+        <span class="ident">conn</span>,
+        <span class="ident">exercise_c1p1_1</span>,
+        <span class="ident">course</span>,
+        <span class="ident">exercise_task_c1p1e1_1</span>,
         <span class="ident">admin</span>,
-        <span class="ident">intro_course_instance</span>,
+        <span class="ident">course_instance</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// uh-cs cs</span>
-    <span class="kw">let</span> <span class="ident">cs_course</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="string">&quot;Introduction to Computer Science&quot;</span>,
-        <span class="ident">uh_cs</span>,
-        <span class="string">&quot;introduction-to-computer-science&quot;</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">_cs_course_instance</span> <span class="op">=</span>
-        <span class="ident">course_instances::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">cs_course</span>, <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Upcoming</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// uh-mathstat</span>
-    <span class="kw">let</span> <span class="ident">uh_mathstat</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="string">&quot;University of Helsinki, Department of Mathematics and Statistics&quot;</span>,
-        <span class="string">&quot;uh-mathstat&quot;</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">statistics_course</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="string">&quot;Introduction to Statistics&quot;</span>,
-        <span class="ident">uh_mathstat</span>,
-        <span class="string">&quot;introduction-to-statistics&quot;</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">_statistics_course_instance</span> <span class="op">=</span>
-        <span class="ident">course_instances::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">statistics_course</span>, <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Active</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// roles</span>
-    <span class="ident">roles::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">admin</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="ident">UserRole::Admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">roles::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">teacher</span>, <span class="prelude-val">Some</span>(<span class="ident">uh_cs</span>), <span class="prelude-val">None</span>, <span class="ident">UserRole::Teacher</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">roles::insert</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">assistant</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">uh_cs</span>),
-        <span class="prelude-val">Some</span>(<span class="ident">intro_course</span>),
-        <span class="ident">UserRole::Assistant</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// dump database</span>
-    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">tokio::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">seed_path</span>).<span class="ident">unwrap</span>();
-        <span class="ident">Command::new</span>(<span class="string">&quot;pg_dump&quot;</span>)
-            .<span class="ident">arg</span>(<span class="string">&quot;--data-only&quot;</span>)
-            .<span class="ident">arg</span>(<span class="string">&quot;--format=custom&quot;</span>)
-            .<span class="ident">arg</span>(<span class="string">&quot;--exclude-table=_sqlx_migrations&quot;</span>)
-            .<span class="ident">arg</span>(<span class="ident">db_url</span>)
-            .<span class="ident">stdout</span>(<span class="ident">file</span>)
-            .<span class="ident">status</span>()
-    })
-    .<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
-    <span class="macro">assert!</span>(<span class="ident">output</span>.<span class="ident">success</span>());
-
-    <span class="prelude-val">Ok</span>(())
+    <span class="prelude-val">Ok</span>(<span class="ident">course</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="create_database_seed" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

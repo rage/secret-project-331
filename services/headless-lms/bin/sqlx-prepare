@@ -2,7 +2,8 @@
 set -euo pipefail
 
 COMMAND="cargo"
-ARGUMENTS=(sqlx prepare "$@" --merged)
+# We're using `--lib` instead of `--merge` because currently sqlx runs `cargo clean` when using `--merge` (https://github.com/launchbadge/sqlx/blob/e33e4510fcab184f6bb655be3ba811e7f8a5b63f/sqlx-cli/src/prepare.rs#L112) and that removes the dependency compilation cache. Using `--lib` makes this command and other cargo commands much faster.
+ARGUMENTS=(sqlx prepare -- "$@" --lib)
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 eval "$COMMAND" "${ARGUMENTS[@]}"

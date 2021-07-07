@@ -1,8 +1,13 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
-use crate::models::chapters::Chapter;
-use crate::{controllers::ApplicationResult, models::pages::Page};
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
+use crate::{
+    controllers::{ApplicationError, ApplicationResult},
+    domain::authorization::AuthUser,
+    models::chapters::{ChapterStatus, ChapterWithStatus},
+    models::course_instances::CourseInstance,
+    models::pages::Page,
+};
+use actix_web::web::{self, Json, ServiceConfig};
+use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -41,7 +46,89 @@ async fn get_course_page_by_path(
     };
 
     let page = crate::models::pages::get_page_by_path(&mut conn, course_slug, &path).await?;
+
+    if let Some(chapter_id) = page.chapter_id {
+        if !crate::models::chapters::is_open(&mut conn, chapter_id).await? {
+            return Err(ApplicationError::Forbidden(
+                "Chapter is not open yet".to_string(),
+            ));
+        }
+    }
+
     Ok(Json(page))
+}
+
+/**
+GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
+
+# Example
+```json
+{
+  "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
+  "created_at": "2021-06-28T00:21:11.780420Z",
+  "updated_at": "2021-06-28T00:21:11.780420Z",
+  "deleted_at": null,
+  "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
+  "starts_at": null,
+  "ends_at": null,
+  "name": null,
+  "description": null,
+  "variant_status": "Active"
+}
+```
+*/
+#[instrument(skip(pool))]
+async fn get_current_course_instance(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+    user: Option<AuthUser>,
+) -> ApplicationResult<Json<Option<CourseInstance>>> {
+    let mut conn = pool.acquire().await?;
+    if let Some(user) = user {
+        let instance = crate::models::course_instances::current_course_instance_of_user(
+            &mut conn,
+            user.id,
+            *request_course_id,
+        )
+        .await?;
+        Ok(Json(instance))
+    } else {
+        Ok(Json(None))
+    }
+}
+
+/**
+GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
+
+# Example
+```json
+[
+  {
+    "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
+    "created_at": "2021-06-28T00:21:11.780420Z",
+    "updated_at": "2021-06-28T00:21:11.780420Z",
+    "deleted_at": null,
+    "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
+    "starts_at": null,
+    "ends_at": null,
+    "name": null,
+    "description": null,
+    "variant_status": "Active"
+  }
+]
+```
+*/
+async fn get_course_instances(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+) -> ApplicationResult<Json<Vec<CourseInstance>>> {
+    let mut conn = pool.acquire().await?;
+    let instances = crate::models::course_instances::get_course_instances_for_course(
+        &mut conn,
+        *request_course_id,
+    )
+    .await?;
+    Ok(Json(instances))
 }
 
 /**
@@ -78,7 +165,7 @@ async fn get_course_pages(
 }
 
 /**
-GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts in a course.
+GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 # Example
 ```json
 [
@@ -91,6 +178,8 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
     "deleted_at": null,
     "chapter_number": 1,
     "front_page_id": null
+    "opens_at": null
+    "status": "open"
   }
 ]
 ```
@@ -99,10 +188,35 @@ GET `/api/v0/course-material/courses/:course_id/parts` - Returns a list of parts
 async fn get_chapters(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<Chapter>>> {
+) -> ApplicationResult<Json<Vec<ChapterWithStatus>>> {
     let mut conn = pool.acquire().await?;
-    let chapters: Vec<Chapter> =
-        crate::models::chapters::course_chapters(&mut conn, *request_course_id).await?;
+    let chapters = crate::models::chapters::course_chapters(&mut conn, *request_course_id).await?;
+    let chapters = chapters
+        .into_iter()
+        .map(|chapter| {
+            let open = chapter
+                .opens_at
+                .map(|o| o <= Utc::now())
+                .unwrap_or_default();
+            let status = if open {
+                ChapterStatus::Open
+            } else {
+                ChapterStatus::Closed
+            };
+            ChapterWithStatus {
+                id: chapter.id,
+                created_at: chapter.created_at,
+                updated_at: chapter.updated_at,
+                name: chapter.name,
+                course_id: chapter.course_id,
+                deleted_at: chapter.deleted_at,
+                chapter_number: chapter.chapter_number,
+                front_page_id: chapter.front_page_id,
+                opens_at: chapter.opens_at,
+                status,
+            }
+        })
+        .collect();
     Ok(Json(chapters))
 }
 
@@ -119,5 +233,13 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_course_page_by_path),
     )
     .route("/{course_id}/pages", web::get().to(get_course_pages))
-    .route("/{course_id}/chapters", web::get().to(get_chapters));
+    .route("/{course_id}/chapters", web::get().to(get_chapters))
+    .route(
+        "/{course_id}/course-instances",
+        web::get().to(get_course_instances),
+    )
+    .route(
+        "/{course_id}/current-instance",
+        web::get().to(get_current_course_instance),
+    );
 }

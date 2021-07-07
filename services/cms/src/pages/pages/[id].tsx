@@ -5,12 +5,19 @@ import dontRenderUntilQueryParametersReady, {
 } from "../../utils/dontRenderUntilQueryParametersReady"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { Page, PageUpdate } from "../../services/services.types"
-import PageEditor from "../../components/PageEditor"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
+import dynamic from "next/dynamic"
 
 interface PagesProps {
   query: SimplifiedUrlQuery
 }
+
+const EditorLoading = <div>Loading editor...</div>
+
+const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), {
+  ssr: false,
+  loading: () => EditorLoading,
+})
 
 const Pages = ({ query }: PagesProps) => {
   const { id } = query

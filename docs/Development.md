@@ -53,6 +53,16 @@ bin/minikube-start
 
 > NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space.
 
+#### Using Node Version Manager
+
+This project expects is configured for at least major node version 14. You can use Node Version Manager to manage multiple node versions on your system.
+
+1. Run `command -v nvm`. If it prints `nvm`, you are already have it installed and can probably skip to step 4.
+2. Remove existing installation of node with `sudo apt-get remove nodejs` if you have one.
+3. [Install nvm](https://github.com/nvm-sh/nvm#installing-and-updating) and refresh your terminal.
+4. `nvm install 14` to download the latest `14.x` version.
+5. `nvm alias default 14` to set `14.x` version as the default version when running node commands.
+
 ### Starting the development cluster
 
 In the root of the repo, run: `bin/dev`. This script will start the development cluster with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.

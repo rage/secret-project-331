@@ -185,6 +185,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-multipart"
+version = "0.4.0-beta.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af8fa457316854eba5319db226320fd57d90e9046af2573471970304b81b5e39"
+dependencies = [
+ "actix-utils 3.0.0",
+ "actix-web 4.0.0-beta.5",
+ "bytes 1.0.1",
+ "derive_more",
+ "futures-core",
+ "futures-util",
+ "httparse",
+ "local-waker",
+ "log",
+ "mime",
+ "twoway",
+]
+
+[[package]]
 name = "actix-router"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1423,6 +1442,7 @@ version = "0.1.0"
 dependencies = [
  "actix-files",
  "actix-http 3.0.0-beta.5",
+ "actix-multipart",
  "actix-rt 2.2.0",
  "actix-service 2.0.0-beta.5",
  "actix-session",
@@ -1440,6 +1460,7 @@ dependencies = [
  "itertools",
  "lettre",
  "listenfd",
+ "mime",
  "oauth2",
  "once_cell",
  "pretty_assertions",
@@ -3474,10 +3495,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
+name = "twoway"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c57ffb460d7c24cd6eda43694110189030a3d1dfe418416d9468fd1c1d290b47"
+dependencies = [
+ "memchr",
+ "unchecked-index",
+]
+
+[[package]]
 name = "typenum"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "879f6906492a7cd215bfa4cf595b600146ccfac0c79bcbd1f3000162af5e8b06"
+
+[[package]]
+name = "unchecked-index"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eeba86d422ce181a719445e51872fa30f1f7413b62becb52e95ec91aa262d85c"
 
 [[package]]
 name = "unicase"

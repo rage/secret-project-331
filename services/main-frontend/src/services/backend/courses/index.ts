@@ -1,9 +1,11 @@
 import { mainFrontendClient } from "../../mainFrontendClient"
 import {
   Course,
+  CourseInstance,
   CourseSubmissionCount,
   CourseSubmissionCountByWeekdayAndHour,
   CourseUpdate,
+  Exercise,
   NewCourse,
 } from "../../services.types"
 
@@ -42,6 +44,15 @@ export const fetchCourseDailySubmissionCounts = async (
   return data
 }
 
+export const fetchCourseExercises = async (courseId: string): Promise<Array<Exercise>> => {
+  const data = (
+    await mainFrontendClient.get(`/courses/${courseId}/exercises`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
 export const fetchCourseWeekdayHourSubmissionCounts = async (
   courseId: string,
 ): Promise<CourseSubmissionCountByWeekdayAndHour[]> => {
@@ -49,6 +60,13 @@ export const fetchCourseWeekdayHourSubmissionCounts = async (
     await mainFrontendClient.get(`/courses/${courseId}/weekday-hour-submission-counts`, {
       responseType: "json",
     })
+  ).data
+  return data
+}
+
+export const fetchCourseInstances = async (courseId: string): Promise<CourseInstance[]> => {
+  const data = (
+    await mainFrontendClient.get(`/courses/${courseId}/course-instances`, { responseType: "json" })
   ).data
   return data
 }

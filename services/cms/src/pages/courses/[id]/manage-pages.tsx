@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 
 import Layout from "../../../components/Layout"
-import useQueryParameter from "../../../hooks/useQueryParameter"
+import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import { useQuery } from "react-query"
 import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
 import { Button, Dialog } from "@material-ui/core"
@@ -15,7 +15,6 @@ import NewPartForm from "../../../components/forms/NewChapterForm"
 import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
 import { groupBy, max } from "lodash"
-import { createBlockInstance } from "../../../utils/blockUtils"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 
 const CoursePages: React.FC<unknown> = () => {

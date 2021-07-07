@@ -32,6 +32,10 @@ global.document = dom.window.document
 global.navigator = dom.window.navigator
 const blockLibrary = require("@wordpress/block-library")
 const blocks = require("@wordpress/blocks")
+import { addFilter } from "@wordpress/hooks"
+import { modifyBlockAttributes } from "../src/utils/Gutenberg/modifyBlockAttributes"
+
+addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 const { supportedCoreBlocks } = require("../src/blocks/supportedGutenbergBlocks")
 
 async function main() {

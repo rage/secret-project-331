@@ -9,9 +9,12 @@ import { useQuery } from "react-query"
 import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import { Dialog, Button } from "@material-ui/core"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
+import ExerciseList from "../../../../components/lists/ExerciseList"
+import CourseInstancesList from "../../../../components/lists/CourseInstancesList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import Link from "next/link"
 
-const StatsPage: React.FC<unknown> = () => {
+const ManageCoursePage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
   const { isLoading, error, data: course, refetch } = useQuery(`course-${id}`, () => getCourse(id))
   const [showForm, setShowForm] = useState(false)
@@ -60,8 +63,24 @@ const StatsPage: React.FC<unknown> = () => {
           </div>
         </Dialog>
       </div>
+      <Link
+        href={{
+          pathname: "/manage/courses/[id]/stats",
+          query: {
+            id: course.id,
+          },
+        }}
+      >
+        Stats
+      </Link>
+      <br />
+      <a href={`/cms/courses/${course.id}/manage-pages`}>Manage pages</a>{" "}
+      <h3>All course instances</h3>
+      <CourseInstancesList courseId={id} />
+      <h3>All exercises</h3>
+      <ExerciseList courseId={id} />
     </Layout>
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(StatsPage))
+export default withSignedIn(dontRenderUntilQueryParametersReady(ManageCoursePage))

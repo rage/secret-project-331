@@ -18,7 +18,7 @@ interface PageStateError {
   state: "error"
   pageData: null
   instance: null
-  error: Error
+  error: unknown
 }
 
 export type CoursePageState = PageStateLoading | PageStateReady | PageStateError
@@ -35,7 +35,7 @@ interface SetDataAction {
 
 interface SetErrorAction {
   type: "setError"
-  payload: Error
+  payload: unknown
 }
 
 interface SetLoadingAction {
@@ -55,8 +55,10 @@ export default function pageStateReducer(
   switch (action.type) {
     case "rawSetState":
       return action.payload
-    case "setData":
-      return { ...prev, state: "ready", ...action.payload, error: null }
+    case "setData": {
+      const { instance, pageData } = action.payload
+      return { ...prev, state: "ready", instance, pageData, error: null }
+    }
     case "setError":
       return { ...prev, state: "error", error: action.payload, instance: null, pageData: null }
     case "setLoading":

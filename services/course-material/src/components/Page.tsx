@@ -1,36 +1,21 @@
 import { css } from "@emotion/css"
-import React, { useEffect, useReducer } from "react"
+import React, { useContext } from "react"
 
 import ContentRenderer from "./ContentRenderer"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
 import DebugModal from "./DebugModal"
 import NavigationContainer from "./NavigationContainer"
 import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
-import { CourseInstance, CoursePage } from "../services/backend"
-import coursePageStateReducer from "../reducers/coursePageStateReducer"
+import { CoursePageState } from "../reducers/coursePageStateReducer"
+import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 
 interface Props {
-  instanceData: CourseInstance | null
-  pageData: CoursePage | null
+  data: CoursePageState
+  onRefresh: () => void
 }
 
-const Page: React.FC<Props> = ({ instanceData, pageData }) => {
-  // Make data editable so that we can edit it in the debug view
-  const [editedData, editedDataDispatch] = useReducer(coursePageStateReducer, {
-    state: "loading",
-    error: null,
-    instance: null,
-    pageData: null,
-  })
-
-  useEffect(() => {
-    // Keep edited data up to date if props change.
-    if (pageData) {
-      editedDataDispatch({ type: "setData", payload: { pageData, instance: instanceData } })
-    } else {
-      editedDataDispatch({ type: "setLoading" })
-    }
-  }, [instanceData, pageData])
+const Page: React.FC<Props> = ({ data, onRefresh }) => {
+  const pageDataDispatch = useContext(CoursePageDispatch)
 
   return (
     <>
@@ -42,10 +27,10 @@ const Page: React.FC<Props> = ({ instanceData, pageData }) => {
         `}
       >
         <DebugModal
-          data={editedData}
+          data={data}
           updateDataOnClose={(payload) => {
-            // This is unsafe because payload has any type
-            editedDataDispatch({ type: "rawSetState", payload })
+            // NB! This is unsafe because payload has any type
+            pageDataDispatch({ type: "rawSetState", payload })
           }}
           readOnly={false}
         />
@@ -55,14 +40,13 @@ const Page: React.FC<Props> = ({ instanceData, pageData }) => {
           ${normalWidthCenteredComponentStyles}
         `}
       >
-        {editedData.pageData?.title}
+        {data.pageData?.title}
       </h1>
-      <CoursePageDispatch.Provider value={editedDataDispatch}>
-        <CoursePageContext.Provider value={editedData}>
-          <ContentRenderer data={editedData.pageData?.content ?? []} />
-        </CoursePageContext.Provider>
-      </CoursePageDispatch.Provider>
-      {editedData.pageData?.chapter_id && <NavigationContainer />}
+      <CoursePageContext.Provider value={data}>
+        <SelectCourseInstanceModal onClose={onRefresh} />
+        <ContentRenderer data={data.pageData?.content ?? []} />
+      </CoursePageContext.Provider>
+      {data.pageData?.chapter_id && <NavigationContainer />}
     </>
   )
 }

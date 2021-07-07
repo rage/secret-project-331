@@ -1,12 +1,16 @@
 import { css } from "@emotion/css"
 import { Button, Dialog } from "@material-ui/core"
 import Link from "next/link"
+import { useRouter } from "next/router"
 import React, { useState } from "react"
 
 import { useQuery } from "react-query"
 import NewEmailTemplateForm from "../../../components/forms/NewEmailTemplateForm"
 import Layout from "../../../components/Layout"
-import { fetchCourseInstanceEmailTemplates } from "../../../services/backend/course-instances"
+import {
+  fetchCourseInstanceEmailTemplates,
+  postNewEmailTemplateForCourseInstance,
+} from "../../../services/backend/course-instances"
 import { deleteEmailTemplate } from "../../../services/backend/email-templates"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
@@ -23,6 +27,7 @@ const CourseInstanceEmailTemplates = () => {
     fetchCourseInstanceEmailTemplates(courseInstanceId),
   )
   const [showForm, setShowForm] = useState(false)
+  const router = useRouter()
 
   if (error) {
     return (
@@ -37,9 +42,15 @@ const CourseInstanceEmailTemplates = () => {
     return <div>Loading page...</div>
   }
 
-  const handleCreateEmailTemplate = async () => {
+  const handleCreateEmailTemplate = async (newName: string) => {
+    const result = await postNewEmailTemplateForCourseInstance(courseInstanceId, {
+      name: newName,
+    })
     setShowForm(!showForm)
-    await refetch()
+    await router.push({
+      pathname: "/email-templates/[id]/edit",
+      query: { id: result.id },
+    })
   }
 
   const handleOnDelete = async (templateId: string) => {
@@ -66,10 +77,7 @@ const CourseInstanceEmailTemplates = () => {
             `}
           >
             <Button onClick={() => setShowForm(!showForm)}>Close</Button>
-            <NewEmailTemplateForm
-              courseInstanceId={courseInstanceId}
-              onSubmitForm={handleCreateEmailTemplate}
-            />
+            <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
           </div>
         </Dialog>
         <ul>

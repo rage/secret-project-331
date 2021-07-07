@@ -44,7 +44,7 @@ const UpdateEmailDetailsForm: React.FC<UpdateEmailDetailsFormProps> = ({
           <TextField
             required
             id="outlined-required"
-            label="E-mail subject"
+            label="Email subject"
             variant="outlined"
             value={subject}
             fullWidth

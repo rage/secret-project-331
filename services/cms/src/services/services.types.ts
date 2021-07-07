@@ -157,11 +157,12 @@ export interface CourseSubmissionCountByWeekdayAndHour {
 }
 
 export interface EmailTemplate extends DatabaseItem {
-  content: BlockInstance[]
+  deleted_at: Date | null
+  content: BlockInstance[] | null
   name: string
-  subject: string
-  exercise_completions_threshold: number
-  points_threshold: number
+  subject: string | null
+  exercise_completions_threshold: number | null
+  points_threshold: number | null
   course_instance_id: string
 }
 

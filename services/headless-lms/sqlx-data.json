@@ -562,67 +562,6 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
-  "27f84af70922421d54953042afe8ff8297437ef26bff7b6b42d526d58d674de5": {
-    "query": "\nUPDATE email_templates\n  SET name = $1,\n  subject = $2,\n  content = $3,\n  exercise_completions_threshold = $4,\n  points_threshold = $5\nWHERE\n  id = $6\n  RETURNING *\n  ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "subject",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "exercise_completions_threshold",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 8,
-          "name": "points_threshold",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 9,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Varchar", "Jsonb", "Int4", "Int4", "Uuid"]
-      },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
-    }
-  },
   "28d85f709ff96819aec1e135cef78a3f2674c747c3b1140c7857c85f5facff56": {
     "query": "\n    INSERT INTO\n      chapters(name, course_id, chapter_number)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
     "describe": {
@@ -941,67 +880,6 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
-  "4325013b20a42b1a2111a1fe5ff3a04c74f4bd486018ac69dfa2864182be5799": {
-    "query": "SELECT * FROM email_templates WHERE course_instance_id = $1 AND deleted_at IS NULL",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "subject",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "exercise_completions_threshold",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 8,
-          "name": "points_threshold",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 9,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
-    }
-  },
   "45a3380b45f6c12e86e8ed31d0e2c7490f2487c08d6cedc711cecabc0fbf6af7": {
     "query": "\nUPDATE courses\n    SET deleted_at = now()\nWHERE\n    id = $1\nRETURNING *\n    ",
     "describe": {
@@ -1239,67 +1117,6 @@
         true,
         true
       ]
-    }
-  },
-  "5aedd18d4b2fb3fa7d1e6330d18d7e9a4e9868627294f06eea06f64b75f7a313": {
-    "query": "SELECT * FROM email_templates WHERE id = $1 AND deleted_at IS NULL",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "subject",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "exercise_completions_threshold",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 8,
-          "name": "points_threshold",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 9,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
   "5c55b14104bfdc1b23bb335ce5a747f7d9bba291bfa8ffd6abf84decd936040b": {
@@ -1780,6 +1597,67 @@
       "nullable": [false, false, false, false, false, true, false]
     }
   },
+  "8418000fb3d50f52e42766c3884416520d434ea9588248e26c3b4fbfb1abae90": {
+    "query": "\nUPDATE email_templates\nSET name = $1,\n  subject = $2,\n  content = $3,\n  exercise_completions_threshold = $4,\n  points_threshold = $5\nWHERE id = $6\nRETURNING *\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "subject",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "exercise_completions_threshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "points_threshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Varchar", "Jsonb", "Int4", "Int4", "Uuid"]
+      },
+      "nullable": [false, false, false, true, true, false, true, true, true, false]
+    }
+  },
   "8618ce42d70d235789ef5dc2bf23051fa7964b770cbd4cfa95022fa219f5dddf": {
     "query": "\nINSERT INTO courses (name, organization_id, slug)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -1932,67 +1810,6 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [null, null]
-    }
-  },
-  "8f9ea6d8d6b2e5b8062861ffb55f6f934f12c00bf69f1ca78907ea742b324367": {
-    "query": "\nUPDATE email_templates\n  SET deleted_at = now()\nWHERE\n  id = $1\nRETURNING *\n  ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "subject",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "exercise_completions_threshold",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 8,
-          "name": "points_threshold",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 9,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
   "95dd409bd722442fe75d3b3aba428f811687752e1df10dc30ad7a1ce0250e76d": {
@@ -2818,6 +2635,67 @@
       "nullable": [false, false, false, true, false, false, false, true]
     }
   },
+  "c4db451cf0d08b2fca14976798e0883a3961533b35d7dd4d5057e1662d482592": {
+    "query": "SELECT *\nFROM email_templates\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "subject",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "exercise_completions_threshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "points_threshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true, false, true, true, true, false]
+    }
+  },
   "c64581b37859bf9c06117e35ab6f79a6eae6aa06e1caeff52e3e9734a0e36d75": {
     "query": "\nINSERT INTO course_instances (course_id, variant_status)\nVALUES ($1, $2)\nRETURNING id\n",
     "describe": {
@@ -3342,6 +3220,67 @@
       "nullable": [false]
     }
   },
+  "dc6a94949ce20d11fa55e247dc706fdc88018bf1ba528487fcd0ef02f5c40ca7": {
+    "query": "\nUPDATE email_templates\nSET deleted_at = now()\nWHERE id = $1\nRETURNING *\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "subject",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "exercise_completions_threshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "points_threshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true, false, true, true, true, false]
+    }
+  },
   "ddc62ff5809a951ea9904da0f19e585ee6dd78efa938ca36aa58f22fd8036797": {
     "query": "\nINSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id, current)\nVALUES ($1, $2, $3, $4)\n",
     "describe": {
@@ -3539,6 +3478,67 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, true, false]
+    }
+  },
+  "f2beb11b5e6318b712b0af9bd4fde454472ce8eda3612295b788958148a376b5": {
+    "query": "SELECT *\nFROM email_templates\nWHERE id = $1\n  AND deleted_at IS NULL",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "subject",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "exercise_completions_threshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "points_threshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
   "f344ce135ffc19dfbf4176348181e9a876c8ed92ec853f8c62d2350d80fa3e2f": {

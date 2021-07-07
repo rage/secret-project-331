@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Button, TextField } from "@material-ui/core"
 import React, { useState } from "react"
-import { postNewEmailTemplateForCourseInstance } from "../../services/backend/course-instances"
 
 const StyledTextField = styled(TextField)`
   margin: 0.3rem;
@@ -16,22 +15,11 @@ const FieldContainer = styled.div`
 `
 
 interface NewEmailTemplateForm {
-  courseInstanceId: string
-  onSubmitForm: () => void
+  onSubmitForm: (newName: string) => void
 }
 
-const NewEmailTemplateForm: React.FC<NewEmailTemplateForm> = ({
-  courseInstanceId,
-  onSubmitForm,
-}) => {
-  const [name, setName] = useState<string>("")
-
-  const createNewEmailTemplate = async () => {
-    await postNewEmailTemplateForCourseInstance(courseInstanceId, {
-      name: name,
-    })
-    onSubmitForm()
-  }
+const NewEmailTemplateForm: React.FC<NewEmailTemplateForm> = ({ onSubmitForm }) => {
+  const [name, setName] = useState("")
 
   return (
     <div
@@ -55,7 +43,7 @@ const NewEmailTemplateForm: React.FC<NewEmailTemplateForm> = ({
         </FieldContainer>
       </div>
       <div>
-        <StyledButton onClick={createNewEmailTemplate}>Create e-mail template</StyledButton>
+        <StyledButton onClick={() => onSubmitForm(name)}>Create e-mail template</StyledButton>
       </div>
     </div>
   )

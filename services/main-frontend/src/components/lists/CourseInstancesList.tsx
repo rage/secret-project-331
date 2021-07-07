@@ -26,7 +26,7 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
         return (
           <li key={instance.id}>
             {instance.name ?? "Default"}{" "}
-            <a href={`/cms/course-instances/${instance.id}/manage-emails`}>Manage e-mails</a>
+            <a href={`/cms/course-instances/${instance.id}/manage-emails`}>Manage emails</a>
           </li>
         )
       })}

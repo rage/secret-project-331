@@ -38,7 +38,10 @@ pub async fn get_email_templates(
 ) -> Result<Vec<EmailTemplate>> {
     let res = sqlx::query_as!(
         EmailTemplate,
-        "SELECT * FROM email_templates WHERE course_instance_id = $1 AND deleted_at IS NULL",
+        "SELECT *
+FROM email_templates
+WHERE course_instance_id = $1
+  AND deleted_at IS NULL",
         course_instance_id
     )
     .fetch_all(conn)
@@ -72,7 +75,10 @@ pub async fn get_email_template(
 ) -> Result<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,
-        "SELECT * FROM email_templates WHERE id = $1 AND deleted_at IS NULL",
+        "SELECT *
+FROM email_templates
+WHERE id = $1
+  AND deleted_at IS NULL",
         email_template_id
     )
     .fetch_one(conn)
@@ -89,14 +95,13 @@ pub async fn update_email_template(
         EmailTemplate,
         r#"
 UPDATE email_templates
-  SET name = $1,
+SET name = $1,
   subject = $2,
   content = $3,
   exercise_completions_threshold = $4,
   points_threshold = $5
-WHERE
-  id = $6
-  RETURNING *
+WHERE id = $6
+RETURNING *
   "#,
         email_template_update.name,
         email_template_update.subject,
@@ -118,9 +123,8 @@ pub async fn delete_email_template(
         EmailTemplate,
         r#"
 UPDATE email_templates
-  SET deleted_at = now()
-WHERE
-  id = $1
+SET deleted_at = now()
+WHERE id = $1
 RETURNING *
   "#,
         email_template_id

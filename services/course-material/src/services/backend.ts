@@ -45,7 +45,7 @@ export interface CoursePage {
   url_path: string
   title: string
   deleted_at: Date | null
-  chapter_id: string | undefined
+  chapter_id: string | null
 }
 
 export interface Block<T> {

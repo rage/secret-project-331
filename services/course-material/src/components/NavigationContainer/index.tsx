@@ -1,22 +1,25 @@
 import React from "react"
 import { useContext } from "react"
-import PageContext from "../../contexts/PageContext"
+import CoursePageContext from "../../contexts/CoursePageContext"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import GenericLoading from "../GenericLoading"
 import NextPage from "./NextPage"
 
 const NavigationContainer: React.FC = () => {
-  const currentPageId = useContext(PageContext)?.id
+  const pageContext = useContext(CoursePageContext)
 
-  if (currentPageId) {
-    return (
-      <div className={normalWidthCenteredComponentStyles}>
-        <NextPage currentPageId={currentPageId} />
-      </div>
-    )
+  if (pageContext.state !== "ready") {
+    return <GenericLoading />
   }
 
-  return <GenericLoading />
+  return (
+    <div className={normalWidthCenteredComponentStyles}>
+      <NextPage
+        chapterId={pageContext.pageData.chapter_id}
+        currentPageId={pageContext.pageData.id}
+      />
+    </div>
+  )
 }
 
 export default NavigationContainer

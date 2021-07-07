@@ -1,27 +1,36 @@
 import { css } from "@emotion/css"
+import React, { useEffect, useReducer } from "react"
+
 import ContentRenderer from "./ContentRenderer"
-import { CoursePage } from "../services/backend"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
 import DebugModal from "./DebugModal"
-import React, { useState } from "react"
 import NavigationContainer from "./NavigationContainer"
-import { useContext } from "react"
-import PageContext, { CoursePageWithInstance } from "../contexts/PageContext"
-import GenericLoading from "./GenericLoading"
+import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
+import { CourseInstance, CoursePage } from "../services/backend"
+import coursePageStateReducer from "../reducers/coursePageStateReducer"
 
 interface Props {
-  data: CoursePage
+  instanceData: CourseInstance | null
+  pageData: CoursePage | null
 }
 
-const Page: React.FC<Props> = () => {
-  const pageContext = useContext(PageContext)
-
+const Page: React.FC<Props> = ({ instanceData, pageData }) => {
   // Make data editable so that we can edit it in the debug view
-  const [editedData, setEditedData] = useState<CoursePageWithInstance | null>(pageContext)
+  const [editedData, editedDataDispatch] = useReducer(coursePageStateReducer, {
+    state: "loading",
+    error: null,
+    instance: null,
+    pageData: null,
+  })
 
-  if (!editedData) {
-    return <GenericLoading />
-  }
+  useEffect(() => {
+    // Keep edited data up to date if props change.
+    if (pageData) {
+      editedDataDispatch({ type: "setData", payload: { pageData, instance: instanceData } })
+    } else {
+      editedDataDispatch({ type: "setLoading" })
+    }
+  }, [instanceData, pageData])
 
   return (
     <>
@@ -32,17 +41,28 @@ const Page: React.FC<Props> = () => {
           right: 10px;
         `}
       >
-        <DebugModal data={editedData} updateDataOnClose={setEditedData} readOnly={false} />
+        <DebugModal
+          data={editedData}
+          updateDataOnClose={(payload) => {
+            // This is unsafe because payload has any type
+            editedDataDispatch({ type: "rawSetState", payload })
+          }}
+          readOnly={false}
+        />
       </div>
       <h1
         className={css`
           ${normalWidthCenteredComponentStyles}
         `}
       >
-        {editedData.title}
+        {editedData.pageData?.title}
       </h1>
-      <ContentRenderer data={editedData.content} />
-      {editedData.chapter_id && <NavigationContainer />}
+      <CoursePageDispatch.Provider value={editedDataDispatch}>
+        <CoursePageContext.Provider value={editedData}>
+          <ContentRenderer data={editedData.pageData?.content ?? []} />
+        </CoursePageContext.Provider>
+      </CoursePageDispatch.Provider>
+      {editedData.pageData?.chapter_id && <NavigationContainer />}
     </>
   )
 }

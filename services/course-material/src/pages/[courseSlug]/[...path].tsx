@@ -1,14 +1,12 @@
+import React, { useEffect } from "react"
 import { useQuery } from "react-query"
-import GenericLoading from "../../components/GenericLoading"
+
 import PageNotFound from "../../components/PageNotFound"
 import useQueryParameter from "../../hooks/useQueryParameter"
 import { fetchCourseInstance, fetchCoursePageByPath } from "../../services/backend"
 import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 import Page from "../../components/Page"
-import PageContext, { CoursePageWithInstance } from "../../contexts/PageContext"
-import { useEffect } from "react"
 import { tryToScrollToSelector } from "../../utils/dom"
-import { useState } from "react"
 
 const PagePage = () => {
   const courseSlug = useQueryParameter("courseSlug")
@@ -25,7 +23,6 @@ const PagePage = () => {
       enabled: !!pageQuery.data?.course_id,
     },
   )
-  const [data, setData] = useState<CoursePageWithInstance | null>(null)
 
   useEffect(() => {
     if (typeof window != "undefined" && window.location.hash) {
@@ -45,16 +42,6 @@ const PagePage = () => {
     }
   }, [path])
 
-  useEffect(() => {
-    if (pageQuery.data) {
-      setData({
-        ...pageQuery.data,
-        instance: instanceQuery.data,
-      })
-    }
-  }, [pageQuery.data, instanceQuery.data])
-
-  const isLoading = pageQuery.isLoading || instanceQuery.isLoading
   const error = pageQuery.error ?? instanceQuery.error
 
   if (error) {
@@ -64,15 +51,7 @@ const PagePage = () => {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
 
-  if (isLoading || !data) {
-    return <GenericLoading />
-  }
-
-  return (
-    <PageContext.Provider value={data}>
-      <Page data={data} />
-    </PageContext.Provider>
-  )
+  return <Page instanceData={instanceQuery.data ?? null} pageData={pageData ?? null} />
 }
 
 export default dontRenderUntilQueryParametersReady(PagePage)

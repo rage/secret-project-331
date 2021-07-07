@@ -6,7 +6,8 @@ use actix_web::{App, HttpServer};
 use anyhow::Result;
 use dotenv::dotenv;
 use headless_lms_actix::{
-    setup_tracing, utils::file_store::local_file_store::LocalFileStore, OAuthClient,
+    setup_tracing, utils::file_store::local_file_store::LocalFileStore, ApplicationConfiguration,
+    OAuthClient,
 };
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
@@ -28,6 +29,7 @@ async fn main() -> Result<()> {
     let oauth_secret = env::var("OAUTH_SECRET").expect("OAUTH_SECRET must be defined");
     let private_cookie_key =
         env::var("PRIVATE_COOKIE_KEY").expect("PRIVATE_COOKIE_KEY must be defined");
+    let test_mode = env::var("TEST_MODE").is_ok();
 
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();
@@ -45,6 +47,8 @@ async fn main() -> Result<()> {
         Some(TokenUrl::from_url(auth_url)),
     ));
 
+    let app_conf = ApplicationConfiguration { test_mode };
+
     let mut server = HttpServer::new(move || {
         let file_store = futures::executor::block_on(async {
             LocalFileStore::new(
@@ -55,10 +59,11 @@ async fn main() -> Result<()> {
             .expect("Failed to initialize file store")
         });
         App::new()
-            .configure(move |config| headless_lms_actix::configure(config, file_store))
+            .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())
+            .data(app_conf)
     });
 
     server = match listenfd.take_tcp_listener(0)? {

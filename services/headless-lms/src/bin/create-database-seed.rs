@@ -23,9 +23,9 @@ async fn main() -> Result<()> {
     if clean {
         // hardcoded for now
         let status = Command::new("dropdb")
-            .args(["-U", "headless-lms"])
-            .args(["-h", "localhost"])
-            .args(["-p", "54328"])
+            .args(&["-U", "headless-lms"])
+            .args(&["-h", "localhost"])
+            .args(&["-p", "54328"])
             .arg("--force")
             .arg("-e")
             .arg("headless_lms_dev")

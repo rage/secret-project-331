@@ -14,7 +14,7 @@ interface PagesProps {
 
 const EditorLoading = <div>Loading editor...</div>
 
-const PageEditor = dynamic(() => import("../../components/PageEditor"), {
+const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), {
   ssr: false,
   loading: () => EditorLoading,
 })

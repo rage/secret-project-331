@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 
 import Layout from "../../../components/Layout"
-import useQueryParameter from "../../../hooks/useQueryParameter"
+import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import { useQuery } from "react-query"
 import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
 import { Button, Dialog } from "@material-ui/core"
@@ -132,7 +132,7 @@ const CoursePages: React.FC<unknown> = () => {
         </div>
       </div>
 
-      <DebugModal content={data} />
+      <DebugModal data={data} />
     </Layout>
   )
 }

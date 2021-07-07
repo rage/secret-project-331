@@ -1,11 +1,8 @@
 use anyhow::Result;
 use chrono::Utc;
 use headless_lms_actix::models::{
-    chapters,
-    course_instances::{self, VariantStatus},
-    courses, exercise_services, exercise_tasks, exercises, organizations, pages, roles,
-    roles::UserRole,
-    submissions, users,
+    chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
+    exercise_tasks, exercises, organizations, pages, roles, roles::UserRole, submissions, users,
 };
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;

@@ -27,7 +27,7 @@ const PagePage = () => {
     data: pageData,
     refetch: pageDataRefetch,
   } = useQuery(`course-${courseSlug}-page-${path}`, () => fetchCoursePageByPath(courseSlug, path))
-  const { data: instanceData, refetch: InstanceDataRefetch } = useQuery(
+  const { data: instanceData, refetch: instanceDataRefetch } = useQuery(
     ["course-instance", pageData?.course_id],
     () => fetchCourseInstance((pageData as NonNullable<typeof pageData>).course_id),
     {
@@ -65,8 +65,8 @@ const PagePage = () => {
 
   const handleRefresh = useCallback(async () => {
     await pageDataRefetch()
-    await InstanceDataRefetch()
-  }, [InstanceDataRefetch, pageDataRefetch])
+    await instanceDataRefetch()
+  }, [instanceDataRefetch, pageDataRefetch])
 
   if (pageDataError) {
     if ((pageDataError as any)?.response?.status === 404) {

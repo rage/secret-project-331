@@ -47,7 +47,6 @@ const Page: React.FC<Props> = ({ data, onRefresh }) => {
         <ContentRenderer data={data.pageData?.content ?? []} />
       </CoursePageContext.Provider>
       {data.pageData?.chapter_id && <NavigationContainer />}
-      {data.pageData?.chapter_id && <NavigationContainer />}
     </>
   )
 }

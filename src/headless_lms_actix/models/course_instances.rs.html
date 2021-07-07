@@ -246,7 +246,7 @@ WHERE e.user_id = $1
 SELECT
     id, created_at, updated_at, deleted_at, course_id, starts_at, ends_at, name, description, variant_status as &quot;variant_status: VariantStatus&quot;
 FROM course_instances
-WHERE deleted_at IS NOT NULL;
+WHERE deleted_at IS NULL;
 &quot;#</span>
     )
     .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
@@ -273,7 +273,7 @@ SELECT id,
   variant_status as &quot;variant_status: VariantStatus&quot;
 FROM course_instances
 WHERE course_id = $1
-  AND deleted_at IS NOT NULL;
+  AND deleted_at IS NULL;
         &quot;#</span>,
         <span class="ident">course_id</span>,
     )

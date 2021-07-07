@@ -39,16 +39,17 @@ impl ContentBlock {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Page {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    course_id: Uuid,
-    chapter_id: Option<Uuid>,
-    url_path: String,
-    title: String,
-    deleted_at: Option<DateTime<Utc>>,
-    content: serde_json::Value,
-    order_number: i32,
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub course_id: Uuid,
+    pub chapter_id: Option<Uuid>,
+    pub url_path: String,
+    pub title: String,
+    pub deleted_at: Option<DateTime<Utc>>,
+    // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value for sqlx
+    pub content: serde_json::Value,
+    pub order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -137,8 +138,8 @@ pub struct PageRoutingData {
 pub struct PageMetadata {
     page_id: Uuid,
     order_number: i32,
-    chapter_id: Uuid,
-    chapter_number: i32,
+    chapter_id: Option<Uuid>,
+    chapter_number: Option<i32>,
     course_id: Uuid,
 }
 
@@ -190,7 +191,7 @@ VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         course_id,
-        serde_json::Value::Null,
+        serde_json::Value::Array(vec![]),
         url_path,
         title,
         order_number
@@ -613,11 +614,21 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> Result<P
     })?;
 
     if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
-        dbg!(&front_page_of_chapter_id);
         let _res = sqlx::query_as!(
             Chapter,
             r#"
-UPDATE chapters SET front_page_id = $1 WHERE id = $2 RETURNING *
+UPDATE chapters
+SET front_page_id = $1
+WHERE id = $2
+RETURNING id,
+  created_at,
+  updated_at,
+  name,
+  course_id,
+  deleted_at,
+  chapter_number,
+  front_page_id,
+  opens_at
         "#,
             page.id,
             front_page_of_chapter_id
@@ -754,13 +765,13 @@ pub async fn get_next_page(
     conn: &mut PgConnection,
     pages_id: Uuid,
 ) -> Result<Option<PageRoutingData>> {
-    let mut page_metadata = get_current_page_metadata(conn, pages_id).await?;
-    let next_page = get_next_page_by_order_number(conn, &mut page_metadata).await?;
+    let page_metadata = get_current_page_metadata(conn, pages_id).await?;
+    let next_page = get_next_page_by_order_number(conn, &page_metadata).await?;
 
     match next_page {
         Some(next_page) => Ok(Some(next_page)),
         None => {
-            let first_page = get_next_page_by_chapter_number(conn, &mut page_metadata).await?;
+            let first_page = get_next_page_by_chapter_number(conn, &page_metadata).await?;
             Ok(first_page)
         }
     }
@@ -769,16 +780,16 @@ pub async fn get_next_page(
 async fn get_current_page_metadata(conn: &mut PgConnection, page_id: Uuid) -> Result<PageMetadata> {
     let page_metadata = sqlx::query_as!(
         PageMetadata,
-        "
+        r#"
 SELECT p.id as page_id,
   p.order_number as order_number,
   p.course_id as course_id,
-  c.id as chapter_id,
-  c.chapter_number as chapter_number
+  c.id as "chapter_id?",
+  c.chapter_number as "chapter_number?"
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.id = $1;
-        ",
+"#,
         page_id
     )
     .fetch_one(conn)
@@ -789,7 +800,7 @@ WHERE p.id = $1;
 
 async fn get_next_page_by_order_number(
     conn: &mut PgConnection,
-    current_page_metadata: &mut PageMetadata,
+    current_page_metadata: &PageMetadata,
 ) -> Result<Option<PageRoutingData>> {
     let next_page = sqlx::query_as!(
         PageRoutingData,
@@ -821,7 +832,7 @@ WHERE p.order_number = (
 
 async fn get_next_page_by_chapter_number(
     conn: &mut PgConnection,
-    current_page_metadata: &mut PageMetadata,
+    current_page_metadata: &PageMetadata,
 ) -> Result<Option<PageRoutingData>> {
     let next_page = sqlx::query_as!(
         PageRoutingData,
@@ -831,7 +842,7 @@ SELECT p.url_path as url_path,
   c.chapter_number as chapter_number,
   c.id as chapter_id
 FROM chapters c
-  LEFT JOIN pages p on c.id = p.chapter_id
+  INNER JOIN pages p on c.id = p.chapter_id
 WHERE c.chapter_number = (
     SELECT MIN(ca.chapter_number)
     FROM chapters ca

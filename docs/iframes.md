@@ -1,20 +1,20 @@
-# Iframes
+# IFrames
 
-Iframes are used to bring specialized parts of user interfaces from exercise specific microservices to the more generic services. All communication with the iframes is done with a MessageChannel (https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel) between the parent document and the Iframe.
+IFrames are used to bring specialized parts of user interfaces from exercise specific microservices to the more generic services. All communication with the IFrames is done with a MessageChannel (https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel) between the parent document and the IFrame.
 
-When the Iframe starts up, it gets the MessagePort for sending messages to the MessageChannel using the following process:
+When the IFrame starts up, it gets the MessagePort for sending messages to the MessageChannel using the following process:
 
-![Image of how iframe gets the message port](./img/iframe-getting-port.plantuml.svg)
+![Image of how IFrame gets the message port](./img/iframe-getting-port.plantuml.svg)
 
 ## Messages in the message channel
 
 ### height-changed
 
-from: iframe
+from: IFrame
 
 to: parent
 
-Iframe tells the parent its new height so that the parent can resize the iframe.
+IFrame tells the parent its new height so that the parent can resize the IFrame.
 
 Example 1:
 
@@ -38,9 +38,9 @@ Example 2:
 
 from: parent
 
-to: iframe
+to: IFrame
 
-Parent posts the current saved state to the iframe. Upon receiving this message, the iframe is supposed to discard its existing internal state and start using the received state. The data can be anything -- the format is up to the exercise service.
+Parent posts the current saved state to the IFrame. Upon receiving this message, the IFrame is supposed to discard its existing internal state and start using the received state. The data can be anything -- the format is up to the exercise service.
 
 Example 1:
 
@@ -62,11 +62,11 @@ Example 2:
 
 ### current-state
 
-from: iframe
+from: IFrame
 
 to: parent
 
-Iframe posts its updated state. The iframe is supposed to post this message whenever its internal state changes. The data posted will contain the following things:
+IFrame posts its updated state. The IFrame is supposed to post this message whenever its internal state changes. The data posted will contain the following things:
 
 1. Private spec. This can be anything that defines the exercise. This gets saved and will be passed to the exercise service when loading the editor again and when grading a submission.
 2. Public spec. Specification that hides the correct answer that will be used to render an exercise to the student when they start doing the exercise. This will not be passed back to the editor when loading it again because the exercise service is supposed to be able to derive this again from the private spec.

@@ -23,7 +23,6 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
         port.postMessage({ message: "set-state", data: JSON.parse(props.attributes.private_spec) })
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
-        console.log("on message from iframe")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const uncheckedMessage = (messageContainer as any).message
         if (!uncheckedMessage) {

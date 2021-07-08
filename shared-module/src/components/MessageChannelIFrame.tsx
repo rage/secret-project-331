@@ -27,7 +27,6 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     }
     // We use port 1 for communication, defining a event handler
     messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
-      console.log("Parent received a message from port", JSON.stringify(message.data))
       const data = message.data
       if (data.message === "height-changed") {
         if (!iframeRef.current) {

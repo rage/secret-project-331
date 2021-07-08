@@ -9,6 +9,9 @@ module.exports = {
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
     "plugin:prettier/recommended",
   ],
   parser: "@typescript-eslint/parser",
@@ -19,7 +22,7 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint", "eslint-custom-rules"],
+  plugins: ["react", "@typescript-eslint", "import", "eslint-custom-rules"],
   settings: {
     react: {
       version: "detect",
@@ -95,5 +98,22 @@ module.exports = {
       },
     ],
     "@typescript-eslint/ban-ts-comment": "off",
+    "sort-imports": [
+      "error",
+      {
+        ignoreCase: true,
+        ignoreDeclarationSort: true,
+      },
+    ],
+    "import/order": [
+      "error",
+      {
+        alphabetize: {
+          order: "asc",
+        },
+        groups: [["builtin", "external"], "parent", "sibling", "index"],
+        "newlines-between": "always",
+      },
+    ],
   },
 }

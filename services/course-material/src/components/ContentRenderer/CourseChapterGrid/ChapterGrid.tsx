@@ -5,6 +5,8 @@ import { fetchChaptersInTheCourse } from "../../../services/backend"
 import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
 import GenericLoading from "../../GenericLoading"
 import ChapterGridChapter from "../../ChapterGridChapter"
+import { css } from "@emotion/css"
+import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const [now, setNow] = useState(new Date())
@@ -29,7 +31,11 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   }
 
   return (
-    <div>
+    <div
+      className={css`
+        ${normalWidthCenteredComponentStyles}
+      `}
+    >
       <h3>Chapters in this course</h3>
       {data
         .sort((a, b) => a.chapter_number - b.chapter_number)

@@ -138,7 +138,7 @@ export interface CourseMaterialExercise {
   exercise: Exercise
   current_exercise_task: CurrentExerciseTask
   exercise_status?: ExerciseStatus
-  current_exercise_task_service_info: CurrentExerciseTaskServiceInfo
+  current_exercise_task_service_info?: CurrentExerciseTaskServiceInfo
 }
 
 export interface CurrentExerciseTaskServiceInfo {

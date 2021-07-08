@@ -30,7 +30,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     return <GenericLoading />
   }
 
-  const url = data.current_exercise_task_service_info.exercise_iframe_path
+  const url = data.current_exercise_task_service_info?.exercise_iframe_path
 
   const currentExerciseTaskAssignment = data.current_exercise_task
     .assignment as unknown as Block<unknown>[]

@@ -1,4 +1,4 @@
-import { css } from "@emotion/react"
+import { css } from "@emotion/css"
 import { EChartsOption } from "echarts/types/src/export/option"
 import dynamic from "next/dynamic"
 import React from "react"

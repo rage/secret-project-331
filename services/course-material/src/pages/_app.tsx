@@ -10,7 +10,8 @@ import muiTheme from "../utils/muiTheme"
 import { CssBaseline } from "@material-ui/core"
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
-import { Global, css } from "@emotion/react"
+import { Global } from "@emotion/react"
+import { css } from "@emotion/css"
 
 const queryClient = new QueryClient({
   defaultOptions: {

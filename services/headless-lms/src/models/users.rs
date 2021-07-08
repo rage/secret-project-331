@@ -26,21 +26,15 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn upsert_user_id(
-    conn: &mut PgConnection,
-    id: Uuid,
-    upstream_id: Option<i32>,
-) -> Result<User> {
+pub async fn insert_with_upstream_id(conn: &mut PgConnection, upstream_id: i32) -> Result<User> {
     let user = sqlx::query_as!(
         User,
         r#"
 INSERT INTO
-  users (id, upstream_id)
-VALUES($1, $2)
-ON CONFLICT(id) DO NOTHING
+  users (upstream_id)
+VALUES($1)
 RETURNING *;
           "#,
-        id,
         upstream_id
     )
     .fetch_one(conn)
@@ -68,7 +62,6 @@ pub async fn authenticate_test_user(
     _password: String,
 ) -> Result<User> {
     // TODO: Add support to "authenticate" different kind of users
-    let user_id = insert(conn).await?;
-    let user = upsert_user_id(conn, user_id, Some(1)).await?;
+    let user = insert_with_upstream_id(conn, 9001).await?;
     Ok(user)
 }

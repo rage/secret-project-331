@@ -30,6 +30,11 @@ async fn main() -> Result<()> {
     let private_cookie_key =
         env::var("PRIVATE_COOKIE_KEY").expect("PRIVATE_COOKIE_KEY must be defined");
     let test_mode = env::var("TEST_MODE").is_ok();
+    if test_mode {
+        info!("***********************************");
+        info!("*  Starting backend in test mode  *");
+        info!("***********************************");
+    }
 
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();

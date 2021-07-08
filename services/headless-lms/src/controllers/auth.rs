@@ -15,7 +15,6 @@ use oauth2::{ResourceOwnerPassword, ResourceOwnerUsername, TokenResponse};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Login {
@@ -85,10 +84,7 @@ pub async fn login(
         .context("Error while trying to find user")?
     {
         Some(existing_user) => existing_user,
-        None => {
-            let new_id = Uuid::new_v4();
-            crate::models::users::upsert_user_id(&mut conn, new_id, Some(upstream_id)).await?
-        }
+        None => crate::models::users::insert_with_upstream_id(&mut conn, upstream_id).await?,
     };
 
     authorization::remember(&session, user)?;

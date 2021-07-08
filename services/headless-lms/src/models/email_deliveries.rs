@@ -22,18 +22,18 @@ pub struct Email {
     pub id: Uuid,
     // TODO: change to user.email when field exists in the db.
     pub to: Uuid,
-    pub subject: String,
-    pub body: serde_json::Value,
+    pub subject: Option<String>,
+    pub body: Option<serde_json::Value>,
 }
 
 pub async fn fetch_emails(conn: &mut PgConnection) -> Result<Vec<Email>> {
     let emails = sqlx::query_as!(
         Email,
-        r#"
+        "
 SELECT ed.id AS id,
   u.id AS to,
-  et.subject AS "subject!",
-  et.content AS "body!"
+  et.subject AS subject,
+  et.content AS body
 FROM email_deliveries ed
   JOIN email_templates et ON et.id = ed.email_template_id
   JOIN users u ON u.id = ed.user_id
@@ -41,7 +41,7 @@ WHERE ed.deleted_at IS NULL
   AND ed.sent = FALSE
   AND ed.error IS NULL
 LIMIT 10000;
-  "#,
+  ",
     )
     .fetch_all(conn)
     .await?;

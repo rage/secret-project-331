@@ -1,6 +1,9 @@
 import React from "react"
-import { CourseOverview } from "../services/services.types"
 
-const CourseContext = React.createContext<CourseOverview | null>(null)
+interface CourseContextProps {
+  courseInstanceId: string
+}
+
+const CourseContext = React.createContext<CourseContextProps | null>(null)
 
 export default CourseContext

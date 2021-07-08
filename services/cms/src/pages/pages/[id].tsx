@@ -7,6 +7,7 @@ import { fetchPageWithId, updateExistingPage } from "../../services/backend/page
 import { Page, PageUpdate } from "../../services/services.types"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 import dynamic from "next/dynamic"
+import CourseContext from "../../contexts/CourseContext"
 
 interface PagesProps {
   query: SimplifiedUrlQuery
@@ -47,9 +48,11 @@ const Pages = ({ query }: PagesProps) => {
   }
 
   return (
-    <Layout>
-      <PageEditor data={data} handleSave={handleSave} />
-    </Layout>
+    <CourseContext.Provider value={{ courseInstanceId: data.course_id }}>
+      <Layout>
+        <PageEditor data={data} handleSave={handleSave} />
+      </Layout>
+    </CourseContext.Provider>
   )
 }
 

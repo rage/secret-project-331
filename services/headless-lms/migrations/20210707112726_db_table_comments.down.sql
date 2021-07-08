@@ -1,5 +1,4 @@
 -- Add down migration script here
--- Add up migration script here
 COMMENT ON TABLE organizations IS NULL;
 COMMENT ON TABLE courses IS NULL;
 COMMENT ON TABLE pages IS NULL;

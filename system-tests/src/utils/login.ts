@@ -29,6 +29,6 @@ export async function login(user: string, password: string) {
   expect(afterLogin).not.toContain("Login")
 
   // Store login state
-  await page.context().storageState({ path: "state.json" })
+  await page.context().storageState({ path: `src/states/${user}.json` })
   await browser.close()
 }

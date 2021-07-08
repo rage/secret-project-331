@@ -127,4 +127,4 @@ dist
 .pnp.*
 
 # Playwright
-system-tests/state.json
+system-tests/src/states/

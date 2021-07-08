@@ -1,6 +1,19 @@
 use anyhow::Result;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use uuid::Uuid;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct CourseInstanceEnrollment {
+    pub user_id: Uuid,
+    pub course_id: Uuid,
+    pub course_instance_id: Uuid,
+    current: bool,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
+    deleted_at: Option<DateTime<Utc>>,
+}
 
 pub async fn insert(
     conn: &mut PgConnection,
@@ -22,4 +35,33 @@ VALUES ($1, $2, $3, $4)
     .execute(conn)
     .await?;
     Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct NewCourseInstanceEnrollment {
+    pub user_id: Uuid,
+    pub course_id: Uuid,
+    pub course_instance_id: Uuid,
+    pub current: bool,
+}
+
+pub async fn insert_enrollment(
+    conn: &mut PgConnection,
+    enrollment: NewCourseInstanceEnrollment,
+) -> Result<CourseInstanceEnrollment> {
+    let enrollment = sqlx::query_as!(
+        CourseInstanceEnrollment,
+        "
+INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id, current)
+VALUES ($1, $2, $3, $4)
+RETURNING *;
+",
+        enrollment.user_id,
+        enrollment.course_id,
+        enrollment.course_instance_id,
+        enrollment.current
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(enrollment)
 }

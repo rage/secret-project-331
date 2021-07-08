@@ -1,8 +1,11 @@
 //! Controllers for requests starting with `/api/v0/course-material/course-instances`.
-use crate::domain::authorization::AuthUser;
 use crate::{
     controllers::ApplicationResult,
-    models::{course_instances::CourseInstance, user_exercise_states::UserProgress},
+    domain::authorization::AuthUser,
+    models::{
+        course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
+        user_exercise_states::UserProgress,
+    },
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use sqlx::PgPool;
@@ -38,18 +41,17 @@ async fn get_user_progress_page(
 POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enrolls user to the course instance.
 
 # Example
+
+Response:
 ```json
 {
-  "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
-  "created_at": "2021-06-28T00:21:11.780420Z",
-  "updated_at": "2021-06-28T00:21:11.780420Z",
-  "deleted_at": null,
-  "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
-  "starts_at": null,
-  "ends_at": null,
-  "name": null,
-  "description": null,
-  "variant_status": "Active"
+  "user_id": "6c6a2449-8eeb-46ca-8e97-e69752227724",
+  "course_id": "c6489a19-c8dc-4a36-ad45-f14c41ef5386",
+  "course_instance_id": "fbcdcd77-7f82-4cc3-86a0-b82e116a5ff3",
+  "current": true,
+  "created_at": "2021-07-08T09:56:54.915951Z",
+  "updated_at": "2021-07-08T09:56:54.915951Z",
+  "deleted_at": null
 }
 ```
 */
@@ -58,22 +60,24 @@ async fn add_user_enrollment(
     pool: web::Data<PgPool>,
     request_course_instance_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ApplicationResult<Json<CourseInstance>> {
+) -> ApplicationResult<Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
     let instance = crate::models::course_instances::get_course_instance(
         &mut conn,
         *request_course_instance_id,
     )
     .await?;
-    let _enrollment = crate::models::course_instance_enrollments::insert(
+    let enrollment = crate::models::course_instance_enrollments::insert_enrollment(
         &mut conn,
-        user.id,
-        instance.course_id,
-        *request_course_instance_id,
-        true,
+        NewCourseInstanceEnrollment {
+            course_id: instance.course_id,
+            course_instance_id: instance.id,
+            current: true,
+            user_id: user.id,
+        },
     )
     .await?;
-    Ok(Json(instance))
+    Ok(Json(enrollment))
 }
 
 pub fn _add_user_progress_routes(cfg: &mut ServiceConfig) {

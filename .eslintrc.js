@@ -115,5 +115,6 @@ module.exports = {
         "newlines-between": "always",
       },
     ],
+    "import/no-unresolved": "off",
   },
 }

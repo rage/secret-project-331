@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["find_by_upstream_id",""],["insert",""],["upsert_user_id",""]],"struct":[["User",""]]});
+initSidebarItems({"fn":[["authenticate_test_user",""],["find_by_upstream_id",""],["insert",""],["insert_with_upstream_id",""]],"struct":[["User",""]]});

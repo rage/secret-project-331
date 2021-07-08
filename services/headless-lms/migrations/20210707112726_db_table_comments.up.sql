@@ -2,7 +2,7 @@
 COMMENT ON TABLE organizations IS 'A unit that organizes and manages courses e.g. University of Helsinki, Department of Computer Science.';
 COMMENT ON TABLE courses IS 'Collection of course materials and exercises that define a online course.';
 COMMENT ON TABLE pages IS 'Every course consists of pages and page content is stored in the content field as JSONB. Every page belongs to a course which it relates to. Every page also has a title and its url -path relative to the course and chapter it belongs to.';
-COMMENT ON TABLE chapters IS 'Courses are made of chapters which contains pages related to certain chapter. Chapter also has a front page to which it relates to via front_page_id_field';
+COMMENT ON TABLE chapters IS 'Chapters divide pages of a course. They also have a front page.';
 COMMENT ON TABLE submissions IS 'Students submission table. data_json is the specific submission data from a exercise and grading_id refers to the gradings table and it tells how the submission is to be graded.';
 COMMENT ON TABLE exercise_tasks IS 'Exercise tasks contains the specific exercise which the students completes. Exercise has a assignments field as JSONB which contains info about the tasks to be completed. Table also contains both private and public specs. Private spec tells conditions where exercise is correct and is not shown to the student. Public spec is shown to the student.';
 COMMENT ON TABLE course_instance_enrollments IS 'tells in which of the courses many instances certain user has enrolled to.';

@@ -68,6 +68,11 @@ module.exports = {
             importNames: ["default"],
             message: "Don't use withStyles from @material-ui. Please use emotion.js.",
           },
+          {
+            name: "@emotion/react",
+            importNames: ["css"],
+            message: 'Use this instad: import { css } from "@emotion/css"',
+          },
         ],
       },
     ],

@@ -1,4 +1,5 @@
-import { css, Global } from "@emotion/react"
+import { css } from "@emotion/css"
+import { Global } from "@emotion/react"
 import { CssBaseline } from "@material-ui/core"
 import { ThemeProvider } from "@material-ui/core/styles"
 import type { AppProps } from "next/app"

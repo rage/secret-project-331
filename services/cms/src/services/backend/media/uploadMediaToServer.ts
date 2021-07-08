@@ -1,6 +1,7 @@
-import { uploadFileFromPage } from "."
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
-import { UploadMediaOptions, MediaItem } from "@wordpress/media-utils"
+import { MediaItem, UploadMediaOptions } from "@wordpress/media-utils"
+
+import { uploadFileFromPage } from "."
 
 // This thingy should support multiple file uploads, but Gutenberg seem to call uploadMedia for each file separately
 // if user uploads many file, for example using the Gallery block.

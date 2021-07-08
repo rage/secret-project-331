@@ -1,5 +1,6 @@
 import React from "react"
 import { useQuery } from "react-query"
+
 import { fetchCourseProgress } from "../../../services/backend"
 import GenericLoading from "../../GenericLoading"
 

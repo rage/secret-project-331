@@ -1,8 +1,10 @@
-import { useLayoutEffect, useRef } from "react"
 import styled from "@emotion/styled"
-import ButtonEditor from "./ButtonEditor"
+import { useLayoutEffect, useRef } from "react"
 import { v4 } from "uuid"
+
 import { Alternative } from "../util/stateInterfaces"
+
+import ButtonEditor from "./ButtonEditor"
 interface Props {
   state: Alternative[]
   setState: (newState: Alternative[]) => void

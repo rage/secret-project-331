@@ -1,4 +1,6 @@
 node_modules
+services/**/shared-module
+system-tests/**/shared-module
 target
 .next
 out

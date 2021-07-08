@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next"
+
 import { Alternative, Answer } from "../../util/stateInterfaces"
 
 export default (req: NextApiRequest, res: NextApiResponse): unknown => {

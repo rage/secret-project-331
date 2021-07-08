@@ -1,14 +1,14 @@
+import { useEffect, useState } from "react"
 import { useQuery } from "react-query"
+
 import GenericLoading from "../../components/GenericLoading"
+import Page from "../../components/Page"
 import PageNotFound from "../../components/PageNotFound"
+import PageContext, { CoursePageWithInstance } from "../../contexts/PageContext"
 import useQueryParameter from "../../hooks/useQueryParameter"
 import { fetchCourseInstance, fetchCoursePageByPath } from "../../services/backend"
-import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
-import Page from "../../components/Page"
-import PageContext, { CoursePageWithInstance } from "../../contexts/PageContext"
-import { useEffect } from "react"
 import { tryToScrollToSelector } from "../../utils/dom"
-import { useState } from "react"
+import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 
 const PagePage = () => {
   const courseSlug = useQueryParameter("courseSlug")

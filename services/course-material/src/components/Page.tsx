@@ -1,14 +1,15 @@
 import { css } from "@emotion/css"
-import ContentRenderer from "./ContentRenderer"
+import React, { useContext, useState } from "react"
+
+import PageContext, { CoursePageWithInstance } from "../contexts/PageContext"
 import { CoursePage } from "../services/backend"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
-import DebugModal from "./DebugModal"
-import React, { useState } from "react"
-import NavigationContainer from "./NavigationContainer"
-import { useContext } from "react"
-import PageContext, { CoursePageWithInstance } from "../contexts/PageContext"
-import GenericLoading from "./GenericLoading"
+
+import ContentRenderer from "./ContentRenderer"
 import ChapterGrid from "./ContentRenderer/CourseChapterGrid/ChapterGrid"
+import DebugModal from "./DebugModal"
+import GenericLoading from "./GenericLoading"
+import NavigationContainer from "./NavigationContainer"
 
 interface Props {
   data: CoursePage

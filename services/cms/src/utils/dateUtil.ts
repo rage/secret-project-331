@@ -1,4 +1,4 @@
-import { parseISO, isValid } from "date-fns"
+import { isValid, parseISO } from "date-fns"
 
 /**
  * Function, which transforms possible axios response datas ISO-strings (updated_at, created_at, deleted_at) to js Date -objects.

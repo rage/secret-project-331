@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+
 import { Alternative } from "../util/stateInterfaces"
 interface Props {
   item: Alternative

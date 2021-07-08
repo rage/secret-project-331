@@ -1,4 +1,5 @@
 import { BlockConfiguration } from "@wordpress/blocks"
+
 import PagesInChapterEditor from "./PagesInChapterEditor"
 import PagesInChapterSave from "./PagesInChapterSave"
 

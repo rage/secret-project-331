@@ -1,5 +1,5 @@
 -- Add up migration script here
-COMMENT ON TABLE organizations IS 'Organizations table contains info about all organizations which are created into the system.';
+COMMENT ON TABLE organizations IS 'A unit that organizes and manages courses e.g. University of Helsinki, Department of Computer Science.';
 COMMENT ON TABLE courses IS 'Table which contains all courses added to the system. Every course belongs to a organization which it relates to.';
 COMMENT ON TABLE pages IS 'Every course consists of pages and page content is stored in the content field as JSONB. Every page belongs to a course which it relates to. Every page also has a title and its url -path relative to the course and chapter it belongs to.';
 COMMENT ON TABLE chapters IS 'Courses are made of chapters which contains pages related to certain chapter. Chapter also has a front page to which it relates to via front_page_id_field';

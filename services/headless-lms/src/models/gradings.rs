@@ -11,6 +11,7 @@ use crate::models::{
 };
 
 use super::{
+    exercise_service_info::ExerciseServiceInfo,
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     submissions::{GradingResult, Submission},
@@ -79,11 +80,21 @@ pub async fn grade_submission(
     exercise: Exercise,
     grading: Grading,
 ) -> Result<Grading> {
-    let client = reqwest::Client::new();
     let exercise_service_info =
         get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
+    let obj = send_grading_request(&exercise_service_info, exercise_task, submission).await?;
+    let updated_grading = update_grading(conn, grading, obj, exercise).await?;
+    Ok(updated_grading)
+}
+
+pub async fn send_grading_request(
+    exercise_service_info: &ExerciseServiceInfo,
+    exercise_task: ExerciseTask,
+    submission: Submission,
+) -> Result<GradingResult> {
+    let client = reqwest::Client::new();
     let res = client
-        .post(exercise_service_info.grade_endpoint_path)
+        .post(&exercise_service_info.grade_endpoint_path)
         .timeout(Duration::from_secs(120))
         .json(&GradingRequest {
             exercise_spec: exercise_task.private_spec,
@@ -97,8 +108,7 @@ pub async fn grade_submission(
     }
     let obj = res.json::<GradingResult>().await?;
     info!("Received a grading result: {:#?}", &obj);
-    let updated_grading = update_grading(conn, grading, obj, exercise).await?;
-    Ok(updated_grading)
+    Ok(obj)
 }
 
 pub async fn update_grading(

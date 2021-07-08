@@ -58,6 +58,62 @@
       "nullable": [false]
     }
   },
+  "072ecb29b589e56f6fc04bb0787efd82beab771ae9d87752f80b0734b16c56e4": {
+    "query": "\nINSERT INTO exercise_services (\n    name,\n    slug,\n    public_url,\n    internal_url,\n    max_reprocessing_submissions_at_once\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "public_url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "internal_url",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "max_reprocessing_submissions_at_once",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Int4"]
+      },
+      "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
   "07ff6c440bb184c682c8095f73537a51399aff014e77485afa80dcde0268607f": {
     "query": "\nUPDATE chapters SET front_page_id = $1 WHERE id = $2\n        ",
     "describe": {
@@ -511,6 +567,16 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
+  "2711d322b3321b8956fe256642fb1d2c259d339752d854cd58383a26889e1cbf": {
+    "query": "\nUPDATE regrading_submissions\nSET grading_after_regrading = $1\nWHERE id = $2\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "306820247b9533af5d464aa15a58f9fcde6a59b1666a3709b32bc1823ad2e970": {
     "query": "\nSELECT *\nFROM exercises\nWHERE course_id = $1\n  AND deleted_at IS NULL\n",
     "describe": {
@@ -699,6 +765,77 @@
         "Left": ["Int4"]
       },
       "nullable": [false, false, false, true, true]
+    }
+  },
+  "3c5b30ac7bad3459a0102d31d75bc0c7b6f8b9d62db3ce39be9c26cb318af8a9": {
+    "query": "\nSELECT *\nFROM submissions\nWHERE id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_task_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "data_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 8,
+          "name": "grading_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "metadata",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 10,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 11,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
     }
   },
   "3e925fb3e5a135d876037e1424238f4c88a4d9a76a739e16c2c6d8d17151cd06": {
@@ -1143,6 +1280,37 @@
         "Left": ["Varchar", "Uuid", "Int4"]
       },
       "nullable": [false, false, false, false, false, true, false, true, true]
+    }
+  },
+  "5a50f5b996257aa9ea1169f0da5bc33797c59ef5a96516e75db7e7230a981bae": {
+    "query": "\nUPDATE regradings\nSET regrading_completed_at = now()\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
+  "5bf023d6bd22a590f0c2b52d5616a19b914e65ce055aab59abef156379636fd0": {
+    "query": "\nSELECT id,\n  submission_id\nFROM regrading_submissions\nWHERE regrading_id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "submission_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false]
     }
   },
   "5c55b14104bfdc1b23bb335ce5a747f7d9bba291bfa8ffd6abf84decd936040b": {
@@ -2104,12 +2272,17 @@
           "ordinal": 7,
           "name": "internal_url",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "max_reprocessing_submissions_at_once",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Text"]
       },
-      "nullable": [false, false, false, true, false, false, false, true]
+      "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
   "a63a933b50589d7ad1978288ac0be6ffb04c6293d360219b31cf012fa43e95ee": {
@@ -2480,57 +2653,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, true, false]
-    }
-  },
-  "c40ff6249c20a337cf69a78718370dcf329c29ac7d28308d2e1a47eb3bba5682": {
-    "query": "\nINSERT INTO exercise_services (name, slug, public_url, internal_url)\nVALUES ($1, $2, $3, $4)\nRETURNING *;\n  ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "slug",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "public_url",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "internal_url",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Varchar", "Varchar", "Varchar"]
-      },
-      "nullable": [false, false, false, true, false, false, false, true]
     }
   },
   "c4db451cf0d08b2fca14976798e0883a3961533b35d7dd4d5057e1662d482592": {
@@ -2920,6 +3042,16 @@
         true,
         true
       ]
+    }
+  },
+  "d575fe0c1c24abc4c6920f05c08ed2172819439de166e5e455e7e6a8c2bc37d7": {
+    "query": "\nUPDATE submissions\nSET grading_id = $1\nWHERE id = $2\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "d61f2a6b8fb2f4cfaf52c3c6d740d6fc8ff60cb2fe9528c318715c40e769471d": {
@@ -3467,12 +3599,33 @@
           "ordinal": 7,
           "name": "internal_url",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "max_reprocessing_submissions_at_once",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, true, false, false, false, true]
+      "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
+  "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {
+    "query": "\nUPDATE regradings\nSET regrading_started_at = CASE\n    WHEN regrading_started_at IS NULL THEN now()\n    ELSE regrading_started_at\n  END\nWHERE regrading_completed_at IS NULL\n  AND deleted_at IS NULL\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [false]
     }
   },
   "eb1eeea17ea1b5dd169f8db54cd61c8e77627ffc4c82a40705e454c7148f54a3": {
@@ -3760,12 +3913,17 @@
           "ordinal": 7,
           "name": "internal_url",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "max_reprocessing_submissions_at_once",
+          "type_info": "Int4"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true]
+      "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
   "fca8672f757656db6332543f9d4351224a1218c4387310e9447e70dad48af7cf": {

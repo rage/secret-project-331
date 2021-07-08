@@ -45,6 +45,7 @@ async fn main() -> Result<()> {
         Some(TokenUrl::from_url(auth_url)),
     ));
 
+    let db_clone = db_pool.clone();
     let mut server = HttpServer::new(move || {
         let file_store = futures::executor::block_on(async {
             LocalFileStore::new(
@@ -57,9 +58,11 @@ async fn main() -> Result<()> {
         App::new()
             .configure(move |config| headless_lms_actix::configure(config, file_store))
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
-            .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
+            .data(db_clone.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())
     });
+
+    let _handle = headless_lms_actix::start_regrading_thread(db_pool);
 
     server = match listenfd.take_tcp_listener(0)? {
         Some(listener) => server.listen(listener)?,

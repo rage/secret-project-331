@@ -56,6 +56,7 @@ pub async fn find_by_upstream_id(
     Ok(user)
 }
 
+// Only used for testing, not to use in production.
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,
     _email: String,

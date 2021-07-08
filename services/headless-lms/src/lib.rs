@@ -13,6 +13,7 @@ use actix_http::error::InternalError;
 use actix_web::web::{self, HttpResponse, ServiceConfig};
 use anyhow::Result;
 use oauth2::basic::BasicClient;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tracing_actix_web::TracingLogger;
 use tracing_error::ErrorLayer;
@@ -22,7 +23,7 @@ use utils::file_store::FileStore;
 
 pub type OAuthClient = Arc<BasicClient>;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ApplicationConfiguration {
     pub test_mode: bool,
 }

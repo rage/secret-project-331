@@ -53,7 +53,7 @@ pub async fn login(
         return Ok(HttpResponse::Ok().finish());
     }
 
-    // login to TMC
+    // only used when testing
     let token = client
         .exchange_password(
             &ResourceOwnerUsername::new(email.clone()),

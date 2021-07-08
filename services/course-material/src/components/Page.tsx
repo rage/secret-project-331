@@ -6,16 +6,15 @@ import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
 import DebugModal from "./DebugModal"
 import NavigationContainer from "./NavigationContainer"
 import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
-import { CoursePageState } from "../reducers/coursePageStateReducer"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 
 interface Props {
-  data: CoursePageState
   onRefresh: () => void
 }
 
-const Page: React.FC<Props> = ({ data, onRefresh }) => {
-  const pageDataDispatch = useContext(CoursePageDispatch)
+const Page: React.FC<Props> = ({ onRefresh }) => {
+  const pageContext = useContext(CoursePageContext)
+  const pageDispatch = useContext(CoursePageDispatch)
 
   return (
     <>
@@ -27,10 +26,10 @@ const Page: React.FC<Props> = ({ data, onRefresh }) => {
         `}
       >
         <DebugModal
-          data={data}
+          data={pageContext}
           updateDataOnClose={(payload) => {
             // NB! This is unsafe because payload has any type
-            pageDataDispatch({ type: "rawSetState", payload })
+            pageDispatch({ type: "rawSetState", payload })
           }}
           readOnly={false}
         />
@@ -40,13 +39,11 @@ const Page: React.FC<Props> = ({ data, onRefresh }) => {
           ${normalWidthCenteredComponentStyles}
         `}
       >
-        {data.pageData?.title}
+        {pageContext.pageData?.title}
       </h1>
-      <CoursePageContext.Provider value={data}>
-        <SelectCourseInstanceModal onClose={onRefresh} />
-        <ContentRenderer data={data.pageData?.content ?? []} />
-      </CoursePageContext.Provider>
-      {data.pageData?.chapter_id && <NavigationContainer />}
+      <SelectCourseInstanceModal onClose={onRefresh} />
+      <ContentRenderer data={pageContext.pageData?.content ?? []} />
+      {pageContext.pageData?.chapter_id && <NavigationContainer />}
     </>
   )
 }

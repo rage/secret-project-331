@@ -16,6 +16,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
   const loginState = useContext(LoginStateContext)
   const coursePageState = useContext(CoursePageContext)
 
+  const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(false)
   const {
     data: courseInstances,
@@ -46,7 +47,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
         setOpen(false)
         onClose()
       } catch (e) {
-        // todo
+        setSubmitError(e)
       }
     },
     [onClose],
@@ -71,7 +72,8 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
           margin: 1rem;
         `}
       >
-        <p>Select course version to continue.</p>
+        {submitError && <pre>{JSON.stringify(submitError, undefined, 2)}</pre>}
+        <h1>Select course version to continue.</h1>
         <SelectCourseInstanceForm
           courseInstances={courseInstances}
           onSubmitForm={handleSubmitAndClose}

@@ -7,27 +7,27 @@ import { fetchCourseInstance, fetchCoursePageByPath } from "../../services/backe
 import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 import Page from "../../components/Page"
 import { tryToScrollToSelector } from "../../utils/dom"
-import coursePageStateReducer, { CoursePageState } from "../../reducers/coursePageStateReducer"
-import { CoursePageDispatch } from "../../contexts/CoursePageContext"
-
-const initialState: CoursePageState = {
-  state: "loading",
-  error: null,
-  instance: null,
-  pageData: null,
-}
+import coursePageStateReducer from "../../reducers/coursePageStateReducer"
+import CoursePageContext, {
+  CoursePageDispatch,
+  defaultCoursePageState,
+} from "../../contexts/CoursePageContext"
 
 const PagePage = () => {
   const courseSlug = useQueryParameter("courseSlug")
   const path = `/${useQueryParameter("path")}`
 
-  const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, initialState)
+  const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
   const {
     error: pageDataError,
     data: pageData,
     refetch: pageDataRefetch,
   } = useQuery(`course-${courseSlug}-page-${path}`, () => fetchCoursePageByPath(courseSlug, path))
-  const { data: instanceData, refetch: instanceDataRefetch } = useQuery(
+  const {
+    data: instanceData,
+    isLoading: isInstanceDataLoading,
+    refetch: instanceDataRefetch,
+  } = useQuery(
     ["course-instance", pageData?.course_id],
     () => fetchCourseInstance((pageData as NonNullable<typeof pageData>).course_id),
     {
@@ -38,12 +38,12 @@ const PagePage = () => {
   useEffect(() => {
     if (pageDataError) {
       pageStateDispatch({ type: "setError", payload: pageDataError })
-    } else if (pageData) {
+    } else if (pageData && !isInstanceDataLoading) {
       pageStateDispatch({ type: "setData", payload: { pageData, instance: instanceData ?? null } })
     } else {
       pageStateDispatch({ type: "setLoading" })
     }
-  }, [instanceData, pageData, pageDataError])
+  }, [instanceData, isInstanceDataLoading, pageData, pageDataError])
 
   useEffect(() => {
     if (typeof window != "undefined" && window.location.hash) {
@@ -77,7 +77,9 @@ const PagePage = () => {
 
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
-      <Page data={pageState} onRefresh={handleRefresh} />
+      <CoursePageContext.Provider value={pageState}>
+        <Page onRefresh={handleRefresh} />
+      </CoursePageContext.Provider>
     </CoursePageDispatch.Provider>
   )
 }

@@ -1,7 +1,7 @@
 import React, { Dispatch } from "react"
 import { CoursePageState, CoursePageStateAction } from "../reducers/coursePageStateReducer"
 
-const defaultCoursePageState: CoursePageState = {
+export const defaultCoursePageState: CoursePageState = {
   state: "loading",
   error: null,
   instance: null,

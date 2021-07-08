@@ -20,3 +20,7 @@ npm run storybook
 To get new entries to the Storybook UI, add new stories to the `stories` folder. All the shared code needs to live in the `src` code.
 
 Adding controls: https://storybook.js.org/docs/react/essentials/controls
+
+### Tests
+
+Tests are located in the `tests`-folder. The tests are not inside the `src` folder because we don't want to copy the test files to all the services.

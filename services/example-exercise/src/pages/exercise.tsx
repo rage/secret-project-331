@@ -2,10 +2,19 @@ import { useRouter } from "next/dist/client/router"
 import Exercise from "../components/Exercise"
 import { useEffect, useState } from "react"
 import { PublicAlternative } from "../util/stateInterfaces"
+import useStateWithOnChange from "../hooks/useStateWithOnChange"
 
 const ExercisePage: React.FC = () => {
-  const [state, setState] = useState<PublicAlternative[] | null>(null)
   const [port, setPort] = useState<MessagePort | null>(null)
+  const [state, setState] = useStateWithOnChange<PublicAlternative[] | null>(null, (newValue) => {
+    if (!port) {
+      return
+    }
+    port.postMessage({
+      message: "current-state",
+      data: newValue,
+    })
+  })
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
   let maxWidth: number | null = null
@@ -15,7 +24,7 @@ const ExercisePage: React.FC = () => {
 
   useEffect(() => {
     const handler = (message: WindowEventMap["message"]) => {
-      if (message.origin !== parent.origin) {
+      if (message.source !== parent) {
         return
       }
       const port = message.ports[0]
@@ -25,7 +34,7 @@ const ExercisePage: React.FC = () => {
         port.onmessage = (message: WindowEventMap["message"]) => {
           console.log("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
-          if (data.message === "content") {
+          if (data.message === "set-state") {
             console.log("Frame: setting state from message")
             setState(data.data)
           } else {
@@ -34,13 +43,16 @@ const ExercisePage: React.FC = () => {
         }
       }
     }
-    window.addEventListener("message", handler)
+    addEventListener("message", handler)
+    // target origin is *, beacause this is a sandboxed iframe without the
+    // allow-same-origin permission
+    parent.postMessage("ready", "*")
 
     // cleanup function
     return () => {
-      window.removeEventListener("message", handler)
+      removeEventListener("message", handler)
     }
-  }, [])
+  }, [setState])
 
   if (!maxWidth) {
     return null

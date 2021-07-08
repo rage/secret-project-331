@@ -10,7 +10,5 @@ cmsClient.interceptors.response.use(
     return response
   },
   // Any status code that fall outside of the range 2xx
-  (error) => {
-    return Promise.reject(error.response)
-  },
+  (err) => Promise.reject(err.response),
 )

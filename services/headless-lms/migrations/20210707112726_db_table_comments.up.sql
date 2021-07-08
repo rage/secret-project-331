@@ -1,7 +1,7 @@
 -- Add up migration script here
 COMMENT ON TABLE organizations IS 'A unit that organizes and manages courses e.g. University of Helsinki, Department of Computer Science.';
 COMMENT ON TABLE courses IS 'Collection of course materials and exercises that define a online course.';
-COMMENT ON TABLE pages IS 'Every course consists of pages and page content is stored in the content field as JSONB. Every page belongs to a course which it relates to. Every page also has a title and its url -path relative to the course and chapter it belongs to.';
+COMMENT ON TABLE pages IS 'A web page that either contains course material or information about a course.  The content of the page is stored in the content field as as an array of blocks that have to be rendered before showing to users. Each page has a unique URL which can be customized if necessary.';
 COMMENT ON TABLE chapters IS 'Chapters divide pages of a course. They also have a front page.';
 COMMENT ON TABLE submissions IS 'Students submission table. data_json is the specific submission data from a exercise and grading_id refers to the gradings table and it tells how the submission is to be graded.';
 COMMENT ON TABLE exercise_tasks IS 'Exercise tasks contains the specific exercise which the students completes. Exercise has a assignments field as JSONB which contains info about the tasks to be completed. Table also contains both private and public specs. Private spec tells conditions where exercise is correct and is not shown to the student. Public spec is shown to the student.';

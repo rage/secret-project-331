@@ -10,6 +10,7 @@ import {
 } from "../../../services/backend/email-templates"
 import { EmailTemplate, EmailTemplateUpdate } from "../../../services/services.types"
 import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
+import CourseContext from "../../../contexts/CourseContext"
 
 const EditorLoading = <div>Loading editor...</div>
 
@@ -46,9 +47,11 @@ const EmailTemplateEdit = () => {
   }
 
   return (
-    <Layout>
-      <EmailEditor data={data} handleSave={handleSave} />
-    </Layout>
+    <CourseContext.Provider value={{ courseInstanceId: data.course_instance_id }}>
+      <Layout>
+        <EmailEditor data={data} handleSave={handleSave} />
+      </Layout>
+    </CourseContext.Provider>
   )
 }
 

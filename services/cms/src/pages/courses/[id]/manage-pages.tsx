@@ -1,5 +1,4 @@
 import React, { useState } from "react"
-
 import Layout from "../../../components/Layout"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import { useQuery } from "react-query"
@@ -10,8 +9,7 @@ import { postNewPage } from "../../../services/backend/pages"
 import { fetchCourseStructure } from "../../../services/backend/courses"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import { css } from "@emotion/css"
-import NewPartForm from "../../../components/forms/NewChapterForm"
-
+import NewChapterForm from "../../../components/forms/NewChapterForm"
 import DebugModal from "../../../components/DebugModal"
 import PageList from "../../../components/PageList"
 import { groupBy, max } from "lodash"
@@ -24,6 +22,7 @@ const CoursePages: React.FC<unknown> = () => {
     fetchCourseStructure(id),
   )
   const [showForm, setShowForm] = useState(false)
+  const [showChapterImageForm, setShowChapterImageForm] = useState(false)
 
   if (error) {
     return <div>Error overview.</div>
@@ -101,7 +100,21 @@ const CoursePages: React.FC<unknown> = () => {
                   <h3>
                     Chapter {chapter.chapter_number}: {chapter.name}
                   </h3>
-                  <Button>Add chapter image</Button>
+                  <Button onClick={() => setShowChapterImageForm(true)}>Add chapter image</Button>
+                  <Dialog
+                    open={showChapterImageForm}
+                    onClose={() => setShowForm(!showChapterImageForm)}
+                  >
+                    <div
+                      className={css`
+                        margin: 1rem;
+                      `}
+                    >
+                      <Button onClick={() => setShowChapterImageForm(!showChapterImageForm)}>
+                        Close
+                      </Button>
+                    </div>
+                  </Dialog>
                   {!chapter.front_page_id && (
                     <Button onClick={async () => await handleCreateChapterFrontPage(chapter)}>
                       Create chapter front page
@@ -125,7 +138,7 @@ const CoursePages: React.FC<unknown> = () => {
                 `}
               >
                 <Button onClick={() => setShowForm(!showForm)}>Close</Button>
-                <NewPartForm
+                <NewChapterForm
                   courseId={id}
                   onSubmitForm={handleCreateChapter}
                   chapterNumber={maxPart + 1 || 1}

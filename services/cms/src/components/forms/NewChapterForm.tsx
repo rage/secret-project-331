@@ -15,13 +15,17 @@ const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 
-interface NewPartFormProps {
+interface NewChapterFormProps {
   courseId: string
   onSubmitForm: () => void
   chapterNumber: number
 }
 
-const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm, chapterNumber }) => {
+const NewChapterForm: React.FC<NewChapterFormProps> = ({
+  courseId,
+  onSubmitForm,
+  chapterNumber,
+}) => {
   const [chapter, setChapter] = useState<number | undefined>(chapterNumber)
   const [name, setName] = useState<string>("")
 
@@ -79,4 +83,4 @@ const NewPartForm: React.FC<NewPartFormProps> = ({ courseId, onSubmitForm, chapt
   )
 }
 
-export default NewPartForm
+export default NewChapterForm

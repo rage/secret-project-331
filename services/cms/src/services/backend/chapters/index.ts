@@ -7,3 +7,12 @@ export const postNewChapter = async (data: NewChapter): Promise<Chapter> => {
   })
   return response.data
 }
+
+export const postChapterImageURLPath = async (chapterId: string, path: string): Promise<string> => {
+  return (
+    await cmsClient.post(`/chapters/${chapterId}/new-chapter-image`, {
+      data: { path },
+      headers: { "Content-Type": "application/json" },
+    })
+  ).data
+}

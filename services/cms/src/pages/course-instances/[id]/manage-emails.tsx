@@ -7,6 +7,7 @@ import React, { useState } from "react"
 import { useQuery } from "react-query"
 import NewEmailTemplateForm from "../../../components/forms/NewEmailTemplateForm"
 import Layout from "../../../components/Layout"
+import CourseContext from "../../../contexts/CourseContext"
 import {
   fetchCourseInstanceEmailTemplates,
   postNewEmailTemplateForCourseInstance,
@@ -59,47 +60,49 @@ const CourseInstanceEmailTemplates = () => {
   }
 
   return (
-    <Layout>
-      <div
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-          margin-bottom: 1rem;
-        `}
-      >
-        {/* TODO: Perhaps insert some data regarding the course instance */}
-        <h1>E-mail templates for course instance.</h1>
-        <Button onClick={() => setShowForm(!showForm)}>Create new e-mail</Button>
+    <CourseContext.Provider value={{ courseInstanceId: courseInstanceId }}>
+      <Layout>
+        <div
+          className={css`
+            ${normalWidthCenteredComponentStyles}
+            margin-bottom: 1rem;
+          `}
+        >
+          {/* TODO: Perhaps insert some data regarding the course instance */}
+          <h1>E-mail templates for course instance.</h1>
+          <Button onClick={() => setShowForm(!showForm)}>Create new e-mail</Button>
 
-        <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
-          <div
-            className={css`
-              margin: 1rem;
-            `}
-          >
-            <Button onClick={() => setShowForm(!showForm)}>Close</Button>
-            <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
-          </div>
-        </Dialog>
-        <ul>
-          {courseInstanceEmailTemplates.map((template) => {
-            return (
-              <li key={template.id}>
-                {template.name}{" "}
-                <Link
-                  href={{
-                    pathname: "/email-templates/[id]/edit",
-                    query: { id: template.id },
-                  }}
-                >
-                  Edit
-                </Link>{" "}
-                <Button onClick={async () => await handleOnDelete(template.id)}>Delete</Button>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
-    </Layout>
+          <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
+            <div
+              className={css`
+                margin: 1rem;
+              `}
+            >
+              <Button onClick={() => setShowForm(!showForm)}>Close</Button>
+              <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
+            </div>
+          </Dialog>
+          <ul>
+            {courseInstanceEmailTemplates.map((template) => {
+              return (
+                <li key={template.id}>
+                  {template.name}{" "}
+                  <Link
+                    href={{
+                      pathname: "/email-templates/[id]/edit",
+                      query: { id: template.id },
+                    }}
+                  >
+                    Edit
+                  </Link>{" "}
+                  <Button onClick={async () => await handleOnDelete(template.id)}>Delete</Button>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      </Layout>
+    </CourseContext.Provider>
   )
 }
 export default withSignedIn(CourseInstanceEmailTemplates)

@@ -132,6 +132,7 @@
 <span id="129">129</span>
 <span id="130">130</span>
 <span id="131">131</span>
+<span id="132">132</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
@@ -201,13 +202,14 @@ Represents error messages that are sent in responses.
 <span class="kw">impl</span> <span class="ident">error::ResponseError</span> <span class="kw">for</span> <span class="ident">ApplicationError</span> {
     <span class="kw">fn</span> <span class="ident">error_response</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpResponse</span> {
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">status_code</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">detail</span> <span class="op">=</span> <span class="string">&quot;Error&quot;</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ApplicationError::InternalServerError</span>(<span class="ident">reason</span>) <span class="op">=</span> <span class="self">self</span> {
-            <span class="ident">detail</span> <span class="op">=</span> <span class="ident">reason</span>;
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ApplicationError::BadRequest</span>(<span class="ident">reason</span>) <span class="op">=</span> <span class="self">self</span> {
-            <span class="ident">detail</span> <span class="op">=</span> <span class="ident">reason</span>;
-        }
+        <span class="kw">let</span> <span class="ident">detail</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ApplicationError::InternalServerError</span>(<span class="ident">reason</span>)
+        <span class="op">|</span> <span class="ident">ApplicationError::BadRequest</span>(<span class="ident">reason</span>)
+        <span class="op">|</span> <span class="ident">ApplicationError::Forbidden</span>(<span class="ident">reason</span>) <span class="op">=</span> <span class="self">self</span>
+        {
+            <span class="ident">reason</span>
+        } <span class="kw">else</span> {
+            <span class="string">&quot;Error&quot;</span>
+        };
         <span class="kw">let</span> <span class="ident">problem_description</span> <span class="op">=</span>
             <span class="ident">HttpApiProblem::with_title_and_type_from_status</span>(<span class="ident">status</span>).<span class="ident">set_detail</span>(<span class="ident">detail</span>);
 

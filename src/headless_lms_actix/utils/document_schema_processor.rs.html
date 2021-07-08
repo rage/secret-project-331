@@ -453,10 +453,6 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::pages::PageUpdateExercise</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::pages::PageUpdateExerciseTask</span>;
@@ -498,7 +494,6 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GuternbergExerciseAttributes</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -626,7 +621,6 @@
             <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">GuternbergExerciseAttributes</span> {
                 <span class="ident">id</span>: <span class="ident">exercise</span>.<span class="ident">id</span>,
                 <span class="ident">name</span>: <span class="ident">exercise</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
-                <span class="ident">order_number</span>: <span class="ident">exercise</span>.<span class="ident">order_number</span>,
             };
             <span class="prelude-val">Ok</span>(<span class="ident">GutenbergBlock</span> {
                 <span class="ident">inner_blocks</span>: <span class="ident">inner_blocks</span><span class="question-mark">?</span>,
@@ -655,7 +649,7 @@
                 <span class="ident">name</span>: <span class="string">&quot;test/example-block&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">attributes</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">ExampleBlockAttributes</span> {
-                    <span class="ident">example</span>: <span class="string">&quot;example&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">example</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                 })
                 .<span class="ident">unwrap</span>(),
                 <span class="ident">inner_blocks</span>: <span class="ident">Vec::new</span>(),
@@ -692,7 +686,7 @@
                 <span class="ident">name</span>: <span class="string">&quot;test/example-block&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">attributes</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">ExampleBlockAttributes</span> {
-                    <span class="ident">example</span>: <span class="string">&quot;example&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">example</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                 })
                 .<span class="ident">unwrap</span>(),
                 <span class="ident">inner_blocks</span>: <span class="ident">Vec::new</span>(),
@@ -704,7 +698,6 @@
                 <span class="ident">attributes</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">GuternbergExerciseAttributes</span> {
                     <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;20dff562-0657-4e8e-b34e-65be68e96a81&quot;</span>).<span class="ident">unwrap</span>(),
                     <span class="ident">name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">order_number</span>: <span class="number">0</span>,
                 })
                 .<span class="ident">unwrap</span>(),
                 <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[
@@ -737,7 +730,7 @@
                             <span class="ident">name</span>: <span class="string">&quot;test/example-block&quot;</span>.<span class="ident">to_string</span>(),
                             <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                             <span class="ident">attributes</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">ExampleBlockAttributes</span> {
-                                <span class="ident">example</span>: <span class="string">&quot;example&quot;</span>.<span class="ident">to_string</span>(),
+                                <span class="ident">example</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                             })
                             .<span class="ident">unwrap</span>(),
                             <span class="ident">inner_blocks</span>: <span class="ident">Vec::new</span>(),
@@ -774,7 +767,7 @@
                             <span class="ident">name</span>: <span class="string">&quot;test/example-block&quot;</span>.<span class="ident">to_string</span>(),
                             <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                             <span class="ident">attributes</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">ExampleBlockAttributes</span> {
-                                <span class="ident">example</span>: <span class="string">&quot;example&quot;</span>.<span class="ident">to_string</span>(),
+                                <span class="ident">example</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                             })
                             .<span class="ident">unwrap</span>(),
                             <span class="ident">inner_blocks</span>: <span class="ident">Vec::new</span>(),
@@ -792,7 +785,7 @@
                     <span class="ident">name</span>: <span class="string">&quot;test/example-block&quot;</span>.<span class="ident">to_string</span>(),
                     <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                     <span class="ident">attributes</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">ExampleBlockAttributes</span> {
-                        <span class="ident">example</span>: <span class="string">&quot;example&quot;</span>.<span class="ident">to_string</span>(),
+                        <span class="ident">example</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                     })
                     .<span class="ident">unwrap</span>(),
                     <span class="ident">inner_blocks</span>: <span class="ident">Vec::new</span>(),
@@ -835,7 +828,7 @@
                         <span class="ident">name</span>: <span class="string">&quot;test/example-block&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                         <span class="ident">attributes</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">ExampleBlockAttributes</span> {
-                            <span class="ident">example</span>: <span class="string">&quot;example&quot;</span>.<span class="ident">to_string</span>(),
+                            <span class="ident">example</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                         })
                         .<span class="ident">unwrap</span>(),
                         <span class="ident">inner_blocks</span>: <span class="ident">Vec::new</span>(),
@@ -850,7 +843,7 @@
                 <span class="ident">name</span>: <span class="string">&quot;test/example-block&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">attributes</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">ExampleBlockAttributes</span> {
-                    <span class="ident">example</span>: <span class="string">&quot;example&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">example</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                 })
                 .<span class="ident">unwrap</span>(),
                 <span class="ident">inner_blocks</span>: <span class="ident">Vec::new</span>(),
@@ -875,7 +868,6 @@
             <span class="ident">serde_json::to_value</span>(<span class="ident">GuternbergExerciseAttributes</span> {
                 <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;20dff562-0657-4e8e-b34e-65be68e96a81&quot;</span>).<span class="ident">unwrap</span>(),
                 <span class="ident">name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">order_number</span>: <span class="number">1</span>
             })
             .<span class="ident">unwrap</span>()
         );
@@ -906,7 +898,7 @@
                 <span class="ident">name</span>: <span class="string">&quot;test/example-block&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
                 <span class="ident">attributes</span>: <span class="ident">serde_json::to_value</span>(<span class="ident">ExampleBlockAttributes</span> {
-                    <span class="ident">example</span>: <span class="string">&quot;example&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">example</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                 })
                 .<span class="ident">unwrap</span>(),
                 <span class="ident">inner_blocks</span>: <span class="ident">Vec::new</span>(),

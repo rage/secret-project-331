@@ -16,6 +16,7 @@ export async function uploadMedia({
   // because it seems to not be supported yet or the types definition is not up-to-date
   // Blocks still seem to use one param:
   // https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/image/edit.js#L113-L116
+  filesList: ArrayLike<File>
   pageId: string
   onError: (message: string) => void
   onFileChange: (files: Partial<MediaItem>[]) => void

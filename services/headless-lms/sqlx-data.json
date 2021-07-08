@@ -2465,42 +2465,6 @@
       "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
-  "b01cf38acb69872577027c3975b8cecc8247585a7fdbc5b35f526bf5b2a490e2": {
-    "query": "\nINSERT INTO\n  users (id, upstream_id)\nVALUES($1, $2)\nON CONFLICT(id) DO NOTHING\nRETURNING *;\n          ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "upstream_id",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Int4"]
-      },
-      "nullable": [false, false, false, true, true]
-    }
-  },
   "b0302cd73ce7a9f3d86d798a9a6c8ae768a0722bfeef08cd89c8716b36bce665": {
     "query": "SELECT course_id FROM submissions WHERE id = $1",
     "describe": {
@@ -2607,6 +2571,42 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "c075a2e4b096345670ae6d140802ecc2a436af78805dc2bc07dea0d5ee4c818f": {
+    "query": "\nINSERT INTO\n  users (upstream_id)\nVALUES($1)\nRETURNING *;\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "upstream_id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Int4"]
+      },
+      "nullable": [false, false, false, true, true]
     }
   },
   "c1a41f61331e83562da62a9ec828d2489eedd1f6e03b6fb8865faa71ddec8f27": {

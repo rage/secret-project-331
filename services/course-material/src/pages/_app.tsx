@@ -10,7 +10,8 @@ import muiTheme from "../utils/muiTheme"
 import { CssBaseline } from "@material-ui/core"
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
-import { Global, css } from "@emotion/react"
+import { Global } from "@emotion/react"
+import { css } from "@emotion/css"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,8 +27,10 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: (failureCount, error) => {
-        // Don't want to retry 404 -- it just gives the impression of slowness.
-        if ((error as any)?.response?.status === 404) {
+        // Don't want to retry any client errors (4XX) -- it just gives the impression of slowness.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const statusCode: number | undefined = (error as any)?.status
+        if (statusCode && Math.floor(statusCode / 100) === 4) {
           return false
         }
         return failureCount < 3

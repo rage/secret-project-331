@@ -2,7 +2,9 @@
 Handlers for HTTP requests to `/api/v0/login`.
 */
 
-use crate::{controllers::ApplicationResult, domain::authorization, OAuthClient};
+use crate::{
+    controllers::ApplicationResult, domain::authorization, ApplicationConfiguration, OAuthClient,
+};
 use actix_session::Session;
 use actix_web::{
     web::{self, Json, ServiceConfig},
@@ -13,7 +15,6 @@ use oauth2::{ResourceOwnerPassword, ResourceOwnerUsername, TokenResponse};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Login {
@@ -29,17 +30,30 @@ struct CurrentUser {
 /**
 POST `/api/v0/auth/login` Logs in to TMC.
 **/
-#[instrument(skip(session, pool, client, payload))]
+#[instrument(skip(session, pool, client, payload, app_conf))]
 pub async fn login(
     session: Session,
     pool: web::Data<PgPool>,
     client: web::Data<OAuthClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
 ) -> ApplicationResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
-    // login to TMC
+    // login to TMS
+    if app_conf.test_mode {
+        let user = crate::models::users::authenticate_test_user(
+            &mut conn,
+            email.clone(),
+            password.clone(),
+        )
+        .await?;
+        authorization::remember(&session, user)?;
+        return Ok(HttpResponse::Ok().finish());
+    }
+
+    // only used when testing
     let token = client
         .exchange_password(
             &ResourceOwnerUsername::new(email.clone()),
@@ -70,10 +84,7 @@ pub async fn login(
         .context("Error while trying to find user")?
     {
         Some(existing_user) => existing_user,
-        None => {
-            let new_id = Uuid::new_v4();
-            crate::models::users::upsert_user_id(&mut conn, new_id, Some(upstream_id)).await?
-        }
+        None => crate::models::users::insert_with_upstream_id(&mut conn, upstream_id).await?,
     };
 
     authorization::remember(&session, user)?;

@@ -65,7 +65,7 @@ from: iframe
 
 to: parent
 
-Iframe posts it's updated state. The iframe is supposed to post this message whenever it's internal state changes. The data posted will contain the following things:
+Iframe posts its updated state. The iframe is supposed to post this message whenever its internal state changes. The data posted will contain the following things:
 
 1. Private spec. This can be anything that defines the exercise. This gets saved and will be passed to the exercise service when loading the editor again and when grading a submission.
 2. Public spec. Specification that hides the correct answer that will be used to render an exercise to the student when they start doing the exercise. This will not be passed back to the editor when loading it again because the exercise service is supposed to be able to derive this again from the private spec.

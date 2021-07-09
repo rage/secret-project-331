@@ -453,6 +453,18 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::pages::PageUpdateExercise</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::pages::PageUpdateExerciseTask</span>;
@@ -472,6 +484,18 @@
     <span class="kw">pub</span> <span class="ident">attributes</span>: <span class="ident">serde_json::Value</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;innerBlocks&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">inner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">GutenbergBlock</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_block_from_name</span>(<span class="ident">name</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">GutenbergBlock</span> {
+            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
+            <span class="ident">name</span>,
+            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
+            <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({}),
+            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+        }
+    }
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["insert",""]]});
+initSidebarItems({"fn":[["insert",""],["insert_enrollment",""]],"struct":[["CourseInstanceEnrollment",""],["NewCourseInstanceEnrollment",""]]});

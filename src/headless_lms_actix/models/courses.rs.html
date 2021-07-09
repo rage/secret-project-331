@@ -194,10 +194,18 @@
 <span id="191">191</span>
 <span id="192">192</span>
 <span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers::ApplicationError</span>,
-    <span class="ident">models::pages</span>::{<span class="ident">ContentBlock</span>, <span class="ident">NewPage</span>},
+    <span class="ident">models</span>::{<span class="ident">course_instances::VariantStatus</span>, <span class="ident">pages::NewPage</span>},
+    <span class="ident">utils::document_schema_processor::GutenbergBlock</span>,
 };
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -302,9 +310,9 @@ RETURNING id
 <span class="comment">// Represents the subset of page fields that are required to create a new course.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewCourse</span> {
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">slug</span>: <span class="ident">String</span>,
-    <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">slug</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_course</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">course</span>: <span class="ident">NewCourse</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span> {
@@ -325,9 +333,10 @@ RETURNING id
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="comment">// Create front page for course</span>
     <span class="kw">let</span> <span class="ident">course_front_page_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="macro">vec!</span>[
-        <span class="ident">ContentBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.<span class="ident">to_owned</span>()),
-        <span class="ident">ContentBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-progress&quot;</span>.<span class="ident">to_owned</span>()),
+        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-progress&quot;</span>.<span class="ident">to_string</span>()),
     ])
     .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> <span class="ident">ApplicationError::InternalServerError</span>(<span class="ident">original_error</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_front_page</span> <span class="op">=</span> <span class="ident">NewPage</span> {
@@ -339,6 +348,11 @@ RETURNING id
         <span class="ident">url_path</span>: <span class="ident">String::from</span>(<span class="string">&quot;/&quot;</span>),
     };
     <span class="kw">let</span> <span class="ident">_page</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">course_front_page</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Create default course instance</span>
+    <span class="kw">let</span> <span class="ident">_default_course_instance</span> <span class="op">=</span>
+        <span class="kw">crate</span><span class="ident">::models::course_instances::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="ident">VariantStatus::Draft</span>))
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">course</span>)

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_user_progress_routes",""],["get_user_progress_page","GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information."]]});
+initSidebarItems({"fn":[["_add_user_progress_routes",""],["add_user_enrollment","POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enrolls user to the course instance."],["get_user_progress_page","GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information."]]});

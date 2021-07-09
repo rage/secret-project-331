@@ -25,3 +25,8 @@ Backend: [https://rage.github.io/secret-project-331/headless_lms_actix/index.htm
 Database: [https://github.com/rage/secret-project-331-db-docs#headless_lms_dev](https://github.com/rage/secret-project-331-db-docs#headless_lms_dev)
 
 For other documentation, check out the docs folder.
+
+# License
+
+The program in folder `services/cms` is licensed under the GNU General Public License, Version 3 (https://www.gnu.org/licenses/gpl-3.0.en.html).
+Everything else is licensed under Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0).

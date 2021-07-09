@@ -1,8 +1,10 @@
-import { useQuery } from "react-query"
 import styled from "@emotion/styled"
+import Link from "next/link"
+import { useQuery } from "react-query"
+
 import { fetchOrganizations } from "../services/backend"
 import basePath from "../utils/base-path"
-import Link from "next/link"
+
 import "katex/dist/katex.min.css"
 
 const Title = styled.h1`

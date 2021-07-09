@@ -66,13 +66,14 @@ impl std::error::Error for ApplicationError {}
 impl error::ResponseError for ApplicationError {
     fn error_response(&self) -> HttpResponse {
         let status = self.status_code();
-        let mut detail = "Error";
-        if let ApplicationError::InternalServerError(reason) = self {
-            detail = reason;
-        }
-        if let ApplicationError::BadRequest(reason) = self {
-            detail = reason;
-        }
+        let detail = if let ApplicationError::InternalServerError(reason)
+        | ApplicationError::BadRequest(reason)
+        | ApplicationError::Forbidden(reason) = self
+        {
+            reason
+        } else {
+            "Error"
+        };
         let problem_description =
             HttpApiProblem::with_title_and_type_from_status(status).set_detail(detail);
 

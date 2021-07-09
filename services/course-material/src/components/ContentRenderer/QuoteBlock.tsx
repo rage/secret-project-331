@@ -1,7 +1,9 @@
 import { css } from "@emotion/css"
-import { BlockRendererProps } from "."
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import sanitizeHtml from "sanitize-html"
+
+import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+
+import { BlockRendererProps } from "."
 
 interface QuoteBlockAttributes {
   value: string

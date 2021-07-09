@@ -1,6 +1,6 @@
 use crate::{
-    controllers::ApplicationError,
-    models::pages::{ContentBlock, NewPage},
+    controllers::ApplicationError, models::pages::NewPage,
+    utils::document_schema_processor::GutenbergBlock,
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -233,9 +233,9 @@ RETURNING id,
     .await?;
 
     let chapter_frontpage_content = serde_json::to_value(vec![
-        ContentBlock::empty_block_from_name("moocfi/pages-in-chapter".to_owned()),
-        ContentBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_owned()),
-        ContentBlock::empty_block_from_name("moocfi/chapter-progress".to_owned()),
+        GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
     ])
     .map_err(|original_error| ApplicationError::InternalServerError(original_error.to_string()))?;
     let chapter_frontpage = NewPage {

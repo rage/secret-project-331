@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
-import sanitizeHtml from "sanitize-html"
-import { BlockRendererProps } from "."
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-import colorMapper from "../../styles/colorMapper"
-import fontSizeMapper from "../../styles/fontSizeMapper"
 import KaTex from "katex"
+import sanitizeHtml from "sanitize-html"
+
+import colorMapper from "../../styles/colorMapper"
+import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import fontSizeMapper from "../../styles/fontSizeMapper"
+
+import { BlockRendererProps } from "."
 
 interface ParagraphBlockAttributes {
   content: string

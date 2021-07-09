@@ -2,10 +2,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { BlockInstance } from "@wordpress/blocks"
-import { compile } from "json-schema-to-typescript"
+import { addFilter } from "@wordpress/hooks"
 import fs from "fs"
+import { compile } from "json-schema-to-typescript"
 import { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
 
+import { modifyBlockAttributes } from "../src/utils/Gutenberg/modifyBlockAttributes"
+
+const blockLibrary = require("@wordpress/block-library")
+const blocks = require("@wordpress/blocks")
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
 const dom = new JSDOM(`<body>
@@ -30,10 +35,6 @@ Object.defineProperty(dom.window, "matchMedia", {
 global.window = dom.window
 global.document = dom.window.document
 global.navigator = dom.window.navigator
-const blockLibrary = require("@wordpress/block-library")
-const blocks = require("@wordpress/blocks")
-import { addFilter } from "@wordpress/hooks"
-import { modifyBlockAttributes } from "../src/utils/Gutenberg/modifyBlockAttributes"
 
 addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 const { supportedCoreBlocks } = require("../src/blocks/supportedGutenbergBlocks")

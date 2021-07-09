@@ -3,10 +3,10 @@ import { Button, Dialog } from "@material-ui/core"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-
 import { useQuery } from "react-query"
-import NewEmailTemplateForm from "../../../components/forms/NewEmailTemplateForm"
+
 import Layout from "../../../components/Layout"
+import NewEmailTemplateForm from "../../../components/forms/NewEmailTemplateForm"
 import {
   fetchCourseInstanceEmailTemplates,
   postNewEmailTemplateForCourseInstance,

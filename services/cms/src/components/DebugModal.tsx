@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
-import { Button, Dialog, Paper } from "@material-ui/core"
-import { Dispatch, useState } from "react"
-import dynamic from "next/dynamic"
 import styled from "@emotion/styled"
+import { Button, Dialog, Paper } from "@material-ui/core"
 import { BlockInstance } from "@wordpress/blocks"
+import dynamic from "next/dynamic"
+import { Dispatch, useState } from "react"
 
 export interface DebugModalProps {
   data: unknown

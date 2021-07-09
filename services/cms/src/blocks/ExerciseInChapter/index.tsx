@@ -1,4 +1,5 @@
 import { BlockConfiguration } from "@wordpress/blocks"
+
 import ExercisesInChapterEditor from "./ExercisesInChapterEditor"
 import ExercisesInChapterSave from "./ExercisesInChapterSave"
 

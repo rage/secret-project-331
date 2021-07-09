@@ -11,5 +11,5 @@ courseMaterialClient.interceptors.response.use(
     return response
   },
   // Any status code that fall outside of the range 2xx
-  (err) => Promise.reject(err.response),
+  (err) => Promise.reject(err),
 )

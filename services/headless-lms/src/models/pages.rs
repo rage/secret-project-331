@@ -9,33 +9,9 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use sqlx::{Acquire, FromRow, PgConnection};
 use std::collections::HashMap;
 use uuid::Uuid;
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-// Gutenberg expects these fields to be in camelCase.
-#[serde(rename_all = "camelCase")]
-pub struct ContentBlock {
-    pub client_id: Uuid,
-    pub name: String,
-    pub is_valid: bool,
-    pub attributes: serde_json::Value,
-    pub inner_blocks: serde_json::Value,
-}
-
-impl ContentBlock {
-    pub fn empty_block_from_name(name: String) -> Self {
-        ContentBlock {
-            client_id: Uuid::new_v4(),
-            name,
-            is_valid: true,
-            attributes: json!({}),
-            inner_blocks: json!([]),
-        }
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Page {

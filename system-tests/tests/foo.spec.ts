@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test("is a basic test with the page", async ({ page, browser }) => {
   // Go to http://project-331.local/

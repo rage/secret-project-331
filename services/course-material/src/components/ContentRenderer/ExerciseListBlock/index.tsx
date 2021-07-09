@@ -1,8 +1,10 @@
 import { useContext } from "react"
+
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
+
 import ExerciseList from "./ExerciseList"
 
 const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {

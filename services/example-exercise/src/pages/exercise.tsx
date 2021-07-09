@@ -1,8 +1,9 @@
 import { useRouter } from "next/dist/client/router"
-import Exercise from "../components/Exercise"
 import { useEffect, useState } from "react"
-import { PublicAlternative } from "../util/stateInterfaces"
+
+import Exercise from "../components/Exercise"
 import useStateWithOnChange from "../hooks/useStateWithOnChange"
+import { PublicAlternative } from "../util/stateInterfaces"
 
 const ExercisePage: React.FC = () => {
   const [port, setPort] = useState<MessagePort | null>(null)

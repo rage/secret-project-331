@@ -1,5 +1,5 @@
-import path from "path"
 import { exec as execOriginal } from "child_process"
+import path from "path"
 import { promisify } from "util"
 
 const exec = promisify(execOriginal)

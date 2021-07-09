@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import sanitizeHtml from "sanitize-html"
-import { BlockRendererProps } from "."
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+
 import colorMapper from "../../styles/colorMapper"
+import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+
+import { BlockRendererProps } from "."
 
 interface PullquoteBlockAttributes {
   value: string

@@ -1,8 +1,10 @@
+import Link from "next/link"
 import React from "react"
 import { useQuery } from "react-query"
+
 import { fetchAllCoursePages } from "../services/backend"
+
 import GenericLoading from "./GenericLoading"
-import Link from "next/link"
 
 interface PublicPageListProps {
   courseId: string

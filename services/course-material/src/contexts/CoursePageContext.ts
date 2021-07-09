@@ -1,4 +1,5 @@
 import React, { Dispatch } from "react"
+
 import { CoursePageState, CoursePageStateAction } from "../reducers/coursePageStateReducer"
 
 export const defaultCoursePageState: CoursePageState = {

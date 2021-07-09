@@ -1,15 +1,16 @@
-import { useQuery } from "react-query"
-import Link from "next/link"
-import Layout from "../../components/Layout"
-import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
-import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
-import { fetchOrganizationCourses } from "../../services/backend/organizations"
-import DebugModal from "../../components/DebugModal"
 import { css } from "@emotion/css"
-import NewCourseForm from "../../components/forms/NewCourseForm"
-import React, { useContext, useState } from "react"
 import { Button, Dialog } from "@material-ui/core"
+import Link from "next/link"
+import React, { useContext, useState } from "react"
+import { useQuery } from "react-query"
+
+import DebugModal from "../../components/DebugModal"
+import Layout from "../../components/Layout"
+import NewCourseForm from "../../components/forms/NewCourseForm"
+import { fetchOrganizationCourses } from "../../services/backend/organizations"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
+import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
+import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 
 const Organization: React.FC<unknown> = () => {
   const id = useQueryParameter("id")

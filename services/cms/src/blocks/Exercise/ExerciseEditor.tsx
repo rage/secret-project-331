@@ -1,9 +1,10 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { TextField } from "@material-ui/core"
-import { BlockEditProps } from "@wordpress/blocks"
-import { ExerciseAttributes } from "."
 import { InnerBlocks } from "@wordpress/block-editor"
-import { css } from "@emotion/css"
+import { BlockEditProps } from "@wordpress/blocks"
+
+import { ExerciseAttributes } from "."
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
 

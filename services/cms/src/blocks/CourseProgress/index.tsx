@@ -1,4 +1,5 @@
 import { BlockConfiguration } from "@wordpress/blocks"
+
 import CourseProgressEditor from "./CourseProgressEditor"
 import CourseProgressSave from "./CourseProgressSave"
 

@@ -1,4 +1,5 @@
 import { MediaItem } from "@wordpress/media-utils"
+
 import { uploadMedia } from "./uploadMediaToServer"
 export interface MediaUploadProps {
   allowedTypes: string[]

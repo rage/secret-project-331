@@ -1,9 +1,10 @@
 import { useContext } from "react"
 
-import CourseProgress from "./CourseProgress"
 import { BlockRendererProps } from ".."
-import GenericLoading from "../../GenericLoading"
 import CoursePageContext from "../../../contexts/CoursePageContext"
+import GenericLoading from "../../GenericLoading"
+
+import CourseProgress from "./CourseProgress"
 
 const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const pageContext = useContext(CoursePageContext)

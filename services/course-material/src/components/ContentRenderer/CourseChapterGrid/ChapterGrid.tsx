@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react"
+import { css } from "@emotion/css"
+import React, { useEffect, useState } from "react"
 import { useQuery } from "react-query"
+
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { fetchChaptersInTheCourse } from "../../../services/backend"
-import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
-import GenericLoading from "../../GenericLoading"
-import ChapterGridChapter from "../../ChapterGridChapter"
-import { css } from "@emotion/css"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
+import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
+import ChapterGridChapter from "../../ChapterGridChapter"
+import GenericLoading from "../../GenericLoading"
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const [now, setNow] = useState(new Date())

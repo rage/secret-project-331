@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useQuery } from "react-query"
 
-import PageNotFound from "../../components/PageNotFound"
-import useQueryParameter from "../../hooks/useQueryParameter"
-import { fetchCourseInstance, fetchCoursePageByPath } from "../../services/backend"
-import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 import Page from "../../components/Page"
-import { tryToScrollToSelector } from "../../utils/dom"
-import coursePageStateReducer from "../../reducers/coursePageStateReducer"
+import PageNotFound from "../../components/PageNotFound"
 import CoursePageContext, {
   CoursePageDispatch,
   defaultCoursePageState,
 } from "../../contexts/CoursePageContext"
+import useQueryParameter from "../../hooks/useQueryParameter"
+import coursePageStateReducer from "../../reducers/coursePageStateReducer"
+import { fetchCourseInstance, fetchCoursePageByPath } from "../../services/backend"
+import { tryToScrollToSelector } from "../../utils/dom"
+import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 
 const PagePage = () => {
   const courseSlug = useQueryParameter("courseSlug")

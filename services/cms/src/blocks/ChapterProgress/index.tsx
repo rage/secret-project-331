@@ -1,4 +1,5 @@
 import { BlockConfiguration } from "@wordpress/blocks"
+
 import ChapterProgressEditor from "./ChapterProgressEditor"
 import ChapterProgressSave from "./ChapterProgressSave"
 

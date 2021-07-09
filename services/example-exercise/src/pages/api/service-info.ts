@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next"
+
 import basePath from "../../util/base-path"
 
 export default (req: NextApiRequest, res: NextApiResponse): unknown => {

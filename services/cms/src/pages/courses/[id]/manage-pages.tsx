@@ -1,21 +1,20 @@
-import React, { useState } from "react"
-
-import Layout from "../../../components/Layout"
-import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
-import { useQuery } from "react-query"
-import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
-import { Button, Dialog } from "@material-ui/core"
-import { Chapter } from "../../../services/services.types"
-import { postNewPage } from "../../../services/backend/pages"
-import { fetchCourseStructure } from "../../../services/backend/courses"
-import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import { css } from "@emotion/css"
-import NewPartForm from "../../../components/forms/NewChapterForm"
+import { Button, Dialog } from "@material-ui/core"
+import { groupBy, max } from "lodash"
+import React, { useState } from "react"
+import { useQuery } from "react-query"
 
 import DebugModal from "../../../components/DebugModal"
+import Layout from "../../../components/Layout"
 import PageList from "../../../components/PageList"
-import { groupBy, max } from "lodash"
+import NewPartForm from "../../../components/forms/NewChapterForm"
+import { fetchCourseStructure } from "../../../services/backend/courses"
+import { postNewPage } from "../../../services/backend/pages"
+import { Chapter } from "../../../services/services.types"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
+import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
+import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
 
 const CoursePages: React.FC<unknown> = () => {
   const id = useQueryParameter("id")

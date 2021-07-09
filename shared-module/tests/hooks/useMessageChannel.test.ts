@@ -1,4 +1,5 @@
 import { renderHook } from "@testing-library/react-hooks"
+
 import useMessageChannel from "../../src/hooks/useMessageChannel"
 
 test("useMessageChannel returns a message channel", () => {

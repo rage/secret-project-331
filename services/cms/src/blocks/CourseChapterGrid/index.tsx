@@ -1,4 +1,5 @@
 import { BlockConfiguration } from "@wordpress/blocks"
+
 import CourseGridEditor from "./CourseChapterGridEditor"
 import CourseGridSave from "./CourseChapterGridSave"
 

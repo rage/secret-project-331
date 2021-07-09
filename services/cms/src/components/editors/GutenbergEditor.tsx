@@ -14,17 +14,15 @@ import "@wordpress/format-library/build-style/style.css"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
+  BlockInspector,
   BlockList,
   // BlockToolbar,
-  BlockInspector,
-  WritingFlow,
-  ObserveTyping,
-  EditorSettings,
   EditorBlockListSettings,
+  EditorSettings,
+  ObserveTyping,
+  WritingFlow,
 } from "@wordpress/block-editor"
-import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
-import { addFilter } from "@wordpress/hooks"
 import {
   BlockConfiguration,
   BlockInstance,
@@ -35,11 +33,10 @@ import {
   /* @ts-ignore: type signature incorrect */
   unregisterBlockVariation,
 } from "@wordpress/blocks"
-
-/**
- * Internal dependencies
- */
+import { Popover, SlotFillProvider } from "@wordpress/components"
+import { addFilter } from "@wordpress/hooks"
 import React, { useEffect } from "react"
+
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"

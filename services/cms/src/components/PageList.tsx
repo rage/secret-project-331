@@ -1,15 +1,15 @@
+import { css } from "@emotion/css"
+import styled from "@emotion/styled"
+import { faTrash } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Button, Dialog } from "@material-ui/core"
+import Link from "next/link"
 import React, { useState } from "react"
 
-import Link from "next/link"
-import { Button, Dialog } from "@material-ui/core"
-import NewPageForm from "./forms/NewPageForm"
-import { Chapter, Page } from "../services/services.types"
 import { deletePage } from "../services/backend/pages"
-import { css } from "@emotion/css"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faTrash } from "@fortawesome/free-solid-svg-icons"
+import { Chapter, Page } from "../services/services.types"
 
-import styled from "@emotion/styled"
+import NewPageForm from "./forms/NewPageForm"
 
 const DeleteButton = styled.button`
   border: 0;

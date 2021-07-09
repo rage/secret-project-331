@@ -1,9 +1,10 @@
-import Layout from "../components/Layout"
-import { login } from "../shared-module/services/backend/auth"
-import { useContext, useState } from "react"
 import { useRouter } from "next/router"
+import { useContext, useState } from "react"
+
+import Layout from "../components/Layout"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
+import { login } from "../shared-module/services/backend/auth"
 
 export default function Login(): JSX.Element {
   const loginStateContext = useContext(LoginStateContext)

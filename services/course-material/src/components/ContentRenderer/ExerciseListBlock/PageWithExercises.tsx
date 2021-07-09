@@ -1,6 +1,7 @@
-import { ChapterPagesWithExercises } from "../../../services/backend"
 import Link from "next/link"
 import { useRouter } from "next/router"
+
+import { ChapterPagesWithExercises } from "../../../services/backend"
 
 const PageWithExercises: React.FC<{ page: ChapterPagesWithExercises }> = ({ page }) => {
   const courseSlug = useRouter().query.courseSlug

@@ -1,9 +1,10 @@
-import { PropsWithChildren } from "react"
 import { Alert } from "@material-ui/lab"
-import React from "react"
-import { ExerciseTaskAttributes } from "."
 import { BlockEditProps } from "@wordpress/blocks"
+import React, { PropsWithChildren } from "react"
+
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
+
+import { ExerciseTaskAttributes } from "."
 
 interface IFrameEditorProps {
   props: PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>

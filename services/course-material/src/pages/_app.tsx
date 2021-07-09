@@ -1,17 +1,18 @@
+import { css } from "@emotion/css"
+import { Global } from "@emotion/react"
+import { CssBaseline } from "@material-ui/core"
+import { ThemeProvider } from "@material-ui/core/styles"
 import type { AppProps } from "next/app"
-import { RecoilRoot } from "recoil"
+import React from "react"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
+import { RecoilRoot } from "recoil"
 
-import { ThemeProvider } from "@material-ui/core/styles"
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
-import React from "react"
 import muiTheme from "../utils/muiTheme"
-import { CssBaseline } from "@material-ui/core"
+
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
-import { Global } from "@emotion/react"
-import { css } from "@emotion/css"
 
 const queryClient = new QueryClient({
   defaultOptions: {

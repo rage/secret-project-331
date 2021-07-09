@@ -3,7 +3,10 @@
 
 import { BlockInstance } from "@wordpress/blocks"
 
+const blockLibrary = require("@wordpress/block-library")
+const blocks = require("@wordpress/blocks")
 const jsdom = require("jsdom")
+
 const { JSDOM } = jsdom
 const dom = new JSDOM(`<body>
 <script>document.body.appendChild(document.createElement("hr"));</script>
@@ -27,8 +30,6 @@ Object.defineProperty(dom.window, "matchMedia", {
 global.window = dom.window
 global.document = dom.window.document
 global.navigator = dom.window.navigator
-const blockLibrary = require("@wordpress/block-library")
-const blocks = require("@wordpress/blocks")
 
 async function main() {
   blockLibrary.registerCoreBlocks()

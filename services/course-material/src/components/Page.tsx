@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
 import React, { useContext } from "react"
 
-import ContentRenderer from "./ContentRenderer"
+import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
+
+import ContentRenderer from "./ContentRenderer"
 import DebugModal from "./DebugModal"
 import NavigationContainer from "./NavigationContainer"
-import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 
 interface Props {

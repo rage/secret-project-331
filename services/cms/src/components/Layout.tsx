@@ -1,7 +1,8 @@
-import React, { ReactNode } from "react"
-import Link from "next/link"
-import Head from "next/head"
 import { css } from "@emotion/css"
+import Head from "next/head"
+import Link from "next/link"
+import React, { ReactNode } from "react"
+
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
 
 type Props = {

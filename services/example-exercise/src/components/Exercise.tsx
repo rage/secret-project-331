@@ -1,6 +1,7 @@
-import { PublicAlternative } from "../util/stateInterfaces"
 import { css } from "@emotion/css"
 import { useLayoutEffect, useRef, useState } from "react"
+
+import { PublicAlternative } from "../util/stateInterfaces"
 
 interface Props {
   state: PublicAlternative[]

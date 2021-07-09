@@ -1,8 +1,8 @@
-import { BlockRendererProps } from "."
-
 import H1 from "./Headings/H1"
 import H2 from "./Headings/H2"
 import H3 from "./Headings/H3"
+
+import { BlockRendererProps } from "."
 
 interface HeadingBlockAttributes {
   level: number

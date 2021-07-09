@@ -1,8 +1,10 @@
 import React, { useContext } from "react"
+
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
+
 import PagesInChapter from "./PagesInChapter"
 
 const PagesListBlock: React.FC<BlockRendererProps<unknown>> = () => {

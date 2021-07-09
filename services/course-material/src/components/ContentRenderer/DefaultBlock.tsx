@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
-import { BlockRendererProps } from "."
+
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+
+import { BlockRendererProps } from "."
 
 const DefaultBlock: React.FC<BlockRendererProps<unknown>> = ({ data }) => {
   return (

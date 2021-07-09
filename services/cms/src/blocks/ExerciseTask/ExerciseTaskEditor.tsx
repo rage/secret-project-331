@@ -1,10 +1,12 @@
 import styled from "@emotion/styled"
-import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
-import IFrameEditor from "./IFrameEditor"
-import { BlockEditProps } from "@wordpress/blocks"
-import { ExerciseTaskAttributes } from "."
-import { ExerciseTaskTypes, exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
 import { InnerBlocks } from "@wordpress/block-editor"
+import { BlockEditProps } from "@wordpress/blocks"
+
+import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
+import { ExerciseTaskTypes, exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
+import IFrameEditor from "./IFrameEditor"
+
+import { ExerciseTaskAttributes } from "."
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem;

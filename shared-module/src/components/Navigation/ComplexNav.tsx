@@ -9,7 +9,7 @@ import Button from "../Button"
 import "./Navbar.css"
 
 const StyledIcon = styled(FontAwesomeIcon)`
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   color: #333;
 `
 
@@ -40,16 +40,16 @@ const Navigation: React.FC = (props) => {
           <li className="nav-links">Courses</li>
           <li className="nav-links">Modules</li>
           <li className="nav-links">Mail Template</li>
-          <li className="nav-links hide"><a> Login Controls</a></li> 
+          <li className="nav-links hide"><a> Login Controls</a></li>
           <li className="nav-links hide" ><Button variant='primary'>Translate</Button></li>
           </ol>
         </ul>
 
         <ul className="secondary-link">
-          <li><a> Login Controls</a></li> 
+          <li><a> Login Controls</a></li>
           <li><Button variant='primary'>Translate</Button></li>
         </ul>
-        
+
       </nav>
     </div>
   )

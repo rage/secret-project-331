@@ -6,11 +6,16 @@ import {
   PlaywrightWorkerArgs,
   PlaywrightWorkerOptions,
 } from "@playwright/test"
+import { logout } from "../utils/logout"
 
-test.describe("Example", async () => {
-  test.beforeAll(async (args: PlaywrightWorkerArgs & PlaywrightWorkerOptions) => {
+test.describe("Login session with Playwright", async () => {
+  /// Login state to use
+  test.use({ storageState: "src/states/admin.json" })
+  // test.use({ storageState: 'src/states/teacher.json' })
+  // test.use({ storageState: 'src/states/user.json' })
+
+  test.beforeAll(async (_args: PlaywrightWorkerArgs & PlaywrightWorkerOptions) => {
     // Executed once before tests
-    await args.browser.newContext({ storageState: "./src/states/admin.json" })
   })
 
   test.afterAll(async (_args: PlaywrightWorkerArgs & PlaywrightWorkerOptions) => {
@@ -18,13 +23,14 @@ test.describe("Example", async () => {
   })
 
   test.beforeEach(
-    async (
-      _args: PlaywrightTestArgs &
-        PlaywrightTestOptions &
-        PlaywrightWorkerArgs &
-        PlaywrightWorkerOptions,
-    ) => {
+    async ({
+      page,
+    }: PlaywrightTestArgs &
+      PlaywrightTestOptions &
+      PlaywrightWorkerArgs &
+      PlaywrightWorkerOptions) => {
       // Executed before each test
+      await page.goto("http://project-331.local")
     },
   )
 
@@ -38,7 +44,14 @@ test.describe("Example", async () => {
       // Executed after each test
     },
   )
-  test("test", async ({ page }) => {
-    expect(await page.content()).not.toContain("Logout")
+
+  test("is succesful", async ({ page }) => {
+    expect(await page.content()).toContain("Logout")
+  })
+
+  test("able to logout", async ({ page }) => {
+    await logout(page)
+    await page.goto("http://project-331.local")
+    expect(await page.content()).toContain("Login")
   })
 })

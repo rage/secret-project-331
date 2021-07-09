@@ -20,7 +20,9 @@ export default function LoginLogoutButton(): JSX.Element {
     }
     return (
       <form onSubmit={submitLogout}>
-        <button type="submit">Logout</button>
+        <button name="logout" type="submit">
+          Logout
+        </button>
       </form>
     )
   } else {

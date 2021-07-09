@@ -1,19 +1,22 @@
 import { Button } from "@material-ui/core"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import React, { useContext } from "react"
+import React from "react"
 import { useQuery } from "react-query"
 
-import PageContext from "../../contexts/PageContext"
 import { getNextPageRoutingData } from "../../services/backend"
 import GenericLoading from "../GenericLoading"
 
-const NextPage: React.FC<{ currentPageId: string }> = ({ currentPageId }) => {
+export interface NextPageProps {
+  chapterId: string | null
+  currentPageId: string
+}
+
+const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
   const { isLoading, error, data } = useQuery(`pages-${currentPageId}-next-page`, () =>
     getNextPageRoutingData(currentPageId),
   )
   const router = useRouter()
-  const context = useContext(PageContext)
 
   const courseSlug = router.query.courseSlug
 
@@ -21,7 +24,7 @@ const NextPage: React.FC<{ currentPageId: string }> = ({ currentPageId }) => {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
   }
 
-  if (isLoading || data === undefined || !context) {
+  if (isLoading || data === undefined) {
     return <GenericLoading />
   }
 
@@ -29,7 +32,7 @@ const NextPage: React.FC<{ currentPageId: string }> = ({ currentPageId }) => {
     <div>
       {data != null ? (
         <>
-          {context.chapter_id != data.chapter_id ? (
+          {chapterId !== data.chapter_id ? (
             <p>Go to the next chapter</p>
           ) : (
             <p>Go to the next page</p>

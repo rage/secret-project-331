@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Button, Dialog, Paper } from "@material-ui/core"
 import dynamic from "next/dynamic"
-import { Dispatch, useState } from "react"
+import { Dispatch, useEffect, useState } from "react"
 
 export interface DebugModalProps {
   data: unknown
@@ -32,6 +32,10 @@ const HeaderBar = styled.div`
 const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDataOnClose }) => {
   const [open, setOpen] = useState(false)
   const [editedContent, setEditedContent] = useState(JSON.stringify(data, undefined, 2))
+
+  useEffect(() => {
+    setEditedContent(JSON.stringify(data, undefined, 2))
+  }, [data])
 
   if (!data) {
     return null

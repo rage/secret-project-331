@@ -1,25 +1,23 @@
 import { useContext } from "react"
 
 import { BlockRendererProps } from ".."
-import PageContext from "../../../contexts/PageContext"
+import CoursePageContext from "../../../contexts/CoursePageContext"
 import GenericLoading from "../../GenericLoading"
 
 import CourseProgress from "./CourseProgress"
 
 const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
-  const pageContext = useContext(PageContext)
-  const hasCourseInstance = pageContext?.instance !== null
-  const courseInstanceId = pageContext?.instance?.id
+  const pageContext = useContext(CoursePageContext)
 
-  if (!hasCourseInstance) {
+  if (pageContext.state !== "ready") {
+    return <GenericLoading />
+  }
+
+  if (!pageContext.instance) {
     return <div>Select course version to see your progress.</div>
   }
 
-  if (courseInstanceId) {
-    return <CourseProgress courseInstanceId={courseInstanceId} />
-  } else {
-    return <GenericLoading />
-  }
+  return <CourseProgress courseInstanceId={pageContext.instance.id} />
 }
 
 export default ExerciseListBlock

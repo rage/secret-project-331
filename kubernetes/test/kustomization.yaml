@@ -1,0 +1,20 @@
+resources:
+  - ../base
+  - postgres-test.yml
+  - headless-lms/test.yml
+patches:
+  - path: headless-lms/patch-deployment.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: headless-lms
+  - path: headless-lms/patch-deployment.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: service-info-fetcher
+  - path: headless-lms/patch-service-info-fetcher.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: service-info-fetcher

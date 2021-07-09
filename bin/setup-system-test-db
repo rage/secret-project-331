@@ -1,0 +1,39 @@
+#!/bin/bash
+# Only meant to be ran against the database in minikube when running system tests with bin/test.
+set -euo pipefail
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/headless-lms/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+echo "> cd $RELATIVE_PATH"
+cd "$RELATIVE_PATH" || exit
+
+COMMAND="dropdb"
+ARGUMENTS=(--host=localhost --port=54328 --username=headless-lms --no-password --if-exists --force headless_lms_test)
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+"$COMMAND" "${ARGUMENTS[@]}"
+
+COMMAND="cargo"
+ARGUMENTS=(sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_test database setup "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+"$COMMAND" "${ARGUMENTS[@]}"
+
+FILE_PATH="db/seed"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
+
+POD_NAME=$(kubectl get pods -l app=postgres -o name | head -n 1)
+
+COMMAND="kubectl"
+ARGUMENTS=(cp "$RELATIVE_PATH" "postgres-0:/seed")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+"$COMMAND" "${ARGUMENTS[@]}"
+
+COMMAND="kubectl"
+ARGUMENTS=(exec -it "$POD_NAME" "$@" -- pg_restore --username headless-lms --disable-triggers --dbname=headless_lms_test "/seed" "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

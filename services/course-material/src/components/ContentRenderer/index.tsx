@@ -32,6 +32,7 @@ export interface BlockRendererProps<T> {
 }
 
 const blockToRendererMap: { [blockName: string]: any } = {
+  "core/audio": AudioBlock,
   "core/paragraph": ParagraphBlock,
   "core/list": ListBlock,
   "core/image": ImageBlock,

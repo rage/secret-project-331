@@ -1,11 +1,12 @@
 import {
-  test,
   expect,
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,
   PlaywrightWorkerOptions,
+  test,
 } from "@playwright/test"
+
 import { logout } from "../utils/logout"
 
 test.describe("Login session with Playwright", async () => {

@@ -3,6 +3,8 @@ kind: Config
 build:
   artifacts:
     - image: headless-lms
+      docker:
+        dockerfile: Dockerfile
       context: services/headless-lms
       sync:
         manual:
@@ -10,24 +12,32 @@ build:
             dest: "/app"
     - image: cms
       context: services/cms
+      docker:
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*"
             dest: "/app"
     - image: main-frontend
       context: services/main-frontend
+      docker:
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*"
             dest: "/app"
     - image: example-exercise
       context: services/example-exercise
+      docker:
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*"
             dest: "/app"
     - image: course-material
       context: services/course-material
+      docker:
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*"
@@ -56,3 +66,23 @@ profiles:
       kubectl:
         manifests:
           - kubernetes/dev/postgres-dev.yml
+  - name: test
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /build/artifacts/1/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /build/artifacts/2/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /build/artifacts/3/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /build/artifacts/4/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /deploy/kustomize/paths
+        value: [kubernetes/test]

@@ -17,10 +17,10 @@ type TableBlockCell = {
 
 const TableBlock: React.FC<BlockRendererProps<any>> = ({ data }) => {
   const innerBlocks: any = data.innerBlocks[0].innerBlocks[0].attributes
-  const caption: string = data.innerBlocks[0].innerBlocks[0].caption
+  // const caption: string = data.innerBlocks[0].innerBlocks[0].caption
   const body: TableBlockCell[] = innerBlocks.body[0]
-  const headers: TableBlockCell = innerBlocks.head[0].cells
-  const footer: TableBlockCell = innerBlocks.foot[0].cells
+  // const headers: TableBlockCell = innerBlocks.head[0].cells
+  // const footer: TableBlockCell = innerBlocks.foot[0].cells
   return (
     <table
       className={css`
@@ -28,9 +28,9 @@ const TableBlock: React.FC<BlockRendererProps<any>> = ({ data }) => {
       `}
     >
       <tr>
-        {headers.map((header) => (
+        {/* {headers.map((header) => (
           <th key={header.content}>{header.content}</th>
-        ))}
+        ))} */}
       </tr>
       <tbody>
         {body.map((obj, index) => {

@@ -1,8 +1,9 @@
 import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
+import { ComponentType } from "react"
+import { v4 } from "uuid"
+
 import ExerciseEditor from "./ExerciseEditor"
 import ExerciseSave from "./ExerciseSave"
-import { v4 } from "uuid"
-import { ComponentType } from "react"
 
 export interface ExerciseAttributes {
   id: string

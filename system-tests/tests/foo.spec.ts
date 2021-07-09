@@ -1,6 +1,6 @@
-import { it, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
-it("is a basic test with the page", async ({ page, browser }) => {
+test("is a basic test with the page", async ({ page, browser }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
   // Click text=University of Helsinki, Department of Computer Science
@@ -14,7 +14,7 @@ it("is a basic test with the page", async ({ page, browser }) => {
   // Click text=Part 1 (/part-1)
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/part-1' }*/),
-    page.click("text=Part 1 (/part-1)"),
+    page.click("text=Chapter 1 (/chapter-1)"),
   ])
 
   const screenshot = await page.screenshot()

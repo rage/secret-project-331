@@ -1,16 +1,16 @@
-import Layout from "../../../components/Layout"
+import dynamic from "next/dynamic"
 import { useQuery } from "react-query"
 
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import dynamic from "next/dynamic"
-import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import Layout from "../../../components/Layout"
+import CourseContext from "../../../contexts/CourseContext"
 import {
   fetchEmailTemplateWithId,
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
 import { EmailTemplate, EmailTemplateUpdate } from "../../../services/services.types"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
+import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
-import CourseContext from "../../../contexts/CourseContext"
 
 const EditorLoading = <div>Loading editor...</div>
 

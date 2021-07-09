@@ -45,7 +45,7 @@ export interface CoursePage {
   url_path: string
   title: string
   deleted_at: Date | null
-  chapter_id: string | undefined
+  chapter_id: string | null
 }
 
 export interface Block<T> {
@@ -92,6 +92,26 @@ export const fetchCourseInstance = async (courseId: string): Promise<CourseInsta
   return data
 }
 
+export const fetchCourseInstances = async (courseId: string): Promise<Array<CourseInstance>> => {
+  const data = (
+    await courseMaterialClient.get(`/courses/${courseId}/course-instances`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
+export const postCourseInstanceEnrollment = async (courseInstanceId: string): Promise<unknown> => {
+  const response = await courseMaterialClient.post(
+    `/course-instances/${courseInstanceId}/enroll`,
+    null,
+    {
+      headers: { "Content-Type": "application/json" },
+    },
+  )
+  return response.data
+}
+
 export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[]> => {
   const data = (
     await courseMaterialClient.get(`/courses/${courseId}/pages`, {
@@ -118,7 +138,7 @@ export interface CourseMaterialExercise {
   exercise: Exercise
   current_exercise_task: CurrentExerciseTask
   exercise_status?: ExerciseStatus
-  current_exercise_task_service_info: CurrentExerciseTaskServiceInfo
+  current_exercise_task_service_info?: CurrentExerciseTaskServiceInfo
 }
 
 export interface CurrentExerciseTaskServiceInfo {

@@ -1,20 +1,21 @@
-import React from "react"
-import { useContext } from "react"
-import PageContext from "../../../contexts/PageContext"
+import React, { useContext } from "react"
+
+import CoursePageContext from "../../../contexts/CoursePageContext"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
+
 import ChapterGrid from "./ChapterGrid"
 
 const CourseChapterGrid: React.FC = () => {
-  const courseId = useContext(PageContext)?.course_id
+  const pageContext = useContext(CoursePageContext)
 
-  if (!courseId) {
+  if (pageContext.state !== "ready") {
     return <GenericLoading />
   }
 
   return (
     <div className={normalWidthCenteredComponentStyles}>
-      <ChapterGrid courseId={courseId} />
+      <ChapterGrid courseId={pageContext.pageData.course_id} />
     </div>
   )
 }

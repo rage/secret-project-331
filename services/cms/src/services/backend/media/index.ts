@@ -1,4 +1,5 @@
 import { MediaItem } from "@wordpress/media-utils"
+
 import { cmsClient } from "../cmsClient"
 
 export const uploadFileFromPage = async (file: File, courseId: string): Promise<MediaItem> => {

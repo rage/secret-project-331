@@ -1,14 +1,15 @@
-import { BlockInstance } from "@wordpress/blocks"
-import LoadingButton from "@material-ui/lab/LoadingButton"
 import SaveIcon from "@material-ui/icons/Save"
+import LoadingButton from "@material-ui/lab/LoadingButton"
+import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
-import { Page, PageUpdate } from "../../services/services.types"
-import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
-import SerializeGutenbergModal from "../SerializeGutenbergModal"
-import DebugModal from "../DebugModal"
+
 import { blockTypeMap } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import { Page, PageUpdate } from "../../services/services.types"
+import DebugModal from "../DebugModal"
+import SerializeGutenbergModal from "../SerializeGutenbergModal"
+import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
 interface PageEditorProps {
   data: Page

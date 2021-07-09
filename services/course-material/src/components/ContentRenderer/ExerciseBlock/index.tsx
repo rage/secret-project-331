@@ -1,15 +1,17 @@
 import { css } from "@emotion/css"
+import { Button } from "@material-ui/core"
+import HelpIcon from "@material-ui/icons/Help"
+import { useState } from "react"
 import { useQuery } from "react-query"
+
 import ContentRenderer, { BlockRendererProps } from ".."
 import { Block, fetchExerciseById } from "../../../services/backend"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
-import GenericLoading from "../../GenericLoading"
-import HelpIcon from "@material-ui/icons/Help"
-import ExerciseTaskIframe from "./ExerciseTaskIframe"
 import { defaultContainerWidth } from "../../../styles/constants"
-import { useState } from "react"
 import DebugModal from "../../DebugModal"
-import { Button } from "@material-ui/core"
+import GenericLoading from "../../GenericLoading"
+
+import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -30,7 +32,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     return <GenericLoading />
   }
 
-  const url = data.current_exercise_task_service_info.exercise_iframe_path
+  const url = data.current_exercise_task_service_info?.exercise_iframe_path
 
   const currentExerciseTaskAssignment = data.current_exercise_task
     .assignment as unknown as Block<unknown>[]

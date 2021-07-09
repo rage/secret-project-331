@@ -14,17 +14,15 @@ import "@wordpress/format-library/build-style/style.css"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
+  BlockInspector,
   BlockList,
   // BlockToolbar,
-  BlockInspector,
-  WritingFlow,
-  ObserveTyping,
-  EditorSettings,
   EditorBlockListSettings,
+  EditorSettings,
+  ObserveTyping,
+  WritingFlow,
 } from "@wordpress/block-editor"
-import { Popover, SlotFillProvider } from "@wordpress/components"
 import { registerCoreBlocks } from "@wordpress/block-library"
-import { addFilter } from "@wordpress/hooks"
 import {
   BlockConfiguration,
   BlockInstance,
@@ -35,15 +33,13 @@ import {
   /* @ts-ignore: type signature incorrect */
   unregisterBlockVariation,
 } from "@wordpress/blocks"
+import { Popover, SlotFillProvider } from "@wordpress/components"
+import { addFilter } from "@wordpress/hooks"
+import React, { useContext, useEffect } from "react"
 
-/**
- * Internal dependencies
- */
-import React, { useEffect } from "react"
+import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
-import { useContext } from "react"
-import CourseContext from "../../contexts/CourseContext"
 
 interface GutenbergEditorProps {
   content: BlockInstance[]

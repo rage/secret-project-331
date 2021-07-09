@@ -1,4 +1,5 @@
 import React from "react"
+
 import { CourseInstance, CoursePage } from "../services/backend"
 
 export interface CoursePageWithInstance extends CoursePage {

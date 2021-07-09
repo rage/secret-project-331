@@ -1,4 +1,5 @@
 import axios from "axios"
+
 import { ISOStringToDateTime } from "../utils/dateUtil"
 
 export const courseMaterialClient = axios.create({
@@ -10,5 +11,6 @@ courseMaterialClient.interceptors.response.use(
     ISOStringToDateTime(response.data)
     return response
   },
-  (err) => console.error(err),
+  // Any status code that fall outside of the range 2xx
+  (err) => Promise.reject(err),
 )

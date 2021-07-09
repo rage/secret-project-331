@@ -2,9 +2,9 @@ import React from "react"
 import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { fetchExerciseSubmissions } from "../../../../services/backend/exercises"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
 const SubmissionsPage: React.FC = () => {

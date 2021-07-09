@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
-import { Button, RadioGroup, Radio, FormControlLabel } from "@material-ui/core"
+import { Button, FormControlLabel, Radio, RadioGroup } from "@material-ui/core"
 import React, { useState } from "react"
+
 import { CourseInstance } from "../../services/backend"
 
 const FieldContainer = styled.div`

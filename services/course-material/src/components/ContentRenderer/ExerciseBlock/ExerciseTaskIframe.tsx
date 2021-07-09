@@ -1,6 +1,6 @@
-import { Dispatch } from "react"
 import { Alert } from "@material-ui/lab"
-import React from "react"
+import React, { Dispatch } from "react"
+
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
 
 interface ExerciseTaskIframeProps {

@@ -1,8 +1,9 @@
-import React from "react"
-import { useContext } from "react"
+import React, { useContext } from "react"
+
 import CoursePageContext from "../../../contexts/CoursePageContext"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
+
 import ChapterGrid from "./ChapterGrid"
 
 const CourseChapterGrid: React.FC = () => {

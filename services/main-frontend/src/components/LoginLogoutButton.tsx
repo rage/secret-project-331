@@ -1,8 +1,9 @@
-import React, { useContext } from "react"
-import { logout } from "../shared-module/services/backend/auth"
 import Link from "next/link"
-import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import { useRouter } from "next/router"
+import React, { useContext } from "react"
+
+import LoginStateContext from "../shared-module/contexts/LoginStateContext"
+import { logout } from "../shared-module/services/backend/auth"
 
 export default function LoginLogoutButton(): JSX.Element {
   const loginStateContext = useContext(LoginStateContext)

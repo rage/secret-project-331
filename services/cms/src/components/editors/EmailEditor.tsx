@@ -1,8 +1,9 @@
-import { BlockInstance } from "@wordpress/blocks"
-import LoadingButton from "@material-ui/lab/LoadingButton"
 import SaveIcon from "@material-ui/icons/Save"
+import LoadingButton from "@material-ui/lab/LoadingButton"
+import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
+
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EmailTemplate, EmailTemplateUpdate } from "../../services/services.types"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"

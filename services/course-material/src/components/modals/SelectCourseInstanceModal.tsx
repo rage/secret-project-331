@@ -3,10 +3,10 @@ import { Dialog } from "@material-ui/core"
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useQuery } from "react-query"
 
-import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
+import CoursePageContext from "../../contexts/CoursePageContext"
 import { fetchCourseInstances, postCourseInstanceEnrollment } from "../../services/backend"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import CoursePageContext from "../../contexts/CoursePageContext"
+import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
 export interface CourseInstanceSelectModalProps {
   onClose: () => void

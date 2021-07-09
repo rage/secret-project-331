@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
-import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import styled from "@emotion/styled"
+
+import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 
 const H1 = styled.h3`
   color: red;

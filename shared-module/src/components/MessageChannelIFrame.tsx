@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react"
-import React from "react"
 import { css } from "@emotion/css"
+import React, { useEffect, useRef } from "react"
+
 import useMessageChannel from "../hooks/useMessageChannel"
 
 interface MessageChannelIFrameProps {

@@ -277,8 +277,7 @@ pub async fn set_grading_id(
     grading_id: Uuid,
     submission_id: Uuid,
 ) -> Result<()> {
-    sqlx::query_as!(
-        Submission,
+    sqlx::query!(
         "
 UPDATE submissions
 SET grading_id = $1

@@ -33,6 +33,35 @@ pub struct FetchedExerciseServiceInfo {
     pub grade_endpoint_path: String,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    exercise_service_id: Uuid,
+    editor_iframe_path: &str,
+    exercise_iframe_path: &str,
+    grade_endpoint_path: &str,
+) -> Result<ExerciseServiceInfo> {
+    let res = sqlx::query_as!(
+        ExerciseServiceInfo,
+        "
+INSERT INTO exercise_service_info (
+    exercise_service_id,
+    editor_iframe_path,
+    exercise_iframe_path,
+    grade_endpoint_path
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING *
+",
+        exercise_service_id,
+        editor_iframe_path,
+        exercise_iframe_path,
+        grade_endpoint_path
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn fetch_and_upsert_service_info(
     conn: &mut PgConnection,
     exercise_service: &ExerciseService,

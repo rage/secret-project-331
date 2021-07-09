@@ -46,6 +46,66 @@ pub enum UserPointsUpdateStrategy {
     CanAddPointsAndCanRemovePoints,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    submission_id: Uuid,
+    course_id: Uuid,
+    exercise_id: Uuid,
+    exercise_task_id: Uuid,
+) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO gradings (
+    submission_id,
+    course_id,
+    exercise_id,
+    exercise_task_id
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING id
+",
+        submission_id,
+        course_id,
+        exercise_id,
+        exercise_task_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
+pub async fn get(conn: &mut PgConnection, id: Uuid) -> Result<Grading> {
+    let res = sqlx::query_as!(
+        Grading,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  submission_id,
+  course_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress as "grading_progress: _",
+  user_points_update_strategy as "user_points_update_strategy: _",
+  unscaled_score_maximum,
+  unscaled_max_points,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+FROM gradings
+WHERE id = $1
+"#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!(r#"SELECT course_id from gradings where id = $1"#, id)
         .fetch_one(conn)
@@ -124,7 +184,7 @@ pub async fn update_grading(
     };
     let correctness_coefficient =
         grading_result.score_given / (grading_result.score_maximum as f32);
-    let score_given_with_all_decumals = f32::max(
+    let score_given_with_all_decumals = f32::min(
         (exercise.score_maximum as f32) * correctness_coefficient,
         exercise.score_maximum as f32,
     );

@@ -1,7 +1,7 @@
 pub mod controllers;
 pub mod domain;
 pub mod models;
-mod regrader;
+pub mod regrading;
 pub mod utils;
 
 #[cfg(test)]
@@ -9,8 +9,6 @@ pub mod test_helper;
 
 #[macro_use]
 extern crate tracing;
-
-pub use regrader::start_regrading_thread;
 
 use actix_http::error::InternalError;
 use actix_web::web::{self, HttpResponse, ServiceConfig};

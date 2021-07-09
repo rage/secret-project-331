@@ -72,8 +72,6 @@ async fn main() -> Result<()> {
             .data(app_conf)
     });
 
-    let _handle = headless_lms_actix::start_regrading_thread(db_pool);
-
     server = match listenfd.take_tcp_listener(0)? {
         Some(listener) => server.listen(listener)?,
         None => {

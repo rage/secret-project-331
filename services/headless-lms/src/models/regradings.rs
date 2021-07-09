@@ -7,7 +7,39 @@ use uuid::Uuid;
 pub struct Regrading {
     pub id: Uuid,
     pub regrading_started_at: Option<DateTime<Utc>>,
+    pub regrading_completed_at: Option<DateTime<Utc>>,
     pub total_grading_progress: GradingProgress,
+}
+
+pub async fn insert(conn: &mut PgConnection) -> Result<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO regradings DEFAULT
+VALUES
+RETURNING id
+"
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
+pub async fn get(conn: &mut PgConnection, id: Uuid) -> Result<Regrading> {
+    let res = sqlx::query_as!(
+        Regrading,
+        r#"
+SELECT id,
+  regrading_started_at,
+  regrading_completed_at,
+  total_grading_progress AS "total_grading_progress: _"
+FROM regradings
+WHERE id = $1
+"#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_uncompleted_regradings(conn: &mut PgConnection) -> Result<Vec<Uuid>> {
@@ -32,11 +64,31 @@ RETURNING id
     Ok(res)
 }
 
-pub async fn set_regrading_completed_at(conn: &mut PgConnection, regrading_id: Uuid) -> Result<()> {
+pub async fn set_grading_progress(
+    conn: &mut PgConnection,
+    regrading_id: Uuid,
+    progress: GradingProgress,
+) -> Result<()> {
     sqlx::query!(
         "
 UPDATE regradings
-SET regrading_completed_at = now()
+SET total_grading_progress = $1
+WHERE id = $2
+",
+        progress as GradingProgress,
+        regrading_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn complete_regrading(conn: &mut PgConnection, regrading_id: Uuid) -> Result<()> {
+    sqlx::query!(
+        "
+UPDATE regradings
+SET regrading_completed_at = now(),
+  total_grading_progress = 'fully-graded'
 WHERE id = $1
 ",
         regrading_id

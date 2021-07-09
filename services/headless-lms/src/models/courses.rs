@@ -1,6 +1,7 @@
 use crate::{
     controllers::ApplicationError,
-    models::pages::{ContentBlock, NewPage},
+    models::{course_instances::VariantStatus, pages::NewPage},
+    utils::document_schema_processor::GutenbergBlock,
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -105,9 +106,9 @@ pub async fn organization_courses(
 // Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NewCourse {
-    name: String,
-    slug: String,
-    organization_id: Uuid,
+    pub name: String,
+    pub slug: String,
+    pub organization_id: Uuid,
 }
 
 pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result<Course> {
@@ -128,9 +129,10 @@ pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result
     .fetch_one(&mut tx)
     .await?;
 
+    // Create front page for course
     let course_front_page_content = serde_json::to_value(vec![
-        ContentBlock::empty_block_from_name("moocfi/course-chapter-grid".to_owned()),
-        ContentBlock::empty_block_from_name("moocfi/course-progress".to_owned()),
+        GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
     ])
     .map_err(|original_error| ApplicationError::InternalServerError(original_error.to_string()))?;
     let course_front_page = NewPage {
@@ -142,6 +144,11 @@ pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result
         url_path: String::from("/"),
     };
     let _page = crate::models::pages::insert_page(&mut tx, course_front_page).await?;
+
+    // Create default course instance
+    let _default_course_instance =
+        crate::models::course_instances::insert(&mut tx, course.id, Some(VariantStatus::Draft))
+            .await?;
 
     tx.commit().await?;
     Ok(course)

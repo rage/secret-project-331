@@ -1,28 +1,20 @@
 import { css } from "@emotion/css"
+import React, { useContext } from "react"
+
 import ContentRenderer from "./ContentRenderer"
-import { CoursePage } from "../services/backend"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
 import DebugModal from "./DebugModal"
-import React, { useState } from "react"
 import NavigationContainer from "./NavigationContainer"
-import { useContext } from "react"
-import PageContext, { CoursePageWithInstance } from "../contexts/PageContext"
-import GenericLoading from "./GenericLoading"
-import ChapterGrid from "./ContentRenderer/CourseChapterGrid/ChapterGrid"
+import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
+import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 
 interface Props {
-  data: CoursePage
+  onRefresh: () => void
 }
 
-const Page: React.FC<Props> = () => {
-  const pageContext = useContext(PageContext)
-
-  // Make data editable so that we can edit it in the debug view
-  const [editedData, setEditedData] = useState<CoursePageWithInstance | null>(pageContext)
-
-  if (!editedData) {
-    return <GenericLoading />
-  }
+const Page: React.FC<Props> = ({ onRefresh }) => {
+  const pageContext = useContext(CoursePageContext)
+  const pageDispatch = useContext(CoursePageDispatch)
 
   return (
     <>
@@ -33,18 +25,25 @@ const Page: React.FC<Props> = () => {
           right: 10px;
         `}
       >
-        <DebugModal data={editedData} updateDataOnClose={setEditedData} readOnly={false} />
+        <DebugModal
+          data={pageContext}
+          updateDataOnClose={(payload) => {
+            // NB! This is unsafe because payload has any type
+            pageDispatch({ type: "rawSetState", payload })
+          }}
+          readOnly={false}
+        />
       </div>
       <h1
         className={css`
           ${normalWidthCenteredComponentStyles}
         `}
       >
-        {editedData.title}
+        {pageContext.pageData?.title}
       </h1>
-      <ChapterGrid courseId={editedData.course_id} />
-      <ContentRenderer data={editedData.content} />
-      {editedData.chapter_id && <NavigationContainer />}
+      <SelectCourseInstanceModal onClose={onRefresh} />
+      <ContentRenderer data={pageContext.pageData?.content ?? []} />
+      {pageContext.pageData?.chapter_id && <NavigationContainer />}
     </>
   )
 }

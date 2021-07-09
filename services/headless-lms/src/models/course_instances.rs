@@ -52,6 +52,34 @@ RETURNING id
     Ok(res.id)
 }
 
+pub async fn get_course_instance(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> Result<CourseInstance> {
+    let course_instance = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  starts_at,
+  ends_at,
+  name,
+  description,
+  variant_status AS "variant_status: VariantStatus"
+FROM course_instances
+WHERE id = $1
+  AND deleted_at IS NULL;
+    "#,
+        course_instance_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course_instance)
+}
+
 pub async fn current_course_instance_of_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -146,4 +174,34 @@ WHERE id = $2;
     .execute(conn)
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{
+        models::{courses, organizations},
+        test_helper::Conn,
+    };
+
+    #[tokio::test]
+    async fn allows_only_one_instance_per_course_without_name() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+
+        let organization_id = organizations::insert(tx.as_mut(), "", "").await.unwrap();
+        let course_1_id = courses::insert(tx.as_mut(), "", organization_id, "course-1")
+            .await
+            .unwrap();
+        let course_2_id = courses::insert(tx.as_mut(), "", organization_id, "course-2")
+            .await
+            .unwrap();
+
+        let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None).await.unwrap();
+        let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None).await;
+        assert!(course_2_instance_1.is_ok());
+
+        let course_1_instance_2 = insert(tx.as_mut(), course_1_id, None).await;
+        assert!(course_1_instance_2.is_err());
+    }
 }

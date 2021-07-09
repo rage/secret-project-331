@@ -9,10 +9,10 @@ pub struct CourseInstanceEnrollment {
     pub user_id: Uuid,
     pub course_id: Uuid,
     pub course_instance_id: Uuid,
-    current: bool,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    deleted_at: Option<DateTime<Utc>>,
+    pub current: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 pub async fn insert(

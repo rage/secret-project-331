@@ -84,7 +84,7 @@ async fn main() -> Result<()> {
         "example-exercise",
         "http://project-331.local/example-exercise/api/service-info",
         "http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info",
-        2,
+        5,
     )
     .await?;
 

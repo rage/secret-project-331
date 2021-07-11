@@ -10,11 +10,8 @@ import {
   secondaryFont,
 } from "./typography";
 
-interface Theme {
-  primaryColor: string;
-}
 
-export const theme: Theme = {
+export const theme = {
   primaryColor: blue[300],
   primaryHoverColor: blue[200],
   primaryActiveColor: blue[100],

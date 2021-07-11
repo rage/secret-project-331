@@ -1,5 +1,5 @@
-export const primaryFont = '"Josefin Sans", sans-serif';
-export const secondaryFont = '"Roboto Mono", monospace';
+export const primaryFont = `"Josefin Sans", sans-serif`;
+export const secondaryFont = `"Roboto Mono", monospace`;
 
 export const typography = {
     h1: "1.8rem",

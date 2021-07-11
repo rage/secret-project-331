@@ -4,7 +4,8 @@ import React from "react"
 import { ThemeProvider } from '@emotion/react'
 import {
   theme,
-  typography
+  typography,
+  primaryFont,
 } from "../utils";
 
 export interface ButtonExtraProps {
@@ -25,6 +26,7 @@ const StyledButton = styled.button`
   border: 1px solid black;
   text-decoration: none;
   font-size: ${typography.paragraph}
+  font-family: ${primaryFont}
 
   &:hover {
     color: ${theme.textColorInvented};

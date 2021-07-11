@@ -56,6 +56,21 @@ pub async fn find_by_upstream_id(
     Ok(user)
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<User> {
+    let user = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(user)
+}
+
 // Only used for testing, not to use in production.
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,

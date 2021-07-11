@@ -15,6 +15,7 @@ use oauth2::{ResourceOwnerPassword, ResourceOwnerUsername, TokenResponse};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Login {
@@ -43,12 +44,12 @@ pub async fn login(
 
     // login to TMS
     if app_conf.test_mode {
-        let user = crate::models::users::authenticate_test_user(
-            &mut conn,
-            email.clone(),
-            password.clone(),
-        )
-        .await?;
+        let user = if let Ok(id) = Uuid::parse_str(&email) {
+            crate::models::users::get_by_id(&mut conn, id).await?
+        } else {
+            crate::models::users::authenticate_test_user(&mut conn, email.clone(), password.clone())
+                .await?
+        };
         authorization::remember(&session, user)?;
         return Ok(HttpResponse::Ok().finish());
     }

@@ -110,12 +110,46 @@ RETURNING id
     Ok(res.id)
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Submission> {
+    let submission = sqlx::query_as!(
+        Submission,
+        "
+SELECT *
+FROM submissions
+WHERE id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(submission)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM submissions WHERE id = $1", id)
         .fetch_one(conn)
         .await?
         .course_id;
     Ok(course_id)
+}
+
+pub async fn set_grading_id(
+    conn: &mut PgConnection,
+    submission_id: Uuid,
+    grading_id: Uuid,
+) -> Result<()> {
+    sqlx::query!(
+        "
+UPDATE submissions
+SET grading_id = $1
+WHERE id = $2
+",
+        grading_id,
+        submission_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn exercise_submission_count(conn: &mut PgConnection, exercise_id: &Uuid) -> Result<i64> {

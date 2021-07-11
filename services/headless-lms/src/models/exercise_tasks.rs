@@ -60,6 +60,21 @@ RETURNING id
     Ok(res.id)
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<ExerciseTask> {
+    let exercise_task = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks
+WHERE id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exercise_task)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = (SELECT exercise_id FROM exercise_tasks WHERE id = $1)", id)
         .fetch_one(conn)

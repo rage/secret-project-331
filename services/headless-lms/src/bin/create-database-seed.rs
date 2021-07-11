@@ -1,5 +1,8 @@
 use anyhow::Result;
 use chrono::Utc;
+use headless_lms_actix::models::exercises::GradingProgress;
+use headless_lms_actix::models::gradings;
+use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
     chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
     exercise_tasks, exercises, organizations, pages, roles, roles::UserRole, submissions, users,
@@ -431,8 +434,8 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     )
     .await?;
 
-    // uh-cs intro submissions
-    let _submission_1 = submissions::insert(
+    // intro submissions
+    let submission_1 = submissions::insert(
         conn,
         exercise_c1p1_1,
         course,
@@ -441,7 +444,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         course_instance,
     )
     .await?;
-    let _submission_2 = submissions::insert(
+    let submission_2 = submissions::insert(
         conn,
         exercise_c1p1_1,
         course,
@@ -450,7 +453,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         course_instance,
     )
     .await?;
-    let _submission_3 = submissions::insert(
+    let submission_3 = submissions::insert(
         conn,
         exercise_c1p1_1,
         course,
@@ -468,6 +471,37 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         course_instance,
     )
     .await?;
+
+    // intro gradings
+    let submission_1 = submissions::get_by_id(conn, submission_1).await?;
+    let grading_1 = gradings::new_grading(conn, &submission_1).await?;
+    let grading_result_1 = GradingResult {
+        feedback_json: None,
+        feedback_text: None,
+        grading_progress: GradingProgress::FullyGraded,
+        score_given: 100.0,
+        score_maximum: 100,
+    };
+    let exercise_1 = exercises::get_by_id(conn, exercise_c1p1_1).await?;
+    gradings::update_grading(conn, &grading_1, &grading_result_1, &exercise_1).await?;
+    submissions::set_grading_id(conn, submission_1.id, grading_1.id).await?;
+
+    let submission_2 = submissions::get_by_id(conn, submission_2).await?;
+    let grading_2 = gradings::new_grading(conn, &submission_2).await?;
+    let grading_result_2 = GradingResult {
+        feedback_json: None,
+        feedback_text: None,
+        grading_progress: GradingProgress::Failed,
+        score_given: 0.0,
+        score_maximum: 100,
+    };
+    let exercise_1 = exercises::get_by_id(conn, exercise_c1p1_1).await?;
+    gradings::update_grading(conn, &grading_2, &grading_result_2, &exercise_1).await?;
+    submissions::set_grading_id(conn, submission_2.id, grading_2.id).await?;
+
+    let submission_3 = submissions::get_by_id(conn, submission_3).await?;
+    let grading_3 = gradings::new_grading(conn, &submission_3).await?;
+    submissions::set_grading_id(conn, submission_3.id, grading_3.id).await?;
 
     Ok(course)
 }

@@ -211,3 +211,27 @@ export interface Submission extends DatabaseItem {
   metadata: unknown
   user_id: string
 }
+
+export interface Grading extends DatabaseItem {
+  submission_id: string
+  course_id: string
+  exercise_id: string
+  exercise_task_id: string
+  grading_priority: number
+  score_given: number | null
+  grading_progress: GradingProgress
+  user_points_update_strategy: UserPointsUpdateStrategy
+  unscaled_score_maximum: number | null
+  unscaled_max_points: number | null
+  grading_started_at: Date | null
+  grading_completed_at: Date | null
+  feedback_json: unknown
+  feedback_text: string | null
+  deleted_at: Date | null
+}
+
+export type GradingProgress = "fully-graded" | "pending" | "pending-manual" | "failed" | "not-ready"
+
+export type UserPointsUpdateStrategy =
+  | "can-add-points-but-cannot-remove-points"
+  | "can-add-points-and-can-remove-points"

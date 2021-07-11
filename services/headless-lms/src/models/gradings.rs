@@ -45,6 +45,38 @@ pub enum UserPointsUpdateStrategy {
     CanAddPointsAndCanRemovePoints,
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Grading> {
+    let grading = sqlx::query_as!(
+        Grading,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  submission_id,
+  course_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  unscaled_score_maximum,
+  unscaled_max_points,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+FROM gradings
+WHERE id = $1
+"#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(grading)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!(r#"SELECT course_id from gradings where id = $1"#, id)
         .fetch_one(conn)
@@ -97,15 +129,15 @@ pub async fn grade_submission(
     }
     let obj = res.json::<GradingResult>().await?;
     info!("Received a grading result: {:#?}", &obj);
-    let updated_grading = update_grading(conn, grading, obj, exercise).await?;
+    let updated_grading = update_grading(conn, &grading, &obj, &exercise).await?;
     Ok(updated_grading)
 }
 
 pub async fn update_grading(
     conn: &mut PgConnection,
-    grading: Grading,
-    grading_result: GradingResult,
-    exercise: Exercise,
+    grading: &Grading,
+    grading_result: &GradingResult,
+    exercise: &Exercise,
 ) -> Result<Grading> {
     let grading_completed_at = if grading_result.grading_progress.is_complete() {
         Some(Utc::now())

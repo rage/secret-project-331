@@ -25,9 +25,8 @@ jobs:
 
       - name: Start minikube
         uses: medyagh/setup-minikube@master
-        run: bin/minikube-start
 
-      - name: Build
+      - name: Build and run environment
         run: bin/test
         working-directory: ./
 

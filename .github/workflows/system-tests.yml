@@ -26,6 +26,10 @@ jobs:
       - name: Start minikube
         uses: medyagh/setup-minikube@master
 
+      - name: Run npm ci for shared-modules
+        run: npm ci
+        working-directory: ./
+
       - name: Build and run environment
         run: bin/test
         working-directory: ./

@@ -7,7 +7,6 @@ import { cx, css, keyframes } from "@emotion/css"
 
 import Hamburger from "../Hamburger"
 import Button from "../Button"
-import "./Navbar.css"
 
 const swingHorizontal = keyframes`
 15% {
@@ -62,6 +61,7 @@ const navbarLogo = css`
   color: #fff;
   display: flex;
   justify-self: start;
+  margin: 0;
   /* margin-left: 20px; */
   cursor: pointer;
 
@@ -74,11 +74,6 @@ const navbarLogo = css`
   }
 `
 
-/* ul {
-  margin-bottom: 0;
-  margin-right: 0 !important;
-}*/
-
 const active = css`
 
 @media (max-width: 960px) {
@@ -90,15 +85,12 @@ const active = css`
 
 const navMenu = css`
   display: inline-block;
-  /*   grid-template-columns: repeat(3, auto); */
   grid-gap: 10px;
   list-style: none;
   text-align: center;
   align-items: center;
   /*   width: 100vw; */
   justify-content: end;
-  /*  margin: 0 2rem 0 0; */
-  /* align-content: center; */
 
   @media (max-width: 960px) {
     display: flex;
@@ -209,6 +201,10 @@ const secondaryLink = css`
   list-style: none;
   text-align: center;
   align-items: center;
+
+  li {
+    font-family: "Josefin Sans", sans-serif;
+  }
 
   @media (max-width: 960px) {
     display: none;

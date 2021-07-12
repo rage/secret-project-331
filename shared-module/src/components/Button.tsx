@@ -50,6 +50,7 @@ const Button: React.FC<ButtonProps> = (props) => {
         padding: 1rem;
         background-color: white;
         border: 1px solid black;
+        font-family: ${primaryFont};
       `}
       {...props}
     />

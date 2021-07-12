@@ -3,11 +3,16 @@ import { Link } from "@reach/router"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { cx, css } from "@emotion/css"
+import {
+  theme,
+  typography,
+  primaryFont,
+} from "../../utils";
 
 import Hamburger from "../Hamburger"
 
 const StyledIcon = css`
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   color: #333;
 `
 const NavbarItems = css`
@@ -32,22 +37,15 @@ const NavbarLogo = css`
   cursor: pointer;
 `
 
-/*ul {
-  margin-bottom: 0;
-  margin-right: 0 !important;
-   CSS Reset
-}*/
-
 const NavMenu = css`
   display: grid;
-  grid-template-columns: repeat(3, auto);
-  grid-gap: 20px;
+  grid-template-columns: repeat(2, auto);
+  grid-gap: 10px;
   list-style: none;
   text-align: center;
   align-items: center;
   width: 100vw;
   justify-content: end;
-  margin-right: 2rem;
 `
 const NavLink = css`
   color: #333;
@@ -94,12 +92,11 @@ const Container = css`
 `
 const ToolTip = css`
   background: cyan;
-  /*   display: none; */
   top: 100px;
-  right: 130px;
+  left: 90%;
   border-radius: 4px;
   position: absolute;
-  padding: 5px 15px;
+  padding: 10px 15px;
   margin-bottom: 10px;
   margin-left: -95px;
   cursor: default;
@@ -124,6 +121,7 @@ const ToolTip = css`
     text-decoration: none;
     list-style: none;
     margin: 0;
+    font-family: ${primaryFont};
     /*   padding: 0 10px; */
 
     Button {

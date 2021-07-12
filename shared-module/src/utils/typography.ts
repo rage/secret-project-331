@@ -1,4 +1,4 @@
-export const primaryFont = `"Josefin Sans", sans-serif`;
+export const primaryFont = '"Josefin Sans", sans-serif';
 export const secondaryFont = `"Roboto Mono", monospace`;
 
 export const typography = {
@@ -10,4 +10,5 @@ export const typography = {
     paragraph: "1.1rem",
     helperText: "0.8rem",
     copyrightText: "0.7rem"
+
 }

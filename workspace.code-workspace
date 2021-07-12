@@ -55,6 +55,10 @@
     "[rust]": {
       "editor.defaultFormatter": "matklad.rust-analyzer"
     },
+    "[markdown]": {
+      "editor.trimAutoWhitespace": false,
+      "files.trimTrailingWhitespace": false
+    },
     // Exlcuding works only partially in multi-root workspaces because of this: https://github.com/microsoft/vscode/issues/40898
     "files.watcherExclude": {
       "**/.git/objects/**": true,

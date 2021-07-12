@@ -27,10 +27,6 @@
     {
       "name": "System tests",
       "path": "./system-tests"
-    },
-    {
-      "name": "Shared module",
-      "path": "./shared-module"
     }
   ],
   "settings": {

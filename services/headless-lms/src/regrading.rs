@@ -120,8 +120,8 @@ pub async fn regrade(
     while let Some((regrading_submission, new_grading, exercise, grading_result)) =
         grading_futures.next().await
     {
-        if new_grading.grading_progress == GradingProgress::FullyGraded
-            && regrading_submission.grading_after_regrading.is_none()
+        if new_grading.grading_progress != GradingProgress::FullyGraded
+            || regrading_submission.grading_after_regrading.is_none()
         {
             // update regrading submission grading
             models::regrading_submissions::set_grading_after_regrading(

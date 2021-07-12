@@ -95,6 +95,7 @@ Content-Type: application/json
 
 {
     "name": "The Basics",
+    "chapter_image_url": null,
     "chapter_number": 2,
     "front_page_id": "0ebba931-b027-4154-8274-2afb00d79306"
 }
@@ -110,6 +111,7 @@ Response:
   "name": "The Basics",
   "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
   "deleted_at": null,
+  "chapter_image_url": null,
   "chapter_number": 2,
   "front_page_id": "0ebba931-b027-4154-8274-2afb00d79306"
 }

@@ -18,6 +18,7 @@ pub struct Chapter {
     pub name: String,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub chapter_image_url: Option<String>,
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
@@ -60,6 +61,7 @@ pub struct NewChapter {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct ChapterUpdate {
     pub name: String,
+    pub chapter_image_url: Option<String>,
     pub chapter_number: i32,
     pub front_front_page_id: Option<Uuid>,
 }
@@ -148,19 +150,22 @@ pub async fn update_chapter(
         r#"
 UPDATE chapters
 SET name = $1,
-  chapter_number = $2
-WHERE id = $3
+  chapter_image_url = $2,
+  chapter_number = $3
+WHERE id = $4
 RETURNING id,
   created_at,
   updated_at,
   name,
   course_id,
   deleted_at,
+  chapter_image_url,
   chapter_number,
   front_page_id,
   opens_at
     "#,
         chapter_update.name,
+        chapter_update.chapter_image_url,
         chapter_update.chapter_number,
         course_id
     )
@@ -193,6 +198,7 @@ SELECT id,
   name,
   course_id,
   deleted_at,
+  chapter_image_url,
   chapter_number,
   front_page_id,
   opens_at
@@ -221,6 +227,7 @@ RETURNING id,
   name,
   course_id,
   deleted_at,
+  chapter_image_url,
   chapter_number,
   front_page_id,
   opens_at
@@ -265,6 +272,7 @@ RETURNING id,
   name,
   course_id,
   deleted_at,
+  chapter_image_url,
   chapter_number,
   front_page_id,
   opens_at

@@ -131,6 +131,7 @@ export interface Chapter extends DatabaseItem {
   name: string
   course_id: string
   deleted_at: Date | null
+  chapter_image_url: string
   chapter_number: number
   front_page_id: string | null
 }
@@ -141,6 +142,13 @@ export interface Chapter extends DatabaseItem {
 export interface NewChapter {
   name: string
   course_id: string
+  chapter_number: number
+  front_page_id: string | null
+}
+
+export interface ChapterUpdate {
+  name: string
+  chapter_image_url: string | null
   chapter_number: number
   front_page_id: string | null
 }

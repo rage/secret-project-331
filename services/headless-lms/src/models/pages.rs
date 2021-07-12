@@ -602,6 +602,7 @@ RETURNING id,
   name,
   course_id,
   deleted_at,
+  chapter_image_url,
   chapter_number,
   front_page_id,
   opens_at

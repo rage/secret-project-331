@@ -2,6 +2,7 @@ import { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../GenericLoading"
 
 import CourseProgress from "./CourseProgress"
@@ -20,4 +21,4 @@ const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
   return <CourseProgress courseInstanceId={pageContext.instance.id} />
 }
 
-export default ExerciseListBlock
+export default withErrorBoundary(ExerciseListBlock)

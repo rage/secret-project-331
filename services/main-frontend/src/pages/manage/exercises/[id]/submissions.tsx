@@ -5,6 +5,7 @@ import Layout from "../../../../components/Layout"
 import { fetchExerciseSubmissions } from "../../../../services/backend/exercises"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
 const SubmissionsPage: React.FC = () => {
@@ -48,4 +49,4 @@ const SubmissionsPage: React.FC = () => {
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(SubmissionsPage))
+export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(SubmissionsPage)))

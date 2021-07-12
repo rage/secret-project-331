@@ -10,6 +10,7 @@ import NewCourseForm from "../../components/forms/NewCourseForm"
 import { fetchOrganizationCourses } from "../../services/backend/organizations"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 
 const Organization: React.FC<unknown> = () => {
@@ -90,4 +91,4 @@ const Organization: React.FC<unknown> = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(Organization)
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(Organization))

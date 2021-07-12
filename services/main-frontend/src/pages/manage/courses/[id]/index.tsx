@@ -11,6 +11,7 @@ import ExerciseList from "../../../../components/lists/ExerciseList"
 import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
 import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
@@ -83,4 +84,6 @@ const ManageCoursePage: React.FC<unknown> = () => {
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(ManageCoursePage))
+export default withErrorBoundary(
+  withSignedIn(dontRenderUntilQueryParametersReady(ManageCoursePage)),
+)

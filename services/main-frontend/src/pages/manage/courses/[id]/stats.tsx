@@ -5,6 +5,7 @@ import Layout from "../../../../components/Layout"
 import CourseSubmissionsByDay from "../../../../components/stats/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "../../../../components/stats/CourseSubmissionsByWeekdayAndHour"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
 import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
@@ -29,4 +30,4 @@ const StatsPage: React.FC<unknown> = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(StatsPage)
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(StatsPage))

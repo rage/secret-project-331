@@ -10,10 +10,11 @@ import CoursePageContext, {
 import useQueryParameter from "../../hooks/useQueryParameter"
 import coursePageStateReducer from "../../reducers/coursePageStateReducer"
 import { fetchCourseInstance, fetchCoursePageByPath } from "../../services/backend"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { tryToScrollToSelector } from "../../utils/dom"
 import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 
-const PagePage = () => {
+const PagePage: React.FC = () => {
   const courseSlug = useQueryParameter("courseSlug")
   const path = `/${useQueryParameter("path")}`
 
@@ -84,4 +85,4 @@ const PagePage = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(PagePage)
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(PagePage))

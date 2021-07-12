@@ -3,6 +3,7 @@ import Link from "next/link"
 import { useQuery } from "react-query"
 
 import { fetchOrganizations } from "../services/backend"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import basePath from "../utils/base-path"
 
 import "katex/dist/katex.min.css"
@@ -42,4 +43,4 @@ const Home: React.FC = () => {
   )
 }
 
-export default Home
+export default withErrorBoundary(Home)

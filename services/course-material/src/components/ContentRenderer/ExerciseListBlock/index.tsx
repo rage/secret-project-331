@@ -2,6 +2,7 @@ import { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 
@@ -27,4 +28,4 @@ const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
   )
 }
 
-export default ExerciseListBlock
+export default withErrorBoundary(ExerciseListBlock)

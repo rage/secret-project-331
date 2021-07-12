@@ -25,6 +25,7 @@ pub struct Login {
 #[derive(Deserialize)]
 struct CurrentUser {
     id: i32,
+    email: String,
 }
 
 /**
@@ -77,6 +78,7 @@ pub async fn login(
     }
     let current_user: CurrentUser = res.json().await.context("Unexpected response from TMC")?;
     let upstream_id = current_user.id;
+    let email = current_user.email;
 
     // fetch existing user or create new one
     let user = match crate::models::users::find_by_upstream_id(&mut conn, upstream_id)
@@ -84,7 +86,9 @@ pub async fn login(
         .context("Error while trying to find user")?
     {
         Some(existing_user) => existing_user,
-        None => crate::models::users::insert_with_upstream_id(&mut conn, upstream_id).await?,
+        None => {
+            crate::models::users::insert_with_upstream_id(&mut conn, &email, upstream_id).await?
+        }
     };
 
     authorization::remember(&session, user)?;

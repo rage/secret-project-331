@@ -693,12 +693,17 @@
           "ordinal": 4,
           "name": "upstream_id",
           "type_info": "Int4"
+        },
+        {
+          "ordinal": 5,
+          "name": "email",
+          "type_info": "Varchar"
         }
       ],
       "parameters": {
         "Left": ["Int4"]
       },
-      "nullable": [false, false, false, true, true]
+      "nullable": [false, false, false, true, true, false]
     }
   },
   "3e925fb3e5a135d876037e1424238f4c88a4d9a76a739e16c2c6d8d17151cd06": {
@@ -2514,40 +2519,20 @@
       "nullable": []
     }
   },
-  "c075a2e4b096345670ae6d140802ecc2a436af78805dc2bc07dea0d5ee4c818f": {
-    "query": "\nINSERT INTO\n  users (upstream_id)\nVALUES($1)\nRETURNING *;\n          ",
+  "b988de59221dbe4350dcccadf9e80e782365d6526188dc5a6b14ed2581ca1314": {
+    "query": "\nINSERT INTO users (email)\nVALUES ($1)\nRETURNING id\n",
     "describe": {
       "columns": [
         {
           "ordinal": 0,
           "name": "id",
           "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "upstream_id",
-          "type_info": "Int4"
         }
       ],
       "parameters": {
-        "Left": ["Int4"]
+        "Left": ["Varchar"]
       },
-      "nullable": [false, false, false, true, true]
+      "nullable": [false]
     }
   },
   "c1a41f61331e83562da62a9ec828d2489eedd1f6e03b6fb8865faa71ddec8f27": {
@@ -2760,22 +2745,6 @@
       "nullable": [null, null, null]
     }
   },
-  "caa023ebc5034d5df2e9f65d41a73d9d132e10070473f3532d71373e0a528947": {
-    "query": "\nINSERT INTO users DEFAULT\nVALUES\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [false]
-    }
-  },
   "cd77e9c666eedf778257a2adede300821c26ef4b6f8fb0011eea940fd3fe2a6b": {
     "query": "\n  UPDATE pages\n  SET\n    deleted_at = now()\n  WHERE id = $1\n  RETURNING *\n          ",
     "describe": {
@@ -2871,6 +2840,47 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false]
+    }
+  },
+  "cf7a54102657110f8d384fb491163e9e2690c365bab861c2c68064ddc1ba0873": {
+    "query": "\nINSERT INTO\n  users (email, upstream_id)\nVALUES ($1, $2)\nRETURNING *;\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "upstream_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 5,
+          "name": "email",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Int4"]
+      },
+      "nullable": [false, false, false, true, true, false]
     }
   },
   "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8": {

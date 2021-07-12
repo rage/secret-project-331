@@ -1,14 +1,12 @@
-import React from "react"
-
-import { useQuery } from "react-query"
-import { dontRenderUntilQueryParametersReady } from "../../utils/dontRenderUntilQueryParametersReady"
-import { CourseSubmissionCount } from "../../services/services.types"
-import { fetchCourseDailySubmissionCounts } from "../../services/backend/courses"
-
-import DebugModal from "../DebugModal"
-import { groupBy, max } from "lodash"
-import Echarts from "../Echarts"
 import { css } from "@emotion/css"
+import { groupBy, max } from "lodash"
+import React from "react"
+import { useQuery } from "react-query"
+
+import { fetchCourseDailySubmissionCounts } from "../../services/backend/courses"
+import { dontRenderUntilQueryParametersReady } from "../../utils/dontRenderUntilQueryParametersReady"
+import DebugModal from "../DebugModal"
+import Echarts from "../Echarts"
 
 export interface CourseSubmissionsByDayProps {
   courseId: string
@@ -73,7 +71,8 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
             return {
               type: "heatmap",
               coordinateSystem: "calendar",
-              data: submissionCounts.map((o) => [o.date, o.count]),
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
               calendarIndex: i,
             }
           }),

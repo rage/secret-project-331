@@ -1,12 +1,13 @@
+import { css } from "@emotion/css"
 import React from "react"
 
 import Layout from "../../../../components/Layout"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
-import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
-import { css } from "@emotion/css"
 import CourseSubmissionsByDay from "../../../../components/stats/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "../../../../components/stats/CourseSubmissionsByWeekdayAndHour"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
+import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
 const StatsPage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
@@ -29,4 +30,4 @@ const StatsPage: React.FC<unknown> = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(StatsPage)
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(StatsPage))

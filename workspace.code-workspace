@@ -54,6 +54,15 @@
     },
     "[rust]": {
       "editor.defaultFormatter": "matklad.rust-analyzer"
+    },
+    // Exlcuding works only partially in multi-root workspaces because of this: https://github.com/microsoft/vscode/issues/40898
+    "files.watcherExclude": {
+      "**/.git/objects/**": true,
+      "**/.git/subtree-cache/**": true,
+      "**/node_modules/**": true,
+      "**/.hg/store/**": true,
+      "services/headless-lms/target": true,
+      "**/.next/**": true
     }
   },
   "recommendations": [
@@ -66,10 +75,11 @@
     "humao.rest-client",
     "mtxr.sqltools",
     "usernamehw.errorlens",
-    "coenraads.bracket-pair-colorizer-2"
+    "coenraads.bracket-pair-colorizer-2",
+    "jebbs.plantuml"
   ],
   "launch": {
     "configurations": [],
     "compounds": []
-  }
+  },
 }

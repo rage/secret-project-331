@@ -4,9 +4,15 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::models::exercise_tasks::get_random_exercise_task;
+use crate::models::{
+    exercise_service_info::get_course_material_service_info_by_exercise_type,
+    exercise_tasks::get_random_exercise_task,
+};
 
-use super::exercise_tasks::CourseMaterialExerciseTask;
+use super::{
+    exercise_service_info::CourseMaterialExerciseServiceInfo,
+    exercise_tasks::CourseMaterialExerciseTask,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Exercise {
@@ -26,6 +32,11 @@ pub struct Exercise {
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
     pub current_exercise_task: CourseMaterialExerciseTask,
+    /**
+    If none, the task is not completable at the moment because the service needs to
+    be configured to the system.
+    */
+    pub current_exercise_task_service_info: Option<CourseMaterialExerciseServiceInfo>,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
 }
@@ -124,6 +135,25 @@ pub async fn get_exercise_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Exe
         .fetch_one(conn)
         .await?;
     Ok(exercise)
+}
+
+pub async fn get_exercises_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> Result<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE course_id = $1
+  AND deleted_at IS NULL
+"#,
+        course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(exercises)
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
@@ -234,6 +264,12 @@ SET selected_exercise_task_id = $4
         get_random_exercise_task(conn, exercise_id).await?
     };
 
+    let current_exercise_task_service_info = get_course_material_service_info_by_exercise_type(
+        conn,
+        &selected_exercise_task.exercise_type,
+    )
+    .await;
+
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task: selected_exercise_task,
@@ -242,6 +278,7 @@ SET selected_exercise_task_id = $4
             activity_progress: ActivityProgress::Initialized,
             grading_progress: GradingProgress::NotReady,
         }),
+        current_exercise_task_service_info,
     })
 }
 
@@ -281,7 +318,7 @@ mod test {
         )
         .await
         .unwrap();
-        let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
+        let _chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();
         let page_id = pages::insert(tx.as_mut(), course_id, "", "", 0)
@@ -294,13 +331,13 @@ mod test {
             tx.as_mut(),
             exercise_id,
             "",
-            GutenbergBlock {
+            vec![GutenbergBlock {
                 attributes: Value::Null,
                 client_id: "".to_string(),
                 inner_blocks: vec![],
                 is_valid: true,
                 name: "".to_string(),
-            },
+            }],
             Value::Null,
             Value::Null,
         )

@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
-import { BlockRendererProps } from "."
+
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { AudioAttributes } from "../../types/GutenbergBlockAttributes"
 
@@ -24,4 +25,4 @@ const AudioBlock: React.FC<BlockRendererProps<AudioAttributes>> = ({ data }) => 
   )
 }
 
-export default AudioBlock
+export default withErrorBoundary(AudioBlock)

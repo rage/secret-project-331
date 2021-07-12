@@ -20,6 +20,15 @@ export interface Page extends DatabaseItem {
 }
 
 /**
+ * GET
+ * `${API_URL}/api/v0/main-frontend/exercises/{exercise_id}/submissions`
+ */
+export interface ExerciseSubmissions {
+  data: Array<Submission>
+  total_pages: number
+}
+
+/**
  * GET, PUT Response, POST Response
  * `${API_URL}/api/v0/main-frontend/pages/${page_id}`
  */
@@ -104,6 +113,36 @@ export interface Course extends DatabaseItem {
   organization_id: string
 }
 
+export interface Exercise extends DatabaseItem {
+  course_id: string
+  deleted_at: Date | null
+  name: string
+  deadline: Date | null
+  page_id: string
+  score_maximum: number
+  order_number: number
+}
+
+enum VariantStatus {
+  Draft,
+  Upcoming,
+  Active,
+  Ended,
+}
+
+/**
+ * GET
+ * `/main-frontend/courses/:course_id/course-instances`
+ */
+export interface CourseInstance extends DatabaseItem {
+  course_id: string
+  starts_at?: Date
+  ends_at?: Date
+  name?: string
+  description?: string
+  variant_status: VariantStatus
+}
+
 /**
  * POST
  * `${API_URL}/api/v0/main-frontend/courses
@@ -159,4 +198,16 @@ export interface CourseSubmissionCountByWeekdayAndHour {
   isodow: number
   hour: number
   count: number
+}
+
+export interface Submission extends DatabaseItem {
+  course_id: string
+  course_instance_id: string
+  deleted_at: Date | null
+  data_json: unknown
+  exercise_id: string
+  exercise_task_id: string
+  grading_id: string
+  metadata: unknown
+  user_id: string
 }

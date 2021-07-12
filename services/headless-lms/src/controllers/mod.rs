@@ -23,6 +23,8 @@ use http_api_problem::{HttpApiProblem, StatusCode};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
+use crate::utils::file_store::FileStore;
+
 use self::{
     auth::add_auth_routes, cms::add_cms_routes, course_material::add_course_material_routes,
     files::_add_files_routes, main_frontend::add_main_frontend_routes,
@@ -54,6 +56,9 @@ pub enum ApplicationError {
 
     #[display(fmt = "Unauthorized")]
     Unauthorized,
+
+    #[display(fmt = "Forbidden")]
+    Forbidden(String),
 }
 
 impl std::error::Error for ApplicationError {}
@@ -61,13 +66,14 @@ impl std::error::Error for ApplicationError {}
 impl error::ResponseError for ApplicationError {
     fn error_response(&self) -> HttpResponse {
         let status = self.status_code();
-        let mut detail = "Error";
-        if let ApplicationError::InternalServerError(reason) = self {
-            detail = reason;
-        }
-        if let ApplicationError::BadRequest(reason) = self {
-            detail = reason;
-        }
+        let detail = if let ApplicationError::InternalServerError(reason)
+        | ApplicationError::BadRequest(reason)
+        | ApplicationError::Forbidden(reason) = self
+        {
+            reason
+        } else {
+            "Error"
+        };
         let problem_description =
             HttpApiProblem::with_title_and_type_from_status(status).set_detail(detail);
 
@@ -82,6 +88,7 @@ impl error::ResponseError for ApplicationError {
             ApplicationError::BadRequest(_) => StatusCode::BAD_REQUEST,
             ApplicationError::NotFound => StatusCode::NOT_FOUND,
             ApplicationError::Unauthorized => StatusCode::UNAUTHORIZED,
+            ApplicationError::Forbidden(_) => StatusCode::FORBIDDEN,
         }
     }
 }
@@ -116,9 +123,9 @@ Only put information here that you want to be visible to users.
 pub type ApplicationResult<T, E = ApplicationError> = std::result::Result<T, E>;
 
 /// Add controllers from all the submodules.
-pub fn configure_controllers(cfg: &mut ServiceConfig) {
+pub fn configure_controllers<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/course-material").configure(add_course_material_routes))
-        .service(web::scope("/cms").configure(add_cms_routes))
+        .service(web::scope("/cms").configure(add_cms_routes::<T>))
         .service(web::scope("/files").configure(_add_files_routes))
         .service(web::scope("/main-frontend").configure(add_main_frontend_routes))
         .service(web::scope("/auth").configure(add_auth_routes));

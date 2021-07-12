@@ -1,14 +1,12 @@
-import React from "react"
-
-import { useQuery } from "react-query"
-import { dontRenderUntilQueryParametersReady } from "../../utils/dontRenderUntilQueryParametersReady"
-import { CourseSubmissionCountByWeekdayAndHour } from "../../services/services.types"
-import { fetchCourseWeekdayHourSubmissionCounts } from "../../services/backend/courses"
-
-import DebugModal from "../DebugModal"
-import { groupBy, max } from "lodash"
-import Echarts from "../Echarts"
 import { css } from "@emotion/css"
+import { groupBy, max } from "lodash"
+import React from "react"
+import { useQuery } from "react-query"
+
+import { fetchCourseWeekdayHourSubmissionCounts } from "../../services/backend/courses"
+import { dontRenderUntilQueryParametersReady } from "../../utils/dontRenderUntilQueryParametersReady"
+import DebugModal from "../DebugModal"
+import Echarts from "../Echarts"
 
 export interface CourseSubmissionsByWeekdayAndHourProps {
   courseId: string
@@ -117,7 +115,8 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
               singleAxisIndex: i,
               coordinateSystem: "singleAxis",
               type: "scatter",
-              data: entries.map((o) => [o.hour, o.count]),
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              data: (entries as any[]).map((o) => [o.hour, o.count]),
               symbolSize: function (dataItem) {
                 // scaling the size so that the largest value has size maxCircleSize
                 return (dataItem[1] / maxValue) * maxCircleSize

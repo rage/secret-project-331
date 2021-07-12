@@ -1,7 +1,12 @@
 use actix_http::{body::Body, Request};
 use actix_session::CookieSession;
 use actix_web::{dev::ServiceResponse, test, App};
-use headless_lms_actix::models::organizations::{self, Organization};
+use headless_lms_actix::{
+    models::organizations::{self, Organization},
+    setup_tracing,
+    utils::file_store::local_file_store::LocalFileStore,
+    ApplicationConfiguration,
+};
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use std::env;
 use tokio::sync::Mutex;
@@ -38,7 +43,7 @@ pub async fn init_db() -> String {
         .run(&mut conn)
         .await
         .expect("failed to run migrations");
-    let _ = tracing_subscriber::fmt().try_init();
+    setup_tracing().expect("Could not setup tracing.");
     db
 }
 
@@ -52,8 +57,14 @@ pub async fn init_actix() -> (
     let pool = PgPool::connect(&db)
         .await
         .expect("failed to connect to test db");
+    let file_store = futures::executor::block_on(async {
+        LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
+            .await
+            .expect("Failed to initialize test file store")
+    });
+    let app_conf = ApplicationConfiguration { test_mode: true };
     let app = App::new()
-        .configure(headless_lms_actix::configure)
+        .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
         .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
         // .data(oauth_client.clone())
         .data(pool.clone());

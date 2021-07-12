@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { BlockRendererProps } from "."
+
 import colorMapper from "../../styles/colorMapper"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-import ContentRenderer from "./index"
-import { CoverAttributes } from "../../types/GutenbergBlockAttributes"
+
+import ContentRenderer, { BlockRendererProps } from "."
 
 interface CoverTextPosition {
   justifyContent: string

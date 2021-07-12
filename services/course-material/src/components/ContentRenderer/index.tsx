@@ -1,25 +1,27 @@
+import React from "react"
+
 import { Block } from "../../services/backend"
-import DefaultBlock from "./DefaultBlock"
-import ListBlock from "./ListBlock"
-import ParagraphBlock from "./ParagraphBlock"
-import ImageBlock from "./ImageBlock"
-import HeadingBlock from "./HeadingBlock"
+
+import AudioBlock from "./AudioBlock"
 import ButtonBlock from "./ButtonBlock"
 import CodeBlock from "./CodeBlock"
-import QuoteBlock from "./QuoteBlock"
-import AudioBlock from "./AudioBlock"
-import TableBlock from "./TableBlock"
-import CourseProgressBlock from "./CourseProgressBlock"
-import ExerciseBlock from "./ExerciseBlock"
-import CustomHTMLBlock from "./CustomHTMLBlock"
-import PreformatterBlock from "./PreformatterBlock"
-import VerseBlock from "./VerseBlock"
-import PullquoteBlock from "./PullquoteBlock"
-import CoverBlock from "./CoverBlock"
-import ExerciseListBlock from "./ExerciseListBlock/index"
-import PagesListBlock from "./PagesListBlock"
-import React from "react"
 import CourseChapterGrid from "./CourseChapterGrid"
+import CourseProgressBlock from "./CourseProgressBlock"
+import CoverBlock from "./CoverBlock"
+import CustomHTMLBlock from "./CustomHTMLBlock"
+import DefaultBlock from "./DefaultBlock"
+import ExerciseBlock from "./ExerciseBlock"
+import ExerciseListBlock from "./ExerciseListBlock/index"
+import HeadingBlock from "./HeadingBlock"
+import ImageBlock from "./ImageBlock"
+import ListBlock from "./ListBlock"
+import PagesListBlock from "./PagesListBlock"
+import ParagraphBlock from "./ParagraphBlock"
+import PreformatterBlock from "./PreformatterBlock"
+import PullquoteBlock from "./PullquoteBlock"
+import QuoteBlock from "./QuoteBlock"
+import TableBlock from "./TableBlock"
+import VerseBlock from "./VerseBlock"
 
 export interface ContentRendererProps {
   data: Block<unknown>[]
@@ -51,6 +53,14 @@ const blockToRendererMap: { [blockName: string]: any } = {
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
+  if (props.data.constructor !== Array) {
+    return (
+      <div>
+        <p>Error: tried to render something that was not an array.</p>
+        <pre>{JSON.stringify(props.data, undefined, 2)}</pre>
+      </div>
+    )
+  }
   return (
     <>
       {props.data.map((block) => {

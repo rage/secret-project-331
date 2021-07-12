@@ -1,4 +1,5 @@
 import { BlockConfiguration } from "@wordpress/blocks"
+
 import CourseProgressEditor from "./CourseProgressEditor"
 import CourseProgressSave from "./CourseProgressSave"
 
@@ -8,6 +9,7 @@ const CourseProgressConfiguration: BlockConfiguration = {
   category: "design",
   edit: CourseProgressEditor,
   save: CourseProgressSave,
+  attributes: {},
 }
 
 export default CourseProgressConfiguration

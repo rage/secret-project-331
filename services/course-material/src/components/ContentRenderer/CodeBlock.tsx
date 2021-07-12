@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { BlockRendererProps } from "."
+
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { CodeAttributes } from "../../types/GutenbergBlockAttributes"
 

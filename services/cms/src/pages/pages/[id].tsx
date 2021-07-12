@@ -1,16 +1,25 @@
-import Layout from "../../components/Layout"
+import dynamic from "next/dynamic"
 import { useQuery } from "react-query"
+
+import Layout from "../../components/Layout"
+import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
+import { Page, PageUpdate } from "../../services/services.types"
+import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../utils/dontRenderUntilQueryParametersReady"
-import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
-import { Page, PageUpdate } from "../../services/services.types"
-import PageEditor from "../../components/PageEditor"
-import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 
 interface PagesProps {
   query: SimplifiedUrlQuery
 }
+
+const EditorLoading = <div>Loading editor...</div>
+
+const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), {
+  ssr: false,
+  loading: () => EditorLoading,
+})
 
 const Pages = ({ query }: PagesProps) => {
   const { id } = query
@@ -46,4 +55,4 @@ const Pages = ({ query }: PagesProps) => {
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(Pages))
+export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(Pages)))

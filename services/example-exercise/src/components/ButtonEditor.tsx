@@ -1,5 +1,6 @@
-import { Alternative } from "../pages/editor"
 import styled from "@emotion/styled"
+
+import { Alternative } from "../util/stateInterfaces"
 interface Props {
   item: Alternative
   onDelete: () => void
@@ -42,7 +43,7 @@ const ButtonEditor: React.FC<Props> = ({ item, onDelete, onChange }) => {
     <StyledButtonEditor>
       <InputCheckbox
         type="checkbox"
-        checked={item.correct}
+        checked={item.correct || false}
         onChange={(e) => {
           onChange({ ...item, correct: e.target.checked })
         }}

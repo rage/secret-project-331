@@ -60,7 +60,8 @@ jobs:
       - name: Setup test database
         run: bin/setup-system-test-db
 
-      - uses: microsoft/playwright-github-action@v1
       - name: Run system tests
-        run: npm run test
+        run: |
+          npm ci
+          npm run test
         working-directory: ./system-tests/

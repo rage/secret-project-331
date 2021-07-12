@@ -66,6 +66,11 @@ pub fn remember(session: &Session, user: models::users::User) -> Result<()> {
         .map_err(|_| anyhow::anyhow!("Failed to insert to session"))
 }
 
+/// Checks if the user is authenticated in the given session.
+pub fn has_auth_user_session(session: &Session) -> bool {
+    session.entries().get(SESSION_KEY).is_some()
+}
+
 /// Forgets authentication from the current session, if any.
 pub fn forget(session: &Session) {
     session.remove(SESSION_KEY);

@@ -12,3 +12,9 @@ export const normalWidthCenteredComponentStyles = css`
   padding-right: 1rem;
   padding-left: 1rem;
 `
+
+export const chapterBox = css`
+  background-color: #e0e0e0;
+  display: flex;
+  margin-bottom: 1rem;
+`

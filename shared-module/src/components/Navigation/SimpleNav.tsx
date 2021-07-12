@@ -3,14 +3,20 @@ import { Link } from "@reach/router"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { cx, css } from "@emotion/css"
+import {
+  theme,
+  typography,
+  primaryFont,
+} from "../../utils";
 
 import Hamburger from "../Hamburger"
 
 const StyledIcon = css`
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   color: #333;
 `
 const NavbarItems = css`
+  background: #f1f1f1;
   height: 90px;
   display: flex;
   justify-content: center;
@@ -31,22 +37,15 @@ const NavbarLogo = css`
   cursor: pointer;
 `
 
-/*ul {
-  margin-bottom: 0;
-  margin-right: 0 !important;
-   CSS Reset
-}*/
-
 const NavMenu = css`
   display: grid;
-  grid-template-columns: repeat(3, auto);
-  grid-gap: 20px;
+  grid-template-columns: repeat(2, auto);
+  grid-gap: 10px;
   list-style: none;
   text-align: center;
   align-items: center;
   width: 100vw;
   justify-content: end;
-  margin-right: 2rem;
 `
 const NavLink = css`
   color: #333;
@@ -86,26 +85,24 @@ const NavLinkMobile = css`
   display: none;
 `
 const MenuIcon = css`
-  width: auto;
-  height: 30px;
+  display: flex;
 `
 const Container = css`
   display: relative;
 `
 const ToolTip = css`
-  background: black;
-  /*   display: none; */
+  background: cyan;
   top: 100px;
-  right: 42px;
-  border-radius: 8px;
+  left: 90%;
+  border-radius: 4px;
   position: absolute;
-  padding: 5px 15px;
+  padding: 10px 15px;
   margin-bottom: 10px;
   margin-left: -95px;
   cursor: default;
   animation: show 0.4s ease-in-out forwards;
 
-  &:after {
+  &::after {
     bottom: 100%;
     left: 50%;
     border: solid transparent;
@@ -115,7 +112,7 @@ const ToolTip = css`
     position: absolute;
     pointer-events: none;
     border-color: rgba(0, 151, 167, 0);
-    border-bottom-color: rgba(255, 255, 255, 0.53);
+    border-bottom-color: cyan;
     border-width: 12px;
     margin-left: -12px;
   }
@@ -124,6 +121,7 @@ const ToolTip = css`
     text-decoration: none;
     list-style: none;
     margin: 0;
+    font-family: ${primaryFont};
     /*   padding: 0 10px; */
 
     Button {
@@ -170,7 +168,7 @@ const Navigation: React.FC = (props) => {
           <Link className={cx(NavLink)} to="/faq" aria-label="Kurssi valikko" role="button">
             FAQ
           </Link>
-          <ul className={clicked ? cx(ToolTip) : cx(Hide)}>Login controls</ul>
+          <ul className={clicked ? cx(ToolTip) : cx(Hide)}><li>Login controls</li></ul>
         </li>
         <li>
           <div

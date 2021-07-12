@@ -179,6 +179,33 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Provides functionality for checksumming directory trees.
@@ -291,12 +318,21 @@ might take a while since reading a lot of data from disk is not fast.
     <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">it_works</span>() {
         <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">TempDir::new</span>(<span class="string">&quot;test-folder-checksum&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;Failed to create a temp dir&quot;</span>);
+        <span class="ident">File::open</span>(<span class="ident">dir</span>.<span class="ident">path</span>())
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">set_permissions</span>(<span class="ident">Permissions::from_mode</span>(<span class="number">0o755</span>))
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">first_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">first_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;01444ae9678097d0214e449568b68eb351c4743b2697bfc3d517b5c601535823&quot;</span>
         );
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;test-file&quot;</span>)).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">file</span>.<span class="ident">set_permissions</span>(<span class="ident">Permissions::from_mode</span>(<span class="number">0o644</span>))
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
         <span class="ident">file</span>.<span class="ident">write_all</span>(<span class="string">b&quot;Test file&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">second_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -306,10 +342,7 @@ might take a while since reading a lot of data from disk is not fast.
             <span class="string">&quot;c2f4caaaafeb41dfd5e5381ea9c1583ccaa7d09378745def8c979b1e1f0e5c2a&quot;</span>
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">permissions</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">metadata</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">permissions</span>();
-        <span class="ident">permissions</span>.<span class="ident">set_readonly</span>(<span class="bool-val">true</span>);
-
-        <span class="ident">fs::set_permissions</span>(<span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;test-file&quot;</span>), <span class="ident">permissions</span>)
+        <span class="ident">fs::set_permissions</span>(<span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;test-file&quot;</span>), <span class="ident">Permissions::from_mode</span>(<span class="number">0o444</span>))
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 
@@ -320,7 +353,14 @@ might take a while since reading a lot of data from disk is not fast.
             <span class="string">&quot;1b1820abcb400974e0eb751c103303864f7b0ae7ad387c5135521d9968dbb4de&quot;</span>
         );
 
-        <span class="ident">create_dir</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;directory&quot;</span>)).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">inner_dir_path</span> <span class="op">=</span> <span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;directory&quot;</span>);
+        <span class="ident">create_dir</span>(<span class="kw-2">&amp;</span><span class="ident">inner_dir_path</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">File::open</span>(<span class="ident">inner_dir_path</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">set_permissions</span>(<span class="ident">Permissions::from_mode</span>(<span class="number">0o755</span>))
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">fourth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
@@ -339,15 +379,29 @@ might take a while since reading a lot of data from disk is not fast.
         );
 
         <span class="comment">// Should not have the same checksum as with the directory created before</span>
-        <span class="ident">File::create</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;directory&quot;</span>)).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;directory&quot;</span>)).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">file</span>.<span class="ident">set_permissions</span>(<span class="ident">Permissions::from_mode</span>(<span class="number">0o755</span>))
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">sixth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
+        <span class="comment">// Tells if we can tell folders apart from files</span>
+        <span class="macro">assert_ne!</span>(
+            <span class="ident">fifth_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
+            <span class="ident">sixth_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>()
+        );
         <span class="macro">assert_eq!</span>(
             <span class="ident">sixth_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
-            <span class="string">&quot;28708cf92385c9da899ddf346baed1b61a300ae0d8aa2fa2468789860a4cb425&quot;</span>
+            <span class="string">&quot;4b9255096a4b233be4a24b0fb74fa5e955a0261a422c8e9cfbe7ac11f1256030&quot;</span>
         );
-
-        <span class="ident">symlink</span>(<span class="kw-2">&amp;</span><span class="ident">Path::new</span>(<span class="string">&quot;directory&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;symlink&quot;</span>))
+        <span class="kw">let</span> <span class="ident">symlink_path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;symlink&quot;</span>);
+        <span class="ident">symlink</span>(<span class="ident">Path::new</span>(<span class="string">&quot;directory&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">symlink_path</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
+        <span class="ident">File::open</span>(<span class="ident">symlink_path</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">set_permissions</span>(<span class="ident">Permissions::from_mode</span>(<span class="number">0o644</span>))
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 

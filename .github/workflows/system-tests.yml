@@ -10,16 +10,19 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  system-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
       - name: Install kustomize, kubectl and skaffold
         uses: daisaru11/setup-cd-tools@v1
         with:
           kubectl: "1.19.2"
           kustomize: "4.1.3"
           skaffold: "1.24.0"
+
       - name: Start minikube
         uses: medyagh/setup-minikube@master
         run: bin/minikube-start

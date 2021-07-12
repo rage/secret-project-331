@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import sanitizeHtml from "sanitize-html"
+import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 
 import colorMapper from "../../styles/colorMapper"
 import { PullquoteAttributes } from "../../types/GutenbergBlockAttributes"

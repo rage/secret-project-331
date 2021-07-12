@@ -30,7 +30,7 @@ jobs:
         run: bin/test
         working-directory: ./
 
+      - uses: microsoft/playwright-github-action@v1
       - name: Run system tests
-        uses: microsoft/playwright-github-action@v1
         run: npm run test
         working-directory: ./system-tests/

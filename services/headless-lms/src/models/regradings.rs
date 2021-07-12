@@ -66,7 +66,7 @@ RETURNING id
     Ok(res)
 }
 
-pub async fn set_grading_progress(
+pub async fn set_total_grading_progress(
     conn: &mut PgConnection,
     regrading_id: Uuid,
     progress: GradingProgress,

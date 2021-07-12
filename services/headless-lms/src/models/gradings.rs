@@ -133,6 +133,25 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
     Ok(grading)
 }
 
+pub async fn set_grading_progress(
+    conn: &mut PgConnection,
+    id: Uuid,
+    grading_progress: GradingProgress,
+) -> Result<()> {
+    sqlx::query!(
+        "
+UPDATE gradings
+SET grading_progress = $1
+WHERE id = $2
+",
+        grading_progress as GradingProgress,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn grade_submission(
     conn: &mut PgConnection,
     submission: Submission,

@@ -1,6 +1,11 @@
 use crate::models::{
-    self, exercise_service_info::ExerciseServiceInfo, exercise_services::ExerciseService,
-    exercises::GradingProgress, submissions::GradingResult,
+    self,
+    exercise_service_info::ExerciseServiceInfo,
+    exercise_services::ExerciseService,
+    exercises::{Exercise, GradingProgress},
+    gradings::Grading,
+    regrading_submissions::RegradingSubmission,
+    submissions::GradingResult,
 };
 use anyhow::Result;
 use futures::{
@@ -28,7 +33,14 @@ pub async fn regrade(
         models::regradings::get_uncompleted_regradings_and_mark_as_started(&mut *conn).await?;
     let mut incomplete_regradings = HashSet::new();
     for regrading_id in regrading_ids.iter().copied() {
-        let mut sent_submission = false;
+        // set regrading progress to pending
+        models::regradings::set_total_grading_progress(
+            &mut *conn,
+            regrading_id,
+            GradingProgress::Pending,
+        )
+        .await?;
+
         // for each regrading, process all related submissions
         let regrading_submissions =
             models::regrading_submissions::get_regrading_submissions(&mut *conn, regrading_id)
@@ -39,27 +51,47 @@ pub async fn regrade(
             regrading_id
         );
         for regrading_submission in regrading_submissions {
-            if regrading_submission.requires_manual_review.is_some() {
-                continue;
+            // for each submission, send to exercise service to be graded and store the future
+
+            if let Some(grading_id) = regrading_submission.grading_after_regrading {
+                // this submission has previously been at least partially regraded
+                let grading = models::gradings::get_by_id(&mut *conn, grading_id).await?;
+                if grading.grading_progress == GradingProgress::FullyGraded {
+                    // already fully graded, continue to the next one
+                    continue;
+                }
+                // otherwise, attempt grading again
             }
 
-            // for each submission, send to exercise service to be graded and store the future
+            // create new grading for the submission
             let submission =
                 models::submissions::get_submission(&mut *conn, regrading_submission.submission_id)
                     .await?;
-            let exercise =
-                models::exercises::get_exercise(&mut *conn, submission.exercise_id).await?;
+            let not_ready_grading = models::gradings::new_grading(&mut *conn, &submission).await?;
+            models::regrading_submissions::set_grading_after_regrading(
+                conn,
+                regrading_submission.id,
+                not_ready_grading.id,
+            )
+            .await?;
+
+            // get the corresponding exercise service
             let exercise_task = models::exercise_tasks::get_exercise_task_by_id(
                 &mut *conn,
                 submission.exercise_task_id,
             )
             .await?;
-            // get the corresponding exercise service
             if let Some((exercise_service, info)) =
                 exercise_services_by_type.get(&exercise_task.exercise_type)
             {
-                let not_ready_grading =
-                    models::gradings::new_grading(&mut *conn, &submission).await?;
+                // mark the grading as pending
+                models::gradings::set_grading_progress(
+                    &mut *conn,
+                    not_ready_grading.id,
+                    GradingProgress::Pending,
+                )
+                .await?;
+
                 let entry = grading_futures
                     .entry(exercise_task.exercise_type.clone())
                     .or_default();
@@ -75,22 +107,21 @@ pub async fn regrade(
                         usize::MAX
                     });
                 if entry.len() < limit {
+                    let exercise =
+                        models::exercises::get_exercise(&mut *conn, submission.exercise_id).await?;
                     let grading_future = models::gradings::send_grading_request(
                         info,
                         exercise_task,
                         submission.clone(),
                     )
-                    .map(|r| (regrading_submission, not_ready_grading, exercise, r));
+                    .map(move |exercise_service_result| GradingData {
+                        exercise_service_name: exercise_service.name.clone(),
+                        regrading_submission,
+                        grading: not_ready_grading,
+                        exercise,
+                        exercise_service_result,
+                    });
                     entry.push(Box::pin(grading_future));
-                    if !sent_submission {
-                        sent_submission = true;
-                        models::regradings::set_grading_progress(
-                            &mut *conn,
-                            regrading_id,
-                            GradingProgress::Pending,
-                        )
-                        .await?;
-                    }
                 } else {
                     // we can't send this submission right now, so mark the related regrading as incomplete
                     incomplete_regradings.insert(regrading_id);
@@ -101,10 +132,10 @@ pub async fn regrade(
                     exercise_task.exercise_type
                 );
                 tracing::warn!("{}", msg);
-                models::regrading_submissions::set_requires_manual_review(
+                models::gradings::set_grading_progress(
                     &mut *conn,
-                    regrading_submission.id,
-                    &msg,
+                    not_ready_grading.id,
+                    GradingProgress::Failed,
                 )
                 .await?;
             }
@@ -117,24 +148,33 @@ pub async fn regrade(
         .map(|v| v.1)
         .flatten()
         .collect::<FuturesUnordered<_>>();
-    while let Some((regrading_submission, new_grading, exercise, grading_result)) =
-        grading_futures.next().await
+    while let Some(GradingData {
+        exercise_service_name,
+        regrading_submission,
+        grading,
+        exercise,
+        exercise_service_result,
+    }) = grading_futures.next().await
     {
-        if new_grading.grading_progress != GradingProgress::FullyGraded
-            || regrading_submission.grading_after_regrading.is_none()
-        {
-            // update regrading submission grading
-            models::regrading_submissions::set_grading_after_regrading(
-                &mut conn,
-                regrading_submission.id,
-                new_grading.id,
-            )
-            .await?;
-        }
-        let grading_result: GradingResult = grading_result?;
-        models::gradings::update_grading(&mut *conn, &new_grading, grading_result, exercise)
-            .await?;
-        models::submissions::set_grading_id(&mut *conn, new_grading.id, regrading_submission.id)
+        let grading_result = match exercise_service_result {
+            Ok(grading_result) => grading_result,
+            Err(err) => {
+                tracing::error!(
+                    "Failed to get grading from exercise service {}: {}",
+                    exercise_service_name,
+                    err
+                );
+                models::gradings::set_grading_progress(
+                    &mut *conn,
+                    grading.id,
+                    GradingProgress::Failed,
+                )
+                .await?;
+                continue;
+            }
+        };
+        models::gradings::update_grading(&mut *conn, &grading, grading_result, exercise).await?;
+        models::submissions::set_grading_id(&mut *conn, grading.id, regrading_submission.id)
             .await?;
     }
     // update completed regradings
@@ -144,6 +184,14 @@ pub async fn regrade(
         }
     }
     Ok(())
+}
+
+struct GradingData {
+    exercise_service_name: String,
+    regrading_submission: RegradingSubmission,
+    grading: Grading,
+    exercise: Exercise,
+    exercise_service_result: Result<GradingResult>,
 }
 
 #[cfg(test)]

@@ -1,21 +1,31 @@
 import { useContext } from "react"
+
 import { BlockRendererProps } from ".."
-import PageContext from "../../../contexts/PageContext"
+import CoursePageContext from "../../../contexts/CoursePageContext"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
+
 import ExerciseList from "./ExerciseList"
 
 const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
-  const chapterId = useContext(PageContext)?.chapter_id
+  const pageContext = useContext(CoursePageContext)
 
-  if (chapterId) {
-    return (
-      <div className={normalWidthCenteredComponentStyles}>
-        <ExerciseList chapterId={chapterId} />
-      </div>
-    )
+  if (pageContext.state !== "ready") {
+    return <GenericLoading />
   }
-  return <GenericLoading />
+
+  const chapterId = pageContext.pageData.chapter_id
+
+  if (!chapterId) {
+    return <pre>ExerciseListBlock: Missing chapter id on this page.</pre>
+  }
+
+  return (
+    <div className={normalWidthCenteredComponentStyles}>
+      <ExerciseList chapterId={chapterId} />
+    </div>
+  )
 }
 
-export default ExerciseListBlock
+export default withErrorBoundary(ExerciseListBlock)

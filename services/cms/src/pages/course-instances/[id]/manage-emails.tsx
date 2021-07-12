@@ -3,10 +3,10 @@ import { Button, Dialog } from "@material-ui/core"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-
 import { useQuery } from "react-query"
-import NewEmailTemplateForm from "../../../components/forms/NewEmailTemplateForm"
+
 import Layout from "../../../components/Layout"
+import NewEmailTemplateForm from "../../../components/forms/NewEmailTemplateForm"
 import {
   fetchCourseInstanceEmailTemplates,
   postNewEmailTemplateForCourseInstance,
@@ -14,6 +14,7 @@ import {
 import { deleteEmailTemplate } from "../../../services/backend/email-templates"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 
 const CourseInstanceEmailTemplates = () => {
@@ -102,4 +103,5 @@ const CourseInstanceEmailTemplates = () => {
     </Layout>
   )
 }
-export default withSignedIn(CourseInstanceEmailTemplates)
+
+export default withErrorBoundary(withSignedIn(CourseInstanceEmailTemplates))

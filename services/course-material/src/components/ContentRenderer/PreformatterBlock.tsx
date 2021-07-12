@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
-import { BlockRendererProps } from "."
 import sanitizeHtml from "sanitize-html"
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+
 import colorMapper from "../../styles/colorMapper"
+import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import fontSizeMapper from "../../styles/fontSizeMapper"
+
+import { BlockRendererProps } from "."
 
 interface PreformatterBlockAttributes {
   content: string

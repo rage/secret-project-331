@@ -1,8 +1,11 @@
-import { useQuery } from "react-query"
 import styled from "@emotion/styled"
-import { fetchOrganizations } from "../services/backend"
-import basePath from "../utils/base-path"
 import Link from "next/link"
+import { useQuery } from "react-query"
+
+import { fetchOrganizations } from "../services/backend"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+import basePath from "../utils/base-path"
+
 import "katex/dist/katex.min.css"
 
 const Title = styled.h1`
@@ -40,4 +43,4 @@ const Home: React.FC = () => {
   )
 }
 
-export default Home
+export default withErrorBoundary(Home)

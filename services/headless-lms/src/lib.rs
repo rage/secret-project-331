@@ -13,6 +13,7 @@ use actix_http::error::InternalError;
 use actix_web::web::{self, HttpResponse, ServiceConfig};
 use anyhow::Result;
 use oauth2::basic::BasicClient;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tracing_actix_web::TracingLogger;
 use tracing_error::ErrorLayer;
@@ -22,7 +23,16 @@ use utils::file_store::FileStore;
 
 pub type OAuthClient = Arc<BasicClient>;
 
-pub fn configure<T: 'static + FileStore>(config: &mut ServiceConfig, file_store: T) {
+#[derive(Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+pub struct ApplicationConfiguration {
+    pub test_mode: bool,
+}
+
+pub fn configure<T: 'static + FileStore>(
+    config: &mut ServiceConfig,
+    file_store: T,
+    app_conf: ApplicationConfiguration,
+) {
     let json_config = web::JsonConfig::default()
         .limit(81920)
         .error_handler(|err, _req| {
@@ -41,7 +51,8 @@ pub fn configure<T: 'static + FileStore>(config: &mut ServiceConfig, file_store:
                 .wrap(TracingLogger::default())
                 .configure(controllers::configure_controllers::<T>),
         )
-        .data(file_store);
+        .data(file_store)
+        .data(app_conf);
 }
 
 /**

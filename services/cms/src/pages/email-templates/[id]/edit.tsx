@@ -1,14 +1,15 @@
-import Layout from "../../../components/Layout"
+import dynamic from "next/dynamic"
 import { useQuery } from "react-query"
 
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import dynamic from "next/dynamic"
-import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import Layout from "../../../components/Layout"
 import {
   fetchEmailTemplateWithId,
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
 import { EmailTemplate, EmailTemplateUpdate } from "../../../services/services.types"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
+import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
 
 const EditorLoading = <div>Loading editor...</div>
@@ -18,7 +19,7 @@ const EmailEditor = dynamic(() => import("../../../components/editors/EmailEdito
   loading: () => EditorLoading,
 })
 
-const EmailTemplateEdit = () => {
+const EmailTemplateEdit: React.FC = () => {
   const emailTemplateId = useQueryParameter("id")
   const { isLoading, error, data, refetch } = useQuery(`email-template-${emailTemplateId}`, () =>
     fetchEmailTemplateWithId(emailTemplateId),
@@ -52,4 +53,6 @@ const EmailTemplateEdit = () => {
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(EmailTemplateEdit))
+export default withErrorBoundary(
+  withSignedIn(dontRenderUntilQueryParametersReady(EmailTemplateEdit)),
+)

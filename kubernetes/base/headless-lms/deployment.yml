@@ -34,6 +34,15 @@ spec:
           ports:
             - containerPort: 3001
               name: headless-lms
+      initContainers:
+        - name: headless-lms-wait-for-db
+          image: headless-lms
+          command:
+            - bash
+            - "-c"
+            - |
+              echo Waiting for postgres to be available
+              wait-for-it --timeout=120 postgres:5432
           resources:
             requests:
               memory: 200Mi

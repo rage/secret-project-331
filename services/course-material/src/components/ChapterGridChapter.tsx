@@ -1,11 +1,11 @@
+import { differenceInSeconds, formatDuration } from "date-fns"
 import Link from "next/link"
-import { chapterBox } from "../styles/componentStyles"
-import { differenceInSeconds } from "date-fns"
-import { ChapterInTheCourse } from "../services/backend"
-import { fetchPageUrl } from "../services/backend"
 import { useQuery } from "react-query"
+
+import { ChapterInTheCourse, fetchPageUrl } from "../services/backend"
+import { chapterBox } from "../styles/componentStyles"
+
 import GenericLoading from "./GenericLoading"
-import { formatDuration } from "date-fns"
 
 interface ChapterProps {
   now: Date

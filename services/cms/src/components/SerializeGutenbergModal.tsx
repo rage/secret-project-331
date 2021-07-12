@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { Button, Dialog, Paper } from "@material-ui/core"
-import { useState } from "react"
-import dynamic from "next/dynamic"
 import { BlockInstance, serialize } from "@wordpress/blocks"
+import dynamic from "next/dynamic"
+import { useState } from "react"
 
 export interface SerializeGutenbergModalProps {
   content: BlockInstance[]

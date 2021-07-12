@@ -1,13 +1,12 @@
-import React from "react"
-
-import { useQuery } from "react-query"
-import { dontRenderUntilQueryParametersReady } from "../../utils/dontRenderUntilQueryParametersReady"
-import { fetchCourseWeekdayHourSubmissionCounts } from "../../services/backend/courses"
-
-import DebugModal from "../DebugModal"
-import { groupBy, max } from "lodash"
-import Echarts from "../Echarts"
 import { css } from "@emotion/css"
+import { groupBy, max } from "lodash"
+import React from "react"
+import { useQuery } from "react-query"
+
+import { fetchCourseWeekdayHourSubmissionCounts } from "../../services/backend/courses"
+import { dontRenderUntilQueryParametersReady } from "../../utils/dontRenderUntilQueryParametersReady"
+import DebugModal from "../DebugModal"
+import Echarts from "../Echarts"
 
 export interface CourseSubmissionsByWeekdayAndHourProps {
   courseId: string

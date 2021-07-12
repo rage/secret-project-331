@@ -1,18 +1,19 @@
+import { css } from "@emotion/css"
+import { Button, Dialog } from "@material-ui/core"
+import Link from "next/link"
 import React, { useState } from "react"
+import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
-import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
-import { css } from "@emotion/css"
-import { useQuery } from "react-query"
-import { deleteCourse, getCourse } from "../../../../services/backend/courses"
-import { Dialog, Button } from "@material-ui/core"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
-import ExerciseList from "../../../../components/lists/ExerciseList"
 import CourseInstancesList from "../../../../components/lists/CourseInstancesList"
+import ExerciseList from "../../../../components/lists/ExerciseList"
+import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import Link from "next/link"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
+import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
 const ManageCoursePage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
@@ -83,4 +84,6 @@ const ManageCoursePage: React.FC<unknown> = () => {
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(ManageCoursePage))
+export default withErrorBoundary(
+  withSignedIn(dontRenderUntilQueryParametersReady(ManageCoursePage)),
+)

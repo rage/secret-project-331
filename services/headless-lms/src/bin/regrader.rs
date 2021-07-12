@@ -9,7 +9,9 @@ Starts a thread that will periodically send regrading submissions to the corresp
 */
 #[tokio::main]
 async fn main() -> Result<()> {
+    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
     dotenv::dotenv().ok();
+    headless_lms_actix::setup_tracing()?;
     let db_url = env::var("DATABASE_URL")?;
 
     // fetch exercise services

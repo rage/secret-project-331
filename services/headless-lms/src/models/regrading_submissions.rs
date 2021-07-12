@@ -7,6 +7,7 @@ pub struct RegradingSubmission {
     pub submission_id: Uuid,
     pub grading_before_regrading: Uuid,
     pub grading_after_regrading: Option<Uuid>,
+    pub requires_manual_review: Option<String>,
 }
 
 pub async fn insert(
@@ -44,7 +45,8 @@ pub async fn get_regrading_submission(
 SELECT id,
   submission_id,
   grading_before_regrading,
-  grading_after_regrading
+  grading_after_regrading,
+  requires_manual_review
 FROM regrading_submissions
 WHERE id = $1
 ",
@@ -65,7 +67,8 @@ pub async fn get_regrading_submissions(
 SELECT id,
   submission_id,
   grading_before_regrading,
-  grading_after_regrading
+  grading_after_regrading,
+  requires_manual_review
 FROM regrading_submissions
 WHERE regrading_id = $1
 ",
@@ -88,6 +91,25 @@ SET grading_after_regrading = $1
 WHERE id = $2
 ",
         new_grading_id,
+        regrading_submission_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn set_requires_manual_review(
+    conn: &mut PgConnection,
+    regrading_submission_id: Uuid,
+    reason: &str,
+) -> Result<()> {
+    sqlx::query!(
+        "
+UPDATE regrading_submissions
+SET requires_manual_review = $1
+WHERE id = $2
+",
+        reason,
         regrading_submission_id
     )
     .execute(conn)

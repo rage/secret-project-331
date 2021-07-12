@@ -24,7 +24,7 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get(conn: &mut PgConnection, id: Uuid) -> Result<Regrading> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Regrading> {
     let res = sqlx::query_as!(
         Regrading,
         r#"
@@ -42,7 +42,9 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_uncompleted_regradings(conn: &mut PgConnection) -> Result<Vec<Uuid>> {
+pub async fn get_uncompleted_regradings_and_mark_as_started(
+    conn: &mut PgConnection,
+) -> Result<Vec<Uuid>> {
     let res = sqlx::query!(
         r#"
 UPDATE regradings

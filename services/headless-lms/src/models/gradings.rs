@@ -74,7 +74,7 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get(conn: &mut PgConnection, id: Uuid) -> Result<Grading> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Grading> {
     let res = sqlx::query_as!(
         Grading,
         r#"
@@ -143,7 +143,7 @@ pub async fn grade_submission(
     let exercise_service_info =
         get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let obj = send_grading_request(&exercise_service_info, exercise_task, submission).await?;
-    let updated_grading = update_grading(conn, grading, obj, exercise).await?;
+    let updated_grading = update_grading(conn, &grading, obj, exercise).await?;
     Ok(updated_grading)
 }
 
@@ -173,7 +173,7 @@ pub async fn send_grading_request(
 
 pub async fn update_grading(
     conn: &mut PgConnection,
-    grading: Grading,
+    grading: &Grading,
     grading_result: GradingResult,
     exercise: Exercise,
 ) -> Result<Grading> {
@@ -184,12 +184,13 @@ pub async fn update_grading(
     };
     let correctness_coefficient =
         grading_result.score_given / (grading_result.score_maximum as f32);
-    let score_given_with_all_decumals = f32::min(
+    // ensure the score doesn't go over the maximum
+    let score_given_with_all_decimals = f32::min(
         (exercise.score_maximum as f32) * correctness_coefficient,
         exercise.score_maximum as f32,
     );
     // Scores are rounded to two decimals
-    let score_given_rounded = (score_given_with_all_decumals * (100_f32)).trunc() / (100_f32);
+    let score_given_rounded = (score_given_with_all_decimals * (100_f32)).trunc() / (100_f32);
     let grading = sqlx::query_as!(
         Grading,
         r#"

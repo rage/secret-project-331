@@ -23,7 +23,7 @@ use http_api_problem::{HttpApiProblem, StatusCode};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::file_store::FileStore;
+use crate::{models::ModelError, utils::file_store::FileStore};
 
 use self::{
     auth::add_auth_routes, cms::add_cms_routes, course_material::add_course_material_routes,
@@ -112,6 +112,12 @@ impl From<uuid::Error> for ApplicationError {
 
 impl From<sqlx::Error> for ApplicationError {
     fn from(err: sqlx::Error) -> ApplicationError {
+        Self::InternalServerError(err.to_string())
+    }
+}
+
+impl From<ModelError> for ApplicationError {
+    fn from(err: ModelError) -> Self {
         Self::InternalServerError(err.to_string())
     }
 }

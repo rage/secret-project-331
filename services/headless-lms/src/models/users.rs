@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -13,7 +13,7 @@ pub struct User {
     pub upstream_id: Option<i32>,
 }
 
-pub async fn insert(conn: &mut PgConnection) -> Result<Uuid> {
+pub async fn insert(conn: &mut PgConnection) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO users DEFAULT
@@ -26,7 +26,10 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn insert_with_upstream_id(conn: &mut PgConnection, upstream_id: i32) -> Result<User> {
+pub async fn insert_with_upstream_id(
+    conn: &mut PgConnection,
+    upstream_id: i32,
+) -> ModelResult<User> {
     let user = sqlx::query_as!(
         User,
         r#"
@@ -45,7 +48,7 @@ RETURNING *;
 pub async fn find_by_upstream_id(
     conn: &mut PgConnection,
     upstream_id: i32,
-) -> Result<Option<User>> {
+) -> ModelResult<Option<User>> {
     let user = sqlx::query_as!(
         User,
         "SELECT * FROM users WHERE upstream_id = $1",
@@ -61,7 +64,7 @@ pub async fn authenticate_test_user(
     conn: &mut PgConnection,
     _email: String,
     _password: String,
-) -> Result<User> {
+) -> ModelResult<User> {
     // TODO: Add support to "authenticate" different kind of users
     let user = insert_with_upstream_id(conn, 9001).await?;
     Ok(user)

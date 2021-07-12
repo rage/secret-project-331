@@ -8,6 +8,7 @@ pub mod course_instance_enrollments;
 pub mod course_instances;
 pub mod courses;
 pub mod email_templates;
+mod error;
 pub mod exercise_service_info;
 pub mod exercise_services;
 pub mod exercise_tasks;
@@ -19,3 +20,5 @@ pub mod roles;
 pub mod submissions;
 pub mod user_exercise_states;
 pub mod users;
+
+pub use self::error::{ModelError, ModelResult};

@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -17,7 +17,10 @@ pub struct ExerciseService {
     pub internal_url: Option<String>,
 }
 
-pub async fn get_exercise_service(conn: &mut PgConnection, id: Uuid) -> Result<ExerciseService> {
+pub async fn get_exercise_service(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ExerciseService> {
     let res = sqlx::query_as!(
         ExerciseService,
         r#"
@@ -35,7 +38,7 @@ WHERE id = $1
 pub async fn get_exercise_service_by_exercise_type(
     conn: &mut PgConnection,
     exercise_type: &str,
-) -> Result<ExerciseService> {
+) -> ModelResult<ExerciseService> {
     let res = sqlx::query_as!(
         ExerciseService,
         r#"
@@ -50,7 +53,7 @@ WHERE slug = $1
     Ok(res)
 }
 
-pub async fn get_exercise_services(conn: &mut PgConnection) -> Result<Vec<ExerciseService>> {
+pub async fn get_exercise_services(conn: &mut PgConnection) -> ModelResult<Vec<ExerciseService>> {
     let res = sqlx::query_as!(
         ExerciseService,
         r#"
@@ -70,7 +73,7 @@ pub async fn insert_exercise_service(
     slug: &str,
     public_url: &str,
     internal_url: &str,
-) -> Result<ExerciseService> {
+) -> ModelResult<ExerciseService> {
     let res = sqlx::query_as!(
         ExerciseService,
         r#"

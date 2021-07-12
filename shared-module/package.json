@@ -41,7 +41,6 @@
     "@emotion/css": "^11.1.3",
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
-<<<<<<< HEAD
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
     "@fortawesome/free-solid-svg-icons": "^5.15.3",
     "@fortawesome/react-fontawesome": "^0.1.14",
@@ -50,9 +49,5 @@
     "react-query": "^3.16.1",
     "styled-components": "^5.3.0",
     "styled-components-modifiers": "^1.2.5"
-=======
-    "axios": "^0.21.1",
-    "react-query": "^3.16.1"
->>>>>>> c29b77c46b9436cbde492deb2f1f26313ca4020f
   }
 }

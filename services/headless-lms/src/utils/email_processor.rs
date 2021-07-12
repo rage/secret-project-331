@@ -76,23 +76,18 @@ pub fn process_content_to_plaintext(blocks: &[EmailGutenbergBlock]) -> String {
             } => {
                 if *ordered {
                     let mut counter = 0;
-                    let first_tags: String = LI_START_TAG_REGEX
+                    let first_tags = LI_START_TAG_REGEX
                         .replace_all(&values, |_caps: &Captures| {
                             counter += 1;
                             format!("{}. ", counter)
                         })
                         .to_string();
-                    let snd_tags: String =
-                        LI_END_TAG_REGEX.replace_all(&first_tags, "\n").to_string();
-                    let final_res: String = ALL_TAG_REGEX.replace_all(&snd_tags, "").to_string();
-                    final_res
+                    let snd_tags = LI_END_TAG_REGEX.replace_all(&first_tags, "\n").to_string();
+                    ALL_TAG_REGEX.replace_all(&snd_tags, "").to_string()
                 } else {
-                    let first_tags: String =
-                        LI_START_TAG_REGEX.replace_all(&values, "* ").to_string();
-                    let snd_tags: String =
-                        LI_END_TAG_REGEX.replace_all(&first_tags, "\n").to_string();
-                    let final_res: String = ALL_TAG_REGEX.replace_all(&snd_tags, "").to_string();
-                    final_res
+                    let first_tags = LI_START_TAG_REGEX.replace_all(&values, "* ").to_string();
+                    let snd_tags = LI_END_TAG_REGEX.replace_all(&first_tags, "\n").to_string();
+                    ALL_TAG_REGEX.replace_all(&snd_tags, "").to_string()
                 }
             }
         })
@@ -109,26 +104,22 @@ pub fn process_content_to_html(blocks: &[EmailGutenbergBlock]) -> String {
                 drop_cap: _,
                 ..
             } => {
-                let result = format!("<p>{}</p>", content);
-                result
+                format!("<p>{}</p>", content)
             }
             BlockAttributes::Image { alt, url, .. } => {
-                let result = format!(r#"<img src="{}" alt="{}"></img>"#, url, alt);
-                result
+                format!(r#"<img src="{}" alt="{}"></img>"#, url, alt)
             }
             BlockAttributes::Heading { content, level, .. } => {
-                let result: String = format!("<h{}>{}</h{}>", level, content, level);
-                result
+                format!("<h{}>{}</h{}>", level, content, level)
             }
             BlockAttributes::List {
                 values, ordered, ..
             } => {
-                let result = if *ordered {
+                if *ordered {
                     format!("<ol>{}</ol>", values)
                 } else {
                     format!("<ul>{}</ul>", values)
-                };
-                result
+                }
             }
         })
         .collect();

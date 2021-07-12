@@ -1,5 +1,5 @@
-use anyhow::Result;
-use futures::StreamExt;
+use anyhow::{Context, Result};
+use futures::{FutureExt, StreamExt};
 use headless_lms_actix::models::email_deliveries::{
     fetch_emails, mark_as_sent, save_err_to_email, Email,
 };
@@ -8,8 +8,8 @@ use lettre::message::{header, MultiPart, SinglePart};
 use lettre::{Message, SmtpTransport, Transport};
 use once_cell::sync::Lazy;
 use sqlx::PgPool;
-use std::{env, time};
-use tokio::time::sleep;
+use std::env;
+use std::time::Duration;
 
 const BATCH_SIZE: usize = 100;
 
@@ -31,30 +31,39 @@ pub async fn mail_sender() -> Result<()> {
     let emails = fetch_emails(&mut conn).await?;
     let mailer = SmtpTransport::relay(&EMAIL_RELAY)?.build();
 
-    let result = tokio_stream::iter(emails)
-        .map(|email| send_message(email, &mailer, pool.clone()))
-        .buffer_unordered(BATCH_SIZE)
-        .collect::<Vec<_>>()
-        .await;
+    let mut futures = tokio_stream::iter(emails)
+        .map(|email| {
+            let email_id = email.id;
+            send_message(email, &mailer, pool.clone()).inspect(move |r| {
+                if let Err(err) = r {
+                    tracing::error!("Failed to send email {}: {}", email_id, err)
+                }
+            })
+        })
+        .buffer_unordered(BATCH_SIZE);
 
-    print!("{}", result.len());
+    while futures.next().await.is_some() {}
 
     Ok(())
 }
 
-pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) -> Result<bool> {
+pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) -> Result<()> {
     let email_block: Vec<EmailGutenbergBlock> =
-        serde_json::from_value(email.body.expect("No body"))?;
+        serde_json::from_value(email.body.context("No body")?)?;
 
     let msg_as_plaintext = email_processor::process_content_to_plaintext(&email_block);
     let msg_as_html = email_processor::process_content_to_html(&email_block);
 
     let mut conn = pool.acquire().await?;
+    let email_to = email.to;
     let msg = Message::builder()
         .from(MOOCFI_EMAIL.parse()?)
-        .to(email.to.to_string().parse().expect("invalid email address"))
-        // could also be unwrap_or("No subject")
-        .subject(email.subject.expect("no subject"))
+        .to(email
+            .to
+            .to_string()
+            .parse()
+            .with_context(|| format!("Invalid address: {}", email_to))?)
+        .subject(email.subject.context("No subject")?)
         .multipart(
             MultiPart::alternative()
                 .singlepart(
@@ -68,25 +77,26 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
                         .body(msg_as_html),
                 ),
         )
+        // should never fail
         .expect("Failed to build email");
 
     match mailer.send(&msg) {
         Ok(_) => mark_as_sent(email.id, &mut conn)
             .await
-            .expect("Couldn't mark email as sent."),
+            .context("Couldn't mark as sent")?,
         Err(err) => save_err_to_email(email.id, err, &mut conn)
             .await
-            .expect("Couldn't save sent err to db."),
+            .context("Couldn't save sent err to db")?,
     };
 
-    Ok(true)
+    Ok(())
 }
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
-    let ten_second = time::Duration::from_millis(10000);
+    let mut interval = tokio::time::interval(Duration::from_secs(10));
     loop {
+        interval.tick().await;
         mail_sender().await?;
-        sleep(ten_second).await;
     }
 }

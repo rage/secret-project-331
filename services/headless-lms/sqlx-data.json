@@ -1508,6 +1508,42 @@
       "nullable": [false, false, false, false, false, false]
     }
   },
+  "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
+    "query": "\nSELECT *\nFROM users\nWHERE id = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "upstream_id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, true]
+    }
+  },
   "77589f5977cb1abcf08674c88fcc060ccb0be732fde86e1fd3b4b21c6de86565": {
     "query": "SELECT organization_id, course_id, role AS \"role: UserRole\" FROM roles WHERE user_id = $1",
     "describe": {

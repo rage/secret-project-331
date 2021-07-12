@@ -109,12 +109,21 @@ mod tests {
     #[actix_rt::test]
     async fn it_works() {
         let dir = TempDir::new("test-folder-checksum").expect("Failed to create a temp dir");
+        File::open(dir.path())
+            .await
+            .unwrap()
+            .set_permissions(Permissions::from_mode(0o755))
+            .await
+            .unwrap();
         let first_hash = hash_folder(&dir.path()).await.unwrap();
         assert_eq!(
             first_hash.to_hex().to_string(),
             "01444ae9678097d0214e449568b68eb351c4743b2697bfc3d517b5c601535823"
         );
         let mut file = File::create(dir.path().join("test-file")).await.unwrap();
+        file.set_permissions(Permissions::from_mode(0o644))
+            .await
+            .unwrap();
         file.write_all(b"Test file").await.unwrap();
 
         let second_hash = hash_folder(&dir.path()).await.unwrap();
@@ -124,10 +133,7 @@ mod tests {
             "c2f4caaaafeb41dfd5e5381ea9c1583ccaa7d09378745def8c979b1e1f0e5c2a"
         );
 
-        let mut permissions = file.metadata().await.unwrap().permissions();
-        permissions.set_readonly(true);
-
-        fs::set_permissions(dir.path().join("test-file"), permissions)
+        fs::set_permissions(dir.path().join("test-file"), Permissions::from_mode(0o444))
             .await
             .unwrap();
 
@@ -138,7 +144,14 @@ mod tests {
             "1b1820abcb400974e0eb751c103303864f7b0ae7ad387c5135521d9968dbb4de"
         );
 
-        create_dir(&dir.path().join("directory")).await.unwrap();
+        let inner_dir_path = dir.path().join("directory");
+        create_dir(&inner_dir_path).await.unwrap();
+        File::open(inner_dir_path)
+            .await
+            .unwrap()
+            .set_permissions(Permissions::from_mode(0o755))
+            .await
+            .unwrap();
 
         let fourth_hash = hash_folder(&dir.path()).await.unwrap();
 
@@ -157,15 +170,29 @@ mod tests {
         );
 
         // Should not have the same checksum as with the directory created before
-        File::create(&dir.path().join("directory")).await.unwrap();
+        let file = File::create(&dir.path().join("directory")).await.unwrap();
+        file.set_permissions(Permissions::from_mode(0o755))
+            .await
+            .unwrap();
         let sixth_hash = hash_folder(&dir.path()).await.unwrap();
 
+        // Tells if we can tell folders apart from files
+        assert_ne!(
+            fifth_hash.to_hex().to_string(),
+            sixth_hash.to_hex().to_string()
+        );
         assert_eq!(
             sixth_hash.to_hex().to_string(),
-            "28708cf92385c9da899ddf346baed1b61a300ae0d8aa2fa2468789860a4cb425"
+            "4b9255096a4b233be4a24b0fb74fa5e955a0261a422c8e9cfbe7ac11f1256030"
         );
-
-        symlink(&Path::new("directory"), &dir.path().join("symlink"))
+        let symlink_path = &dir.path().join("symlink");
+        symlink(Path::new("directory"), &symlink_path)
+            .await
+            .unwrap();
+        File::open(symlink_path)
+            .await
+            .unwrap()
+            .set_permissions(Permissions::from_mode(0o644))
             .await
             .unwrap();
 

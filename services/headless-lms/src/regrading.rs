@@ -1,7 +1,9 @@
 use crate::models::{
     self,
     exercise_service_info::ExerciseServiceInfo,
-    exercise_services::ExerciseService,
+    exercise_services::{
+        get_exercise_service_internally_preferred_baseurl_by_exercise_type, ExerciseService,
+    },
     exercises::{Exercise, GradingProgress},
     gradings::Grading,
     regrading_submissions::RegradingSubmission,
@@ -110,7 +112,14 @@ pub async fn regrade(
                 if entry.len() < limit {
                     let exercise =
                         models::exercises::get_exercise(&mut *conn, submission.exercise_id).await?;
+                    let grade_url =
+                        get_exercise_service_internally_preferred_baseurl_by_exercise_type(
+                            conn,
+                            &exercise_task.exercise_type,
+                        )
+                        .await?;
                     let grading_future = models::gradings::send_grading_request(
+                        grade_url,
                         info,
                         exercise_task,
                         submission.clone(),

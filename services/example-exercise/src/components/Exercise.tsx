@@ -29,7 +29,7 @@ const Exercise: React.FC<Props> = ({ onHeightChange, port, maxWidth, state }) =>
       return
     }
     console.log("Posting current state to parent")
-    port.postMessage({ message: "current-state-2", data: { selectedValue: value } })
+    port.postMessage({ message: "current-state", data: { selectedOptionId: value } })
     return res
   }
 

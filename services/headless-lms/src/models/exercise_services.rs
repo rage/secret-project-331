@@ -1,7 +1,8 @@
-use super::ModelResult;
+use super::{ModelError, ModelResult};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+use url::Url;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -52,6 +53,22 @@ WHERE slug = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_exercise_service_internally_preferred_baseurl_by_exercise_type(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+) -> ModelResult<Url> {
+    let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
+    let stored_url_str = exercise_service
+        .internal_url
+        .unwrap_or(exercise_service.public_url);
+    let mut url = Url::parse(&stored_url_str)
+        .map_err(|original_error| ModelError::Generic(original_error.to_string()))?;
+    // remove the path because all relative urls in service info assume
+    // that the base url prefix has no path
+    url.set_path("");
+    Ok(url)
 }
 
 pub async fn get_exercise_services(conn: &mut PgConnection) -> ModelResult<Vec<ExerciseService>> {

@@ -18,7 +18,7 @@ pub enum ModelError {
     #[error(transparent)]
     Anyhow(#[from] anyhow::Error),
     #[error("{0}")]
-    Generic(&'static str),
+    Generic(String),
 }
 
 impl From<sqlx::Error> for ModelError {

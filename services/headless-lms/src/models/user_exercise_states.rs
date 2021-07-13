@@ -14,15 +14,15 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {
-    user_id: Uuid,
-    exercise_id: Uuid,
-    course_instance_id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    deleted_at: Option<DateTime<Utc>>,
-    score_given: Option<f32>,
-    grading_progress: GradingProgress,
-    activity_progress: ActivityProgress,
+    pub user_id: Uuid,
+    pub exercise_id: Uuid,
+    pub course_instance_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub score_given: Option<f32>,
+    pub grading_progress: GradingProgress,
+    pub activity_progress: ActivityProgress,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -138,6 +138,38 @@ RETURNING user_id,
         course_instance_id
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_user_exercise_state_if_exits(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<UserExerciseState>> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT user_id,
+  exercise_id,
+  course_instance_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress as "grading_progress: _",
+  activity_progress as "activity_progress: _"
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+      "#,
+        user_id,
+        exercise_id,
+        course_instance_id
+    )
+    .fetch_optional(conn)
     .await?;
     Ok(res)
 }

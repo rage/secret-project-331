@@ -8,6 +8,8 @@ build:
         manual:
           - src: "**/*.rs"
             dest: "/app"
+          - src: "**/*.sql"
+            dest: "/app"
     - image: cms
       context: services/cms
       sync:

@@ -142,7 +142,7 @@ export interface CourseMaterialExercise {
 }
 
 export interface CurrentExerciseTaskServiceInfo {
-  exercise_iframe_path: string
+  exercise_iframe_url: string
 }
 
 export interface CurrentExerciseTask {
@@ -248,4 +248,55 @@ export const fetchChaptersInTheCourse = async (courseId: string): Promise<Chapte
 
 export const fetchPageUrl = async (pageId: string): Promise<string> => {
   return (await courseMaterialClient.get(`/pages/${pageId}/url-path`)).data
+}
+
+export interface NewSubmission {
+  exercise_task_id: string
+  course_instance_id: string
+  data_json: unknown
+}
+
+export interface SubmissionResult {
+  submission: Submission
+  grading: Grading
+}
+
+export interface Grading {
+  id: string
+  created_at: Date
+  updated_at: Date
+  submission_id: string
+  course_id: string
+  exercise_id: string
+  exercise_task_id: string
+  grading_priority: number
+  score_given: number
+  grading_progress: string
+  user_points_update_strategy: string
+  unscaled_score_given: number
+  unscaled_score_maximum: number
+  grading_started_at: Date
+  grading_completed_at: Date
+  feedback_json: null
+  feedback_text: string
+  deleted_at: null
+}
+
+export interface Submission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: null
+  exercise_id: string
+  course_id: string
+  course_instance_id: string
+  exercise_task_id: string
+  data_json: unknown
+  grading_id: string
+  metadata: null
+  user_id: string
+}
+
+export const postSubmission = async (newSubmission: NewSubmission): Promise<SubmissionResult> => {
+  return (await courseMaterialClient.post(`/submissions`, newSubmission)).data
 }

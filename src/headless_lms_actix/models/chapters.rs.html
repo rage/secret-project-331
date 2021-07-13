@@ -278,6 +278,7 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
+<span id="278">278</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers::ApplicationError</span>, <span class="ident">models::pages::NewPage</span>,
@@ -396,6 +397,7 @@ RETURNING id
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="doccomment">/// Checks the opens_at field for the chapter and compares it to the current time. If null, the chapter is always open.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_open</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
@@ -407,7 +409,7 @@ WHERE id = $1
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">open</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">opens_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Utc::now</span>()).<span class="ident">unwrap_or_default</span>();
+    <span class="kw">let</span> <span class="ident">open</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">opens_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Utc::now</span>()).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>);
     <span class="prelude-val">Ok</span>(<span class="ident">open</span>)
 }
 

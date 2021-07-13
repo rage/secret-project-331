@@ -115,6 +115,7 @@ pub async fn set_opens_at(
     Ok(())
 }
 
+/// Checks the opens_at field for the chapter and compares it to the current time. If null, the chapter is always open.
 pub async fn is_open(conn: &mut PgConnection, chapter_id: Uuid) -> Result<bool> {
     let res = sqlx::query!(
         r#"
@@ -126,7 +127,7 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    let open = res.opens_at.map(|o| o <= Utc::now()).unwrap_or_default();
+    let open = res.opens_at.map(|o| o <= Utc::now()).unwrap_or(true);
     Ok(open)
 }
 

@@ -1,6 +1,7 @@
 pub mod controllers;
 pub mod domain;
 pub mod models;
+pub mod regrading;
 pub mod utils;
 
 #[cfg(test)]

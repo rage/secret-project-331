@@ -90,3 +90,5 @@ actix-service = "=2.0.0-beta.5"
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "0.7.1"
+# HTTP mocking for Rust.
+mockito = "0.30"

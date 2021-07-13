@@ -1,8 +1,12 @@
+use anyhow::Result;
+use rand::Rng;
+use serde_json::Value;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
 use tokio::sync::Mutex;
+use uuid::Uuid;
 
-use crate::setup_tracing;
+use crate::{models, setup_tracing};
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
@@ -56,4 +60,31 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
     fn as_mut(&mut self) -> &mut Transaction<'a, Postgres> {
         &mut self.0
     }
+}
+
+pub async fn insert_user_organization_course_instance_exercise_task(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+) -> Result<(Uuid, Uuid, Uuid, Uuid, Uuid, Uuid)> {
+    let random_string: String = rand::thread_rng()
+        .sample_iter(&rand::distributions::Alphanumeric)
+        .take(32)
+        .map(char::from)
+        .collect();
+    let user = models::users::insert(&mut *conn).await?;
+    let org = models::organizations::insert(&mut *conn, "", &random_string).await?;
+    let course = models::courses::insert(&mut *conn, "", org, &random_string).await?;
+    let instance = models::course_instances::insert(&mut *conn, course, None).await?;
+    let page = models::pages::insert(&mut *conn, course, "", "", 0).await?;
+    let exercise = models::exercises::insert(conn, course, "", page, 0).await?;
+    let exercise_task = models::exercise_tasks::insert(
+        conn,
+        exercise,
+        exercise_type,
+        vec![],
+        Value::Null,
+        Value::Null,
+    )
+    .await?;
+    Ok((user, org, course, instance, exercise, exercise_task))
 }

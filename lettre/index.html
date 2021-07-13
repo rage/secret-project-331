@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Lettre is an email library that allows creating and sending messages. It provides:"><meta name="keywords" content="rust, rustlang, rust-lang, lettre"><title>lettre - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="https://lettre.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../lettre/index.html'><div class='logo-container'><img src='https://avatars0.githubusercontent.com/u/15113230?v=4' alt='logo'></div></a><p class="location">Crate lettre</p><div class="block version"><p>Version 0.10.0-rc.3</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all lettre's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="lettre" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">lettre</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/lettre/lib.rs.html#1-226" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Lettre is an email library that allows creating and sending messages. It provides:</p>
+<ul>
+<li>An easy to use email builder</li>
+<li>Pluggable email transports</li>
+<li>Unicode support</li>
+<li>Secure defaults</li>
+<li>Async support</li>
+</ul>
+<p>Lettre requires Rust 1.46 or newer.</p>
+<h2 id="features" class="section-header"><a href="#features">Features</a></h2>
+<p>This section lists each lettre feature and briefly explains it.
+More info about each module can be found in the corresponding module page.</p>
+<p>Features with <code>📫</code> near them are enabled by default.</p>
+<h3 id="typed-message-builder" class="section-header"><a href="#typed-message-builder">Typed message builder</a></h3>
+<p><em>Strongly typed <a href="message/index.html" title="message"><code>message</code></a> builder</em></p>
+<ul>
+<li><strong>builder</strong> 📫: Enable the <a href="struct.Message.html" title="Message"><code>Message</code></a> builder</li>
+<li><strong>hostname</strong> 📫: Try to use the actual system hostname in the <code>Message-ID</code> header</li>
+</ul>
+<h3 id="smtp-transport" class="section-header"><a href="#smtp-transport">SMTP transport</a></h3>
+<p><em>Send emails using <a href="transport/smtp/index.html"><code>SMTP</code></a></em></p>
+<ul>
+<li><strong>smtp-transport</strong> 📫: Enable the SMTP transport</li>
+<li><strong>r2d2</strong> 📫: Connection pool for SMTP transport</li>
+<li><strong>hostname</strong> 📫: Try to use the actual system hostname for the SMTP <code>CLIENTID</code></li>
+</ul>
+<h4 id="smtp-over-tls-via-the-native-tls-crate" class="section-header"><a href="#smtp-over-tls-via-the-native-tls-crate">SMTP over TLS via the native-tls crate</a></h4>
+<p><em>Secure SMTP connections using TLS from the <code>native-tls</code> crate</em></p>
+<p>Uses schannel on Windows, Security-Framework on macOS, and OpenSSL on Linux.</p>
+<ul>
+<li><strong>native-tls</strong> 📫: TLS support for the synchronous version of the API</li>
+<li><strong>tokio1-native-tls</strong>: TLS support for the <code>tokio1</code> async version of the API</li>
+</ul>
+<p>NOTE: native-tls isn’t supported with <code>async-std</code></p>
+<h4 id="smtp-over-tls-via-the-rustls-crate" class="section-header"><a href="#smtp-over-tls-via-the-rustls-crate">SMTP over TLS via the rustls crate</a></h4>
+<p><em>Secure SMTP connections using TLS from the <code>rustls-tls</code> crate</em></p>
+<p>Rustls uses <a href="https://github.com/briansmith/ring#ring">ring</a> as the cryptography implementation. As a result, <a href="https://github.com/briansmith/ring#online-automated-testing">not all Rust’s targets are supported</a>.</p>
+<ul>
+<li><strong>rustls-tls</strong>: TLS support for the synchronous version of the API</li>
+<li><strong>tokio1-rustls-tls</strong>: TLS support for the <code>tokio1</code> async version of the API</li>
+<li><strong>async-std1-rustls-tls</strong>: TLS support for the <code>async-std1</code> async version of the API</li>
+</ul>
+<h3 id="sendmail-transport" class="section-header"><a href="#sendmail-transport">Sendmail transport</a></h3>
+<p><em>Send emails using the <a href="crate::transport::sendmail"><code>sendmail</code></a> command</em></p>
+<ul>
+<li><strong>sendmail-transport</strong>: Enable the <code>sendmail</code> transport</li>
+</ul>
+<h3 id="file-transport" class="section-header"><a href="#file-transport">File transport</a></h3>
+<p><em>Save emails as an <code>.eml</code> <a href="crate::transport::file"><code>file</code></a></em></p>
+<ul>
+<li><strong>file-transport</strong>: Enable the file transport (saves emails into an <code>.eml</code> file)</li>
+<li><strong>file-transport-envelope</strong>: Allow writing the envelope into a JSON file (additionally saves envelopes into a <code>.json</code> file)</li>
+</ul>
+<h3 id="async-execution-runtimes" class="section-header"><a href="#async-execution-runtimes">Async execution runtimes</a></h3>
+<p><em>Use <a href="https://docs.rs/tokio/1">tokio</a> or <a href="https://docs.rs/async-std/1">async-std</a> as an async execution runtime for sending emails</em></p>
+<p>The correct runtime version must be chosen in order for lettre to work correctly.
+For example, when sending emails from a Tokio 1.x context, the Tokio 1.x executor
+([<code>Tokio1Executor</code>]) must be used. Using a different version (for example Tokio 0.2.x),
+or async-std, would result in a runtime panic.</p>
+<ul>
+<li><strong>tokio1</strong>: Allow to asynchronously send emails using <a href="https://docs.rs/tokio/1">Tokio 1.x</a></li>
+<li><strong>async-std1</strong>: Allow to asynchronously send emails using <a href="https://docs.rs/async-std/1">async-std 1.x</a></li>
+</ul>
+<p>NOTE: native-tls isn’t supported with <code>async-std</code></p>
+<h3 id="misc-features" class="section-header"><a href="#misc-features">Misc features</a></h3>
+<p><em>Additional features</em></p>
+<ul>
+<li><strong>serde</strong>: Serialization/Deserialization of entities</li>
+<li><strong>tracing</strong>: Logging using the <code>tracing</code> crate</li>
+</ul>
+</div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<table><tr class="module-item"><td><a class="mod" href="address/index.html" title="lettre::address mod">address</a></td><td class="docblock-short"><p>Email addresses</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="error/index.html" title="lettre::error mod">error</a></td><td class="docblock-short"><p>Error type for email messages</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="message/index.html" title="lettre::message mod">message</a></td><td class="docblock-short"><p>Provides a strongly typed way to build emails</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="transport/index.html" title="lettre::transport mod">transport</a></td><td class="docblock-short"><p>Transports for sending emails</p>
+</td></tr></table><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.Address.html" title="lettre::Address struct">Address</a></td><td class="docblock-short"><p>Represents an email address with a user and a domain name.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Message.html" title="lettre::Message struct">Message</a></td><td class="docblock-short"><p>Email message which can be formatted</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.SmtpTransport.html" title="lettre::SmtpTransport struct">SmtpTransport</a></td><td class="docblock-short"><p>Sends emails using the SMTP protocol</p>
+</td></tr></table><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<table><tr class="module-item"><td><a class="trait" href="trait.Transport.html" title="lettre::Transport trait">Transport</a></td><td class="docblock-short"><p>Blocking Transport method for emails</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="lettre" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script></body></html>

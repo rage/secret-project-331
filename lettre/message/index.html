@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Provides a strongly typed way to build emails"><meta name="keywords" content="rust, rustlang, rust-lang, message"><title>lettre::message - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://lettre.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../lettre/index.html'><div class='logo-container'><img src='https://avatars0.githubusercontent.com/u/15113230?v=4' alt='logo'></div></a><p class="location">Module message</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><p class="location"><a href="../index.html">lettre</a></p><div id="sidebar-vars" data-name="message" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">lettre</a>::<wbr><a class="mod" href="">message</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/lettre/message/mod.rs.html#1-653" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Provides a strongly typed way to build emails</p>
+<h2 id="usage" class="section-header"><a href="#usage">Usage</a></h2>
+<p>This section demonstrates how to build messages.</p>
+<!--
+style for <details><summary>Blablabla</summary> Lots of stuff</details>
+borrowed from https://docs.rs/time/0.2.23/src/time/lib.rs.html#49-54
+-->
+<style>
+summary, details:not([open]) { cursor: pointer; }
+summary { display: list-item; }
+summary::marker { content: '▶ '; }
+details[open] summary::marker { content: '▼ '; }
+</style>
+<h3 id="plain-body" class="section-header"><a href="#plain-body">Plain body</a></h3>
+<p>The easiest way of creating a message, which uses a plain text body.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">lettre::message::Message</span>;
+
+<span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
+    .<span class="ident">from</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
+    .<span class="ident">reply_to</span>(<span class="string">&quot;Yuin &lt;yuin@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
+    .<span class="ident">to</span>(<span class="string">&quot;Hei &lt;hei@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
+    .<span class="ident">subject</span>(<span class="string">&quot;Happy new year&quot;</span>)
+    .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Be happy!&quot;</span>))<span class="question-mark">?</span>;</pre></div>
+<p>Which produces:</p>
+<details>
+<summary>Click to expand</summary>
+<pre><code class="language-sh">From: NoBody &lt;nobody@domain.tld&gt;
+Reply-To: Yuin &lt;yuin@domain.tld&gt;
+To: Hei &lt;hei@domain.tld&gt;
+Subject: Happy new year
+Date: Sat, 12 Dec 2020 16:33:19 GMT
+Content-Transfer-Encoding: 7bit
+
+Be happy!
+</code></pre>
+</details>
+<br />
+<p>The unicode header data is encoded using <em>UTF8-Base64</em> encoding, when necessary.</p>
+<p>The <code>Content-Transfer-Encoding</code> is chosen based on the best encoding
+available for the given body, between <code>7bit</code>, <code>quoted-printable</code> and <code>base64</code>.</p>
+<h3 id="plain-and-html-body" class="section-header"><a href="#plain-and-html-body">Plain and HTML body</a></h3>
+<p>Uses a MIME body to include both plain text and HTML versions of the body.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">lettre::message</span>::{<span class="ident">header</span>, <span class="ident">Message</span>, <span class="ident">MultiPart</span>, <span class="ident">SinglePart</span>};
+
+<span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
+    .<span class="ident">from</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
+    .<span class="ident">reply_to</span>(<span class="string">&quot;Yuin &lt;yuin@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
+    .<span class="ident">to</span>(<span class="string">&quot;Hei &lt;hei@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
+    .<span class="ident">subject</span>(<span class="string">&quot;Happy new year&quot;</span>)
+    .<span class="ident">multipart</span>(<span class="ident">MultiPart::alternative_plain_html</span>(
+        <span class="ident">String::from</span>(<span class="string">&quot;Hello, world! :)&quot;</span>),
+        <span class="ident">String::from</span>(<span class="string">&quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=\&quot;cid:123\&quot;&gt;&lt;/p&gt;&quot;</span>),
+    ))<span class="question-mark">?</span>;</pre></div>
+<p>Which produces:</p>
+<details>
+<summary>Click to expand</summary>
+<pre><code class="language-sh">From: NoBody &lt;nobody@domain.tld&gt;
+Reply-To: Yuin &lt;yuin@domain.tld&gt;
+To: Hei &lt;hei@domain.tld&gt;
+Subject: Happy new year
+MIME-Version: 1.0
+Date: Sat, 12 Dec 2020 16:33:19 GMT
+Content-Type: multipart/alternative; boundary=&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;
+
+--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
+Content-Type: text/plain; charset=utf8
+Content-Transfer-Encoding: 7bit
+
+Hello, world! :)
+--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
+Content-Type: text/html; charset=utf8
+Content-Transfer-Encoding: 7bit
+
+&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=&quot;cid:123&quot;&gt;&lt;/p&gt;
+--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--
+</code></pre>
+</details>
+<h3 id="complex-mime-body" class="section-header"><a href="#complex-mime-body">Complex MIME body</a></h3>
+<p>This example shows how to include both plain and HTML versions of the body,
+attachments and inlined images.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">lettre::message</span>::{<span class="ident">header</span>, <span class="ident">Attachment</span>, <span class="ident">Body</span>, <span class="ident">Message</span>, <span class="ident">MultiPart</span>, <span class="ident">SinglePart</span>};
+<span class="kw">use</span> <span class="ident">std::fs</span>;
+
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">fs::read</span>(<span class="string">&quot;docs/lettre.png&quot;</span>)<span class="question-mark">?</span>;
+<span class="comment">// this image_body can be cloned and reused between emails.</span>
+<span class="comment">// since `Body` holds a pre-encoded body, reusing it means avoiding having</span>
+<span class="comment">// to re-encode the same body for every email (this clearly only applies</span>
+<span class="comment">// when sending multiple emails with the same attachment).</span>
+<span class="kw">let</span> <span class="ident">image_body</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">image</span>);
+
+<span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
+    .<span class="ident">from</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
+    .<span class="ident">reply_to</span>(<span class="string">&quot;Yuin &lt;yuin@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
+    .<span class="ident">to</span>(<span class="string">&quot;Hei &lt;hei@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
+    .<span class="ident">subject</span>(<span class="string">&quot;Happy new year&quot;</span>)
+    .<span class="ident">multipart</span>(
+        <span class="ident">MultiPart::mixed</span>()
+            .<span class="ident">multipart</span>(
+                <span class="ident">MultiPart::alternative</span>()
+                    .<span class="ident">singlepart</span>(<span class="ident">SinglePart::plain</span>(<span class="ident">String::from</span>(<span class="string">&quot;Hello, world! :)&quot;</span>)))
+                    .<span class="ident">multipart</span>(
+                        <span class="ident">MultiPart::related</span>()
+                            .<span class="ident">singlepart</span>(<span class="ident">SinglePart::html</span>(<span class="ident">String::from</span>(
+                                <span class="string">&quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;&quot;</span>,
+                            )))
+                            .<span class="ident">singlepart</span>(
+                                <span class="ident">Attachment::new_inline</span>(<span class="ident">String::from</span>(<span class="string">&quot;123&quot;</span>))
+                                    .<span class="ident">body</span>(<span class="ident">image_body</span>, <span class="string">&quot;image/png&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
+                            ),
+                    ),
+            )
+            .<span class="ident">singlepart</span>(<span class="ident">Attachment::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;example.rs&quot;</span>)).<span class="ident">body</span>(
+                <span class="ident">String::from</span>(<span class="string">&quot;fn main() { println!(\&quot;Hello, World!\&quot;) }&quot;</span>),
+                <span class="string">&quot;text/plain&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+            )),
+    )<span class="question-mark">?</span>;</pre></div>
+<p>Which produces:</p>
+<details>
+<summary>Click to expand</summary>
+<pre><code class="language-sh">From: NoBody &lt;nobody@domain.tld&gt;
+Reply-To: Yuin &lt;yuin@domain.tld&gt;
+To: Hei &lt;hei@domain.tld&gt;
+Subject: Happy new year
+MIME-Version: 1.0
+Date: Sat, 12 Dec 2020 16:30:45 GMT
+Content-Type: multipart/mixed; boundary=&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;
+
+--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
+Content-Type: multipart/alternative; boundary=&quot;EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk&quot;
+
+--EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk
+Content-Type: text/plain; charset=utf8
+Content-Transfer-Encoding: 7bit
+
+Hello, world! :)
+--EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk
+Content-Type: multipart/related; boundary=&quot;eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr&quot;
+
+--eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr
+Content-Type: text/html; charset=utf8
+Content-Transfer-Encoding: 7bit
+
+&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;
+--eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr
+Content-Type: image/png
+Content-Disposition: inline
+Content-ID: &lt;123&gt;
+Content-Transfer-Encoding: base64
+
+PHNtaWxlLXJhdy1pbWFnZS1kYXRhPg==
+--eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr--
+--EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk--
+--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
+Content-Type: text/plain; charset=utf8
+Content-Disposition: attachment; filename=&quot;example.rs&quot;
+Content-Transfer-Encoding: 7bit
+
+fn main() { println!(&quot;Hello, World!&quot;) }
+--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--
+</code></pre>
+</details></div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<table><tr class="module-item"><td><a class="mod" href="header/index.html" title="lettre::message::header mod">header</a></td><td class="docblock-short"><p>Headers widely used in email messages</p>
+</td></tr></table><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.Attachment.html" title="lettre::message::Attachment struct">Attachment</a></td><td class="docblock-short"><p><code>SinglePart</code> builder for attachments</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Body.html" title="lettre::message::Body struct">Body</a></td><td class="docblock-short"><p>A <a href="../struct.Message.html" title="super::Message"><code>Message</code></a> or <a href="struct.SinglePart.html" title="super::SinglePart"><code>SinglePart</code></a> body that has already been encoded.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Mailbox.html" title="lettre::message::Mailbox struct">Mailbox</a></td><td class="docblock-short"><p>Represents an email address with an optional name for the sender/recipient.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Mailboxes.html" title="lettre::message::Mailboxes struct">Mailboxes</a></td><td class="docblock-short"><p>Represents a sequence of <a href="struct.Mailbox.html" title="Mailbox"><code>Mailbox</code></a> instances.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Message.html" title="lettre::message::Message struct">Message</a></td><td class="docblock-short"><p>Email message which can be formatted</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.MessageBuilder.html" title="lettre::message::MessageBuilder struct">MessageBuilder</a></td><td class="docblock-short"><p>A builder for messages</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.MultiPart.html" title="lettre::message::MultiPart struct">MultiPart</a></td><td class="docblock-short"><p>Multipart variant with parts</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.MultiPartBuilder.html" title="lettre::message::MultiPartBuilder struct">MultiPartBuilder</a></td><td class="docblock-short"><p>Multipart builder</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.SinglePart.html" title="lettre::message::SinglePart struct">SinglePart</a></td><td class="docblock-short"><p>Single part</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.SinglePartBuilder.html" title="lettre::message::SinglePartBuilder struct">SinglePartBuilder</a></td><td class="docblock-short"><p>Creates builder for single part</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.MaybeString.html" title="lettre::message::MaybeString enum">MaybeString</a></td><td class="docblock-short"><p>Either a <code>Vec&lt;u8&gt;</code> or a <code>String</code>.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.MultiPartKind.html" title="lettre::message::MultiPartKind enum">MultiPartKind</a></td><td class="docblock-short"><p>The kind of multipart</p>
+</td></tr></table><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<table><tr class="module-item"><td><a class="trait" href="trait.IntoBody.html" title="lettre::message::IntoBody trait">IntoBody</a></td><td class="docblock-short"><p>A trait for something that takes an encoded <a href="struct.Body.html" title="Body"><code>Body</code></a>.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="lettre" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script></body></html>

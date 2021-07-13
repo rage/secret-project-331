@@ -13,40 +13,29 @@ patches:
       version: v1
       kind: Deployment
       name: service-info-fetcher
+  - path: headless-lms/patch-deployment.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: regrader
+
   - path: headless-lms/patch-service-info-fetcher.yml
     target:
       version: v1
       kind: Deployment
       name: service-info-fetcher
+  - path: headless-lms/patch-regrader.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: regrader
 
-  - path: patch-resources.yml
+  - path: patch-without-init-container.yml
     target:
       version: v1
-      kind: Deployment
-      name: main-frontend
-  - path: patch-resources.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: course-material
-  - path: patch-resources.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: cms
-  - path: patch-resources.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: example-exercise
+      labelSelector: "deploymentType=without-init-container"
 
-  - path: headless-lms/patch-lms-resources.yml
+  - path: headless-lms/patch-with-init-container.yml
     target:
       version: v1
-      kind: Deployment
-      name: headless-lms
-  - path: patch-resources.yml
-    target:
-      version: v1
-      kind: Job
-      name: headless-lms-run-migrations
+      labelSelector: "deploymentType=with-init-container"

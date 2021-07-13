@@ -1,9 +1,3 @@
 - op: replace
   path: "/spec/template/spec/containers/0/command"
   value: ["cargo", "run", "--release", "--bin", "service_info_fetcher"]
-
-- op: remove
-  path: "/spec/template/spec/containers/0/resources/requests/cpu"
-
-- op: remove
-  path: "/spec/template/spec/containers/0/resources/requests/memory"

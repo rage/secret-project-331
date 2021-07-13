@@ -4,6 +4,7 @@ metadata:
   name: service-info-fetcher
   labels:
     app: service-info-fetcher
+    deploymentType: with-init-container
 spec:
   replicas: 1
   selector:
@@ -18,6 +19,19 @@ spec:
         - name: service-info-fetcher
           image: headless-lms
           command: ["cargo", "run", "--bin", "service_info_fetcher"]
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m
+      initContainers:
+        - name: headless-lms-wait-for-db
+          image: headless-lms
+          command:
+            - bash
+            - "-c"
+            - |
+              echo Waiting for postgres to be available
+              wait-for-it --timeout=120 postgres:5432
           resources:
             requests:
               memory: 200Mi

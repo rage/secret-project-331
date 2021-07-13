@@ -18,6 +18,7 @@ metadata:
   name: headless-lms
   labels:
     app: headless-lms
+    deploymentType: with-init-container
 spec:
   replicas: 1
   selector:
@@ -34,6 +35,10 @@ spec:
           ports:
             - containerPort: 3001
               name: headless-lms
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m
       initContainers:
         - name: headless-lms-wait-for-db
           image: headless-lms
@@ -53,6 +58,8 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: headless-lms-run-migrations
+  labels:
+    deploymentType: without-init-container
 spec:
   backoffLimit: 10
   template:

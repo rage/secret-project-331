@@ -38,12 +38,19 @@ jobs:
           minikube version: "v1.20.0"
           kubernetes version: "v1.21.0"
           start args: "--addons ingress"
+      - name: Configure ingress
+        run: echo "$(minikube ip) project-331.local" >> sudo tee /etc/hosts
 
       - name: Run npm ci for shared-modules
         run: npm ci
 
       - name: Build and deploy
-        run: skaffold run --port-forward --force -p test
+        run: |
+          false
+          skaffold build -p test
+          skaffold run --port-forward --force -p test --tail &
+          sleep 10
+          kubectl wait --for=condition=Ready pods --all
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
 

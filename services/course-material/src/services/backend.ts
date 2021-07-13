@@ -84,7 +84,6 @@ export interface CourseInstance {
 }
 
 export const fetchCourseInstance = async (courseId: string): Promise<CourseInstance | null> => {
-  console.log("wow")
   const data = (
     await courseMaterialClient.get(`/courses/${courseId}/current-instance`, {
       responseType: "json",

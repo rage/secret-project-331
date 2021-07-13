@@ -3,7 +3,8 @@ Handlers for HTTP requests to `/api/v0/login`.
 */
 
 use crate::{
-    controllers::ApplicationResult, domain::authorization, ApplicationConfiguration, OAuthClient,
+    controllers::ApplicationResult, domain::authorization, models, ApplicationConfiguration,
+    OAuthClient,
 };
 use actix_session::Session;
 use actix_web::{
@@ -45,9 +46,9 @@ pub async fn login(
     // login to TMS
     if app_conf.test_mode {
         let user = if let Ok(id) = Uuid::parse_str(&email) {
-            crate::models::users::get_by_id(&mut conn, id).await?
+            models::users::get_by_id(&mut conn, id).await?
         } else {
-            crate::models::users::authenticate_test_user(&mut conn, email.clone(), password.clone())
+            models::users::authenticate_test_user(&mut conn, email.clone(), password.clone())
                 .await?
         };
         authorization::remember(&session, user)?;

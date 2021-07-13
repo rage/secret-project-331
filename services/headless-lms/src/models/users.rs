@@ -42,6 +42,21 @@ RETURNING *;
     Ok(user)
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<User> {
+    let user = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id = $1
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(user)
+}
+
 pub async fn find_by_upstream_id(
     conn: &mut PgConnection,
     upstream_id: i32,
@@ -52,21 +67,6 @@ pub async fn find_by_upstream_id(
         upstream_id
     )
     .fetch_optional(conn)
-    .await?;
-    Ok(user)
-}
-
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<User> {
-    let user = sqlx::query_as!(
-        User,
-        "
-SELECT *
-FROM users
-WHERE id = $1
-",
-        id
-    )
-    .fetch_one(conn)
     .await?;
     Ok(user)
 }

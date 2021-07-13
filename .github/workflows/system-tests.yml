@@ -42,11 +42,8 @@ jobs:
       - name: Run npm ci for shared-modules
         run: npm ci
 
-      - name: Build environment with skaffold
-        run: skaffold build -p test
-
-      - name: Deploy environment with skaffold
-        run: skaffold deploy --force --port-forward
+      - name: Build and deploy
+        run: skaffold run --port-forward --force -p test
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
 

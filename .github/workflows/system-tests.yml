@@ -51,11 +51,14 @@ jobs:
           sleep 10
           kubectl get pods -o name --selector='waitToBeReady!=false' | xargs kubectl wait --timeout=600s --for=condition=ready
           echo "All pods ready"
+          sleep 15
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
 
       - name: Setup test database
         run: bin/setup-system-test-db
+        env:
+          DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
 
       - name: Setup system test environment
         run: npm ci

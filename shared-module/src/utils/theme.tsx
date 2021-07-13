@@ -35,5 +35,3 @@ export const theme = {
       successColorActive: green[300],
   },
 };
-
-

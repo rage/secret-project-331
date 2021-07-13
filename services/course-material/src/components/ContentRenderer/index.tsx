@@ -62,7 +62,8 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
     )
   }
   return (
-    <>
+
+<>
       {props.data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         return <Component key={block.clientId} data={block} />

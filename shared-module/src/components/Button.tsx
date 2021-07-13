@@ -1,12 +1,9 @@
 import { css } from "@emotion/css"
+import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
-import { ThemeProvider } from '@emotion/react'
-import {
-  theme,
-  typography,
-  primaryFont,
-} from "../utils";
+
+import { primaryFont, theme, typography } from "../utils"
 
 export interface ButtonExtraProps {
   variant: "primary" | "secondary"
@@ -45,16 +42,17 @@ const Button: React.FC<ButtonProps> = (props) => {
   }
   return (
     <ThemeProvider theme={theme}>
-    <button
-      className={css`
-        padding: 1rem;
-        background-color: white;
-        border: 1px solid black;
-        font-family: ${primaryFont};
-      `}
-      {...props}
-    />
-  </ThemeProvider>
+      <button
+        title="button"
+        className={css`
+          padding: 1rem;
+          background-color: white;
+          border: 1px solid black;
+          font-family: ${primaryFont};
+        `}
+        {...props}
+      />
+    </ThemeProvider>
   )
 }
 

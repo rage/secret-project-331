@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react"
+import { css, cx } from "@emotion/css"
+import { useCallback, useState } from "react"
 import { HamburgerSpring } from "react-animated-burgers"
-import { cx, css } from "@emotion/css"
 
 const Default = css`
   padding: 0;

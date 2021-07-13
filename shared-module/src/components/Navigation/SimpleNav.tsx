@@ -1,14 +1,10 @@
-import { useState } from "react"
-import { Link } from "@reach/router"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { css, cx } from "@emotion/css"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
-import { cx, css } from "@emotion/css"
-import {
-  theme,
-  typography,
-  primaryFont,
-} from "../../utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Link } from "@reach/router"
+import { useState } from "react"
 
+import { primaryFont } from "../../utils"
 import Hamburger from "../Hamburger"
 
 const StyledIcon = css`
@@ -81,14 +77,8 @@ const NavLink = css`
     transform-origin: bottom left;
   }
 `
-const NavLinkMobile = css`
-  display: none;
-`
 const MenuIcon = css`
   display: flex;
-`
-const Container = css`
-  display: relative;
 `
 const ToolTip = css`
   background: cyan;
@@ -122,7 +112,6 @@ const ToolTip = css`
     list-style: none;
     margin: 0;
     font-family: ${primaryFont};
-    /*   padding: 0 10px; */
 
     Button {
       text-decoration: none;
@@ -145,7 +134,7 @@ const Hide = css`
   display: none;
 `
 
-const Navigation: React.FC = (props) => {
+const Navigation: React.FC = () => {
   const [clicked, setClicked] = useState(false)
 
   const onClickHandler = () => {
@@ -168,7 +157,9 @@ const Navigation: React.FC = (props) => {
           <Link className={cx(NavLink)} to="/faq" aria-label="Kurssi valikko" role="button">
             FAQ
           </Link>
-          <ul className={clicked ? cx(ToolTip) : cx(Hide)}><li>Login controls</li></ul>
+          <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
+            <li>Login controls</li>
+          </ul>
         </li>
         <li>
           <div
@@ -180,7 +171,6 @@ const Navigation: React.FC = (props) => {
             <Hamburger />
           </div>
         </li>
-        {/*  <LoginControls /> */}
       </ul>
     </nav>
   )

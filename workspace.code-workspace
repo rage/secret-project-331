@@ -11,6 +11,26 @@
     {
       "name": "Headless LMS",
       "path": "./services/headless-lms"
+    },
+    {
+      "name": "Course material",
+      "path": "./services/course-material"
+    },
+    {
+      "name": "Main frontend",
+      "path": "./services/main-frontend"
+    },
+    {
+      "name": "Example exercise",
+      "path": "./services/example-exercise"
+    },
+    {
+      "name": "System tests",
+      "path": "./system-tests"
+    },
+    {
+      "name": "Shared module",
+      "path": "./shared-module"
     }
   ],
   "settings": {

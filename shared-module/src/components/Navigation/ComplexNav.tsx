@@ -1,12 +1,12 @@
-import React, { useState } from "react"
-import { Link } from "@reach/router"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faBullseye, faSearch } from "@fortawesome/free-solid-svg-icons"
+import { css, cx, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
-import { cx, css, keyframes } from "@emotion/css"
+import { faBullseye } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Link } from "@reach/router"
+import React, { useState } from "react"
 
-import Hamburger from "../Hamburger"
 import Button from "../Button"
+import Hamburger from "../Hamburger"
 
 const swingHorizontal = keyframes`
 15% {
@@ -48,13 +48,13 @@ const navbarItems = css`
   }
 
   @media (max-width: 960px) {
-      top: 0;
-      width: 100%;
-      z-index: 2;
-      position: relative;
-      display: flex;
-      justify-content: flex-end;
-    }
+    top: 0;
+    width: 100%;
+    z-index: 2;
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+  }
 `
 
 const navbarLogo = css`
@@ -75,11 +75,10 @@ const navbarLogo = css`
 `
 
 const active = css`
-
-@media (max-width: 960px) {
-  left: 0;
-  opacity: 1;
-  transition: all 0.5s ease;
+  @media (max-width: 960px) {
+    left: 0;
+    opacity: 1;
+    transition: all 0.5s ease;
   }
 `
 
@@ -152,7 +151,6 @@ const navLinks = css`
     }
   }
 
-
   @media (max-width: 960px) {
     text-align: center;
     padding: 2rem;
@@ -211,12 +209,12 @@ const secondaryLink = css`
   }
 `
 
-const secondaryMenu = css `
-span {
-  @media (max-width: 960px) {
-    padding: 0 15px;
+const secondaryMenu = css`
+  span {
+    @media (max-width: 960px) {
+      padding: 0 15px;
+    }
   }
-}
 `
 
 const StyledIcon = styled(FontAwesomeIcon)`
@@ -243,28 +241,31 @@ const Navigation: React.FC = (props) => {
         >
           <Hamburger />
         </div>
-        <ul
-          aria-expanded='true'
-          role="navigation"
-        >
+        <ul aria-expanded="true" role="navigation">
           <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>
-          <li className={cx(navLinks)}>Courses</li>
-          <li className={cx(navLinks)}>Modules</li>
-          <li className={cx(navLinks)}>Mail Template</li>
-          <li className={cx(navLinks, hide)}><a> Login Controls</a></li>
-          <li className={cx(navLinks, hide)}><Button variant='primary'>Translate</Button></li>
+            <li className={cx(navLinks)}>Courses</li>
+            <li className={cx(navLinks)}>Modules</li>
+            <li className={cx(navLinks)}>Mail Template</li>
+            <li className={cx(navLinks, hide)}>
+              <a> Login Controls</a>
+            </li>
+            <li className={cx(navLinks, hide)}>
+              <Button variant="primary">Translate</Button>
+            </li>
           </ol>
         </ul>
 
         <ul className={cx(secondaryLink)}>
-          <li><a> Login Controls</a></li>
-          <li><Button variant='primary'>Translate</Button></li>
+          <li>
+            <a> Login Controls</a>
+          </li>
+          <li>
+            <Button variant="primary">Translate</Button>
+          </li>
         </ul>
-
       </nav>
     </div>
   )
 }
-
 
 export default Navigation

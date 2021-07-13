@@ -16,6 +16,8 @@ pub mod exercises;
 pub mod gradings;
 pub mod organizations;
 pub mod pages;
+pub mod regrading_submissions;
+pub mod regradings;
 pub mod roles;
 pub mod submissions;
 pub mod user_exercise_states;

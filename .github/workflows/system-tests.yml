@@ -46,7 +46,6 @@ jobs:
 
       - name: Build and deploy
         run: |
-          false
           skaffold build -p test
           skaffold run --port-forward --force -p test --tail &
           sleep 10

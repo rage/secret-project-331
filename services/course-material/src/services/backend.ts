@@ -1,4 +1,4 @@
-import { courseMaterialClient } from "./courseMaterialClient"
+import { courseMaterialClient } from "../shared-module/services/backend/interceptor"
 
 export interface Course {
   id: string

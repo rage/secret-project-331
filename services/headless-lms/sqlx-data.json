@@ -160,6 +160,37 @@
       "nullable": []
     }
   },
+  "12678b433a9c84513a0c100571b2d82db27fbc569e2b9c79b23e31906be0f559": {
+    "query": "\nSELECT ed.id AS id,\n  u.id AS to,\n  et.subject AS subject,\n  et.content AS body\nFROM email_deliveries ed\n  JOIN email_templates et ON et.id = ed.email_template_id\n  JOIN users u ON u.id = ed.user_id\nWHERE ed.deleted_at IS NULL\n  AND ed.sent = FALSE\n  AND ed.error IS NULL\nLIMIT 10000;\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "to",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "subject",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "body",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [false, false, true, true]
+    }
+  },
   "1354fbf47a4a0f22b9b9f30143dd425b05aef41d55a178bc39eb1eb4140a6e0c": {
     "query": "\nUPDATE course_instances\nSET variant_status = $1\nWHERE id = $2;\n",
     "describe": {
@@ -3355,6 +3386,16 @@
       "nullable": []
     }
   },
+  "d309be59564d69ecad6e11cc6976649092966ea2236abd7c8ca72e64f78f8fcc": {
+    "query": "\nupdate email_deliveries\nset sent = TRUE\nwhere id = $1;\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "d5305aa4ee1aefda2f427281711994f0cfb9308f018f02a1c30344b6a125f3a3": {
     "query": "\nUPDATE gradings\n  SET\n    grading_progress = $2,\n    unscaled_score_maximum = $3,\n    unscaled_max_points = $4,\n    feedback_text = $5,\n    feedback_json = $6,\n    grading_completed_at = $7,\n    score_given = $8\nWHERE id = $1\nRETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as \"grading_progress: _\", user_points_update_strategy as \"user_points_update_strategy: _\", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at\n        ",
     "describe": {
@@ -3671,6 +3712,16 @@
         "Left": []
       },
       "nullable": [false, false, false, true, false, true, true, true, true, false]
+    }
+  },
+  "d9d230419fb264ebddeaa022bc8ac0061d8caa8bf83e3a5742a140bd056f3005": {
+    "query": "\nupdate email_deliveries\nset sent = FALSE,\n  error = $1\nwhere id = $2;\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Varchar", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "da896f936aafd16dba8e38e8e97b7907310051fa453acf242dccab1776995e48": {

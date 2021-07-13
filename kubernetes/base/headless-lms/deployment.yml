@@ -63,6 +63,9 @@ metadata:
 spec:
   backoffLimit: 10
   template:
+    metadata:
+      labels:
+        waitToBeReady: "false"
     spec:
       containers:
         - name: headless-lms-run-migrations

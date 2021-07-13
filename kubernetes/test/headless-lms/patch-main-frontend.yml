@@ -1,10 +1,6 @@
 - op: replace
-  path: "/spec/template/spec/containers/0/command"
-  value: ["cargo", "run", "--release", "--bin", "service_info_fetcher"]
-
-- op: replace
   path: "/spec/template/spec/containers/0/resources/requests/cpu"
-  value: "50m"
+  value: "100m"
 
 - op: replace
   path: "/spec/template/spec/containers/0/resources/requests/memory"

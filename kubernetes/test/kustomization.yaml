@@ -18,3 +18,13 @@ patches:
       version: v1
       kind: Deployment
       name: service-info-fetcher
+  - path: headless-lms/patch-main-frontend.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: main-frontend
+  - path: headless-lms/patch-course-material.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: course-material

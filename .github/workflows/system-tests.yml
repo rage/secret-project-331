@@ -12,18 +12,6 @@ env:
 jobs:
   system-tests:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -54,16 +42,21 @@ jobs:
       - name: Run npm ci for shared-modules
         run: npm ci
 
-      - name: Build and run environment
-        run: bin/test
+      - name: Build environment with skaffold
+        run: skaffold build -p test
+
+      - name: Deploy environment with skaffold
+        run: skaffold deploy --force --port-forward
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
 
       - name: Setup test database
         run: bin/setup-system-test-db
 
+      - name: Setup system test environment
+        run: npm ci
+        working-directory: ./system-tests/
+
       - name: Run system tests
-        run: |
-          npm ci
-          npm run test
+        run: npm run test
         working-directory: ./system-tests/

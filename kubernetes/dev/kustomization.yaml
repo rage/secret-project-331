@@ -17,4 +17,4 @@ patches:
     target:
       version: v1
       kind: Deployment
-      name: headless-lms/regrader.yml
+      name: regrader

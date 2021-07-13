@@ -12,7 +12,8 @@ async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
     dotenv::dotenv().ok();
     headless_lms_actix::setup_tracing()?;
-    let db_url = env::var("DATABASE_URL")?;
+    let db_url = env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
 
     // fetch exercise services
     let mut conn = PgConnection::connect(&db_url).await?;

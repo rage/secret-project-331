@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/courses`.
 
-use crate::controllers::helpers::media::upload_media_for_course_2;
+use crate::controllers::helpers::media::upload_media_for_course;
 use crate::domain::authorization::AuthUser;
 use crate::utils::file_store::FileStore;
 use crate::{controllers::ApplicationResult, models::courses::CourseStructure};
@@ -60,15 +60,20 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
 }
 ```
 */
-#[instrument(skip(pool))]
-async fn get_course_structure(
+#[instrument(skip(pool, file_store))]
+async fn get_course_structure<T: FileStore>(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    file_store: web::Data<T>,
 ) -> ApplicationResult<Json<CourseStructure>> {
     let mut conn = pool.acquire().await?;
-    let course_structure =
-        crate::models::courses::get_course_structure(&mut conn, *request_course_id).await?;
+    let course_structure = crate::models::courses::get_course_structure(
+        &mut conn,
+        *request_course_id,
+        file_store.as_ref(),
+    )
+    .await?;
     Ok(Json(course_structure))
 }
 
@@ -95,7 +100,7 @@ Response:
 ```
 */
 #[instrument(skip(payload, request, pool, file_store))]
-async fn upload_media_for_course<T: FileStore>(
+async fn add_media_for_course<T: FileStore>(
     request_course_id: web::Path<Uuid>,
     payload: mp::Multipart,
     request: HttpRequest,
@@ -106,7 +111,7 @@ async fn upload_media_for_course<T: FileStore>(
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
 
     let media_path =
-        upload_media_for_course_2(request.headers(), payload, &course, file_store.as_ref()).await?;
+        upload_media_for_course(request.headers(), payload, &course, file_store.as_ref()).await?;
     let download_url = file_store.get_download_url(&media_path.as_path()).await?;
 
     Ok(Json(UploadResult { url: download_url }))
@@ -122,10 +127,10 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
     cfg.route(
         "/{course_id}/structure",
-        web::get().to(get_course_structure),
+        web::get().to(get_course_structure::<T>),
     )
     .route(
         "/{course_id}/upload",
-        web::post().to(upload_media_for_course::<T>),
+        web::post().to(add_media_for_course::<T>),
     );
 }

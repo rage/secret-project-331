@@ -1,7 +1,7 @@
 use crate::{
     controllers::ApplicationError,
     models::{course_instances::VariantStatus, pages::NewPage},
-    utils::document_schema_processor::GutenbergBlock,
+    utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -10,7 +10,7 @@ use sqlx::{Acquire, PgConnection};
 use uuid::Uuid;
 
 use super::{
-    chapters::{course_chapters, Chapter},
+    chapters::{course_chapters, ChapterWithImageUrl},
     pages::{course_pages, Page},
 };
 
@@ -29,7 +29,7 @@ pub struct Course {
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
-    pub chapters: Vec<Chapter>,
+    pub chapters: Vec<ChapterWithImageUrl>,
 }
 
 pub async fn insert(
@@ -78,14 +78,19 @@ pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> Result<Uu
 pub async fn get_course_structure(
     conn: &mut PgConnection,
     course_id: Uuid,
+    file_store: &impl FileStore,
 ) -> Result<CourseStructure> {
     let course = get_course(conn, course_id).await?;
     let pages = course_pages(conn, course_id).await?;
     let chapters = course_chapters(conn, course_id).await?;
+    let mut chapters_with_image_url = Vec::<ChapterWithImageUrl>::new();
+    for chapter in chapters {
+        chapters_with_image_url.push(ChapterWithImageUrl::from_chapter(chapter, file_store).await?)
+    }
     Ok(CourseStructure {
         course,
         pages,
-        chapters,
+        chapters: chapters_with_image_url,
     })
 }
 

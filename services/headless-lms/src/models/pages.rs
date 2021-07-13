@@ -596,16 +596,7 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> Result<P
 UPDATE chapters
 SET front_page_id = $1
 WHERE id = $2
-RETURNING id,
-  created_at,
-  updated_at,
-  name,
-  course_id,
-  deleted_at,
-  chapter_image_url,
-  chapter_number,
-  front_page_id,
-  opens_at
+RETURNING *;
         "#,
             page.id,
             front_page_of_chapter_id

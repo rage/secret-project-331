@@ -10,7 +10,7 @@ use actix_web::http::{header, HeaderMap};
 use futures::StreamExt;
 use std::path::PathBuf;
 
-pub async fn upload_media_for_course_2(
+pub async fn upload_media_for_course(
     headers: &HeaderMap,
     mut payload: mp::Multipart,
     course: &Course,

@@ -1,7 +1,6 @@
 import React from "react"
 
-import { updateChapter } from "../services/backend/chapters"
-import { uploadFileFromPage } from "../services/backend/media"
+import { postChapterImage } from "../services/backend/chapters"
 import { Chapter } from "../services/services.types"
 
 import UploadImageForm from "./forms/UploadImageForm"
@@ -13,13 +12,7 @@ export interface ChapterImageControlsProps {
 
 const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onChapterUpdated }) => {
   const handleSubmit = async (imageFile: File) => {
-    const imageUrl = (await uploadFileFromPage(imageFile, chapter.course_id)).url
-    await updateChapter(chapter.id, {
-      chapter_image_url: imageUrl,
-      chapter_number: chapter.chapter_number,
-      front_page_id: chapter.front_page_id,
-      name: chapter.name,
-    })
+    await postChapterImage(chapter.id, imageFile)
     onChapterUpdated()
   }
 

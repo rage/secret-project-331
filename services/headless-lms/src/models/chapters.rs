@@ -1,6 +1,9 @@
+use std::path::PathBuf;
+
 use crate::{
-    controllers::ApplicationError, models::pages::NewPage,
-    utils::document_schema_processor::GutenbergBlock,
+    controllers::ApplicationError,
+    models::pages::NewPage,
+    utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -18,10 +21,47 @@ pub struct Chapter {
     pub name: String,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub chapter_image: Option<String>,
+    pub chapter_number: i32,
+    pub front_page_id: Option<Uuid>,
+    pub opens_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct ChapterWithImageUrl {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub name: String,
+    pub course_id: Uuid,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_image_url: Option<String>,
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+}
+
+impl ChapterWithImageUrl {
+    pub async fn from_chapter(chapter: Chapter, file_store: &impl FileStore) -> Result<Self> {
+        let chapter_image_url: Option<String> = if let Some(filef) = chapter.chapter_image {
+            let path = PathBuf::from(filef);
+            Some(file_store.get_download_url(&path.as_path()).await?)
+        } else {
+            None
+        };
+        Ok(Self {
+            id: chapter.id,
+            created_at: chapter.created_at,
+            updated_at: chapter.updated_at,
+            name: chapter.name,
+            course_id: chapter.course_id,
+            deleted_at: chapter.deleted_at,
+            chapter_image_url,
+            chapter_number: chapter.chapter_number,
+            front_page_id: chapter.front_page_id,
+            opens_at: chapter.opens_at,
+        })
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
@@ -61,7 +101,6 @@ pub struct NewChapter {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct ChapterUpdate {
     pub name: String,
-    pub chapter_image_url: Option<String>,
     pub chapter_number: i32,
     pub front_front_page_id: Option<Uuid>,
 }
@@ -132,6 +171,20 @@ WHERE id = $1
     Ok(open)
 }
 
+pub async fn get_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Chapter> {
+    let chapter = sqlx::query_as!(
+        Chapter,
+        "
+SELECT *
+from chapters
+where id = $1;",
+        chapter_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(chapter)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Uuid> {
     let course_id = sqlx::query!("SELECT course_id from chapters where id = $1", chapter_id)
         .fetch_one(conn)
@@ -150,28 +203,37 @@ pub async fn update_chapter(
         r#"
 UPDATE chapters
 SET name = $1,
-  chapter_image_url = $2,
-  chapter_number = $3
-WHERE id = $4
-RETURNING id,
-  created_at,
-  updated_at,
-  name,
-  course_id,
-  deleted_at,
-  chapter_image_url,
-  chapter_number,
-  front_page_id,
-  opens_at
+  chapter_number = $2
+WHERE id = $3
+RETURNING *;
     "#,
         chapter_update.name,
-        chapter_update.chapter_image_url,
         chapter_update.chapter_number,
         course_id
     )
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn update_chapter_image(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    chapter_image: String,
+) -> Result<Chapter> {
+    let updated_chapter = sqlx::query_as!(
+        Chapter,
+        "
+UPDATE chapters
+SET chapter_image = $1
+WHERE id = $2
+RETURNING *;",
+        chapter_image,
+        chapter_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(updated_chapter)
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -198,7 +260,7 @@ SELECT id,
   name,
   course_id,
   deleted_at,
-  chapter_image_url,
+  chapter_image,
   chapter_number,
   front_page_id,
   opens_at
@@ -221,16 +283,7 @@ pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> Res
         r#"
 INSERT INTO chapters(name, course_id, chapter_number)
 VALUES($1, $2, $3)
-RETURNING id,
-  created_at,
-  updated_at,
-  name,
-  course_id,
-  deleted_at,
-  chapter_image_url,
-  chapter_number,
-  front_page_id,
-  opens_at
+RETURNING *;
 "#,
         chapter.name,
         chapter.course_id,
@@ -266,16 +319,7 @@ pub async fn delete_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> Result
 UPDATE chapters
 SET deleted_at = now()
 WHERE id = $1
-RETURNING id,
-  created_at,
-  updated_at,
-  name,
-  course_id,
-  deleted_at,
-  chapter_image_url,
-  chapter_number,
-  front_page_id,
-  opens_at
+RETURNING *;
 "#,
         chapter_id
     )

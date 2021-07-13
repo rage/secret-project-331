@@ -2,12 +2,14 @@
 use std::str::FromStr;
 
 use crate::{
-    controllers::ApplicationResult,
+    controllers::{helpers::media::upload_media_for_course, ApplicationError, ApplicationResult},
     domain::authorization::AuthUser,
-    models::chapters::{Chapter, ChapterUpdate, NewChapter},
+    models::chapters::{Chapter, ChapterUpdate, ChapterWithImageUrl, NewChapter},
+    utils::file_store::FileStore,
 };
-use actix_web::web::ServiceConfig;
+use actix_multipart as mp;
 use actix_web::web::{self, Json};
+use actix_web::{web::ServiceConfig, HttpRequest};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -117,20 +119,63 @@ Response:
 }
 ```
 */
-#[instrument(skip(payload, pool))]
-async fn update_chapter(
+#[instrument(skip(payload, pool, file_store))]
+async fn update_chapter<T: FileStore>(
     payload: web::Json<ChapterUpdate>,
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Chapter>> {
+    file_store: web::Data<T>,
+) -> ApplicationResult<Json<ChapterWithImageUrl>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
 
     let course_update = payload.0;
     let chapter =
         crate::models::chapters::update_chapter(&mut conn, course_id, course_update).await?;
-    Ok(Json(chapter))
+
+    let response = ChapterWithImageUrl::from_chapter(chapter, file_store.as_ref())
+        .await
+        .map_err(|original_error| {
+            ApplicationError::InternalServerError(original_error.to_string())
+        })?;
+
+    Ok(Json(response))
+}
+
+#[instrument(skip(request, payload, pool, file_store))]
+async fn set_chapter_image<T: FileStore>(
+    request: HttpRequest,
+    payload: mp::Multipart,
+    request_chapter_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    file_store: web::Data<T>,
+) -> ApplicationResult<Json<ChapterWithImageUrl>> {
+    let mut conn = pool.acquire().await?;
+    let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
+    let course = crate::models::courses::get_course(&mut conn, chapter.course_id).await?;
+
+    // TODO: Remove old image?
+
+    let chapter_image =
+        upload_media_for_course(request.headers(), payload, &course, file_store.as_ref())
+            .await?
+            .into_os_string()
+            .into_string()
+            .map_err(|_os_string| {
+                ApplicationError::InternalServerError("Invalid file path.".to_string())
+            })?;
+    let updated_chapter =
+        crate::models::chapters::update_chapter_image(&mut conn, chapter.id, chapter_image).await?;
+
+    let response = ChapterWithImageUrl::from_chapter(updated_chapter, file_store.as_ref())
+        .await
+        .map_err(|original_error| {
+            ApplicationError::InternalServerError(original_error.to_string())
+        })?;
+
+    Ok(Json(response))
 }
 
 /**
@@ -140,8 +185,12 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_chapters_routes(cfg: &mut ServiceConfig) {
+pub fn _add_chapters_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
     cfg.route("", web::post().to(post_new_chapter))
         .route("/{chapter_id}", web::delete().to(delete_chapter))
-        .route("/{chapter_id}", web::put().to(update_chapter));
+        .route("/{chapter_id}", web::put().to(update_chapter::<T>))
+        .route(
+            "/{chapter_id}/image",
+            web::post().to(set_chapter_image::<T>),
+        );
 }

@@ -15,11 +15,9 @@ export const updateChapter = async (chapterId: string, data: ChapterUpdate): Pro
   return response.data
 }
 
-export const postChapterImageURLPath = async (chapterId: string, path: string): Promise<string> => {
-  return (
-    await cmsClient.post(`/chapters/${chapterId}/new-chapter-image`, {
-      data: { path },
-      headers: { "Content-Type": "application/json" },
-    })
-  ).data
+export const postChapterImage = async (chapterId: string, file: File): Promise<Chapter> => {
+  const data = new FormData()
+  data.append("file", file, file.name || "unknown")
+  const res = await cmsClient.post(`/chapters/${chapterId}/image`, data)
+  return res.data
 }

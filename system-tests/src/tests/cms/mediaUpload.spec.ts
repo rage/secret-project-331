@@ -7,8 +7,6 @@ import {
   test,
 } from "@playwright/test"
 
-import { logout } from "../../utils/logout"
-
 test.describe("Uploading media as admin", async () => {
   // As Admin
   test.use({
@@ -66,13 +64,13 @@ test.describe("Uploading media as admin", async () => {
 
     // Click on the anchor with following class that has a child svg[role=img]
     // This will probably fail in the future if the anchor classes change in Gutenberg
-    const [picture] = await Promise.all([
+    const [newPage] = await Promise.all([
       page.waitForEvent("popup"),
       page.click(
         "a[class='components-external-link block-editor-link-control__search-item-title'] >> svg[role=img]",
       ),
     ])
-    const screenshot = await picture.screenshot()
+    const screenshot = await newPage.screenshot()
     expect(screenshot).toMatchSnapshot(`uploadMediaPicture.png`, { threshold: 0.2 })
   })
 })

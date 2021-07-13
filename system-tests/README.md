@@ -1,16 +1,14 @@
 # System tests
 
-In project root execute `bin/test`.
-
-Run test suites with command `npm run test`.
-
+In project root execute `bin/test` to start test environment.  
+Run test suites with command `npm run test` or `npm run test-debug` for debugging tests.  
 Tests can be found in `src/tests/`.
 
 ## Writing tests
 
 Start test environment from project root with `bin/test`.
 
-> NB! Always setup the database by running before each test `bin/setup-system-test-db`.
+> NB! Always intialize db before each test by running `bin/setup-system-test-db` in root.
 
 Record new tests with Playwright by changing directory, `cd system-tests`, and run `npm run create-login-states`.  
 To start recoding, run one of the following:
@@ -20,14 +18,20 @@ To start recoding, run one of the following:
 - `npm run record-test-teacher` &mdash; Record as teacher
 - `npm run record-test-user` &mdash; Record as user
 
-Once you've recorded, copy the code automatically written by the recorder and manually insert assertions where necessary.
+Create a new test file somewhere in `src/tests/` named e.g. `foo.spec.ts`.  
+Once you've recorded, copy the code automatically written by the recorder to your newly created test file and manually insert assertions where necessary.
+
+### Example tests
+
+- [login.spec.ts](src/tests/login/login.spec.ts) &mdash; Basic examples
+- [mediaUpload.spec.ts](src/tests/cms/mediaUpload.spec.ts) &mdash; Screenshot comparison example
 
 ### Visual comparison
 
-If you are using [visual comparison](https://playwright.dev/docs/test-snapshots/) e.g. as following / making changes that affect visual comparison:
+If you are using [visual comparison](https://playwright.dev/docs/test-snapshots/), for example as following or making changes that affect visual comparison:
 
 ```js
-const screenshot = await picture.screenshot()
+const screenshot = await newPage.screenshot()
 expect(screenshot).toMatchSnapshot(`picture.png`, { threshold: 0.2 })
 ```
 

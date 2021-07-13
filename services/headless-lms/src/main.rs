@@ -52,6 +52,7 @@ async fn main() -> Result<()> {
         Some(TokenUrl::from_url(auth_url)),
     ));
 
+    let db_clone = db_pool.clone();
     let app_conf = ApplicationConfiguration { test_mode };
 
     let mut server = HttpServer::new(move || {
@@ -66,7 +67,7 @@ async fn main() -> Result<()> {
         App::new()
             .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
-            .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
+            .data(db_clone.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())
             .data(app_conf)
     });

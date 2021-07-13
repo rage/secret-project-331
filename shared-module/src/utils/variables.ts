@@ -1,6 +1,4 @@
-type ObjectMap<T> = { [key: string]: T }
-
-export const breakpoints: ObjectMap<string> = {
+export const breakpoints: Record<string, string> = {
   mobile: "37.5em",
   xs: "37.5em",
   sm: "50em",

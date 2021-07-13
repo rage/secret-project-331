@@ -1,5 +1,7 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
+
+import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { HtmlAttributes } from "../../types/GutenbergBlockAttributes"
 
 const CustomHTMLBlock: React.FC<BlockRendererProps<HtmlAttributes>> = ({ data }) => {

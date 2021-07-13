@@ -164,15 +164,6 @@ const navLinks = css`
     border-bottom: 2px solid #f1f1f1;
   }
 `
-const localeBtn = css`
-  position: absolute;
-  top: 20%;
-  right: 0;
-
-  @media (max-width: 960px) {
-    position: relative;
-  }
-`
 const menuIcon = css`
   width: auto;
   height: 15px;
@@ -209,20 +200,12 @@ const secondaryLink = css`
   }
 `
 
-const secondaryMenu = css`
-  span {
-    @media (max-width: 960px) {
-      padding: 0 15px;
-    }
-  }
-`
-
 const StyledIcon = styled(FontAwesomeIcon)`
   font-size: 1.8rem;
   color: #333;
 `
 
-const Navigation: React.FC = (props) => {
+const Navigation: React.FC = () => {
   const [clicked, setClicked] = useState(false)
 
   return (

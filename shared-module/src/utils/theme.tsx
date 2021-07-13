@@ -1,5 +1,5 @@
 import { blue, green, neutral, red, yellow } from "./colors"
-import { primaryFont, secondaryFont } from "./typography"
+import { primaryFont } from "./typography"
 
 export const theme = {
   primaryColor: blue[300],

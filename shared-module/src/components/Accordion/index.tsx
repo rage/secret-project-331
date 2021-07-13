@@ -114,7 +114,7 @@ details {
 `
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement>
 
-const Accordion: React.FC<AccordionProps> = (props) => {
+const Accordion: React.FC<AccordionProps> = () => {
   return (
     <div>
       <TextWrapper>

@@ -1,0 +1,4 @@
+- op: remove
+  path: "/spec/template/spec/initContainers/0/resources/requests/cpu"
+- op: remove
+  path: "/spec/template/spec/initContainers/0/resources/requests/memory"

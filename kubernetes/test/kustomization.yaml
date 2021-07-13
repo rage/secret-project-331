@@ -18,13 +18,35 @@ patches:
       version: v1
       kind: Deployment
       name: service-info-fetcher
-  - path: headless-lms/patch-main-frontend.yml
+
+  - path: patch-resources.yml
     target:
       version: v1
       kind: Deployment
       name: main-frontend
-  - path: headless-lms/patch-course-material.yml
+  - path: patch-resources.yml
     target:
       version: v1
       kind: Deployment
       name: course-material
+  - path: patch-resources.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: cms
+  - path: patch-resources.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: example-exercise
+
+  - path: headless-lms/patch-lms-resources.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: headless-lms
+  - path: patch-resources.yml
+    target:
+      version: v1
+      kind: Job
+      name: headless-lms-run-migrations

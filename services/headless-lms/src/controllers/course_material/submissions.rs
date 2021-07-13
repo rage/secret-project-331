@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/course-material/submissions`.
 
 use crate::{
-    controllers::ApplicationResult,
+    controllers::ControllerResult,
     domain::authorization::AuthUser,
     models::submissions::{NewSubmission, SubmissionResult},
 };
@@ -72,7 +72,7 @@ async fn post_submission(
     pool: web::Data<PgPool>,
     payload: web::Json<NewSubmission>,
     user: AuthUser,
-) -> ApplicationResult<Json<SubmissionResult>> {
+) -> ControllerResult<Json<SubmissionResult>> {
     let mut conn = pool.acquire().await?;
     let exercise_task_id = payload.0.exercise_task_id;
     let exercise_task =

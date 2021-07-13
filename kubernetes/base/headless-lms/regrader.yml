@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: regrader
+  labels:
+    app: regrader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: regrader
+  template:
+    metadata:
+      labels:
+        app: regrader
+    spec:
+      containers:
+        - name: regrader
+          image: headless-lms
+          command: ["cargo", "run", "--bin", "regrader"]
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m

@@ -13,6 +13,7 @@ import { postNewPage } from "../../../services/backend/pages"
 import { Chapter } from "../../../services/services.types"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
 
@@ -136,4 +137,4 @@ const CoursePages: React.FC<unknown> = () => {
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(CoursePages))
+export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(CoursePages)))

@@ -39,9 +39,9 @@ async fn main() -> Result<()> {
     }
 
     // users
-    let admin = users::insert(&mut conn, "admin").await?;
-    let teacher = users::insert(&mut conn, "teacher").await?;
-    let assistant = users::insert(&mut conn, "assistant").await?;
+    let admin = users::insert(&mut conn, "admin@example.com").await?;
+    let teacher = users::insert(&mut conn, "teacher@example.com").await?;
+    let assistant = users::insert(&mut conn, "assistant@example.com").await?;
 
     // uh-cs
     let uh_cs = organizations::insert(

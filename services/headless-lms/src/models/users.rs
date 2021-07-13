@@ -66,10 +66,10 @@ pub async fn find_by_upstream_id(
 // Only used for testing, not to use in production.
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,
-    _email: String,
+    email: String,
     _password: String,
 ) -> Result<User> {
     // TODO: Add support to "authenticate" different kind of users
-    let user = insert_with_upstream_id(conn, "test-email", 9001).await?;
+    let user = insert_with_upstream_id(conn, &email, 9001).await?;
     Ok(user)
 }

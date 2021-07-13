@@ -1761,12 +1761,17 @@
           "ordinal": 4,
           "name": "upstream_id",
           "type_info": "Int4"
+        },
+        {
+          "ordinal": 5,
+          "name": "email",
+          "type_info": "Varchar"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, true, true]
+      "nullable": [false, false, false, true, true, false]
     }
   },
   "77589f5977cb1abcf08674c88fcc060ccb0be732fde86e1fd3b4b21c6de86565": {

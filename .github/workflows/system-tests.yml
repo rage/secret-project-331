@@ -49,7 +49,7 @@ jobs:
           skaffold build -p test
           skaffold run --port-forward --force -p test --tail &
           sleep 10
-          kubectl wait --for=condition=Ready pods --all
+          kubectl get deployment -o name | xargs kubectl wait --timeout=600s --for=condition=Ready
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
 

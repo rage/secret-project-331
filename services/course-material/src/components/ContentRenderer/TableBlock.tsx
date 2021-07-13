@@ -3,12 +3,13 @@ import { css } from "@emotion/css"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
+import { BlockRendererProps } from "."
+
 const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
   const innerBlocks: TableAttributes = data.innerBlocks[0].innerBlocks[0].attributes
-  const caption: TableAttributes = data.innerBlocks[0].innerBlocks[0].caption
-  const body: any = innerBlocks.body[0].cells
-  const head: any = innerBlocks.head[0].cells
-  const foot: any = innerBlocks.foot[0].cells
+  const body: TableAttributes = innerBlocks.body[0].cells
+  const head: TableAttributes = innerBlocks.head[0].cells
+  const foot: TableAttributes = innerBlocks.foot[0].cells
   return (
     <table
       className={css`
@@ -16,8 +17,8 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
       `}
     >
       <tr>
-        {head.map((header) => (
-          <th key={header.content}>{header.content}</th>
+        {head.map((head) => (
+          <th key={head.content}>{head.content}</th>
         ))}
       </tr>
       <tbody>
@@ -32,7 +33,7 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
             )
           })}
       </tbody>
-      <tr>{foot && foot.map((footer) => <th key={footer.content}>{footer.content}</th>)}</tr>
+      <tr>{foot && foot.map((foot) => <th key={foot.content}>{foot.content}</th>)}</tr>
     </table>
   )
 }

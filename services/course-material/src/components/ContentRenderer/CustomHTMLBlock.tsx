@@ -4,6 +4,8 @@ import sanitizeHtml from "sanitize-html"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { HtmlAttributes } from "../../types/GutenbergBlockAttributes"
 
+import { BlockRendererProps } from "."
+
 const CustomHTMLBlock: React.FC<BlockRendererProps<HtmlAttributes>> = ({ data }) => {
   const attributes: HtmlAttributes = data.attributes
   return (

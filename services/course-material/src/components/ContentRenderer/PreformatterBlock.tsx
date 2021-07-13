@@ -6,6 +6,8 @@ import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles
 import fontSizeMapper from "../../styles/fontSizeMapper"
 import { PreformattedAttributes } from "../../types/GutenbergBlockAttributes"
 
+import { BlockRendererProps } from "."
+
 const PreformatterBlock: React.FC<BlockRendererProps<PreformattedAttributes>> = ({ data }) => {
   const attributes: PreformattedAttributes = data.attributes
 

@@ -4,6 +4,8 @@ import sanitizeHtml from "sanitize-html"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { ListAttributes } from "../../types/GutenbergBlockAttributes"
 
+import { BlockRendererProps } from "."
+
 const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
   const attributes: ListAttributes = data.attributes
   if (attributes.ordered) {

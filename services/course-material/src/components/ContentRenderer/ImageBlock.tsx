@@ -3,6 +3,8 @@ import { css } from "@emotion/css"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { ImageAttributes } from "../../types/GutenbergBlockAttributes"
 
+import { BlockRendererProps } from "."
+
 const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
   const attributes: ImageAttributes = data.attributes
   return (

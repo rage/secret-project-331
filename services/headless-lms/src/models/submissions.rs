@@ -78,6 +78,24 @@ pub struct SubmissionResult {
     grading: Grading,
 }
 
+pub async fn get_submission(
+    conn: &mut PgConnection,
+    submission_id: Uuid,
+) -> ModelResult<Submission> {
+    let res = sqlx::query_as!(
+        Submission,
+        "
+SELECT *
+FROM submissions
+WHERE id = $1
+",
+        submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     exercise_id: Uuid,
@@ -257,4 +275,23 @@ SELECT counts.*, exercises.name exercise_name
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn set_grading_id(
+    conn: &mut PgConnection,
+    grading_id: Uuid,
+    submission_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE submissions
+SET grading_id = $1
+WHERE id = $2
+",
+        grading_id,
+        submission_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

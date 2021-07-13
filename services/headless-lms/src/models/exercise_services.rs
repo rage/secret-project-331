@@ -15,6 +15,7 @@ pub struct ExerciseService {
     pub public_url: String,
     /// This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
     pub internal_url: Option<String>,
+    pub max_reprocessing_submissions_at_once: i32,
 }
 
 pub async fn get_exercise_service(
@@ -73,18 +74,26 @@ pub async fn insert_exercise_service(
     slug: &str,
     public_url: &str,
     internal_url: &str,
+    max_reprocessing_submissions_at_once: i32,
 ) -> ModelResult<ExerciseService> {
     let res = sqlx::query_as!(
         ExerciseService,
         r#"
-INSERT INTO exercise_services (name, slug, public_url, internal_url)
-VALUES ($1, $2, $3, $4)
-RETURNING *;
+INSERT INTO exercise_services (
+    name,
+    slug,
+    public_url,
+    internal_url,
+    max_reprocessing_submissions_at_once
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING *
   "#,
         name,
         slug,
         public_url,
-        internal_url
+        internal_url,
+        max_reprocessing_submissions_at_once
     )
     .fetch_one(conn)
     .await?;

@@ -118,7 +118,11 @@ impl From<sqlx::Error> for ControllerError {
 
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
-        Self::InternalServerError(err.to_string())
+        match err {
+            ModelError::RecordNotFound(_) => Self::NotFound,
+            ModelError::PreconditionFailed(msg) => Self::BadRequest(msg),
+            _ => Self::InternalServerError(err.to_string()),
+        }
     }
 }
 

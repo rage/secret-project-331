@@ -5,7 +5,12 @@ pub type ModelResult<T> = Result<T, ModelError>;
 #[derive(Debug, Error)]
 pub enum ModelError {
     #[error(transparent)]
-    Database(#[from] sqlx::Error),
+    RecordNotFound(sqlx::Error),
+    #[error("{0}")]
+    PreconditionFailed(String),
+
+    #[error(transparent)]
+    Database(sqlx::Error),
     #[error(transparent)]
     Json(#[from] serde_json::Error),
     #[error(transparent)]
@@ -14,4 +19,13 @@ pub enum ModelError {
     Anyhow(#[from] anyhow::Error),
     #[error("{0}")]
     Generic(&'static str),
+}
+
+impl From<sqlx::Error> for ModelError {
+    fn from(err: sqlx::Error) -> Self {
+        match err {
+            sqlx::Error::RowNotFound => ModelError::RecordNotFound(err),
+            _ => ModelError::Database(err),
+        }
+    }
 }

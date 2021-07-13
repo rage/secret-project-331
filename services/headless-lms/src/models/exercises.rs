@@ -257,7 +257,9 @@ SET selected_exercise_task_id = $4
             }
         } else {
             // user is not enrolled on the course, return error
-            return Err(ModelError::Generic("User must be enrolled to the course"));
+            return Err(ModelError::PreconditionFailed(
+                "User must be enrolled to the course".to_string(),
+            ));
         }
     } else {
         // user is not logged in, get a random task

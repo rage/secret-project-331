@@ -133,16 +133,6 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
@@ -169,7 +159,7 @@ This documents all endpoints. Select a module below for a namespace.
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">models::ModelError</span>, <span class="ident">utils::file_store::FileStore</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::utils::file_store::FileStore</span>;
 
 <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">auth::add_auth_routes</span>, <span class="ident">cms::add_cms_routes</span>, <span class="ident">course_material::add_course_material_routes</span>,
@@ -190,7 +180,7 @@ Represents error messages that are sent in responses.
 ```
 */</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ControllerError</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ApplicationError</span> {
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Internal server error&quot;</span>)]</span>
     <span class="ident">InternalServerError</span>(<span class="ident">String</span>),
 
@@ -207,14 +197,14 @@ Represents error messages that are sent in responses.
     <span class="ident">Forbidden</span>(<span class="ident">String</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {}
+<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">ApplicationError</span> {}
 
-<span class="kw">impl</span> <span class="ident">error::ResponseError</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
+<span class="kw">impl</span> <span class="ident">error::ResponseError</span> <span class="kw">for</span> <span class="ident">ApplicationError</span> {
     <span class="kw">fn</span> <span class="ident">error_response</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpResponse</span> {
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">status_code</span>();
-        <span class="kw">let</span> <span class="ident">detail</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ControllerError::InternalServerError</span>(<span class="ident">reason</span>)
-        <span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="ident">reason</span>)
-        <span class="op">|</span> <span class="ident">ControllerError::Forbidden</span>(<span class="ident">reason</span>) <span class="op">=</span> <span class="self">self</span>
+        <span class="kw">let</span> <span class="ident">detail</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ApplicationError::InternalServerError</span>(<span class="ident">reason</span>)
+        <span class="op">|</span> <span class="ident">ApplicationError::BadRequest</span>(<span class="ident">reason</span>)
+        <span class="op">|</span> <span class="ident">ApplicationError::Forbidden</span>(<span class="ident">reason</span>) <span class="op">=</span> <span class="self">self</span>
         {
             <span class="ident">reason</span>
         } <span class="kw">else</span> {
@@ -230,17 +220,17 @@ Represents error messages that are sent in responses.
 
     <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">ControllerError::InternalServerError</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
-            <span class="ident">ControllerError::BadRequest</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::BAD_REQUEST</span>,
-            <span class="ident">ControllerError::NotFound</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::NOT_FOUND</span>,
-            <span class="ident">ControllerError::Unauthorized</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::UNAUTHORIZED</span>,
-            <span class="ident">ControllerError::Forbidden</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::FORBIDDEN</span>,
+            <span class="ident">ApplicationError::InternalServerError</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
+            <span class="ident">ApplicationError::BadRequest</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::BAD_REQUEST</span>,
+            <span class="ident">ApplicationError::NotFound</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::NOT_FOUND</span>,
+            <span class="ident">ApplicationError::Unauthorized</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::UNAUTHORIZED</span>,
+            <span class="ident">ApplicationError::Forbidden</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::FORBIDDEN</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">anyhow::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">anyhow::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerError</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">anyhow::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ApplicationError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">anyhow::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationError</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sqlx::Error::RowNotFound</span>) <span class="op">=</span> <span class="ident">err</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span>() {
             <span class="kw">return</span> <span class="self">Self</span><span class="ident">::NotFound</span>;
         }
@@ -250,25 +240,15 @@ Represents error messages that are sent in responses.
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">uuid::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">uuid::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerError</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">uuid::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ApplicationError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">uuid::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationError</span> {
         <span class="self">Self</span><span class="ident">::BadRequest</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">sqlx::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerError</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ApplicationError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">sqlx::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationError</span> {
         <span class="self">Self</span><span class="ident">::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ModelError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ModelError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">ModelError::RecordNotFound</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::NotFound</span>,
-            <span class="ident">ModelError::PreconditionFailed</span>(<span class="ident">msg</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::BadRequest</span>(<span class="ident">msg</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
-        }
     }
 }
 
@@ -276,7 +256,7 @@ Represents error messages that are sent in responses.
 Used as the result types for all controllers.
 Only put information here that you want to be visible to users.
 */</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">ControllerError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">ApplicationError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Add controllers from all the submodules.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">configure_controllers</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">FileStore</span><span class="op">&gt;</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {

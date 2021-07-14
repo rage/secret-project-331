@@ -219,7 +219,7 @@ RETURNING *;
 pub async fn update_chapter_image(
     conn: &mut PgConnection,
     chapter_id: Uuid,
-    chapter_image: String,
+    chapter_image: Option<String>,
 ) -> Result<Chapter> {
     let updated_chapter = sqlx::query_as!(
         Chapter,

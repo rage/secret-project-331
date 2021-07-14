@@ -1,5 +1,5 @@
 //! Controllers for requests starting with `/api/v0/cms/chapters`.
-use std::str::FromStr;
+use std::{path::PathBuf, str::FromStr};
 
 use crate::{
     controllers::{helpers::media::upload_media_for_course, ApplicationError, ApplicationResult},
@@ -156,8 +156,6 @@ async fn set_chapter_image<T: FileStore>(
     let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
     let course = crate::models::courses::get_course(&mut conn, chapter.course_id).await?;
 
-    // TODO: Remove old image?
-
     let chapter_image =
         upload_media_for_course(request.headers(), payload, &course, file_store.as_ref())
             .await?
@@ -167,7 +165,18 @@ async fn set_chapter_image<T: FileStore>(
                 ApplicationError::InternalServerError("Invalid file path.".to_string())
             })?;
     let updated_chapter =
-        crate::models::chapters::update_chapter_image(&mut conn, chapter.id, chapter_image).await?;
+        crate::models::chapters::update_chapter_image(&mut conn, chapter.id, Some(chapter_image))
+            .await?;
+
+    // Remove old image if one exists.
+    if let Some(old_image) = chapter.chapter_image {
+        let file = PathBuf::from_str(&old_image).map_err(|original_error| {
+            ApplicationError::InternalServerError(original_error.to_string())
+        })?;
+        file_store.delete(&file).await.map_err(|original_error| {
+            ApplicationError::InternalServerError(original_error.to_string())
+        })?;
+    }
 
     let response = ChapterWithImageUrl::from_chapter(updated_chapter, file_store.as_ref())
         .await
@@ -176,6 +185,28 @@ async fn set_chapter_image<T: FileStore>(
         })?;
 
     Ok(Json(response))
+}
+
+#[instrument(skip(pool, file_store))]
+async fn remove_chapter_image<T: FileStore>(
+    request_chapter_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    file_store: web::Data<T>,
+) -> ApplicationResult<Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
+    if let Some(chapter_image) = chapter.chapter_image {
+        let file = PathBuf::from_str(&chapter_image).map_err(|original_error| {
+            ApplicationError::InternalServerError(original_error.to_string())
+        })?;
+        let _res =
+            crate::models::chapters::update_chapter_image(&mut conn, chapter.id, None).await?;
+        file_store.delete(&file).await.map_err(|original_error| {
+            ApplicationError::InternalServerError(original_error.to_string())
+        })?;
+    }
+    Ok(Json(()))
 }
 
 /**
@@ -192,5 +223,9 @@ pub fn _add_chapters_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
         .route(
             "/{chapter_id}/image",
             web::post().to(set_chapter_image::<T>),
+        )
+        .route(
+            "/{chapter_id}/image",
+            web::delete().to(remove_chapter_image::<T>),
         );
 }

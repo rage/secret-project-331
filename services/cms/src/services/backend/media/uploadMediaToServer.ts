@@ -1,6 +1,8 @@
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
 import { MediaItem, UploadMediaOptions } from "@wordpress/media-utils"
 
+import { validateFile } from "../../../shared-module/utils/files"
+
 import { uploadFileFromPage } from "."
 
 // This thingy should support multiple file uploads, but Gutenberg seem to call uploadMedia for each file separately
@@ -43,7 +45,7 @@ export async function uploadMedia({
         url: uploadedMedia.url,
       }
     } catch (error) {
-      onError(formatError(file, error?.data?.detail || "Upload failed"))
+      onError(`${file.name}: ${error?.data?.detail || "Upload failed"}`)
     } finally {
       // Upload has either succeeded or failed so we can remove the placeholder that is being used as a upload indicator.
       revokeBlobURL(mediaItems[i]?.url)
@@ -56,45 +58,17 @@ export async function uploadMedia({
   await Promise.all(promises)
 }
 
-function isFileTypeAllowed(type: string, allowedTypes: string[] | undefined): boolean {
-  if (!allowedTypes) {
-    return true
-  }
-  const allowingRule = allowedTypes.find((at) => {
-    if (at.indexOf("/") !== -1) {
-      return type === at
-    }
-    return type.startsWith(at)
-  })
-  return allowingRule !== undefined
-}
-
 function validateFileAndBroadcastErrors(
   file: File,
   allowedTypes: string[],
   maxSize: number,
   onError: (message: string) => void,
 ): boolean {
-  if (file.type && !isFileTypeAllowed(file.type, allowedTypes)) {
-    onError(formatError(file, `File type (${file.type}) not supported.`))
-    return false
-  }
-
-  if (file.size <= 0) {
-    onError(formatError(file, `You sent an empty file.`))
-    return false
-  }
-
-  if (maxSize && file.size > maxSize) {
-    const fileSizeMb = Math.ceil(file.size * 0.000001)
-    onError(
-      formatError(file, `File is too big. Your file was ${fileSizeMb}MB while the limit is 10MB.`),
-    )
+  try {
+    validateFile(file, allowedTypes, maxSize)
+  } catch (e) {
+    onError(e.message)
     return false
   }
   return true
-}
-
-function formatError(file: File, message: string): string {
-  return `${file.name}: ${message}`
 }

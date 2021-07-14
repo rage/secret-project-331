@@ -36,6 +36,13 @@ const StyledButton = styled.button`
   }
 `
 
+/* BUTTON VARIANT
+PrimaryButton
+SecondaryButton
+TertiaryButton
+IconButton
+Link */
+
 const Button: React.FC<ButtonProps> = (props) => {
   if (props.variant === "secondary") {
     return <StyledButton {...props}></StyledButton>

@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 
 import colorMapper from "../../styles/colorMapper"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { CoverAttributes } from "../../types/GutenbergBlockAttributes"
 
 import ContentRenderer, { BlockRendererProps } from "."
 

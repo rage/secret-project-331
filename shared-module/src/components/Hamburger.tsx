@@ -2,10 +2,11 @@ import { css, cx } from "@emotion/css"
 import { useCallback, useState } from "react"
 import { HamburgerSpring } from "react-animated-burgers"
 
-const Default = css`
+const defaultPadding = css`
   padding: 0;
 `
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const Hamburger = () => {
   const [isActive, setIsActive] = useState(false)
 
@@ -16,7 +17,7 @@ const Hamburger = () => {
       barColor="#333"
       buttonWidth={30}
       {...{ isActive, toggleButton }}
-      className={cx(Default)}
+      className={cx(defaultPadding)}
     />
   )
 }

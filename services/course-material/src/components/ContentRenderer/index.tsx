@@ -2,7 +2,6 @@ import React from "react"
 
 import { Block } from "../../services/backend"
 
-import AudioBlock from "./AudioBlock"
 import ButtonBlock from "./ButtonBlock"
 import CodeBlock from "./CodeBlock"
 import CourseChapterGrid from "./CourseChapterGrid"
@@ -62,8 +61,7 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
     )
   }
   return (
-
-<>
+    <>
       {props.data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         return <Component key={block.clientId} data={block} />

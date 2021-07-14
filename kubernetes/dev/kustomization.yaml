@@ -1,7 +1,8 @@
 resources:
-- ../base
-- postgres-dev.yml
-- headless-lms/dev.yml
+  - ../base
+  - postgres-dev.yml
+  - headless-lms/dev.yml
+  - headless-lms/persistent-file-storage.yml
 patches:
   - path: headless-lms/patch-deployment.yml
     target:
@@ -13,3 +14,8 @@ patches:
       version: v1
       kind: Deployment
       name: service-info-fetcher
+  - path: "headless-lms/patch-file-storage.yml"
+    target:
+      version: v1
+      kind: Deployment
+      name: "headless-lms"

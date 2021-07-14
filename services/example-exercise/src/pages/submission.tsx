@@ -1,13 +1,18 @@
-import { useRouter } from "next/dist/client/router"
-import { useEffect, useState } from "react"
+import { useRouter } from "next/router"
+import React, { useEffect, useState } from "react"
 
-import Exercise from "../components/Exercise"
+import ExerciseBase from "../components/ExerciseBase"
 import useStateWithOnChange from "../hooks/useStateWithOnChange"
 import { PublicAlternative } from "../util/stateInterfaces"
 
-const ExercisePage: React.FC = () => {
+interface SubmissionState {
+  public_spec: PublicAlternative[]
+  submission_data: string
+}
+
+const SubmissionPage: React.FC = () => {
   const [port, setPort] = useState<MessagePort | null>(null)
-  const [state, setState] = useStateWithOnChange<PublicAlternative[] | null>(null, (newValue) => {
+  const [state, setState] = useStateWithOnChange<SubmissionState | null>(null, (newValue) => {
     if (!port) {
       return
     }
@@ -65,7 +70,18 @@ const ExercisePage: React.FC = () => {
   if (!port) {
     return <>Waiting for port...</>
   }
-  return <Exercise port={port} maxWidth={maxWidth} state={state} />
+
+  return (
+    <ExerciseBase
+      alternatives={state.public_spec}
+      selectedId={state.submission_data}
+      port={port}
+      maxWidth={maxWidth}
+      onClick={(_) => {
+        // do nothing
+      }}
+    />
+  )
 }
 
-export default ExercisePage
+export default SubmissionPage

@@ -9,6 +9,7 @@ use headless_lms_actix::models::{
 };
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
+use serde_json::Value;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::{Connection, PgConnection, Postgres};
 use std::{env, fs::File, process::Command};
@@ -261,9 +262,9 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     .await?;
 
     // exercise tasks
-    let id_1 = Uuid::new_v4().to_string();
-    let id_2 = Uuid::new_v4().to_string();
-    let id_3 = Uuid::new_v4().to_string();
+    let spec_1_1 = Uuid::new_v4().to_string();
+    let spec_1_2 = Uuid::new_v4().to_string();
+    let spec_1_3 = Uuid::new_v4().to_string();
     let exercise_task_c1p1e1_1 = exercise_tasks::insert(
         conn,
         exercise_c1p1_1,
@@ -279,38 +280,38 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             inner_blocks: vec![],
         }],
         serde_json::json!([{
-            "id": id_1,
+            "id": spec_1_1,
             "name": "a",
             "correct": false,
         },
         {
-            "id": id_2,
+            "id": spec_1_2,
             "name": "b",
             "correct": true,
         },
         {
-            "id": id_3,
+            "id": spec_1_3,
             "name": "c",
             "correct": true,
         }]),
         serde_json::json!([{
-            "id": id_1,
+            "id": spec_1_1,
             "name": "a",
 
         },{
-            "id": id_2,
+            "id": spec_1_2,
             "name": "b",
 
         },{
-            "id": id_3,
+            "id": spec_1_3,
             "name": "c",
 
         }]),
     )
     .await?;
-    let id_1 = Uuid::new_v4().to_string();
-    let id_2 = Uuid::new_v4().to_string();
-    let id_3 = Uuid::new_v4().to_string();
+    let spec_2_1 = Uuid::new_v4().to_string();
+    let spec_2_2 = Uuid::new_v4().to_string();
+    let spec_2_3 = Uuid::new_v4().to_string();
     let _exercise_task_c2p1e1_1 = exercise_tasks::insert(
         conn,
         exercise_c1p2_1,
@@ -326,33 +327,33 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             inner_blocks: vec![],
         }],
         serde_json::json!([{
-            "id": id_1,
+            "id": spec_2_1,
             "name": "a",
             "correct": false,
         }, {
-            "id": id_2,
+            "id": spec_2_2,
             "name": "b",
             "correct": true,
         }, {
-            "id": id_3,
+            "id": spec_2_3,
             "name": "c",
             "correct": false,
         }]),
         serde_json::json!([{
-            "id": id_1,
+            "id": spec_2_1,
             "name": "a",
         }, {
-            "id": id_2,
+            "id": spec_2_2,
             "name": "b",
         }, {
-            "id": id_3,
+            "id": spec_2_3,
             "name": "c",
         }]),
     )
     .await?;
-    let id_1 = Uuid::new_v4().to_string();
-    let id_2 = Uuid::new_v4().to_string();
-    let id_3 = Uuid::new_v4().to_string();
+    let spec_3_1 = Uuid::new_v4().to_string();
+    let spec_3_2 = Uuid::new_v4().to_string();
+    let spec_3_3 = Uuid::new_v4().to_string();
     let _exercise_task_c1p2e2_1 = exercise_tasks::insert(
         conn,
         exercise_c1p2_2,
@@ -368,33 +369,33 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             inner_blocks: vec![],
         }],
         serde_json::json!([{
-            "id": id_1,
+            "id": spec_3_1,
             "name": "a",
             "correct": false,
         },{
-            "id": id_2,
+            "id": spec_3_2,
             "name": "b",
             "correct": true,
         },{
-            "id": id_3,
+            "id": spec_3_3,
             "name": "c",
             "correct": false,
         }]),
         serde_json::json!([{
-            "id": id_1,
+            "id": spec_3_1,
             "name": "a",
         },{
-            "id": id_2,
+            "id": spec_3_2,
             "name": "b",
         },{
-            "id": id_3,
+            "id": spec_3_3,
             "name": "c",
         }]),
     )
     .await?;
-    let id_1 = Uuid::new_v4().to_string();
-    let id_2 = Uuid::new_v4().to_string();
-    let id_3 = Uuid::new_v4().to_string();
+    let spec_4_1 = Uuid::new_v4().to_string();
+    let spec_4_2 = Uuid::new_v4().to_string();
+    let spec_4_3 = Uuid::new_v4().to_string();
     let _exercise_task_c2p1e1_1 = exercise_tasks::insert(
         conn,
         exercise_c2p1_1,
@@ -410,26 +411,26 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             inner_blocks: vec![],
         }],
         serde_json::json!([{
-            "id": id_1,
+            "id": spec_4_1,
             "name": "a",
             "correct": false,
         },{
-            "id": id_2,
+            "id": spec_4_2,
             "name": "b",
             "correct": true,
         },{
-            "id": id_3,
+            "id": spec_4_3,
             "name": "c",
             "correct": true
         }]),
         serde_json::json!([{
-            "id": id_1,
+            "id": spec_4_1,
             "name": "a",
         },{
-            "id": id_2,
+            "id": spec_4_2,
             "name": "b",
         },{
-            "id": id_3,
+            "id": spec_4_3,
             "name": "c",
         }]),
     )
@@ -443,6 +444,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         exercise_task_c1p1e1_1,
         admin,
         course_instance,
+        Value::String(spec_1_1.to_string()),
     )
     .await?;
     let submission_2 = submissions::insert(
@@ -452,6 +454,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         exercise_task_c1p1e1_1,
         admin,
         course_instance,
+        Value::String(spec_1_2.to_string()),
     )
     .await?;
     let submission_3 = submissions::insert(
@@ -461,6 +464,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         exercise_task_c1p1e1_1,
         admin,
         course_instance,
+        Value::String(spec_1_3.to_string()),
     )
     .await?;
     let _submission_4 = submissions::insert(
@@ -470,6 +474,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         exercise_task_c1p1e1_1,
         admin,
         course_instance,
+        Value::String(spec_1_1.to_string()),
     )
     .await?;
 
@@ -485,7 +490,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     };
     let exercise_1 = exercises::get_by_id(conn, exercise_c1p1_1).await?;
     gradings::update_grading(conn, &grading_1, &grading_result_1, &exercise_1).await?;
-    submissions::set_grading_id(conn, submission_1.id, grading_1.id).await?;
+    submissions::set_grading_id(conn, grading_1.id, submission_1.id).await?;
 
     let submission_2 = submissions::get_by_id(conn, submission_2).await?;
     let grading_2 = gradings::new_grading(conn, &submission_2).await?;
@@ -498,11 +503,11 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     };
     let exercise_1 = exercises::get_by_id(conn, exercise_c1p1_1).await?;
     gradings::update_grading(conn, &grading_2, &grading_result_2, &exercise_1).await?;
-    submissions::set_grading_id(conn, submission_2.id, grading_2.id).await?;
+    submissions::set_grading_id(conn, grading_2.id, submission_2.id).await?;
 
     let submission_3 = submissions::get_by_id(conn, submission_3).await?;
     let grading_3 = gradings::new_grading(conn, &submission_3).await?;
-    submissions::set_grading_id(conn, submission_3.id, grading_3.id).await?;
+    submissions::set_grading_id(conn, grading_3.id, submission_3.id).await?;
 
     Ok(course)
 }

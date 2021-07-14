@@ -226,10 +226,17 @@ mod test {
             )
             .await
             .unwrap();
-        let submission =
-            models::submissions::insert(tx.as_mut(), exercise, course, task, user, instance)
-                .await
-                .unwrap();
+        let submission = models::submissions::insert(
+            tx.as_mut(),
+            exercise,
+            course,
+            task,
+            user,
+            instance,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading = models::gradings::insert(tx.as_mut(), submission, course, exercise, task)
             .await
             .unwrap();
@@ -307,10 +314,17 @@ mod test {
             )
             .await
             .unwrap();
-        let submission =
-            models::submissions::insert(tx.as_mut(), exercise, course, task, user, instance)
-                .await
-                .unwrap();
+        let submission = models::submissions::insert(
+            tx.as_mut(),
+            exercise,
+            course,
+            task,
+            user,
+            instance,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading = models::gradings::insert(tx.as_mut(), submission, course, exercise, task)
             .await
             .unwrap();
@@ -395,14 +409,28 @@ mod test {
         )
         .await
         .unwrap();
-        let submission_1 =
-            models::submissions::insert(tx.as_mut(), exercise, course, task_1, user, instance)
-                .await
-                .unwrap();
-        let submission_2 =
-            models::submissions::insert(tx.as_mut(), exercise, course, task_2, user, instance)
-                .await
-                .unwrap();
+        let submission_1 = models::submissions::insert(
+            tx.as_mut(),
+            exercise,
+            course,
+            task_1,
+            user,
+            instance,
+            Value::Null,
+        )
+        .await
+        .unwrap();
+        let submission_2 = models::submissions::insert(
+            tx.as_mut(),
+            exercise,
+            course,
+            task_2,
+            user,
+            instance,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading = models::gradings::insert(tx.as_mut(), submission_1, course, exercise, task_1)
             .await
             .unwrap();

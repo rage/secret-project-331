@@ -10,6 +10,7 @@ use crate::{
 };
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
@@ -103,6 +104,7 @@ pub async fn insert(
     exercise_task_id: Uuid,
     user_id: Uuid,
     course_instance_id: Uuid,
+    data_json: Value,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -111,16 +113,18 @@ INSERT INTO submissions (
     course_id,
     exercise_task_id,
     user_id,
-    course_instance_id
+    course_instance_id,
+    data_json
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
         exercise_id,
         course_id,
         exercise_task_id,
         user_id,
-        course_instance_id
+        course_instance_id,
+        data_json
     )
     .fetch_one(conn)
     .await?;

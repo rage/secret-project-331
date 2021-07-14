@@ -17,6 +17,7 @@ pub struct ExerciseServiceInfo {
     pub updated_at: DateTime<Utc>,
     pub editor_iframe_path: String,
     pub exercise_iframe_path: String,
+    pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
 }
 
@@ -30,6 +31,7 @@ pub struct FetchedExerciseServiceInfo {
     pub service_name: String,
     pub editor_iframe_path: String,
     pub exercise_iframe_path: String,
+    pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
 }
 
@@ -103,18 +105,21 @@ INSERT INTO exercise_service_info(
     exercise_service_id,
     editor_iframe_path,
     exercise_iframe_path,
+    submission_iframe_path,
     grade_endpoint_path
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET editor_iframe_path = $2,
   exercise_iframe_path = $3,
-  grade_endpoint_path = $4
+  submission_iframe_path = $4,
+  grade_endpoint_path = $5
 RETURNING *
     "#,
         exercise_service_id,
         update.editor_iframe_path,
         update.exercise_iframe_path,
+        update.submission_iframe_path,
         update.grade_endpoint_path
     )
     .fetch_one(conn)

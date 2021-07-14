@@ -29,6 +29,7 @@ async fn main() -> Result<()> {
     let oauth_secret = env::var("OAUTH_SECRET").expect("OAUTH_SECRET must be defined");
     let private_cookie_key =
         env::var("PRIVATE_COOKIE_KEY").expect("PRIVATE_COOKIE_KEY must be defined");
+    let base_url = env::var("BASE_URL").expect("BASE_URL must be defined");
     let test_mode = env::var("TEST_MODE").is_ok();
     if test_mode {
         info!("***********************************");
@@ -52,9 +53,11 @@ async fn main() -> Result<()> {
         Some(TokenUrl::from_url(auth_url)),
     ));
 
-    let app_conf = ApplicationConfiguration { test_mode };
-
     let mut server = HttpServer::new(move || {
+        let app_conf = ApplicationConfiguration {
+            base_url: base_url.clone(),
+            test_mode,
+        };
         let file_store = futures::executor::block_on(async {
             LocalFileStore::new(
                 "uploads".into(),
@@ -68,7 +71,6 @@ async fn main() -> Result<()> {
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())
-            .data(app_conf)
     });
 
     server = match listenfd.take_tcp_listener(0)? {

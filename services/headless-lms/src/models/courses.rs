@@ -2,6 +2,7 @@ use crate::{
     controllers::ApplicationError,
     models::{course_instances::VariantStatus, pages::NewPage},
     utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
+    ApplicationConfiguration,
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -79,18 +80,19 @@ pub async fn get_course_structure(
     conn: &mut PgConnection,
     course_id: Uuid,
     file_store: &impl FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<CourseStructure> {
     let course = get_course(conn, course_id).await?;
     let pages = course_pages(conn, course_id).await?;
-    let chapters = course_chapters(conn, course_id).await?;
-    let mut chapters_with_image_url = Vec::<ChapterWithImageUrl>::new();
-    for chapter in chapters {
-        chapters_with_image_url.push(ChapterWithImageUrl::from_chapter(chapter, file_store).await?)
-    }
+    let chapters = course_chapters(conn, course_id)
+        .await?
+        .iter()
+        .map(|chapter| ChapterWithImageUrl::from_chapter(chapter, file_store, app_conf))
+        .collect();
     Ok(CourseStructure {
         course,
         pages,
-        chapters: chapters_with_image_url,
+        chapters,
     })
 }
 

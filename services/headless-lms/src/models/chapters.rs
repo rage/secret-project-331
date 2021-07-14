@@ -4,6 +4,7 @@ use crate::{
     controllers::ApplicationError,
     models::pages::NewPage,
     utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
+    ApplicationConfiguration,
 };
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -42,25 +43,27 @@ pub struct ChapterWithImageUrl {
 }
 
 impl ChapterWithImageUrl {
-    pub async fn from_chapter(chapter: Chapter, file_store: &impl FileStore) -> Result<Self> {
-        let chapter_image_url: Option<String> = if let Some(filef) = chapter.chapter_image {
-            let path = PathBuf::from(filef);
-            Some(file_store.get_download_url(&path.as_path()).await?)
-        } else {
-            None
-        };
-        Ok(Self {
+    pub fn from_chapter(
+        chapter: &Chapter,
+        file_store: &impl FileStore,
+        app_conf: &ApplicationConfiguration,
+    ) -> Self {
+        let chapter_image_url = chapter.chapter_image.as_ref().map(|image| {
+            let path = PathBuf::from(image);
+            file_store.get_download_url(&path.as_path(), app_conf)
+        });
+        Self {
             id: chapter.id,
             created_at: chapter.created_at,
             updated_at: chapter.updated_at,
-            name: chapter.name,
+            name: chapter.name.clone(),
             course_id: chapter.course_id,
             deleted_at: chapter.deleted_at,
             chapter_image_url,
             chapter_number: chapter.chapter_number,
             front_page_id: chapter.front_page_id,
             opens_at: chapter.opens_at,
-        })
+        }
     }
 }
 

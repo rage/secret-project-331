@@ -3,6 +3,7 @@
 use crate::controllers::helpers::media::upload_media_for_course;
 use crate::domain::authorization::AuthUser;
 use crate::utils::file_store::FileStore;
+use crate::ApplicationConfiguration;
 use crate::{controllers::ApplicationResult, models::courses::CourseStructure};
 use actix_multipart as mp;
 use actix_web::web::ServiceConfig;
@@ -61,18 +62,20 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
 }
 ```
 */
-#[instrument(skip(pool, file_store))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_course_structure<T: FileStore>(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<T>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ApplicationResult<Json<CourseStructure>> {
     let mut conn = pool.acquire().await?;
     let course_structure = crate::models::courses::get_course_structure(
         &mut conn,
         *request_course_id,
         file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await?;
     Ok(Json(course_structure))
@@ -95,25 +98,27 @@ BINARY_DATA
 Response:
 ```json
 {
-    "url": "/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
+    "url": "http://project-331.local/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
 }
 
 ```
 */
-#[instrument(skip(payload, request, pool, file_store))]
+#[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media_for_course<T: FileStore>(
     request_course_id: web::Path<Uuid>,
     payload: mp::Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
+    user: AuthUser,
     file_store: web::Data<T>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ApplicationResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
 
     let media_path =
         upload_media_for_course(request.headers(), payload, &course, file_store.as_ref()).await?;
-    let download_url = file_store.get_download_url(&media_path.as_path()).await?;
+    let download_url = file_store.get_download_url(&media_path.as_path(), app_conf.as_ref());
 
     Ok(Json(UploadResult { url: download_url }))
 }

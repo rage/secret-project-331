@@ -6,6 +6,7 @@ use crate::{
     domain::authorization::AuthUser,
     models::chapters::{Chapter, ChapterUpdate, ChapterWithImageUrl, NewChapter},
     utils::file_store::FileStore,
+    ApplicationConfiguration,
 };
 use actix_multipart as mp;
 use actix_web::web::{self, Json};
@@ -119,13 +120,14 @@ Response:
 }
 ```
 */
-#[instrument(skip(payload, pool, file_store))]
+#[instrument(skip(payload, pool, file_store, app_conf))]
 async fn update_chapter<T: FileStore>(
     payload: web::Json<ChapterUpdate>,
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<T>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ApplicationResult<Json<ChapterWithImageUrl>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
@@ -134,16 +136,13 @@ async fn update_chapter<T: FileStore>(
     let chapter =
         crate::models::chapters::update_chapter(&mut conn, course_id, course_update).await?;
 
-    let response = ChapterWithImageUrl::from_chapter(chapter, file_store.as_ref())
-        .await
-        .map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
-        })?;
+    let response =
+        ChapterWithImageUrl::from_chapter(&chapter, file_store.as_ref(), app_conf.as_ref());
 
     Ok(Json(response))
 }
 
-#[instrument(skip(request, payload, pool, file_store))]
+#[instrument(skip(request, payload, pool, file_store, app_conf))]
 async fn set_chapter_image<T: FileStore>(
     request: HttpRequest,
     payload: mp::Multipart,
@@ -151,6 +150,7 @@ async fn set_chapter_image<T: FileStore>(
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<T>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ApplicationResult<Json<ChapterWithImageUrl>> {
     let mut conn = pool.acquire().await?;
     let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
@@ -159,11 +159,8 @@ async fn set_chapter_image<T: FileStore>(
     let chapter_image =
         upload_media_for_course(request.headers(), payload, &course, file_store.as_ref())
             .await?
-            .into_os_string()
-            .into_string()
-            .map_err(|_os_string| {
-                ApplicationError::InternalServerError("Invalid file path.".to_string())
-            })?;
+            .to_string_lossy()
+            .to_string();
     let updated_chapter =
         crate::models::chapters::update_chapter_image(&mut conn, chapter.id, Some(chapter_image))
             .await?;
@@ -178,11 +175,8 @@ async fn set_chapter_image<T: FileStore>(
         })?;
     }
 
-    let response = ChapterWithImageUrl::from_chapter(updated_chapter, file_store.as_ref())
-        .await
-        .map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
-        })?;
+    let response =
+        ChapterWithImageUrl::from_chapter(&updated_chapter, file_store.as_ref(), app_conf.as_ref());
 
     Ok(Json(response))
 }

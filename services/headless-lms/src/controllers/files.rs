@@ -13,7 +13,7 @@ use actix_web::{
 use actix_files::NamedFile;
 use tokio::fs::read;
 
-use super::{ApplicationError, ApplicationResult};
+use super::{ControllerError, ControllerResult};
 
 /**
 
@@ -67,21 +67,21 @@ Result:
 The file.
 */
 #[instrument(skip(req))]
-async fn serve_upload(req: HttpRequest) -> ApplicationResult<HttpResponse> {
+async fn serve_upload(req: HttpRequest) -> ControllerResult<HttpResponse> {
     // TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
     let base_folder = Path::new("uploads");
     let relative_path: PathBuf = req
         .match_info()
         .query("tail")
         .parse()
-        .map_err(|_e| ApplicationError::BadRequest("Invalid file path".to_string()))?;
+        .map_err(|_e| ControllerError::BadRequest("Invalid file path".to_string()))?;
     let path = base_folder.join(relative_path);
 
-    let named_file = NamedFile::open(path).map_err(|_e| ApplicationError::NotFound)?;
+    let named_file = NamedFile::open(path).map_err(|_e| ControllerError::NotFound)?;
     let path = named_file.path();
     let contents = read(path)
         .await
-        .map_err(|_e| ApplicationError::InternalServerError("Could not read file".to_string()))?;
+        .map_err(|_e| ControllerError::InternalServerError("Could not read file".to_string()))?;
 
     let extension = path.extension().map(|o| o.to_string_lossy().to_string());
     let mut mime_type = None;

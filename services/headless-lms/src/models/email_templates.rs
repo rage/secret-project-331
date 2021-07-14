@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -35,7 +35,7 @@ pub struct EmailTemplateUpdate {
 pub async fn get_email_templates(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-) -> Result<Vec<EmailTemplate>> {
+) -> ModelResult<Vec<EmailTemplate>> {
     let res = sqlx::query_as!(
         EmailTemplate,
         "SELECT *
@@ -53,7 +53,7 @@ pub async fn insert_email_template(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     email_template: EmailTemplateNew,
-) -> Result<EmailTemplate> {
+) -> ModelResult<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,
         "
@@ -72,7 +72,7 @@ RETURNING *
 pub async fn get_email_template(
     conn: &mut PgConnection,
     email_template_id: Uuid,
-) -> Result<EmailTemplate> {
+) -> ModelResult<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,
         "SELECT *
@@ -90,7 +90,7 @@ pub async fn update_email_template(
     conn: &mut PgConnection,
     email_template_id: Uuid,
     email_template_update: EmailTemplateUpdate,
-) -> Result<EmailTemplate> {
+) -> ModelResult<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
@@ -118,7 +118,7 @@ RETURNING *
 pub async fn delete_email_template(
     conn: &mut PgConnection,
     email_template_id: Uuid,
-) -> Result<EmailTemplate> {
+) -> ModelResult<EmailTemplate> {
     let deleted = sqlx::query_as!(
         EmailTemplate,
         r#"

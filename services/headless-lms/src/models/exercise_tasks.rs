@@ -1,5 +1,5 @@
+use super::ModelResult;
 use crate::utils::document_schema_processor::GutenbergBlock;
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -36,7 +36,7 @@ pub async fn insert(
     assignment: Vec<GutenbergBlock>,
     private_spec: Value,
     public_spec: Value,
-) -> Result<Uuid> {
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO exercise_tasks (
@@ -60,7 +60,7 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = (SELECT exercise_id FROM exercise_tasks WHERE id = $1)", id)
         .fetch_one(conn)
         .await?
@@ -71,7 +71,7 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
 pub async fn get_random_exercise_task(
     conn: &mut PgConnection,
     exercise_id: Uuid,
-) -> Result<CourseMaterialExerciseTask> {
+) -> ModelResult<CourseMaterialExerciseTask> {
     let exercise_task = sqlx::query_as!(
         CourseMaterialExerciseTask,
         r#"
@@ -92,7 +92,10 @@ ORDER BY random();
     Ok(exercise_task)
 }
 
-pub async fn get_exercise_task_by_id(conn: &mut PgConnection, id: Uuid) -> Result<ExerciseTask> {
+pub async fn get_exercise_task_by_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ExerciseTask> {
     let exercise_task = sqlx::query_as!(
         ExerciseTask,
         "SELECT * FROM exercise_tasks WHERE id = $1;",

@@ -1,8 +1,5 @@
-use crate::{
-    controllers::ApplicationError, models::pages::NewPage,
-    utils::document_schema_processor::GutenbergBlock,
-};
-use anyhow::Result;
+use super::ModelResult;
+use crate::{models::pages::NewPage, utils::document_schema_processor::GutenbergBlock};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgConnection};
@@ -69,7 +66,7 @@ pub async fn insert(
     name: &str,
     course_id: Uuid,
     chapter_number: i32,
-) -> Result<Uuid> {
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO chapters (name, course_id, chapter_number)
@@ -89,7 +86,7 @@ pub async fn set_front_page(
     conn: &mut PgConnection,
     chapter_id: Uuid,
     front_page_id: Uuid,
-) -> Result<()> {
+) -> ModelResult<()> {
     sqlx::query!(
         "UPDATE chapters SET front_page_id = $1 WHERE id = $2",
         front_page_id,
@@ -104,7 +101,7 @@ pub async fn set_opens_at(
     conn: &mut PgConnection,
     chapter_id: Uuid,
     opens_at: DateTime<Utc>,
-) -> Result<()> {
+) -> ModelResult<()> {
     sqlx::query!(
         "UPDATE chapters SET opens_at = $1 WHERE id = $2",
         opens_at,
@@ -116,7 +113,7 @@ pub async fn set_opens_at(
 }
 
 /// Checks the opens_at field for the chapter and compares it to the current time. If null, the chapter is always open.
-pub async fn is_open(conn: &mut PgConnection, chapter_id: Uuid) -> Result<bool> {
+pub async fn is_open(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<bool> {
     let res = sqlx::query!(
         r#"
 SELECT opens_at
@@ -131,7 +128,7 @@ WHERE id = $1
     Ok(open)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Uuid> {
+pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!("SELECT course_id from chapters where id = $1", chapter_id)
         .fetch_one(conn)
         .await?
@@ -143,7 +140,7 @@ pub async fn update_chapter(
     conn: &mut PgConnection,
     course_id: Uuid,
     chapter_update: ChapterUpdate,
-) -> Result<Chapter> {
+) -> ModelResult<Chapter> {
     let res = sqlx::query_as!(
         Chapter,
         r#"
@@ -184,7 +181,10 @@ pub struct ChapterWithStatus {
     pub status: ChapterStatus,
 }
 
-pub async fn course_chapters(conn: &mut PgConnection, course_id: Uuid) -> Result<Vec<Chapter>> {
+pub async fn course_chapters(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Chapter>> {
     let chapters = sqlx::query_as!(
         Chapter,
         r#"
@@ -208,7 +208,7 @@ WHERE course_id = $1
     Ok(chapters)
 }
 
-pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> Result<Chapter> {
+pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> ModelResult<Chapter> {
     let mut tx = conn.begin().await?;
 
     let chapter = sqlx::query_as!(
@@ -237,8 +237,7 @@ RETURNING id,
         GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
-    ])
-    .map_err(|original_error| ApplicationError::InternalServerError(original_error.to_string()))?;
+    ])?;
     let chapter_frontpage = NewPage {
         chapter_id: Some(chapter.id),
         content: chapter_frontpage_content,
@@ -253,7 +252,7 @@ RETURNING id,
     Ok(chapter)
 }
 
-pub async fn delete_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Chapter> {
+pub async fn delete_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Chapter> {
     let deleted = sqlx::query_as!(
         Chapter,
         r#"

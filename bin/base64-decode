@@ -7,3 +7,4 @@ read -r input
 COMMAND="echo -n '$input' | base64 -d"
 echo "> $COMMAND"
 eval "$COMMAND"
+echo ""

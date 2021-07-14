@@ -1,6 +1,8 @@
 {
   "editor.tabSize": 2,
   "files.eol": "\n",
+  "eslint.alwaysShowStatus": true,
+  "eslint.lintTask.enable": true,
   "eslint.format.enable": true,
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",

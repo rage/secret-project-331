@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 use crate::{
-    controllers::ApplicationResult,
+    controllers::ControllerResult,
     domain::authorization::AuthUser,
     models::{self, exercises::Exercise, submissions::Submission},
     utils::pagination::Pagination,
@@ -24,7 +24,7 @@ GET `/api/v0/main-frontend/exercises/:exercise_id` - Returns a single exercise.
 async fn get_exercise(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
-) -> ApplicationResult<Json<Exercise>> {
+) -> ControllerResult<Json<Exercise>> {
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     Ok(Json(exercise))
@@ -61,7 +61,7 @@ async fn get_exercise_submissions(
     request_exercise_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
     user: AuthUser,
-) -> ApplicationResult<Json<ExerciseSubmissions>> {
+) -> ControllerResult<Json<ExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
     let submission_count =
         crate::models::submissions::exercise_submission_count(&mut conn, &request_exercise_id);

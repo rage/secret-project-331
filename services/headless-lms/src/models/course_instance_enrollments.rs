@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -21,7 +21,7 @@ pub async fn insert(
     course_id: Uuid,
     course_instance_id: Uuid,
     current: bool,
-) -> Result<()> {
+) -> ModelResult<()> {
     sqlx::query!(
         "
 INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id, current)
@@ -48,7 +48,7 @@ pub struct NewCourseInstanceEnrollment {
 pub async fn insert_enrollment(
     conn: &mut PgConnection,
     enrollment: NewCourseInstanceEnrollment,
-) -> Result<CourseInstanceEnrollment> {
+) -> ModelResult<CourseInstanceEnrollment> {
     let enrollment = sqlx::query_as!(
         CourseInstanceEnrollment,
         "

@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::models::{
     exercise_service_info::get_course_material_service_info_by_exercise_type,
-    exercise_tasks::get_random_exercise_task,
+    exercise_tasks::get_random_exercise_task, ModelError,
 };
 
 use super::{
@@ -102,7 +102,7 @@ pub async fn insert(
     name: &str,
     page_id: Uuid,
     order_number: i32,
-) -> Result<Uuid> {
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO exercises (course_id, name, page_id, order_number)
@@ -119,7 +119,7 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Exercise> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercise> {
     let exercise = sqlx::query_as!(
         Exercise,
         "
@@ -134,10 +134,17 @@ WHERE id = $1
     Ok(exercise)
 }
 
+pub async fn get_exercise_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercise> {
+    let exercise = sqlx::query_as!(Exercise, "SELECT * FROM exercises WHERE id = $1;", id)
+        .fetch_one(conn)
+        .await?;
+    Ok(exercise)
+}
+
 pub async fn get_exercises_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> Result<Vec<Exercise>> {
+) -> ModelResult<Vec<Exercise>> {
     let exercises = sqlx::query_as!(
         Exercise,
         r#"
@@ -153,7 +160,7 @@ WHERE course_id = $1
     Ok(exercises)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = $1;", id)
         .fetch_one(conn)
         .await?
@@ -165,7 +172,7 @@ pub async fn get_course_material_exercise(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise_id: Uuid,
-) -> Result<CourseMaterialExercise> {
+) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
 
     // if the user is logged in, take the previously selected task or select a new one
@@ -254,7 +261,9 @@ SET selected_exercise_task_id = $4
             }
         } else {
             // user is not enrolled on the course, return error
-            anyhow::bail!("User must be enrolled to the course")
+            return Err(ModelError::PreconditionFailed(
+                "User must be enrolled to the course".to_string(),
+            ));
         }
     } else {
         // user is not logged in, get a random task
@@ -298,7 +307,9 @@ mod test {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let user_id = users::insert(tx.as_mut()).await.unwrap();
+        let user_id = users::insert(tx.as_mut(), "test@example.com")
+            .await
+            .unwrap();
         let organization_id = organizations::insert(tx.as_mut(), "", "").await.unwrap();
         let course_id = courses::insert(tx.as_mut(), "", organization_id, "")
             .await

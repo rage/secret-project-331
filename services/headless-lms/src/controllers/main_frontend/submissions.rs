@@ -2,7 +2,7 @@ use actix_web::web::{self, Json, ServiceConfig};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{controllers::ApplicationResult, models::submissions::Submission};
+use crate::{controllers::ControllerResult, models::submissions::Submission};
 /**
 GET `/api/v0/main-frontend/submissions/{submission_id}"` - Returns a single submission.
 
@@ -24,7 +24,7 @@ GET `/api/v0/main-frontend/submissions/{submission_id}"` - Returns a single subm
 async fn get_submission(
     submission_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Submission>> {
+) -> ControllerResult<Json<Submission>> {
     let mut conn = pool.acquire().await?;
     let submission = crate::models::submissions::get_by_id(&mut conn, *submission_id).await?;
     Ok(Json(submission))

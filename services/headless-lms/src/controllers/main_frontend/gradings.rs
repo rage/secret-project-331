@@ -1,4 +1,4 @@
-use crate::{controllers::ApplicationResult, models::gradings::Grading};
+use crate::{controllers::ControllerResult, models::gradings::Grading};
 use actix_web::web::{self, Json, ServiceConfig};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -10,7 +10,7 @@ GET `/api/v0/main-frontend/gradings/{grading_id}"` - Returns a single grading.
 async fn get_grading(
     grading_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Grading>> {
+) -> ControllerResult<Json<Grading>> {
     let mut conn = pool.acquire().await?;
     let grading = crate::models::gradings::get_by_id(&mut conn, *grading_id).await?;
     Ok(Json(grading))

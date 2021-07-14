@@ -2,7 +2,7 @@
 use std::str::FromStr;
 
 use crate::{
-    controllers::ApplicationResult,
+    controllers::ControllerResult,
     domain::authorization::AuthUser,
     models::chapters::{Chapter, ChapterUpdate, NewChapter},
 };
@@ -47,7 +47,7 @@ async fn post_new_chapter(
     pool: web::Data<PgPool>,
     payload: web::Json<NewChapter>,
     user: AuthUser,
-) -> ApplicationResult<Json<Chapter>> {
+) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let new_chapter = payload.0;
     let chapter = crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
@@ -76,7 +76,7 @@ async fn delete_chapter(
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Chapter>> {
+) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
 
@@ -121,7 +121,7 @@ async fn update_chapter(
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Chapter>> {
+) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
 

@@ -190,7 +190,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/course_material/chapters`.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::controllers::ApplicationResult</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::controllers::ControllerResult</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::pages::Page</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::pages::PageWithExercises</span>;
 <span class="kw">use</span> <span class="ident">actix_web::web::ServiceConfig</span>;
@@ -251,7 +251,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages</span>(
     <span class="ident">request_chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">chapter_pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span>
         <span class="kw">crate</span><span class="ident">::models::pages::chapter_pages</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -314,7 +314,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_exercises</span>(
     <span class="ident">request_chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageWithExercises</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageWithExercises</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">chapter_pages_with_exercises</span> <span class="op">=</span>
         <span class="kw">crate</span><span class="ident">::models::pages::get_chapters_pages_with_exercises</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_chapter_id</span>)
@@ -346,7 +346,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` -
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages_without_main_frontpage</span>(
     <span class="ident">request_chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">chapter_pages</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::pages::get_chapters_pages_exclude_main_frontpage</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,

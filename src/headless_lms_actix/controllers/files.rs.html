@@ -132,7 +132,7 @@ Handlers for HTTP requests to `/api/v0/files`.
 <span class="kw">use</span> <span class="ident">actix_files::NamedFile</span>;
 <span class="kw">use</span> <span class="ident">tokio::fs::read</span>;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ApplicationError</span>, <span class="ident">ApplicationResult</span>};
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ControllerError</span>, <span class="ident">ControllerResult</span>};
 
 <span class="doccomment">/**
 
@@ -186,21 +186,21 @@ Result:
 The file.
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">req</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">serve_upload</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">serve_upload</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="comment">// TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.</span>
     <span class="kw">let</span> <span class="ident">base_folder</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;uploads&quot;</span>);
     <span class="kw">let</span> <span class="ident">relative_path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="ident">req</span>
         .<span class="ident">match_info</span>()
         .<span class="ident">query</span>(<span class="string">&quot;tail&quot;</span>)
         .<span class="ident">parse</span>()
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ApplicationError::BadRequest</span>(<span class="string">&quot;Invalid file path&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Invalid file path&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">base_folder</span>.<span class="ident">join</span>(<span class="ident">relative_path</span>);
 
-    <span class="kw">let</span> <span class="ident">named_file</span> <span class="op">=</span> <span class="ident">NamedFile::open</span>(<span class="ident">path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ApplicationError::NotFound</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">named_file</span> <span class="op">=</span> <span class="ident">NamedFile::open</span>(<span class="ident">path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ControllerError::NotFound</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">named_file</span>.<span class="ident">path</span>();
     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">read</span>(<span class="ident">path</span>)
         .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ApplicationError::InternalServerError</span>(<span class="string">&quot;Could not read file&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ControllerError::InternalServerError</span>(<span class="string">&quot;Could not read file&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">extension</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>());
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mime_type</span> <span class="op">=</span> <span class="prelude-val">None</span>;

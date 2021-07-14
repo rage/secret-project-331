@@ -80,7 +80,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/organizations`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::ApplicationResult</span>,
+    <span class="ident">controllers::ControllerResult</span>,
     <span class="ident">models</span>::{<span class="ident">courses::Course</span>, <span class="ident">organizations::Organization</span>},
 };
 <span class="kw">use</span> <span class="ident">actix_web::web::ServiceConfig</span>;
@@ -108,7 +108,7 @@ GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_organizations</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::organizations::all_organizations</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">courses</span>))
@@ -134,7 +134,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_courses</span>(
     <span class="ident">request_organization_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ApplicationResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span>
         <span class="kw">crate</span><span class="ident">::models::courses::organization_courses</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">request_organization_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;

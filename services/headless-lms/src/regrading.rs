@@ -6,6 +6,7 @@ use crate::models::{
     gradings::Grading,
     regrading_submissions::RegradingSubmission,
     submissions::GradingResult,
+    ModelResult,
 };
 use anyhow::Result;
 use futures::{
@@ -191,7 +192,7 @@ struct GradingData {
     regrading_submission: RegradingSubmission,
     grading: Grading,
     exercise: Exercise,
-    exercise_service_result: Result<GradingResult>,
+    exercise_service_result: ModelResult<GradingResult>,
 }
 
 #[cfg(test)]

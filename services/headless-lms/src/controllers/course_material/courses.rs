@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
 use crate::{
-    controllers::{ApplicationError, ApplicationResult},
+    controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
     models::chapters::{ChapterStatus, ChapterWithStatus},
     models::course_instances::CourseInstance,
@@ -36,7 +36,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Page>> {
+) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
@@ -49,7 +49,7 @@ async fn get_course_page_by_path(
 
     if let Some(chapter_id) = page.chapter_id {
         if !crate::models::chapters::is_open(&mut conn, chapter_id).await? {
-            return Err(ApplicationError::Forbidden(
+            return Err(ControllerError::Forbidden(
                 "Chapter is not open yet".to_string(),
             ));
         }
@@ -82,7 +82,7 @@ async fn get_current_course_instance(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
     user: Option<AuthUser>,
-) -> ApplicationResult<Json<Option<CourseInstance>>> {
+) -> ControllerResult<Json<Option<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     if let Some(user) = user {
         let instance = crate::models::course_instances::current_course_instance_of_user(
@@ -121,7 +121,7 @@ GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all 
 async fn get_course_instances(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
-) -> ApplicationResult<Json<Vec<CourseInstance>>> {
+) -> ControllerResult<Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     let instances = crate::models::course_instances::get_course_instances_for_course(
         &mut conn,
@@ -157,7 +157,7 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 async fn get_course_pages(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<Page>>> {
+) -> ControllerResult<Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let pages: Vec<Page> =
         crate::models::pages::course_pages(&mut conn, *request_course_id).await?;
@@ -188,7 +188,7 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
 async fn get_chapters(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<ChapterWithStatus>>> {
+) -> ControllerResult<Json<Vec<ChapterWithStatus>>> {
     let mut conn = pool.acquire().await?;
     let chapters = crate::models::chapters::course_chapters(&mut conn, *request_course_id).await?;
     let chapters = chapters

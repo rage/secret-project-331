@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
 use crate::domain::authorization::AuthUser;
-use crate::{controllers::ApplicationResult, models::exercises::CourseMaterialExercise};
+use crate::{controllers::ControllerResult, models::exercises::CourseMaterialExercise};
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
@@ -74,7 +74,7 @@ async fn get_exercise(
     pool: web::Data<PgPool>,
     request_exercise_id: web::Path<Uuid>,
     user: Option<AuthUser>,
-) -> ApplicationResult<Json<CourseMaterialExercise>> {
+) -> ControllerResult<Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
     let exercise = crate::models::exercises::get_course_material_exercise(

@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/pages`.
 
 use crate::{
-    controllers::{ApplicationError, ApplicationResult},
+    controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
     models::{
         courses::Course,
@@ -60,7 +60,7 @@ async fn get_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Page>> {
+) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page = crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(page))
@@ -121,7 +121,7 @@ async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Page>> {
+) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
     let page = crate::models::pages::insert_page(&mut conn, new_page).await?;
@@ -178,7 +178,7 @@ async fn update_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Page>> {
+) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page_update = payload.0;
     let page = crate::models::pages::update_page(&mut conn, *request_page_id, page_update).await?;
@@ -217,7 +217,7 @@ async fn delete_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Page>> {
+) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let deleted_page =
         crate::models::pages::delete_page_and_exercises(&mut conn, *request_page_id).await?;
@@ -259,35 +259,35 @@ async fn upload_media_for_course<T: FileStore>(
     request: HttpRequest,
     pool: web::Data<PgPool>,
     file_store: web::Data<T>,
-) -> ApplicationResult<Json<UploadResult>> {
+) -> ControllerResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
     let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
     let course = crate::models::courses::get_course(&mut conn, course_id).await?;
     let headers = request.headers();
 
     let content_type = headers.get(header::CONTENT_TYPE).ok_or_else(|| {
-        ApplicationError::BadRequest("Please provide a Content-Type header".into())
+        ControllerError::BadRequest("Please provide a Content-Type header".into())
     })?;
     let content_type_string = String::from_utf8_lossy(content_type.as_bytes()).to_string();
 
     if !content_type_string.contains("multipart/form-data") {
-        return Err(ApplicationError::BadRequest(format!(
+        return Err(ControllerError::BadRequest(format!(
             "Unsupported type: {}",
             content_type_string
         )));
     }
 
     let content_length = headers.get(header::CONTENT_LENGTH).ok_or_else(|| {
-        ApplicationError::BadRequest("Please provide a Content-Length in header".into())
+        ControllerError::BadRequest("Please provide a Content-Length in header".into())
     })?;
     let content_length_number = String::from_utf8_lossy(content_length.as_bytes())
         .to_string()
         .parse::<i32>()
-        .map_err(|original_err| ApplicationError::InternalServerError(original_err.to_string()))?;
+        .map_err(|original_err| ControllerError::InternalServerError(original_err.to_string()))?;
 
     // This does not enforce the size of the file since the client can lie about the content length
     if content_length_number > 10485760 {
-        return Err(ApplicationError::BadRequest(
+        return Err(ControllerError::BadRequest(
             "Content length over 10 MB".into(),
         ));
     }
@@ -295,7 +295,7 @@ async fn upload_media_for_course<T: FileStore>(
     let next_payload = payload
         .next()
         .await
-        .ok_or_else(|| ApplicationError::BadRequest("Missing form data".into()))?;
+        .ok_or_else(|| ControllerError::BadRequest("Missing form data".into()))?;
     match next_payload {
         Ok(field) => {
             let mime = field.content_type();
@@ -318,10 +318,10 @@ async fn upload_media_for_course<T: FileStore>(
             }
 
             let field_content = field.content_disposition().ok_or_else(|| {
-                ApplicationError::BadRequest("Missing field content-disposition".into())
+                ControllerError::BadRequest("Missing field content-disposition".into())
             })?;
             let field_content_name = field_content.get_filename().ok_or_else(|| {
-                ApplicationError::BadRequest("Missing file name in content-disposition".into())
+                ControllerError::BadRequest("Missing file name in content-disposition".into())
             })?;
 
             let uploaded_file_extension = get_extension_from_filename(field_content_name);
@@ -330,7 +330,7 @@ async fn upload_media_for_course<T: FileStore>(
             }
 
             let path = course_file_path(&course, file_name)
-                .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
+                .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
             upload_media_to_storage(&path, field, file_store.as_ref()).await?;
 
@@ -338,7 +338,7 @@ async fn upload_media_for_course<T: FileStore>(
                 url: file_store.get_download_url(&path.as_path()).await?,
             }));
         }
-        Err(err) => Err(ApplicationError::InternalServerError(err.to_string())),
+        Err(err) => Err(ControllerError::InternalServerError(err.to_string())),
     }
 }
 
@@ -347,7 +347,7 @@ async fn upload_image_for_course(
     field: mp::Field,
     course: &Course,
     file_store: &impl FileStore,
-) -> ApplicationResult<Json<UploadResult>> {
+) -> ControllerResult<Json<UploadResult>> {
     let extension = match field.content_type().to_string().as_str() {
         "image/jpeg" => ".jpg",
         "image/png" => ".png",
@@ -357,7 +357,7 @@ async fn upload_image_for_course(
         "image/webp" => ".webp",
         "image/gif" => ".gif",
         unsupported => {
-            return Err(ApplicationError::BadRequest(format!(
+            return Err(ControllerError::BadRequest(format!(
                 "Unsupported image Mime type: {}",
                 unsupported
             )))
@@ -365,7 +365,7 @@ async fn upload_image_for_course(
     };
     file_name.push_str(extension);
     let path = course_image_path(&course, file_name)
-        .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
+        .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     upload_media_to_storage(&path, field, file_store).await?;
 
@@ -379,7 +379,7 @@ async fn upload_audio_for_course(
     field: mp::Field,
     course: &Course,
     file_store: &impl FileStore,
-) -> ApplicationResult<Json<UploadResult>> {
+) -> ControllerResult<Json<UploadResult>> {
     let extension = match field.content_type().to_string().as_str() {
         "audio/aac" => ".aac",
         "audio/mpeg" => ".mp3",
@@ -390,7 +390,7 @@ async fn upload_audio_for_course(
         "audio/midi" => ".mid",
         "audio/x-midi" => ".mid",
         unsupported => {
-            return Err(ApplicationError::BadRequest(format!(
+            return Err(ControllerError::BadRequest(format!(
                 "Unsupported audio Mime type: {}",
                 unsupported
             )))
@@ -398,7 +398,7 @@ async fn upload_audio_for_course(
     };
     file_name.push_str(extension);
     let path = course_audio_path(&course, file_name)
-        .map_err(|err| ApplicationError::InternalServerError(err.to_string()))?;
+        .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     upload_media_to_storage(&path, field, file_store).await?;
 

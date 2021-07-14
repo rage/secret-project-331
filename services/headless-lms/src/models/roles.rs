@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::ModelResult;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use sqlx::Type;
@@ -44,7 +44,7 @@ pub async fn insert(
     organization_id: Option<Uuid>,
     course_id: Option<Uuid>,
     role: UserRole,
-) -> Result<Uuid> {
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO roles (user_id, organization_id, course_id, role) VALUES ($1, $2, $3, $4) RETURNING id
@@ -59,7 +59,7 @@ INSERT INTO roles (user_id, organization_id, course_id, role) VALUES ($1, $2, $3
     Ok(res.id)
 }
 
-pub async fn get_roles(conn: &mut PgConnection, user_id: Uuid) -> Result<Vec<Role>> {
+pub async fn get_roles(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<Vec<Role>> {
     let roles = sqlx::query_as!(
         Role,
         r#"SELECT organization_id, course_id, role AS "role: UserRole" FROM roles WHERE user_id = $1"#, user_id

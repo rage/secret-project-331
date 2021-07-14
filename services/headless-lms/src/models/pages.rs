@@ -1,3 +1,4 @@
+use super::ModelResult;
 use crate::{
     models::chapters::Chapter,
     models::exercise_tasks::ExerciseTask,
@@ -5,7 +6,6 @@ use crate::{
         denormalize, normalize_from_json, GutenbergBlock, NormalizedDocument,
     },
 };
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -153,7 +153,7 @@ pub async fn insert(
     url_path: &str,
     title: &str,
     order_number: i32,
-) -> Result<Uuid> {
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO pages (
@@ -177,7 +177,11 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn set_chapter(conn: &mut PgConnection, page_id: Uuid, chapter_id: Uuid) -> Result<()> {
+pub async fn set_chapter(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    chapter_id: Uuid,
+) -> ModelResult<()> {
     sqlx::query!(
         "UPDATE pages SET chapter_id = $1 WHERE id = $2",
         chapter_id,
@@ -192,7 +196,7 @@ pub async fn update_content(
     conn: &mut PgConnection,
     page_id: Uuid,
     content: &[GutenbergBlock],
-) -> Result<()> {
+) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE pages
@@ -207,7 +211,7 @@ WHERE id = $2
     Ok(())
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM pages WHERE id = $1", id)
         .fetch_one(conn)
         .await?
@@ -215,7 +219,7 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     Ok(course_id)
 }
 
-pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> Result<Vec<Page>> {
+pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
         "SELECT * FROM pages WHERE course_id = $1 AND deleted_at IS NULL;",
@@ -226,7 +230,7 @@ pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> Result<Ve
     Ok(pages)
 }
 
-pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Vec<Page>> {
+pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
         "SELECT * FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL;",
@@ -237,7 +241,7 @@ pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> Result<
     Ok(pages)
 }
 
-pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> Result<Page> {
+pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
     let pages = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
         .fetch_one(conn)
         .await?;
@@ -248,7 +252,7 @@ pub async fn get_page_by_path(
     conn: &mut PgConnection,
     course_slug: String,
     url_path: &str,
-) -> Result<Page> {
+) -> ModelResult<Page> {
     let page = sqlx::query_as!(
         Page,
         "SELECT pages.* FROM pages
@@ -265,7 +269,7 @@ pub async fn get_page_by_path(
     Ok(page)
 }
 
-pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> Result<Page> {
+pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
     let mut page = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
         .fetch_one(&mut *conn)
         .await?;
@@ -342,7 +346,7 @@ pub async fn update_page(
     conn: &mut PgConnection,
     page_id: Uuid,
     page_update: PageUpdate,
-) -> Result<Page> {
+) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(page_update.content)?;
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content)?;
@@ -412,7 +416,7 @@ async fn upsert_exercises_and_exercise_tasks(
     exercises: &[PageUpdateExercise],
     page: &Page,
     conn: &mut PgConnection,
-) -> Result<(Vec<PageUpdateExercise>, serde_json::Value)> {
+) -> ModelResult<(Vec<PageUpdateExercise>, serde_json::Value)> {
     // All related exercises and items should be deleted if not included in the update
     // We accomplish this by deleting everyting first in the transaction and then
     // undeleting the necessary items when doing the actual updates
@@ -541,7 +545,7 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
 fn update_ids_in_content(
     content: &serde_json::Value,
     chaged_ids: HashMap<Uuid, Uuid>,
-) -> Result<serde_json::Value> {
+) -> ModelResult<serde_json::Value> {
     // naive implementation for now because the structure of the content was not decided at the time of writing this.
     // In the future we could only edit the necessary fields.
     let mut content_str = serde_json::to_string(content)?;
@@ -551,7 +555,7 @@ fn update_ids_in_content(
     Ok(serde_json::from_str(&content_str)?)
 }
 
-pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> Result<Page> {
+pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(new_page.content)?;
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content.clone())?;
@@ -629,7 +633,10 @@ RETURNING id,
     })
 }
 
-pub async fn delete_page_and_exercises(conn: &mut PgConnection, page_id: Uuid) -> Result<Page> {
+pub async fn delete_page_and_exercises(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
     let page = sqlx::query_as!(
         Page,
@@ -674,7 +681,7 @@ pub async fn delete_page_and_exercises(conn: &mut PgConnection, page_id: Uuid) -
 pub async fn get_chapters_pages_with_exercises(
     conn: &mut PgConnection,
     chapters_id: Uuid,
-) -> Result<Vec<PageWithExercises>> {
+) -> ModelResult<Vec<PageWithExercises>> {
     let chapter_pages = sqlx::query_as!(
         Page,
         r#"
@@ -740,7 +747,7 @@ WHERE page_id IN (
 pub async fn get_next_page(
     conn: &mut PgConnection,
     pages_id: Uuid,
-) -> Result<Option<PageRoutingData>> {
+) -> ModelResult<Option<PageRoutingData>> {
     let page_metadata = get_current_page_metadata(conn, pages_id).await?;
     let next_page = get_next_page_by_order_number(conn, &page_metadata).await?;
 
@@ -753,7 +760,10 @@ pub async fn get_next_page(
     }
 }
 
-async fn get_current_page_metadata(conn: &mut PgConnection, page_id: Uuid) -> Result<PageMetadata> {
+async fn get_current_page_metadata(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<PageMetadata> {
     let page_metadata = sqlx::query_as!(
         PageMetadata,
         r#"
@@ -777,7 +787,7 @@ WHERE p.id = $1;
 async fn get_next_page_by_order_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
-) -> Result<Option<PageRoutingData>> {
+) -> ModelResult<Option<PageRoutingData>> {
     let next_page = sqlx::query_as!(
         PageRoutingData,
         "
@@ -809,7 +819,7 @@ WHERE p.order_number = (
 async fn get_next_page_by_chapter_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
-) -> Result<Option<PageRoutingData>> {
+) -> ModelResult<Option<PageRoutingData>> {
     let next_page = sqlx::query_as!(
         PageRoutingData,
         "
@@ -841,7 +851,7 @@ LIMIT 1;
 async fn get_next_page_order_number_in_chapter(
     conn: &mut PgConnection,
     chapter_id: Uuid,
-) -> Result<i32> {
+) -> ModelResult<i32> {
     let next_order_number = sqlx::query!(
         "
 select max(p.order_number) as order_number
@@ -863,7 +873,7 @@ where p.chapter_id = $1
 async fn get_next_order_number_for_courses_top_level_pages(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> Result<i32> {
+) -> ModelResult<i32> {
     let next_order_number = sqlx::query!(
         "
 select max(p.order_number) as order_number
@@ -886,7 +896,7 @@ where p.course_id = $1
 pub async fn get_chapters_pages_exclude_main_frontpage(
     conn: &mut PgConnection,
     chapter_id: Uuid,
-) -> Result<Vec<Page>> {
+) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
         "

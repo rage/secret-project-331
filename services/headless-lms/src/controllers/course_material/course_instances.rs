@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/course-instances`.
 use crate::{
-    controllers::ApplicationResult,
+    controllers::ControllerResult,
     domain::authorization::AuthUser,
     models::{
         course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
@@ -27,7 +27,7 @@ async fn get_user_progress_page(
     user: AuthUser,
     request_course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Option<UserProgress>>> {
+) -> ControllerResult<Json<Option<UserProgress>>> {
     let user_course_progress = crate::models::user_exercise_states::get_user_progress(
         pool.get_ref(),
         &request_course_instance_id,
@@ -60,7 +60,7 @@ async fn add_user_enrollment(
     pool: web::Data<PgPool>,
     request_course_instance_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ApplicationResult<Json<CourseInstanceEnrollment>> {
+) -> ControllerResult<Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
     let instance = crate::models::course_instances::get_course_instance(
         &mut conn,

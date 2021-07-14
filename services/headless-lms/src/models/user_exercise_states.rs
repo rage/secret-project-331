@@ -1,13 +1,12 @@
-use crate::models::gradings::UserPointsUpdateStrategy;
-use core::f32;
-
 use super::{
     exercises::{ActivityProgress, GradingProgress},
     gradings::Grading,
     submissions::Submission,
+    ModelResult,
 };
-use anyhow::Result;
+use crate::models::gradings::UserPointsUpdateStrategy;
 use chrono::{DateTime, Utc};
+use core::f32;
 use futures::future;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgConnection, PgPool};
@@ -46,7 +45,10 @@ pub struct CourseMetrics {
     score_maximum: Option<i64>,
 }
 
-pub async fn get_course_metrics(pool: &PgPool, course_instance_id: &Uuid) -> Result<CourseMetrics> {
+pub async fn get_course_metrics(
+    pool: &PgPool,
+    course_instance_id: &Uuid,
+) -> ModelResult<CourseMetrics> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         CourseMetrics,
@@ -69,7 +71,7 @@ pub async fn get_user_metrics(
     pool: &PgPool,
     course_instance_id: &Uuid,
     user_id: &Uuid,
-) -> Result<UserMetrics> {
+) -> ModelResult<UserMetrics> {
     let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         UserMetrics,
@@ -94,7 +96,7 @@ pub async fn get_user_progress(
     pool: &PgPool,
     course_instance_id: &Uuid,
     user_id: &Uuid,
-) -> Result<UserProgress> {
+) -> ModelResult<UserProgress> {
     let (course_metrics, user_metrics) = future::try_join(
         get_course_metrics(pool, course_instance_id),
         get_user_metrics(pool, user_id, course_instance_id),
@@ -114,7 +116,7 @@ pub async fn get_or_create_user_exercise_state(
     user_id: &Uuid,
     exercise_id: &Uuid,
     course_instance_id: &Uuid,
-) -> Result<UserExerciseState> {
+) -> ModelResult<UserExerciseState> {
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
@@ -236,7 +238,7 @@ pub async fn update_user_exercise_state(
     conn: &mut PgConnection,
     grading: &Grading,
     submission: &Submission,
-) -> Result<UserExerciseState> {
+) -> ModelResult<UserExerciseState> {
     let Submission {
         user_id,
         exercise_id,

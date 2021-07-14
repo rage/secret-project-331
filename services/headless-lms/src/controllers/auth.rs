@@ -3,7 +3,7 @@ Handlers for HTTP requests to `/api/v0/login`.
 */
 
 use crate::{
-    controllers::ApplicationResult, domain::authorization, models, ApplicationConfiguration,
+    controllers::ControllerResult, domain::authorization, models, ApplicationConfiguration,
     OAuthClient,
 };
 use actix_session::Session;
@@ -40,7 +40,7 @@ pub async fn login(
     client: web::Data<OAuthClient>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
-) -> ApplicationResult<HttpResponse> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 

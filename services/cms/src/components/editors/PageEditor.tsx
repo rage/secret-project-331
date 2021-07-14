@@ -7,7 +7,7 @@ import React, { useState } from "react"
 import { blockTypeMap } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { Page, PageUpdate } from "../../services/services.types"
-import DebugModal from "../DebugModal"
+import DebugModal from "../../shared-module/components/DebugModal"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 

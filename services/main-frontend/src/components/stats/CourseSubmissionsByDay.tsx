@@ -4,8 +4,8 @@ import React from "react"
 import { useQuery } from "react-query"
 
 import { fetchCourseDailySubmissionCounts } from "../../services/backend/courses"
+import DebugModal from "../../shared-module/components/DebugModal"
 import { dontRenderUntilQueryParametersReady } from "../../utils/dontRenderUntilQueryParametersReady"
-import DebugModal from "../DebugModal"
 import Echarts from "../Echarts"
 
 export interface CourseSubmissionsByDayProps {

@@ -1,15 +1,7 @@
 import axios from "axios"
 
-import { ISOStringToDateTime } from "../../utils/dateUtil"
+import { interceptor } from "../../shared-module/services/backend/interceptor"
 
 export const cmsClient = axios.create({ baseURL: "/api/v0/cms" })
 
-cmsClient.interceptors.response.use(
-  // Handles status code range 2xx
-  (response) => {
-    ISOStringToDateTime(response.data)
-    return response
-  },
-  // Any status code that fall outside of the range 2xx
-  (err) => Promise.reject(err.response),
-)
+interceptor(cmsClient)

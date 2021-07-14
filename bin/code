@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FILE_PATH="$BASEDIR/../workspace.code-workspace"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
+
+COMMAND="code"
+
+ARGUMENTS=("$RELATIVE_PATH" "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

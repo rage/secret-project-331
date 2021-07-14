@@ -1,7 +1,8 @@
 import React from "react"
 
 interface CourseContextProps {
-  courseInstanceId: string
+  /** Id of the course that all media uploads are associated with. */
+  courseId: string
 }
 
 const CourseContext = React.createContext<CourseContextProps | null>(null)

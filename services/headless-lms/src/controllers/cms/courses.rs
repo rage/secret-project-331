@@ -53,6 +53,7 @@ GET `/api/v0/cms/courses/:course_id/structure` - Returns the structure of a cour
       "name": "The Basics",
       "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
       "deleted_at": null,
+      "chapter_image_url": "http://project-331.local/api/v0/files/uploads/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/mbPQh8th96TdUwX96Y0ch1fjbJLRFr.png",
       "chapter_number": 1,
       "front_page_id": null
     }
@@ -78,7 +79,7 @@ async fn get_course_structure<T: FileStore>(
 }
 
 /**
-POST `/api/v0/cms/pages/:page_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
+POST `/api/v0/cms/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
 
 Put the the contents of the media in a form and add a content type header multipart/form-data.
 # Example

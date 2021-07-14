@@ -3,6 +3,7 @@ import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import CourseContext from "../../../contexts/CourseContext"
+import { fetchCourseInstance } from "../../../services/backend/course-instances"
 import {
   fetchEmailTemplateWithId,
   updateExistingEmailTemplate,
@@ -21,20 +22,37 @@ const EmailEditor = dynamic(() => import("../../../components/editors/EmailEdito
 
 const EmailTemplateEdit = () => {
   const emailTemplateId = useQueryParameter("id")
-  const { isLoading, error, data, refetch } = useQuery(`email-template-${emailTemplateId}`, () =>
-    fetchEmailTemplateWithId(emailTemplateId),
+  const {
+    isLoading: emailTemplateIsLoading,
+    error: emailTemplateError,
+    data: emailTemplateData,
+    refetch,
+  } = useQuery(`email-template-${emailTemplateId}`, () => fetchEmailTemplateWithId(emailTemplateId))
+  const {
+    data: courseInstanceData,
+    error: courseInstanceError,
+    isLoading: courseInstanceIsLoading,
+  } = useQuery(
+    ["course-id-of-instance", emailTemplateData?.course_instance_id],
+    () => fetchCourseInstance(emailTemplateData.course_instance_id),
+    { enabled: !emailTemplateIsLoading && !!emailTemplateData },
   )
 
-  if (error) {
+  if (emailTemplateError || courseInstanceError) {
     return (
       <div>
         <h1>Error</h1>
-        <pre>{JSON.stringify(error, undefined, 2)}</pre>
+        <pre>{JSON.stringify(emailTemplateError, undefined, 2)}</pre>
+        <pre>{JSON.stringify(courseInstanceError, undefined, 2)}</pre>
       </div>
     )
   }
 
-  if (isLoading || !data) {
+  if (emailTemplateIsLoading || !emailTemplateData) {
+    return <div>Loading template data...</div>
+  }
+
+  if (courseInstanceIsLoading || !courseInstanceData) {
     return <div>Loading editor data...</div>
   }
 
@@ -47,9 +65,9 @@ const EmailTemplateEdit = () => {
   }
 
   return (
-    <CourseContext.Provider value={{ courseInstanceId: data.course_instance_id }}>
+    <CourseContext.Provider value={{ courseId: courseInstanceData.course_id }}>
       <Layout>
-        <EmailEditor data={data} handleSave={handleSave} />
+        <EmailEditor data={emailTemplateData} handleSave={handleSave} />
       </Layout>
     </CourseContext.Provider>
   )

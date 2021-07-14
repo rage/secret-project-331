@@ -68,7 +68,7 @@ const CoursePages: React.FC<unknown> = () => {
   const frontPage = data.pages.find((page) => page.url_path === "/")
 
   return (
-    <CourseContext.Provider value={{ courseInstanceId: data.course.id }}>
+    <CourseContext.Provider value={{ courseId: data.course.id }}>
       <Layout>
         <div
           className={css`

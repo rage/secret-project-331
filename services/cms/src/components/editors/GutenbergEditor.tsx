@@ -56,7 +56,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   allowedBlocks,
   customBlocks,
 }: GutenbergEditorProps) => {
-  const courseId = useContext(CourseContext).courseInstanceId
+  const courseId = useContext(CourseContext).courseId
   const handleChanges = (newContent: BlockInstance[]): void => {
     console.log(newContent)
     onContentChange(newContent)

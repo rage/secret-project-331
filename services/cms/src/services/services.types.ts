@@ -1,5 +1,4 @@
 import { BlockInstance } from "@wordpress/blocks"
-import { String } from "lodash"
 
 interface DatabaseItem {
   id: string
@@ -115,6 +114,21 @@ export interface NewCourse {
   name: string
   slug: string
   organization_id: string
+}
+
+export type VariantStatus = "draft" | "upcoming" | "active" | "ended"
+
+/**
+ * GET
+ * `/{API_URL/api/v0/cms/course-instances/:course_instance_id}`
+ */
+export interface CourseInstance extends DatabaseItem {
+  course_id: string
+  starts_at?: Date
+  ends_at?: Date
+  name?: string
+  description?: string
+  variant_status: VariantStatus
 }
 
 /**

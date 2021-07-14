@@ -49,7 +49,7 @@ const Pages = ({ query }: PagesProps) => {
   }
 
   return (
-    <CourseContext.Provider value={{ courseInstanceId: data.course_id }}>
+    <CourseContext.Provider value={{ courseId: data.course_id }}>
       <Layout>
         <PageEditor data={data} handleSave={handleSave} />
       </Layout>

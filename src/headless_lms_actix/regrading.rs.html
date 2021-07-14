@@ -479,6 +479,7 @@
 <span id="476">476</span>
 <span id="477">477</span>
 <span id="478">478</span>
+<span id="479">479</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models</span>::{
     <span class="self">self</span>,
@@ -488,6 +489,7 @@
     <span class="ident">gradings::Grading</span>,
     <span class="ident">regrading_submissions::RegradingSubmission</span>,
     <span class="ident">submissions::GradingResult</span>,
+    <span class="ident">ModelResult</span>,
 };
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">futures</span>::{
@@ -673,7 +675,7 @@
     <span class="ident">regrading_submission</span>: <span class="ident">RegradingSubmission</span>,
     <span class="ident">grading</span>: <span class="ident">Grading</span>,
     <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
-    <span class="ident">exercise_service_result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GradingResult</span><span class="op">&gt;</span>,
+    <span class="ident">exercise_service_result</span>: <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">GradingResult</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>

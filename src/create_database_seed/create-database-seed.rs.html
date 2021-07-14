@@ -517,9 +517,9 @@
     }
 
     <span class="comment">// users</span>
-    <span class="kw">let</span> <span class="ident">admin</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">teacher</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">assistant</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">admin</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="string">&quot;admin@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">teacher</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="string">&quot;teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">assistant</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="string">&quot;assistant@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// uh-cs</span>
     <span class="kw">let</span> <span class="ident">uh_cs</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(

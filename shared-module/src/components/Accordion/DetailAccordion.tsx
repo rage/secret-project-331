@@ -2,8 +2,6 @@ import { css, cx, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { respond } from "../../utils/respond"
-
 const openAnimation = keyframes`
 0% { opacity: 0; }
 100% { opacity: 1; }

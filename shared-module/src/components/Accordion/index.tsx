@@ -23,23 +23,6 @@ const TextWrapper = styled.div`
   justify-content: center;
   align-content: center;
   flex: 1;
-  @media (max-width: 1000px) {
-    width: 90%;
-    padding-top: 5rem;
-  }
-
-  ${respond.sm`
-  padding: 1rem;
-  `}
-
-  ${respond.md`
-  width: 100%;
-  padding: 0 1rem;
-`}
-
-details {
-    border: 1px solid rgba(0, 0, 0, 0.2);
-  }
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;

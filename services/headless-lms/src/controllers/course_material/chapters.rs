@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course_material/chapters`.
 
-use crate::controllers::ApplicationResult;
+use crate::controllers::ControllerResult;
 use crate::models::pages::Page;
 use crate::models::pages::PageWithExercises;
 use actix_web::web::ServiceConfig;
@@ -61,7 +61,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 async fn get_chapters_pages(
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<Page>>> {
+) -> ControllerResult<Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let chapter_pages: Vec<Page> =
         crate::models::pages::chapter_pages(&mut conn, *request_chapter_id).await?;
@@ -124,7 +124,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of
 async fn get_chapters_exercises(
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<PageWithExercises>>> {
+) -> ControllerResult<Json<Vec<PageWithExercises>>> {
     let mut conn = pool.acquire().await?;
     let chapter_pages_with_exercises =
         crate::models::pages::get_chapters_pages_with_exercises(&mut conn, *request_chapter_id)
@@ -156,7 +156,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` -
 async fn get_chapters_pages_without_main_frontpage(
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<Page>>> {
+) -> ControllerResult<Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let chapter_pages = crate::models::pages::get_chapters_pages_exclude_main_frontpage(
         &mut conn,

@@ -71,7 +71,7 @@ pub async fn insert_user_organization_course_instance_exercise_task(
         .take(32)
         .map(char::from)
         .collect();
-    let user = models::users::insert(&mut *conn).await?;
+    let user = models::users::insert(&mut *conn, "test@example.com").await?;
     let org = models::organizations::insert(&mut *conn, "", &random_string).await?;
     let course = models::courses::insert(&mut *conn, "", org, &random_string).await?;
     let instance = models::course_instances::insert(&mut *conn, course, None).await?;

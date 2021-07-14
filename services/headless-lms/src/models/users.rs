@@ -11,15 +11,17 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub upstream_id: Option<i32>,
+    pub email: String,
 }
 
-pub async fn insert(conn: &mut PgConnection) -> ModelResult<Uuid> {
+pub async fn insert(conn: &mut PgConnection, email: &str) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO users DEFAULT
-VALUES
+INSERT INTO users (email)
+VALUES ($1)
 RETURNING id
-"
+",
+        email
     )
     .fetch_one(conn)
     .await?;
@@ -28,16 +30,18 @@ RETURNING id
 
 pub async fn insert_with_upstream_id(
     conn: &mut PgConnection,
+    email: &str,
     upstream_id: i32,
 ) -> ModelResult<User> {
     let user = sqlx::query_as!(
         User,
         r#"
 INSERT INTO
-  users (upstream_id)
-VALUES($1)
+  users (email, upstream_id)
+VALUES ($1, $2)
 RETURNING *;
           "#,
+        email,
         upstream_id
     )
     .fetch_one(conn)
@@ -77,10 +81,10 @@ pub async fn find_by_upstream_id(
 // Only used for testing, not to use in production.
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,
-    _email: String,
+    email: String,
     _password: String,
 ) -> ModelResult<User> {
     // TODO: Add support to "authenticate" different kind of users
-    let user = insert_with_upstream_id(conn, 9001).await?;
+    let user = insert_with_upstream_id(conn, &email, 9001).await?;
     Ok(user)
 }

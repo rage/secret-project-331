@@ -106,3 +106,21 @@ profiles:
         path: /build/artifacts/4/docker/cacheFrom
         value:
           - eu.gcr.io/moocfi-public/secret-project-course-material-production:latest
+      - op: replace
+        path: /build/artifacts/0/image
+        value: eu.gcr.io/moocfi-public/secret-project-headless-lms-production
+      - op: replace
+        path: /build/artifacts/1/image
+        value: eu.gcr.io/moocfi-public/secret-project-cms-production
+      - op: replace
+        path: /build/artifacts/2/image
+        value: eu.gcr.io/moocfi-public/secret-project-main-frontend-production
+      - op: replace
+        path: /build/artifacts/3/image
+        value: eu.gcr.io/moocfi-public/secret-project-example-exercise-production
+      - op: replace
+        path: /build/artifacts/4/image
+        value: eu.gcr.io/moocfi-public/secret-project-course-material-production
+      - op: add
+        path: /build/local/push
+        value: true

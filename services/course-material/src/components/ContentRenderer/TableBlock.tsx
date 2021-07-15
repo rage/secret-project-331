@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
@@ -45,4 +46,4 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
   )
 }
 
-export default TableBlock
+export default withErrorBoundary(TableBlock)

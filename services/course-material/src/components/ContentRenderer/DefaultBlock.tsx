@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
 
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { BlockAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 
-const DefaultBlock: React.FC<BlockRendererProps<unknown>> = ({ data }) => {
+const DefaultBlock: React.FC<BlockRendererProps<BlockAttributes>> = ({ data }) => {
   return (
     <pre
       className={css`

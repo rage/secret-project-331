@@ -5,6 +5,13 @@ set -euo pipefail
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)
+
+COMMAND="kubectl"
+ARGUMENTS=(exec -it "$POD_NAME" "$@" -- wait-for-it --timeout=120 postgres:5432)
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+"$COMMAND" "${ARGUMENTS[@]}"
 
 echo "> cd $RELATIVE_PATH"
 cd "$RELATIVE_PATH" || exit
@@ -23,8 +30,6 @@ echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 
 FILE_PATH="db/seed"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
-
-POD_NAME=$(kubectl get pods -l app=postgres -o name | head -n 1)
 
 COMMAND="kubectl"
 ARGUMENTS=(cp "$RELATIVE_PATH" "postgres-0:/seed")

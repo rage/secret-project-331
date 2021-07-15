@@ -2,6 +2,7 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 
 import ExerciseBase from "../components/ExerciseBase"
+import HeightTrackingContainer from "../components/HeightTrackingContainer"
 import { PublicAlternative } from "../util/stateInterfaces"
 
 interface SubmissionState {
@@ -63,16 +64,17 @@ const SubmissionPage: React.FC = () => {
   }
 
   return (
-    <ExerciseBase
-      alternatives={state.public_spec}
-      selectedId={state.submission_data}
-      port={port}
-      maxWidth={maxWidth}
-      onClick={(_) => {
-        // do nothing
-      }}
-      interactable={false}
-    />
+    <HeightTrackingContainer port={port}>
+      <ExerciseBase
+        alternatives={state.public_spec}
+        selectedId={state.submission_data}
+        maxWidth={maxWidth}
+        onClick={(_) => {
+          // do nothing
+        }}
+        interactable={false}
+      />
+    </HeightTrackingContainer>
   )
 }
 

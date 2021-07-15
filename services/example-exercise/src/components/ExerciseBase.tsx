@@ -1,37 +1,24 @@
 import { css } from "@emotion/css"
-import { useLayoutEffect, useRef } from "react"
 
 import { PublicAlternative } from "../util/stateInterfaces"
 
 interface Props {
   alternatives: PublicAlternative[]
   selectedId: string | null
-  port: MessagePort
   maxWidth: number | null
   onClick: (selectedId: string) => void
   interactable: boolean
 }
 
 const ExerciseBase: React.FC<Props> = ({
-  port,
   maxWidth,
   alternatives,
   selectedId,
   onClick,
   interactable,
 }) => {
-  const contentRef = useRef<HTMLDivElement>(null)
-  useLayoutEffect(() => {
-    const ref = contentRef.current
-    if (!ref || !port) {
-      return
-    }
-    onHeightChange(ref.getBoundingClientRect().height, port)
-  })
-
   return (
     <div
-      ref={contentRef}
       className={css`
         width: 100%;
         ${maxWidth && `max-width: ${maxWidth}px;`}
@@ -85,13 +72,6 @@ const ExerciseBase: React.FC<Props> = ({
       })}
     </div>
   )
-}
-
-function onHeightChange(newHeight: number, port: MessagePort) {
-  port.postMessage({
-    message: "height-changed",
-    data: newHeight,
-  })
 }
 
 export default ExerciseBase

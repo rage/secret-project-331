@@ -3,6 +3,7 @@ import { useState } from "react"
 import { PublicAlternative } from "../util/stateInterfaces"
 
 import ExerciseBase from "./ExerciseBase"
+import HeightTrackingContainer from "./HeightTrackingContainer"
 
 interface Props {
   state: PublicAlternative[]
@@ -25,16 +26,17 @@ const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
   }
 
   return (
-    <ExerciseBase
-      alternatives={state}
-      selectedId={selectedId}
-      port={port}
-      maxWidth={maxWidth}
-      onClick={(selectedId) => {
-        setSelectedId(selectedId)
-      }}
-      interactable={true}
-    />
+    <HeightTrackingContainer port={port}>
+      <ExerciseBase
+        alternatives={state}
+        selectedId={selectedId}
+        maxWidth={maxWidth}
+        onClick={(selectedId) => {
+          setSelectedId(selectedId)
+        }}
+        interactable={true}
+      />
+    </HeightTrackingContainer>
   )
 }
 

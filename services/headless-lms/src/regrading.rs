@@ -262,6 +262,7 @@ mod test {
             "",
             "",
             &mockito::server_url(),
+            "",
         )
         .await
         .unwrap();
@@ -350,6 +351,7 @@ mod test {
             "",
             "",
             &mockito::server_url(),
+            "",
         )
         .await
         .unwrap();
@@ -460,6 +462,7 @@ mod test {
             "",
             "",
             &mockito::server_url(),
+            "",
         )
         .await
         .unwrap();
@@ -479,6 +482,7 @@ mod test {
             "",
             "",
             &mockito::server_url(),
+            "",
         )
         .await
         .unwrap();

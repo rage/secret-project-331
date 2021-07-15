@@ -41,6 +41,7 @@ pub async fn insert(
     editor_iframe_path: &str,
     exercise_iframe_path: &str,
     grade_endpoint_path: &str,
+    submission_iframe_path: &str,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
@@ -49,15 +50,17 @@ INSERT INTO exercise_service_info (
     exercise_service_id,
     editor_iframe_path,
     exercise_iframe_path,
-    grade_endpoint_path
+    grade_endpoint_path,
+    submission_iframe_path
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *
 ",
         exercise_service_id,
         editor_iframe_path,
         exercise_iframe_path,
-        grade_endpoint_path
+        grade_endpoint_path,
+        submission_iframe_path
     )
     .fetch_one(conn)
     .await?;

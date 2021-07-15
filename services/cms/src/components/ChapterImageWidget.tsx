@@ -1,7 +1,7 @@
 import { Button } from "@material-ui/core"
 import React, { useState } from "react"
 
-import { postChapterImage, removeChapterImage } from "../services/backend/chapters"
+import { removeChapterImage, setChapterImage } from "../services/backend/chapters"
 import { Chapter } from "../services/services.types"
 
 import UploadImageForm from "./forms/UploadImageForm"
@@ -12,11 +12,12 @@ export interface ChapterImageControlsProps {
 }
 
 const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onChapterUpdated }) => {
+  const [allowRemove, setAllowRemove] = useState(true)
   const [error, setError] = useState<unknown>()
 
   const handleSubmit = async (imageFile: File) => {
     try {
-      await postChapterImage(chapter.id, imageFile)
+      await setChapterImage(chapter.id, imageFile)
       onChapterUpdated()
     } catch (e) {
       setError(e)
@@ -24,11 +25,14 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
   }
 
   const handleRemove = async () => {
+    setAllowRemove(false)
     try {
       await removeChapterImage(chapter.id)
       onChapterUpdated()
     } catch (e) {
       setError(e)
+    } finally {
+      setAllowRemove(true)
     }
   }
 
@@ -38,7 +42,7 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
       {chapter.chapter_image_url ? (
         <>
           <img src={chapter.chapter_image_url} />
-          <Button onClick={handleRemove} variant="outlined">
+          <Button onClick={handleRemove} variant="outlined" disabled={!allowRemove}>
             Remove image
           </Button>
         </>

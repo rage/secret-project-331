@@ -17,12 +17,8 @@ to { opacity: 1; height: 100%; padding: 10px;}
 `
 
 const TextWrapper = styled.div`
-  padding: 0rem 0rem 4rem 0rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-content: center;
-  flex: 1;
+  padding: 0;
+  margin: 0;
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
@@ -85,6 +81,7 @@ const TextWrapper = styled.div`
   details ul li {
     font-size: 1.1rem;
     font-family: "Lato", sans-serif;
+    line-height: 1.6;
     margin: 0 0 0.2rem;
     padding-left: 8px;
     list-style-position: outside;

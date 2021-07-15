@@ -11,3 +11,12 @@ export const typography = {
   helperText: "0.8rem",
   copyrightText: "0.7rem",
 }
+
+const fontWeights = {
+  light: 300,
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+  extrabold: 800,
+}

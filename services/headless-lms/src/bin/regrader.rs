@@ -1,4 +1,3 @@
-use anyhow::Context;
 use anyhow::Result;
 use headless_lms_actix::models;
 use headless_lms_actix::regrading;
@@ -13,12 +12,11 @@ async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
     dotenv::dotenv().ok();
     headless_lms_actix::setup_tracing()?;
-    let db_url = env::var("DATABASE_URL").unwrap();
+    let db_url = env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
 
     // fetch exercise services
-    let mut conn = PgConnection::connect(&db_url)
-        .await
-        .with_context(|| format!("Failed to connect to database at {}", db_url))?;
+    let mut conn = PgConnection::connect(&db_url).await?;
     let mut exercise_services_by_type = HashMap::new();
     for exercise_service in models::exercise_services::get_exercise_services(&mut conn).await? {
         let info =

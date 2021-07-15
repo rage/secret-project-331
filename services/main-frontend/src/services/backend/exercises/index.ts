@@ -1,11 +1,5 @@
 import { mainFrontendClient } from "../../mainFrontendClient"
-import { Exercise, ExerciseSubmissions } from "../../services.types"
-
-export const fetchExercise = async (exerciseId: string): Promise<Exercise> => {
-  const data = (await mainFrontendClient.get(`/exercises/${exerciseId}`, { responseType: "json" }))
-    .data
-  return data
-}
+import { ExerciseSubmissions } from "../../services.types"
 
 export const fetchExerciseSubmissions = async (
   exerciseId: string,

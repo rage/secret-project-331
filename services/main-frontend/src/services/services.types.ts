@@ -245,21 +245,3 @@ export type GradingProgress = "fully-graded" | "pending" | "pending-manual" | "f
 export type UserPointsUpdateStrategy =
   | "can-add-points-but-cannot-remove-points"
   | "can-add-points-and-can-remove-points"
-
-export interface ExerciseService extends DatabaseItem {
-  name: string
-  slug: string
-  public_url: string
-  internal_url: string | null
-  max_reprocessing_submissions_at_once: number
-}
-
-export interface ExerciseServiceInfo {
-  exercise_service_id: string
-  created_at: Date
-  updated_at: Date
-  editor_iframe_path: string
-  exercise_iframe_path: string
-  submission_iframe_path: string
-  grade_endpoint_path: string
-}

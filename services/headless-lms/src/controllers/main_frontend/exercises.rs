@@ -1,9 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 use crate::{
-    controllers::ControllerResult,
-    domain::authorization::AuthUser,
-    models::{self, exercises::Exercise, submissions::Submission},
-    utils::pagination::Pagination,
+    controllers::ControllerResult, domain::authorization::AuthUser,
+    models::submissions::Submission, utils::pagination::Pagination,
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use futures::future;
@@ -15,19 +13,6 @@ use uuid::Uuid;
 pub struct ExerciseSubmissions {
     data: Vec<Submission>,
     total_pages: i64,
-}
-
-/**
-GET `/api/v0/main-frontend/exercises/:exercise_id` - Returns a single exercise.
-*/
-#[instrument(skip(pool))]
-async fn get_exercise(
-    pool: web::Data<PgPool>,
-    exercise_id: web::Path<Uuid>,
-) -> ControllerResult<Json<Exercise>> {
-    let mut conn = pool.acquire().await?;
-    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
-    Ok(Json(exercise))
 }
 
 /**
@@ -89,9 +74,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_exercises_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{exercise_id}", web::get().to(get_exercise))
-        .route(
-            "/{exercise_id}/submissions",
-            web::get().to(get_exercise_submissions),
-        );
+    cfg.route(
+        "/{exercise_id}/submissions",
+        web::get().to(get_exercise_submissions),
+    );
 }

@@ -45,18 +45,18 @@ const ExerciseBase: React.FC<Props> = ({
         return (
           <button
             className={
-              css`
-                padding: 1rem 2rem;
-                background-color: ${selected ? "#4210f5" : "#6188ff"};
-                border-radius: 1rem;
-                border: 0;
-                color: white;
-                margin-top: 0.5rem;
-                margin-bottom: 0.5rem;
-              ` + interactable
+              interactable
                 ? css`
+                    padding: 1rem 2rem;
+                    background-color: ${selected ? "#4210f5" : "#6188ff"};
+                    border-radius: 1rem;
+                    border: 0;
+                    color: white;
                     transition: all 0.3s;
                     cursor: pointer;
+                    margin-top: 0.5rem;
+                    margin-bottom: 0.5rem;
+
                     &:hover {
                       background-color: ${interactable
                         ? selected
@@ -65,7 +65,15 @@ const ExerciseBase: React.FC<Props> = ({
                         : "#6188ff"};
                     }
                   `
-                : ""
+                : css`
+                    padding: 1rem 2rem;
+                    background-color: ${selected ? "#4210f5" : "#6188ff"};
+                    border-radius: 1rem;
+                    border: 0;
+                    color: white;
+                    margin-top: 0.5rem;
+                    margin-bottom: 0.5rem;
+                  `
             }
             aria-selected={selected}
             onClick={() => onClick(option.id)}

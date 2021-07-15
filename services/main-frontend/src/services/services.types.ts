@@ -214,6 +214,14 @@ export interface Submission extends DatabaseItem {
   user_id: string
 }
 
+export interface SubmissionInfo {
+  submission: Submission
+  exercise: Exercise
+  exercise_task: ExerciseTask
+  grading: Grading | null
+  submission_iframe_path: string
+}
+
 export interface Grading extends DatabaseItem {
   submission_id: string
   course_id: string

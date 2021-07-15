@@ -14,7 +14,7 @@ use super::{
     exercise_tasks::CourseMaterialExerciseTask,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Exercise {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

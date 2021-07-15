@@ -1,5 +1,6 @@
 use super::{
     courses::Course,
+    exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     gradings::{new_grading, Grading},
     ModelResult,
@@ -77,6 +78,15 @@ pub struct GradingResult {
 pub struct SubmissionResult {
     submission: Submission,
     grading: Grading,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct SubmissionInfo {
+    pub submission: Submission,
+    pub exercise: Exercise,
+    pub exercise_task: ExerciseTask,
+    pub grading: Option<Grading>,
+    pub submission_iframe_path: String,
 }
 
 pub async fn get_submission(

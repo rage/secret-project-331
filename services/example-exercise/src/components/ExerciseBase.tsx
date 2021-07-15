@@ -9,9 +9,17 @@ interface Props {
   port: MessagePort
   maxWidth: number | null
   onClick: (selectedId: string) => void
+  interactable: boolean
 }
 
-const ExerciseBase: React.FC<Props> = ({ port, maxWidth, alternatives, selectedId, onClick }) => {
+const ExerciseBase: React.FC<Props> = ({
+  port,
+  maxWidth,
+  alternatives,
+  selectedId,
+  onClick,
+  interactable,
+}) => {
   const contentRef = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
     const ref = contentRef.current
@@ -36,21 +44,29 @@ const ExerciseBase: React.FC<Props> = ({ port, maxWidth, alternatives, selectedI
         const selected = selectedId === option.id
         return (
           <button
-            className={css`
-              padding: 1rem 2rem;
-              background-color: ${selected ? "#4210f5" : "#6188ff"};
-              border-radius: 1rem;
-              border: 0;
-              color: white;
-              transition: all 0.3s;
-              cursor: pointer;
-              margin-top: 0.5rem;
-              margin-bottom: 0.5rem;
-
-              &:hover {
-                background-color: ${selected ? "#330eb8" : "#507afb"};
-              }
-            `}
+            className={
+              css`
+                padding: 1rem 2rem;
+                background-color: ${selected ? "#4210f5" : "#6188ff"};
+                border-radius: 1rem;
+                border: 0;
+                color: white;
+                margin-top: 0.5rem;
+                margin-bottom: 0.5rem;
+              ` + interactable
+                ? css`
+                    transition: all 0.3s;
+                    cursor: pointer;
+                    &:hover {
+                      background-color: ${interactable
+                        ? selected
+                          ? "#330eb8"
+                          : "#507afb"
+                        : "#6188ff"};
+                    }
+                  `
+                : ""
+            }
             aria-selected={selected}
             onClick={() => onClick(option.id)}
             key={option.id}

@@ -80,6 +80,7 @@ const SubmissionPage: React.FC = () => {
       onClick={(_) => {
         // do nothing
       }}
+      interactable={false}
     />
   )
 }

@@ -33,6 +33,7 @@ const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
       onClick={(selectedId) => {
         setSelectedId(selectedId)
       }}
+      interactable={true}
     />
   )
 }

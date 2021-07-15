@@ -143,6 +143,9 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
@@ -267,6 +270,9 @@ Represents error messages that are sent in responses.
         <span class="kw">match</span> <span class="ident">err</span> {
             <span class="ident">ModelError::RecordNotFound</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::NotFound</span>,
             <span class="ident">ModelError::PreconditionFailed</span>(<span class="ident">msg</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::BadRequest</span>(<span class="ident">msg</span>),
+            <span class="ident">ModelError::DatabaseConstraint</span> { <span class="ident">description</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">Self</span><span class="ident">::BadRequest</span>(<span class="ident">description</span>.<span class="ident">to_string</span>())
+            }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
         }
     }

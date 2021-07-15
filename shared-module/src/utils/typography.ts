@@ -12,7 +12,7 @@ export const typography = {
   copyrightText: "0.7rem",
 }
 
-const fontWeights = {
+export const fontWeights = {
   light: 300,
   normal: 400,
   medium: 500,

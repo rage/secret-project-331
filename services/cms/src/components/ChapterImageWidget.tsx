@@ -19,6 +19,7 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
     try {
       await setChapterImage(chapter.id, imageFile)
       onChapterUpdated()
+      setError(undefined)
     } catch (e) {
       setError(e)
     }
@@ -29,6 +30,7 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
     try {
       await removeChapterImage(chapter.id)
       onChapterUpdated()
+      setError(undefined)
     } catch (e) {
       setError(e)
     } finally {
@@ -38,7 +40,7 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
 
   return (
     <div>
-      {error && <pre>{JSON.stringify(error, undefined, 2)}</pre>}
+      {error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
       {chapter.chapter_image_url ? (
         <>
           <img src={chapter.chapter_image_url} />

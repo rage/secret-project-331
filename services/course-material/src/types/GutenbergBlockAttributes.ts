@@ -209,10 +209,6 @@ export interface GroupAttributes {
 export interface HtmlAttributes {
   content?: string
 }
-export interface ObjectAttribute {
-  key: string
-  content?: string
-}
 
 export interface PreformattedAttributes {
   content: string
@@ -274,9 +270,9 @@ export interface SpacerAttributes {
 export interface TableAttributes {
   hasFixedLayout: boolean
   caption: string
-  head: ObjectAttribute[]
-  body: ObjectAttribute[]
-  foot: ObjectAttribute[]
+  head: Array<{ cells: Array<{ tag: string; content: string }> }>
+  body: Array<{ cells: Array<{ tag: string; content: string }> }>
+  foot: Array<{ cells: Array<{ tag: string; content: string }> }>
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   anchor?: string
   className?: string

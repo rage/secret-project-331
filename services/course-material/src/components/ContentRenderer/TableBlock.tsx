@@ -1,39 +1,46 @@
 import { css } from "@emotion/css"
 
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-import { ObjectAttribute, TableAttributes } from "../../types/GutenbergBlockAttributes"
+import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 
 const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
-  const innerBlocks: TableAttributes = data.innerBlocks[0]?.innerBlocks[0]?.attributes
-  const body: ObjectAttribute[] = innerBlocks.body[0]?.cells
-  const head: ObjectAttribute[] = innerBlocks.head[0]?.cells
-  const foot: ObjectAttribute[] = innerBlocks.foot[0]?.cells
+  const innerBlocks = data.attributes
+  const body = innerBlocks.body
+  const head = innerBlocks.head[0]
+  const foot = innerBlocks.foot[0]
   return (
     <table
       className={css`
         ${normalWidthCenteredComponentStyles}
       `}
     >
-      <tr>
-        {head.map((head) => (
-          <th key={head.content}>{head.content}</th>
-        ))}
-      </tr>
+      {head && (
+        <tr>
+          {head.cells.map((cell, index) => (
+            <th key={index}>{cell.content}</th>
+          ))}
+        </tr>
+      )}
       <tbody>
-        {body &&
-          body.map((obj, index) => {
-            return (
-              <tr key={index}>
-                {Object.values(obj).map((o, index) => {
-                  return <td key={index}>{o.content}</td>
-                })}
-              </tr>
-            )
-          })}
+        {body.map((obj, rowIndex) => {
+          return (
+            <tr key={rowIndex}>
+              {obj.cells.map((o, index) => (
+                <td key={index}>{o.content}</td>
+              ))}
+            </tr>
+          )
+        })}
       </tbody>
-      <tr>{foot && foot.map((foot) => <th key={foot.content}>{foot.content}</th>)}</tr>
+      {foot && (
+        <tr>
+          {foot.cells.map((cell, index) => (
+            <th key={index}>{cell.content}</th>
+          ))}
+        </tr>
+      )}
     </table>
   )
 }

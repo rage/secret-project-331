@@ -40,7 +40,14 @@ const SubmissionsPage: React.FC = () => {
           {data.data.map((x) => (
             <tr key={x.id}>
               <td>
-                <Link href={`/submissions/${x.id}`}>link</Link>
+                <Link
+                  href={{
+                    pathname: "/submissions/[id]",
+                    query: { id: x.id },
+                  }}
+                >
+                  link
+                </Link>
               </td>
               <td>{x.created_at.toISOString()}</td>
               <td>{x.user_id}</td>

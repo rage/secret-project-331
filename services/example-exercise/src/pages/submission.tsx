@@ -2,7 +2,6 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 
 import ExerciseBase from "../components/ExerciseBase"
-import useStateWithOnChange from "../hooks/useStateWithOnChange"
 import { PublicAlternative } from "../util/stateInterfaces"
 
 interface SubmissionState {
@@ -12,15 +11,7 @@ interface SubmissionState {
 
 const SubmissionPage: React.FC = () => {
   const [port, setPort] = useState<MessagePort | null>(null)
-  const [state, setState] = useStateWithOnChange<SubmissionState | null>(null, (newValue) => {
-    if (!port) {
-      return
-    }
-    port.postMessage({
-      message: "current-state",
-      data: newValue,
-    })
-  })
+  const [state, setState] = useState<SubmissionState | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
   let maxWidth: number | null = null

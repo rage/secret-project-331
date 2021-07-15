@@ -36,7 +36,6 @@
   "settings": {
     "editor.tabSize": 2,
     "files.eol": "\n",
-    "eslint.format.enable": true,
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file",
     "sqltools.highlightQuery": false,
@@ -67,7 +66,10 @@
       "**/.hg/store/**": true,
       "services/headless-lms/target": true,
       "**/.next/**": true
-    }
+    },
+    "eslint.alwaysShowStatus": true,
+    "eslint.lintTask.enable": true,
+    "eslint.format.enable": true
   },
   "recommendations": [
     "stylelint.vscode-stylelint",

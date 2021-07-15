@@ -1,5 +1,5 @@
 use crate::{
-    controllers::ApplicationError,
+    controllers::ControllerError,
     models::{self, roles::UserRole},
 };
 use actix_http::Payload;
@@ -34,7 +34,7 @@ impl AuthUser {
 }
 
 impl FromRequest for AuthUser {
-    type Error = ApplicationError;
+    type Error = ControllerError;
     type Future = Ready<Result<Self, Self::Error>>;
     type Config = ();
 
@@ -42,11 +42,11 @@ impl FromRequest for AuthUser {
         let session = req.get_session();
         match session.get::<AuthUser>(SESSION_KEY) {
             Ok(Some(user)) => ok(user),
-            Ok(None) => err(ApplicationError::Unauthorized),
+            Ok(None) => err(ControllerError::Unauthorized),
             Err(_) => {
                 // session had an invalid value
                 session.remove(SESSION_KEY);
-                err(ApplicationError::Unauthorized)
+                err(ControllerError::Unauthorized)
             }
         }
     }

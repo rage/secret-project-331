@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{PgConnection, Type};
@@ -37,7 +37,7 @@ pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
     variant_status: Option<VariantStatus>,
-) -> Result<Uuid> {
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO course_instances (course_id, variant_status)
@@ -55,7 +55,7 @@ RETURNING id
 pub async fn get_course_instance(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-) -> Result<CourseInstance> {
+) -> ModelResult<CourseInstance> {
     let course_instance = sqlx::query_as!(
         CourseInstance,
         r#"
@@ -84,7 +84,7 @@ pub async fn current_course_instance_of_user(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
-) -> Result<Option<CourseInstance>> {
+) -> ModelResult<Option<CourseInstance>> {
     let course_instance_enrollment = sqlx::query_as!(
         CourseInstance,
         r#"
@@ -114,7 +114,7 @@ WHERE e.user_id = $1
     Ok(course_instance_enrollment)
 }
 
-pub async fn get_all_course_instances(conn: &mut PgConnection) -> Result<Vec<CourseInstance>> {
+pub async fn get_all_course_instances(conn: &mut PgConnection) -> ModelResult<Vec<CourseInstance>> {
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
@@ -132,7 +132,7 @@ WHERE deleted_at IS NULL;
 pub async fn get_course_instances_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> Result<Vec<CourseInstance>> {
+) -> ModelResult<Vec<CourseInstance>> {
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
@@ -161,7 +161,7 @@ pub async fn update_course_instance_variant_status(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     variant_status: VariantStatus,
-) -> Result<()> {
+) -> ModelResult<()> {
     sqlx::query!(
         r#"
 UPDATE course_instances

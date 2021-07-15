@@ -210,7 +210,7 @@ async fn set_chapter_image<T: FileStore>(
 }
 
 /**
-REMOVE `/api/v0/cms/chapters/:chapter_id/image` - Removes the chapter image.
+DELETE `/api/v0/cms/chapters/:chapter_id/image` - Removes the chapter image.
 
 # Example
 

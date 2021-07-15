@@ -2,11 +2,11 @@ import React from "react"
 
 import { Block } from "../../services/backend"
 
+import AudioBlock from "./AudioBlock"
 import ButtonBlock from "./ButtonBlock"
 import CodeBlock from "./CodeBlock"
 import CourseChapterGrid from "./CourseChapterGrid"
 import CourseProgressBlock from "./CourseProgressBlock"
-import CoverBlock from "./CoverBlock"
 import CustomHTMLBlock from "./CustomHTMLBlock"
 import DefaultBlock from "./DefaultBlock"
 import ExerciseBlock from "./ExerciseBlock"
@@ -41,7 +41,6 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/quote": QuoteBlock,
   "core/html": CustomHTMLBlock,
   "core/verse": VerseBlock,
-  "core/cover": CoverBlock,
   "core/pullquote": PullquoteBlock,
   "core/preformatted": PreformatterBlock,
   "core/columns": TableBlock,

@@ -47,7 +47,6 @@ const PrimaryButton = styled(BaseButton)`
   color : ${button.primary.text};
   background-color: ${button.primary.bg};
   font-size: ${typography.paragraph}
-  font-family: ${primaryFont}
 
   &:hover {
     color: ${theme.textColorInvented};

@@ -48,7 +48,7 @@ export const button = {
     disabledBorder: neutral[100],
   },
   secondary: {
-    text: blue[400],
+    text: neutral[100],
     border: neutral[100],
     bg: blue[400],
     hoverText: neutral[100],

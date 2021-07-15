@@ -136,6 +136,8 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::ModelResult</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -192,16 +194,18 @@ WHERE course_instance_id = $1
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">email_template</span>: <span class="ident">EmailTemplateNew</span>,
+    <span class="ident">subject</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">EmailTemplate</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">EmailTemplate</span>,
         <span class="string">&quot;
-INSERT INTO email_templates (name, course_instance_id)
-VALUES ($1, $2)
+INSERT INTO email_templates (name, course_instance_id, subject)
+VALUES ($1, $2, $3)
 RETURNING *
 &quot;</span>,
         <span class="ident">email_template</span>.<span class="ident">name</span>,
         <span class="ident">course_instance_id</span>,
+        <span class="ident">subject</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import React, { useContext } from "react"
 
 import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
+import DebugModal from "../shared-module/components/DebugModal"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
 
 import ContentRenderer from "./ContentRenderer"
-import DebugModal from "./DebugModal"
 import NavigationContainer from "./NavigationContainer"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 

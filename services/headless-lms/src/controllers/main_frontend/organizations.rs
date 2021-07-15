@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/organizations`.
 use crate::{
-    controllers::ApplicationResult,
+    controllers::ControllerResult,
     models::{courses::Course, organizations::Organization},
 };
 use actix_web::web::ServiceConfig;
@@ -28,7 +28,7 @@ GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 #[instrument(skip(pool))]
 async fn get_all_organizations(
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<Organization>>> {
+) -> ControllerResult<Json<Vec<Organization>>> {
     let mut conn = pool.acquire().await?;
     let courses = crate::models::organizations::all_organizations(&mut conn).await?;
     Ok(Json(courses))
@@ -54,7 +54,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
 async fn get_organization_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ApplicationResult<Json<Vec<Course>>> {
+) -> ControllerResult<Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
     let courses =
         crate::models::courses::organization_courses(&mut conn, &*request_organization_id).await?;

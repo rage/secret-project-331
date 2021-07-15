@@ -23,6 +23,7 @@ async fn post_new_email_template(
         &mut conn,
         *request_course_instance_id,
         new_email_template,
+        None,
     )
     .await?;
     Ok(Json(email_template))

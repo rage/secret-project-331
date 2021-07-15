@@ -2,7 +2,6 @@ import React from "react"
 
 import { Block } from "../../services/backend"
 
-import AudioBlock from "./AudioBlock"
 import ButtonBlock from "./ButtonBlock"
 import CodeBlock from "./CodeBlock"
 import CourseChapterGrid from "./CourseChapterGrid"

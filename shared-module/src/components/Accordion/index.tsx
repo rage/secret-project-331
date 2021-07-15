@@ -2,8 +2,6 @@ import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { respond } from "../../utils/respond"
-
 import DetailAccordion from "./DetailAccordion"
 
 const openAnimation = keyframes`

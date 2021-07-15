@@ -90,7 +90,7 @@ const border = css`
 
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement>
 
-const DetailAccordion: React.FC<AccordionProps> = (props) => {
+const DetailAccordion: React.FC<AccordionProps> = () => {
   return (
     <div>
       <TextWrapper>

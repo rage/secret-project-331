@@ -3,7 +3,7 @@ import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { fontWeights, primaryFont, theme, typography } from "../utils"
+import { button, fontWeights, primaryFont, theme, typography } from "../utils"
 
 export interface ButtonExtraProps {
   variant: "primary" | "secondary"
@@ -28,6 +28,7 @@ const BaseButton = styled.button`
   text-transform: uppercase;
   font-size: 14px;
   letter-spacing: 0.02em;
+  border: 0;
   transition: all 150ms linear;
 
   &:hover {
@@ -43,17 +44,9 @@ const BaseButton = styled.button`
   }
 `
 
-const StyledButton = styled.button`
-  margin: 0;
-  display: inline-block;
-  color : ${theme.primaryColor};
-  cursor: pointer;
-  width: auto;
-  max-width: 100%;
-  padding: 1rem;
-  background-color: ${theme.primaryActiveColor};
-  border: 1px solid black;
-  text-decoration: none;
+const PrimaryButton = styled(BaseButton)`
+  color : ${button.primary.text};
+  background-color: ${button.primary.bg};
   font-size: ${typography.paragraph}
   font-family: ${primaryFont}
 
@@ -66,31 +59,52 @@ const StyledButton = styled.button`
     color: ${theme.textColorInvented};
     background-color: ${theme.textColorInvented};
   }
+
+  &:disabled {
+    color: ${theme.textColorInvented};
+    background-color: ${theme.textColorInvented};
+    border-color: ${theme.textColorInvented};
+  }
+`
+
+const SecondaryButton = styled(BaseButton)`
+  color : ${button.secondary.text};
+  background-color: ${button.primary.bg};
+  font-size: ${typography.paragraph}
+  font-family: ${primaryFont}
+
+  &:hover {
+    color: ${theme.textColorInvented};
+    background-color: ${theme.textColorInvented};
+  }
+
+  &:active {
+    color: ${theme.textColorInvented};
+    background-color: ${theme.textColorInvented};
+  }
+
+  &:disabled {
+    color: ${theme.textColorInvented};
+    background-color: ${theme.textColorInvented};
+    border-color: ${theme.textColorInvented};
+  }
 `
 
 /* BUTTON VARIANT
 PrimaryButton
 SecondaryButton
+GhostButton
 TertiaryButton
 IconButton
 Link */
 
 const Button: React.FC<ButtonProps> = (props) => {
   if (props.variant === "secondary") {
-    return <StyledButton {...props}></StyledButton>
+    return <PrimaryButton {...props}></PrimaryButton>
   }
   return (
     <ThemeProvider theme={theme}>
-      <button
-        title="button"
-        className={css`
-          padding: 1rem;
-          background-color: white;
-          border: 1px solid black;
-          font-family: ${primaryFont};
-        `}
-        {...props}
-      />
+      <SecondaryButton title="button" {...props} />
     </ThemeProvider>
   )
 }

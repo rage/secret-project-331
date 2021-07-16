@@ -3,6 +3,7 @@ resources:
   - postgres-test.yml
   - headless-lms/test.yml
 patches:
+  # Services that require postgres env
   - path: headless-lms/patch-deployment.yml
     target:
       version: v1
@@ -18,7 +19,7 @@ patches:
       version: v1
       kind: Deployment
       name: regrader
-
+  # Patch Image names and pull policy
   - path: cms/patch-deployment.yml
     target:
       version: v1
@@ -40,6 +41,7 @@ patches:
       kind: Deployment
       name: main-frontend
 
+  # Patch to use --release param in cargo command
   - path: headless-lms/patch-service-info-fetcher.yml
     target:
       version: v1
@@ -51,12 +53,18 @@ patches:
       kind: Deployment
       name: regrader
 
+  # Remove cpu and memory resource without initContainer defined
   - path: patch-without-init-container.yml
     target:
       version: v1
       labelSelector: "deploymentType=without-init-container"
-
+  # Remove cpu and memory resource with initContainer defined
   - path: headless-lms/patch-with-init-container.yml
     target:
       version: v1
       labelSelector: "deploymentType=with-init-container"
+
+  # Patch jobs
+  - path: headless-lms/job/patch-job.yml
+    target:
+      name: update-course-variant-statuses

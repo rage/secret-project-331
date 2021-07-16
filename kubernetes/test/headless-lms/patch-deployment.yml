@@ -17,16 +17,3 @@
           key: password
     - name: DATABASE_URL
       value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres/$(POSTGRES_DB)
-
-- op: "replace"
-  path: "/spec/template/spec/containers/0/image"
-  value: "eu.gcr.io/moocfi-public/secret-project-headless-lms-production"
-- op: "replace"
-  path: "/spec/template/spec/initContainers/0/image"
-  value: "eu.gcr.io/moocfi-public/secret-project-headless-lms-production"
-- op: "add"
-  path: "/spec/template/spec/containers/0/imagePullPolicy"
-  value: "Always"
-- op: "add"
-  path: "/spec/template/spec/initContainers/0/imagePullPolicy"
-  value: "Always"

@@ -68,3 +68,6 @@ patches:
   - path: headless-lms/job/patch-job.yml
     target:
       name: update-course-variant-statuses
+  - path: headless-lms/patch-headless-lms-migration.yml
+    target:
+      name: headless-lms-run-migrations

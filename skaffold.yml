@@ -1,6 +1,9 @@
 apiVersion: skaffold/v2beta12
 kind: Config
 build:
+  tagPolicy:
+    # sha256 tag policy pushes the latest tag, which is used for caching
+    sha256: {}
   artifacts:
     - image: headless-lms
       docker:

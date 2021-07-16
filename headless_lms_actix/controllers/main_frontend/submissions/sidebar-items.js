@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_add_submissions_routes",""],["get_submission_info","GET `/api/v0/main-frontend/submissions/{submission_id}/info\"` - Returns data necessary for rendering a submission."]]});

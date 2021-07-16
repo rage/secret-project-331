@@ -403,7 +403,7 @@ WHERE id = $2
     <span class="kw">let</span> <span class="ident">exercise_service_info</span> <span class="op">=</span>
         <span class="ident">get_service_info_by_exercise_type</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">send_grading_request</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>, <span class="ident">exercise_task</span>, <span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span> <span class="ident">update_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="ident">obj</span>, <span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span> <span class="ident">update_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">updated_grading</span>)
 }
 
@@ -434,8 +434,8 @@ WHERE id = $2
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_grading</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">grading</span>: <span class="kw-2">&amp;</span><span class="ident">Grading</span>,
-    <span class="ident">grading_result</span>: <span class="ident">GradingResult</span>,
-    <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
+    <span class="ident">grading_result</span>: <span class="kw-2">&amp;</span><span class="ident">GradingResult</span>,
+    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">grading_completed_at</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">grading_result</span>.<span class="ident">grading_progress</span>.<span class="ident">is_complete</span>() {
         <span class="prelude-val">Some</span>(<span class="ident">Utc::now</span>())

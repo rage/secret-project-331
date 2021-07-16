@@ -9,4 +9,4 @@ resources:
   - ingress.yml
   - headless-lms/job/update-course-variant-statuses.yml
   - headless-lms/service-info-fetcher.yml
-  # - headless-lms/regrader.yml
+  - headless-lms/regrader.yml

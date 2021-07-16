@@ -13,9 +13,9 @@ import { Chapter } from "../../../services/services.types"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import { dontRenderUntilQueryParametersReady } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
-import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
 
 const CoursePages: React.FC<unknown> = () => {
   const id = useQueryParameter("id")

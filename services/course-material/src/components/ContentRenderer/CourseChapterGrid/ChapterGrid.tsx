@@ -4,8 +4,8 @@ import { useQuery } from "react-query"
 
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { fetchChaptersInTheCourse } from "../../../services/backend"
+import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
-import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
 import ChapterGridChapter from "../../ChapterGridChapter"
 import GenericLoading from "../../GenericLoading"
 

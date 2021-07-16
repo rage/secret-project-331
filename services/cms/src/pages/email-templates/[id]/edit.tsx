@@ -9,8 +9,8 @@ import {
 import { EmailTemplate, EmailTemplateUpdate } from "../../../services/services.types"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
 
 const EditorLoading = <div>Loading editor...</div>
 

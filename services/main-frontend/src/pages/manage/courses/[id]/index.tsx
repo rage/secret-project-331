@@ -11,9 +11,9 @@ import ExerciseList from "../../../../components/lists/ExerciseList"
 import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
-import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
 const ManageCoursePage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")

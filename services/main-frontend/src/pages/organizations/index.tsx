@@ -5,8 +5,8 @@ import { useQuery } from "react-query"
 import Layout from "../../components/Layout"
 import { fetchOrganizations } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
+import basePath from "../../shared-module/utils/base-path"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
-import basePath from "../../utils/base-path"
 
 const Home: React.FC = () => {
   const { isLoading, error, data } = useQuery(`organizations`, () => fetchOrganizations(), {
@@ -20,7 +20,6 @@ const Home: React.FC = () => {
   if (isLoading) {
     return <div>Loading...</div>
   }
-
   return (
     <Layout>
       <h1>Organizations</h1>

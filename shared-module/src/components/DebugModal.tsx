@@ -30,7 +30,7 @@ const HeaderBar = styled.div`
 
 const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDataOnClose }) => {
   const [open, setOpen] = useState(false)
-  const [editedContent, setEditedContent] = useState<string | null>(null)
+  const [editedContent, setEditedContent] = useState<string | undefined>(undefined)
 
   if (!data) {
     return null
@@ -39,7 +39,8 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
   const closeModal = () => {
     setOpen(false)
     if (updateDataOnClose) {
-      const parsed = JSON.parse(editedContent)
+      const editedContentCleaned = editedContent === undefined ? "undefined" : editedContent
+      const parsed = JSON.parse(editedContentCleaned)
       updateDataOnClose(parsed)
     }
   }

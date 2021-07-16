@@ -5,9 +5,9 @@ import Layout from "../../../../components/Layout"
 import CourseSubmissionsByDay from "../../../../components/stats/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "../../../../components/stats/CourseSubmissionsByWeekdayAndHour"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
-import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
 const StatsPage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")

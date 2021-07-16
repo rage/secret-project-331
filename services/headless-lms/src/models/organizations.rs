@@ -49,8 +49,9 @@ mod tests {
     async fn gets_organizations() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
+        let orgs_before = all_organizations(tx.as_mut()).await.unwrap();
         insert(tx.as_mut(), "org", "slug").await.unwrap();
-        let orgs = all_organizations(tx.as_mut()).await.unwrap();
-        assert_eq!(orgs.len(), 1);
+        let orgs_after = all_organizations(tx.as_mut()).await.unwrap();
+        assert_eq!(orgs_before.len() + 1, orgs_after.len());
     }
 }

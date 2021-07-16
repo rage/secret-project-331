@@ -239,6 +239,14 @@ export interface Login {
   password: string;
 }
 
+export interface SubmissionInfo {
+  submission: Submission;
+  exercise: Exercise;
+  exercise_task: ExerciseTask;
+  grading: Grading | null;
+  submission_iframe_path: string;
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended";
 
 export type ChapterStatus = "open" | "closed";

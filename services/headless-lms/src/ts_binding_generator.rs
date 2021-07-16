@@ -22,7 +22,7 @@ use crate::{
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
-            SubmissionCountByWeekAndHour, SubmissionResult,
+            SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
         },
         user_exercise_states::UserProgress,
     },
@@ -59,6 +59,7 @@ ts_rs::export! {
   NewCourse,
   CourseUpdate,
   Login,
+  SubmissionInfo,
   // dependencies
   VariantStatus,
   ChapterStatus,

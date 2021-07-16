@@ -89,23 +89,23 @@ profiles:
       - op: add
         path: /build/artifacts/0/docker/cacheFrom
         value:
-          - eu.gcr.io/moocfi-public/secret-project-headless-lms-production:latest
+          - eu.gcr.io/moocfi-public/secret-project-headless-lms-production
       - op: add
         path: /build/artifacts/1/docker/cacheFrom
         value:
-          - eu.gcr.io/moocfi-public/secret-project-cms-production:latest
+          - eu.gcr.io/moocfi-public/secret-project-cms-production
       - op: add
         path: /build/artifacts/2/docker/cacheFrom
         value:
-          - eu.gcr.io/moocfi-public/secret-project-main-frontend-production:latest
+          - eu.gcr.io/moocfi-public/secret-project-main-frontend-production
       - op: add
         path: /build/artifacts/3/docker/cacheFrom
         value:
-          - eu.gcr.io/moocfi-public/secret-project-example-exercise-production:latest
+          - eu.gcr.io/moocfi-public/secret-project-example-exercise-production
       - op: add
         path: /build/artifacts/4/docker/cacheFrom
         value:
-          - eu.gcr.io/moocfi-public/secret-project-course-material-production:latest
+          - eu.gcr.io/moocfi-public/secret-project-course-material-production
       - op: replace
         path: /build/artifacts/0/image
         value: eu.gcr.io/moocfi-public/secret-project-headless-lms-production

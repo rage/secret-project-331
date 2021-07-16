@@ -1,6 +1,6 @@
 {
   "name": "example-exercise",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "dev": "node server.js",
     "build": "NODE_ENV=production next build",

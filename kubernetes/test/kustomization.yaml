@@ -19,6 +19,27 @@ patches:
       kind: Deployment
       name: regrader
 
+  - path: cms/patch-deployment.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: cms
+  - path: course-material/patch-deployment.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: course-material
+  - path: example-exercise/patch-deployment.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: example-exercise
+  - path: main-frontend/patch-deployment.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: main-frontend
+
   - path: headless-lms/patch-service-info-fetcher.yml
     target:
       version: v1

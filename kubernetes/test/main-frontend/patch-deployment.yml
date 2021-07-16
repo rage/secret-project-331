@@ -1,0 +1,6 @@
+- op: "replace"
+  path: "/spec/template/spec/containers/0/image"
+  value: "eu.gcr.io/moocfi-public/secret-project-main-frontend-production:latest"
+- op: "add"
+  path: "/spec/template/spec/containers/0/imagePullPolicy"
+  value: "Always"

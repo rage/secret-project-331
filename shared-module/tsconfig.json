@@ -8,7 +8,6 @@
     "allowJs": true,
     "noEmit": true,
     "strict": true,
-    "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "noUnusedLocals": true,

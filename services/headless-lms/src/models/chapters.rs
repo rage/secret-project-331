@@ -6,7 +6,6 @@ use crate::{
     utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
     ApplicationConfiguration,
 };
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgConnection};
@@ -175,7 +174,7 @@ WHERE id = $1
     Ok(open)
 }
 
-pub async fn get_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Chapter> {
+pub async fn get_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Chapter> {
     let chapter = sqlx::query_as!(
         Chapter,
         "
@@ -189,7 +188,7 @@ where id = $1;",
     Ok(chapter)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> Result<Uuid> {
+pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!("SELECT course_id from chapters where id = $1", chapter_id)
         .fetch_one(conn)
         .await?
@@ -224,7 +223,7 @@ pub async fn update_chapter_image(
     conn: &mut PgConnection,
     chapter_id: Uuid,
     chapter_image: Option<String>,
-) -> Result<Chapter> {
+) -> ModelResult<Chapter> {
     let updated_chapter = sqlx::query_as!(
         Chapter,
         "

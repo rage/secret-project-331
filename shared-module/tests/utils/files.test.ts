@@ -31,6 +31,16 @@ describe("fileMatchesType util", () => {
   test("allows file when extension matches", () => {
     expect(fileMatchesType(image, [".png"])).toBe(true)
   })
+
+  test("works with a file that doesn't have extension", () => {
+    const file = new File(["data"], "filename")
+    expect(fileMatchesType(file, ["image", ".txt"])).toBe(false)
+  })
+
+  test("doesn't match file a starting with period with an extension", () => {
+    const file = new File(["data"], ".txt")
+    expect(fileMatchesType(file, [".txt"])).toBe(false)
+  })
 })
 
 describe("validateFile util", () => {

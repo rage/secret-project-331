@@ -14,7 +14,7 @@ export function fileMatchesType(file: File, typesAndExtensions: string[] | undef
   }
 
   const extensionIndex = file.name.lastIndexOf(".")
-  const fileExtension = extensionIndex ? file.name.substring(extensionIndex) : undefined
+  const fileExtension = extensionIndex > 0 ? file.name.substring(extensionIndex) : undefined
   const fileType = file.type || undefined
 
   return typesAndExtensions.some((type) => {

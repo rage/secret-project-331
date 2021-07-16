@@ -16,7 +16,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
-      - name: Install kustomize, kubectl and skaffold
+      - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.7.1
         with:
           kubectl: "1.19.2"
@@ -37,11 +37,11 @@ jobs:
               exit 1
           fi
 
-      - name: Start minikube
+      - name: Install, start & configure minikube
         uses: manusa/actions-setup-minikube@v2.4.2
         with:
           minikube version: "v1.20.0"
-          kubernetes version: "v1.21.0"
+          kubernetes version: "v1.21.3"
           start args: "--addons ingress"
 
       - name: Run npm ci for shared-modules
@@ -55,7 +55,7 @@ jobs:
           kubectl get pods -o name --selector='waitToBeReady!=false' | xargs kubectl wait --timeout=600s --for=condition=ready
           echo "All pods ready"
 
-      - name: Setup test db
+      - name: Setup & seed test database
         run: bin/setup-system-test-db
 
       - name: Configure ingress
@@ -69,6 +69,6 @@ jobs:
         run: npm run test
         working-directory: ./system-tests/
 
-      - name: Push push-images
+      - name: Push images if master
         run: skaffold build -p test,push-images
         if: ${{ github.ref == 'refs/heads/master' }}

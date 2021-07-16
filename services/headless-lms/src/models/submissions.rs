@@ -15,7 +15,7 @@ use ts_rs::TS;
 use uuid::Uuid;
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewSubmission {
     pub exercise_task_id: Uuid,
     pub course_instance_id: Uuid,

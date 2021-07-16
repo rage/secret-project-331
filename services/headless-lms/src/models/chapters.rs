@@ -47,7 +47,7 @@ pub struct ChapterPagesWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewChapter {
     pub name: String,
     pub course_id: Uuid,
@@ -55,7 +55,7 @@ pub struct NewChapter {
     pub front_front_page_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ChapterUpdate {
     pub name: String,
     pub chapter_number: i32,

@@ -1,12 +1,14 @@
 #[cfg(test)]
 use crate::{
-    controllers::{cms::pages::UploadResult, main_frontend::exercises::ExerciseSubmissions},
+    controllers::{
+        auth::Login, cms::pages::UploadResult, main_frontend::exercises::ExerciseSubmissions,
+    },
     models::{
-        chapters::{Chapter, ChapterStatus, ChapterWithStatus},
+        chapters::{Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter},
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{CourseInstance, VariantStatus},
-        courses::{Course, CourseStructure},
-        email_templates::EmailTemplate,
+        courses::{Course, CourseStructure, CourseUpdate, NewCourse},
+        email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
         exercise_service_info::CourseMaterialExerciseServiceInfo,
         exercise_tasks::CourseMaterialExerciseTask,
         exercises::{
@@ -14,10 +16,10 @@ use crate::{
         },
         gradings::{Grading, UserPointsUpdateStrategy},
         organizations::Organization,
-        pages::{Page, PageRoutingData, PageWithExercises},
+        pages::{NewPage, Page, PageRoutingData, PageUpdate, PageWithExercises},
         submissions::{
-            Submission, SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour,
-            SubmissionResult,
+            NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
+            SubmissionCountByWeekAndHour, SubmissionResult,
         },
         user_exercise_states::UserProgress,
     },
@@ -44,6 +46,16 @@ ts_rs::export! {
   SubmissionCountByExercise,
   ExerciseSubmissions,
   Organization,
+  NewChapter,
+  ChapterUpdate,
+  EmailTemplateNew,
+  EmailTemplateUpdate,
+  NewPage,
+  PageUpdate,
+  NewSubmission,
+  NewCourse,
+  CourseUpdate,
+  Login,
   // dependencies
   VariantStatus,
   ChapterStatus,

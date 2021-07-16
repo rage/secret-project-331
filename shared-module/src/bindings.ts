@@ -176,6 +176,69 @@ export interface Organization {
   deleted_at: Date | null
 }
 
+export interface NewChapter {
+  name: string
+  course_id: string
+  chapter_number: number
+  front_front_page_id: string | null
+}
+
+export interface ChapterUpdate {
+  name: string
+  chapter_number: number
+  front_front_page_id: string | null
+}
+
+export interface EmailTemplateNew {
+  name: string
+}
+
+export interface EmailTemplateUpdate {
+  name: string
+  subject: string
+  content: unknown
+  exercise_completions_threshold: number | null
+  points_threshold: number | null
+}
+
+export interface NewPage {
+  content: unknown
+  url_path: string
+  title: string
+  course_id: string
+  chapter_id: string | null
+  front_page_of_chapter_id: string | null
+}
+
+export interface PageUpdate {
+  content: unknown
+  url_path: string
+  title: string
+  chapter_id: string | null
+  front_page_of_chapter_id: string | null
+}
+
+export interface NewSubmission {
+  exercise_task_id: string
+  course_instance_id: string
+  data_json: unknown | null
+}
+
+export interface NewCourse {
+  name: string
+  slug: string
+  organization_id: string
+}
+
+export interface CourseUpdate {
+  name: string
+}
+
+export interface Login {
+  email: string
+  password: string
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"

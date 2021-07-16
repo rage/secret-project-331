@@ -45,7 +45,7 @@ pub struct PageWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new page.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewPage {
     pub content: serde_json::Value,
     pub url_path: String,
@@ -57,7 +57,7 @@ pub struct NewPage {
 }
 
 // Represents the subset of page fields that the user is allowed to modify.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdate {
     content: serde_json::Value,
     url_path: String,

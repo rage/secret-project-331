@@ -19,12 +19,12 @@ pub struct EmailTemplate {
     pub course_instance_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct EmailTemplateNew {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct EmailTemplateUpdate {
     pub name: String,
     pub subject: String,

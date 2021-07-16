@@ -104,7 +104,7 @@ pub async fn organization_courses(
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewCourse {
     pub name: String,
     pub slug: String,
@@ -154,7 +154,7 @@ pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> ModelR
 }
 
 // Represents the subset of page fields that one is allowed to update in a course
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseUpdate {
     name: String,
 }

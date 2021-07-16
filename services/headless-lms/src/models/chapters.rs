@@ -1,4 +1,4 @@
-use super::ModelResult;
+use super::{pages::Page, ModelResult};
 use crate::{models::pages::NewPage, utils::document_schema_processor::GutenbergBlock};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -208,7 +208,10 @@ WHERE course_id = $1
     Ok(chapters)
 }
 
-pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> ModelResult<Chapter> {
+pub async fn insert_chapter(
+    conn: &mut PgConnection,
+    chapter: NewChapter,
+) -> ModelResult<(Chapter, Page)> {
     let mut tx = conn.begin().await?;
 
     let chapter = sqlx::query_as!(
@@ -246,10 +249,10 @@ RETURNING id,
         title: chapter.name.clone(),
         url_path: format!("/chapter-{}", chapter.chapter_number),
     };
-    let _page = crate::models::pages::insert_page(&mut tx, chapter_frontpage).await?;
+    let page = crate::models::pages::insert_page(&mut tx, chapter_frontpage).await?;
 
     tx.commit().await?;
-    Ok(chapter)
+    Ok((chapter, page))
 }
 
 pub async fn delete_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Chapter> {

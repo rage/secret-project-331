@@ -50,7 +50,7 @@ async fn post_new_chapter(
 ) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let new_chapter = payload.0;
-    let chapter = crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
+    let (chapter, ..) = crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
     Ok(Json(chapter))
 }
 

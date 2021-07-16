@@ -36,20 +36,32 @@ pub struct CourseInstance {
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
+    name: Option<&str>,
     variant_status: Option<VariantStatus>,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO course_instances (course_id, variant_status)
-VALUES ($1, $2)
-RETURNING id
-",
+) -> ModelResult<CourseInstance> {
+    let course_instance = sqlx::query_as!(
+        CourseInstance,
+        r#"
+INSERT INTO course_instances (course_id, name, variant_status)
+VALUES ($1, $2, $3)
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  starts_at,
+  ends_at,
+  name,
+  description,
+  variant_status AS "variant_status: VariantStatus"
+"#,
         course_id,
+        name,
         variant_status.unwrap_or_default() as VariantStatus,
     )
     .fetch_one(conn)
     .await?;
-    Ok(res.id)
+    Ok(course_instance)
 }
 
 pub async fn get_course_instance(
@@ -197,11 +209,11 @@ mod test {
             .await
             .unwrap();
 
-        let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None).await.unwrap();
-        let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None).await;
+        let _course_1_instance_1 = insert(tx.as_mut(), course_1_id, None, None).await.unwrap();
+        let course_2_instance_1 = insert(tx.as_mut(), course_2_id, None, None).await;
         assert!(course_2_instance_1.is_ok());
 
-        let course_1_instance_2 = insert(tx.as_mut(), course_1_id, None).await;
+        let course_1_instance_2 = insert(tx.as_mut(), course_1_id, None, None).await;
         assert!(course_1_instance_2.is_err());
     }
 }

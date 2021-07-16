@@ -314,14 +314,14 @@ mod test {
         let course_id = courses::insert(tx.as_mut(), "", organization_id, "")
             .await
             .unwrap();
-        let course_instance_id = course_instances::insert(tx.as_mut(), course_id, None)
+        let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)
             .await
             .unwrap();
         course_instance_enrollments::insert(
             tx.as_mut(),
             user_id,
             course_id,
-            course_instance_id,
+            course_instance.id,
             true,
         )
         .await

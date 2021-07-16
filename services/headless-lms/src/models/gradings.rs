@@ -4,6 +4,7 @@ use super::{
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     submissions::{GradingResult, Submission},
+    user_exercise_states::update_user_exercise_state,
     ModelResult,
 };
 use crate::models::{
@@ -166,9 +167,16 @@ pub async fn grade_submission(
         &exercise_task.exercise_type,
     )
     .await?;
-    let obj =
-        send_grading_request(grade_url, &exercise_service_info, exercise_task, submission).await?;
+    let obj = send_grading_request(
+        grade_url,
+        &exercise_service_info,
+        exercise_task,
+        submission.clone(),
+    )
+    .await?;
     let updated_grading = update_grading(conn, &grading, obj, exercise).await?;
+    dbg!("wat");
+    update_user_exercise_state(conn, &updated_grading, &submission).await?;
     Ok(updated_grading)
 }
 

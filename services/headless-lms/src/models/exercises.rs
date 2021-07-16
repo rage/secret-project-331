@@ -362,7 +362,7 @@ WHERE user_id = $1
 ",
             user_id,
             exercise_id,
-            course_instance_id
+            course_instance.id
         )
         .fetch_optional(tx.as_mut())
         .await
@@ -384,7 +384,7 @@ WHERE user_id = $1
 ",
             user_id,
             exercise_id,
-            course_instance_id
+            course_instance.id
         )
         .fetch_one(tx.as_mut())
         .await

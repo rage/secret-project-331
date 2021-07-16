@@ -74,7 +74,7 @@ pub async fn insert_user_organization_course_instance_exercise_task(
     let user = models::users::insert(&mut *conn, "test@example.com").await?;
     let org = models::organizations::insert(&mut *conn, "", &random_string).await?;
     let course = models::courses::insert(&mut *conn, "", org, &random_string).await?;
-    let instance = models::course_instances::insert(&mut *conn, course, None).await?;
+    let instance = models::course_instances::insert(&mut *conn, course, None, None).await?;
     let page = models::pages::insert(&mut *conn, course, "", "", 0).await?;
     let exercise = models::exercises::insert(conn, course, "", page, 0).await?;
     let exercise_task = models::exercise_tasks::insert(
@@ -86,5 +86,5 @@ pub async fn insert_user_organization_course_instance_exercise_task(
         Value::Null,
     )
     .await?;
-    Ok((user, org, course, instance, exercise, exercise_task))
+    Ok((user, org, course, instance.id, exercise, exercise_task))
 }

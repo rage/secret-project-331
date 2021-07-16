@@ -16,7 +16,7 @@ pub struct CourseMaterialExerciseTask {
     pub public_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseTask {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

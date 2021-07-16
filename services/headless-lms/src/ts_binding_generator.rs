@@ -10,13 +10,16 @@ use crate::{
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
         exercise_service_info::CourseMaterialExerciseServiceInfo,
-        exercise_tasks::CourseMaterialExerciseTask,
+        exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
         },
         gradings::{Grading, UserPointsUpdateStrategy},
         organizations::Organization,
-        pages::{NewPage, Page, PageRoutingData, PageUpdate, PageWithExercises},
+        pages::{
+            ExerciseWithExerciseTasks, NewPage, Page, PageRoutingData, PageUpdate,
+            PageUpdateExercise, PageUpdateExerciseTask, PageWithExercises,
+        },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
             SubmissionCountByWeekAndHour, SubmissionResult,
@@ -66,6 +69,11 @@ ts_rs::export! {
   Grading,
   ActivityProgress,
   GradingProgress,
-  UserPointsUpdateStrategy
+  UserPointsUpdateStrategy,
+  // returned from the API as serde_json::Value
+  ExerciseTask,
+  ExerciseWithExerciseTasks,
+  PageUpdateExercise,
+  PageUpdateExerciseTask
     => "../../shared-module/src/bindings.ts"
 }

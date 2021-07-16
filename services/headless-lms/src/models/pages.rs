@@ -67,7 +67,7 @@ pub struct PageUpdate {
     front_page_of_chapter_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdateExercise {
     // The id will be validated so that the client can't change it on us.
     pub id: Uuid,
@@ -76,7 +76,7 @@ pub struct PageUpdateExercise {
     pub exercise_tasks: Vec<PageUpdateExerciseTask>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdateExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
@@ -134,8 +134,8 @@ struct Exercise {
     order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
-struct ExerciseWithExerciseTasks {
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseWithExerciseTasks {
     id: Uuid,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,

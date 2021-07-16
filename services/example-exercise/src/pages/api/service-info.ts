@@ -14,6 +14,7 @@ interface ServiceInfo {
   service_name: string
   editor_iframe_path: string
   exercise_iframe_path: string
+  submission_iframe_path: string
   grade_endpoint_path: string
 }
 
@@ -23,6 +24,7 @@ const handleGet = (_req: NextApiRequest, res: NextApiResponse<ServiceInfo>) => {
     service_name: "Example exercise",
     editor_iframe_path: `${prefix}/editor`,
     exercise_iframe_path: `${prefix}/exercise`,
+    submission_iframe_path: `${prefix}/submission`,
     grade_endpoint_path: `${prefix}/api/grade`,
   })
 }

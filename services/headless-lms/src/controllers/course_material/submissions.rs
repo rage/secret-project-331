@@ -78,7 +78,7 @@ async fn post_submission(
     let exercise_task =
         crate::models::exercise_tasks::get_exercise_task_by_id(&mut conn, exercise_task_id).await?;
     let exercise =
-        crate::models::exercises::get_exercise_by_id(&mut conn, exercise_task.exercise_id).await?;
+        crate::models::exercises::get_by_id(&mut conn, exercise_task.exercise_id).await?;
     let submission =
         crate::models::submissions::insert_submission(&mut conn, payload.0, user.id, exercise)
             .await?;

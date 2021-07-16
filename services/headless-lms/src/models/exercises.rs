@@ -14,7 +14,7 @@ use super::{
     exercise_tasks::CourseMaterialExerciseTask,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Exercise {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -119,11 +119,15 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_exercise(conn: &mut PgConnection, exercise_id: Uuid) -> ModelResult<Exercise> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercise> {
     let exercise = sqlx::query_as!(
         Exercise,
-        "SELECT * FROM exercises WHERE id = $1;",
-        exercise_id
+        "
+SELECT *
+FROM exercises
+WHERE id = $1
+",
+        id
     )
     .fetch_one(conn)
     .await?;
@@ -169,7 +173,7 @@ pub async fn get_course_material_exercise(
     user_id: Option<Uuid>,
     exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialExercise> {
-    let exercise = get_exercise_by_id(conn, exercise_id).await?;
+    let exercise = get_by_id(conn, exercise_id).await?;
 
     // if the user is logged in, take the previously selected task or select a new one
     let selected_exercise_task = if let Some(user_id) = user_id {

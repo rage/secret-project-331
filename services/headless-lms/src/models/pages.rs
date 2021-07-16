@@ -11,9 +11,10 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
 use std::collections::HashMap;
+use ts_rs::TS;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Page {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -28,7 +29,7 @@ pub struct Page {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageWithExercises {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -102,7 +103,7 @@ pub struct PageExerciseTask {
     pub private_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageRoutingData {
     url_path: String,
     title: String,
@@ -119,7 +120,7 @@ pub struct PageMetadata {
     course_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
 struct Exercise {
     id: Uuid,
     created_at: DateTime<Utc>,

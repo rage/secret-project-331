@@ -6,6 +6,7 @@ use crate::{
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgConnection};
+use ts_rs::TS;
 use uuid::Uuid;
 
 use super::{
@@ -13,7 +14,7 @@ use super::{
     pages::{course_pages, Page},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Course {
     pub id: Uuid,
     pub slug: String,
@@ -24,7 +25,7 @@ pub struct Course {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,

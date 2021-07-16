@@ -2,6 +2,7 @@ use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::models::{
@@ -14,7 +15,7 @@ use super::{
     exercise_tasks::CourseMaterialExerciseTask,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, TS)]
 pub struct Exercise {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -28,7 +29,7 @@ pub struct Exercise {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
     pub current_exercise_task: CourseMaterialExerciseTask,
@@ -46,7 +47,7 @@ Indicates what is the user's completion status for a exercise.
 
 As close as possible to LTI's activity progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
 #[sqlx(type_name = "activity_progress", rename_all = "snake_case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
@@ -67,7 +68,7 @@ Tells what's the status of the grading progress for a user and exercise.
 
 As close as possible LTI's grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
 pub enum GradingProgress {
     /// The grading process is completed; the score value, if any, represents the current Final Grade;
@@ -88,7 +89,7 @@ impl GradingProgress {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, TS)]
 pub struct ExerciseStatus {
     // None when grading has not completed yet. Max score can be found from the associated exercise.
     score_given: Option<f32>,

@@ -109,7 +109,7 @@ pub async fn regrade(
                     });
                 if entry.len() < limit {
                     let exercise =
-                        models::exercises::get_exercise(&mut *conn, submission.exercise_id).await?;
+                        models::exercises::get_by_id(&mut *conn, submission.exercise_id).await?;
                     let grading_future = models::gradings::send_grading_request(
                         info,
                         exercise_task,
@@ -174,7 +174,7 @@ pub async fn regrade(
                 continue;
             }
         };
-        models::gradings::update_grading(&mut *conn, &grading, grading_result, exercise).await?;
+        models::gradings::update_grading(&mut *conn, &grading, &grading_result, &exercise).await?;
         models::submissions::set_grading_id(&mut *conn, grading.id, regrading_submission.id)
             .await?;
     }
@@ -226,10 +226,17 @@ mod test {
             )
             .await
             .unwrap();
-        let submission =
-            models::submissions::insert(tx.as_mut(), exercise, course, task, user, instance)
-                .await
-                .unwrap();
+        let submission = models::submissions::insert(
+            tx.as_mut(),
+            exercise,
+            course,
+            task,
+            user,
+            instance,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading = models::gradings::insert(tx.as_mut(), submission, course, exercise, task)
             .await
             .unwrap();
@@ -255,6 +262,7 @@ mod test {
             "",
             "",
             &mockito::server_url(),
+            "",
         )
         .await
         .unwrap();
@@ -307,10 +315,17 @@ mod test {
             )
             .await
             .unwrap();
-        let submission =
-            models::submissions::insert(tx.as_mut(), exercise, course, task, user, instance)
-                .await
-                .unwrap();
+        let submission = models::submissions::insert(
+            tx.as_mut(),
+            exercise,
+            course,
+            task,
+            user,
+            instance,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading = models::gradings::insert(tx.as_mut(), submission, course, exercise, task)
             .await
             .unwrap();
@@ -336,6 +351,7 @@ mod test {
             "",
             "",
             &mockito::server_url(),
+            "",
         )
         .await
         .unwrap();
@@ -395,14 +411,28 @@ mod test {
         )
         .await
         .unwrap();
-        let submission_1 =
-            models::submissions::insert(tx.as_mut(), exercise, course, task_1, user, instance)
-                .await
-                .unwrap();
-        let submission_2 =
-            models::submissions::insert(tx.as_mut(), exercise, course, task_2, user, instance)
-                .await
-                .unwrap();
+        let submission_1 = models::submissions::insert(
+            tx.as_mut(),
+            exercise,
+            course,
+            task_1,
+            user,
+            instance,
+            Value::Null,
+        )
+        .await
+        .unwrap();
+        let submission_2 = models::submissions::insert(
+            tx.as_mut(),
+            exercise,
+            course,
+            task_2,
+            user,
+            instance,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading = models::gradings::insert(tx.as_mut(), submission_1, course, exercise, task_1)
             .await
             .unwrap();
@@ -432,6 +462,7 @@ mod test {
             "",
             "",
             &mockito::server_url(),
+            "",
         )
         .await
         .unwrap();
@@ -451,6 +482,7 @@ mod test {
             "",
             "",
             &mockito::server_url(),
+            "",
         )
         .await
         .unwrap();

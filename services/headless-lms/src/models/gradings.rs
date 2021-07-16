@@ -160,7 +160,7 @@ pub async fn grade_submission(
     let exercise_service_info =
         get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let obj = send_grading_request(&exercise_service_info, exercise_task, submission).await?;
-    let updated_grading = update_grading(conn, &grading, obj, exercise).await?;
+    let updated_grading = update_grading(conn, &grading, &obj, &exercise).await?;
     Ok(updated_grading)
 }
 
@@ -191,8 +191,8 @@ pub async fn send_grading_request(
 pub async fn update_grading(
     conn: &mut PgConnection,
     grading: &Grading,
-    grading_result: GradingResult,
-    exercise: Exercise,
+    grading_result: &GradingResult,
+    exercise: &Exercise,
 ) -> ModelResult<Grading> {
     let grading_completed_at = if grading_result.grading_progress.is_complete() {
         Some(Utc::now())

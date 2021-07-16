@@ -5,7 +5,7 @@ RUN cargo install sqlx-cli --no-default-features --features postgres
 FROM golang:buster
 
 RUN apt-get update \
-  && apt-get install -y plantuml \
+  && apt-get install -y plantuml postgresql-client \
   && rm -rf /var/lib/apt/lists/*
 
 RUN go get -u github.com/achiku/planter \

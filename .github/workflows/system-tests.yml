@@ -59,7 +59,7 @@ jobs:
         run: bin/setup-system-test-db
 
       - name: Configure ingress
-        run: echo "$(minikube ip) project-331.local" >> sudo tee /etc/hosts
+        run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
 
       - name: Setup system test environment
         run: npm ci

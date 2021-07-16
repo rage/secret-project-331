@@ -5,7 +5,6 @@ import React, { useState } from "react"
 import { useQuery } from "react-query"
 
 import ChapterImageWidget from "../../../components/ChapterImageWidget"
-import DebugModal from "../../../components/DebugModal"
 import Layout from "../../../components/Layout"
 import PageList from "../../../components/PageList"
 import NewChapterForm from "../../../components/forms/NewChapterForm"
@@ -13,8 +12,10 @@ import CourseContext from "../../../contexts/CourseContext"
 import { fetchCourseStructure } from "../../../services/backend/courses"
 import { postNewPage } from "../../../services/backend/pages"
 import { Chapter } from "../../../services/services.types"
+import DebugModal from "../../../shared-module/components/DebugModal"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
 
@@ -141,4 +142,4 @@ const CoursePages: React.FC<unknown> = () => {
   )
 }
 
-export default withSignedIn(dontRenderUntilQueryParametersReady(CoursePages))
+export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(CoursePages)))

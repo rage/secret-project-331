@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::ModelResult;
 use chrono::{DateTime, Utc};
 use reqwest::IntoUrl;
 use serde::{Deserialize, Serialize};
@@ -6,7 +6,7 @@ use sqlx::PgConnection;
 use std::time::Duration;
 use uuid::Uuid;
 
-use crate::models::exercise_services::get_exercise_service_by_exercise_type;
+use crate::models::{exercise_services::get_exercise_service_by_exercise_type, ModelError};
 
 use super::exercise_services::ExerciseService;
 
@@ -33,10 +33,39 @@ pub struct FetchedExerciseServiceInfo {
     pub grade_endpoint_path: String,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    exercise_service_id: Uuid,
+    editor_iframe_path: &str,
+    exercise_iframe_path: &str,
+    grade_endpoint_path: &str,
+) -> ModelResult<ExerciseServiceInfo> {
+    let res = sqlx::query_as!(
+        ExerciseServiceInfo,
+        "
+INSERT INTO exercise_service_info (
+    exercise_service_id,
+    editor_iframe_path,
+    exercise_iframe_path,
+    grade_endpoint_path
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING *
+",
+        exercise_service_id,
+        editor_iframe_path,
+        exercise_iframe_path,
+        grade_endpoint_path
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn fetch_and_upsert_service_info(
     conn: &mut PgConnection,
     exercise_service: &ExerciseService,
-) -> Result<ExerciseServiceInfo> {
+) -> ModelResult<ExerciseServiceInfo> {
     let url = if let Some(internal_url) = &exercise_service.internal_url {
         internal_url
     } else {
@@ -47,7 +76,7 @@ pub async fn fetch_and_upsert_service_info(
     Ok(res)
 }
 
-pub async fn fetch_service_info(url: impl IntoUrl) -> Result<FetchedExerciseServiceInfo> {
+pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<FetchedExerciseServiceInfo> {
     let client = reqwest::Client::new();
     let res = client
         .get(url) // e.g. http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info
@@ -56,7 +85,7 @@ pub async fn fetch_service_info(url: impl IntoUrl) -> Result<FetchedExerciseServ
         .await?;
     let status = res.status();
     if !status.is_success() {
-        anyhow::bail!("Could not fetch service info.")
+        return Err(ModelError::Generic("Could not fetch service info."));
     }
     let res = res.json::<FetchedExerciseServiceInfo>().await?;
     Ok(res)
@@ -66,7 +95,7 @@ pub async fn upsert_service_info(
     conn: &mut PgConnection,
     exercise_service_id: Uuid,
     update: &FetchedExerciseServiceInfo,
-) -> Result<ExerciseServiceInfo> {
+) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
         r#"
@@ -96,7 +125,7 @@ RETURNING *
 pub async fn get_service_info(
     conn: &mut PgConnection,
     exercise_service_id: Uuid,
-) -> Result<ExerciseServiceInfo> {
+) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
         r#"
@@ -114,7 +143,7 @@ WHERE exercise_service_id = $1
 pub async fn get_service_info_by_exercise_type(
     conn: &mut PgConnection,
     exercise_type: &str,
-) -> Result<ExerciseServiceInfo> {
+) -> ModelResult<ExerciseServiceInfo> {
     let service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
     let res = get_service_info(conn, service.id).await;
     let service_info = if let Ok(exercise_service_info) = res {

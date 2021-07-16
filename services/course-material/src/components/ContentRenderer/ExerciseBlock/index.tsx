@@ -6,9 +6,10 @@ import { useQuery } from "react-query"
 
 import ContentRenderer, { BlockRendererProps } from ".."
 import { Block, fetchExerciseById } from "../../../services/backend"
+import DebugModal from "../../../shared-module/components/DebugModal"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import { defaultContainerWidth } from "../../../styles/constants"
-import DebugModal from "../../DebugModal"
 import GenericLoading from "../../GenericLoading"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
@@ -114,4 +115,4 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   )
 }
 
-export default ExerciseBlock
+export default withErrorBoundary(ExerciseBlock)

@@ -39,9 +39,9 @@ async fn main() -> Result<()> {
     }
 
     // users
-    let admin = users::insert(&mut conn).await?;
-    let teacher = users::insert(&mut conn).await?;
-    let assistant = users::insert(&mut conn).await?;
+    let admin = users::insert(&mut conn, "admin@example.com").await?;
+    let teacher = users::insert(&mut conn, "teacher@example.com").await?;
+    let assistant = users::insert(&mut conn, "assistant@example.com").await?;
 
     // uh-cs
     let uh_cs = organizations::insert(
@@ -84,6 +84,7 @@ async fn main() -> Result<()> {
         "example-exercise",
         "http://project-331.local/example-exercise/api/service-info",
         "http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info",
+        5,
     )
     .await?;
 

@@ -120,6 +120,8 @@ module.exports = {
         "newlines-between": "always",
       },
     ],
+    // Shared module will have unresolved import.
     "import/no-unresolved": "off",
+    "import/no-named-as-default": "off",
   },
 }

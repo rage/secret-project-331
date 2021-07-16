@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/pages`.
 use crate::{
-    controllers::ApplicationResult,
+    controllers::ControllerResult,
     domain::authorization::AuthUser,
     models::pages::{NewPage, Page, PageUpdate},
 };
@@ -40,7 +40,7 @@ async fn get_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Page>> {
+) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page = crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(page))
@@ -101,7 +101,7 @@ async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Page>> {
+) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
     let page = crate::models::pages::insert_page(&mut conn, new_page).await?;
@@ -158,7 +158,7 @@ async fn update_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Page>> {
+) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page_update = payload.0;
     let page = crate::models::pages::update_page(&mut conn, *request_page_id, page_update).await?;
@@ -197,7 +197,7 @@ async fn delete_page(
     request_page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Page>> {
+) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let deleted_page =
         crate::models::pages::delete_page_and_exercises(&mut conn, *request_page_id).await?;

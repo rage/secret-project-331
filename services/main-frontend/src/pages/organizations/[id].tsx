@@ -4,12 +4,13 @@ import Link from "next/link"
 import React, { useContext, useState } from "react"
 import { useQuery } from "react-query"
 
-import DebugModal from "../../components/DebugModal"
 import Layout from "../../components/Layout"
 import NewCourseForm from "../../components/forms/NewCourseForm"
 import { fetchOrganizationCourses } from "../../services/backend/organizations"
+import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 
 const Organization: React.FC<unknown> = () => {
@@ -90,4 +91,4 @@ const Organization: React.FC<unknown> = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(Organization)
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(Organization))

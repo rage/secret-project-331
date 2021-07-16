@@ -1,10 +1,9 @@
+use super::ModelResult;
 use crate::{
-    controllers::ApplicationError,
     models::{course_instances::VariantStatus, pages::NewPage},
     utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
     ApplicationConfiguration,
 };
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgConnection};
@@ -38,7 +37,7 @@ pub async fn insert(
     name: &str,
     organization_id: Uuid,
     slug: &str,
-) -> Result<Uuid> {
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO courses (name, organization_id, slug)
@@ -54,21 +53,21 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn all_courses(conn: &mut PgConnection) -> Result<Vec<Course>> {
+pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE deleted_at IS NULL;"#)
         .fetch_all(conn)
         .await?;
     Ok(courses)
 }
 
-pub async fn get_course(conn: &mut PgConnection, course_id: Uuid) -> Result<Course> {
+pub async fn get_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Course> {
     let course = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE id = $1;"#, course_id)
         .fetch_one(conn)
         .await?;
     Ok(course)
 }
 
-pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
+pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let organization_id = sqlx::query!("SELECT organization_id FROM courses WHERE id = $1", id)
         .fetch_one(conn)
         .await?
@@ -81,7 +80,7 @@ pub async fn get_course_structure(
     course_id: Uuid,
     file_store: &impl FileStore,
     app_conf: &ApplicationConfiguration,
-) -> Result<CourseStructure> {
+) -> ModelResult<CourseStructure> {
     let course = get_course(conn, course_id).await?;
     let pages = course_pages(conn, course_id).await?;
     let chapters = course_chapters(conn, course_id)
@@ -99,7 +98,7 @@ pub async fn get_course_structure(
 pub async fn organization_courses(
     conn: &mut PgConnection,
     organization_id: &Uuid,
-) -> Result<Vec<Course>> {
+) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
         r#"SELECT * FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;"#,
@@ -118,7 +117,7 @@ pub struct NewCourse {
     pub organization_id: Uuid,
 }
 
-pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result<Course> {
+pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> ModelResult<Course> {
     let mut tx = conn.begin().await?;
 
     let course = sqlx::query_as!(
@@ -140,8 +139,7 @@ pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> Result
     let course_front_page_content = serde_json::to_value(vec![
         GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
-    ])
-    .map_err(|original_error| ApplicationError::InternalServerError(original_error.to_string()))?;
+    ])?;
     let course_front_page = NewPage {
         chapter_id: None,
         content: course_front_page_content,
@@ -171,7 +169,7 @@ pub async fn update_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     course_update: CourseUpdate,
-) -> Result<Course> {
+) -> ModelResult<Course> {
     let res = sqlx::query_as!(
         Course,
         r#"
@@ -189,7 +187,7 @@ WHERE
     Ok(res)
 }
 
-pub async fn delete_course(conn: &mut PgConnection, course_id: Uuid) -> Result<Course> {
+pub async fn delete_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Course> {
     let deleted = sqlx::query_as!(
         Course,
         r#"

@@ -1,20 +1,19 @@
-use std::time::Duration;
-
-use anyhow::Result;
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use uuid::Uuid;
-
-use crate::models::{
-    exercise_service_info::get_service_info_by_exercise_type, submissions::GradingRequest,
-};
-
 use super::{
+    exercise_service_info::ExerciseServiceInfo,
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     submissions::{GradingResult, Submission},
+    ModelResult,
 };
+use crate::models::{
+    exercise_service_info::get_service_info_by_exercise_type, submissions::GradingRequest,
+    ModelError,
+};
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use sqlx::PgConnection;
+use std::time::Duration;
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Grading {
@@ -45,7 +44,67 @@ pub enum UserPointsUpdateStrategy {
     CanAddPointsAndCanRemovePoints,
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
+pub async fn insert(
+    conn: &mut PgConnection,
+    submission_id: Uuid,
+    course_id: Uuid,
+    exercise_id: Uuid,
+    exercise_task_id: Uuid,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO gradings (
+    submission_id,
+    course_id,
+    exercise_id,
+    exercise_task_id
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING id
+",
+        submission_id,
+        course_id,
+        exercise_id,
+        exercise_task_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Grading> {
+    let res = sqlx::query_as!(
+        Grading,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  submission_id,
+  course_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress as "grading_progress: _",
+  user_points_update_strategy as "user_points_update_strategy: _",
+  unscaled_score_maximum,
+  unscaled_max_points,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+FROM gradings
+WHERE id = $1
+"#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!(r#"SELECT course_id from gradings where id = $1"#, id)
         .fetch_one(conn)
         .await?
@@ -53,7 +112,7 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     Ok(course_id)
 }
 
-pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> Result<Grading> {
+pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> ModelResult<Grading> {
     let grading = sqlx::query_as!(
         Grading,
         r#"
@@ -72,18 +131,47 @@ RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exe
     Ok(grading)
 }
 
+pub async fn set_grading_progress(
+    conn: &mut PgConnection,
+    id: Uuid,
+    grading_progress: GradingProgress,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE gradings
+SET grading_progress = $1
+WHERE id = $2
+",
+        grading_progress as GradingProgress,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn grade_submission(
     conn: &mut PgConnection,
     submission: Submission,
     exercise_task: ExerciseTask,
     exercise: Exercise,
     grading: Grading,
-) -> Result<Grading> {
-    let client = reqwest::Client::new();
+) -> ModelResult<Grading> {
     let exercise_service_info =
         get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
+    let obj = send_grading_request(&exercise_service_info, exercise_task, submission).await?;
+    let updated_grading = update_grading(conn, &grading, obj, exercise).await?;
+    Ok(updated_grading)
+}
+
+pub async fn send_grading_request(
+    exercise_service_info: &ExerciseServiceInfo,
+    exercise_task: ExerciseTask,
+    submission: Submission,
+) -> ModelResult<GradingResult> {
+    let client = reqwest::Client::new();
     let res = client
-        .post(exercise_service_info.grade_endpoint_path)
+        .post(&exercise_service_info.grade_endpoint_path)
         .timeout(Duration::from_secs(120))
         .json(&GradingRequest {
             exercise_spec: exercise_task.private_spec,
@@ -93,20 +181,19 @@ pub async fn grade_submission(
         .await?;
     let status = res.status();
     if !status.is_success() {
-        anyhow::bail!("Grading failed");
+        return Err(ModelError::Generic("Grading failed"));
     }
     let obj = res.json::<GradingResult>().await?;
     info!("Received a grading result: {:#?}", &obj);
-    let updated_grading = update_grading(conn, grading, obj, exercise).await?;
-    Ok(updated_grading)
+    Ok(obj)
 }
 
 pub async fn update_grading(
     conn: &mut PgConnection,
-    grading: Grading,
+    grading: &Grading,
     grading_result: GradingResult,
     exercise: Exercise,
-) -> Result<Grading> {
+) -> ModelResult<Grading> {
     let grading_completed_at = if grading_result.grading_progress.is_complete() {
         Some(Utc::now())
     } else {
@@ -114,12 +201,13 @@ pub async fn update_grading(
     };
     let correctness_coefficient =
         grading_result.score_given / (grading_result.score_maximum as f32);
-    let score_given_with_all_decumals = f32::max(
+    // ensure the score doesn't go over the maximum
+    let score_given_with_all_decimals = f32::min(
         (exercise.score_maximum as f32) * correctness_coefficient,
         exercise.score_maximum as f32,
     );
     // Scores are rounded to two decimals
-    let score_given_rounded = (score_given_with_all_decumals * (100_f32)).trunc() / (100_f32);
+    let score_given_rounded = (score_given_with_all_decimals * (100_f32)).trunc() / (100_f32);
     let grading = sqlx::query_as!(
         Grading,
         r#"

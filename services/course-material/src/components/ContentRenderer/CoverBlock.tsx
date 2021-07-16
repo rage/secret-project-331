@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 
 import colorMapper from "../../styles/colorMapper"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { CoverAttributes } from "../../types/GutenbergBlockAttributes"
 
 import ContentRenderer, { BlockRendererProps } from "."
 
@@ -47,16 +48,6 @@ const ImageContainer = styled.div`
   padding: 1em;
 `
 
-interface CoverBlockAttributes {
-  content: string
-  overlayColor: string
-  backgroundType: boolean
-  dimRatio: number
-  hasParallax: boolean
-  isRepeated: boolean
-  contentPosition: string
-}
-
 interface LayoutContainerAttributes {
   overlayColor: string
   backgroundType: boolean
@@ -66,8 +57,8 @@ interface LayoutContainerAttributes {
   contentPosition: CoverTextPosition
 }
 
-const CoverBlock: React.FC<BlockRendererProps<CoverBlockAttributes>> = ({ data }) => {
-  const attributes: CoverBlockAttributes = data.attributes
+const CoverBlock: React.FC<BlockRendererProps<CoverAttributes>> = ({ data }) => {
+  const attributes: CoverAttributes = data.attributes
 
   const overlayColor = colorMapper(attributes.overlayColor, "unset")
   const contentPosition: CoverTextPosition =

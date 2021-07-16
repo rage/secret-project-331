@@ -4,7 +4,7 @@ use crate::controllers::helpers::media::upload_media_for_course;
 use crate::domain::authorization::AuthUser;
 use crate::utils::file_store::FileStore;
 use crate::ApplicationConfiguration;
-use crate::{controllers::ApplicationResult, models::courses::CourseStructure};
+use crate::{controllers::ControllerResult, models::courses::CourseStructure};
 use actix_multipart as mp;
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -69,7 +69,7 @@ async fn get_course_structure<T: FileStore>(
     user: AuthUser,
     file_store: web::Data<T>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ApplicationResult<Json<CourseStructure>> {
+) -> ControllerResult<Json<CourseStructure>> {
     let mut conn = pool.acquire().await?;
     let course_structure = crate::models::courses::get_course_structure(
         &mut conn,
@@ -112,7 +112,7 @@ async fn add_media_for_course<T: FileStore>(
     user: AuthUser,
     file_store: web::Data<T>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ApplicationResult<Json<UploadResult>> {
+) -> ControllerResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
 

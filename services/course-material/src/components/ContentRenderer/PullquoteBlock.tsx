@@ -4,17 +4,9 @@ import sanitizeHtml from "sanitize-html"
 
 import colorMapper from "../../styles/colorMapper"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { PullquoteAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
-
-interface PullquoteBlockAttributes {
-  value: string
-  citation: string
-  className: string
-  mainColor?: string
-  customMainColor?: string
-  textColor?: string
-}
 
 interface FigureAttributes {
   currentColor: string
@@ -34,8 +26,8 @@ const Blockquote = styled.blockquote<{ currentColor: string }>`
   text-align: center;
 `
 
-const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = ({ data }) => {
-  const attributes: PullquoteBlockAttributes = data.attributes
+const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ data }) => {
+  const attributes: PullquoteAttributes = data.attributes
 
   let mainColor = colorMapper(attributes.mainColor, "#FFFFFF")
 

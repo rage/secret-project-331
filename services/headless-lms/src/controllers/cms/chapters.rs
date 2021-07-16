@@ -2,7 +2,8 @@
 use std::{path::PathBuf, str::FromStr};
 
 use crate::{
-    controllers::{helpers::media::upload_media_for_course, ApplicationError, ApplicationResult},
+    controllers::helpers::media::upload_media_for_course,
+    controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
     models::chapters::{Chapter, ChapterUpdate, ChapterWithImageUrl, NewChapter},
     utils::file_store::FileStore,
@@ -50,7 +51,7 @@ async fn post_new_chapter(
     pool: web::Data<PgPool>,
     payload: web::Json<NewChapter>,
     user: AuthUser,
-) -> ApplicationResult<Json<Chapter>> {
+) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let new_chapter = payload.0;
     let chapter = crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
@@ -79,7 +80,7 @@ async fn delete_chapter(
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ApplicationResult<Json<Chapter>> {
+) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
 
@@ -128,7 +129,7 @@ async fn update_chapter<T: FileStore>(
     user: AuthUser,
     file_store: web::Data<T>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ApplicationResult<Json<ChapterWithImageUrl>> {
+) -> ControllerResult<Json<ChapterWithImageUrl>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
 
@@ -179,7 +180,7 @@ async fn set_chapter_image<T: FileStore>(
     user: AuthUser,
     file_store: web::Data<T>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ApplicationResult<Json<ChapterWithImageUrl>> {
+) -> ControllerResult<Json<ChapterWithImageUrl>> {
     let mut conn = pool.acquire().await?;
     let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
     let course = crate::models::courses::get_course(&mut conn, chapter.course_id).await?;
@@ -196,10 +197,10 @@ async fn set_chapter_image<T: FileStore>(
     // Remove old image if one exists.
     if let Some(old_image) = chapter.chapter_image {
         let file = PathBuf::from_str(&old_image).map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
+            ControllerError::InternalServerError(original_error.to_string())
         })?;
         file_store.delete(&file).await.map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
+            ControllerError::InternalServerError(original_error.to_string())
         })?;
     }
 
@@ -225,17 +226,17 @@ async fn remove_chapter_image<T: FileStore>(
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<T>,
-) -> ApplicationResult<Json<()>> {
+) -> ControllerResult<Json<()>> {
     let mut conn = pool.acquire().await?;
     let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
     if let Some(chapter_image) = chapter.chapter_image {
         let file = PathBuf::from_str(&chapter_image).map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
+            ControllerError::InternalServerError(original_error.to_string())
         })?;
         let _res =
             crate::models::chapters::update_chapter_image(&mut conn, chapter.id, None).await?;
         file_store.delete(&file).await.map_err(|original_error| {
-            ApplicationError::InternalServerError(original_error.to_string())
+            ControllerError::InternalServerError(original_error.to_string())
         })?;
     }
     Ok(Json(()))

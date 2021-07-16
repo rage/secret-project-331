@@ -2,9 +2,10 @@ import { css } from "@emotion/css"
 import Link from "next/link"
 import { useQuery } from "react-query"
 
-import DebugModal from "../../components/DebugModal"
 import Layout from "../../components/Layout"
 import { fetchOrganizations } from "../../services/backend/organizations"
+import DebugModal from "../../shared-module/components/DebugModal"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import basePath from "../../utils/base-path"
 
 const Home: React.FC = () => {
@@ -45,4 +46,5 @@ const Home: React.FC = () => {
     </Layout>
   )
 }
-export default Home
+
+export default withErrorBoundary(Home)

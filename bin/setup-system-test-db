@@ -16,14 +16,14 @@ echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 echo "> cd $RELATIVE_PATH"
 cd "$RELATIVE_PATH" || exit
 
-COMMAND="dropdb"
-ARGUMENTS=(--host=localhost --port=54328 --username=headless-lms --no-password --if-exists --force headless_lms_test)
+COMMAND="kubectl"
+ARGUMENTS=(exec -it "$POD_NAME" "$@" -- dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force headless_lms_test)
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 "$COMMAND" "${ARGUMENTS[@]}"
 
-COMMAND="cargo"
-ARGUMENTS=(sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_test database setup "$@")
+COMMAND="kubectl"
+ARGUMENTS=(exec -it "$POD_NAME" "$@" -- cargo sqlx --database-url postgres://headless-lms@postgres:5432/headless_lms_test database setup "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 "$COMMAND" "${ARGUMENTS[@]}"

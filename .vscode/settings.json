@@ -22,10 +22,6 @@
   "[rust]": {
     "editor.defaultFormatter": "matklad.rust-analyzer"
   },
-  "[markdown]": {
-    "editor.trimAutoWhitespace": false,
-    "files.trimTrailingWhitespace": false
-  },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,

@@ -1,7 +1,7 @@
 # System tests
 
-In project root execute `bin/test` to start test environment.  
-Run test suites with command `npm run test` or `npm run test-debug` for debugging tests.  
+In project root execute `bin/test` to start test environment.<br />
+Run test suites with command `npm run test` or `npm run test-debug` for debugging tests.<br />
 Tests can be found in `src/tests/`.
 
 ## Writing tests
@@ -10,7 +10,7 @@ Start test environment from project root with `bin/test`.
 
 > NB! Always intialize db before each test by running `bin/setup-system-test-db` in root.
 
-Record new tests with Playwright by changing directory, `cd system-tests`, and run `npm run create-login-states`.  
+Record new tests with Playwright by changing directory, `cd system-tests`, and run `npm run create-login-states`.<br />
 To start recoding, run one of the following:
 
 - `npm run record-test` &mdash; Record without login state
@@ -18,7 +18,7 @@ To start recoding, run one of the following:
 - `npm run record-test-teacher` &mdash; Record as teacher
 - `npm run record-test-user` &mdash; Record as user
 
-Create a new test file somewhere in `src/tests/` named e.g. `foo.spec.ts`.  
+Create a new test file somewhere in `src/tests/` named e.g. `foo.spec.ts`.<br />
 Once you've recorded, copy the code automatically written by the recorder to your newly created test file and manually insert assertions where necessary.
 
 ### Example tests

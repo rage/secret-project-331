@@ -1,7 +1,7 @@
 FROM rust
 
 RUN apt-get update \
-  && apt-get install -yy wait-for-it \
+  && apt-get install -yy wait-for-it postgresql-client \
   && rm -rf /var/lib/apt/lists/*
 
 RUN cargo install sqlx-cli --no-default-features --features postgres && \

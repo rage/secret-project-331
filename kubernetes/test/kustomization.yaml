@@ -3,7 +3,7 @@ resources:
   - postgres-test.yml
   - headless-lms/test.yml
 patches:
-  # Services that require postgres env
+  # Services that require postgres env, patch image names
   - path: headless-lms/patch-deployment.yml
     target:
       version: v1
@@ -19,7 +19,8 @@ patches:
       version: v1
       kind: Deployment
       name: regrader
-  # Patch Image names and pull policy
+
+  # Patch Image names for deployments
   - path: cms/patch-deployment.yml
     target:
       version: v1
@@ -64,7 +65,7 @@ patches:
       version: v1
       labelSelector: "deploymentType=with-init-container"
 
-  # Patch jobs
+  # Patch image for jobs
   - path: headless-lms/job/patch-job.yml
     target:
       name: update-course-variant-statuses

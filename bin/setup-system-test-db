@@ -8,7 +8,7 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)
 
 COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" "$@" -- wait-for-it --timeout=120 postgres:5432)
+ARGUMENTS=(exec -it "$POD_NAME" -- wait-for-it --timeout=120 postgres:5432)
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 "$COMMAND" "${ARGUMENTS[@]}"
@@ -17,13 +17,13 @@ echo "> cd $RELATIVE_PATH"
 cd "$RELATIVE_PATH" || exit
 
 COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" "$@" -- dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force headless_lms_test)
+ARGUMENTS=(exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force headless_lms_test)
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 "$COMMAND" "${ARGUMENTS[@]}"
 
 COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" "$@" -- cargo sqlx --database-url postgres://headless-lms@postgres:5432/headless_lms_test database setup "$@")
+ARGUMENTS=(exec -it "$POD_NAME" -- cargo sqlx --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test database setup)
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 "$COMMAND" "${ARGUMENTS[@]}"
@@ -38,7 +38,7 @@ echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 "$COMMAND" "${ARGUMENTS[@]}"
 
 COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" "$@" -- pg_restore --username headless-lms --disable-triggers --dbname=headless_lms_test "/seed" "$@")
+ARGUMENTS=(exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public pg_restore  --host=postgres --port=5432 --username=headless-lms --no-password --disable-triggers --dbname=headless_lms_test "db/seed")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

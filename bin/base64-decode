@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+
+echo Type the string you want to base64 decode and press enter:
+read -r input
+
+COMMAND="echo -n '$input' | base64 -d"
+echo "> $COMMAND"
+eval "$COMMAND"
+echo ""

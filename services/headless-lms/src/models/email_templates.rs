@@ -53,16 +53,18 @@ pub async fn insert_email_template(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     email_template: EmailTemplateNew,
+    subject: Option<String>,
 ) -> ModelResult<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,
         "
-INSERT INTO email_templates (name, course_instance_id)
-VALUES ($1, $2)
+INSERT INTO email_templates (name, course_instance_id, subject)
+VALUES ($1, $2, $3)
 RETURNING *
 ",
         email_template.name,
         course_instance_id,
+        subject,
     )
     .fetch_one(conn)
     .await?;

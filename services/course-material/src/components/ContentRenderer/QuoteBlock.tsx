@@ -2,16 +2,12 @@ import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { QuoteAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 
-interface QuoteBlockAttributes {
-  value: string
-  citation: string
-}
-
-const QuoteBlock: React.FC<BlockRendererProps<QuoteBlockAttributes>> = ({ data }) => {
-  const attributes: QuoteBlockAttributes = data.attributes
+const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => {
+  const attributes: QuoteAttributes = data.attributes
   return (
     <blockquote
       className={css`

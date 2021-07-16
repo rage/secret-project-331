@@ -66,6 +66,12 @@ profiles:
       kubectl:
         manifests:
           - kubernetes/dev/postgres-dev.yml
+  # Push builds to moocfi-public
+  - name: push-images
+    patches:
+      - op: add
+        path: /build/local/push
+        value: true
   - name: test
     patches:
       # Replace dockerfiles for containers
@@ -125,10 +131,7 @@ profiles:
       - op: replace
         path: /build/artifacts/4/image
         value: eu.gcr.io/moocfi-public/secret-project-course-material-production
-      # Push builds to moocfi-public
-      - op: add
-        path: /build/local/push
-        value: true
+
       - op: add
         path: /build/local/useDockerCLI
         value: true

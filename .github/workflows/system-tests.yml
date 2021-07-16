@@ -43,8 +43,6 @@ jobs:
           minikube version: "v1.20.0"
           kubernetes version: "v1.21.0"
           start args: "--addons ingress"
-      - name: Configure ingress
-        run: echo "$(minikube ip) project-331.local" >> sudo tee /etc/hosts
 
       - name: Run npm ci for shared-modules
         run: npm ci
@@ -56,10 +54,12 @@ jobs:
           sleep 10
           kubectl get pods -o name --selector='waitToBeReady!=false' | xargs kubectl wait --timeout=600s --for=condition=ready
           echo "All pods ready"
-          sleep 15
 
       - name: Setup test db
         run: bin/setup-system-test-db
+
+      - name: Configure ingress
+        run: echo "$(minikube ip) project-331.local" >> sudo tee /etc/hosts
 
       - name: Setup system test environment
         run: npm ci
@@ -68,3 +68,7 @@ jobs:
       - name: Run system tests
         run: npm run test
         working-directory: ./system-tests/
+
+      - name: Push push-images
+        run: skaffold build -p test,push-images
+        if: ${{ github.ref == 'refs/heads/master' }}

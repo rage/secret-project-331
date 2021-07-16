@@ -1,4 +1,4 @@
-FROM rust
+FROM rust:bullseye
 
 RUN apt-get update \
   && apt-get install -yy wait-for-it postgresql-client \

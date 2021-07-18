@@ -25,6 +25,7 @@ Medium.args = {
   children: "Title",
   variant: "medium",
 }
+
 export const Small: Story<ComponentProps> = Template.bind({})
 Small.args = {
   children: "Title",

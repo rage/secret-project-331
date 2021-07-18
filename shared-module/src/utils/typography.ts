@@ -2,7 +2,7 @@ export const primaryFont = '"Josefin Sans", sans-serif'
 export const secondaryFont = `"Roboto Mono", monospace`
 
 export const typography = {
-  h1: "clamp(40px, 8vw, 90px",
+  h1: "clamp(40px, 8vw, 90px)",
   h2: "clamp(32px, 6vw, 60px)",
   h3: "clamp(26px, 4vw, 48px)",
   h4: "clamp(24px, 3vw, 34px)",

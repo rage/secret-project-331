@@ -1,21 +1,17 @@
-import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
 import { fontWeights, neutral, primaryFont, typography } from "../utils"
 
 export interface HeadingExtraProps {
-  variant: "small" | "medium" | "large"
+  variant: "large" | "medium" | "small"
 }
 
-const getFontSize = (props: HeadingExtraProps) =>
+const getFontSize = ({ variant }: HeadingExtraProps) =>
   `font-size: ${
-    props.variant == "large"
-      ? typography.h1
-      : props.variant == "medium"
-      ? typography.h2
-      : typography.h3
-  }`
+    variant === `large` ? typography.h1 : variant === `medium` ? typography.h2 : typography.h3
+  }
+`
 
 export type ButtonProps = React.HTMLAttributes<HTMLHeadingElement> & HeadingExtraProps
 

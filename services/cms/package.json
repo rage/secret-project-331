@@ -53,6 +53,7 @@
     "recoil-devtools-dock": "^0.2.0",
     "recoil-devtools-log-monitor": "^0.3.0",
     "recoil-devtools-logger": "^0.2.0",
+    "styled-system": "^5.1.5",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

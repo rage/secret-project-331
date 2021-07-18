@@ -1,6 +1,8 @@
 import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
+import css from "@styled-system/css"
 import React from "react"
+import { color } from "styled-system"
 
 import { button, fontWeights, primaryFont, theme, typography } from "../utils"
 
@@ -25,7 +27,7 @@ const BaseButton = styled.button`
   text-align: center;
   justify-content: center;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 14px !important;
   letter-spacing: 0.02em;
   border: 0;
   transition: all 150ms linear;
@@ -43,33 +45,34 @@ const BaseButton = styled.button`
   }
 `
 
-const PrimaryButton = styled(BaseButton)`
-  color : ${button.primary.text};
-  background-color: ${button.primary.bg};
-  font-size: ${typography.paragraph}
+const PrimaryButton = styled(BaseButton)(
+  css({
+    fontSize: typography.paragraph,
+    color: "black",
+    backgroundColor: "tomato",
 
-  &:hover {
-    color: ${theme.textColorInvented};
-    background-color: ${theme.textColorInvented};
-  }
+    "&:hover": {
+      color: theme.textColorInvented,
+      backgroundColor: theme.textColorInvented,
+    },
 
-  &:active {
-    color: ${theme.textColorInvented};
-    background-color: ${theme.textColorInvented};
-  }
+    "&:active": {
+      color: theme.textColorInvented,
+      backgroundColor: theme.textColorInvented,
+    },
 
-  &:disabled {
-    color: ${theme.textColorInvented};
-    background-color: ${theme.textColorInvented};
-    border-color: ${theme.textColorInvented};
-  }
-`
+    "&:disabled": {
+      color: theme.textColorInvented,
+      backgroundColor: theme.textColorInvented,
+      borderColor: theme.textColorInvented,
+    },
+  }),
+)
 
 const SecondaryButton = styled(BaseButton)`
   color : ${button.secondary.text};
   background-color: ${button.primary.bg};
   font-size: ${typography.paragraph}
-  font-family: ${primaryFont}
 
   &:hover {
     color: ${theme.textColorInvented};

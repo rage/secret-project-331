@@ -146,17 +146,150 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/chapters`.</span>
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">path::PathBuf</span>, <span class="ident">str::FromStr</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::ControllerResult</span>,
+    <span class="ident">controllers::helpers::media::upload_media_for_course</span>,
+    <span class="ident">controllers</span>::{<span class="ident">ControllerError</span>, <span class="ident">ControllerResult</span>},
     <span class="ident">domain::authorization::AuthUser</span>,
     <span class="ident">models::chapters</span>::{<span class="ident">Chapter</span>, <span class="ident">ChapterUpdate</span>, <span class="ident">NewChapter</span>},
+    <span class="ident">utils::file_store::FileStore</span>,
+    <span class="ident">ApplicationConfiguration</span>,
 };
-<span class="kw">use</span> <span class="ident">actix_web::web::ServiceConfig</span>;
+<span class="kw">use</span> <span class="ident">actix_multipart</span> <span class="kw">as</span> <span class="ident">mp</span>;
 <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>};
+<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">web::ServiceConfig</span>, <span class="ident">HttpRequest</span>};
 <span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
@@ -186,21 +319,28 @@ Response:
   &quot;name&quot;: &quot;The Basics&quot;,
   &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
   &quot;deleted_at&quot;: null,
+  &quot;chapter_image_url&quot;: null,
   &quot;chapter_number&quot;: 1,
   &quot;front_page_id&quot;: null
 }
 ```
 */</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_chapter</span>(
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_chapter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FileStore</span><span class="op">&gt;</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewChapter</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">new_chapter</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::chapters::insert_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">new_chapter</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">chapter</span>))
+    <span class="kw">let</span> <span class="ident">database_chapter</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::chapters::insert_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">new_chapter</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">Chapter::from_database_chapter</span>(
+        <span class="kw-2">&amp;</span><span class="ident">database_chapter</span>,
+        <span class="ident">file_store</span>.<span class="ident">as_ref</span>(),
+        <span class="ident">app_conf</span>.<span class="ident">as_ref</span>(),
+    )))
 }
 
 <span class="doccomment">/**
@@ -215,22 +355,29 @@ DELETE `/api/v0/cms/courses-parts/:chapter_id` - Delete a course part.
   &quot;name&quot;: &quot;The Basics&quot;,
   &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
   &quot;deleted_at&quot;: &quot;2021-04-28T16:33:42.670935&quot;,
+  &quot;chapter_image_url&quot;: null,
   &quot;chapter_number&quot;: 1,
   &quot;front_page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
 }
 ```
 */</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_chapter</span>(
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_chapter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FileStore</span><span class="op">&gt;</span>(
     <span class="ident">request_chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">Uuid::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">request_chapter_id</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::chapters::delete_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">chapter</span>))
+    <span class="kw">let</span> <span class="ident">deleted_chapter</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::chapters::delete_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">Chapter::from_database_chapter</span>(
+        <span class="kw-2">&amp;</span><span class="ident">deleted_chapter</span>,
+        <span class="ident">file_store</span>.<span class="ident">as_ref</span>(),
+        <span class="ident">app_conf</span>.<span class="ident">as_ref</span>(),
+    )))
 }
 
 <span class="doccomment">/**
@@ -244,6 +391,7 @@ Content-Type: application/json
 
 {
     &quot;name&quot;: &quot;The Basics&quot;,
+    &quot;chapter_image_url&quot;: null,
     &quot;chapter_number&quot;: 2,
     &quot;front_page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
 }
@@ -259,17 +407,20 @@ Response:
   &quot;name&quot;: &quot;The Basics&quot;,
   &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
   &quot;deleted_at&quot;: null,
+  &quot;chapter_image_url&quot;: null,
   &quot;chapter_number&quot;: 2,
   &quot;front_page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
 }
 ```
 */</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_chapter</span>(
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_chapter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FileStore</span><span class="op">&gt;</span>(
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ChapterUpdate</span><span class="op">&gt;</span>,
     <span class="ident">request_chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">Uuid::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">request_chapter_id</span>)<span class="question-mark">?</span>;
@@ -277,7 +428,109 @@ Response:
     <span class="kw">let</span> <span class="ident">course_update</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
     <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span>
         <span class="kw">crate</span><span class="ident">::models::chapters::update_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">course_id</span>, <span class="ident">course_update</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">chapter</span>))
+
+    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">Chapter::from_database_chapter</span>(<span class="kw-2">&amp;</span><span class="ident">chapter</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>(), <span class="ident">app_conf</span>.<span class="ident">as_ref</span>());
+
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">response</span>))
+}
+
+<span class="doccomment">/**
+PUT `/api/v0/cms/chapters/:chapter_id/image` - Sets or updates the chapter image.
+
+# Example
+
+Request:
+```http
+PUT /api/v0/cms/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
+Content-Type: multipart/form-data
+
+BINARY_DATA
+```
+
+Response:
+```json
+{
+  &quot;id&quot;: &quot;d332f3d9-39a5-4a18-80f4-251727693c37&quot;,
+  &quot;created_at&quot;: &quot;2021-04-28T16:11:47.477850&quot;,
+  &quot;updated_at&quot;: &quot;2021-04-28T16:53:14.896121&quot;,
+  &quot;name&quot;: &quot;The Basics&quot;,
+  &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
+  &quot;deleted_at&quot;: null,
+  &quot;chapter_image_url&quot;: &quot;http://project-331.local/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png&quot;,
+  &quot;chapter_number&quot;: 2,
+  &quot;front_page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
+}
+```
+*/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">request</span>, <span class="ident">payload</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_chapter_image</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FileStore</span><span class="op">&gt;</span>(
+    <span class="ident">request</span>: <span class="ident">HttpRequest</span>,
+    <span class="ident">payload</span>: <span class="ident">mp::Multipart</span>,
+    <span class="ident">request_chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::chapters::get_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::courses::get_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">chapter</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">chapter_image</span> <span class="op">=</span>
+        <span class="ident">upload_media_for_course</span>(<span class="ident">request</span>.<span class="ident">headers</span>(), <span class="ident">payload</span>, <span class="kw-2">&amp;</span><span class="ident">course</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>())
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">to_string_lossy</span>()
+            .<span class="ident">to_string</span>();
+    <span class="kw">let</span> <span class="ident">updated_chapter</span> <span class="op">=</span>
+        <span class="kw">crate</span><span class="ident">::models::chapters::update_chapter_image</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">chapter</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="ident">chapter_image</span>))
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Remove old image if one exists.</span>
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">old_image</span>) <span class="op">=</span> <span class="ident">chapter</span>.<span class="ident">chapter_image</span> {
+        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">PathBuf::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">old_image</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
+            <span class="ident">ControllerError::InternalServerError</span>(<span class="ident">original_error</span>.<span class="ident">to_string</span>())
+        })<span class="question-mark">?</span>;
+        <span class="ident">file_store</span>.<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
+            <span class="ident">ControllerError::InternalServerError</span>(<span class="ident">original_error</span>.<span class="ident">to_string</span>())
+        })<span class="question-mark">?</span>;
+    }
+
+    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span>
+        <span class="ident">Chapter::from_database_chapter</span>(<span class="kw-2">&amp;</span><span class="ident">updated_chapter</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>(), <span class="ident">app_conf</span>.<span class="ident">as_ref</span>());
+
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">response</span>))
+}
+
+<span class="doccomment">/**
+DELETE `/api/v0/cms/chapters/:chapter_id/image` - Removes the chapter image.
+
+# Example
+
+Request:
+```http
+DELETE /api/v0/cms/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
+```
+*/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_chapter_image</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FileStore</span><span class="op">&gt;</span>(
+    <span class="ident">request_chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::chapters::get_chapter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chapter_image</span>) <span class="op">=</span> <span class="ident">chapter</span>.<span class="ident">chapter_image</span> {
+        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">PathBuf::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">chapter_image</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
+            <span class="ident">ControllerError::InternalServerError</span>(<span class="ident">original_error</span>.<span class="ident">to_string</span>())
+        })<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span>
+            <span class="kw">crate</span><span class="ident">::models::chapters::update_chapter_image</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">chapter</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">file_store</span>.<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
+            <span class="ident">ControllerError::InternalServerError</span>(<span class="ident">original_error</span>.<span class="ident">to_string</span>())
+        })<span class="question-mark">?</span>;
+    }
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(()))
 }
 
 <span class="doccomment">/**
@@ -287,10 +540,15 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_chapters_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_chapter</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}&quot;</span>, <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">delete_chapter</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_chapter</span>));
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_chapters_routes</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">FileStore</span><span class="op">&gt;</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_chapter</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
+        .<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}&quot;</span>, <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">delete_chapter</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
+        .<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_chapter</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
+        .<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}/image&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">set_chapter_image</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{chapter_id}/image&quot;</span>,
+            <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">remove_chapter_image</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
+        );
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>

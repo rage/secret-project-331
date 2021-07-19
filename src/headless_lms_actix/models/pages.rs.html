@@ -912,20 +912,10 @@
 <span id="909">909</span>
 <span id="910">910</span>
 <span id="911">911</span>
-<span id="912">912</span>
-<span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::ModelResult</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">models::chapters::Chapter</span>,
-    <span class="ident">models::exercise_tasks::ExerciseTask</span>,
+    <span class="ident">models</span>::{<span class="ident">chapters::DatabaseChapter</span>, <span class="ident">exercise_tasks::ExerciseTask</span>},
     <span class="ident">utils::document_schema_processor</span>::{
         <span class="ident">denormalize</span>, <span class="ident">normalize_from_json</span>, <span class="ident">GutenbergBlock</span>, <span class="ident">NormalizedDocument</span>,
     },
@@ -1520,20 +1510,12 @@ RETURNING id, exercise_type, assignment, public_spec, private_spec;
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">front_page_of_chapter_id</span>) <span class="op">=</span> <span class="ident">new_page</span>.<span class="ident">front_page_of_chapter_id</span> {
         <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">Chapter</span>,
+            <span class="ident">DatabaseChapter</span>,
             <span class="string">r#&quot;
 UPDATE chapters
 SET front_page_id = $1
 WHERE id = $2
-RETURNING id,
-  created_at,
-  updated_at,
-  name,
-  course_id,
-  deleted_at,
-  chapter_number,
-  front_page_id,
-  opens_at
+RETURNING *;
         &quot;#</span>,
             <span class="ident">page</span>.<span class="ident">id</span>,
             <span class="ident">front_page_of_chapter_id</span>

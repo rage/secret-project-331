@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_course_instances_routes","Add a route for each controller in this module."],["get_email_templates_by_course_instance_id",""],["post_new_email_template",""]]});
+initSidebarItems({"fn":[["_add_course_instances_routes","Add a route for each controller in this module."],["get_course_instance","GET `/api/v8/course-instances/:course_instance` - Gets a course instance by id."],["get_email_templates_by_course_instance_id",""],["post_new_email_template",""]]});

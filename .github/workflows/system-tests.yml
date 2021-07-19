@@ -45,6 +45,16 @@ jobs:
           start args: "--addons ingress"
           driver: "docker"
 
+      - name: Debug ingress
+        run: |
+          kubectl get pods --namespace ingress-nginx
+          PODS=$(kubectl get pods --namespace ingress-nginx -o name | cut -d '/' -f 2)
+          for pod in $PODS
+          do
+            echo "------------------"
+            kubectl describe pod "$pod" --namespace ingress-nginx --namespace ingress-nginx
+          done
+
       - name: Run npm ci for shared-modules
         run: npm ci
 

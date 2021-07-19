@@ -6,8 +6,8 @@ import CourseProgress from "./CourseProgress"
 import Exercise from "./Exercise"
 import ExerciseInChapter from "./ExerciseInChapter"
 import ExerciseTask from "./ExerciseTask"
-import PagesInChapter from "./PagesInChapter"
 import Latex from "./Latex"
+import PagesInChapter from "./PagesInChapter"
 
 export const blockTypeMap: Array<[string, BlockConfiguration]> = [
   ["moocfi/exercise", Exercise],

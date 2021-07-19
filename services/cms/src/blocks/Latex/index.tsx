@@ -1,6 +1,7 @@
 import { BlockConfiguration } from "@wordpress/blocks"
-import LatexSave from "./LatexSave"
+
 import LatexEditor from "./LatexEditor"
+import LatexSave from "./LatexSave"
 
 const LatexBlockConfiguration: BlockConfiguration = {
   title: "Latex Block",

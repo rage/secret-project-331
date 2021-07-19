@@ -10,6 +10,7 @@ use headless_lms_actix::{
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use std::env;
 use tokio::sync::Mutex;
+use uuid::Uuid;
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);

@@ -1,0 +1,30 @@
+# We're storing the data locally
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: persistent-file-storage-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/file-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: persistent-file-storage-pvc
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+  volumeName: persistent-file-storage-pv

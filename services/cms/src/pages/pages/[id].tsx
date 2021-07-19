@@ -2,6 +2,7 @@ import dynamic from "next/dynamic"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
+import CourseContext from "../../contexts/CourseContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
@@ -46,9 +47,11 @@ const Pages = ({ query }: PagesProps) => {
   }
 
   return (
-    <Layout>
-      <PageEditor data={data} handleSave={handleSave} />
-    </Layout>
+    <CourseContext.Provider value={{ courseId: data.course_id }}>
+      <Layout>
+        <PageEditor data={data} handleSave={handleSave} />
+      </Layout>
+    </CourseContext.Provider>
   )
 }
 

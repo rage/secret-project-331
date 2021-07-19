@@ -37,17 +37,6 @@ const LayoutContainer = styled.div<LayoutContainerAttributes>`
   padding: 1em;
 `
 
-const ImageContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow-wrap: break-word;
-  background-size: cover;
-  background-position: center center;
-  min-height: 430px;
-  padding: 1em;
-`
-
 interface LayoutContainerAttributes {
   overlayColor: string
   backgroundType: boolean

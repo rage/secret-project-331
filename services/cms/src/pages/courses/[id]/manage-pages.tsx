@@ -9,7 +9,7 @@ import PageList from "../../../components/PageList"
 import NewPartForm from "../../../components/forms/NewChapterForm"
 import { fetchCourseStructure } from "../../../services/backend/courses"
 import { postNewPage } from "../../../services/backend/pages"
-import { Chapter } from "../../../services/services.types"
+import { Chapter } from "../../../shared-module/bindings"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
@@ -39,6 +39,7 @@ const CoursePages: React.FC<unknown> = () => {
       title: data.course.name,
       course_id: data.course.id,
       chapter_id: null,
+      front_page_of_chapter_id: null,
     })
     await refetch()
   }

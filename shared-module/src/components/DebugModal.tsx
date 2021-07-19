@@ -39,7 +39,10 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
   const closeModal = () => {
     setOpen(false)
     if (updateDataOnClose) {
-      const parsed = JSON.parse(editedContent)
+      let parsed = null
+      if (typeof editedContent === "string") {
+        parsed = JSON.parse(editedContent)
+      }
       updateDataOnClose(parsed)
     }
   }
@@ -72,7 +75,7 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
             width="80vw"
             defaultLanguage="json"
             options={{ wordWrap: "on", readOnly }}
-            defaultValue={editedContent}
+            defaultValue={editedContent || undefined}
             onChange={(value) => value && setEditedContent(value)}
           />
         </Paper>

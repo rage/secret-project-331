@@ -4,9 +4,10 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::{FromRow, PgConnection};
+use ts_rs::TS;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
     pub exercise_id: Uuid,
@@ -15,7 +16,7 @@ pub struct CourseMaterialExerciseTask {
     pub public_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseTask {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

@@ -1,4 +1,4 @@
-import { Chapter, NewChapter } from "../../services.types"
+import { Chapter, NewChapter } from "../../../shared-module/bindings"
 import { cmsClient } from "../cmsClient"
 
 export const postNewChapter = async (data: NewChapter): Promise<Chapter> => {

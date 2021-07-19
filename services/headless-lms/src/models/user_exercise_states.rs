@@ -10,6 +10,7 @@ use core::f32;
 use futures::future;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgConnection, PgPool};
+use ts_rs::TS;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -25,7 +26,7 @@ pub struct UserExerciseState {
     activity_progress: ActivityProgress,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserProgress {
     score_given: Option<f32>,
     score_maximum: Option<i64>,

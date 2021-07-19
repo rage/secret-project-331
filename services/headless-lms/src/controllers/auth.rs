@@ -16,9 +16,10 @@ use oauth2::{ResourceOwnerPassword, ResourceOwnerUsername, TokenResponse};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use ts_rs::TS;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct Login {
     email: String,
     password: String,

@@ -7,9 +7,10 @@ use actix_web::web::{self, Json, ServiceConfig};
 use futures::future;
 use serde::Serialize;
 use sqlx::PgPool;
+use ts_rs::TS;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, TS)]
 pub struct ExerciseSubmissions {
     data: Vec<Submission>,
     total_pages: i64,

@@ -1,4 +1,4 @@
-import { EmailTemplate, EmailTemplateUpdate } from "../../services.types"
+import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
 import { cmsClient } from "../cmsClient"
 
 export const fetchEmailTemplateWithId = async (emailTemplateId: string): Promise<EmailTemplate> => {

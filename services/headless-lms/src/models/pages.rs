@@ -11,9 +11,10 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
 use std::collections::HashMap;
+use ts_rs::TS;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Page {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -28,7 +29,7 @@ pub struct Page {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageWithExercises {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -44,7 +45,7 @@ pub struct PageWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new page.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewPage {
     pub content: serde_json::Value,
     pub url_path: String,
@@ -56,7 +57,7 @@ pub struct NewPage {
 }
 
 // Represents the subset of page fields that the user is allowed to modify.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdate {
     content: serde_json::Value,
     url_path: String,
@@ -66,7 +67,7 @@ pub struct PageUpdate {
     front_page_of_chapter_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdateExercise {
     // The id will be validated so that the client can't change it on us.
     pub id: Uuid,
@@ -75,7 +76,7 @@ pub struct PageUpdateExercise {
     pub exercise_tasks: Vec<PageUpdateExerciseTask>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdateExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
@@ -102,7 +103,7 @@ pub struct PageExerciseTask {
     pub private_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageRoutingData {
     url_path: String,
     title: String,
@@ -119,7 +120,7 @@ pub struct PageMetadata {
     course_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
 struct Exercise {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -133,8 +134,8 @@ struct Exercise {
     order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
-struct ExerciseWithExerciseTasks {
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseWithExerciseTasks {
     id: Uuid,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,

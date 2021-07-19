@@ -5,7 +5,7 @@ import {
   ExerciseWithExerciseTasks,
   PageUpdateExercise,
   PageUpdateExerciseTask,
-} from "../services/services.types"
+} from "../shared-module/bindings"
 
 export const exercisesAtoms = atomFamily<ExerciseWithExerciseTasks | PageUpdateExercise, any>({
   key: "exercises",
@@ -66,7 +66,7 @@ export const exerciseTaskFamilySelector = selectorFamily<
     },
 })
 
-export const allExercises = selector<ExerciseWithExerciseTasks[] | PageUpdateExercise[]>({
+export const allExercises = selector<(ExerciseWithExerciseTasks | PageUpdateExercise)[]>({
   key: "all-exercises",
   get: ({ get }) => {
     const ids = get(exercisesState)

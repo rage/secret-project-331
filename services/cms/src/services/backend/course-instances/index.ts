@@ -1,4 +1,4 @@
-import { EmailTemplate, EmailTemplateNew } from "../../services.types"
+import { EmailTemplate, EmailTemplateNew } from "../../../shared-module/bindings"
 import { cmsClient } from "../cmsClient"
 
 export const postNewEmailTemplateForCourseInstance = async (

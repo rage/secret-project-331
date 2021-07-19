@@ -4,6 +4,7 @@ use reqwest::IntoUrl;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use std::time::Duration;
+use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::models::{exercise_services::get_exercise_service_by_exercise_type, ModelError};
@@ -21,7 +22,7 @@ pub struct ExerciseServiceInfo {
     pub grade_endpoint_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseMaterialExerciseServiceInfo {
     pub exercise_iframe_path: String,
 }

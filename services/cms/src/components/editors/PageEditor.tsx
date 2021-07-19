@@ -6,7 +6,7 @@ import React, { useState } from "react"
 
 import { blockTypeMap } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import { Page, PageUpdate } from "../../services/services.types"
+import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
@@ -26,7 +26,7 @@ const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   const [title, setTitle] = useState(data.title)
   const [urlPath, setUrlPath] = useState(data.url_path)
-  const [content, setContent] = useState<BlockInstance[]>(data.content)
+  const [content, setContent] = useState<BlockInstance[]>(data.content as BlockInstance[])
   const [saving, setSaving] = useState(false)
 
   const handleOnSave = async () => {
@@ -36,8 +36,9 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       url_path: urlPath,
       content,
       chapter_id: data.chapter_id,
+      front_page_of_chapter_id: null,
     })
-    setContent(res.content)
+    setContent(res.content as BlockInstance[])
     setSaving(false)
   }
 

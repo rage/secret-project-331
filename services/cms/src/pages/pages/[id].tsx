@@ -3,7 +3,7 @@ import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
-import { Page, PageUpdate } from "../../services/services.types"
+import { Page, PageUpdate } from "../../shared-module/bindings"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import dontRenderUntilQueryParametersReady, {
@@ -39,10 +39,7 @@ const Pages = ({ query }: PagesProps) => {
   }
 
   const handleSave = async (page: PageUpdate): Promise<Page> => {
-    const res = await updateExistingPage({
-      page_id: id,
-      ...page,
-    })
+    const res = await updateExistingPage(id, page)
     console.log(res)
     await refetch()
     return res

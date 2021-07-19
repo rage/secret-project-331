@@ -23,8 +23,6 @@ const Home: React.FC = () => {
     return <>Loading...</>
   }
 
-  console.log(data)
-
   return (
     <>
       <Title>Organizations</Title>

@@ -62,7 +62,10 @@ pub async fn init_actix() -> (
             .await
             .expect("Failed to initialize test file store")
     });
-    let app_conf = ApplicationConfiguration { test_mode: true };
+    let app_conf = ApplicationConfiguration {
+        test_mode: true,
+        base_url: "http://project-331.local".to_string(),
+    };
     let app = App::new()
         .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
         .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))

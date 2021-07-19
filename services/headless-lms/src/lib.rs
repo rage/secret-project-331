@@ -2,6 +2,7 @@ pub mod controllers;
 pub mod domain;
 pub mod models;
 pub mod regrading;
+mod ts_binding_generator;
 pub mod utils;
 
 #[cfg(test)]
@@ -24,8 +25,9 @@ use utils::file_store::FileStore;
 
 pub type OAuthClient = Arc<BasicClient>;
 
-#[derive(Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ApplicationConfiguration {
+    pub base_url: String,
     pub test_mode: bool,
 }
 

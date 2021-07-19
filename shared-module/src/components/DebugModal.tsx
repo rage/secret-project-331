@@ -30,7 +30,7 @@ const HeaderBar = styled.div`
 
 const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDataOnClose }) => {
   const [open, setOpen] = useState(false)
-  const [editedContent, setEditedContent] = useState<string | undefined>(undefined)
+  const [editedContent, setEditedContent] = useState<string | null>(null)
 
   if (!data) {
     return null
@@ -39,8 +39,10 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
   const closeModal = () => {
     setOpen(false)
     if (updateDataOnClose) {
-      const editedContentCleaned = editedContent === undefined ? "undefined" : editedContent
-      const parsed = JSON.parse(editedContentCleaned)
+      let parsed = null
+      if (typeof editedContent === "string") {
+        parsed = JSON.parse(editedContent)
+      }
       updateDataOnClose(parsed)
     }
   }
@@ -73,7 +75,7 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
             width="80vw"
             defaultLanguage="json"
             options={{ wordWrap: "on", readOnly }}
-            defaultValue={editedContent}
+            defaultValue={editedContent || undefined}
             onChange={(value) => value && setEditedContent(value)}
           />
         </Paper>

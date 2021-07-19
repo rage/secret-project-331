@@ -10,7 +10,6 @@ import { RecoilRoot } from "recoil"
 
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 import muiTheme from "../shared-module/utils/muiTheme"
-
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
 

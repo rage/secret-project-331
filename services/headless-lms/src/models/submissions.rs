@@ -1,5 +1,6 @@
 use super::{
     courses::Course,
+    exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     gradings::{new_grading, Grading},
     ModelResult,
@@ -10,18 +11,20 @@ use crate::{
 };
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::PgConnection;
+use ts_rs::TS;
 use uuid::Uuid;
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewSubmission {
     pub exercise_task_id: Uuid,
     pub course_instance_id: Uuid,
     pub data_json: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Submission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -37,20 +40,20 @@ pub struct Submission {
     pub user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct SubmissionCount {
     pub date: Option<NaiveDate>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct SubmissionCountByWeekAndHour {
     pub isodow: Option<i32>,
     pub hour: Option<i32>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct SubmissionCountByExercise {
     pub exercise_id: Option<Uuid>,
     pub count: Option<i32>,
@@ -72,10 +75,19 @@ pub struct GradingResult {
     pub feedback_json: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct SubmissionResult {
     submission: Submission,
     grading: Grading,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct SubmissionInfo {
+    pub submission: Submission,
+    pub exercise: Exercise,
+    pub exercise_task: ExerciseTask,
+    pub grading: Option<Grading>,
+    pub submission_iframe_path: String,
 }
 
 pub async fn get_submission(
@@ -103,6 +115,7 @@ pub async fn insert(
     exercise_task_id: Uuid,
     user_id: Uuid,
     course_instance_id: Uuid,
+    data_json: Value,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -111,20 +124,37 @@ INSERT INTO submissions (
     course_id,
     exercise_task_id,
     user_id,
-    course_instance_id
+    course_instance_id,
+    data_json
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
         exercise_id,
         course_id,
         exercise_task_id,
         user_id,
-        course_instance_id
+        course_instance_id,
+        data_json
     )
     .fetch_one(conn)
     .await?;
     Ok(res.id)
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Submission> {
+    let submission = sqlx::query_as!(
+        Submission,
+        "
+SELECT *
+FROM submissions
+WHERE id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(submission)
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {

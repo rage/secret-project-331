@@ -43,6 +43,7 @@ jobs:
           minikube version: "v1.20.0"
           kubernetes version: "v1.21.3"
           start args: "--addons ingress"
+          driver: "docker"
 
       - name: Run npm ci for shared-modules
         run: npm ci

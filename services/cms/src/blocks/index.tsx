@@ -8,12 +8,19 @@ import ExerciseInChapter from "./ExerciseInChapter"
 import ExerciseTask from "./ExerciseTask"
 import PagesInChapter from "./PagesInChapter"
 
-export const blockTypeMap: Array<[string, BlockConfiguration]> = [
+export const blockTypeMapForPages: Array<[string, BlockConfiguration]> = [
   ["moocfi/exercise", Exercise],
   ["moocfi/exercise-task", ExerciseTask],
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/pages-in-chapter", PagesInChapter],
   ["moocfi/exercises-in-chapter", ExerciseInChapter],
+  ["moocfi/course-progress", CourseProgress],
+  ["moocfi/chapter-progress", ChapterProgress],
+]
+
+export const blockTypeMapForTopLevelPages: Array<[string, BlockConfiguration]> = [
+  ["moocfi/course-chapter-grid", CourseChapterGrid],
+  ["moocfi/pages-in-chapter", PagesInChapter],
   ["moocfi/course-progress", CourseProgress],
   ["moocfi/chapter-progress", ChapterProgress],
 ]

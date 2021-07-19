@@ -13,7 +13,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use futures::Stream;
 
-use crate::models::courses::Course;
+use crate::{models::courses::Course, ApplicationConfiguration};
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes>>>>;
 /**
@@ -38,7 +38,16 @@ pub trait FileStore {
         path: &Path,
     ) -> Result<Box<dyn Stream<Item = std::io::Result<Bytes>>>>;
     /// Get a url that can be used to download the file without authentication for a while.
-    async fn get_download_url(&self, path: &Path) -> Result<String>;
+    /// In most cases you probably want to use get_download_url() instead.
+    async fn get_direct_download_url(&self, path: &Path) -> Result<String>;
+    /// Get a url for a file in FileStore that can be used to access the resource.
+    fn get_download_url(&self, path: &Path, app_conf: &ApplicationConfiguration) -> String {
+        format!(
+            "{}/api/v0/files/{}",
+            app_conf.base_url,
+            path.to_string_lossy()
+        )
+    }
     /// Delete a file.
     async fn delete(&self, path: &Path) -> Result<()>;
 }

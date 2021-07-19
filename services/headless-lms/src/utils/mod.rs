@@ -5,3 +5,4 @@ pub mod file_store;
 pub mod folder_checksum;
 pub mod numbers;
 pub mod pagination;
+pub mod strings;

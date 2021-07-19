@@ -1,0 +1,25 @@
+- op: add
+  path: "/spec/template/spec/containers/0/volumeMounts"
+  value:
+    - name: "persistent-file-storage-mount"
+      mountPath: "/app/uploads"
+- op: add
+  path: "/spec/template/spec/volumes"
+  value:
+    - name: "persistent-file-storage-mount"
+      persistentVolumeClaim:
+        claimName: persistent-file-storage-pvc
+- op: add
+  path: "/spec/template/spec/initContainers/0"
+  value:
+    name: "persistent-file-storage-change-perms"
+    image: headless-lms
+    command:
+      - chown
+      - user
+      - "/app/uploads"
+    volumeMounts:
+      - name: "persistent-file-storage-mount"
+        mountPath: "/app/uploads"
+    securityContext:
+      runAsUser: 0

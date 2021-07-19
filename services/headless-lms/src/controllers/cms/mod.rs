@@ -23,9 +23,9 @@ use self::{
 
 /// Add controllers from all the submodules.
 pub fn add_cms_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("/courses").configure(_add_courses_routes))
-        .service(web::scope("/pages").configure(_add_pages_routes::<T>))
-        .service(web::scope("/chapters").configure(_add_chapters_routes))
+    cfg.service(web::scope("/courses").configure(_add_courses_routes::<T>))
+        .service(web::scope("/pages").configure(_add_pages_routes))
+        .service(web::scope("/chapters").configure(_add_chapters_routes::<T>))
         .service(web::scope("/course-instances").configure(_add_course_instances_routes))
         .service(web::scope("/email-templates").configure(_add_email_templates_routes));
 }

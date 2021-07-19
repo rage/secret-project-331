@@ -5,6 +5,7 @@ export interface Chapter {
   name: string
   course_id: string
   deleted_at: Date | null
+  chapter_image_url: string | null
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null

@@ -9,6 +9,7 @@ pub mod auth;
 pub mod cms;
 pub mod course_material;
 pub mod files;
+pub mod helpers;
 pub mod main_frontend;
 
 use actix_web::{

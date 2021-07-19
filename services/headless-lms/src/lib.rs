@@ -25,8 +25,9 @@ use utils::file_store::FileStore;
 
 pub type OAuthClient = Arc<BasicClient>;
 
-#[derive(Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ApplicationConfiguration {
+    pub base_url: String,
     pub test_mode: bool,
 }
 

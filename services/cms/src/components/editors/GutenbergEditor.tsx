@@ -35,10 +35,10 @@ import {
 } from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { addFilter } from "@wordpress/hooks"
-import React, { useEffect } from "react"
+import React, { useContext, useEffect } from "react"
 
+import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
-import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 
 interface GutenbergEditorProps {
@@ -56,7 +56,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   allowedBlocks,
   customBlocks,
 }: GutenbergEditorProps) => {
-  const pageId = useQueryParameter("id")
+  const courseId = useContext(CourseContext).courseId
   const handleChanges = (newContent: BlockInstance[]): void => {
     console.log(newContent)
     onContentChange(newContent)
@@ -107,7 +107,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
   > = {}
   // Enables uploading media
-  editorSettings.mediaUpload = mediaUploadBuilder(pageId)
+  editorSettings.mediaUpload = mediaUploadBuilder(courseId)
 
   return (
     <div className="editor">

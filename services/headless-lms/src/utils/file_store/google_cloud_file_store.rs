@@ -33,7 +33,7 @@ impl FileStore for GoogleCloudFileStore {
         Ok(res)
     }
 
-    async fn get_download_url(&self, path: &Path) -> Result<String> {
+    async fn get_direct_download_url(&self, path: &Path) -> Result<String> {
         let object = Object::read(&self.bucket_name, path_to_str(path)?).await?;
         let url = object.download_url(60)?;
         Ok(url)

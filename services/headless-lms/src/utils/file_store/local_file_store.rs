@@ -51,7 +51,7 @@ impl FileStore for LocalFileStore {
         Ok(())
     }
 
-    async fn get_download_url(&self, path: &Path) -> Result<String> {
+    async fn get_direct_download_url(&self, path: &Path) -> Result<String> {
         let full_path = self.base_path.join(path);
         if !full_path.exists() {
             anyhow::bail!("File does not exist");
@@ -167,14 +167,16 @@ mod tests {
             .await
             .expect("Failed to put a file into local file storage.");
         let url = local_file_store
-            .get_download_url(&path1)
+            .get_direct_download_url(&path1)
             .await
             .expect("Failed to get a download url");
         let expected_url = format!("http://localhost:3000/{}", path1.to_string_lossy());
         assert_eq!(url, expected_url);
 
         let nonexistant_file = Path::new("does-not-exist");
-        let res = local_file_store.get_download_url(&nonexistant_file).await;
+        let res = local_file_store
+            .get_direct_download_url(&nonexistant_file)
+            .await;
         assert!(res.is_err());
     }
 }

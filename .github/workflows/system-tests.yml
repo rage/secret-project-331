@@ -36,6 +36,12 @@ jobs:
               echo "Authentication to Google Cloud failed. Exiting..."
               exit 1
           fi
+      - name: Workaround for kube-proxy set nf_conntrack_max permission denied
+        run: |
+          # Workarounds this issue when starting up kube-system/kube-proxy:
+          # I0719 17:18:25.711233       1 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_max' to 131072
+          # F0719 17:18:25.711251       1 server.go:489] open /proc/sys/net/netfilter/nf_conntrack_max: permission denied
+          sudo sysctl net/netfilter/nf_conntrack_max=131072
 
       - name: Install, start & configure minikube
         uses: manusa/actions-setup-minikube@v2.4.2

@@ -1,0 +1,4 @@
+(function() {var implementors = {};
+implementors["swc_ecma_visit"] = [{"text":"impl&lt;V&gt; <a class=\"trait\" href=\"swc_visit/trait.Repeated.html\" title=\"trait swc_visit::Repeated\">Repeated</a> for <a class=\"struct\" href=\"swc_ecma_visit/struct.Folder.html\" title=\"struct swc_ecma_visit::Folder\">Folder</a>&lt;V&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;V: <a class=\"trait\" href=\"swc_visit/trait.Repeated.html\" title=\"trait swc_visit::Repeated\">Repeated</a> + <a class=\"trait\" href=\"swc_ecma_visit/trait.VisitMut.html\" title=\"trait swc_ecma_visit::VisitMut\">VisitMut</a>,&nbsp;</span>","synthetic":false,"types":["swc_ecma_visit::Folder"]}];
+implementors["swc_visit"] = [];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

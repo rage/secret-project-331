@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["FromSpan","See SpanExt#as_token for usage. Create tokens from Span."]]});

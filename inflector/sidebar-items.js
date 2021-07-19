@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["cases","Provides case inflections"],["numbers","Provides number inflections"],["string","Provides string inflections"],["suffix","Provides suffix inflections"]],"trait":[["Inflector",""],["InflectorNumbers",""]]});

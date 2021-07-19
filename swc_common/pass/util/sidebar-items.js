@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["map",""],["move_map",""]]});

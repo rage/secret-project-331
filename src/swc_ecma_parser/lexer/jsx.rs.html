@@ -1,0 +1,983 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/swc_ecma_parser-0.52.2/src/lexer/jsx.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>jsx.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../swc_ecma_parser/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+</pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">either::Either</span>;
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">Input</span><span class="op">&gt;</span> <span class="ident">Lexer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">read_jsx_token</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">syntax</span>.<span class="ident">jsx</span>());
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chunk_start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">String::new</span>();
+
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> <span class="ident">cur</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">start</span>;
+                    <span class="self">self</span>.<span class="ident">error</span>(<span class="ident">start</span>, <span class="ident">SyntaxError::UnterminatedJSXContents</span>)<span class="question-mark">?</span>
+                }
+            };
+            <span class="kw">let</span> <span class="ident">cur_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+
+            <span class="kw">match</span> <span class="ident">cur</span> {
+                <span class="string">&#39;&lt;&#39;</span> <span class="op">|</span> <span class="string">&#39;{&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">//</span>
+                    <span class="kw">if</span> <span class="ident">cur_pos</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">start</span> {
+                        <span class="kw">if</span> <span class="ident">cur</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;&lt;&#39;</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">is_expr_allowed</span> {
+                            <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
+                            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Token::JSXTagStart</span>).<span class="ident">map</span>(<span class="prelude-val">Some</span>);
+                        }
+                        <span class="kw">return</span> <span class="self">self</span>.<span class="ident">read_token</span>();
+                    }
+                    <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">chunk_start</span>, <span class="ident">cur_pos</span>));
+
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Token::JSXText</span> { <span class="ident">raw</span>: <span class="ident">out</span>.<span class="ident">into</span>() }).<span class="ident">map</span>(<span class="prelude-val">Some</span>);
+                }
+
+                <span class="string">&#39;&amp;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">chunk_start</span>, <span class="ident">cur_pos</span>));
+                    <span class="ident">out</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">read_jsx_entity</span>()<span class="question-mark">?</span>);
+
+                    <span class="ident">chunk_start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+                }
+
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="ident">cur</span>.<span class="ident">is_line_break</span>() {
+                        <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">chunk_start</span>, <span class="ident">cur_pos</span>));
+                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">read_jsx_new_line</span>(<span class="bool-val">true</span>)<span class="question-mark">?</span> {
+                            <span class="ident">Either::Left</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="ident">s</span>),
+                            <span class="ident">Either::Right</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">out</span>.<span class="ident">push</span>(<span class="ident">c</span>),
+                        }
+                        <span class="ident">chunk_start</span> <span class="op">=</span> <span class="ident">cur_pos</span>;
+                    } <span class="kw">else</span> {
+                        <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>()
+                    }
+                }
+            }
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">read_jsx_entity</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">syntax</span>.<span class="ident">jsx</span>());
+
+        <span class="kw">fn</span> <span class="ident">from_code</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">radix</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
+            <span class="comment">// TODO(kdy1): unwrap -&gt; Err</span>
+            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">char::from_u32</span>(
+                <span class="ident">u32::from_str_radix</span>(<span class="ident">s</span>, <span class="ident">radix</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to parse string as number&quot;</span>),
+            )
+            .<span class="ident">expect</span>(<span class="string">&quot;failed to parse number as char&quot;</span>);
+
+            <span class="prelude-val">Ok</span>(<span class="ident">c</span>)
+        }
+
+        <span class="kw">fn</span> <span class="ident">is_hex</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+            <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_digit</span>(<span class="number">16</span>))
+        }
+
+        <span class="kw">fn</span> <span class="ident">is_dec</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+            <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_digit</span>(<span class="number">10</span>))
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
+
+        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>();
+        <span class="macro">debug_assert_eq!</span>(<span class="ident">c</span>, <span class="prelude-val">Some</span>(<span class="string">&#39;&amp;&#39;</span>));
+        <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
+
+        <span class="kw">let</span> <span class="ident">start_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+
+        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">10</span> {
+            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
+            };
+            <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
+
+            <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;;&#39;</span> {
+                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&#39;#&#39;</span>) {
+                    <span class="kw">if</span> <span class="ident">s</span>[<span class="number">1</span>..].<span class="ident">starts_with</span>(<span class="string">&#39;x&#39;</span>) {
+                        <span class="kw">if</span> <span class="ident">is_hex</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="number">2</span>..]) {
+                            <span class="kw">return</span> <span class="ident">from_code</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="number">2</span>..], <span class="number">16</span>);
+                        }
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_dec</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="number">1</span>..]) {
+                        <span class="kw">return</span> <span class="ident">from_code</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="number">1</span>..], <span class="number">10</span>);
+                    }
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">entity</span>) <span class="op">=</span> <span class="ident">xhtml</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>) {
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">entity</span>);
+                }
+                <span class="kw">break</span>;
+            }
+
+            <span class="ident">s</span>.<span class="ident">push</span>(<span class="ident">c</span>)
+        }
+
+        <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">reset_to</span>(<span class="ident">start_pos</span>);
+        <span class="prelude-val">Ok</span>(<span class="string">&#39;&amp;&#39;</span>)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">read_jsx_new_line</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">normalize_crlf</span>: <span class="ident">bool</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">char</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">syntax</span>.<span class="ident">jsx</span>());
+
+        <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>().<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
+
+        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\r&#39;</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&#39;\n&#39;</span>) {
+            <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
+            <span class="ident">Either::Left</span>(<span class="kw">if</span> <span class="ident">normalize_crlf</span> { <span class="string">&quot;\n&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;\r\n&quot;</span> })
+        } <span class="kw">else</span> {
+            <span class="ident">Either::Right</span>(<span class="ident">ch</span>)
+        };
+        <span class="kw">let</span> <span class="ident">cur_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">cur_line</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">line_start</span> <span class="op">=</span> <span class="ident">cur_pos</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="ident">out</span>)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">read_jsx_str</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">quote</span>: <span class="ident">char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span> {
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">syntax</span>.<span class="ident">jsx</span>());
+
+        <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>(); <span class="comment">// `quote`</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chunk_start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">start</span>;
+                    <span class="self">self</span>.<span class="ident">error</span>(<span class="ident">start</span>, <span class="ident">SyntaxError::UnterminatedStrLit</span>)<span class="question-mark">?</span>
+                }
+            };
+
+            <span class="kw">let</span> <span class="ident">cur_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+
+            <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\\&#39;</span> {
+                <span class="ident">has_escape</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">chunk_start</span>, <span class="ident">cur_pos</span>));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_escaped_char</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Raw</span>(<span class="prelude-val">None</span>))<span class="question-mark">?</span> {
+                    <span class="ident">out</span>.<span class="ident">extend</span>(<span class="ident">s</span>);
+                }
+                <span class="ident">chunk_start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+                <span class="kw">continue</span>;
+            }
+
+            <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="ident">quote</span> {
+                <span class="kw">break</span>;
+            }
+            <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;&amp;&#39;</span> {
+                <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">chunk_start</span>, <span class="ident">cur_pos</span>));
+                <span class="ident">out</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">read_jsx_entity</span>()<span class="question-mark">?</span>);
+                <span class="ident">chunk_start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ch</span>.<span class="ident">is_line_break</span>() {
+                <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">chunk_start</span>, <span class="ident">cur_pos</span>));
+                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">read_jsx_new_line</span>(<span class="bool-val">false</span>)<span class="question-mark">?</span> {
+                    <span class="ident">Either::Left</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="ident">s</span>),
+                    <span class="ident">Either::Right</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">out</span>.<span class="ident">push</span>(<span class="ident">c</span>),
+                }
+                <span class="ident">chunk_start</span> <span class="op">=</span> <span class="ident">cur_pos</span>;
+            } <span class="kw">else</span> {
+                <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
+            }
+        }
+        <span class="kw">let</span> <span class="ident">cur_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
+        <span class="ident">out</span>.<span class="ident">push_str</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">chunk_start</span>, <span class="ident">cur_pos</span>));
+        <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">bump</span>();
+        <span class="prelude-val">Ok</span>(<span class="ident">Token::Str</span> {
+            <span class="ident">value</span>: <span class="ident">out</span>.<span class="ident">into</span>(),
+            <span class="ident">has_escape</span>,
+        })
+    }
+
+    <span class="doccomment">/// Read a JSX identifier (valid tag or attribute name).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Optimized version since JSX identifiers can&quot;t contain</span>
+    <span class="doccomment">/// escape characters and so can be read as single slice.</span>
+    <span class="doccomment">/// Also assumes that first character was already checked</span>
+    <span class="doccomment">/// by isIdentifierStart in readToken.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">read_jsx_word</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LexResult</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span> {
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">syntax</span>.<span class="ident">jsx</span>());
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>().<span class="ident">is_some</span>());
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur</span>().<span class="ident">unwrap</span>().<span class="ident">is_ident_start</span>());
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">uncons_while</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="ident">first</span> {
+                <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                <span class="ident">c</span>.<span class="ident">is_ident_start</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">c</span>.<span class="ident">is_ident_part</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;-&#39;</span>
+            }
+        });
+
+        <span class="prelude-val">Ok</span>(<span class="ident">Token::JSXName</span> { <span class="ident">name</span>: <span class="ident">slice</span>.<span class="ident">into</span>() })
+    }
+}
+
+<span class="macro">macro_rules!</span> <span class="ident">xhtml</span> {
+    (
+        $(
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">expr</span>,
+        )<span class="op">*</span>
+    ) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">xhtml</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
+            <span class="kw">match</span> <span class="ident">s</span>{
+                $(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>),)<span class="op">*</span>
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            }
+        }
+    };
+}
+
+<span class="macro">xhtml!</span>(
+    <span class="ident">quot</span>: <span class="string">&#39;\u{0022}&#39;</span>,
+    <span class="ident">amp</span>: <span class="string">&#39;&amp;&#39;</span>,
+    <span class="ident">apos</span>: <span class="string">&#39;\u{0027}&#39;</span>,
+    <span class="ident">lt</span>: <span class="string">&#39;&lt;&#39;</span>,
+    <span class="ident">gt</span>: <span class="string">&#39;&gt;&#39;</span>,
+    <span class="ident">nbsp</span>: <span class="string">&#39;\u{00A0}&#39;</span>,
+    <span class="ident">iexcl</span>: <span class="string">&#39;\u{00A1}&#39;</span>,
+    <span class="ident">cent</span>: <span class="string">&#39;\u{00A2}&#39;</span>,
+    <span class="ident">pound</span>: <span class="string">&#39;\u{00A3}&#39;</span>,
+    <span class="ident">curren</span>: <span class="string">&#39;\u{00A4}&#39;</span>,
+    <span class="ident">yen</span>: <span class="string">&#39;\u{00A5}&#39;</span>,
+    <span class="ident">brvbar</span>: <span class="string">&#39;\u{00A6}&#39;</span>,
+    <span class="ident">sect</span>: <span class="string">&#39;\u{00A7}&#39;</span>,
+    <span class="ident">uml</span>: <span class="string">&#39;\u{00A8}&#39;</span>,
+    <span class="ident">copy</span>: <span class="string">&#39;\u{00A9}&#39;</span>,
+    <span class="ident">ordf</span>: <span class="string">&#39;\u{00AA}&#39;</span>,
+    <span class="ident">laquo</span>: <span class="string">&#39;\u{00AB}&#39;</span>,
+    <span class="ident">not</span>: <span class="string">&#39;\u{00AC}&#39;</span>,
+    <span class="ident">shy</span>: <span class="string">&#39;\u{00AD}&#39;</span>,
+    <span class="ident">reg</span>: <span class="string">&#39;\u{00AE}&#39;</span>,
+    <span class="ident">macr</span>: <span class="string">&#39;\u{00AF}&#39;</span>,
+    <span class="ident">deg</span>: <span class="string">&#39;\u{00B0}&#39;</span>,
+    <span class="ident">plusmn</span>: <span class="string">&#39;\u{00B1}&#39;</span>,
+    <span class="ident">sup2</span>: <span class="string">&#39;\u{00B2}&#39;</span>,
+    <span class="ident">sup3</span>: <span class="string">&#39;\u{00B3}&#39;</span>,
+    <span class="ident">acute</span>: <span class="string">&#39;\u{00B4}&#39;</span>,
+    <span class="ident">micro</span>: <span class="string">&#39;\u{00B5}&#39;</span>,
+    <span class="ident">para</span>: <span class="string">&#39;\u{00B6}&#39;</span>,
+    <span class="ident">middot</span>: <span class="string">&#39;\u{00B7}&#39;</span>,
+    <span class="ident">cedil</span>: <span class="string">&#39;\u{00B8}&#39;</span>,
+    <span class="ident">sup1</span>: <span class="string">&#39;\u{00B9}&#39;</span>,
+    <span class="ident">ordm</span>: <span class="string">&#39;\u{00BA}&#39;</span>,
+    <span class="ident">raquo</span>: <span class="string">&#39;\u{00BB}&#39;</span>,
+    <span class="ident">frac14</span>: <span class="string">&#39;\u{00BC}&#39;</span>,
+    <span class="ident">frac12</span>: <span class="string">&#39;\u{00BD}&#39;</span>,
+    <span class="ident">frac34</span>: <span class="string">&#39;\u{00BE}&#39;</span>,
+    <span class="ident">iquest</span>: <span class="string">&#39;\u{00BF}&#39;</span>,
+    <span class="ident">Agrave</span>: <span class="string">&#39;\u{00C0}&#39;</span>,
+    <span class="ident">Aacute</span>: <span class="string">&#39;\u{00C1}&#39;</span>,
+    <span class="ident">Acirc</span>: <span class="string">&#39;\u{00C2}&#39;</span>,
+    <span class="ident">Atilde</span>: <span class="string">&#39;\u{00C3}&#39;</span>,
+    <span class="ident">Auml</span>: <span class="string">&#39;\u{00C4}&#39;</span>,
+    <span class="ident">Aring</span>: <span class="string">&#39;\u{00C5}&#39;</span>,
+    <span class="ident">AElig</span>: <span class="string">&#39;\u{00C6}&#39;</span>,
+    <span class="ident">Ccedil</span>: <span class="string">&#39;\u{00C7}&#39;</span>,
+    <span class="ident">Egrave</span>: <span class="string">&#39;\u{00C8}&#39;</span>,
+    <span class="ident">Eacute</span>: <span class="string">&#39;\u{00C9}&#39;</span>,
+    <span class="ident">Ecirc</span>: <span class="string">&#39;\u{00CA}&#39;</span>,
+    <span class="ident">Euml</span>: <span class="string">&#39;\u{00CB}&#39;</span>,
+    <span class="ident">Igrave</span>: <span class="string">&#39;\u{00CC}&#39;</span>,
+    <span class="ident">Iacute</span>: <span class="string">&#39;\u{00CD}&#39;</span>,
+    <span class="ident">Icirc</span>: <span class="string">&#39;\u{00CE}&#39;</span>,
+    <span class="ident">Iuml</span>: <span class="string">&#39;\u{00CF}&#39;</span>,
+    <span class="ident">ETH</span>: <span class="string">&#39;\u{00D0}&#39;</span>,
+    <span class="ident">Ntilde</span>: <span class="string">&#39;\u{00D1}&#39;</span>,
+    <span class="ident">Ograve</span>: <span class="string">&#39;\u{00D2}&#39;</span>,
+    <span class="ident">Oacute</span>: <span class="string">&#39;\u{00D3}&#39;</span>,
+    <span class="ident">Ocirc</span>: <span class="string">&#39;\u{00D4}&#39;</span>,
+    <span class="ident">Otilde</span>: <span class="string">&#39;\u{00D5}&#39;</span>,
+    <span class="ident">Ouml</span>: <span class="string">&#39;\u{00D6}&#39;</span>,
+    <span class="ident">times</span>: <span class="string">&#39;\u{00D7}&#39;</span>,
+    <span class="ident">Oslash</span>: <span class="string">&#39;\u{00D8}&#39;</span>,
+    <span class="ident">Ugrave</span>: <span class="string">&#39;\u{00D9}&#39;</span>,
+    <span class="ident">Uacute</span>: <span class="string">&#39;\u{00DA}&#39;</span>,
+    <span class="ident">Ucirc</span>: <span class="string">&#39;\u{00DB}&#39;</span>,
+    <span class="ident">Uuml</span>: <span class="string">&#39;\u{00DC}&#39;</span>,
+    <span class="ident">Yacute</span>: <span class="string">&#39;\u{00DD}&#39;</span>,
+    <span class="ident">THORN</span>: <span class="string">&#39;\u{00DE}&#39;</span>,
+    <span class="ident">szlig</span>: <span class="string">&#39;\u{00DF}&#39;</span>,
+    <span class="ident">agrave</span>: <span class="string">&#39;\u{00E0}&#39;</span>,
+    <span class="ident">aacute</span>: <span class="string">&#39;\u{00E1}&#39;</span>,
+    <span class="ident">acirc</span>: <span class="string">&#39;\u{00E2}&#39;</span>,
+    <span class="ident">atilde</span>: <span class="string">&#39;\u{00E3}&#39;</span>,
+    <span class="ident">auml</span>: <span class="string">&#39;\u{00E4}&#39;</span>,
+    <span class="ident">aring</span>: <span class="string">&#39;\u{00E5}&#39;</span>,
+    <span class="ident">aelig</span>: <span class="string">&#39;\u{00E6}&#39;</span>,
+    <span class="ident">ccedil</span>: <span class="string">&#39;\u{00E7}&#39;</span>,
+    <span class="ident">egrave</span>: <span class="string">&#39;\u{00E8}&#39;</span>,
+    <span class="ident">eacute</span>: <span class="string">&#39;\u{00E9}&#39;</span>,
+    <span class="ident">ecirc</span>: <span class="string">&#39;\u{00EA}&#39;</span>,
+    <span class="ident">euml</span>: <span class="string">&#39;\u{00EB}&#39;</span>,
+    <span class="ident">igrave</span>: <span class="string">&#39;\u{00EC}&#39;</span>,
+    <span class="ident">iacute</span>: <span class="string">&#39;\u{00ED}&#39;</span>,
+    <span class="ident">icirc</span>: <span class="string">&#39;\u{00EE}&#39;</span>,
+    <span class="ident">iuml</span>: <span class="string">&#39;\u{00EF}&#39;</span>,
+    <span class="ident">eth</span>: <span class="string">&#39;\u{00F0}&#39;</span>,
+    <span class="ident">ntilde</span>: <span class="string">&#39;\u{00F1}&#39;</span>,
+    <span class="ident">ograve</span>: <span class="string">&#39;\u{00F2}&#39;</span>,
+    <span class="ident">oacute</span>: <span class="string">&#39;\u{00F3}&#39;</span>,
+    <span class="ident">ocirc</span>: <span class="string">&#39;\u{00F4}&#39;</span>,
+    <span class="ident">otilde</span>: <span class="string">&#39;\u{00F5}&#39;</span>,
+    <span class="ident">ouml</span>: <span class="string">&#39;\u{00F6}&#39;</span>,
+    <span class="ident">divide</span>: <span class="string">&#39;\u{00F7}&#39;</span>,
+    <span class="ident">oslash</span>: <span class="string">&#39;\u{00F8}&#39;</span>,
+    <span class="ident">ugrave</span>: <span class="string">&#39;\u{00F9}&#39;</span>,
+    <span class="ident">uacute</span>: <span class="string">&#39;\u{00FA}&#39;</span>,
+    <span class="ident">ucirc</span>: <span class="string">&#39;\u{00FB}&#39;</span>,
+    <span class="ident">uuml</span>: <span class="string">&#39;\u{00FC}&#39;</span>,
+    <span class="ident">yacute</span>: <span class="string">&#39;\u{00FD}&#39;</span>,
+    <span class="ident">thorn</span>: <span class="string">&#39;\u{00FE}&#39;</span>,
+    <span class="ident">yuml</span>: <span class="string">&#39;\u{00FF}&#39;</span>,
+    <span class="ident">OElig</span>: <span class="string">&#39;\u{0152}&#39;</span>,
+    <span class="ident">oelig</span>: <span class="string">&#39;\u{0153}&#39;</span>,
+    <span class="ident">Scaron</span>: <span class="string">&#39;\u{0160}&#39;</span>,
+    <span class="ident">scaron</span>: <span class="string">&#39;\u{0161}&#39;</span>,
+    <span class="ident">Yuml</span>: <span class="string">&#39;\u{0178}&#39;</span>,
+    <span class="ident">fnof</span>: <span class="string">&#39;\u{0192}&#39;</span>,
+    <span class="ident">circ</span>: <span class="string">&#39;\u{02C6}&#39;</span>,
+    <span class="ident">tilde</span>: <span class="string">&#39;\u{02DC}&#39;</span>,
+    <span class="ident">Alpha</span>: <span class="string">&#39;\u{0391}&#39;</span>,
+    <span class="ident">Beta</span>: <span class="string">&#39;\u{0392}&#39;</span>,
+    <span class="ident">Gamma</span>: <span class="string">&#39;\u{0393}&#39;</span>,
+    <span class="ident">Delta</span>: <span class="string">&#39;\u{0394}&#39;</span>,
+    <span class="ident">Epsilon</span>: <span class="string">&#39;\u{0395}&#39;</span>,
+    <span class="ident">Zeta</span>: <span class="string">&#39;\u{0396}&#39;</span>,
+    <span class="ident">Eta</span>: <span class="string">&#39;\u{0397}&#39;</span>,
+    <span class="ident">Theta</span>: <span class="string">&#39;\u{0398}&#39;</span>,
+    <span class="ident">Iota</span>: <span class="string">&#39;\u{0399}&#39;</span>,
+    <span class="ident">Kappa</span>: <span class="string">&#39;\u{039A}&#39;</span>,
+    <span class="ident">Lambda</span>: <span class="string">&#39;\u{039B}&#39;</span>,
+    <span class="ident">Mu</span>: <span class="string">&#39;\u{039C}&#39;</span>,
+    <span class="ident">Nu</span>: <span class="string">&#39;\u{039D}&#39;</span>,
+    <span class="ident">Xi</span>: <span class="string">&#39;\u{039E}&#39;</span>,
+    <span class="ident">Omicron</span>: <span class="string">&#39;\u{039F}&#39;</span>,
+    <span class="ident">Pi</span>: <span class="string">&#39;\u{03A0}&#39;</span>,
+    <span class="ident">Rho</span>: <span class="string">&#39;\u{03A1}&#39;</span>,
+    <span class="ident">Sigma</span>: <span class="string">&#39;\u{03A3}&#39;</span>,
+    <span class="ident">Tau</span>: <span class="string">&#39;\u{03A4}&#39;</span>,
+    <span class="ident">Upsilon</span>: <span class="string">&#39;\u{03A5}&#39;</span>,
+    <span class="ident">Phi</span>: <span class="string">&#39;\u{03A6}&#39;</span>,
+    <span class="ident">Chi</span>: <span class="string">&#39;\u{03A7}&#39;</span>,
+    <span class="ident">Psi</span>: <span class="string">&#39;\u{03A8}&#39;</span>,
+    <span class="ident">Omega</span>: <span class="string">&#39;\u{03A9}&#39;</span>,
+    <span class="ident">alpha</span>: <span class="string">&#39;\u{03B1}&#39;</span>,
+    <span class="ident">beta</span>: <span class="string">&#39;\u{03B2}&#39;</span>,
+    <span class="ident">gamma</span>: <span class="string">&#39;\u{03B3}&#39;</span>,
+    <span class="ident">delta</span>: <span class="string">&#39;\u{03B4}&#39;</span>,
+    <span class="ident">epsilon</span>: <span class="string">&#39;\u{03B5}&#39;</span>,
+    <span class="ident">zeta</span>: <span class="string">&#39;\u{03B6}&#39;</span>,
+    <span class="ident">eta</span>: <span class="string">&#39;\u{03B7}&#39;</span>,
+    <span class="ident">theta</span>: <span class="string">&#39;\u{03B8}&#39;</span>,
+    <span class="ident">iota</span>: <span class="string">&#39;\u{03B9}&#39;</span>,
+    <span class="ident">kappa</span>: <span class="string">&#39;\u{03BA}&#39;</span>,
+    <span class="ident">lambda</span>: <span class="string">&#39;\u{03BB}&#39;</span>,
+    <span class="ident">mu</span>: <span class="string">&#39;\u{03BC}&#39;</span>,
+    <span class="ident">nu</span>: <span class="string">&#39;\u{03BD}&#39;</span>,
+    <span class="ident">xi</span>: <span class="string">&#39;\u{03BE}&#39;</span>,
+    <span class="ident">omicron</span>: <span class="string">&#39;\u{03BF}&#39;</span>,
+    <span class="ident">pi</span>: <span class="string">&#39;\u{03C0}&#39;</span>,
+    <span class="ident">rho</span>: <span class="string">&#39;\u{03C1}&#39;</span>,
+    <span class="ident">sigmaf</span>: <span class="string">&#39;\u{03C2}&#39;</span>,
+    <span class="ident">sigma</span>: <span class="string">&#39;\u{03C3}&#39;</span>,
+    <span class="ident">tau</span>: <span class="string">&#39;\u{03C4}&#39;</span>,
+    <span class="ident">upsilon</span>: <span class="string">&#39;\u{03C5}&#39;</span>,
+    <span class="ident">phi</span>: <span class="string">&#39;\u{03C6}&#39;</span>,
+    <span class="ident">chi</span>: <span class="string">&#39;\u{03C7}&#39;</span>,
+    <span class="ident">psi</span>: <span class="string">&#39;\u{03C8}&#39;</span>,
+    <span class="ident">omega</span>: <span class="string">&#39;\u{03C9}&#39;</span>,
+    <span class="ident">thetasym</span>: <span class="string">&#39;\u{03D1}&#39;</span>,
+    <span class="ident">upsih</span>: <span class="string">&#39;\u{03D2}&#39;</span>,
+    <span class="ident">piv</span>: <span class="string">&#39;\u{03D6}&#39;</span>,
+    <span class="ident">ensp</span>: <span class="string">&#39;\u{2002}&#39;</span>,
+    <span class="ident">emsp</span>: <span class="string">&#39;\u{2003}&#39;</span>,
+    <span class="ident">thinsp</span>: <span class="string">&#39;\u{2009}&#39;</span>,
+    <span class="ident">zwnj</span>: <span class="string">&#39;\u{200C}&#39;</span>,
+    <span class="ident">zwj</span>: <span class="string">&#39;\u{200D}&#39;</span>,
+    <span class="ident">lrm</span>: <span class="string">&#39;\u{200E}&#39;</span>,
+    <span class="ident">rlm</span>: <span class="string">&#39;\u{200F}&#39;</span>,
+    <span class="ident">ndash</span>: <span class="string">&#39;\u{2013}&#39;</span>,
+    <span class="ident">mdash</span>: <span class="string">&#39;\u{2014}&#39;</span>,
+    <span class="ident">lsquo</span>: <span class="string">&#39;\u{2018}&#39;</span>,
+    <span class="ident">rsquo</span>: <span class="string">&#39;\u{2019}&#39;</span>,
+    <span class="ident">sbquo</span>: <span class="string">&#39;\u{201A}&#39;</span>,
+    <span class="ident">ldquo</span>: <span class="string">&#39;\u{201C}&#39;</span>,
+    <span class="ident">rdquo</span>: <span class="string">&#39;\u{201D}&#39;</span>,
+    <span class="ident">bdquo</span>: <span class="string">&#39;\u{201E}&#39;</span>,
+    <span class="ident">dagger</span>: <span class="string">&#39;\u{2020}&#39;</span>,
+    <span class="ident">Dagger</span>: <span class="string">&#39;\u{2021}&#39;</span>,
+    <span class="ident">bull</span>: <span class="string">&#39;\u{2022}&#39;</span>,
+    <span class="ident">hellip</span>: <span class="string">&#39;\u{2026}&#39;</span>,
+    <span class="ident">permil</span>: <span class="string">&#39;\u{2030}&#39;</span>,
+    <span class="ident">prime</span>: <span class="string">&#39;\u{2032}&#39;</span>,
+    <span class="ident">Prime</span>: <span class="string">&#39;\u{2033}&#39;</span>,
+    <span class="ident">lsaquo</span>: <span class="string">&#39;\u{2039}&#39;</span>,
+    <span class="ident">rsaquo</span>: <span class="string">&#39;\u{203A}&#39;</span>,
+    <span class="ident">oline</span>: <span class="string">&#39;\u{203E}&#39;</span>,
+    <span class="ident">frasl</span>: <span class="string">&#39;\u{2044}&#39;</span>,
+    <span class="ident">euro</span>: <span class="string">&#39;\u{20AC}&#39;</span>,
+    <span class="ident">image</span>: <span class="string">&#39;\u{2111}&#39;</span>,
+    <span class="ident">weierp</span>: <span class="string">&#39;\u{2118}&#39;</span>,
+    <span class="ident">real</span>: <span class="string">&#39;\u{211C}&#39;</span>,
+    <span class="ident">trade</span>: <span class="string">&#39;\u{2122}&#39;</span>,
+    <span class="ident">alefsym</span>: <span class="string">&#39;\u{2135}&#39;</span>,
+    <span class="ident">larr</span>: <span class="string">&#39;\u{2190}&#39;</span>,
+    <span class="ident">uarr</span>: <span class="string">&#39;\u{2191}&#39;</span>,
+    <span class="ident">rarr</span>: <span class="string">&#39;\u{2192}&#39;</span>,
+    <span class="ident">darr</span>: <span class="string">&#39;\u{2193}&#39;</span>,
+    <span class="ident">harr</span>: <span class="string">&#39;\u{2194}&#39;</span>,
+    <span class="ident">crarr</span>: <span class="string">&#39;\u{21B5}&#39;</span>,
+    <span class="ident">lArr</span>: <span class="string">&#39;\u{21D0}&#39;</span>,
+    <span class="ident">uArr</span>: <span class="string">&#39;\u{21D1}&#39;</span>,
+    <span class="ident">rArr</span>: <span class="string">&#39;\u{21D2}&#39;</span>,
+    <span class="ident">dArr</span>: <span class="string">&#39;\u{21D3}&#39;</span>,
+    <span class="ident">hArr</span>: <span class="string">&#39;\u{21D4}&#39;</span>,
+    <span class="ident">forall</span>: <span class="string">&#39;\u{2200}&#39;</span>,
+    <span class="ident">part</span>: <span class="string">&#39;\u{2202}&#39;</span>,
+    <span class="ident">exist</span>: <span class="string">&#39;\u{2203}&#39;</span>,
+    <span class="ident">empty</span>: <span class="string">&#39;\u{2205}&#39;</span>,
+    <span class="ident">nabla</span>: <span class="string">&#39;\u{2207}&#39;</span>,
+    <span class="ident">isin</span>: <span class="string">&#39;\u{2208}&#39;</span>,
+    <span class="ident">notin</span>: <span class="string">&#39;\u{2209}&#39;</span>,
+    <span class="ident">ni</span>: <span class="string">&#39;\u{220B}&#39;</span>,
+    <span class="ident">prod</span>: <span class="string">&#39;\u{220F}&#39;</span>,
+    <span class="ident">sum</span>: <span class="string">&#39;\u{2211}&#39;</span>,
+    <span class="ident">minus</span>: <span class="string">&#39;\u{2212}&#39;</span>,
+    <span class="ident">lowast</span>: <span class="string">&#39;\u{2217}&#39;</span>,
+    <span class="ident">radic</span>: <span class="string">&#39;\u{221A}&#39;</span>,
+    <span class="ident">prop</span>: <span class="string">&#39;\u{221D}&#39;</span>,
+    <span class="ident">infin</span>: <span class="string">&#39;\u{221E}&#39;</span>,
+    <span class="ident">ang</span>: <span class="string">&#39;\u{2220}&#39;</span>,
+    <span class="ident">and</span>: <span class="string">&#39;\u{2227}&#39;</span>,
+    <span class="ident">or</span>: <span class="string">&#39;\u{2228}&#39;</span>,
+    <span class="ident">cap</span>: <span class="string">&#39;\u{2229}&#39;</span>,
+    <span class="ident">cup</span>: <span class="string">&#39;\u{222A}&#39;</span>,
+    <span class="ident">int</span>: <span class="string">&#39;\u{222B}&#39;</span>,
+    <span class="ident">there4</span>: <span class="string">&#39;\u{2234}&#39;</span>,
+    <span class="ident">sim</span>: <span class="string">&#39;\u{223C}&#39;</span>,
+    <span class="ident">cong</span>: <span class="string">&#39;\u{2245}&#39;</span>,
+    <span class="ident">asymp</span>: <span class="string">&#39;\u{2248}&#39;</span>,
+    <span class="ident">ne</span>: <span class="string">&#39;\u{2260}&#39;</span>,
+    <span class="ident">equiv</span>: <span class="string">&#39;\u{2261}&#39;</span>,
+    <span class="ident">le</span>: <span class="string">&#39;\u{2264}&#39;</span>,
+    <span class="ident">ge</span>: <span class="string">&#39;\u{2265}&#39;</span>,
+    <span class="ident">sub</span>: <span class="string">&#39;\u{2282}&#39;</span>,
+    <span class="ident">sup</span>: <span class="string">&#39;\u{2283}&#39;</span>,
+    <span class="ident">nsub</span>: <span class="string">&#39;\u{2284}&#39;</span>,
+    <span class="ident">sube</span>: <span class="string">&#39;\u{2286}&#39;</span>,
+    <span class="ident">supe</span>: <span class="string">&#39;\u{2287}&#39;</span>,
+    <span class="ident">oplus</span>: <span class="string">&#39;\u{2295}&#39;</span>,
+    <span class="ident">otimes</span>: <span class="string">&#39;\u{2297}&#39;</span>,
+    <span class="ident">perp</span>: <span class="string">&#39;\u{22A5}&#39;</span>,
+    <span class="ident">sdot</span>: <span class="string">&#39;\u{22C5}&#39;</span>,
+    <span class="ident">lceil</span>: <span class="string">&#39;\u{2308}&#39;</span>,
+    <span class="ident">rceil</span>: <span class="string">&#39;\u{2309}&#39;</span>,
+    <span class="ident">lfloor</span>: <span class="string">&#39;\u{230A}&#39;</span>,
+    <span class="ident">rfloor</span>: <span class="string">&#39;\u{230B}&#39;</span>,
+    <span class="ident">lang</span>: <span class="string">&#39;\u{2329}&#39;</span>,
+    <span class="ident">rang</span>: <span class="string">&#39;\u{232A}&#39;</span>,
+    <span class="ident">loz</span>: <span class="string">&#39;\u{25CA}&#39;</span>,
+    <span class="ident">spades</span>: <span class="string">&#39;\u{2660}&#39;</span>,
+    <span class="ident">clubs</span>: <span class="string">&#39;\u{2663}&#39;</span>,
+    <span class="ident">hearts</span>: <span class="string">&#39;\u{2665}&#39;</span>,
+    <span class="ident">diams</span>: <span class="string">&#39;\u{2666}&#39;</span>,
+);
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="swc_ecma_parser" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

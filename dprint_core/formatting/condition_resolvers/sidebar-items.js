@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["are_infos_equal",""],["are_infos_not_equal",""],["is_at_same_position",""],["is_hanging",""],["is_multiple_lines",""],["is_on_different_line",""],["is_on_same_line",""],["is_start_of_line",""],["is_start_of_line_indented",""]]});

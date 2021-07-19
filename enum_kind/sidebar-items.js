@@ -1,0 +1,1 @@
+initSidebarItems({"derive":[["Kind","Attributes on enum"]]});

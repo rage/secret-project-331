@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Derive","Generics of derived impl item."]]});

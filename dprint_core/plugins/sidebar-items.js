@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["PluginInfo","Information about a plugin."]]});

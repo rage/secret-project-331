@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Capturing","Note: Lexer need access to parser’s context to lex correctly."],["TokensInput",""]],"trait":[["Tokens","Clone should be cheap if you are parsing typescript because typescript syntax requires backtracking."]]});

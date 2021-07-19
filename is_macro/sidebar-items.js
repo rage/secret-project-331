@@ -1,0 +1,1 @@
+initSidebarItems({"derive":[["Is","A proc macro to generate methods like is_varaiant / expect_variant."]]});

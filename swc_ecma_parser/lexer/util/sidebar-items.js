@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["CharExt","Implemented for `char`."]]});

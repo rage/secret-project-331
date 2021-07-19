@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["comment","Creates a comment from `s`."]]});

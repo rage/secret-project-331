@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["SyntaxError",""]],"struct":[["Error","Note: this struct is 8 bytes."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["format_text","Formats a file."]],"mod":[["configuration",""]]});

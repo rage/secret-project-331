@@ -315,7 +315,14 @@ mod test {
         )
         .await
         .unwrap();
-        let organization_id = organizations::insert(tx.as_mut(), "", "").await.unwrap();
+        let organization_id = organizations::insert(
+            tx.as_mut(),
+            "",
+            "",
+            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
+        )
+        .await
+        .unwrap();
         let course_id = courses::insert(tx.as_mut(), "", organization_id, "")
             .await
             .unwrap();

@@ -56,7 +56,14 @@ mod tests {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
         let orgs_before = all_organizations(tx.as_mut()).await.unwrap();
-        insert(tx.as_mut(), "org", "slug").await.unwrap();
+        insert(
+            tx.as_mut(),
+            "org",
+            "slug",
+            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
+        )
+        .await
+        .unwrap();
         let orgs_after = all_organizations(tx.as_mut()).await.unwrap();
         assert_eq!(orgs_before.len() + 1, orgs_after.len());
     }

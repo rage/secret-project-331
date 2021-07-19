@@ -1,7 +1,6 @@
 use super::ModelResult;
 use crate::{
-    models::chapters::Chapter,
-    models::exercise_tasks::ExerciseTask,
+    models::{chapters::DatabaseChapter, exercise_tasks::ExerciseTask},
     utils::document_schema_processor::{
         denormalize, normalize_from_json, GutenbergBlock, NormalizedDocument,
     },
@@ -596,20 +595,12 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelRes
 
     if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
         let _res = sqlx::query_as!(
-            Chapter,
+            DatabaseChapter,
             r#"
 UPDATE chapters
 SET front_page_id = $1
 WHERE id = $2
-RETURNING id,
-  created_at,
-  updated_at,
-  name,
-  course_id,
-  deleted_at,
-  chapter_number,
-  front_page_id,
-  opens_at
+RETURNING *;
         "#,
             page.id,
             front_page_of_chapter_id

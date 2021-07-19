@@ -13,7 +13,8 @@ pub enum ModelError {
     },
     #[error("{0}")]
     PreconditionFailed(String),
-
+    #[error("{0}")]
+    InvalidRequest(String),
     #[error(transparent)]
     Database(sqlx::Error),
     #[error(transparent)]

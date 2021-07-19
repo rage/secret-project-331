@@ -1,20 +1,15 @@
 import { css } from "@emotion/css"
-import { BlockRendererProps } from "."
 import sanitizeHtml from "sanitize-html"
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+
 import colorMapper from "../../styles/colorMapper"
+import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import fontSizeMapper from "../../styles/fontSizeMapper"
+import { PreformattedAttributes } from "../../types/GutenbergBlockAttributes"
 
-interface PreformatterBlockAttributes {
-  content: string
-  gradient?: string
-  backgroundColor?: string
-  textColor?: string
-  fontSize?: string
-}
+import { BlockRendererProps } from "."
 
-const PreformatterBlock: React.FC<BlockRendererProps<PreformatterBlockAttributes>> = ({ data }) => {
-  const attributes: PreformatterBlockAttributes = data.attributes
+const PreformatterBlock: React.FC<BlockRendererProps<PreformattedAttributes>> = ({ data }) => {
+  const attributes: PreformattedAttributes = data.attributes
 
   const textColor = colorMapper(attributes.textColor, "#000000")
   const fontSize = fontSizeMapper(attributes.fontSize)

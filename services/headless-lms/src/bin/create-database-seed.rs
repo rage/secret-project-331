@@ -1,30 +1,51 @@
 use anyhow::Result;
-use headless_lms_actix::models::course_instances::VariantStatus;
-use headless_lms_actix::models::roles::UserRole;
+use chrono::Utc;
+use headless_lms_actix::models::exercises::GradingProgress;
+use headless_lms_actix::models::gradings;
+use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
-    chapters, course_instances, courses, exercise_tasks, exercises, organizations, pages, roles,
-    submissions, users,
+    chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
+    exercise_tasks, exercises, organizations, pages, roles, roles::UserRole, submissions, users,
 };
+use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
-use sqlx::{Connection, PgConnection};
-use std::env;
-use std::fs::File;
-use std::process::Command;
+use serde_json::Value;
+use sqlx::migrate::MigrateDatabase;
+use sqlx::{Connection, PgConnection, Postgres};
+use std::{env, fs::File, process::Command};
 use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::fmt().init();
     dotenv::dotenv().ok();
+    setup_tracing()?;
 
-    let db_url = env::var("DATABASE_URL").unwrap();
+    let clean = env::args().any(|a| a == "clean");
+    let db_url = env::var("DATABASE_URL")?;
     let seed_path = "./db/seed";
+
+    if clean {
+        // hardcoded for now
+        let status = Command::new("dropdb")
+            .args(["-U", "headless-lms"])
+            .args(["-h", "localhost"])
+            .args(["-p", "54328"])
+            .arg("--force")
+            .arg("-e")
+            .arg("headless_lms_dev")
+            .status()?;
+        assert!(status.success());
+        Postgres::create_database(&db_url).await?;
+    }
     let mut conn = PgConnection::connect(&db_url).await?;
+    if clean {
+        sqlx::migrate!("./migrations").run(&mut conn).await?;
+    }
 
     // users
-    let admin = users::insert(&mut conn).await?;
-    let teacher = users::insert(&mut conn).await?;
-    let assistant = users::insert(&mut conn).await?;
+    let admin = users::insert(&mut conn, "admin@example.com").await?;
+    let teacher = users::insert(&mut conn, "teacher@example.com").await?;
+    let assistant = users::insert(&mut conn, "assistant@example.com").await?;
 
     // uh-cs
     let uh_cs = organizations::insert(
@@ -33,365 +54,7 @@ async fn main() -> Result<()> {
         "uh-cs",
     )
     .await?;
-
-    // uh-cs intro
-    let intro_course = courses::insert(
-        &mut conn,
-        "Introduction to everything",
-        uh_cs,
-        "Introduction to everything",
-    )
-    .await?;
-    let intro_course_instance = course_instances::insert(&mut conn, intro_course, None).await?;
-    // uh-cs intro pages and chapters
-    let intro_page_1 = pages::insert(
-        &mut conn,
-        intro_course,
-        "/",
-        "Welcome to Introduction to Everything",
-        1,
-    )
-    .await?;
-    let intro_page_2 =
-        pages::insert(&mut conn, intro_course, "/chapter-1/page-2", "page 2", 2).await?;
-    let intro_page_3 =
-        pages::insert(&mut conn, intro_course, "/", "In the second chapter...", 1).await?;
-    let intro_chapter_1 = chapters::insert(&mut conn, "The Basics", intro_course, 1).await?;
-    let intro_chapter_2 =
-        chapters::insert(&mut conn, "The intermediaries", intro_course, 2).await?;
-    chapters::set_front_page(&mut conn, intro_chapter_1, intro_page_1).await?;
-    chapters::set_front_page(&mut conn, intro_chapter_2, intro_page_3).await?;
-    pages::set_chapter(&mut conn, intro_page_1, intro_chapter_1).await?;
-    pages::set_chapter(&mut conn, intro_page_2, intro_chapter_1).await?;
-    pages::set_chapter(&mut conn, intro_page_3, intro_chapter_2).await?;
-    // uh-cs intro exercises
-    let intro_exercise_page1_1 =
-        exercises::insert(&mut conn, intro_course, "Best exercise", intro_page_1, 1).await?;
-    let intro_exercise_page2_1 = exercises::insert(
-        &mut conn,
-        intro_course,
-        "Second page, first exercise",
-        intro_page_2,
-        1,
-    )
-    .await?;
-    let intro_exercise_page2_2 = exercises::insert(
-        &mut conn,
-        intro_course,
-        "second page, second exercise",
-        intro_page_2,
-        2,
-    )
-    .await?;
-    let intro_exercise_page2_3 = exercises::insert(
-        &mut conn,
-        intro_course,
-        "second page, third exercise",
-        intro_page_2,
-        3,
-    )
-    .await?;
-    pages::update_content(
-        &mut conn,
-        intro_page_1,
-        &[
-            GutenbergBlock {
-                name: "core/paragraph".to_string(),
-                is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({
-                    "content": "Everything is a big topic",
-                    "dropCap": false,
-                }),
-                inner_blocks: vec![],
-            },
-            GutenbergBlock {
-                name: "moocfi/exercise".to_string(),
-                is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({
-                    "id": intro_exercise_page1_1.to_string(),
-                }),
-                inner_blocks: vec![],
-            },
-        ],
-    )
-    .await?;
-    pages::update_content(
-        &mut conn,
-        intro_page_2,
-        &[
-            GutenbergBlock {
-                name: "core/paragraph".to_string(),
-                is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({
-                    "contet": "First chapters second page.",
-                    "dropCap": false,
-                }),
-                inner_blocks: vec![],
-            },
-            GutenbergBlock {
-                name: "moocfi/exercise".to_string(),
-                is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({"id": intro_exercise_page2_1.to_string()}),
-                inner_blocks: vec![],
-            },
-            GutenbergBlock {
-                name: "moocfi/exercise".to_string(),
-                is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({"id": intro_exercise_page2_2.to_string()}),
-                inner_blocks: vec![],
-            },
-            GutenbergBlock {
-                name: "moocfi/exercise".to_string(),
-                is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({"id": intro_exercise_page2_3.to_string()}),
-                inner_blocks: vec![],
-            },
-        ],
-    )
-    .await?;
-    pages::update_content(
-        &mut conn,
-        intro_page_3,
-        &[
-            GutenbergBlock {
-                name: "core/paragraph".to_string(),
-                is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({
-                    "content": "Everything is a big topic.",
-                    "dropCap": false,
-                }),
-                inner_blocks: vec![],
-            },
-            GutenbergBlock {
-                name: "moocfi/exercise".to_string(),
-                is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({"id": Uuid::new_v4().to_string()}),
-                inner_blocks: vec![],
-            },
-        ],
-    )
-    .await?;
-    // uh-cs intro exercise tasks
-    let id_1 = Uuid::new_v4().to_string();
-    let id_2 = Uuid::new_v4().to_string();
-    let id_3 = Uuid::new_v4().to_string();
-    let intro_exercise_task_1_1 = exercise_tasks::insert(
-        &mut conn,
-        intro_exercise_page1_1,
-        "example",
-        GutenbergBlock {
-            name: "core/paragraph".to_string(),
-            is_valid: true,
-            client_id: Uuid::new_v4().to_string(),
-            attributes: serde_json::json!({
-                "content": "Answer this question.",
-                "dropCap": false,
-            }),
-            inner_blocks: vec![],
-        },
-        serde_json::json!([{
-            "id": id_1,
-            "name": "a",
-            "correct": false,
-        },
-        {
-            "id": id_2,
-            "name": "b",
-            "correct": true,
-        },
-        {
-            "id": id_3,
-            "name": "c",
-            "correct": true,
-        }]),
-        serde_json::json!([{
-            "id": id_1,
-            "name": "a",
-
-        },{
-            "id": id_2,
-            "name": "b",
-
-        },{
-            "id": id_3,
-            "name": "c",
-
-        }]),
-    )
-    .await?;
-    let id_1 = Uuid::new_v4().to_string();
-    let id_2 = Uuid::new_v4().to_string();
-    let id_3 = Uuid::new_v4().to_string();
-    let _intro_exercise_task_2_1 = exercise_tasks::insert(
-        &mut conn,
-        intro_exercise_page2_1,
-        "example",
-        GutenbergBlock {
-            name: "core/paragraph".to_string(),
-            is_valid: true,
-            client_id: Uuid::new_v4().to_string(),
-            attributes: serde_json::json!({
-                "content": "Answer this question.",
-                "dropCap": false,
-            }),
-            inner_blocks: vec![],
-        },
-        serde_json::json!([{
-            "id": id_1,
-            "name": "a",
-            "correct": false,
-        }, {
-            "id": id_2,
-            "name": "b",
-            "correct": true,
-        }, {
-            "id": id_3,
-            "name": "c",
-            "correct": false,
-        }]),
-        serde_json::json!([{
-            "id": id_1,
-            "name": "a",
-        }, {
-            "id": id_2,
-            "name": "b",
-        }, {
-            "id": id_3,
-            "name": "c",
-        }]),
-    )
-    .await?;
-    let id_1 = Uuid::new_v4().to_string();
-    let id_2 = Uuid::new_v4().to_string();
-    let id_3 = Uuid::new_v4().to_string();
-    let _intro_exercise_task_2_2 = exercise_tasks::insert(
-        &mut conn,
-        intro_exercise_page2_2,
-        "example",
-        GutenbergBlock {
-            name: "core/paragraph".to_string(),
-            is_valid: true,
-            client_id: Uuid::new_v4().to_string(),
-            attributes: serde_json::json!({
-                "content": "Answer this question.",
-                "dropCap": false,
-            }),
-            inner_blocks: vec![],
-        },
-        serde_json::json!([{
-            "id": id_1,
-            "name": "a",
-            "correct": false,
-        },{
-            "id": id_2,
-            "name": "b",
-            "correct": true,
-        },{
-            "id": id_3,
-            "name": "c",
-            "correct": false,
-        }]),
-        serde_json::json!([{
-            "id": id_1,
-            "name": "a",
-        },{
-            "id": id_2,
-            "name": "b",
-        },{
-            "id": id_3,
-            "name": "c",
-        }]),
-    )
-    .await?;
-    let id_1 = Uuid::new_v4().to_string();
-    let id_2 = Uuid::new_v4().to_string();
-    let id_3 = Uuid::new_v4().to_string();
-    let _intro_exercise_task_2_3 = exercise_tasks::insert(
-        &mut conn,
-        intro_exercise_page2_3,
-        "example",
-        GutenbergBlock {
-            name: "core/paragraph".to_string(),
-            is_valid: true,
-            client_id: Uuid::new_v4().to_string(),
-            attributes: serde_json::json!({
-                "content": "Answer this question.",
-                "dropCap": false,
-            }),
-            inner_blocks: vec![],
-        },
-        serde_json::json!([{
-            "id": id_1,
-            "name": "a",
-            "correct": false,
-        },{
-            "id": id_2,
-            "name": "b",
-            "correct": true,
-        },{
-            "id": id_3,
-            "name": "c",
-            "correct": true
-        }]),
-        serde_json::json!([{
-            "id": id_1,
-            "name": "a",
-        },{
-            "id": id_2,
-            "name": "b",
-        },{
-            "id": id_3,
-            "name": "c",
-        }]),
-    )
-    .await?;
-    // uh-cs intro submissions
-    let _submission_1 = submissions::insert(
-        &mut conn,
-        intro_exercise_page1_1,
-        intro_course,
-        intro_exercise_task_1_1,
-        admin,
-        intro_course_instance,
-    )
-    .await?;
-    let _submission_2 = submissions::insert(
-        &mut conn,
-        intro_exercise_page1_1,
-        intro_course,
-        intro_exercise_task_1_1,
-        admin,
-        intro_course_instance,
-    )
-    .await?;
-    let _submission_3 = submissions::insert(
-        &mut conn,
-        intro_exercise_page1_1,
-        intro_course,
-        intro_exercise_task_1_1,
-        admin,
-        intro_course_instance,
-    )
-    .await?;
-    let _submission_4 = submissions::insert(
-        &mut conn,
-        intro_exercise_page1_1,
-        intro_course,
-        intro_exercise_task_1_1,
-        admin,
-        intro_course_instance,
-    )
-    .await?;
-
-    // uh-cs cs
+    let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin).await?;
     let cs_course = courses::insert(
         &mut conn,
         "Introduction to Computer Science",
@@ -419,6 +82,16 @@ async fn main() -> Result<()> {
     let _statistics_course_instance =
         course_instances::insert(&mut conn, statistics_course, Some(VariantStatus::Active)).await?;
 
+    let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
+        &mut conn,
+        "Example Exercise",
+        "example-exercise",
+        "http://project-331.local/example-exercise/api/service-info",
+        "http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info",
+        5,
+    )
+    .await?;
+
     // roles
     roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
     roles::insert(&mut conn, teacher, Some(uh_cs), None, UserRole::Teacher).await?;
@@ -426,7 +99,7 @@ async fn main() -> Result<()> {
         &mut conn,
         assistant,
         Some(uh_cs),
-        Some(intro_course),
+        Some(cs_intro),
         UserRole::Assistant,
     )
     .await?;
@@ -446,4 +119,395 @@ async fn main() -> Result<()> {
     assert!(output.success());
 
     Ok(())
+}
+
+async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Result<Uuid> {
+    let course = courses::insert(
+        conn,
+        "Introduction to everything",
+        org,
+        "introduction-to-everything",
+    )
+    .await?;
+    let course_instance = course_instances::insert(conn, course, None).await?;
+
+    // pages and chapters
+    let _page = pages::insert(
+        conn,
+        course,
+        "/",
+        "Welcome to Introduction to Everything",
+        1,
+    )
+    .await?;
+    let page_ch1_1 = pages::insert(conn, course, "/chapter-1", "Chapter One", 1).await?;
+    let page_ch1_2 = pages::insert(conn, course, "/chapter-1/page-2", "page 2", 2).await?;
+    let page_ch2 = pages::insert(conn, course, "/chapter-2", "In the second chapter...", 1).await?;
+    let chapter_1 = chapters::insert(conn, "The Basics", course, 1).await?;
+    chapters::set_opens_at(conn, chapter_1, Utc::now()).await?;
+    let chapter_2 = chapters::insert(conn, "The intermediaries", course, 2).await?;
+    chapters::set_opens_at(conn, chapter_2, Utc::now() + chrono::Duration::minutes(10)).await?;
+    let chapter_3 = chapters::insert(conn, "Advanced studies", course, 3).await?;
+    chapters::set_opens_at(conn, chapter_3, Utc::now() + chrono::Duration::minutes(20)).await?;
+    let chapter_4 = chapters::insert(conn, "Forbidden magicks", course, 4).await?;
+    chapters::set_opens_at(
+        conn,
+        chapter_4,
+        Utc::now() + (chrono::Duration::days(365) * 100),
+    )
+    .await?;
+    chapters::set_front_page(conn, chapter_1, page_ch1_1).await?;
+    chapters::set_front_page(conn, chapter_2, page_ch2).await?;
+    pages::set_chapter(conn, page_ch1_1, chapter_1).await?;
+    pages::set_chapter(conn, page_ch1_2, chapter_1).await?;
+    pages::set_chapter(conn, page_ch2, chapter_2).await?;
+
+    // exercises
+    let exercise_c1p1_1 = exercises::insert(conn, course, "Best exercise", page_ch1_1, 1).await?;
+    let exercise_c1p2_1 =
+        exercises::insert(conn, course, "Second page, first exercise", page_ch1_2, 1).await?;
+    let exercise_c1p2_2 =
+        exercises::insert(conn, course, "second page, second exercise", page_ch1_2, 2).await?;
+    let exercise_c1p2_3 =
+        exercises::insert(conn, course, "second page, third exercise", page_ch1_2, 3).await?;
+    let exercise_c2p1_1 =
+        exercises::insert(conn, course, "first exercise of chapter two", page_ch2, 3).await?;
+    pages::update_content(
+        conn,
+        page_ch1_1,
+        &[
+            GutenbergBlock {
+                name: "core/paragraph".to_string(),
+                is_valid: true,
+                client_id: Uuid::new_v4().to_string(),
+                attributes: serde_json::json!({
+                    "content": "Everything is a big topic",
+                    "dropCap": false,
+                }),
+                inner_blocks: vec![],
+            },
+            GutenbergBlock {
+                name: "moocfi/exercise".to_string(),
+                is_valid: true,
+                client_id: Uuid::new_v4().to_string(),
+                attributes: serde_json::json!({
+                    "id": exercise_c1p1_1.to_string(),
+                }),
+                inner_blocks: vec![],
+            },
+        ],
+    )
+    .await?;
+    pages::update_content(
+        conn,
+        page_ch1_2,
+        &[
+            GutenbergBlock {
+                name: "core/paragraph".to_string(),
+                is_valid: true,
+                client_id: Uuid::new_v4().to_string(),
+                attributes: serde_json::json!({
+                    "contet": "First chapters second page.",
+                    "dropCap": false,
+                }),
+                inner_blocks: vec![],
+            },
+            GutenbergBlock {
+                name: "moocfi/exercise".to_string(),
+                is_valid: true,
+                client_id: Uuid::new_v4().to_string(),
+                attributes: serde_json::json!({"id": exercise_c1p2_1.to_string()}),
+                inner_blocks: vec![],
+            },
+            GutenbergBlock {
+                name: "moocfi/exercise".to_string(),
+                is_valid: true,
+                client_id: Uuid::new_v4().to_string(),
+                attributes: serde_json::json!({"id": exercise_c1p2_2.to_string()}),
+                inner_blocks: vec![],
+            },
+            GutenbergBlock {
+                name: "moocfi/exercise".to_string(),
+                is_valid: true,
+                client_id: Uuid::new_v4().to_string(),
+                attributes: serde_json::json!({"id": exercise_c1p2_3.to_string()}),
+                inner_blocks: vec![],
+            },
+        ],
+    )
+    .await?;
+    pages::update_content(
+        conn,
+        page_ch2,
+        &[
+            GutenbergBlock {
+                name: "core/paragraph".to_string(),
+                is_valid: true,
+                client_id: Uuid::new_v4().to_string(),
+                attributes: serde_json::json!({
+                    "content": "Everything is a big topic.",
+                    "dropCap": false,
+                }),
+                inner_blocks: vec![],
+            },
+            GutenbergBlock {
+                name: "moocfi/exercise".to_string(),
+                is_valid: true,
+                client_id: Uuid::new_v4().to_string(),
+                attributes: serde_json::json!({ "id": exercise_c2p1_1 }),
+                inner_blocks: vec![],
+            },
+        ],
+    )
+    .await?;
+
+    // exercise tasks
+    let spec_1_1 = Uuid::new_v4().to_string();
+    let spec_1_2 = Uuid::new_v4().to_string();
+    let spec_1_3 = Uuid::new_v4().to_string();
+    let exercise_task_c1p1e1_1 = exercise_tasks::insert(
+        conn,
+        exercise_c1p1_1,
+        "example-exercise",
+        vec![GutenbergBlock {
+            name: "core/paragraph".to_string(),
+            is_valid: true,
+            client_id: Uuid::new_v4().to_string(),
+            attributes: serde_json::json!({
+                "content": "Answer this question.",
+                "dropCap": false,
+            }),
+            inner_blocks: vec![],
+        }],
+        serde_json::json!([{
+            "id": spec_1_1,
+            "name": "a",
+            "correct": false,
+        },
+        {
+            "id": spec_1_2,
+            "name": "b",
+            "correct": true,
+        },
+        {
+            "id": spec_1_3,
+            "name": "c",
+            "correct": true,
+        }]),
+        serde_json::json!([{
+            "id": spec_1_1,
+            "name": "a",
+
+        },{
+            "id": spec_1_2,
+            "name": "b",
+
+        },{
+            "id": spec_1_3,
+            "name": "c",
+
+        }]),
+    )
+    .await?;
+    let spec_2_1 = Uuid::new_v4().to_string();
+    let spec_2_2 = Uuid::new_v4().to_string();
+    let spec_2_3 = Uuid::new_v4().to_string();
+    let _exercise_task_c2p1e1_1 = exercise_tasks::insert(
+        conn,
+        exercise_c1p2_1,
+        "example-exercise",
+        vec![GutenbergBlock {
+            name: "core/paragraph".to_string(),
+            is_valid: true,
+            client_id: Uuid::new_v4().to_string(),
+            attributes: serde_json::json!({
+                "content": "Answer this question.",
+                "dropCap": false,
+            }),
+            inner_blocks: vec![],
+        }],
+        serde_json::json!([{
+            "id": spec_2_1,
+            "name": "a",
+            "correct": false,
+        }, {
+            "id": spec_2_2,
+            "name": "b",
+            "correct": true,
+        }, {
+            "id": spec_2_3,
+            "name": "c",
+            "correct": false,
+        }]),
+        serde_json::json!([{
+            "id": spec_2_1,
+            "name": "a",
+        }, {
+            "id": spec_2_2,
+            "name": "b",
+        }, {
+            "id": spec_2_3,
+            "name": "c",
+        }]),
+    )
+    .await?;
+    let spec_3_1 = Uuid::new_v4().to_string();
+    let spec_3_2 = Uuid::new_v4().to_string();
+    let spec_3_3 = Uuid::new_v4().to_string();
+    let _exercise_task_c1p2e2_1 = exercise_tasks::insert(
+        conn,
+        exercise_c1p2_2,
+        "example-exercise",
+        vec![GutenbergBlock {
+            name: "core/paragraph".to_string(),
+            is_valid: true,
+            client_id: Uuid::new_v4().to_string(),
+            attributes: serde_json::json!({
+                "content": "Answer this question.",
+                "dropCap": false,
+            }),
+            inner_blocks: vec![],
+        }],
+        serde_json::json!([{
+            "id": spec_3_1,
+            "name": "a",
+            "correct": false,
+        },{
+            "id": spec_3_2,
+            "name": "b",
+            "correct": true,
+        },{
+            "id": spec_3_3,
+            "name": "c",
+            "correct": false,
+        }]),
+        serde_json::json!([{
+            "id": spec_3_1,
+            "name": "a",
+        },{
+            "id": spec_3_2,
+            "name": "b",
+        },{
+            "id": spec_3_3,
+            "name": "c",
+        }]),
+    )
+    .await?;
+    let spec_4_1 = Uuid::new_v4().to_string();
+    let spec_4_2 = Uuid::new_v4().to_string();
+    let spec_4_3 = Uuid::new_v4().to_string();
+    let _exercise_task_c2p1e1_1 = exercise_tasks::insert(
+        conn,
+        exercise_c2p1_1,
+        "example-exercise",
+        vec![GutenbergBlock {
+            name: "core/paragraph".to_string(),
+            is_valid: true,
+            client_id: Uuid::new_v4().to_string(),
+            attributes: serde_json::json!({
+                "content": "Answer this question.",
+                "dropCap": false,
+            }),
+            inner_blocks: vec![],
+        }],
+        serde_json::json!([{
+            "id": spec_4_1,
+            "name": "a",
+            "correct": false,
+        },{
+            "id": spec_4_2,
+            "name": "b",
+            "correct": true,
+        },{
+            "id": spec_4_3,
+            "name": "c",
+            "correct": true
+        }]),
+        serde_json::json!([{
+            "id": spec_4_1,
+            "name": "a",
+        },{
+            "id": spec_4_2,
+            "name": "b",
+        },{
+            "id": spec_4_3,
+            "name": "c",
+        }]),
+    )
+    .await?;
+
+    // intro submissions
+    let submission_1 = submissions::insert(
+        conn,
+        exercise_c1p1_1,
+        course,
+        exercise_task_c1p1e1_1,
+        admin,
+        course_instance,
+        Value::String(spec_1_1.to_string()),
+    )
+    .await?;
+    let submission_2 = submissions::insert(
+        conn,
+        exercise_c1p1_1,
+        course,
+        exercise_task_c1p1e1_1,
+        admin,
+        course_instance,
+        Value::String(spec_1_2.to_string()),
+    )
+    .await?;
+    let submission_3 = submissions::insert(
+        conn,
+        exercise_c1p1_1,
+        course,
+        exercise_task_c1p1e1_1,
+        admin,
+        course_instance,
+        Value::String(spec_1_3.to_string()),
+    )
+    .await?;
+    let _submission_4 = submissions::insert(
+        conn,
+        exercise_c1p1_1,
+        course,
+        exercise_task_c1p1e1_1,
+        admin,
+        course_instance,
+        Value::String(spec_1_1.to_string()),
+    )
+    .await?;
+
+    // intro gradings
+    let submission_1 = submissions::get_by_id(conn, submission_1).await?;
+    let grading_1 = gradings::new_grading(conn, &submission_1).await?;
+    let grading_result_1 = GradingResult {
+        feedback_json: None,
+        feedback_text: None,
+        grading_progress: GradingProgress::FullyGraded,
+        score_given: 100.0,
+        score_maximum: 100,
+    };
+    let exercise_1 = exercises::get_by_id(conn, exercise_c1p1_1).await?;
+    gradings::update_grading(conn, &grading_1, &grading_result_1, &exercise_1).await?;
+    submissions::set_grading_id(conn, grading_1.id, submission_1.id).await?;
+
+    let submission_2 = submissions::get_by_id(conn, submission_2).await?;
+    let grading_2 = gradings::new_grading(conn, &submission_2).await?;
+    let grading_result_2 = GradingResult {
+        feedback_json: None,
+        feedback_text: None,
+        grading_progress: GradingProgress::Failed,
+        score_given: 0.0,
+        score_maximum: 100,
+    };
+    let exercise_1 = exercises::get_by_id(conn, exercise_c1p1_1).await?;
+    gradings::update_grading(conn, &grading_2, &grading_result_2, &exercise_1).await?;
+    submissions::set_grading_id(conn, grading_2.id, submission_2.id).await?;
+
+    let submission_3 = submissions::get_by_id(conn, submission_3).await?;
+    let grading_3 = gradings::new_grading(conn, &submission_3).await?;
+    submissions::set_grading_id(conn, grading_3.id, submission_3.id).await?;
+
+    Ok(course)
 }

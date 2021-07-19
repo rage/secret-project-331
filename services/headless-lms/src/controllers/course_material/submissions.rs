@@ -1,14 +1,13 @@
 //! Controllers for requests starting with `/api/v0/course-material/submissions`.
 
 use crate::{
-    controllers::ApplicationResult,
+    controllers::ControllerResult,
     domain::authorization::AuthUser,
     models::submissions::{NewSubmission, SubmissionResult},
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
-use uuid::Uuid;
 
 /**
 POST `/api/v0/course-material/submissions` - Post a new submission.
@@ -73,17 +72,15 @@ async fn post_submission(
     pool: web::Data<PgPool>,
     payload: web::Json<NewSubmission>,
     user: AuthUser,
-) -> ApplicationResult<Json<SubmissionResult>> {
+) -> ControllerResult<Json<SubmissionResult>> {
     let mut conn = pool.acquire().await?;
-    let user_id = Uuid::new_v4();
     let exercise_task_id = payload.0.exercise_task_id;
     let exercise_task =
         crate::models::exercise_tasks::get_exercise_task_by_id(&mut conn, exercise_task_id).await?;
     let exercise =
-        crate::models::exercises::get_exercise_by_id(&mut conn, exercise_task.exercise_id).await?;
-    crate::models::users::upsert_user_id(&mut conn, user_id, None).await?;
+        crate::models::exercises::get_by_id(&mut conn, exercise_task.exercise_id).await?;
     let submission =
-        crate::models::submissions::insert_submission(&mut conn, payload.0, user_id, exercise)
+        crate::models::submissions::insert_submission(&mut conn, payload.0, user.id, exercise)
             .await?;
     Ok(Json(submission))
 }

@@ -1,12 +1,12 @@
 import { css } from "@emotion/css"
-import { Button, Dialog, Paper } from "@material-ui/core"
-import { Dispatch, useState } from "react"
-import dynamic from "next/dynamic"
 import styled from "@emotion/styled"
+import { Button, Dialog, Paper } from "@material-ui/core"
 import { BlockInstance } from "@wordpress/blocks"
+import dynamic from "next/dynamic"
+import { Dispatch, useState } from "react"
 
 export interface DebugModalProps {
-  content: BlockInstance[]
+  data: unknown
   readOnly?: boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateDataOnClose?: Dispatch<any>
@@ -30,11 +30,11 @@ const HeaderBar = styled.div`
   }
 `
 
-const DebugModal: React.FC<DebugModalProps> = ({ content, readOnly = true, updateDataOnClose }) => {
+const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDataOnClose }) => {
   const [open, setOpen] = useState(false)
   const [editedContent, setEditedContent] = useState<string | null>(null)
 
-  if (!content) {
+  if (!data) {
     return null
   }
 
@@ -47,7 +47,7 @@ const DebugModal: React.FC<DebugModalProps> = ({ content, readOnly = true, updat
   }
 
   const openModal = () => {
-    setEditedContent(JSON.stringify(content, undefined, 2))
+    setEditedContent(JSON.stringify(data, undefined, 2))
     setOpen(true)
   }
 

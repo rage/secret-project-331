@@ -1,4 +1,5 @@
 import { BlockConfiguration } from "@wordpress/blocks"
+
 import ChapterProgress from "./ChapterProgress"
 import CourseChapterGrid from "./CourseChapterGrid"
 import CourseProgress from "./CourseProgress"

@@ -9,7 +9,7 @@ export interface ExerciseTaskTypes {
 export const exerciseTaskTypes: ExerciseTaskTypes[] = [
   { name: "Quizzes", url: null, identifier: "quizzes" },
   { name: "Test My Code", url: null, identifier: "tmc" },
-  { name: "Example Exercise", url: "/example-exercise/editor", identifier: "example" },
+  { name: "Example Exercise", url: "/example-exercise/editor", identifier: "example-exercise" },
 ]
 
 interface Props {

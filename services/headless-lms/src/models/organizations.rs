@@ -1,4 +1,4 @@
-use anyhow::Result;
+use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -14,7 +14,7 @@ pub struct Organization {
     deleted_at: Option<DateTime<Utc>>,
 }
 
-pub async fn insert(conn: &mut PgConnection, name: &str, slug: &str) -> Result<Uuid> {
+pub async fn insert(conn: &mut PgConnection, name: &str, slug: &str) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO organizations (name, slug)
@@ -29,7 +29,7 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn all_organizations(conn: &mut PgConnection) -> Result<Vec<Organization>> {
+pub async fn all_organizations(conn: &mut PgConnection) -> ModelResult<Vec<Organization>> {
     let courses = sqlx::query_as!(
         Organization,
         "SELECT * FROM organizations WHERE deleted_at IS NULL;"
@@ -48,8 +48,9 @@ mod tests {
     async fn gets_organizations() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
+        let orgs_before = all_organizations(tx.as_mut()).await.unwrap();
         insert(tx.as_mut(), "org", "slug").await.unwrap();
-        let orgs = all_organizations(tx.as_mut()).await.unwrap();
-        assert_eq!(orgs.len(), 1);
+        let orgs_after = all_organizations(tx.as_mut()).await.unwrap();
+        assert_eq!(orgs_before.len() + 1, orgs_after.len());
     }
 }

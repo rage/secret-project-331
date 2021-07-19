@@ -23,7 +23,7 @@ use http_api_problem::{HttpApiProblem, StatusCode};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::file_store::FileStore;
+use crate::{models::ModelError, utils::file_store::FileStore};
 
 use self::{
     auth::add_auth_routes, cms::add_cms_routes, course_material::add_course_material_routes,
@@ -44,7 +44,7 @@ Represents error messages that are sent in responses.
 ```
 */
 #[derive(Debug, Display, Serialize, Deserialize)]
-pub enum ApplicationError {
+pub enum ControllerError {
     #[display(fmt = "Internal server error")]
     InternalServerError(String),
 
@@ -56,20 +56,24 @@ pub enum ApplicationError {
 
     #[display(fmt = "Unauthorized")]
     Unauthorized,
+
+    #[display(fmt = "Forbidden")]
+    Forbidden(String),
 }
 
-impl std::error::Error for ApplicationError {}
+impl std::error::Error for ControllerError {}
 
-impl error::ResponseError for ApplicationError {
+impl error::ResponseError for ControllerError {
     fn error_response(&self) -> HttpResponse {
         let status = self.status_code();
-        let mut detail = "Error";
-        if let ApplicationError::InternalServerError(reason) = self {
-            detail = reason;
-        }
-        if let ApplicationError::BadRequest(reason) = self {
-            detail = reason;
-        }
+        let detail = if let ControllerError::InternalServerError(reason)
+        | ControllerError::BadRequest(reason)
+        | ControllerError::Forbidden(reason) = self
+        {
+            reason
+        } else {
+            "Error"
+        };
         let problem_description =
             HttpApiProblem::with_title_and_type_from_status(status).set_detail(detail);
 
@@ -80,16 +84,17 @@ impl error::ResponseError for ApplicationError {
 
     fn status_code(&self) -> StatusCode {
         match *self {
-            ApplicationError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            ApplicationError::BadRequest(_) => StatusCode::BAD_REQUEST,
-            ApplicationError::NotFound => StatusCode::NOT_FOUND,
-            ApplicationError::Unauthorized => StatusCode::UNAUTHORIZED,
+            ControllerError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ControllerError::BadRequest(_) => StatusCode::BAD_REQUEST,
+            ControllerError::NotFound => StatusCode::NOT_FOUND,
+            ControllerError::Unauthorized => StatusCode::UNAUTHORIZED,
+            ControllerError::Forbidden(_) => StatusCode::FORBIDDEN,
         }
     }
 }
 
-impl From<anyhow::Error> for ApplicationError {
-    fn from(err: anyhow::Error) -> ApplicationError {
+impl From<anyhow::Error> for ControllerError {
+    fn from(err: anyhow::Error) -> ControllerError {
         if let Some(sqlx::Error::RowNotFound) = err.downcast_ref::<sqlx::Error>() {
             return Self::NotFound;
         }
@@ -99,15 +104,28 @@ impl From<anyhow::Error> for ApplicationError {
     }
 }
 
-impl From<uuid::Error> for ApplicationError {
-    fn from(err: uuid::Error) -> ApplicationError {
+impl From<uuid::Error> for ControllerError {
+    fn from(err: uuid::Error) -> ControllerError {
         Self::BadRequest(err.to_string())
     }
 }
 
-impl From<sqlx::Error> for ApplicationError {
-    fn from(err: sqlx::Error) -> ApplicationError {
+impl From<sqlx::Error> for ControllerError {
+    fn from(err: sqlx::Error) -> ControllerError {
         Self::InternalServerError(err.to_string())
+    }
+}
+
+impl From<ModelError> for ControllerError {
+    fn from(err: ModelError) -> Self {
+        match err {
+            ModelError::RecordNotFound(_) => Self::NotFound,
+            ModelError::PreconditionFailed(msg) => Self::BadRequest(msg),
+            ModelError::DatabaseConstraint { description, .. } => {
+                Self::BadRequest(description.to_string())
+            }
+            _ => Self::InternalServerError(err.to_string()),
+        }
     }
 }
 
@@ -115,7 +133,7 @@ impl From<sqlx::Error> for ApplicationError {
 Used as the result types for all controllers.
 Only put information here that you want to be visible to users.
 */
-pub type ApplicationResult<T, E = ApplicationError> = std::result::Result<T, E>;
+pub type ControllerResult<T, E = ControllerError> = std::result::Result<T, E>;
 
 /// Add controllers from all the submodules.
 pub fn configure_controllers<T: 'static + FileStore>(cfg: &mut ServiceConfig) {

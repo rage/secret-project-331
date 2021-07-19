@@ -1,26 +1,21 @@
 import { css } from "@emotion/css"
-import ContentRenderer from "./ContentRenderer"
-import { CoursePage } from "../services/backend"
+import React, { useContext } from "react"
+
+import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
+import DebugModal from "../shared-module/components/DebugModal"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
-import DebugModal from "./DebugModal"
-import React, { useState } from "react"
+
+import ContentRenderer from "./ContentRenderer"
 import NavigationContainer from "./NavigationContainer"
-import { useContext } from "react"
-import PageContext from "../contexts/PageContext"
-import GenericLoading from "./GenericLoading"
+import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 
 interface Props {
-  data: CoursePage
+  onRefresh: () => void
 }
 
-const Page: React.FC<Props> = ({ data }) => {
-  // Make data editable so that we can edit it in the debug view
-  const [editedData, setEditedData] = useState(data)
-
-  const pageContext = useContext(PageContext)
-  if (!pageContext) {
-    return <GenericLoading />
-  }
+const Page: React.FC<Props> = ({ onRefresh }) => {
+  const pageContext = useContext(CoursePageContext)
+  const pageDispatch = useContext(CoursePageDispatch)
 
   return (
     <>
@@ -31,17 +26,25 @@ const Page: React.FC<Props> = ({ data }) => {
           right: 10px;
         `}
       >
-        <DebugModal data={editedData} updateDataOnClose={setEditedData} readOnly={false} />
+        <DebugModal
+          data={pageContext}
+          updateDataOnClose={(payload) => {
+            // NB! This is unsafe because payload has any type
+            pageDispatch({ type: "rawSetState", payload })
+          }}
+          readOnly={false}
+        />
       </div>
       <h1
         className={css`
           ${normalWidthCenteredComponentStyles}
         `}
       >
-        {editedData.title}
+        {pageContext.pageData?.title}
       </h1>
-      <ContentRenderer data={editedData.content} />
-      {pageContext.chapter_id && <NavigationContainer />}
+      <SelectCourseInstanceModal onClose={onRefresh} />
+      <ContentRenderer data={pageContext.pageData?.content ?? []} />
+      {pageContext.pageData?.chapter_id && <NavigationContainer />}
     </>
   )
 }

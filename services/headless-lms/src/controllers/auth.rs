@@ -2,7 +2,10 @@
 Handlers for HTTP requests to `/api/v0/login`.
 */
 
-use crate::{controllers::ApplicationResult, domain::authorization, OAuthClient};
+use crate::{
+    controllers::ControllerResult, domain::authorization, models, ApplicationConfiguration,
+    OAuthClient,
+};
 use actix_session::Session;
 use actix_web::{
     web::{self, Json, ServiceConfig},
@@ -24,22 +27,36 @@ pub struct Login {
 #[derive(Deserialize)]
 struct CurrentUser {
     id: i32,
+    email: String,
 }
 
 /**
 POST `/api/v0/auth/login` Logs in to TMC.
 **/
-#[instrument(skip(session, pool, client, payload))]
+#[instrument(skip(session, pool, client, payload, app_conf))]
 pub async fn login(
     session: Session,
     pool: web::Data<PgPool>,
     client: web::Data<OAuthClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
-) -> ApplicationResult<HttpResponse> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
-    // login to TMC
+    // login to TMS
+    if app_conf.test_mode {
+        let user = if let Ok(id) = Uuid::parse_str(&email) {
+            models::users::get_by_id(&mut conn, id).await?
+        } else {
+            models::users::authenticate_test_user(&mut conn, email.clone(), password.clone())
+                .await?
+        };
+        authorization::remember(&session, user)?;
+        return Ok(HttpResponse::Ok().finish());
+    }
+
+    // only used when testing
     let token = client
         .exchange_password(
             &ResourceOwnerUsername::new(email.clone()),
@@ -63,6 +80,7 @@ pub async fn login(
     }
     let current_user: CurrentUser = res.json().await.context("Unexpected response from TMC")?;
     let upstream_id = current_user.id;
+    let email = current_user.email;
 
     // fetch existing user or create new one
     let user = match crate::models::users::find_by_upstream_id(&mut conn, upstream_id)
@@ -71,8 +89,7 @@ pub async fn login(
     {
         Some(existing_user) => existing_user,
         None => {
-            let new_id = Uuid::new_v4();
-            crate::models::users::upsert_user_id(&mut conn, new_id, Some(upstream_id)).await?
+            crate::models::users::insert_with_upstream_id(&mut conn, &email, upstream_id).await?
         }
     };
 

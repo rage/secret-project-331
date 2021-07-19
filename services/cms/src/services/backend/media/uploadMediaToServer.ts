@@ -1,6 +1,7 @@
-import { uploadFileFromPage } from "."
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
-import { UploadMediaOptions, MediaItem } from "@wordpress/media-utils"
+import { MediaItem, UploadMediaOptions } from "@wordpress/media-utils"
+
+import { uploadFileFromPage } from "."
 
 // This thingy should support multiple file uploads, but Gutenberg seem to call uploadMedia for each file separately
 // if user uploads many file, for example using the Gallery block.
@@ -16,6 +17,7 @@ export async function uploadMedia({
   // because it seems to not be supported yet or the types definition is not up-to-date
   // Blocks still seem to use one param:
   // https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/image/edit.js#L113-L116
+  filesList: ArrayLike<File>
   pageId: string
   onError: (message: string) => void
   onFileChange: (files: Partial<MediaItem>[]) => void

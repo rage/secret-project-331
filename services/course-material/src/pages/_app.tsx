@@ -1,16 +1,18 @@
+import { css } from "@emotion/css"
+import { Global } from "@emotion/react"
+import { CssBaseline } from "@material-ui/core"
+import { ThemeProvider } from "@material-ui/core/styles"
 import type { AppProps } from "next/app"
-import { RecoilRoot } from "recoil"
+import React from "react"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
+import { RecoilRoot } from "recoil"
 
-import { ThemeProvider } from "@material-ui/core/styles"
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
-import React from "react"
 import muiTheme from "../utils/muiTheme"
-import { CssBaseline } from "@material-ui/core"
+
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
-import { Global, css } from "@emotion/react"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,8 +28,10 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: (failureCount, error) => {
-        // Don't want to retry 404 -- it just gives the impression of slowness.
-        if ((error as any)?.response?.status === 404) {
+        // Don't want to retry any client errors (4XX) -- it just gives the impression of slowness.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const statusCode: number | undefined = (error as any)?.status
+        if (statusCode && Math.floor(statusCode / 100) === 4) {
           return false
         }
         return failureCount < 3

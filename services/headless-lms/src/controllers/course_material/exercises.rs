@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
 use crate::domain::authorization::AuthUser;
-use crate::{controllers::ApplicationResult, models::exercises::CourseMaterialExercise};
+use crate::{controllers::ControllerResult, models::exercises::CourseMaterialExercise};
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
@@ -18,26 +18,48 @@ expose the correct answers to the user.
 ```json
 {
   "exercise": {
-    "id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
-    "created_at": "2021-04-28T10:49:31.360052",
-    "updated_at": "2021-04-28T10:49:31.360052",
+    "id": "a4d42748-d561-4e04-a175-a299e373d35f",
+    "created_at": "2021-07-02T05:33:05.229362Z",
+    "updated_at": "2021-07-02T05:33:05.229362Z",
     "name": "Best exercise",
-    "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-    "page_id": "f3b0d699-c9be-4d56-bd0a-9d40e5547e4d",
+    "course_id": "355de239-02c0-4262-aa85-1c10e9d69dc3",
+    "page_id": "15d4c6ab-6465-41e6-8860-b59d85fb9f1d",
     "deadline": null,
     "deleted_at": null,
-    "score_maximum": 1
+    "score_maximum": 1,
+    "order_number": 1
   },
   "current_exercise_task": {
-    "id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
-    "created_at": "2021-04-28T10:49:47.328126",
-    "updated_at": "2021-04-28T10:49:47.328126",
-    "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
+    "id": "855d2212-9e2c-41f9-9937-39c65963555e",
+    "exercise_id": "a4d42748-d561-4e04-a175-a299e373d35f",
     "exercise_type": "example-exercise",
-    "assignment": [],
-    "deleted_at": null,
-    "public_spec": null,
-    "spec_file_id": null
+    "assignment": {
+      "name": "core/paragraph",
+      "isValid": true,
+      "clientId": "187a0aea-c088-4354-a1ea-f0cab082c065",
+      "attributes": {
+        "content": "Answer this question.",
+        "dropCap": false
+      },
+      "innerBlocks": []
+    },
+    "public_spec": [
+      {
+        "id": "7ab2591c-b0f3-4543-9548-a113849b0f94",
+        "name": "a"
+      },
+      {
+        "id": "a833d1df-f27b-4fbf-b516-883a62c09d88",
+        "name": "b"
+      },
+      {
+        "id": "03d4b3d4-88af-4125-88b7-4ee052fd876f",
+        "name": "c"
+      }
+    ]
+  },
+  "current_exercise_task_service_info": {
+    "exercise_iframe_path": "/example-exercise/exercise"
   },
   "exercise_status": {
     "score_given": null,
@@ -52,7 +74,7 @@ async fn get_exercise(
     pool: web::Data<PgPool>,
     request_exercise_id: web::Path<Uuid>,
     user: Option<AuthUser>,
-) -> ApplicationResult<Json<CourseMaterialExercise>> {
+) -> ControllerResult<Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
     let exercise = crate::models::exercises::get_course_material_exercise(

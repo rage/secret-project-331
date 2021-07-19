@@ -1,16 +1,17 @@
+use super::{
+    courses::Course,
+    exercise_tasks::ExerciseTask,
+    exercises::{Exercise, GradingProgress},
+    gradings::{new_grading, Grading},
+    ModelResult,
+};
 use crate::{
     models::{exercise_tasks::get_exercise_task_by_id, gradings::grade_submission},
     utils::pagination::Pagination,
 };
-
-use super::{
-    courses::Course,
-    exercises::{Exercise, GradingProgress},
-    gradings::{new_grading, Grading},
-};
-use anyhow::Result;
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
@@ -79,6 +80,33 @@ pub struct SubmissionResult {
     grading: Grading,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct SubmissionInfo {
+    pub submission: Submission,
+    pub exercise: Exercise,
+    pub exercise_task: ExerciseTask,
+    pub grading: Option<Grading>,
+    pub submission_iframe_path: String,
+}
+
+pub async fn get_submission(
+    conn: &mut PgConnection,
+    submission_id: Uuid,
+) -> ModelResult<Submission> {
+    let res = sqlx::query_as!(
+        Submission,
+        "
+SELECT *
+FROM submissions
+WHERE id = $1
+",
+        submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     exercise_id: Uuid,
@@ -86,7 +114,8 @@ pub async fn insert(
     exercise_task_id: Uuid,
     user_id: Uuid,
     course_instance_id: Uuid,
-) -> Result<Uuid> {
+    data_json: Value,
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO submissions (
@@ -94,23 +123,40 @@ INSERT INTO submissions (
     course_id,
     exercise_task_id,
     user_id,
-    course_instance_id
+    course_instance_id,
+    data_json
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
         exercise_id,
         course_id,
         exercise_task_id,
         user_id,
-        course_instance_id
+        course_instance_id,
+        data_json
     )
     .fetch_one(conn)
     .await?;
     Ok(res.id)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Submission> {
+    let submission = sqlx::query_as!(
+        Submission,
+        "
+SELECT *
+FROM submissions
+WHERE id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(submission)
+}
+
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM submissions WHERE id = $1", id)
         .fetch_one(conn)
         .await?
@@ -118,7 +164,10 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> Result<Uuid> {
     Ok(course_id)
 }
 
-pub async fn exercise_submission_count(conn: &mut PgConnection, exercise_id: &Uuid) -> Result<i64> {
+pub async fn exercise_submission_count(
+    conn: &mut PgConnection,
+    exercise_id: &Uuid,
+) -> ModelResult<i64> {
     let count = sqlx::query!(
         "SELECT COUNT(*) as count FROM submissions WHERE exercise_id = $1",
         exercise_id,
@@ -132,10 +181,17 @@ pub async fn exercise_submissions(
     conn: &mut PgConnection,
     exercise_id: &Uuid,
     pagination: &Pagination,
-) -> Result<Vec<Submission>> {
+) -> ModelResult<Vec<Submission>> {
     let submissions = sqlx::query_as!(
         Submission,
-        "SELECT * FROM submissions WHERE exercise_id = $1 LIMIT $2 OFFSET $3;",
+        r#"
+SELECT *
+FROM submissions
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+LIMIT $2
+OFFSET $3;
+        "#,
         exercise_id,
         pagination.limit(),
         pagination.offset(),
@@ -150,7 +206,7 @@ pub async fn insert_submission(
     new_submission: NewSubmission,
     user_id: Uuid,
     exercise: Exercise,
-) -> Result<SubmissionResult> {
+) -> ModelResult<SubmissionResult> {
     let submission = sqlx::query_as!(
         Submission,
         r#"
@@ -190,7 +246,7 @@ pub async fn insert_submission(
 pub async fn get_course_daily_submission_counts(
     conn: &mut PgConnection,
     course: &Course,
-) -> Result<Vec<SubmissionCount>> {
+) -> ModelResult<Vec<SubmissionCount>> {
     let res = sqlx::query_as!(
         SubmissionCount,
         r#"
@@ -210,7 +266,7 @@ ORDER BY date;
 pub async fn get_course_submission_counts_by_weekday_and_hour(
     conn: &mut PgConnection,
     course: &Course,
-) -> Result<Vec<SubmissionCountByWeekAndHour>> {
+) -> ModelResult<Vec<SubmissionCountByWeekAndHour>> {
     let res = sqlx::query_as!(
         SubmissionCountByWeekAndHour,
         r#"
@@ -230,7 +286,7 @@ ORDER BY isodow, hour;
 pub async fn get_course_submission_counts_by_exercise(
     conn: &mut PgConnection,
     course: &Course,
-) -> Result<Vec<SubmissionCountByExercise>> {
+) -> ModelResult<Vec<SubmissionCountByExercise>> {
     let res = sqlx::query_as!(
         SubmissionCountByExercise,
         r#"
@@ -248,4 +304,23 @@ SELECT counts.*, exercises.name exercise_name
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn set_grading_id(
+    conn: &mut PgConnection,
+    grading_id: Uuid,
+    submission_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE submissions
+SET grading_id = $1
+WHERE id = $2
+",
+        grading_id,
+        submission_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

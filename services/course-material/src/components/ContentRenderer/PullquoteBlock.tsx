@@ -1,18 +1,12 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import sanitizeHtml from "sanitize-html"
-import { BlockRendererProps } from "."
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
-import colorMapper from "../../styles/colorMapper"
 
-interface PullquoteBlockAttributes {
-  value: string
-  citation: string
-  className: string
-  mainColor?: string
-  customMainColor?: string
-  textColor?: string
-}
+import colorMapper from "../../styles/colorMapper"
+import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { PullquoteAttributes } from "../../types/GutenbergBlockAttributes"
+
+import { BlockRendererProps } from "."
 
 interface FigureAttributes {
   currentColor: string
@@ -32,8 +26,8 @@ const Blockquote = styled.blockquote<{ currentColor: string }>`
   text-align: center;
 `
 
-const PullquoteBlock: React.FC<BlockRendererProps<PullquoteBlockAttributes>> = ({ data }) => {
-  const attributes: PullquoteBlockAttributes = data.attributes
+const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ data }) => {
+  const attributes: PullquoteAttributes = data.attributes
 
   let mainColor = colorMapper(attributes.mainColor, "#FFFFFF")
 

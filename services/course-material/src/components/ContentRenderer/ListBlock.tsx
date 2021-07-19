@@ -1,15 +1,13 @@
 import { css } from "@emotion/css"
-import { BlockRendererProps } from "."
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import sanitizeHtml from "sanitize-html"
 
-interface ListBlockAttributes {
-  values: string
-  ordered: boolean
-}
+import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { ListAttributes } from "../../types/GutenbergBlockAttributes"
 
-const ListBlock: React.FC<BlockRendererProps<ListBlockAttributes>> = ({ data }) => {
-  const attributes: ListBlockAttributes = data.attributes
+import { BlockRendererProps } from "."
+
+const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
+  const attributes: ListAttributes = data.attributes
   if (attributes.ordered) {
     return (
       <ol

@@ -36,7 +36,6 @@
   "settings": {
     "editor.tabSize": 2,
     "files.eol": "\n",
-    "eslint.format.enable": true,
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file",
     "sqltools.highlightQuery": false,
@@ -54,7 +53,19 @@
     },
     "[rust]": {
       "editor.defaultFormatter": "matklad.rust-analyzer"
-    }
+    },
+    // Exlcuding works only partially in multi-root workspaces because of this: https://github.com/microsoft/vscode/issues/40898
+    "files.watcherExclude": {
+      "**/.git/objects/**": true,
+      "**/.git/subtree-cache/**": true,
+      "**/node_modules/**": true,
+      "**/.hg/store/**": true,
+      "services/headless-lms/target": true,
+      "**/.next/**": true
+    },
+    "eslint.alwaysShowStatus": true,
+    "eslint.lintTask.enable": true,
+    "eslint.format.enable": true
   },
   "recommendations": [
     "stylelint.vscode-stylelint",
@@ -66,10 +77,11 @@
     "humao.rest-client",
     "mtxr.sqltools",
     "usernamehw.errorlens",
-    "coenraads.bracket-pair-colorizer-2"
+    "coenraads.bracket-pair-colorizer-2",
+    "jebbs.plantuml"
   ],
   "launch": {
     "configurations": [],
     "compounds": []
-  }
+  },
 }

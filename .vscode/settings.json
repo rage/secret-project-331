@@ -1,6 +1,8 @@
 {
   "editor.tabSize": 2,
   "files.eol": "\n",
+  "eslint.alwaysShowStatus": true,
+  "eslint.lintTask.enable": true,
   "eslint.format.enable": true,
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
@@ -19,5 +21,13 @@
   },
   "[rust]": {
     "editor.defaultFormatter": "matklad.rust-analyzer"
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.hg/store/**": true,
+    "**/target/**": true,
+    "**/.next/**": true
   }
 }

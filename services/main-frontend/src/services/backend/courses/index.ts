@@ -1,6 +1,7 @@
 import { mainFrontendClient } from "../../mainFrontendClient"
 import {
   Course,
+  CourseInstance,
   CourseSubmissionCount,
   CourseSubmissionCountByWeekdayAndHour,
   CourseUpdate,
@@ -59,6 +60,13 @@ export const fetchCourseWeekdayHourSubmissionCounts = async (
     await mainFrontendClient.get(`/courses/${courseId}/weekday-hour-submission-counts`, {
       responseType: "json",
     })
+  ).data
+  return data
+}
+
+export const fetchCourseInstances = async (courseId: string): Promise<CourseInstance[]> => {
+  const data = (
+    await mainFrontendClient.get(`/courses/${courseId}/course-instances`, { responseType: "json" })
   ).data
   return data
 }

@@ -7,7 +7,7 @@ import Link from "next/link"
 import React, { useState } from "react"
 
 import { deletePage } from "../services/backend/pages"
-import { Chapter, Page } from "../services/services.types"
+import { Chapter, Page } from "../shared-module/bindings"
 
 import NewPageForm from "./forms/NewPageForm"
 

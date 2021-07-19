@@ -1,13 +1,13 @@
-import { mainFrontendClient } from "../../mainFrontendClient"
 import {
   Course,
   CourseInstance,
-  CourseSubmissionCount,
-  CourseSubmissionCountByWeekdayAndHour,
   CourseUpdate,
   Exercise,
   NewCourse,
-} from "../../services.types"
+  SubmissionCountByExercise,
+  SubmissionCountByWeekAndHour,
+} from "../../../shared-module/bindings"
+import { mainFrontendClient } from "../../mainFrontendClient"
 
 export const getCourse = async (courseId: string): Promise<Course> => {
   const data = (await mainFrontendClient.get(`/courses/${courseId}`, { responseType: "json" })).data
@@ -35,7 +35,7 @@ export const updateCourse = async (courseId: string, data: CourseUpdate): Promis
 
 export const fetchCourseDailySubmissionCounts = async (
   courseId: string,
-): Promise<CourseSubmissionCount[]> => {
+): Promise<SubmissionCountByExercise[]> => {
   const data = (
     await mainFrontendClient.get(`/courses/${courseId}/daily-submission-counts`, {
       responseType: "json",
@@ -55,7 +55,7 @@ export const fetchCourseExercises = async (courseId: string): Promise<Array<Exer
 
 export const fetchCourseWeekdayHourSubmissionCounts = async (
   courseId: string,
-): Promise<CourseSubmissionCountByWeekdayAndHour[]> => {
+): Promise<SubmissionCountByWeekAndHour[]> => {
   const data = (
     await mainFrontendClient.get(`/courses/${courseId}/weekday-hour-submission-counts`, {
       responseType: "json",

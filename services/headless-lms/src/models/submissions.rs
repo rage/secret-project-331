@@ -13,17 +13,18 @@ use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::PgConnection;
+use ts_rs::TS;
 use uuid::Uuid;
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewSubmission {
     pub exercise_task_id: Uuid,
     pub course_instance_id: Uuid,
     pub data_json: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Submission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -39,20 +40,20 @@ pub struct Submission {
     pub user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct SubmissionCount {
     pub date: Option<NaiveDate>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct SubmissionCountByWeekAndHour {
     pub isodow: Option<i32>,
     pub hour: Option<i32>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct SubmissionCountByExercise {
     pub exercise_id: Option<Uuid>,
     pub count: Option<i32>,
@@ -74,13 +75,13 @@ pub struct GradingResult {
     pub feedback_json: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct SubmissionResult {
     submission: Submission,
     grading: Grading,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct SubmissionInfo {
     pub submission: Submission,
     pub exercise: Exercise,

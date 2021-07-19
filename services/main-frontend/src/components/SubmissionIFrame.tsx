@@ -1,7 +1,7 @@
 import { Alert } from "@material-ui/lab"
 import React from "react"
 
-import { Submission } from "../services/services.types"
+import { Submission } from "../shared-module/bindings"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
 
 interface SubmissionIFrameProps {

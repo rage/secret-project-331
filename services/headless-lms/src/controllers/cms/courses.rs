@@ -11,12 +11,13 @@ use actix_web::web::{self, Json};
 use actix_web::HttpRequest;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use ts_rs::TS;
 use uuid::Uuid;
 
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct UploadResult {
-    url: String,
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct UploadResult {
+    pub url: String,
 }
 
 /**

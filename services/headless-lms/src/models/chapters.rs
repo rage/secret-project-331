@@ -14,8 +14,8 @@ use uuid::Uuid;
 
 use super::pages::PageWithExercises;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct Chapter {
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct DatabaseChapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -29,7 +29,7 @@ pub struct Chapter {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct ChapterWithImageUrl {
+pub struct Chapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -42,9 +42,9 @@ pub struct ChapterWithImageUrl {
     pub opens_at: Option<DateTime<Utc>>,
 }
 
-impl ChapterWithImageUrl {
-    pub fn from_chapter(
-        chapter: &Chapter,
+impl Chapter {
+    pub fn from_database_chapter(
+        chapter: &DatabaseChapter,
         file_store: &impl FileStore,
         app_conf: &ApplicationConfiguration,
     ) -> Self {
@@ -175,9 +175,12 @@ WHERE id = $1
     Ok(open)
 }
 
-pub async fn get_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Chapter> {
+pub async fn get_chapter(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<DatabaseChapter> {
     let chapter = sqlx::query_as!(
-        Chapter,
+        DatabaseChapter,
         "
 SELECT *
 from chapters
@@ -201,9 +204,9 @@ pub async fn update_chapter(
     conn: &mut PgConnection,
     course_id: Uuid,
     chapter_update: ChapterUpdate,
-) -> ModelResult<Chapter> {
+) -> ModelResult<DatabaseChapter> {
     let res = sqlx::query_as!(
-        Chapter,
+        DatabaseChapter,
         r#"
 UPDATE chapters
 SET name = $1,
@@ -224,9 +227,9 @@ pub async fn update_chapter_image(
     conn: &mut PgConnection,
     chapter_id: Uuid,
     chapter_image: Option<String>,
-) -> ModelResult<Chapter> {
+) -> ModelResult<DatabaseChapter> {
     let updated_chapter = sqlx::query_as!(
-        Chapter,
+        DatabaseChapter,
         "
 UPDATE chapters
 SET chapter_image = $1
@@ -257,9 +260,9 @@ pub struct ChapterWithStatus {
 pub async fn course_chapters(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<Chapter>> {
+) -> ModelResult<Vec<DatabaseChapter>> {
     let chapters = sqlx::query_as!(
-        Chapter,
+        DatabaseChapter,
         r#"
 SELECT id,
   created_at,
@@ -282,11 +285,14 @@ WHERE course_id = $1
     Ok(chapters)
 }
 
-pub async fn insert_chapter(conn: &mut PgConnection, chapter: NewChapter) -> ModelResult<Chapter> {
+pub async fn insert_chapter(
+    conn: &mut PgConnection,
+    chapter: NewChapter,
+) -> ModelResult<DatabaseChapter> {
     let mut tx = conn.begin().await?;
 
     let chapter = sqlx::query_as!(
-        Chapter,
+        DatabaseChapter,
         r#"
 INSERT INTO chapters(name, course_id, chapter_number)
 VALUES($1, $2, $3)
@@ -318,9 +324,12 @@ RETURNING *;
     Ok(chapter)
 }
 
-pub async fn delete_chapter(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Chapter> {
+pub async fn delete_chapter(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<DatabaseChapter> {
     let deleted = sqlx::query_as!(
-        Chapter,
+        DatabaseChapter,
         r#"
 UPDATE chapters
 SET deleted_at = now()

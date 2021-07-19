@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::{
     controllers::{
-        auth::Login, cms::pages::UploadResult, main_frontend::exercises::ExerciseSubmissions,
+        auth::Login, cms::courses::UploadResult, main_frontend::exercises::ExerciseSubmissions,
     },
     models::{
         chapters::{Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter},

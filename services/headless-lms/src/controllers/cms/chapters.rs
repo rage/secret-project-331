@@ -5,7 +5,7 @@ use crate::{
     controllers::helpers::media::upload_media_for_course,
     controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
-    models::chapters::{Chapter, ChapterUpdate, ChapterWithImageUrl, NewChapter},
+    models::chapters::{Chapter, ChapterUpdate, NewChapter},
     utils::file_store::FileStore,
     ApplicationConfiguration,
 };
@@ -41,21 +41,28 @@ Response:
   "name": "The Basics",
   "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
   "deleted_at": null,
+  "chapter_image_url": null,
   "chapter_number": 1,
   "front_page_id": null
 }
 ```
 */
-#[instrument(skip(pool))]
-async fn post_new_chapter(
+#[instrument(skip(pool, file_store, app_conf))]
+async fn post_new_chapter<T: FileStore>(
     pool: web::Data<PgPool>,
     payload: web::Json<NewChapter>,
     user: AuthUser,
+    file_store: web::Data<T>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let new_chapter = payload.0;
-    let chapter = crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
-    Ok(Json(chapter))
+    let database_chapter = crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
+    Ok(Json(Chapter::from_database_chapter(
+        &database_chapter,
+        file_store.as_ref(),
+        app_conf.as_ref(),
+    )))
 }
 
 /**
@@ -70,22 +77,29 @@ DELETE `/api/v0/cms/courses-parts/:chapter_id` - Delete a course part.
   "name": "The Basics",
   "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
   "deleted_at": "2021-04-28T16:33:42.670935",
+  "chapter_image_url": null,
   "chapter_number": 1,
   "front_page_id": "0ebba931-b027-4154-8274-2afb00d79306"
 }
 ```
 */
-#[instrument(skip(pool))]
-async fn delete_chapter(
+#[instrument(skip(pool, file_store, app_conf))]
+async fn delete_chapter<T: FileStore>(
     request_chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    file_store: web::Data<T>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
 
-    let chapter = crate::models::chapters::delete_chapter(&mut conn, course_id).await?;
-    Ok(Json(chapter))
+    let deleted_chapter = crate::models::chapters::delete_chapter(&mut conn, course_id).await?;
+    Ok(Json(Chapter::from_database_chapter(
+        &deleted_chapter,
+        file_store.as_ref(),
+        app_conf.as_ref(),
+    )))
 }
 
 /**
@@ -129,7 +143,7 @@ async fn update_chapter<T: FileStore>(
     user: AuthUser,
     file_store: web::Data<T>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<ChapterWithImageUrl>> {
+) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
 
@@ -137,8 +151,7 @@ async fn update_chapter<T: FileStore>(
     let chapter =
         crate::models::chapters::update_chapter(&mut conn, course_id, course_update).await?;
 
-    let response =
-        ChapterWithImageUrl::from_chapter(&chapter, file_store.as_ref(), app_conf.as_ref());
+    let response = Chapter::from_database_chapter(&chapter, file_store.as_ref(), app_conf.as_ref());
 
     Ok(Json(response))
 }
@@ -180,7 +193,7 @@ async fn set_chapter_image<T: FileStore>(
     user: AuthUser,
     file_store: web::Data<T>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<ChapterWithImageUrl>> {
+) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
     let course = crate::models::courses::get_course(&mut conn, chapter.course_id).await?;
@@ -205,7 +218,7 @@ async fn set_chapter_image<T: FileStore>(
     }
 
     let response =
-        ChapterWithImageUrl::from_chapter(&updated_chapter, file_store.as_ref(), app_conf.as_ref());
+        Chapter::from_database_chapter(&updated_chapter, file_store.as_ref(), app_conf.as_ref());
 
     Ok(Json(response))
 }
@@ -250,8 +263,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_chapters_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
-    cfg.route("", web::post().to(post_new_chapter))
-        .route("/{chapter_id}", web::delete().to(delete_chapter))
+    cfg.route("", web::post().to(post_new_chapter::<T>))
+        .route("/{chapter_id}", web::delete().to(delete_chapter::<T>))
         .route("/{chapter_id}", web::put().to(update_chapter::<T>))
         .route("/{chapter_id}/image", web::put().to(set_chapter_image::<T>))
         .route(

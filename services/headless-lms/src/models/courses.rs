@@ -11,7 +11,7 @@ use ts_rs::TS;
 use uuid::Uuid;
 
 use super::{
-    chapters::{course_chapters, ChapterWithImageUrl},
+    chapters::{course_chapters, Chapter},
     pages::{course_pages, Page},
 };
 
@@ -30,7 +30,7 @@ pub struct Course {
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
-    pub chapters: Vec<ChapterWithImageUrl>,
+    pub chapters: Vec<Chapter>,
 }
 
 pub async fn insert(
@@ -87,7 +87,7 @@ pub async fn get_course_structure(
     let chapters = course_chapters(conn, course_id)
         .await?
         .iter()
-        .map(|chapter| ChapterWithImageUrl::from_chapter(chapter, file_store, app_conf))
+        .map(|chapter| Chapter::from_database_chapter(chapter, file_store, app_conf))
         .collect();
     Ok(CourseStructure {
         course,

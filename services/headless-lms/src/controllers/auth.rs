@@ -49,8 +49,13 @@ pub async fn login(
         let user = if let Ok(id) = Uuid::parse_str(&email) {
             models::users::get_by_id(&mut conn, id).await?
         } else {
-            models::users::authenticate_test_user(&mut conn, email.clone(), password.clone())
-                .await?
+            models::users::authenticate_test_user(
+                &mut conn,
+                email.clone(),
+                password.clone(),
+                &app_conf,
+            )
+            .await?
         };
         authorization::remember(&session, user)?;
         return Ok(HttpResponse::Ok().finish());

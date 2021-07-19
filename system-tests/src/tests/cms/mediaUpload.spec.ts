@@ -10,7 +10,7 @@ import {
 test.describe("Uploading media as admin", async () => {
   // As Admin
   test.use({
-    storageState: "src/states/admin.json",
+    storageState: "src/states/admin@example.com.json",
   })
 
   test.beforeEach(
@@ -27,14 +27,10 @@ test.describe("Uploading media as admin", async () => {
 
   test("test", async ({ page }) => {
     await page.click("text=University of Helsinki, Department of Computer Science")
-    expect(page.url()).toBe(
-      "http://project-331.local/organizations/f242f19e-6d6f-43d5-9186-d0424864146e",
-    )
+    expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
 
     await page.click("text=Manage")
-    expect(page.url()).toBe(
-      "http://project-331.local/manage/courses/912d7b3c-816c-43e3-bce6-488f06c10869",
-    )
+    expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/cms/courses/912d7b3c-816c-43e3-bce6-488f06c10869/manage-pages' }*/),
@@ -42,9 +38,7 @@ test.describe("Uploading media as admin", async () => {
     ])
 
     await page.click("text=Welcome to Introduction to Everything")
-    expect(page.url()).toBe(
-      "http://project-331.local/cms/pages/7c0f2710-32be-4d8b-9476-be3d5622ed8f",
-    )
+    expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
     // Click text=Type / to choose a block and type /image
     await page.type("text=Type / to choose a block", "/image")

@@ -42,22 +42,6 @@
       "nullable": [false]
     }
   },
-  "069ad8a4b2ba57b5f925e8fc3d71d2820c998ee6ee45b96febc7dbda70aef259": {
-    "query": "\nINSERT INTO organizations (name, slug)\nVALUES ($1, $2)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Varchar"]
-      },
-      "nullable": [false]
-    }
-  },
   "072ecb29b589e56f6fc04bb0787efd82beab771ae9d87752f80b0734b16c56e4": {
     "query": "\nINSERT INTO exercise_services (\n    name,\n    slug,\n    public_url,\n    internal_url,\n    max_reprocessing_submissions_at_once\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n  ",
     "describe": {
@@ -158,6 +142,22 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "1207e96fad04695069497927dd9dc626f9d88c3c646a3c5ce6b3b30227e20308": {
+    "query": "\nINSERT INTO organizations (id, name, slug)\nVALUES ($1, $2, $3)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar"]
+      },
+      "nullable": [false]
     }
   },
   "12678b433a9c84513a0c100571b2d82db27fbc569e2b9c79b23e31906be0f559": {
@@ -2360,6 +2360,22 @@
       "nullable": [null, null]
     }
   },
+  "8c711ea858481edd56e9dc186e9c256e5109f373b8a8c602cecba26cf75740c7": {
+    "query": "\nINSERT INTO users (id, email)\nVALUES ($1, $2)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar"]
+      },
+      "nullable": [false]
+    }
+  },
   "902398ca29a18eb7bce969348d7d90eb0b3cb8a95cbdd228f89df0eaa7cf5eff": {
     "query": "\nINSERT INTO regradings DEFAULT\nVALUES\nRETURNING id\n",
     "describe": {
@@ -3060,22 +3076,6 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": []
-    }
-  },
-  "b988de59221dbe4350dcccadf9e80e782365d6526188dc5a6b14ed2581ca1314": {
-    "query": "\nINSERT INTO users (email)\nVALUES ($1)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar"]
-      },
-      "nullable": [false]
     }
   },
   "c1a41f61331e83562da62a9ec828d2489eedd1f6e03b6fb8865faa71ddec8f27": {

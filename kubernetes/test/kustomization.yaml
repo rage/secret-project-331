@@ -1,6 +1,7 @@
 resources:
   - ../base
-  - postgres-test.yml
+  # Test mode uses the same db server as dev so that the dev db is availabe for type checking while the test environment is running. The test environment uses a different databases ('headless_lms_test') in the same postgres.
+  - ./postgres-dev.yml
   - headless-lms/test.yml
 patches:
   # Services that require postgres env, patch image names

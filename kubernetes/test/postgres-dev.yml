@@ -69,7 +69,7 @@ kind: ConfigMap
 metadata:
   name: postgres-configuration
 data:
-  POSTGRES_DB: "headless_lms_test"
+  POSTGRES_DB: "headless_lms_dev"
   POSTGRES_USER: "headless-lms"
 ---
 apiVersion: v1

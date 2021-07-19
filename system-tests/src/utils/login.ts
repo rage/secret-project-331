@@ -1,7 +1,11 @@
 import { chromium, expect } from "@playwright/test"
 import { Page } from "playwright"
 
-export async function login(user: string, password: string, page?: Page | undefined) {
+export async function login(
+  user: string,
+  password: string,
+  page?: Page | undefined,
+): Promise<void> {
   let loginPage = page
   if (!page) {
     const browser = await chromium.launch()

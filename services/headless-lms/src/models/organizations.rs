@@ -14,13 +14,19 @@ pub struct Organization {
     deleted_at: Option<DateTime<Utc>>,
 }
 
-pub async fn insert(conn: &mut PgConnection, name: &str, slug: &str) -> ModelResult<Uuid> {
+pub async fn insert(
+    conn: &mut PgConnection,
+    name: &str,
+    slug: &str,
+    id: Uuid,
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO organizations (name, slug)
-VALUES ($1, $2)
+INSERT INTO organizations (id, name, slug)
+VALUES ($1, $2, $3)
 RETURNING id
 ",
+        id,
         name,
         slug,
     )

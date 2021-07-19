@@ -307,9 +307,13 @@ mod test {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let user_id = users::insert(tx.as_mut(), "test@example.com")
-            .await
-            .unwrap();
+        let user_id = users::insert(
+            tx.as_mut(),
+            "test@example.com",
+            Uuid::parse_str("e656e0a1-3f55-4f52-b0ae-96855faee5e7").unwrap(),
+        )
+        .await
+        .unwrap();
         let organization_id = organizations::insert(tx.as_mut(), "", "").await.unwrap();
         let course_id = courses::insert(tx.as_mut(), "", organization_id, "")
             .await

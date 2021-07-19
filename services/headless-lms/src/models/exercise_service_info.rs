@@ -90,7 +90,9 @@ pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<FetchedExercis
         .await?;
     let status = res.status();
     if !status.is_success() {
-        return Err(ModelError::Generic("Could not fetch service info."));
+        return Err(ModelError::Generic(
+            "Could not fetch service info.".to_string(),
+        ));
     }
     let res = res.json::<FetchedExerciseServiceInfo>().await?;
     Ok(res)

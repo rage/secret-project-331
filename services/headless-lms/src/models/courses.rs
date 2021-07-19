@@ -7,6 +7,7 @@ use crate::{
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgConnection};
+use ts_rs::TS;
 use uuid::Uuid;
 
 use super::{
@@ -14,7 +15,7 @@ use super::{
     pages::{course_pages, Page},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Course {
     pub id: Uuid,
     pub slug: String,
@@ -25,7 +26,7 @@ pub struct Course {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
@@ -110,7 +111,7 @@ pub async fn organization_courses(
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewCourse {
     pub name: String,
     pub slug: String,
@@ -160,7 +161,7 @@ pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> ModelR
 }
 
 // Represents the subset of page fields that one is allowed to update in a course
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseUpdate {
     name: String,
 }

@@ -9,11 +9,12 @@ use crate::{
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgConnection};
+use ts_rs::TS;
 use uuid::Uuid;
 
 use super::pages::PageWithExercises;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Chapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -27,7 +28,7 @@ pub struct Chapter {
     pub opens_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ChapterWithImageUrl {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -66,7 +67,7 @@ impl ChapterWithImageUrl {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, TS)]
 #[serde(rename_all = "snake_case")]
 pub enum ChapterStatus {
     Open,
@@ -92,7 +93,7 @@ pub struct ChapterPagesWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewChapter {
     pub name: String,
     pub course_id: Uuid,
@@ -100,7 +101,7 @@ pub struct NewChapter {
     pub front_front_page_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ChapterUpdate {
     pub name: String,
     pub chapter_number: i32,
@@ -239,7 +240,7 @@ RETURNING *;",
     Ok(updated_chapter)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ChapterWithStatus {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

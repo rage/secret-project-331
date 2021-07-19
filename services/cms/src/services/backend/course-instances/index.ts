@@ -1,4 +1,4 @@
-import { CourseInstance, EmailTemplate, EmailTemplateNew } from "../../services.types"
+import { CourseInstance, EmailTemplate, EmailTemplateNew } from "../../../shared-module/bindings"
 import { cmsClient } from "../cmsClient"
 
 export const fetchCourseInstance = async (courseInstanceId: string): Promise<CourseInstance> => {

@@ -325,6 +325,67 @@
       "nullable": [false, false, false, false, true, false]
     }
   },
+  "18cad5d0cf2a854a36655738b9a05c4fe5376c77174239b17cdf7e21bc739b1f": {
+    "query": "\nSELECT *\nFROM exercises\nWHERE id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "deadline",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_maximum",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, true, false, true, false, false, false]
+    }
+  },
   "19a6e3aaaddd659eb5cee0d7361c6ce7b72a8f77a14561cb51427fb4490fa36b": {
     "query": "\nINSERT INTO chapters (name, course_id, chapter_number)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -766,22 +827,6 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
-  "335aaa2cc36646c9865e2a8048896d907e41e9063dfa06fdd1cfad6817f9dc6e": {
-    "query": "\nINSERT INTO submissions (\n    exercise_id,\n    course_id,\n    exercise_task_id,\n    user_id,\n    course_instance_id\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [false]
-    }
-  },
   "36578c1a1be112ab9d9f49eea1c69240309c9bf83e6a4b98237e687d1fa04b92": {
     "query": "SELECT course_id FROM pages WHERE id = $1",
     "describe": {
@@ -985,6 +1030,22 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [true]
+    }
+  },
+  "3f7c2d7e6f6088d3847b90e12b811f827a17d0d31ff27f96f97689503a4909e7": {
+    "query": "\nINSERT INTO submissions (\n    exercise_id,\n    course_id,\n    exercise_task_id,\n    user_id,\n    course_instance_id,\n    data_json\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Jsonb"]
+      },
+      "nullable": [false]
     }
   },
   "3fe37166761219fc5d832aff78c2ae81f963c9b1fa42ac8519e80bc436c54200": {
@@ -1533,47 +1594,6 @@
       "nullable": [false]
     }
   },
-  "5ec61e8daff0fca16f5f0e5df5b7528a9d7e7e0cb7a3ca29769dd8063941966b": {
-    "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    editor_iframe_path,\n    exercise_iframe_path,\n    grade_endpoint_path\n  )\nVALUES ($1, $2, $3, $4)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET editor_iframe_path = $2,\n  exercise_iframe_path = $3,\n  grade_endpoint_path = $4\nRETURNING *\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "exercise_service_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "editor_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "exercise_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "grade_endpoint_path",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar"]
-      },
-      "nullable": [false, false, false, false, false, false]
-    }
-  },
   "60fed3e48c5452f1f0d9aa6c6775f382456469221d08d6d2d450fd5c24648d31": {
     "query": "\nINSERT INTO chapters(name, course_id, chapter_number)\nVALUES($1, $2, $3)\nRETURNING *;\n",
     "describe": {
@@ -1796,12 +1816,17 @@
           "ordinal": 5,
           "name": "grade_endpoint_path",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "submission_iframe_path",
+          "type_info": "Varchar"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, false]
+      "nullable": [false, false, false, false, false, false, false]
     }
   },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
@@ -2446,47 +2471,6 @@
       "nullable": [false, false, false, false, false, true, true, false, true, true]
     }
   },
-  "8adf158751ceb84ae3ddd8fd778900e0a806c54e1cc87cd6d26614e58403f6cb": {
-    "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    editor_iframe_path,\n    exercise_iframe_path,\n    grade_endpoint_path\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING *\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "exercise_service_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "editor_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "exercise_iframe_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "grade_endpoint_path",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar"]
-      },
-      "nullable": [false, false, false, false, false, false]
-    }
-  },
   "8c5a2157f97a81b2ce7489c584aef3cc2c42a4aaedeadc828e0de7bf8afc8706": {
     "query": "\nSELECT COUNT(ues.exercise_id) as completed_exercises,\n  COALESCE(0, SUM(ues.score_given)) as score_given\nFROM user_exercise_states ues\nWHERE ues.course_instance_id = $1\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL\n  AND ues.activity_progress IN ('submitted', 'completed');\n        ",
     "describe": {
@@ -2613,6 +2597,52 @@
         ]
       },
       "nullable": [false, false, false, false, false, true, true, false, false]
+    }
+  },
+  "960f93488004293f383ba8fbe5eeb5ce5a53dfdbd9f99de9b3f466ff50bd82bf": {
+    "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    editor_iframe_path,\n    exercise_iframe_path,\n    submission_iframe_path,\n    grade_endpoint_path\n  )\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET editor_iframe_path = $2,\n  exercise_iframe_path = $3,\n  submission_iframe_path = $4,\n  grade_endpoint_path = $5\nRETURNING *\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "exercise_service_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "editor_iframe_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "exercise_iframe_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "grade_endpoint_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "submission_iframe_path",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Varchar"]
+      },
+      "nullable": [false, false, false, false, false, false, false]
     }
   },
   "974f0fff32d5d42aa0aa4d4f9e52ebe1b69c95cc677bdb0fce4f8bfd7b519639": {
@@ -3167,6 +3197,52 @@
         "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb"]
       },
       "nullable": [false, false, false, true, true]
+    }
+  },
+  "b8cdb2fc25ff78ee7451bbf3cceccf813a14c14a9360f5c6c255aa2f2d67ff68": {
+    "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    editor_iframe_path,\n    exercise_iframe_path,\n    grade_endpoint_path,\n    submission_iframe_path\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "exercise_service_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "editor_iframe_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "exercise_iframe_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "grade_endpoint_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "submission_iframe_path",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Varchar"]
+      },
+      "nullable": [false, false, false, false, false, false, false]
     }
   },
   "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {

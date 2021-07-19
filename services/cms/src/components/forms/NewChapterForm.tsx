@@ -36,7 +36,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
         course_id: courseId,
         name: name,
         chapter_number: chapter,
-        front_page_id: null,
+        front_front_page_id: null,
       })
       onSubmitForm()
     }

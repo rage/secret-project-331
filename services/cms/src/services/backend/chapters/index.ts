@@ -1,5 +1,5 @@
+import { Chapter, ChapterUpdate, NewChapter } from "../../../shared-module/bindings"
 import { validateFile } from "../../../shared-module/utils/files"
-import { Chapter, ChapterUpdate, NewChapter } from "../../services.types"
 import { cmsClient } from "../cmsClient"
 
 export const postNewChapter = async (data: NewChapter): Promise<Chapter> => {

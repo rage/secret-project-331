@@ -122,6 +122,9 @@ impl From<ModelError> for ControllerError {
         match err {
             ModelError::RecordNotFound(_) => Self::NotFound,
             ModelError::PreconditionFailed(msg) => Self::BadRequest(msg),
+            ModelError::DatabaseConstraint { description, .. } => {
+                Self::BadRequest(description.to_string())
+            }
             _ => Self::InternalServerError(err.to_string()),
         }
     }

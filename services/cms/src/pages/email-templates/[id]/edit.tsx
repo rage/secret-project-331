@@ -8,7 +8,7 @@ import {
   fetchEmailTemplateWithId,
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
-import { EmailTemplate, EmailTemplateUpdate } from "../../../services/services.types"
+import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"

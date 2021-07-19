@@ -2,6 +2,7 @@ pub mod controllers;
 pub mod domain;
 pub mod models;
 pub mod regrading;
+mod ts_binding_generator;
 pub mod utils;
 
 #[cfg(test)]

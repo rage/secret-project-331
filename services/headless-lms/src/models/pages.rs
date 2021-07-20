@@ -354,7 +354,7 @@ pub async fn update_page(
         && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
     {
         return Err(ModelError::Generic(
-                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter",
+                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
             ));
     }
 
@@ -572,7 +572,7 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelRes
         && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
     {
         return Err(ModelError::Generic(
-                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter",
+                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
             ));
     }
 

@@ -1,11 +1,8 @@
+use super::{pages::Page, ModelResult};
+use crate::{models::pages::NewPage, utils::document_schema_processor::GutenbergBlock};
 use std::path::PathBuf;
 
-use super::ModelResult;
-use crate::{
-    models::pages::NewPage,
-    utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
-    ApplicationConfiguration,
-};
+use crate::{utils::file_store::FileStore, ApplicationConfiguration};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgConnection};
@@ -288,7 +285,7 @@ WHERE course_id = $1
 pub async fn insert_chapter(
     conn: &mut PgConnection,
     chapter: NewChapter,
-) -> ModelResult<DatabaseChapter> {
+) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;
 
     let chapter = sqlx::query_as!(
@@ -318,10 +315,10 @@ RETURNING *;
         title: chapter.name.clone(),
         url_path: format!("/chapter-{}", chapter.chapter_number),
     };
-    let _page = crate::models::pages::insert_page(&mut tx, chapter_frontpage).await?;
+    let page = crate::models::pages::insert_page(&mut tx, chapter_frontpage).await?;
 
     tx.commit().await?;
-    Ok(chapter)
+    Ok((chapter, page))
 }
 
 pub async fn delete_chapter(

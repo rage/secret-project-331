@@ -1,5 +1,7 @@
 use anyhow::Result;
 use chrono::Utc;
+use headless_lms_actix::models::chapters::NewChapter;
+use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::gradings;
 use headless_lms_actix::models::submissions::GradingResult;
@@ -43,44 +45,78 @@ async fn main() -> Result<()> {
     }
 
     // users
-    let admin = users::insert(&mut conn, "admin@example.com").await?;
-    let teacher = users::insert(&mut conn, "teacher@example.com").await?;
-    let assistant = users::insert(&mut conn, "assistant@example.com").await?;
+    let admin = users::insert(
+        &mut conn,
+        "admin@example.com",
+        Uuid::parse_str("02c79854-da22-4cfc-95c4-13038af25d2e")?,
+    )
+    .await?;
+    let teacher = users::insert(
+        &mut conn,
+        "teacher@example.com",
+        Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce")?,
+    )
+    .await?;
+    let assistant = users::insert(
+        &mut conn,
+        "assistant@example.com",
+        Uuid::parse_str("24342539-f1ba-453e-ae13-14aa418db921")?,
+    )
+    .await?;
+
+    let _user = users::insert(
+        &mut conn,
+        "user@example.com",
+        Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")?,
+    )
+    .await?;
 
     // uh-cs
     let uh_cs = organizations::insert(
         &mut conn,
         "University of Helsinki, Department of Computer Science",
         "uh-cs",
+        Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
     let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin).await?;
-    let cs_course = courses::insert(
+    let new_course = NewCourse {
+        name: "Introduction to Computer Science".to_string(),
+        slug: "introduction-to-computer-science".to_string(),
+        organization_id: uh_cs,
+    };
+    let (cs_course, _cs_front_page, _cs_default_course_instance) =
+        courses::insert_course(&mut conn, new_course).await?;
+    let _cs_course_instance = course_instances::insert(
         &mut conn,
-        "Introduction to Computer Science",
-        uh_cs,
-        "Introduction to Computer Science",
+        cs_course.id,
+        Some("non-default instance"),
+        Some(VariantStatus::Upcoming),
     )
     .await?;
-    let _cs_course_instance =
-        course_instances::insert(&mut conn, cs_course, Some(VariantStatus::Upcoming)).await?;
 
     // uh-mathstat
     let uh_mathstat = organizations::insert(
         &mut conn,
         "University of Helsinki, Department of Mathematics and Statistics",
         "uh-mathstat",
+        Uuid::parse_str("269d28b2-a517-4572-9955-3ed5cecc69bd")?,
     )
     .await?;
-    let statistics_course = courses::insert(
+    let new_course = NewCourse {
+        name: "Introduction to Statistics".to_string(),
+        slug: "introduction-to-statistics".to_string(),
+        organization_id: uh_mathstat,
+    };
+    let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
+        courses::insert_course(&mut conn, new_course).await?;
+    let _statistics_course_instance = course_instances::insert(
         &mut conn,
-        "Introduction to Statistics",
-        uh_mathstat,
-        "introduction-to-statistics",
+        statistics_course.id,
+        Some("non-default instance"),
+        Some(VariantStatus::Active),
     )
     .await?;
-    let _statistics_course_instance =
-        course_instances::insert(&mut conn, statistics_course, Some(VariantStatus::Active)).await?;
 
     let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
         &mut conn,
@@ -122,56 +158,115 @@ async fn main() -> Result<()> {
 }
 
 async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Result<Uuid> {
-    let course = courses::insert(
-        conn,
-        "Introduction to everything",
-        org,
-        "introduction-to-everything",
-    )
-    .await?;
-    let course_instance = course_instances::insert(conn, course, None).await?;
+    let new_course = NewCourse {
+        name: "Introduction to everything".to_string(),
+        organization_id: org,
+        slug: "introduction-to-everything".to_string(),
+    };
+    let (course, _front_page, _default_instance) = courses::insert_course(conn, new_course).await?;
+    let course_instance =
+        course_instances::insert(conn, course.id, Some("non-default instance"), None).await?;
 
     // pages and chapters
     let _page = pages::insert(
         conn,
-        course,
+        course.id,
         "/",
         "Welcome to Introduction to Everything",
         1,
     )
     .await?;
-    let page_ch1_1 = pages::insert(conn, course, "/chapter-1", "Chapter One", 1).await?;
-    let page_ch1_2 = pages::insert(conn, course, "/chapter-1/page-2", "page 2", 2).await?;
-    let page_ch2 = pages::insert(conn, course, "/chapter-2", "In the second chapter...", 1).await?;
-    let chapter_1 = chapters::insert(conn, "The Basics", course, 1).await?;
-    chapters::set_opens_at(conn, chapter_1, Utc::now()).await?;
-    let chapter_2 = chapters::insert(conn, "The intermediaries", course, 2).await?;
-    chapters::set_opens_at(conn, chapter_2, Utc::now() + chrono::Duration::minutes(10)).await?;
-    let chapter_3 = chapters::insert(conn, "Advanced studies", course, 3).await?;
-    chapters::set_opens_at(conn, chapter_3, Utc::now() + chrono::Duration::minutes(20)).await?;
-    let chapter_4 = chapters::insert(conn, "Forbidden magicks", course, 4).await?;
+    let page_ch1_1 = pages::insert(conn, course.id, "/chapter-1", "Chapter One", 1).await?;
+    let page_ch1_2 = pages::insert(conn, course.id, "/chapter-1/page-2", "page 2", 2).await?;
+    let page_ch2 =
+        pages::insert(conn, course.id, "/chapter-2", "In the second chapter...", 1).await?;
+
+    let new_chapter = NewChapter {
+        chapter_number: 1,
+        course_id: course.id,
+        front_front_page_id: None,
+        name: "The Basics".to_string(),
+    };
+    let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter).await?;
+    chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
+    let new_chapter = NewChapter {
+        chapter_number: 2,
+        course_id: course.id,
+        front_front_page_id: None,
+        name: "The intermediaries".to_string(),
+    };
+    let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter).await?;
     chapters::set_opens_at(
         conn,
-        chapter_4,
+        chapter_2.id,
+        Utc::now() + chrono::Duration::minutes(10),
+    )
+    .await?;
+    let new_chapter = NewChapter {
+        chapter_number: 3,
+        course_id: course.id,
+        front_front_page_id: None,
+        name: "Advanced studies".to_string(),
+    };
+    let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter).await?;
+    chapters::set_opens_at(
+        conn,
+        chapter_3.id,
+        Utc::now() + chrono::Duration::minutes(20),
+    )
+    .await?;
+    let new_chapter = NewChapter {
+        chapter_number: 4,
+        course_id: course.id,
+        front_front_page_id: None,
+        name: "Forbidden magicks".to_string(),
+    };
+    let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter).await?;
+    chapters::set_opens_at(
+        conn,
+        chapter_4.id,
         Utc::now() + (chrono::Duration::days(365) * 100),
     )
     .await?;
-    chapters::set_front_page(conn, chapter_1, page_ch1_1).await?;
-    chapters::set_front_page(conn, chapter_2, page_ch2).await?;
-    pages::set_chapter(conn, page_ch1_1, chapter_1).await?;
-    pages::set_chapter(conn, page_ch1_2, chapter_1).await?;
-    pages::set_chapter(conn, page_ch2, chapter_2).await?;
+    pages::set_chapter(conn, page_ch1_1, chapter_1.id).await?;
+    pages::set_chapter(conn, page_ch1_2, chapter_1.id).await?;
+    pages::set_chapter(conn, page_ch2, chapter_2.id).await?;
 
     // exercises
-    let exercise_c1p1_1 = exercises::insert(conn, course, "Best exercise", page_ch1_1, 1).await?;
-    let exercise_c1p2_1 =
-        exercises::insert(conn, course, "Second page, first exercise", page_ch1_2, 1).await?;
-    let exercise_c1p2_2 =
-        exercises::insert(conn, course, "second page, second exercise", page_ch1_2, 2).await?;
-    let exercise_c1p2_3 =
-        exercises::insert(conn, course, "second page, third exercise", page_ch1_2, 3).await?;
-    let exercise_c2p1_1 =
-        exercises::insert(conn, course, "first exercise of chapter two", page_ch2, 3).await?;
+    let exercise_c1p1_1 =
+        exercises::insert(conn, course.id, "Best exercise", page_ch1_1, 1).await?;
+    let exercise_c1p2_1 = exercises::insert(
+        conn,
+        course.id,
+        "Second page, first exercise",
+        page_ch1_2,
+        1,
+    )
+    .await?;
+    let exercise_c1p2_2 = exercises::insert(
+        conn,
+        course.id,
+        "second page, second exercise",
+        page_ch1_2,
+        2,
+    )
+    .await?;
+    let exercise_c1p2_3 = exercises::insert(
+        conn,
+        course.id,
+        "second page, third exercise",
+        page_ch1_2,
+        3,
+    )
+    .await?;
+    let exercise_c2p1_1 = exercises::insert(
+        conn,
+        course.id,
+        "first exercise of chapter two",
+        page_ch2,
+        3,
+    )
+    .await?;
     pages::update_content(
         conn,
         page_ch1_1,
@@ -440,40 +535,40 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     let submission_1 = submissions::insert(
         conn,
         exercise_c1p1_1,
-        course,
+        course.id,
         exercise_task_c1p1e1_1,
         admin,
-        course_instance,
+        course_instance.id,
         Value::String(spec_1_1.to_string()),
     )
     .await?;
     let submission_2 = submissions::insert(
         conn,
         exercise_c1p1_1,
-        course,
+        course.id,
         exercise_task_c1p1e1_1,
         admin,
-        course_instance,
+        course_instance.id,
         Value::String(spec_1_2.to_string()),
     )
     .await?;
     let submission_3 = submissions::insert(
         conn,
         exercise_c1p1_1,
-        course,
+        course.id,
         exercise_task_c1p1e1_1,
         admin,
-        course_instance,
+        course_instance.id,
         Value::String(spec_1_3.to_string()),
     )
     .await?;
     let _submission_4 = submissions::insert(
         conn,
         exercise_c1p1_1,
-        course,
+        course.id,
         exercise_task_c1p1e1_1,
         admin,
-        course_instance,
+        course_instance.id,
         Value::String(spec_1_1.to_string()),
     )
     .await?;
@@ -509,5 +604,5 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     let grading_3 = gradings::new_grading(conn, &submission_3).await?;
     submissions::set_grading_id(conn, grading_3.id, submission_3.id).await?;
 
-    Ok(course)
+    Ok(course.id)
 }

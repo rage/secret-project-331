@@ -2,14 +2,15 @@ import { differenceInSeconds, formatDuration } from "date-fns"
 import Link from "next/link"
 import { useQuery } from "react-query"
 
-import { ChapterInTheCourse, fetchPageUrl } from "../services/backend"
+import { fetchPageUrl } from "../services/backend"
+import { ChapterWithStatus } from "../shared-module/bindings"
 import { chapterBox } from "../styles/componentStyles"
 
 import GenericLoading from "./GenericLoading"
 
 interface ChapterProps {
   now: Date
-  chapter: ChapterInTheCourse
+  chapter: ChapterWithStatus
   courseSlug: string
 }
 

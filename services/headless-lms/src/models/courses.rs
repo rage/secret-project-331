@@ -1,4 +1,4 @@
-use super::ModelResult;
+use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
     models::{course_instances::VariantStatus, pages::NewPage},
     utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
@@ -118,7 +118,10 @@ pub struct NewCourse {
     pub organization_id: Uuid,
 }
 
-pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> ModelResult<Course> {
+pub async fn insert_course(
+    conn: &mut PgConnection,
+    course: NewCourse,
+) -> ModelResult<(Course, Page, CourseInstance)> {
     let mut tx = conn.begin().await?;
 
     let course = sqlx::query_as!(
@@ -149,15 +152,19 @@ pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> ModelR
         title: course.name.clone(),
         url_path: String::from("/"),
     };
-    let _page = crate::models::pages::insert_page(&mut tx, course_front_page).await?;
+    let page = crate::models::pages::insert_page(&mut tx, course_front_page).await?;
 
     // Create default course instance
-    let _default_course_instance =
-        crate::models::course_instances::insert(&mut tx, course.id, Some(VariantStatus::Draft))
-            .await?;
+    let default_course_instance = crate::models::course_instances::insert(
+        &mut tx,
+        course.id,
+        None,
+        Some(VariantStatus::Draft),
+    )
+    .await?;
 
     tx.commit().await?;
-    Ok(course)
+    Ok((course, page, default_course_instance))
 }
 
 // Represents the subset of page fields that one is allowed to update in a course

@@ -305,3 +305,12 @@ export interface VerseAttributes {
     [k: string]: unknown
   }
 }
+
+export interface CoverAttributes {
+  overlayColor: string
+  contentPosition: string
+  backgroundType: boolean
+  dimRatio: number
+  hasParallax: boolean
+  isRepeated: boolean
+}

@@ -6,6 +6,8 @@ import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles
 import fontSizeMapper from "../../styles/fontSizeMapper"
 import { VerseAttributes } from "../../types/GutenbergBlockAttributes"
 
+import { BlockRendererProps } from "."
+
 const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => {
   const attributes: VerseAttributes = data.attributes
 

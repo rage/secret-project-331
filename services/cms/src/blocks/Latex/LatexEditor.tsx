@@ -33,10 +33,6 @@ const LatexEditor: React.FC = () => {
   return (
     <Container>
       <Component>
-        <h2> Preview: </h2>
-        {convert_to_latex()}
-      </Component>
-      <Component>
         <textarea
           className={css`
             width: 98%;
@@ -47,6 +43,10 @@ const LatexEditor: React.FC = () => {
           value={input}
           onChange={update}
         />
+      </Component>
+      <Component>
+        <h2> Preview: </h2>
+        {convert_to_latex()}
       </Component>
     </Container>
   )

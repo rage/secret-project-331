@@ -78,7 +78,7 @@ spec:
               echo Waiting for postgres to be available
               wait-for-it --timeout=120 postgres:5432
               echo Running migrations
-              cargo sqlx migrate run
+              cargo sqlx database setup
               echo Migrations complete
           resources:
             requests:

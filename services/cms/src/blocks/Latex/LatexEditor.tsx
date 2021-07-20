@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import KaTex from "katex"
 import React, { useState } from "react"
@@ -5,6 +6,7 @@ import React, { useState } from "react"
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  border: 1px solid black;
 `
 
 const Component = styled.div`
@@ -20,8 +22,12 @@ const LatexEditor: React.FC = () => {
   }
 
   const convert_to_latex = () => {
-    const output = KaTex.renderToString(input)
-    return <div dangerouslySetInnerHTML={output} />
+    const output = KaTex.renderToString(input, {
+      throwOnError: false,
+      displayMode: true,
+      output: "mathml",
+    })
+    return <div dangerouslySetInnerHTML={{ __html: output }} />
   }
 
   return (
@@ -31,7 +37,16 @@ const LatexEditor: React.FC = () => {
         {convert_to_latex()}
       </Component>
       <Component>
-        <textarea value={input} onChange={update} />
+        <textarea
+          className={css`
+            width: 98%;
+            height: 90%;
+            margin: 4px;
+            resize: none;
+          `}
+          value={input}
+          onChange={update}
+        />
       </Component>
     </Container>
   )

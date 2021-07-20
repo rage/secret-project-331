@@ -1,20 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 
-BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-FILE_PATH="$BASEDIR/../services/headless-lms/db/seed"
-RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
+# BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+# FILE_PATH="$BASEDIR/../services/headless-lms/db/seed"
+# RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
 
-POD_NAME=$(kubectl get pods -l app=postgres -o name | head -n 1)
+POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)
+
+# COMMAND="kubectl"
+# ARGUMENTS=(cp "$RELATIVE_PATH" "postgres-0:/seed")
+
+# echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+# "$COMMAND" "${ARGUMENTS[@]}"
 
 COMMAND="kubectl"
-ARGUMENTS=(cp "$RELATIVE_PATH" "postgres-0:/seed")
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-"$COMMAND" "${ARGUMENTS[@]}"
-
-COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" "$@" -- pg_restore --username headless-lms --disable-triggers --dbname=headless_lms_dev "/seed" "$@")
+ARGUMENTS=(exec -it "$POD_NAME" "$@" -- cargo run --bin seed "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

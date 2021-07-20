@@ -14,7 +14,7 @@ use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::{Connection, PgConnection, Postgres};
-use std::{env, fs::File, process::Command};
+use std::{env, process::Command};
 use uuid::Uuid;
 
 #[tokio::main]
@@ -24,7 +24,6 @@ async fn main() -> Result<()> {
 
     let clean = env::args().any(|a| a == "clean");
     let db_url = env::var("DATABASE_URL")?;
-    let seed_path = "./db/seed";
 
     if clean {
         // hardcoded for now
@@ -139,20 +138,6 @@ async fn main() -> Result<()> {
         UserRole::Assistant,
     )
     .await?;
-
-    // dump database
-    let output = tokio::task::spawn_blocking(move || {
-        let file = File::create(seed_path).unwrap();
-        Command::new("pg_dump")
-            .arg("--data-only")
-            .arg("--format=custom")
-            .arg("--exclude-table=_sqlx_migrations")
-            .arg(db_url)
-            .stdout(file)
-            .status()
-    })
-    .await??;
-    assert!(output.success());
 
     Ok(())
 }

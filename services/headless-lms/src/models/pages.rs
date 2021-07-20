@@ -1,8 +1,9 @@
 use super::ModelResult;
 use crate::{
-    models::{chapters::DatabaseChapter, exercise_tasks::ExerciseTask},
+    models::{chapters::DatabaseChapter, exercise_tasks::ExerciseTask, ModelError},
     utils::document_schema_processor::{
-        denormalize, normalize_from_json, GutenbergBlock, NormalizedDocument,
+        contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
+        GutenbergBlock, NormalizedDocument,
     },
 };
 use chrono::{DateTime, Utc};
@@ -348,6 +349,15 @@ pub async fn update_page(
     page_update: PageUpdate,
 ) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(page_update.content)?;
+
+    if page_update.chapter_id.is_none()
+        && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
+    {
+        return Err(ModelError::Generic(
+                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter",
+            ));
+    }
+
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content)?;
     let mut tx = conn.begin().await?;
@@ -557,6 +567,15 @@ fn update_ids_in_content(
 
 pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(new_page.content)?;
+
+    if new_page.chapter_id.is_none()
+        && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
+    {
+        return Err(ModelError::Generic(
+                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter",
+            ));
+    }
+
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content.clone())?;
     let next_order_number = match new_page.chapter_id {

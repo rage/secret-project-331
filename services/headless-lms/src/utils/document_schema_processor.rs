@@ -2,8 +2,17 @@ use crate::models::pages::PageUpdateExercise;
 use crate::models::pages::PageUpdateExerciseTask;
 use anyhow::anyhow;
 use anyhow::Result;
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: Lazy<Vec<String>> = Lazy::new(|| {
+    vec![
+        "moocfi/exercise".to_string(),
+        "moocfi/exercise-task".to_string(),
+        "moocfi/exercises-in-chapter".to_string(),
+    ]
+});
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct GutenbergBlock {
@@ -62,6 +71,13 @@ pub struct GuternbergExerciseTaskAttributes {
 pub fn normalize_from_json(input: serde_json::Value) -> Result<NormalizedDocument> {
     let parsed: Vec<GutenbergBlock> = serde_json::from_value(input)?;
     normalize(parsed)
+}
+
+pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> bool {
+    let res = input
+        .iter()
+        .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name));
+    res
 }
 
 pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {

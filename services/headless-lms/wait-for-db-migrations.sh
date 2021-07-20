@@ -13,4 +13,7 @@ until test "$(psql "$DATABASE_URL" -c '\d' --csv | grep -c ',courses,table,')" -
   sleep 1
 done
 
+# Clear line because echo -n above wont print line breaks
+echo ""
+
 echo "Database is available: courses table found."

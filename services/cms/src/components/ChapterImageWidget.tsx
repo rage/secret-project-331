@@ -2,7 +2,7 @@ import { Button } from "@material-ui/core"
 import React, { useState } from "react"
 
 import { removeChapterImage, setChapterImage } from "../services/backend/chapters"
-import { Chapter } from "../services/services.types"
+import { Chapter } from "../shared-module/bindings"
 
 import UploadImageForm from "./forms/UploadImageForm"
 

@@ -58,6 +58,7 @@ deploy:
 portForward:
   - resourceType: statefulset
     resourceName: postgres
+    namespace: default
     port: 5432
     localPort: 54328
 profiles:

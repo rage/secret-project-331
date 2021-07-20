@@ -57,7 +57,8 @@ async fn post_new_chapter<T: FileStore>(
 ) -> ControllerResult<Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let new_chapter = payload.0;
-    let database_chapter = crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
+    let (database_chapter, ..) =
+        crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;
     Ok(Json(Chapter::from_database_chapter(
         &database_chapter,
         file_store.as_ref(),

@@ -83,7 +83,4 @@ spec:
             requests:
               memory: 200Mi
               cpu: 200m
-          envFrom:
-            - configMapRef:
-                name: postgres-configuration
       restartPolicy: Never

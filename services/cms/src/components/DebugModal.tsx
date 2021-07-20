@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Button, Dialog, Paper } from "@material-ui/core"
-import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import { Dispatch, useState } from "react"
 
@@ -40,7 +39,7 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
 
   const closeModal = () => {
     setOpen(false)
-    if (updateDataOnClose) {
+    if (updateDataOnClose && editedContent) {
       const parsed = JSON.parse(editedContent)
       updateDataOnClose(parsed)
     }
@@ -74,7 +73,7 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
             width="80vw"
             defaultLanguage="json"
             options={{ wordWrap: "on", readOnly }}
-            defaultValue={editedContent}
+            defaultValue={editedContent ?? undefined}
             onChange={(value) => value && setEditedContent(value)}
           />
         </Paper>

@@ -7,7 +7,10 @@ import {
   PageUpdateExerciseTask,
 } from "../shared-module/bindings"
 
-export const exercisesAtoms = atomFamily<ExerciseWithExerciseTasks | PageUpdateExercise, any>({
+export const exercisesAtoms = atomFamily<
+  ExerciseWithExerciseTasks | PageUpdateExercise | null,
+  any
+>({
   key: "exercises",
   default: null,
 })
@@ -18,7 +21,7 @@ export const exercisesState = atom<Array<string>>({
 })
 
 export const exerciseFamilySelector = selectorFamily<
-  ExerciseWithExerciseTasks | PageUpdateExercise,
+  ExerciseWithExerciseTasks | PageUpdateExercise | null,
   string
 >({
   key: "individual-exercises-access",
@@ -30,7 +33,7 @@ export const exerciseFamilySelector = selectorFamily<
     },
   set:
     (id) =>
-    ({ set, get }, exercise: ExerciseWithExerciseTasks | PageUpdateExercise) => {
+    ({ set, get }, exercise) => {
       set(exercisesAtoms(id), exercise)
       if (!get(exercisesState).includes(id)) {
         set(exercisesState, (prev) => [...prev, id])
@@ -39,7 +42,7 @@ export const exerciseFamilySelector = selectorFamily<
 })
 
 export const exerciseTaskFamilySelector = selectorFamily<
-  ExerciseTask | PageUpdateExerciseTask,
+  ExerciseTask | PageUpdateExerciseTask | null,
   [string, string]
 >({
   key: "individual-exercises-items-access",
@@ -47,15 +50,18 @@ export const exerciseTaskFamilySelector = selectorFamily<
     (id) =>
     ({ get }) => {
       const atom = get(exercisesAtoms(id[0]))
-      return atom.exercise_tasks.find((task) => task.id === id[1])
+      const result = atom?.exercise_tasks.find((task) => task.id === id[1])
+      return result ?? null
     },
   set:
     (id) =>
-    ({ set }, exerciseTaskSpec: any) => {
+    ({ set }, exerciseTaskSpec) => {
+      // @ts-ignore: TODO...
       set(exercisesAtoms(id[0]), (prev) => {
         return {
           ...prev,
-          exercise_tasks: prev.exercise_tasks.map((et) => {
+          exercise_tasks: prev?.exercise_tasks.map((et) => {
+            // @ts-ignore: TODO...
             if (et.id !== exerciseTaskSpec.id) {
               return et
             }
@@ -66,7 +72,7 @@ export const exerciseTaskFamilySelector = selectorFamily<
     },
 })
 
-export const allExercises = selector<(ExerciseWithExerciseTasks | PageUpdateExercise)[]>({
+export const allExercises = selector<(ExerciseWithExerciseTasks | PageUpdateExercise | null)[]>({
   key: "all-exercises",
   get: ({ get }) => {
     const ids = get(exercisesState)

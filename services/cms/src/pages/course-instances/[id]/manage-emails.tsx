@@ -13,12 +13,16 @@ import {
 } from "../../../services/backend/course-instances"
 import { deleteEmailTemplate } from "../../../services/backend/email-templates"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
+import { SimplifiedUrlQuery } from "../../../utils/dontRenderUntilQueryParametersReady"
 
-const CourseInstanceEmailTemplates = () => {
-  const courseInstanceId = useQueryParameter("id")
+export interface CourseInstanceEmailTemplatesProps {
+  query: SimplifiedUrlQuery<"id">
+}
+
+const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> = ({ query }) => {
+  const courseInstanceId = query.id
   const {
     isLoading,
     error,

@@ -9,10 +9,11 @@ import {
 } from "../../../services/backend/email-templates"
 import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import useStateQuery from "../../../shared-module/hooks/useStateQuery"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
+import dontRenderUntilQueryParametersReady, {
+  SimplifiedUrlQuery,
+} from "../../../utils/dontRenderUntilQueryParametersReady"
 
 const EditorLoading = <div>Loading editor...</div>
 
@@ -21,8 +22,12 @@ const EmailEditor = dynamic(() => import("../../../components/editors/EmailEdito
   loading: () => EditorLoading,
 })
 
-const EmailTemplateEdit: React.FC = () => {
-  const emailTemplateId = useQueryParameter("id")
+export interface EmailTemplateEditProps {
+  query: SimplifiedUrlQuery<"id">
+}
+
+const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
+  const emailTemplateId = query.id
   const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
     fetchEmailTemplateWithId(_emailTemplateId),
   )

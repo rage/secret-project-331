@@ -14,7 +14,7 @@ const dom = new JSDOM(`<body>
 const mock = () => {}
 Object.defineProperty(dom.window, "matchMedia", {
   writable: true,
-  value: (query) => {
+  value: (query: any) => {
     return {
       matches: false,
       media: query,
@@ -37,7 +37,7 @@ async function main() {
   const coreBlocks = allBlockInstances.map((block) => block.name)
   console.log("Gutenberg all Core block names:")
   console.log(coreBlocks)
-  const embedBlocks = blocks.getBlockType("core/embed").variations.map((block) => block.name)
+  const embedBlocks = blocks.getBlockType("core/embed").variations.map((block: any) => block.name)
   console.log("Gutenberg all core/embed names:")
   console.log(embedBlocks)
 }

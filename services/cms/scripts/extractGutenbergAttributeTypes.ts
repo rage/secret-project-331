@@ -19,7 +19,7 @@ const dom = new JSDOM(`<body>
 const mock = () => {}
 Object.defineProperty(dom.window, "matchMedia", {
   writable: true,
-  value: (query) => {
+  value: (query: any) => {
     return {
       matches: false,
       media: query,
@@ -42,7 +42,7 @@ const { supportedCoreBlocks } = require("../src/blocks/supportedGutenbergBlocks"
 async function main() {
   blockLibrary.registerCoreBlocks()
 
-  blocks.getBlockTypes().forEach((block) => {
+  blocks.getBlockTypes().forEach((block: any) => {
     if (supportedCoreBlocks.indexOf(block.name) === -1) {
       blocks.unregisterBlockType(block.name)
     }

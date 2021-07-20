@@ -5,24 +5,24 @@
 
 import { useRouter } from "next/router"
 
-interface ProvidedExtraProps {
-  query: SimplifiedUrlQuery
+interface ProvidedExtraProps<T = unknown> {
+  query: SimplifiedUrlQuery<T>
 }
 
 // Like query but string[] -> string. Arrays can appear in the original implementation
 // when multiple query parameters are supplied with the same name.
 // We default to the first provided value.
-export type SimplifiedUrlQuery = NodeJS.Dict<string>
+export type SimplifiedUrlQuery<T> = T extends string ? Record<T, string> : NodeJS.Dict<string>
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function dontRenderUntilQueryParametersReady<T>(
-  WrappedComponent: React.ComponentType<T & ProvidedExtraProps>,
+export function dontRenderUntilQueryParametersReady<T, P = unknown>(
+  WrappedComponent: React.ComponentType<T & ProvidedExtraProps<P>>,
 ) {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
 
   const InnerComponent = (props: T) => {
-    const queryParameters: SimplifiedUrlQuery = {}
+    const queryParameters: NodeJS.Dict<string> = {}
     const router = useRouter()
     // We're a bit defensive with the null checks because the type definitions
     // around query seem to be unreliable.
@@ -40,10 +40,10 @@ export function dontRenderUntilQueryParametersReady<T>(
       if (Array.isArray(queryValue)) {
         queryValue = queryValue[0]
       }
-      queryParameters[key] = value.toString()
+      queryParameters[key] = value?.toString()
     }
 
-    return <WrappedComponent {...(props as T)} query={queryParameters} />
+    return <WrappedComponent {...(props as T)} query={queryParameters as SimplifiedUrlQuery<P>} />
   }
 
   InnerComponent.displayName = `dontRenderUntilQueryParameterReady(${displayName})`

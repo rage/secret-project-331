@@ -12,7 +12,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "../../utils/dontRenderUntilQueryParametersReady"
 
 interface PagesProps {
-  query: SimplifiedUrlQuery
+  query: SimplifiedUrlQuery<"id">
 }
 
 const EditorLoading = <div>Loading editor...</div>

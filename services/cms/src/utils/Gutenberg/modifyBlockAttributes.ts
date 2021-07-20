@@ -1,6 +1,6 @@
 import { assign } from "lodash"
 
-export function modifyBlockAttributes(settings, name) {
+export function modifyBlockAttributes(settings: any, name: any) {
   if (name !== "core/image") {
     return settings
   }

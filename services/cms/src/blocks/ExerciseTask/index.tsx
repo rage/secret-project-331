@@ -20,19 +20,19 @@ const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
   attributes: {
     id: {
       type: "string",
-      default: null,
+      default: undefined,
     },
     exercise_type: {
       type: "string",
-      default: null,
+      default: undefined,
     },
     public_spec: {
       type: "string",
-      default: null,
+      default: undefined,
     },
     private_spec: {
       type: "string",
-      default: null,
+      default: undefined,
     },
   },
   edit: enforceExerciseTaskIdDefined(ExerciseTaskEditor),

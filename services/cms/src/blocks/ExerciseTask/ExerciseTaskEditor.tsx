@@ -30,7 +30,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = (pr
     <ExerciseTaskEditorCard id={attributes.id}>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       {!exerciseType && <ChooseExerciseTaskType onChooseItem={handleChooseExerciseTask} />}
-      {exerciseType && <IFrameEditor key={id} exerciseTaskid={id} url={url} props={props} />}
+      {exerciseType && <IFrameEditor key={id} exerciseTaskid={id} url={url ?? ""} props={props} />}
     </ExerciseTaskEditorCard>
   )
 }

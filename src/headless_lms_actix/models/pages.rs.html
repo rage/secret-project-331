@@ -912,10 +912,16 @@
 <span id="909">909</span>
 <span id="910">910</span>
 <span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::ModelResult</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">models</span>::{<span class="ident">chapters::DatabaseChapter</span>, <span class="ident">exercise_tasks::ExerciseTask</span>},
+    <span class="ident">models</span>::{<span class="ident">chapters::DatabaseChapter</span>, <span class="ident">exercise_tasks::ExerciseTask</span>, <span class="ident">ModelError</span>},
     <span class="ident">utils::document_schema_processor</span>::{
         <span class="ident">denormalize</span>, <span class="ident">normalize_from_json</span>, <span class="ident">GutenbergBlock</span>, <span class="ident">NormalizedDocument</span>,
     },
@@ -1687,6 +1693,12 @@ WHERE p.id = $1;
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">if</span> <span class="ident">page_metadata</span>.<span class="ident">chapter_number</span>.<span class="ident">is_none</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::InvalidRequest</span>(
+            <span class="string">&quot;Page is not related to any chapter&quot;</span>.<span class="ident">to_string</span>(),
+        ));
+    }
 
     <span class="prelude-val">Ok</span>(<span class="ident">page_metadata</span>)
 }

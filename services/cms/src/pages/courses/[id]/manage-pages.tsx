@@ -4,12 +4,14 @@ import { groupBy, max } from "lodash"
 import React, { useState } from "react"
 import { useQuery } from "react-query"
 
+import ChapterImageWidget from "../../../components/ChapterImageWidget"
 import Layout from "../../../components/Layout"
 import PageList from "../../../components/PageList"
-import NewPartForm from "../../../components/forms/NewChapterForm"
+import NewChapterForm from "../../../components/forms/NewChapterForm"
+import CourseContext from "../../../contexts/CourseContext"
 import { fetchCourseStructure } from "../../../services/backend/courses"
 import { postNewPage } from "../../../services/backend/pages"
-import { Chapter } from "../../../services/services.types"
+import { Chapter } from "../../../shared-module/bindings"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
@@ -39,6 +41,7 @@ const CoursePages: React.FC<unknown> = () => {
       title: data.course.name,
       course_id: data.course.id,
       chapter_id: null,
+      front_page_of_chapter_id: null,
     })
     await refetch()
   }
@@ -67,73 +70,76 @@ const CoursePages: React.FC<unknown> = () => {
   const frontPage = data.pages.find((page) => page.url_path === "/")
 
   return (
-    <Layout>
-      <div
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-          margin-bottom: 1rem;
-        `}
-      >
-        <h1>Course overview for {data.course.name}</h1>
-        {!frontPage && (
-          <Button onClick={handleCreateFrontPage}>Create front page for course</Button>
-        )}
-        <PageList
-          data={data.pages.filter((page) => !page.chapter_id)}
-          refetch={refetch}
-          courseId={id}
-        />
-        <div>
-          {data.chapters
-            .filter((chapter) => !chapter.deleted_at)
-            .sort((a, b) => a.chapter_number - b.chapter_number)
-            .map((chapter: Chapter) => (
+    <CourseContext.Provider value={{ courseId: data.course.id }}>
+      <Layout>
+        <div
+          className={css`
+            ${normalWidthCenteredComponentStyles}
+            margin-bottom: 1rem;
+          `}
+        >
+          <h1>Course overview for {data.course.name}</h1>
+          {!frontPage && (
+            <Button onClick={handleCreateFrontPage}>Create front page for course</Button>
+          )}
+          <PageList
+            data={data.pages.filter((page) => !page.chapter_id)}
+            refetch={refetch}
+            courseId={id}
+          />
+          <div>
+            {data.chapters
+              .filter((chapter) => !chapter.deleted_at)
+              .sort((a, b) => a.chapter_number - b.chapter_number)
+              .map((chapter: Chapter) => (
+                <div
+                  className={css`
+                    border: 1px solid black;
+                    padding: 2rem;
+                    margin-bottom: 1rem;
+                  `}
+                  key={chapter.id}
+                >
+                  <h3>
+                    Chapter {chapter.chapter_number}: {chapter.name}
+                  </h3>
+                  <ChapterImageWidget chapter={chapter} onChapterUpdated={() => refetch()} />
+                  {!chapter.front_page_id && (
+                    <Button onClick={async () => await handleCreateChapterFrontPage(chapter)}>
+                      Create chapter front page
+                    </Button>
+                  )}
+                  <PageList
+                    data={pagesByChapter[chapter.id] ?? []}
+                    refetch={refetch}
+                    courseId={id}
+                    chapter={chapter}
+                  />
+                </div>
+              ))}
+
+            <Button onClick={() => setShowForm(!showForm)}>Add new chapter</Button>
+
+            <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
               <div
                 className={css`
-                  border: 1px solid black;
-                  padding: 2rem;
-                  margin-bottom: 1rem;
+                  margin: 1rem;
                 `}
-                key={chapter.id}
               >
-                <h3>
-                  Chapter {chapter.chapter_number}: {chapter.name}
-                </h3>
-                {!chapter.front_page_id && (
-                  <Button onClick={async () => await handleCreateChapterFrontPage(chapter)}>
-                    Create chapter front page
-                  </Button>
-                )}
-                <PageList
-                  data={pagesByChapter[chapter.id] ?? []}
-                  refetch={refetch}
+                <Button onClick={() => setShowForm(!showForm)}>Close</Button>
+                <NewChapterForm
                   courseId={id}
-                  chapter={chapter}
+                  onSubmitForm={handleCreateChapter}
+                  chapterNumber={maxPart + 1 || 1}
                 />
               </div>
-            ))}
-
-          <Button onClick={() => setShowForm(!showForm)}>Add new chapter</Button>
-
-          <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
-            <div
-              className={css`
-                margin: 1rem;
-              `}
-            >
-              <Button onClick={() => setShowForm(!showForm)}>Close</Button>
-              <NewPartForm
-                courseId={id}
-                onSubmitForm={handleCreateChapter}
-                chapterNumber={maxPart + 1 || 1}
-              />
-            </div>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
-      </div>
 
-      <DebugModal data={data} />
-    </Layout>
+        <DebugModal data={data} />
+      </Layout>
+    </CourseContext.Provider>
   )
 }
 

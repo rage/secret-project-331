@@ -8,7 +8,6 @@ default-run = "headless-lms-actix"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
-
 [dependencies]
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
 actix-web = "=4.0.0-beta.5"
@@ -91,7 +90,12 @@ tracing-error = "0.1"
 tracing-log = "0.1"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
 thiserror = "1"
-
+# generate typescript bindings from rust types
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", branch = "ext", features = [
+  "with-uuid",
+  "with-chrono",
+  "with-serde-json"
+] }
 # restricting the transitive dependencies of actix-web during beta
 actix-http = "=3.0.0-beta.5"
 actix-service = "=2.0.0-beta.5"

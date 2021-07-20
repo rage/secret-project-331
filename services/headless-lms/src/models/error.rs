@@ -24,7 +24,7 @@ pub enum ModelError {
     #[error(transparent)]
     Anyhow(#[from] anyhow::Error),
     #[error("{0}")]
-    Generic(&'static str),
+    Generic(String),
 }
 
 impl From<sqlx::Error> for ModelError {
@@ -55,6 +55,8 @@ impl From<sqlx::Error> for ModelError {
 
 #[cfg(test)]
 mod test {
+    use uuid::Uuid;
+
     use super::*;
     use crate::{
         models::{self, email_templates::EmailTemplateNew},
@@ -91,9 +93,13 @@ mod test {
     async fn users_email_check() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let err = models::users::insert(tx.as_mut(), "invalid email")
-            .await
-            .unwrap_err();
+        let err = models::users::insert(
+            tx.as_mut(),
+            "invalid email",
+            Uuid::parse_str("92c2d6d6-e1b8-4064-8c60-3ae52266c62c").unwrap(),
+        )
+        .await
+        .unwrap_err();
         if let ModelError::DatabaseConstraint { constraint, .. } = err {
             assert_eq!(constraint, "users_email_check");
         } else {

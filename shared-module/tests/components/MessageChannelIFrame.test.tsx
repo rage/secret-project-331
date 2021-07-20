@@ -2,7 +2,7 @@ import { render, waitFor } from "@testing-library/react"
 import { rest } from "msw"
 import { setupServer } from "msw/node"
 
-import MessageChannelIFrame from "../../../src/components/MessageChannelIFrame"
+import MessageChannelIFrame from "../../src/components/MessageChannelIFrame"
 
 const server = setupServer(
   rest.get("/example-iframe-page", (_req, res, ctx) => {

@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../system-tests/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+echo "> cd $RELATIVE_PATH"
+cd "$RELATIVE_PATH" || exit
+
+COMMAND="npm"
+ARGUMENTS=(run test "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

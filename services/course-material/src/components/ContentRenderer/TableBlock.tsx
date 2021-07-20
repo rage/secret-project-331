@@ -1,48 +1,49 @@
 import { css } from "@emotion/css"
 
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 
-/* Still working on the tableBlock */
-
-type TableBlockType = {
-  tag: string
-  content: string
-}
-
-type TableBlockCell = {
-  [key: string]: TableBlockType
-}
-
-const TableBlock: React.FC<BlockRendererProps<any>> = ({ data }) => {
-  const innerBlocks: any = data.innerBlocks[0].innerBlocks[0].attributes
-  const caption: string = data.innerBlocks[0].innerBlocks[0].caption
-  const body: TableBlockCell[] = innerBlocks.body[0]
-  const headers: TableBlockCell = innerBlocks.head[0].cells
-  const footer: TableBlockCell = innerBlocks.foot[0].cells
+const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
+  const innerBlocks = data.attributes
+  const body = innerBlocks.body
+  const head = innerBlocks.head[0]
+  const foot = innerBlocks.foot[0]
   return (
     <table
       className={css`
         ${normalWidthCenteredComponentStyles}
       `}
     >
-      <tr>
-        {headers.map((header) => (
-          <th key={header.content}>{header.content}</th>
-        ))}
-      </tr>
+      {head && (
+        <tr>
+          {head.cells.map((cell, index) => (
+            <th key={index}>{cell.content}</th>
+          ))}
+        </tr>
+      )}
       <tbody>
-        {body.map((obj, index) => {
-          ;<tr key={index}>
-            {Object.values(obj).map((o, index) => {
-              return <td key={index}>{o.content}</td>
-            })}
-          </tr>
+        {body.map((obj, rowIndex) => {
+          return (
+            <tr key={rowIndex}>
+              {obj.cells.map((o, index) => (
+                <td key={index}>{o.content}</td>
+              ))}
+            </tr>
+          )
         })}
       </tbody>
+      {foot && (
+        <tr>
+          {foot.cells.map((cell, index) => (
+            <th key={index}>{cell.content}</th>
+          ))}
+        </tr>
+      )}
     </table>
   )
 }
 
-export default TableBlock
+export default withErrorBoundary(TableBlock)

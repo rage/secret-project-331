@@ -7,6 +7,7 @@ use reqwest::IntoUrl;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use std::time::Duration;
+use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
 
@@ -17,10 +18,11 @@ pub struct ExerciseServiceInfo {
     pub updated_at: DateTime<Utc>,
     pub editor_iframe_path: String,
     pub exercise_iframe_path: String,
+    pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseMaterialExerciseServiceInfo {
     pub exercise_iframe_url: String,
 }
@@ -30,6 +32,7 @@ pub struct FetchedExerciseServiceInfo {
     pub service_name: String,
     pub editor_iframe_path: String,
     pub exercise_iframe_path: String,
+    pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
 }
 
@@ -39,6 +42,7 @@ pub async fn insert(
     editor_iframe_path: &str,
     exercise_iframe_path: &str,
     grade_endpoint_path: &str,
+    submission_iframe_path: &str,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
@@ -47,15 +51,17 @@ INSERT INTO exercise_service_info (
     exercise_service_id,
     editor_iframe_path,
     exercise_iframe_path,
-    grade_endpoint_path
+    grade_endpoint_path,
+    submission_iframe_path
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *
 ",
         exercise_service_id,
         editor_iframe_path,
         exercise_iframe_path,
-        grade_endpoint_path
+        grade_endpoint_path,
+        submission_iframe_path
     )
     .fetch_one(conn)
     .await?;
@@ -105,18 +111,21 @@ INSERT INTO exercise_service_info(
     exercise_service_id,
     editor_iframe_path,
     exercise_iframe_path,
+    submission_iframe_path,
     grade_endpoint_path
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET editor_iframe_path = $2,
   exercise_iframe_path = $3,
-  grade_endpoint_path = $4
+  submission_iframe_path = $4,
+  grade_endpoint_path = $5
 RETURNING *
     "#,
         exercise_service_id,
         update.editor_iframe_path,
         update.exercise_iframe_path,
+        update.submission_iframe_path,
         update.grade_endpoint_path
     )
     .fetch_one(conn)

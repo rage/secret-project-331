@@ -1,4 +1,4 @@
-import { NewPage, Page, PageUpdate } from "../../services.types"
+import { NewPage, Page, PageUpdate } from "../../../shared-module/bindings"
 import { cmsClient } from "../cmsClient"
 
 export const fetchPageWithId = async (pageId: string): Promise<Page> => {
@@ -13,13 +13,10 @@ export const postNewPage = async (data: NewPage): Promise<Page> => {
   return response.data
 }
 
-export const updateExistingPage = async ({
-  page_id,
-  content,
-  url_path,
-  title,
-  chapter_id,
-}: PageUpdate): Promise<Page> => {
+export const updateExistingPage = async (
+  page_id: string,
+  { content, url_path, title, chapter_id }: PageUpdate,
+): Promise<Page> => {
   const response = await cmsClient.put(
     `/pages/${page_id}`,
     { content, url_path, title, chapter_id },

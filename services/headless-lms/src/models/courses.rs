@@ -1,11 +1,13 @@
-use super::ModelResult;
+use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
     models::{course_instances::VariantStatus, pages::NewPage},
-    utils::document_schema_processor::GutenbergBlock,
+    utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
+    ApplicationConfiguration,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, PgConnection};
+use ts_rs::TS;
 use uuid::Uuid;
 
 use super::{
@@ -13,7 +15,7 @@ use super::{
     pages::{course_pages, Page},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Course {
     pub id: Uuid,
     pub slug: String,
@@ -24,7 +26,7 @@ pub struct Course {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
@@ -77,10 +79,16 @@ pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResu
 pub async fn get_course_structure(
     conn: &mut PgConnection,
     course_id: Uuid,
+    file_store: &impl FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseStructure> {
     let course = get_course(conn, course_id).await?;
     let pages = course_pages(conn, course_id).await?;
-    let chapters = course_chapters(conn, course_id).await?;
+    let chapters = course_chapters(conn, course_id)
+        .await?
+        .iter()
+        .map(|chapter| Chapter::from_database_chapter(chapter, file_store, app_conf))
+        .collect();
     Ok(CourseStructure {
         course,
         pages,
@@ -103,14 +111,17 @@ pub async fn organization_courses(
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewCourse {
     pub name: String,
     pub slug: String,
     pub organization_id: Uuid,
 }
 
-pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> ModelResult<Course> {
+pub async fn insert_course(
+    conn: &mut PgConnection,
+    course: NewCourse,
+) -> ModelResult<(Course, Page, CourseInstance)> {
     let mut tx = conn.begin().await?;
 
     let course = sqlx::query_as!(
@@ -141,19 +152,23 @@ pub async fn insert_course(conn: &mut PgConnection, course: NewCourse) -> ModelR
         title: course.name.clone(),
         url_path: String::from("/"),
     };
-    let _page = crate::models::pages::insert_page(&mut tx, course_front_page).await?;
+    let page = crate::models::pages::insert_page(&mut tx, course_front_page).await?;
 
     // Create default course instance
-    let _default_course_instance =
-        crate::models::course_instances::insert(&mut tx, course.id, Some(VariantStatus::Draft))
-            .await?;
+    let default_course_instance = crate::models::course_instances::insert(
+        &mut tx,
+        course.id,
+        None,
+        Some(VariantStatus::Draft),
+    )
+    .await?;
 
     tx.commit().await?;
-    Ok(course)
+    Ok((course, page, default_course_instance))
 }
 
 // Represents the subset of page fields that one is allowed to update in a course
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseUpdate {
     name: String,
 }

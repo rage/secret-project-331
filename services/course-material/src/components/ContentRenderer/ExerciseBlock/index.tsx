@@ -6,12 +6,8 @@ import { useQuery } from "react-query"
 
 import ContentRenderer, { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
-import {
-  Block,
-  fetchExerciseById,
-  postSubmission,
-  SubmissionResult,
-} from "../../../services/backend"
+import { Block, fetchExerciseById, postSubmission } from "../../../services/backend"
+import { SubmissionResult } from "../../../shared-module/bindings"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"

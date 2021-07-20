@@ -270,9 +270,9 @@ export interface SpacerAttributes {
 export interface TableAttributes {
   hasFixedLayout: boolean
   caption: string
-  head: unknown[]
-  body: unknown[]
-  foot: unknown[]
+  head: Array<{ cells: Array<{ tag: string; content: string }> }>
+  body: Array<{ cells: Array<{ tag: string; content: string }> }>
+  foot: Array<{ cells: Array<{ tag: string; content: string }> }>
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   anchor?: string
   className?: string
@@ -304,4 +304,13 @@ export interface VerseAttributes {
   style?: {
     [k: string]: unknown
   }
+}
+
+export interface CoverAttributes {
+  overlayColor: string
+  contentPosition: string
+  backgroundType: boolean
+  dimRatio: number
+  hasParallax: boolean
+  isRepeated: boolean
 }

@@ -38,6 +38,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
       url_path: `${prefix}${path}`,
       title,
       chapter_id: chapterId,
+      front_page_of_chapter_id: null,
     })
     onSubmitForm()
   }

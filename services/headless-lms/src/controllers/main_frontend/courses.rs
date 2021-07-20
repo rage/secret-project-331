@@ -78,7 +78,7 @@ async fn post_new_course(
 ) -> ControllerResult<Json<Course>> {
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
-    let course = crate::models::courses::insert_course(&mut conn, new_course).await?;
+    let (course, ..) = crate::models::courses::insert_course(&mut conn, new_course).await?;
     Ok(Json(course))
 }
 

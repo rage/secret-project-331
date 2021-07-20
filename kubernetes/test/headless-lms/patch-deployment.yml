@@ -5,15 +5,3 @@
         name: postgres-configuration
     - secretRef:
         name: headless-lms-secrets
-- op: add
-  path: "/spec/template/spec/containers/0/env"
-  value:
-    - name: POSTGRES_HOST
-      value: postgres
-    - name: POSTGRES_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: postgres-credentials
-          key: password
-    - name: DATABASE_URL
-      value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres/$(POSTGRES_DB)

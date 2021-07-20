@@ -51,10 +51,6 @@ jobs:
           start args: "--addons ingress"
           driver: "docker"
 
-      - name: Kube proxy logs
-        run: |
-          kubectl logs --namespace kube-system daemonset/kube-proxy
-
       - name: Debug kube-system
         run: |
           kubectl get pods --namespace kube-system

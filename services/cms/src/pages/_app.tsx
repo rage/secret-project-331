@@ -1,7 +1,8 @@
 import "../styles/globals.css"
 import "../styles/Gutenberg/style.scss"
 
-import { css, Global } from "@emotion/react"
+import { css } from "@emotion/css"
+import { Global } from "@emotion/react"
 import { CssBaseline } from "@material-ui/core"
 import { StylesProvider, ThemeProvider } from "@material-ui/core/styles"
 import type { AppProps } from "next/app"

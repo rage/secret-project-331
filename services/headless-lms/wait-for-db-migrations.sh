@@ -2,6 +2,11 @@
 # Waits for a database with migrations complete to be available.
 set -euo pipefail
 
+if [[ -z "$DATABASE_URL" ]]; then
+    echo "Error: DATABASE_URL must be set" 1>&2
+    exit 1
+fi
+
 echo "Waiting until I find the courses table in postgres..."
 until test "$(psql "$DATABASE_URL" -c '\d' --csv | grep -c ',courses,table,')" -eq 1 2> /dev/null; do
   echo -n "."

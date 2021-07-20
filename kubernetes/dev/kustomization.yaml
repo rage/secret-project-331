@@ -29,3 +29,7 @@ patches:
       version: v1
       kind: Deployment
       name: regrader
+  - path: headless-lms/patch-with-init-container.yml
+    target:
+      version: v1
+      labelSelector: "deploymentType=with-init-container"

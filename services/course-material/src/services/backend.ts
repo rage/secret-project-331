@@ -1,25 +1,20 @@
-import { courseMaterialClient } from "./courseMaterialClient"
+import {
+  ChapterWithStatus,
+  Course,
+  CourseInstance,
+  CourseMaterialExercise,
+  Organization,
+  Page,
+  PageRoutingData,
+  PageWithExercises,
+  UserProgress,
+} from "../shared-module/bindings"
 
-export interface Course {
-  id: string
-  created_at: Date
-  updated_at: Date
-  name: string
-  deleted_at: Date | null
-  slug: string
-}
+import { courseMaterialClient } from "./courseMaterialClient"
 
 export const fetchCourses = async (): Promise<Array<Course>> => {
   const data = (await courseMaterialClient.get("/courses", { responseType: "json" })).data
   return data
-}
-
-export interface Organization {
-  id: string
-  created_at: Date
-  updated_at: Date
-  name: string
-  deleted_at: Date | null
 }
 
 export const fetchOrganizations = async (): Promise<Array<Organization>> => {
@@ -36,18 +31,6 @@ export const fetchOrganizationCourses = async (organizationId: string): Promise<
   return data
 }
 
-export interface CoursePage {
-  id: string
-  created_at: Date
-  updated_at: Date
-  course_id: string
-  content: Block<unknown>[]
-  url_path: string
-  title: string
-  deleted_at: Date | null
-  chapter_id: string | null
-}
-
 export interface Block<T> {
   name: string
   isValid: boolean
@@ -56,31 +39,13 @@ export interface Block<T> {
   innerBlocks: any[]
 }
 
-export const fetchCoursePageByPath = async (
-  courseSlug: string,
-  path: string,
-): Promise<CoursePage> => {
+export const fetchCoursePageByPath = async (courseSlug: string, path: string): Promise<Page> => {
   const data = (
     await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path${path}`, {
       responseType: "json",
     })
   ).data
   return data
-}
-
-export type CourseInstanceVariantStatus = "draft" | "upcoming" | "active" | "ended"
-
-export interface CourseInstance {
-  id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: string
-  course_id: string
-  starts_at: Date | null
-  ends_at: Date | null
-  name: string | null
-  description: string | null
-  variant_status: CourseInstanceVariantStatus
 }
 
 export const fetchCourseInstance = async (courseId: string): Promise<CourseInstance | null> => {
@@ -112,7 +77,7 @@ export const postCourseInstanceEnrollment = async (courseInstanceId: string): Pr
   return response.data
 }
 
-export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[]> => {
+export const fetchAllCoursePages = async (courseId: string): Promise<Page[]> => {
   const data = (
     await courseMaterialClient.get(`/courses/${courseId}/pages`, {
       responseType: "json",
@@ -121,54 +86,10 @@ export const fetchAllCoursePages = async (courseId: string): Promise<CoursePage[
   return data
 }
 
-export interface CourseProgress {
-  score_given: number
-  score_maximum: number
-  total_exercises: number
-  completed_exercises: number
-}
-
-export const fetchCourseProgress = async (courseInstanceId: string): Promise<CourseProgress> => {
+export const fetchUserCourseProgress = async (courseInstanceId: string): Promise<UserProgress> => {
   const data = (await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`))
     .data
   return data
-}
-
-export interface CourseMaterialExercise {
-  exercise: Exercise
-  current_exercise_task: CurrentExerciseTask
-  exercise_status?: ExerciseStatus
-  current_exercise_task_service_info?: CurrentExerciseTaskServiceInfo
-}
-
-export interface CurrentExerciseTaskServiceInfo {
-  exercise_iframe_path: string
-}
-
-export interface CurrentExerciseTask {
-  id: string
-  exercise_id: string
-  exercise_type: string
-  assignment: unknown[]
-  public_spec: unknown
-}
-
-export interface Exercise {
-  id: string
-  created_at: Date
-  updated_at: Date
-  name: string
-  course_id: string
-  page_id: string
-  deadline: null
-  deleted_at: Date | null
-  score_maximum: number
-}
-
-export interface ExerciseStatus {
-  score_given?: number
-  activity_progress: string
-  grading_progress: string
 }
 
 export const fetchExerciseById = async (id: string): Promise<CourseMaterialExercise> => {
@@ -176,22 +97,9 @@ export const fetchExerciseById = async (id: string): Promise<CourseMaterialExerc
   return data
 }
 
-export interface ChapterPagesWithExercises {
-  id: string
-  created_at: Date
-  updated_at: Date
-  course_id: string
-  chapter_id: string
-  content: any
-  url_path: string
-  title: string
-  deleted_at: Date
-  exercises: Exercise[]
-}
-
 export const fetchChaptersPagesWithExercises = async (
   chapterId: string,
-): Promise<ChapterPagesWithExercises[]> => {
+): Promise<PageWithExercises[]> => {
   const data = (
     await courseMaterialClient.get(`/chapters/${chapterId}/exercises`, {
       responseType: "json",
@@ -200,49 +108,15 @@ export const fetchChaptersPagesWithExercises = async (
   return data
 }
 
-export interface PageRoutingData {
-  url_path: string
-  title: string
-  chapter_number: string | undefined
-  chapter_id: string
-}
-
 export const getNextPageRoutingData = async (currentPageId: string): Promise<PageRoutingData> => {
   return (await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)).data
 }
 
-export interface ChapterPages {
-  id: string
-  created_at: Date
-  updated_at: Date
-  course_id: string
-  chapter_id: string
-  content: any
-  url_path: string
-  title: string
-  deleted_at: Date
-}
-
-export const fetchChaptersPagesExcludeFrontpage = async (
-  chapterId: string,
-): Promise<ChapterPages[]> => {
+export const fetchChaptersPagesExcludeFrontpage = async (chapterId: string): Promise<Page[]> => {
   return (await courseMaterialClient.get(`/chapters/${chapterId}/pages-exclude-mainfrontpage`)).data
 }
 
-export interface ChapterInTheCourse {
-  id: string
-  created_at: Date
-  updated_at: Date
-  name: string
-  course_id: string
-  deleted_at: Date | null
-  chapter_number: number
-  front_page_id: string | null
-  opens_at: Date | null
-  status: "open" | "closed"
-}
-
-export const fetchChaptersInTheCourse = async (courseId: string): Promise<ChapterInTheCourse[]> => {
+export const fetchChaptersInTheCourse = async (courseId: string): Promise<ChapterWithStatus[]> => {
   return (await courseMaterialClient.get(`/courses/${courseId}/chapters`)).data
 }
 

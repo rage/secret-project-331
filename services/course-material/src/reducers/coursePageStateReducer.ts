@@ -1,4 +1,4 @@
-import { CourseInstance, CoursePage } from "../services/backend"
+import { CourseInstance, Page } from "../shared-module/bindings"
 
 interface PageStateLoading {
   state: "loading"
@@ -9,7 +9,7 @@ interface PageStateLoading {
 
 interface PageStateReady {
   state: "ready"
-  pageData: CoursePage
+  pageData: Page
   instance: CourseInstance | null
   error: null
 }
@@ -30,7 +30,7 @@ interface RawSetStateAction {
 
 interface SetDataAction {
   type: "setData"
-  payload: { pageData: CoursePage; instance: CourseInstance | null }
+  payload: { pageData: Page; instance: CourseInstance | null }
 }
 
 interface SetErrorAction {

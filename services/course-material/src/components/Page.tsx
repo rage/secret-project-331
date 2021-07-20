@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import React, { useContext } from "react"
 
 import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
+import { Block } from "../services/backend"
 import DebugModal from "../shared-module/components/DebugModal"
 import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
 
@@ -43,7 +44,8 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
         {pageContext.pageData?.title}
       </h1>
       <SelectCourseInstanceModal onClose={onRefresh} />
-      <ContentRenderer data={pageContext.pageData?.content ?? []} />
+      {/* TODO: Better type for Page.content in bindings. */}
+      <ContentRenderer data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []} />
       {pageContext.pageData?.chapter_id && <NavigationContainer />}
     </>
   )

@@ -1,7 +1,7 @@
 import React from "react"
 import { useQuery } from "react-query"
 
-import { fetchCourseProgress } from "../../../services/backend"
+import { fetchUserCourseProgress } from "../../../services/backend"
 import GenericLoading from "../../GenericLoading"
 
 interface CourseProgressProps {
@@ -10,7 +10,7 @@ interface CourseProgressProps {
 
 const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => {
   const { isLoading, error, data } = useQuery(`course-instance-${courseInstanceId}-progress`, () =>
-    fetchCourseProgress(courseInstanceId),
+    fetchUserCourseProgress(courseInstanceId),
   )
 
   if (error) {

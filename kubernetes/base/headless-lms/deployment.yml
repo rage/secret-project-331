@@ -48,6 +48,7 @@ spec:
             - |
               echo Waiting for postgres to be available
               wait-for-it --timeout=120 postgres:5432
+              ./wait-for-db-migrations.sh
           resources:
             requests:
               memory: 200Mi

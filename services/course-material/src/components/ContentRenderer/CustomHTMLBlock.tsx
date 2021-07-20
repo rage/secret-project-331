@@ -14,7 +14,9 @@ const CustomHTMLBlock: React.FC<BlockRendererProps<HtmlAttributes>> = ({ data })
         ${normalWidthCenteredComponentStyles}
       `}
     >
-      <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes?.content) }}></div>
+      <div
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(attributes?.content ?? "undefined") }}
+      ></div>
     </pre>
   )
 }

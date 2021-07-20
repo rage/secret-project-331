@@ -18,6 +18,7 @@ metadata:
   name: example-exercise
   labels:
     app: example-exercise
+    deploymentType: without-init-container
 spec:
   replicas: 1
   selector:

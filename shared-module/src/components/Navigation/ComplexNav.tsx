@@ -2,7 +2,6 @@ import { css, cx, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Link } from "@reach/router"
 import React, { useState } from "react"
 
 import Button from "../Button"
@@ -212,9 +211,9 @@ const Navigation: React.FC = () => {
     <div className="wrapper">
       <nav className={cx(navbarItems)}>
         <h1 className={cx(navbarLogo)}>
-          <Link to="/" aria-label="Kotisivulle" role="button">
+          <a href="/" aria-label="Kotisivulle" role="button">
             <StyledIcon icon={faBullseye} aria-hidden="true"></StyledIcon>
-          </Link>
+          </a>
         </h1>
         <div
           className={cx(menuIcon)}

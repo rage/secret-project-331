@@ -1,0 +1,3 @@
+- op: "replace"
+  path: "/spec/template/spec/containers/0/image"
+  value: "eu.gcr.io/moocfi-public/secret-project-course-material-production:latest"

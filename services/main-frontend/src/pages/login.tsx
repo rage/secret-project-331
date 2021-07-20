@@ -28,10 +28,20 @@ const Login: React.FC = () => {
       <form onSubmit={submitForm}>
         <h1>Log in</h1>
         <p>Email</p>
-        <input type="text" value={email} onChange={(ev) => setEmail(ev.target.value)} />
+        <input
+          type="text"
+          name="email"
+          value={email}
+          onChange={(ev) => setEmail(ev.target.value)}
+        />
         <p>Password</p>
-        <input type="password" value={password} onChange={(ev) => setPassword(ev.target.value)} />
-        <button>Submit</button>
+        <input
+          type="password"
+          name="password"
+          value={password}
+          onChange={(ev) => setPassword(ev.target.value)}
+        />
+        <button name="login">Submit</button>
       </form>
     </Layout>
   )

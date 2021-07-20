@@ -182,7 +182,7 @@ pub async fn send_grading_request(
         .await?;
     let status = res.status();
     if !status.is_success() {
-        return Err(ModelError::Generic("Grading failed"));
+        return Err(ModelError::Generic("Grading failed".to_string()));
     }
     let obj = res.json::<GradingResult>().await?;
     info!("Received a grading result: {:#?}", &obj);

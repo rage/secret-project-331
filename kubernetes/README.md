@@ -25,3 +25,8 @@ Production:
 ```bash
 bin/kustomize-preview-production
 ```
+
+Test:
+```bash
+bin/kustomize-preview-test
+```

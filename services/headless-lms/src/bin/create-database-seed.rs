@@ -43,15 +43,38 @@ async fn main() -> Result<()> {
     }
 
     // users
-    let admin = users::insert(&mut conn, "admin@example.com").await?;
-    let teacher = users::insert(&mut conn, "teacher@example.com").await?;
-    let assistant = users::insert(&mut conn, "assistant@example.com").await?;
+    let admin = users::insert(
+        &mut conn,
+        "admin@example.com",
+        Uuid::parse_str("02c79854-da22-4cfc-95c4-13038af25d2e")?,
+    )
+    .await?;
+    let teacher = users::insert(
+        &mut conn,
+        "teacher@example.com",
+        Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce")?,
+    )
+    .await?;
+    let assistant = users::insert(
+        &mut conn,
+        "assistant@example.com",
+        Uuid::parse_str("24342539-f1ba-453e-ae13-14aa418db921")?,
+    )
+    .await?;
+
+    let _user = users::insert(
+        &mut conn,
+        "user@example.com",
+        Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")?,
+    )
+    .await?;
 
     // uh-cs
     let uh_cs = organizations::insert(
         &mut conn,
         "University of Helsinki, Department of Computer Science",
         "uh-cs",
+        Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
     let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin).await?;
@@ -70,6 +93,7 @@ async fn main() -> Result<()> {
         &mut conn,
         "University of Helsinki, Department of Mathematics and Statistics",
         "uh-mathstat",
+        Uuid::parse_str("269d28b2-a517-4572-9955-3ed5cecc69bd")?,
     )
     .await?;
     let statistics_course = courses::insert(

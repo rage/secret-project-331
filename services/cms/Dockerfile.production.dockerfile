@@ -17,6 +17,8 @@ RUN npm ci
 
 COPY --chown=node . /app
 
+ENV BASE_PATH="/cms"
+
 RUN npm run build
 
 EXPOSE 3000

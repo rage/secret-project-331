@@ -18,6 +18,7 @@ metadata:
   name: headless-lms
   labels:
     app: headless-lms
+    deploymentType: with-init-container
 spec:
   replicas: 1
   selector:
@@ -34,6 +35,10 @@ spec:
           ports:
             - containerPort: 3001
               name: headless-lms
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m
       initContainers:
         - name: headless-lms-wait-for-db
           image: headless-lms
@@ -43,6 +48,7 @@ spec:
             - |
               echo Waiting for postgres to be available
               wait-for-it --timeout=120 postgres:5432
+              ./wait-for-db-migrations.sh
           resources:
             requests:
               memory: 200Mi
@@ -53,9 +59,14 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: headless-lms-run-migrations
+  labels:
+    deploymentType: without-init-container
 spec:
   backoffLimit: 10
   template:
+    metadata:
+      labels:
+        waitToBeReady: "false"
     spec:
       containers:
         - name: headless-lms-run-migrations
@@ -67,23 +78,10 @@ spec:
               echo Waiting for postgres to be available
               wait-for-it --timeout=120 postgres:5432
               echo Running migrations
-              cargo sqlx migrate run
+              cargo sqlx database setup
               echo Migrations complete
           resources:
             requests:
               memory: 200Mi
               cpu: 200m
-          envFrom:
-            - configMapRef:
-                name: postgres-configuration
-          env:
-            - name: POSTGRES_HOST
-              value: "postgres"
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-credentials
-                  key: password
-            - name: DATABASE_URL
-              value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres/$(POSTGRES_DB)"
       restartPolicy: Never

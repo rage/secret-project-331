@@ -1,0 +1,23 @@
+FROM archlinux
+
+RUN pacman -Syu --noconfirm \
+  && pacman -S --noconfirm skaffold kubernetes-tools minikube kustomize docker postgresql sudo patch fakeroot git \
+  && yes | pacman -Scc
+
+# Add user for building packages
+RUN useradd package-builder --create-home \
+  && echo "package-builder ALL=(ALL) ALL" >> /etc/sudoers \
+  && passwd -d package-builder
+
+USER package-builder
+
+RUN cd /home/package-builder \
+  && git clone https://aur.archlinux.org/google-cloud-sdk.git \
+  && cd google-cloud-sdk \
+  # Commit hash verified to be safe. If you update this, verify the files in the commit so that we don't accidentally execute malicious code code.
+  && git checkout b8e27c56362707023ff986d4d515195f104047d5 \
+  && makepkg --syncdeps --install --noconfirm \
+  && cd / \
+  && rm -rf /home/package-builder/google-cloud-sdk
+
+USER root

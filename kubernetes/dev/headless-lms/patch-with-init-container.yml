@@ -1,0 +1,7 @@
+- op: add
+  path: "/spec/template/spec/initContainers/0/envFrom"
+  value:
+  - configMapRef:
+      name: postgres-configuration
+  - secretRef:
+      name: headless-lms-secrets

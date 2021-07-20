@@ -16,9 +16,10 @@ use oauth2::{ResourceOwnerPassword, ResourceOwnerUsername, TokenResponse};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use ts_rs::TS;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct Login {
     email: String,
     password: String,
@@ -49,8 +50,13 @@ pub async fn login(
         let user = if let Ok(id) = Uuid::parse_str(&email) {
             models::users::get_by_id(&mut conn, id).await?
         } else {
-            models::users::authenticate_test_user(&mut conn, email.clone(), password.clone())
-                .await?
+            models::users::authenticate_test_user(
+                &mut conn,
+                email.clone(),
+                password.clone(),
+                &app_conf,
+            )
+            .await?
         };
         authorization::remember(&session, user)?;
         return Ok(HttpResponse::Ok().finish());

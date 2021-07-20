@@ -1,14 +1,15 @@
-import styled from "@emotion/css"
+import styled from "@emotion/styled"
 import KaTex from "katex"
 import React, { useState } from "react"
 
-const Wrapper = styled.div`
+const Container = styled.div`
   display: flex;
+  flex-direction: column;
 `
 
 const Component = styled.div`
-  height: 50%;
-  width: 100%;
+  flex: 50%;
+  padding: 10px;
 `
 
 const LatexEditor: React.FC = () => {
@@ -24,7 +25,7 @@ const LatexEditor: React.FC = () => {
   }
 
   return (
-    <Wrapper>
+    <Container>
       <Component>
         <h2> Preview: </h2>
         {convert_to_latex()}
@@ -32,7 +33,7 @@ const LatexEditor: React.FC = () => {
       <Component>
         <textarea value={input} onChange={update} />
       </Component>
-    </Wrapper>
+    </Container>
   )
 }
 

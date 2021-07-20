@@ -216,6 +216,18 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::ModelResult</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -256,20 +268,32 @@
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
     <span class="ident">variant_status</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VariantStatus</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
-INSERT INTO course_instances (course_id, variant_status)
-VALUES ($1, $2)
-RETURNING id
-&quot;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">CourseInstance</span>,
+        <span class="string">r#&quot;
+INSERT INTO course_instances (course_id, name, variant_status)
+VALUES ($1, $2, $3)
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  starts_at,
+  ends_at,
+  name,
+  description,
+  variant_status AS &quot;variant_status: VariantStatus&quot;
+&quot;#</span>,
         <span class="ident">course_id</span>,
+        <span class="ident">name</span>,
         <span class="ident">variant_status</span>.<span class="ident">unwrap_or_default</span>() <span class="kw">as</span> <span class="ident">VariantStatus</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(<span class="ident">course_instance</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_instance</span>(
@@ -424,11 +448,11 @@ WHERE id = $2;
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">_course_1_instance_1</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_1_id</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_2_instance_1</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_2_id</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">_course_1_instance_1</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_1_id</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">course_2_instance_1</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_2_id</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>;
         <span class="macro">assert!</span>(<span class="ident">course_2_instance_1</span>.<span class="ident">is_ok</span>());
 
-        <span class="kw">let</span> <span class="ident">course_1_instance_2</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_1_id</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">course_1_instance_2</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course_1_id</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>;
         <span class="macro">assert!</span>(<span class="ident">course_1_instance_2</span>.<span class="ident">is_err</span>());
     }
 }

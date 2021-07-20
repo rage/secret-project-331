@@ -23,7 +23,7 @@ interface ExerciseBlockAttributes {
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const id = props.data.attributes.id
   const { isLoading, error, data } = useQuery(`exercise-${id}`, () => fetchExerciseById(id))
-  const [answer, setAnswer] = useState<unknown>(null)
+  const [, setAnswer] = useState<unknown>(null)
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>

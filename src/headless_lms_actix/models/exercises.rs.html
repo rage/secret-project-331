@@ -396,6 +396,17 @@
 <span id="393">393</span>
 <span id="394">394</span>
 <span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::ModelResult</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -707,10 +718,21 @@ SET selected_exercise_task_id = $4
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;test@example.com&quot;</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="string">&quot;test@example.com&quot;</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;e656e0a1-3f55-4f52-b0ae-96855faee5e7&quot;</span>).<span class="ident">unwrap</span>(),
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="string">&quot;&quot;</span>,
+            <span class="string">&quot;&quot;</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8c34e601-b5db-4b33-a588-57cb6a5b1669&quot;</span>).<span class="ident">unwrap</span>(),
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">organization_id</span>, <span class="string">&quot;&quot;</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();

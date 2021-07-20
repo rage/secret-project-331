@@ -514,6 +514,30 @@
 <span id="511">511</span>
 <span id="512">512</span>
 <span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
@@ -560,15 +584,38 @@
     }
 
     <span class="comment">// users</span>
-    <span class="kw">let</span> <span class="ident">admin</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="string">&quot;admin@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">teacher</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="string">&quot;teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">assistant</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="string">&quot;assistant@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">admin</span> <span class="op">=</span> <span class="ident">users::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="string">&quot;admin@example.com&quot;</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;02c79854-da22-4cfc-95c4-13038af25d2e&quot;</span>)<span class="question-mark">?</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">teacher</span> <span class="op">=</span> <span class="ident">users::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="string">&quot;teacher@example.com&quot;</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;90643204-7656-4570-bdd9-aad5d297f9ce&quot;</span>)<span class="question-mark">?</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">assistant</span> <span class="op">=</span> <span class="ident">users::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="string">&quot;assistant@example.com&quot;</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;24342539-f1ba-453e-ae13-14aa418db921&quot;</span>)<span class="question-mark">?</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">_user</span> <span class="op">=</span> <span class="ident">users::insert</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="string">&quot;user@example.com&quot;</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;849b8d32-d5f8-4994-9d21-5aa6259585b1&quot;</span>)<span class="question-mark">?</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// uh-cs</span>
     <span class="kw">let</span> <span class="ident">uh_cs</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;University of Helsinki, Department of Computer Science&quot;</span>,
         <span class="string">&quot;uh-cs&quot;</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8bb12295-53ac-4099-9644-ac0ff5e34d92&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">cs_intro</span> <span class="op">=</span> <span class="ident">seed_cs_intro</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">uh_cs</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -587,6 +634,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;University of Helsinki, Department of Mathematics and Statistics&quot;</span>,
         <span class="string">&quot;uh-mathstat&quot;</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;269d28b2-a517-4572-9955-3ed5cecc69bd&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">statistics_course</span> <span class="op">=</span> <span class="ident">courses::insert</span>(

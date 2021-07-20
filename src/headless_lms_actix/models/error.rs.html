@@ -103,6 +103,12 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
@@ -129,7 +135,7 @@
     <span class="attribute">#[<span class="ident">error</span>(<span class="ident">transparent</span>)]</span>
     <span class="ident">Anyhow</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">anyhow::Error</span>),
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;{0}&quot;</span>)]</span>
-    <span class="ident">Generic</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>),
+    <span class="ident">Generic</span>(<span class="ident">String</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ModelError</span> {
@@ -160,6 +166,8 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
+    <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">models</span>::{<span class="self">self</span>, <span class="ident">email_templates::EmailTemplateNew</span>},
@@ -196,9 +204,13 @@
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">users_email_check</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">models::users::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;invalid email&quot;</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap_err</span>();
+        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">models::users::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="string">&quot;invalid email&quot;</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;92c2d6d6-e1b8-4064-8c60-3ae52266c62c&quot;</span>).<span class="ident">unwrap</span>(),
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap_err</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ModelError::DatabaseConstraint</span> { <span class="ident">constraint</span>, .. } <span class="op">=</span> <span class="ident">err</span> {
             <span class="macro">assert_eq!</span>(<span class="ident">constraint</span>, <span class="string">&quot;users_email_check&quot;</span>);
         } <span class="kw">else</span> {

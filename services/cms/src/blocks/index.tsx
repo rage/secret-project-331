@@ -20,7 +20,5 @@ export const blockTypeMapForPages: Array<[string, BlockConfiguration]> = [
 
 export const blockTypeMapForTopLevelPages: Array<[string, BlockConfiguration]> = [
   ["moocfi/course-chapter-grid", CourseChapterGrid],
-  ["moocfi/pages-in-chapter", PagesInChapter],
   ["moocfi/course-progress", CourseProgress],
-  ["moocfi/chapter-progress", ChapterProgress],
 ]

@@ -11,6 +11,9 @@ static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: Lazy<Vec<String>> = Lazy::new(|| {
         "moocfi/exercise".to_string(),
         "moocfi/exercise-task".to_string(),
         "moocfi/exercises-in-chapter".to_string(),
+        "moocfi/pages-in-chapter".to_string(),
+        "moocfi/exercises-in-chapter".to_string(),
+        "moocfi/chapter-progress".to_string(),
     ]
 });
 

@@ -16,6 +16,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
+        # This would cause all other tests to be skipped
+      - name: Make sure we have no focused system-tests
+        run: |
+          test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
+
       - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.7.1
         with:

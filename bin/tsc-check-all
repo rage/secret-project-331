@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "> course-material"
+cd services/course-material/ && npx tsc --noEmit && cd ../..
+
+echo "> cms"
+cd services/cms/ && npx tsc --noEmit && cd ../..
+
+echo "> main-frontend"
+cd services/main-frontend/ && npx tsc --noEmit && cd ../..
+
+echo "> example-exercise"
+cd services/example-exercise/ && npx tsc --noEmit && cd ../..
+
+echo "> finished npx tsc on all services directories"
+

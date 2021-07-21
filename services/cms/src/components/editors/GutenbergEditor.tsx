@@ -24,7 +24,6 @@ import {
 } from "@wordpress/block-editor"
 import { registerCoreBlocks } from "@wordpress/block-library"
 import {
-  BlockConfiguration,
   BlockInstance,
   getBlockType,
   getBlockTypes,
@@ -46,7 +45,7 @@ interface GutenbergEditorProps {
   onContentChange: React.Dispatch<BlockInstance[]>
   allowedBlocks?: string[]
   allowedBlockVariations?: Record<string, string[]>
-  customBlocks?: [string, BlockConfiguration<Record<string, unknown>>][]
+  customBlocks?: Array<Parameters<typeof registerBlockType>>
 }
 
 const GutenbergEditor: React.FC<GutenbergEditorProps> = ({

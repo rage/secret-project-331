@@ -4,7 +4,7 @@ import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
-import { blockTypeMap } from "../../blocks"
+import { customBlockNameMap } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
@@ -64,7 +64,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       <GutenbergEditor
         content={content}
         onContentChange={setContent}
-        customBlocks={blockTypeMap}
+        customBlocks={customBlockNameMap}
         allowedBlocks={supportedCoreBlocks}
         allowedBlockVariations={allowedBlockVariants}
       />

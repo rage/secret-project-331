@@ -15,7 +15,9 @@ import { deleteEmailTemplate } from "../../../services/backend/email-templates"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
-import { SimplifiedUrlQuery } from "../../../utils/dontRenderUntilQueryParametersReady"
+import dontRenderUntilQueryParametersReady, {
+  SimplifiedUrlQuery,
+} from "../../../utils/dontRenderUntilQueryParametersReady"
 
 export interface CourseInstanceEmailTemplatesProps {
   query: SimplifiedUrlQuery<"id">
@@ -108,4 +110,6 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
   )
 }
 
-export default withErrorBoundary(withSignedIn(CourseInstanceEmailTemplates))
+export default withErrorBoundary(
+  withSignedIn(dontRenderUntilQueryParametersReady(CourseInstanceEmailTemplates)),
+)

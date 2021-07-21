@@ -5,14 +5,16 @@
 
 import { useRouter } from "next/router"
 
-interface ProvidedExtraProps<T = unknown> {
+interface ProvidedExtraProps<T> {
   query: SimplifiedUrlQuery<T>
 }
 
 // Like query but string[] -> string. Arrays can appear in the original implementation
 // when multiple query parameters are supplied with the same name.
 // We default to the first provided value.
-export type SimplifiedUrlQuery<T> = T extends string ? Record<T, string> : NodeJS.Dict<string>
+export type SimplifiedUrlQuery<T = unknown> = T extends string
+  ? Record<T, string>
+  : NodeJS.Dict<string>
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function dontRenderUntilQueryParametersReady<T, P = unknown>(

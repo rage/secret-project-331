@@ -53,7 +53,7 @@ As close as possible to LTI's activity progress for compatibility: https://www.i
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
     Initialized,
-    /// The activity associated with the exercise has been started by the u, chapter_id: () ser to which the result relates.
+    /// The activity associated with the exercise has been started by the user to which the result relates.
     Started,
     /// The activity is being drafted and is available for comment.
     InProgress,

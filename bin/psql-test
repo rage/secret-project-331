@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
+COMMAND="psql"
+ARGUMENTS=(postgres://headless-lms@localhost:54328/headless_lms_test "$@")
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

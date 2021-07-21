@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import { Button } from "@material-ui/core"
 import HelpIcon from "@material-ui/icons/Help"
 import { useContext, useState } from "react"
-import { useQuery } from "react-query"
+import { useQuery, useQueryClient } from "react-query"
 
 import ContentRenderer, { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
@@ -24,12 +24,14 @@ interface ExerciseBlockAttributes {
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const id = props.data.attributes.id
-  const { isLoading, error, data } = useQuery(`exercise-${id}`, () => fetchExerciseById(id))
+  const queryUniqueKey = `exercise-${id}`
+  const { isLoading, error, data } = useQuery(queryUniqueKey, () => fetchExerciseById(id))
   const [answer, setAnswer] = useState<unknown>(null)
   const [submitting, setSubmitting] = useState(false)
   const coursePageContext = useContext(CoursePageContext)
   const [submissionResponse, setSubmissionResponse] = useState<SubmissionResult | null>(null)
   const [submissionError, setSubmissionError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -133,6 +135,12 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               })
               setSubmitting(false)
               setSubmissionResponse(res)
+              const scoreGiven = res.grading.score_given ?? 0
+              const newData = { ...data }
+              if (newData.exercise_status) {
+                newData.exercise_status.score_given = scoreGiven
+                queryClient.setQueryData(queryUniqueKey, newData)
+              }
             } catch (e) {
               console.error(e)
               setSubmissionResponse(null)

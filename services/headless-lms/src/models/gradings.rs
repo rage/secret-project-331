@@ -176,7 +176,6 @@ pub async fn grade_submission(
     )
     .await?;
     let updated_grading = update_grading(conn, &grading, &obj, &exercise).await?;
-    dbg!("wat");
     update_user_exercise_state(conn, &updated_grading, &submission).await?;
     Ok(updated_grading)
 }

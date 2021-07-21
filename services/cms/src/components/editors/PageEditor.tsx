@@ -4,7 +4,7 @@ import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
-import { blockTypeMap } from "../../blocks"
+import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
@@ -60,14 +60,24 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         setTitle={setTitle}
         setUrlPath={setUrlPath}
       />
+      {data.chapter_id !== null ? (
+        <GutenbergEditor
+          content={content}
+          onContentChange={setContent}
+          customBlocks={blockTypeMapForPages}
+          allowedBlocks={supportedCoreBlocks}
+          allowedBlockVariations={allowedBlockVariants}
+        />
+      ) : (
+        <GutenbergEditor
+          content={content}
+          onContentChange={setContent}
+          customBlocks={blockTypeMapForTopLevelPages}
+          allowedBlocks={supportedCoreBlocks}
+          allowedBlockVariations={allowedBlockVariants}
+        />
+      )}
 
-      <GutenbergEditor
-        content={content}
-        onContentChange={setContent}
-        customBlocks={blockTypeMap}
-        allowedBlocks={supportedCoreBlocks}
-        allowedBlockVariations={allowedBlockVariants}
-      />
       <SerializeGutenbergModal content={content} />
       <DebugModal data={content} />
     </>

@@ -594,6 +594,17 @@
 <span id="591">591</span>
 <span id="592">592</span>
 <span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
@@ -815,13 +826,21 @@
     <span class="ident">pages::set_chapter</span>(<span class="ident">conn</span>, <span class="ident">page_ch2</span>, <span class="ident">chapter_2</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// exercises</span>
-    <span class="kw">let</span> <span class="ident">exercise_c1p1_1</span> <span class="op">=</span>
-        <span class="ident">exercises::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="string">&quot;Best exercise&quot;</span>, <span class="ident">page_ch1_1</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercise_c1p1_1</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="string">&quot;Best exercise&quot;</span>,
+        <span class="ident">page_ch1_1</span>,
+        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
+        <span class="number">1</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">exercise_c1p2_1</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="string">&quot;Second page, first exercise&quot;</span>,
         <span class="ident">page_ch1_2</span>,
+        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
         <span class="number">1</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -830,6 +849,7 @@
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="string">&quot;second page, second exercise&quot;</span>,
         <span class="ident">page_ch1_2</span>,
+        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
         <span class="number">2</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -838,6 +858,7 @@
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="string">&quot;second page, third exercise&quot;</span>,
         <span class="ident">page_ch1_2</span>,
+        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
         <span class="number">3</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -846,6 +867,7 @@
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="string">&quot;first exercise of chapter two&quot;</span>,
         <span class="ident">page_ch2</span>,
+        <span class="ident">chapter_2</span>.<span class="ident">id</span>,
         <span class="number">3</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

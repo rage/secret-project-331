@@ -44,9 +44,7 @@ const LatexEditor: React.FC = () => {
           onChange={update}
         />
       </Component>
-      <Component>
-        {convert_to_latex()}
-      </Component>
+      <Component>{convert_to_latex()}</Component>
     </Container>
   )
 }

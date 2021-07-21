@@ -45,7 +45,6 @@
     "monaco-editor": "^0.24.0",
     "next": "^10.2.3",
     "react": "^16.14.0",
-    "react-animated-burgers": "^1.2.8",
     "react-dom": "^16.14.0",
     "react-i18next": "^11.10.0",
     "react-query": "^3.18.1",

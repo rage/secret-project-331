@@ -45,7 +45,6 @@ const LatexEditor: React.FC = () => {
         />
       </Component>
       <Component>
-        <h2> Preview: </h2>
         {convert_to_latex()}
       </Component>
     </Container>

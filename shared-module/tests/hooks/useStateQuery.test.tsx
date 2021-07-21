@@ -69,7 +69,7 @@ describe("useStateQuery hook", () => {
 
   test("returns null data properly", async () => {
     const query = jest.fn().mockReturnValue(Promise.resolve(null))
-    const hookResult = renderHook(() => useStateQuery(["undefined-test"], query), {
+    const hookResult = renderHook(() => useStateQuery(["null-test"], query), {
       wrapper: Wrapper,
     })
     hookResult.rerender()

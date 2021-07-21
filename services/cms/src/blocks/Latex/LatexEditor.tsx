@@ -1,7 +1,8 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { BlockEditProps } from "@wordpress/blocks"
 import KaTex from "katex"
-import React, { useState } from "react"
+import React from "react"
 
 const Container = styled.div`
   display: flex;
@@ -14,15 +15,21 @@ const Component = styled.div`
   padding: 10px;
 `
 
-const LatexEditor: React.FC = () => {
-  const [input, setInput] = useState("")
+export interface TextAttributes {
+  text: string
+}
+
+const LatexEditor: React.FC<BlockEditProps<TextAttributes>> = (props) => {
+  const { attributes, setAttributes } = props
 
   const update = (event) => {
-    setInput(event.target.value)
+    setAttributes({
+      text: event.target.value,
+    })
   }
 
   const convert_to_latex = () => {
-    const output = KaTex.renderToString(input, {
+    const output = KaTex.renderToString(attributes.text, {
       throwOnError: false,
       displayMode: true,
       output: "mathml",
@@ -40,7 +47,7 @@ const LatexEditor: React.FC = () => {
             margin: 4px;
             resize: none;
           `}
-          value={input}
+          value={attributes.text}
           onChange={update}
         />
       </Component>

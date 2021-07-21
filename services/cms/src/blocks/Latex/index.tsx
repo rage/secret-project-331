@@ -6,7 +6,7 @@ import LatexSave from "./LatexSave"
 const LatexBlockConfiguration: BlockConfiguration = {
   title: "Latex Block",
   description: "Block for writing LaTex",
-  category: "embed",
+  category: "text",
   attributes: {},
   edit: LatexEditor,
   save: LatexSave,

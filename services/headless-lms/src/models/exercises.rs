@@ -308,21 +308,32 @@ mod test {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let user_id = users::insert(tx.as_mut(), "test@example.com")
-            .await
-            .unwrap();
-        let organization_id = organizations::insert(tx.as_mut(), "", "").await.unwrap();
+        let user_id = users::insert(
+            tx.as_mut(),
+            "test@example.com",
+            Uuid::parse_str("e656e0a1-3f55-4f52-b0ae-96855faee5e7").unwrap(),
+        )
+        .await
+        .unwrap();
+        let organization_id = organizations::insert(
+            tx.as_mut(),
+            "",
+            "",
+            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
+        )
+        .await
+        .unwrap();
         let course_id = courses::insert(tx.as_mut(), "", organization_id, "")
             .await
             .unwrap();
-        let course_instance_id = course_instances::insert(tx.as_mut(), course_id, None)
+        let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)
             .await
             .unwrap();
         course_instance_enrollments::insert(
             tx.as_mut(),
             user_id,
             course_id,
-            course_instance_id,
+            course_instance.id,
             true,
         )
         .await
@@ -363,7 +374,7 @@ WHERE user_id = $1
 ",
             user_id,
             exercise_id,
-            course_instance_id
+            course_instance.id
         )
         .fetch_optional(tx.as_mut())
         .await
@@ -385,7 +396,7 @@ WHERE user_id = $1
 ",
             user_id,
             exercise_id,
-            course_instance_id
+            course_instance.id
         )
         .fetch_one(tx.as_mut())
         .await

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useReducer } from "react"
-import { useQuery } from "react-query"
 
 import Page from "../../components/Page"
 import PageNotFound from "../../components/PageNotFound"
@@ -10,6 +9,7 @@ import CoursePageContext, {
 import useQueryParameter from "../../hooks/useQueryParameter"
 import coursePageStateReducer from "../../reducers/coursePageStateReducer"
 import { fetchCourseInstance, fetchCoursePageByPath } from "../../services/backend"
+import useStateQuery from "../../shared-module/hooks/useStateQuery"
 import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { tryToScrollToSelector } from "../../utils/dom"
@@ -19,32 +19,32 @@ const PagePage: React.FC = () => {
   const path = `/${useQueryParameter("path")}`
 
   const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
-  const {
-    error: pageDataError,
-    data: pageData,
-    refetch: pageDataRefetch,
-  } = useQuery(`course-${courseSlug}-page-${path}`, () => fetchCoursePageByPath(courseSlug, path))
-  const {
-    data: instanceData,
-    isLoading: isInstanceDataLoading,
-    refetch: instanceDataRefetch,
-  } = useQuery(
-    ["course-instance", pageData?.course_id],
-    () => fetchCourseInstance((pageData as NonNullable<typeof pageData>).course_id),
-    {
-      enabled: !!pageData?.course_id,
-    },
+  const pageDataQuery = useStateQuery(["course-page", courseSlug, path], (_courseSlug, _path) =>
+    fetchCoursePageByPath(_courseSlug, _path),
+  )
+  const instanceQuery = useStateQuery(
+    ["course-instance", pageDataQuery.data?.course_id],
+    (courseId) => fetchCourseInstance(courseId),
   )
 
   useEffect(() => {
-    if (pageDataError) {
-      pageStateDispatch({ type: "setError", payload: pageDataError })
-    } else if (pageData && !isInstanceDataLoading) {
-      pageStateDispatch({ type: "setData", payload: { pageData, instance: instanceData ?? null } })
+    if (pageDataQuery.state === "error") {
+      pageStateDispatch({ type: "setError", payload: pageDataQuery.error })
+    } else if (pageDataQuery.state === "ready" && instanceQuery.state === "ready") {
+      pageStateDispatch({
+        type: "setData",
+        payload: { pageData: pageDataQuery.data, instance: instanceQuery.data ?? null },
+      })
     } else {
       pageStateDispatch({ type: "setLoading" })
     }
-  }, [instanceData, isInstanceDataLoading, pageData, pageDataError])
+  }, [
+    instanceQuery.data,
+    instanceQuery.state,
+    pageDataQuery.data,
+    pageDataQuery.error,
+    pageDataQuery.state,
+  ])
 
   useEffect(() => {
     if (typeof window != "undefined" && window.location.hash) {
@@ -65,15 +65,15 @@ const PagePage: React.FC = () => {
   }, [path])
 
   const handleRefresh = useCallback(async () => {
-    await pageDataRefetch()
-    await instanceDataRefetch()
-  }, [instanceDataRefetch, pageDataRefetch])
+    await pageDataQuery.refetch()
+    await instanceQuery.refetch()
+  }, [instanceQuery, pageDataQuery])
 
-  if (pageDataError) {
-    if ((pageDataError as any)?.response?.status === 404) {
+  if (pageDataQuery.state === "error") {
+    if ((pageDataQuery.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} />
     }
-    return <pre>{JSON.stringify(pageDataError, undefined, 2)}</pre>
+    return <pre>{JSON.stringify(pageDataQuery.error, undefined, 2)}</pre>
   }
 
   return (

@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic"
-import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import CourseContext from "../../../contexts/CourseContext"
@@ -11,6 +10,7 @@ import {
 import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import useStateQuery from "../../../shared-module/hooks/useStateQuery"
 import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
@@ -23,37 +23,29 @@ const EmailEditor = dynamic(() => import("../../../components/editors/EmailEdito
 
 const EmailTemplateEdit: React.FC = () => {
   const emailTemplateId = useQueryParameter("id")
-  const {
-    isLoading: emailTemplateIsLoading,
-    error: emailTemplateError,
-    data: emailTemplateData,
-    refetch,
-  } = useQuery(`email-template-${emailTemplateId}`, () => fetchEmailTemplateWithId(emailTemplateId))
-  const {
-    data: courseInstanceData,
-    error: courseInstanceError,
-    isLoading: courseInstanceIsLoading,
-  } = useQuery(
-    ["course-id-of-instance", emailTemplateData?.course_instance_id],
-    () => fetchCourseInstance(emailTemplateData.course_instance_id),
-    { enabled: !emailTemplateIsLoading && !!emailTemplateData },
+  const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
+    fetchEmailTemplateWithId(_emailTemplateId),
+  )
+  const instanceQuery = useStateQuery(
+    ["course-id-of-instance", templateQuery.data?.course_instance_id],
+    (courseInstanceId) => fetchCourseInstance(courseInstanceId),
   )
 
-  if (emailTemplateError || courseInstanceError) {
+  if (templateQuery.state === "error" || instanceQuery.state === "error") {
     return (
       <div>
         <h1>Error</h1>
-        <pre>{JSON.stringify(emailTemplateError, undefined, 2)}</pre>
-        <pre>{JSON.stringify(courseInstanceError, undefined, 2)}</pre>
+        <pre>{JSON.stringify(templateQuery.error, undefined, 2)}</pre>
+        <pre>{JSON.stringify(instanceQuery.error, undefined, 2)}</pre>
       </div>
     )
   }
 
-  if (emailTemplateIsLoading || !emailTemplateData) {
+  if (templateQuery.state !== "ready") {
     return <div>Loading template data...</div>
   }
 
-  if (courseInstanceIsLoading || !courseInstanceData) {
+  if (instanceQuery.state !== "ready") {
     return <div>Loading editor data...</div>
   }
 
@@ -61,14 +53,14 @@ const EmailTemplateEdit: React.FC = () => {
     const res = await updateExistingEmailTemplate(emailTemplateId, {
       ...template,
     })
-    await refetch()
+    await templateQuery.refetch()
     return res
   }
 
   return (
-    <CourseContext.Provider value={{ courseId: courseInstanceData.course_id }}>
+    <CourseContext.Provider value={{ courseId: instanceQuery.data.course_id }}>
       <Layout>
-        <EmailEditor data={emailTemplateData} handleSave={handleSave} />
+        <EmailEditor data={templateQuery.data} handleSave={handleSave} />
       </Layout>
     </CourseContext.Provider>
   )

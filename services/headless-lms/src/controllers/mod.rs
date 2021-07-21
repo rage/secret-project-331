@@ -125,6 +125,7 @@ impl From<ModelError> for ControllerError {
             ModelError::DatabaseConstraint { description, .. } => {
                 Self::BadRequest(description.to_string())
             }
+            ModelError::InvalidRequest(msg) => Self::BadRequest(msg),
             _ => Self::InternalServerError(err.to_string()),
         }
     }

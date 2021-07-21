@@ -218,13 +218,21 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     pages::set_chapter(conn, page_ch2, chapter_2.id).await?;
 
     // exercises
-    let exercise_c1p1_1 =
-        exercises::insert(conn, course.id, "Best exercise", page_ch1_1, 1).await?;
+    let exercise_c1p1_1 = exercises::insert(
+        conn,
+        course.id,
+        "Best exercise",
+        page_ch1_1,
+        chapter_1.id,
+        1,
+    )
+    .await?;
     let exercise_c1p2_1 = exercises::insert(
         conn,
         course.id,
         "Second page, first exercise",
         page_ch1_2,
+        chapter_1.id,
         1,
     )
     .await?;
@@ -233,6 +241,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         course.id,
         "second page, second exercise",
         page_ch1_2,
+        chapter_1.id,
         2,
     )
     .await?;
@@ -241,6 +250,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         course.id,
         "second page, third exercise",
         page_ch1_2,
+        chapter_1.id,
         3,
     )
     .await?;
@@ -249,6 +259,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         course.id,
         "first exercise of chapter two",
         page_ch2,
+        chapter_2.id,
         3,
     )
     .await?;

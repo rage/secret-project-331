@@ -1,6 +1,8 @@
 use super::ModelResult;
 use crate::{
-    models::{chapters::DatabaseChapter, exercise_tasks::ExerciseTask, ModelError},
+    models::{
+        chapters::DatabaseChapter, exercise_tasks::ExerciseTask, exercises::Exercise, ModelError,
+    },
     utils::document_schema_processor::{
         contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
         GutenbergBlock, NormalizedDocument,
@@ -118,20 +120,6 @@ pub struct PageMetadata {
     chapter_id: Option<Uuid>,
     chapter_number: Option<i32>,
     course_id: Uuid,
-}
-
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
-struct Exercise {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    course_id: Uuid,
-    deleted_at: Option<DateTime<Utc>>,
-    name: String,
-    deadline: Option<DateTime<Utc>>,
-    page_id: Uuid,
-    score_maximum: i32,
-    order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
@@ -486,17 +474,30 @@ async fn upsert_exercises_and_exercise_tasks(
         let exercise: Exercise = sqlx::query_as!(
             Exercise,
             r#"
-INSERT INTO exercises(id, course_id, name, order_number, page_id)
-VALUES ($1, $2, $3, $4, $5)
-ON CONFLICT (id) DO UPDATE
-SET course_id=$2, name=$3, order_number=$4, page_id=$5, deleted_at=NULL
+INSERT INTO exercises(
+    id,
+    course_id,
+    name,
+    order_number,
+    page_id,
+    chapter_id
+  )
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO
+UPDATE
+SET course_id = $2,
+  name = $3,
+  order_number = $4,
+  page_id = $5,
+  chapter_id = $6,
+  deleted_at = NULL
 RETURNING *;
         "#,
             safe_for_db_exercise_id,
             page.course_id,
             exercise_update.name,
             exercise_update.order_number,
-            page.id
+            page.id,
+            page.chapter_id,
         )
         .fetch_one(&mut *conn)
         .await?;

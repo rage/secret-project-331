@@ -74,10 +74,10 @@ export default function useStateQuery<T, A1 = unknown, A2 = unknown, A3 = unknow
       setQueryState({ state: "disabled", data: null, error: null, refetch })
     } else if (error) {
       setQueryState({ state: "error", data: null, error: error, refetch })
-    } else if (!data) {
+    } else if (isLoading) {
       setQueryState({ state: "loading", data: null, error: error, refetch })
     } else {
-      setQueryState({ state: "ready", data, error: null, refetch })
+      setQueryState({ state: "ready", data: data as T, error: null, refetch })
     }
   }, [data, enabled, error, isLoading, refetch])
 

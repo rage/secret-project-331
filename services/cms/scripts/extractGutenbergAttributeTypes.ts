@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
+// Require imports needs to happen in a specific order.
+/* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import { BlockInstance } from "@wordpress/blocks"
+import { Block } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
 import fs from "fs"
 import { compile } from "json-schema-to-typescript"
@@ -9,17 +10,18 @@ import { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSO
 
 import { modifyBlockAttributes } from "../src/utils/Gutenberg/modifyBlockAttributes"
 
-const blockLibrary = require("@wordpress/block-library")
-const blocks = require("@wordpress/blocks")
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
+
 const dom = new JSDOM(`<body>
 <script>document.body.appendChild(document.createElement("hr"));</script>
 </body>`)
-const mock = () => {}
+const mock = () => {
+  // No op
+}
 Object.defineProperty(dom.window, "matchMedia", {
   writable: true,
-  value: (query: any) => {
+  value: (query: unknown) => {
     return {
       matches: false,
       media: query,
@@ -36,13 +38,17 @@ global.window = dom.window
 global.document = dom.window.document
 global.navigator = dom.window.navigator
 
+// The following import order matters and are dependant on above window definition.
+const blockLibrary = require("@wordpress/block-library")
+const blocks = require("@wordpress/blocks")
+
 addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 const { supportedCoreBlocks } = require("../src/blocks/supportedGutenbergBlocks")
 
 async function main() {
   blockLibrary.registerCoreBlocks()
 
-  blocks.getBlockTypes().forEach((block: any) => {
+  blocks.getBlockTypes().forEach((block: Block<Record<string, unknown>>) => {
     if (supportedCoreBlocks.indexOf(block.name) === -1) {
       blocks.unregisterBlockType(block.name)
     }
@@ -53,15 +59,15 @@ async function main() {
     return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
   }
 
-  const blockTypes: BlockInstance[] = blocks.getBlockTypes()
-  const jsonSchemaTypes = blockTypes.map((block: BlockInstance) => {
+  const blockTypes: Array<Block<Record<string, unknown>>> = blocks.getBlockTypes()
+  const jsonSchemaTypes = blockTypes.map((block) => {
     return {
       title: sanitizeNames(block.name),
       type: "object" as JSONSchemaTypeName,
       properties: { ...block.attributes },
       additionalProperties: false,
       required: Object.entries(block.attributes)
-        .filter(([_key, value]) => value.default !== undefined)
+        .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
         .map(([key, _value]) => key),
     }
   })

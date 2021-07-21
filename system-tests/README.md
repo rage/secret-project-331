@@ -8,8 +8,6 @@ Tests can be found in `src/tests/`.
 
 Start test environment from project root with `bin/test`.
 
-Then, setup the test database by running `bin/setup-system-test-db` in root. You need to run this again each time you wish to reset the test database.
-
 The tests can be ran using the following command in the `system-tests` folder:
 
 ```sh

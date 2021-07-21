@@ -98,7 +98,7 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Run system tests
-        run: npm run test
+        run: npm run test-without-database-reset
         working-directory: ./system-tests/
 
       - name: Push images if master

@@ -86,8 +86,9 @@ pub async fn insert_user_organization_course_instance_exercise_task(
     .await?;
     let course = models::courses::insert(&mut *conn, "", org, &random_string).await?;
     let instance = models::course_instances::insert(&mut *conn, course, None, None).await?;
+    let chapter = models::chapters::insert(&mut *conn, "", course, 0).await?;
     let page = models::pages::insert(&mut *conn, course, "", "", 0).await?;
-    let exercise = models::exercises::insert(conn, course, "", page, 0).await?;
+    let exercise = models::exercises::insert(conn, course, "", page, chapter, 0).await?;
     let exercise_task = models::exercise_tasks::insert(
         conn,
         exercise,

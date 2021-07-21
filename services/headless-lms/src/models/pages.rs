@@ -792,6 +792,12 @@ WHERE p.id = $1;
     .fetch_one(conn)
     .await?;
 
+    if page_metadata.chapter_number.is_none() {
+        return Err(ModelError::InvalidRequest(
+            "Page is not related to any chapter".to_string(),
+        ));
+    }
+
     Ok(page_metadata)
 }
 

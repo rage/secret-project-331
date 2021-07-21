@@ -28,17 +28,9 @@ ARGUMENTS=(exec -it "$POD_NAME" -- cargo sqlx --database-url postgres://headless
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 "$COMMAND" "${ARGUMENTS[@]}"
 
-FILE_PATH="db/seed"
-RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FILE_PATH")
-
 COMMAND="kubectl"
-ARGUMENTS=(cp "$RELATIVE_PATH" "postgres-0:/seed")
+ARGUMENTS=(exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public  cargo run --bin seed "$@")
 
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-"$COMMAND" "${ARGUMENTS[@]}"
-
-COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public pg_restore  --host=postgres --port=5432 --username=headless-lms --no-password --disable-triggers --dbname=headless_lms_test "db/seed")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

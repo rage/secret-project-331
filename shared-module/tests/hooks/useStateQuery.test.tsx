@@ -55,4 +55,26 @@ describe("useStateQuery hook", () => {
     await hookResult.waitForNextUpdate()
     expect(hookResult.result.current.state).toBe("error")
   })
+
+  test("returns undefined data properly", async () => {
+    const query = jest.fn().mockReturnValue(Promise.resolve(undefined))
+    const hookResult = renderHook(() => useStateQuery(["undefined-test"], query), {
+      wrapper: Wrapper,
+    })
+    hookResult.rerender()
+    await hookResult.waitForNextUpdate()
+    expect(hookResult.result.current.state).toBe("ready")
+    expect(hookResult.result.current.data).toBe(undefined)
+  })
+
+  test("returns null data properly", async () => {
+    const query = jest.fn().mockReturnValue(Promise.resolve(null))
+    const hookResult = renderHook(() => useStateQuery(["null-test"], query), {
+      wrapper: Wrapper,
+    })
+    hookResult.rerender()
+    await hookResult.waitForNextUpdate()
+    expect(hookResult.result.current.state).toBe("ready")
+    expect(hookResult.result.current.data).toBe(null)
+  })
 })

@@ -11,13 +11,22 @@ const Login: React.FC = () => {
   const loginStateContext = useContext(LoginStateContext)
 
   const router = useRouter()
+  const [notification, setNotification] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
 
   async function submitForm(event) {
     event.preventDefault()
-    await login(email, password)
+    const loginResponse = await login(email, password)
+    if (loginResponse === false) {
+      setNotification("Incorrect email or password")
+      setTimeout(() => {
+        setNotification("")
+      }, 3000)
+      return null
+    }
+
     await loginStateContext.refresh()
     const returnTo = validateRouteOrDefault(uncheckedReturnTo, "/")
     router.push(returnTo)
@@ -43,6 +52,7 @@ const Login: React.FC = () => {
         />
         <button name="login">Submit</button>
       </form>
+      {notification !== "" ? <p>{notification}</p> : null}
     </Layout>
   )
 }

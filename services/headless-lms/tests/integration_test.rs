@@ -66,6 +66,7 @@ pub async fn init_actix() -> (
     let app_conf = ApplicationConfiguration {
         test_mode: true,
         base_url: "http://project-331.local".to_string(),
+        development_uuid_login: false,
     };
     let app = App::new()
         .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))

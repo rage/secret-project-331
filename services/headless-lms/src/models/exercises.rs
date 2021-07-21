@@ -15,7 +15,7 @@ use super::{
     exercise_tasks::CourseMaterialExerciseTask,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct Exercise {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -23,6 +23,7 @@ pub struct Exercise {
     pub name: String,
     pub course_id: Uuid,
     pub page_id: Uuid,
+    pub chapter_id: Uuid,
     pub deadline: Option<DateTime<Utc>>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_maximum: i32,
@@ -102,17 +103,19 @@ pub async fn insert(
     course_id: Uuid,
     name: &str,
     page_id: Uuid,
+    chapter_id: Uuid,
     order_number: i32,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO exercises (course_id, name, page_id, order_number)
-VALUES ($1, $2, $3, $4)
+INSERT INTO exercises (course_id, name, page_id, chapter_id, order_number)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         course_id,
         name,
         page_id,
+        chapter_id,
         order_number
     )
     .fetch_one(conn)
@@ -338,13 +341,13 @@ mod test {
         )
         .await
         .unwrap();
-        let _chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
+        let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();
         let page_id = pages::insert(tx.as_mut(), course_id, "", "", 0)
             .await
             .unwrap();
-        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, 0)
+        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, chapter_id, 0)
             .await
             .unwrap();
         let exercise_task_id = exercise_tasks::insert(

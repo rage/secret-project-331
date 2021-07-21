@@ -183,24 +183,27 @@ pub async fn get_course_material_service_info_by_exercise_type(
     conn: &mut PgConnection,
     exercise_type: &str,
 ) -> ModelResult<Option<CourseMaterialExerciseServiceInfo>> {
-    let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
-    let full_service_info = get_service_info_by_exercise_service(conn, &exercise_service).await;
-    let service_info_option = if let Ok(o) = full_service_info {
-        // Need to convert relative url to absolute url because
-        // otherwise the material won't be able to request the path
-        // if the path is in a different domain
-        let mut url = Url::parse(&exercise_service.public_url)
-            .map_err(|original_err| ModelError::Generic(original_err.to_string()))?;
-        url.set_path(&o.exercise_iframe_path);
-        url.set_query(None);
-        url.set_fragment(None);
+    if let Ok(exercise_service) = get_exercise_service_by_exercise_type(conn, exercise_type).await {
+        let full_service_info = get_service_info_by_exercise_service(conn, &exercise_service).await;
+        let service_info_option = if let Ok(o) = full_service_info {
+            // Need to convert relative url to absolute url because
+            // otherwise the material won't be able to request the path
+            // if the path is in a different domain
+            let mut url = Url::parse(&exercise_service.public_url)
+                .map_err(|original_err| ModelError::Generic(original_err.to_string()))?;
+            url.set_path(&o.exercise_iframe_path);
+            url.set_query(None);
+            url.set_fragment(None);
 
-        Some(CourseMaterialExerciseServiceInfo {
-            exercise_iframe_url: url.to_string(),
-        })
+            Some(CourseMaterialExerciseServiceInfo {
+                exercise_iframe_url: url.to_string(),
+            })
+        } else {
+            None
+        };
+
+        Ok(service_info_option)
     } else {
-        None
-    };
-
-    Ok(service_info_option)
+        Ok(None)
+    }
 }

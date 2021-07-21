@@ -1,4 +1,4 @@
-use super::{ModelError, ModelResult};
+use super::{exercise_service_info::ExerciseServiceInfo, ModelError, ModelResult};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
@@ -60,14 +60,33 @@ pub async fn get_exercise_service_internally_preferred_baseurl_by_exercise_type(
     exercise_type: &str,
 ) -> ModelResult<Url> {
     let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
+    Ok(get_exercise_service_internally_preferred_baseurl(&exercise_service).await?)
+}
+
+pub async fn get_exercise_service_internally_preferred_baseurl(
+    exercise_service: &ExerciseService,
+) -> ModelResult<Url> {
     let stored_url_str = exercise_service
         .internal_url
-        .unwrap_or(exercise_service.public_url);
+        .as_ref()
+        .unwrap_or(&exercise_service.public_url);
     let mut url = Url::parse(&stored_url_str)
         .map_err(|original_error| ModelError::Generic(original_error.to_string()))?;
     // remove the path because all relative urls in service info assume
     // that the base url prefix has no path
     url.set_path("");
+    Ok(url)
+}
+
+/**
+Returns a url that can be used to grade a submission for this exercise service.
+*/
+pub async fn get_internal_grade_url(
+    exercise_service: &ExerciseService,
+    exercise_service_info: &ExerciseServiceInfo,
+) -> ModelResult<Url> {
+    let mut url = get_exercise_service_internally_preferred_baseurl(exercise_service).await?;
+    url.set_path(&exercise_service_info.grade_endpoint_path);
     Ok(url)
 }
 

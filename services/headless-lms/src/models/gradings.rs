@@ -1,6 +1,5 @@
 use super::{
-    exercise_service_info::ExerciseServiceInfo,
-    exercise_services::get_exercise_service_internally_preferred_baseurl_by_exercise_type,
+    exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     submissions::{GradingResult, Submission},
@@ -12,6 +11,7 @@ use crate::models::{
     ModelError,
 };
 use chrono::{DateTime, Utc};
+
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use std::time::Duration;
@@ -163,30 +163,20 @@ pub async fn grade_submission(
 ) -> ModelResult<Grading> {
     let exercise_service_info =
         get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
-    let grade_url = get_exercise_service_internally_preferred_baseurl_by_exercise_type(
-        conn,
-        &exercise_task.exercise_type,
-    )
-    .await?;
-    let obj = send_grading_request(
-        grade_url,
-        &exercise_service_info,
-        exercise_task,
-        submission.clone(),
-    )
-    .await?;
+    let exercise_service =
+        get_exercise_service_by_exercise_type(conn, &exercise_task.exercise_type).await?;
+    let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
+    let obj = send_grading_request(grade_url, exercise_task, submission.clone()).await?;
     let updated_grading = update_grading(conn, &grading, &obj, &exercise).await?;
     update_user_exercise_state(conn, &updated_grading, &submission).await?;
     Ok(updated_grading)
 }
 
 pub async fn send_grading_request(
-    mut grade_url: Url,
-    exercise_service_info: &ExerciseServiceInfo,
+    grade_url: Url,
     exercise_task: ExerciseTask,
     submission: Submission,
 ) -> ModelResult<GradingResult> {
-    grade_url.set_path(&exercise_service_info.grade_endpoint_path);
     let client = reqwest::Client::new();
     let res = client
         .post(grade_url)

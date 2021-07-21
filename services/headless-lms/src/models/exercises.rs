@@ -277,7 +277,7 @@ SET selected_exercise_task_id = $4
         conn,
         &selected_exercise_task.exercise_type,
     )
-    .await;
+    .await?;
 
     let user_exercise_state = if let Some(logged_in_user_id) = user_id {
         if let Some(current_course_instance_id) = current_course_instance_id {
@@ -312,7 +312,7 @@ SET selected_exercise_task_id = $4
             activity_progress,
             grading_progress,
         }),
-        current_exercise_task_service_info: current_exercise_task_service_info?,
+        current_exercise_task_service_info,
     })
 }
 

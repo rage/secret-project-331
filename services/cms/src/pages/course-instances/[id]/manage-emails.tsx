@@ -14,8 +14,8 @@ import {
 import { deleteEmailTemplate } from "../../../services/backend/email-templates"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 
 const CourseInstanceEmailTemplates = () => {
   const courseInstanceId = useQueryParameter("id")

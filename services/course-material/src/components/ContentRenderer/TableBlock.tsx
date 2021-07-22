@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."

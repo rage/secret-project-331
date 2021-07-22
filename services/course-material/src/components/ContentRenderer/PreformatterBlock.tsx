@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import fontSizeMapper from "../../styles/fontSizeMapper"
 import { PreformattedAttributes } from "../../types/GutenbergBlockAttributes"
 

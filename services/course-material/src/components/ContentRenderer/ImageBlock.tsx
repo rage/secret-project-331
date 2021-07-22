@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { ImageAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."

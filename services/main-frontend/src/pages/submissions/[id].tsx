@@ -6,7 +6,7 @@ import SubmissionIFrame from "../../components/SubmissionIFrame"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
+import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 const Submission: React.FC = () => {
   const id = useQueryParameter("id")

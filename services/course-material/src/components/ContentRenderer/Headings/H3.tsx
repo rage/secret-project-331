@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 
-import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 
 const H1 = styled.h3`
   color: red;

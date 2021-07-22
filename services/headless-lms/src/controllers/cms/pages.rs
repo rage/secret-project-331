@@ -45,7 +45,7 @@ async fn get_page(
     let page = crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
     authorize(
         conn,
-        Action::View,
+        Action::Edit,
         user.id,
         Resource::Course(page.course_id),
     );

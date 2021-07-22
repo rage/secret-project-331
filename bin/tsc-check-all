@@ -1,17 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "> course-material"
-cd services/course-material/ && npx tsc --noEmit && cd ../..
+COMMAND="npx"
+ARGUMENTS=(concurrently -n "cms,course-material,main-frontend,example-exercise" -c "green,red,blue,yellow" "npx tsc -p services/cms/ --noEmit" "npx tsc -p services/course-material/ --noEmit" "npx tsc -p services/main-frontend/ --noEmit" "npx tsc -p services/example-exercise/ --noEmit")
 
-echo "> cms"
-cd services/cms/ && npx tsc --noEmit && cd ../..
+echo "> $COMMAND" "${ARGUMENTS[@]}"
+exec "$COMMAND" "${ARGUMENTS[@]}"
 
-echo "> main-frontend"
-cd services/main-frontend/ && npx tsc --noEmit && cd ../..
-
-echo "> example-exercise"
-cd services/example-exercise/ && npx tsc --noEmit && cd ../..
-
-echo "> finished npx tsc on all services directories"
-
+echo "finished"

@@ -61,7 +61,7 @@ async fn post_new_chapter<T: FileStore>(
         Action::Edit,
         user.id,
         Resource::Course(payload.course_id),
-    );
+    )?;
     let new_chapter = payload.0;
     let (database_chapter, ..) =
         crate::models::chapters::insert_chapter(&mut conn, new_chapter).await?;

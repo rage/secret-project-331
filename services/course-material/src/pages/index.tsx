@@ -3,8 +3,8 @@ import Link from "next/link"
 import { useQuery } from "react-query"
 
 import { fetchOrganizations } from "../services/backend"
+import basePath from "../shared-module/utils/base-path"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
-import basePath from "../utils/base-path"
 
 import "katex/dist/katex.min.css"
 
@@ -22,7 +22,6 @@ const Home: React.FC = () => {
   if (isLoading || !data) {
     return <>Loading...</>
   }
-
   return (
     <>
       <Title>Organizations</Title>

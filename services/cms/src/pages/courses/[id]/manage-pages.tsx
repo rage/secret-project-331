@@ -14,13 +14,19 @@ import { postNewPage } from "../../../services/backend/pages"
 import { Chapter } from "../../../shared-module/bindings"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import {
+  dontRenderUntilQueryParametersReady,
+  SimplifiedUrlQuery,
+} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
-import { dontRenderUntilQueryParametersReady } from "../../../utils/dontRenderUntilQueryParametersReady"
 
-const CoursePages: React.FC<unknown> = () => {
-  const id = useQueryParameter("id")
+export interface CoursePagesProps {
+  query: SimplifiedUrlQuery<"id">
+}
+
+const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
+  const { id } = query
   const { isLoading, error, data, refetch } = useQuery(`course-structure-${id}`, () =>
     fetchCourseStructure(id),
   )
@@ -85,7 +91,7 @@ const CoursePages: React.FC<unknown> = () => {
           <PageList
             data={data.pages.filter((page) => !page.chapter_id)}
             refetch={refetch}
-            courseId={id}
+            courseId={data.course.id}
           />
           <div>
             {data.chapters
@@ -112,7 +118,7 @@ const CoursePages: React.FC<unknown> = () => {
                   <PageList
                     data={pagesByChapter[chapter.id] ?? []}
                     refetch={refetch}
-                    courseId={id}
+                    courseId={data.course.id}
                     chapter={chapter}
                   />
                 </div>
@@ -128,9 +134,9 @@ const CoursePages: React.FC<unknown> = () => {
               >
                 <Button onClick={() => setShowForm(!showForm)}>Close</Button>
                 <NewChapterForm
-                  courseId={id}
+                  courseId={data.course.id}
                   onSubmitForm={handleCreateChapter}
-                  chapterNumber={maxPart + 1 || 1}
+                  chapterNumber={(maxPart ?? 0) + 1}
                 />
               </div>
             </Dialog>

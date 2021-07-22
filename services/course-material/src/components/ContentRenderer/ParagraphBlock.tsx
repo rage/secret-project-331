@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import KaTex from "katex"
 import sanitizeHtml from "sanitize-html"
 
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import fontSizeMapper from "../../styles/fontSizeMapper"
 
 import { BlockRendererProps } from "."

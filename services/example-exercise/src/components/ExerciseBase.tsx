@@ -10,8 +10,6 @@ interface Props {
   interactable: boolean
 }
 
-console.log("tests")
-
 const ExerciseBase: React.FC<Props> = ({
   maxWidth,
   alternatives,

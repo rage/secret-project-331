@@ -51,8 +51,6 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/course-chapter-grid": CourseChapterGrid,
 }
 
-console.log("tests")
-
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
   if (props.data.constructor !== Array) {
     return (

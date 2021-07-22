@@ -15,8 +15,6 @@ export interface EchartsProps {
   height?: number
 }
 
-console.log("tests")
-
 const Echarts: React.FC<EchartsProps> = ({ options, height = 300 }) => {
   return (
     <div>

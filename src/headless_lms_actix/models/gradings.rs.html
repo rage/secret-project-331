@@ -241,12 +241,20 @@
 <span id="238">238</span>
 <span id="239">239</span>
 <span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">exercise_service_info::ExerciseServiceInfo</span>,
+    <span class="ident">exercise_services</span>::{<span class="ident">get_exercise_service_by_exercise_type</span>, <span class="ident">get_internal_grade_url</span>},
     <span class="ident">exercise_tasks::ExerciseTask</span>,
     <span class="ident">exercises</span>::{<span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
     <span class="ident">submissions</span>::{<span class="ident">GradingResult</span>, <span class="ident">Submission</span>},
+    <span class="ident">user_exercise_states::update_user_exercise_state</span>,
     <span class="ident">ModelResult</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models</span>::{
@@ -254,10 +262,12 @@
     <span class="ident">ModelError</span>,
 };
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
+
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
+<span class="kw">use</span> <span class="ident">url::Url</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -273,8 +283,8 @@
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
     <span class="kw">pub</span> <span class="ident">user_points_update_strategy</span>: <span class="ident">UserPointsUpdateStrategy</span>,
-    <span class="kw">pub</span> <span class="ident">unscaled_score_maximum</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">unscaled_max_points</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">unscaled_score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">unscaled_score_maximum</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">grading_started_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">grading_completed_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">feedback_json</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
@@ -333,7 +343,7 @@ SELECT id,
   grading_progress as &quot;grading_progress: _&quot;,
   user_points_update_strategy as &quot;user_points_update_strategy: _&quot;,
   unscaled_score_maximum,
-  unscaled_max_points,
+  unscaled_score_given,
   grading_started_at,
   grading_completed_at,
   feedback_json,
@@ -364,7 +374,7 @@ WHERE id = $1
 INSERT INTO
   gradings(submission_id, course_id, exercise_id, exercise_task_id, grading_started_at)
 VALUES($1, $2, $3, $4, now())
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_given, unscaled_score_maximum, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         &quot;#</span>,
         <span class="ident">submission</span>.<span class="ident">id</span>,
         <span class="ident">submission</span>.<span class="ident">course_id</span>,
@@ -404,19 +414,23 @@ WHERE id = $2
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">exercise_service_info</span> <span class="op">=</span>
         <span class="ident">get_service_info_by_exercise_type</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">send_grading_request</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>, <span class="ident">exercise_task</span>, <span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span>
+        <span class="ident">get_exercise_service_by_exercise_type</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">grade_url</span> <span class="op">=</span> <span class="ident">get_internal_grade_url</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">send_grading_request</span>(<span class="ident">grade_url</span>, <span class="ident">exercise_task</span>, <span class="ident">submission</span>.<span class="ident">clone</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span> <span class="ident">update_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">update_user_exercise_state</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">updated_grading</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">updated_grading</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_grading_request</span>(
-    <span class="ident">exercise_service_info</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseServiceInfo</span>,
+    <span class="ident">grade_url</span>: <span class="ident">Url</span>,
     <span class="ident">exercise_task</span>: <span class="ident">ExerciseTask</span>,
     <span class="ident">submission</span>: <span class="ident">Submission</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">GradingResult</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>
-        .<span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>.<span class="ident">grade_endpoint_path</span>)
+        .<span class="ident">post</span>(<span class="ident">grade_url</span>)
         .<span class="ident">timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">120</span>))
         .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">GradingRequest</span> {
             <span class="ident">exercise_spec</span>: <span class="ident">exercise_task</span>.<span class="ident">private_spec</span>,
@@ -459,14 +473,14 @@ WHERE id = $2
 UPDATE gradings
   SET
     grading_progress = $2,
-    unscaled_score_maximum = $3,
-    unscaled_max_points = $4,
+    unscaled_score_given = $3,
+    unscaled_score_maximum = $4,
     feedback_text = $5,
     feedback_json = $6,
     grading_completed_at = $7,
     score_given = $8
 WHERE id = $1
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as &quot;grading_progress: _&quot;, user_points_update_strategy as &quot;user_points_update_strategy: _&quot;, unscaled_score_given, unscaled_score_maximum, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         &quot;#</span>,
         <span class="ident">grading</span>.<span class="ident">id</span>,
         <span class="ident">grading_result</span>.<span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,

@@ -10,6 +10,7 @@ const ReactECharts = dynamic(() => import("echarts-for-react"), {
   loading: () => ChartLoading,
 })
 
+console.log("test")
 export interface EchartsProps {
   options: EChartsOption
   height?: number

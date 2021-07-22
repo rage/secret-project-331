@@ -11,6 +11,8 @@ interface Props {
   maxWidth: number | null
 }
 
+console.log("test")
+
 const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
   const [selectedId, _setSelectedId] = useState<string | null>(null)
 

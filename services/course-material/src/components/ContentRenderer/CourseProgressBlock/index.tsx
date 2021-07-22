@@ -3,8 +3,8 @@ import { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 
 import CourseProgress from "./CourseProgress"

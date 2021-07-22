@@ -14,7 +14,7 @@ use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::{Connection, PgConnection, Postgres};
-use std::{env, fs::File, process::Command};
+use std::{env, process::Command};
 use uuid::Uuid;
 
 #[tokio::main]
@@ -24,7 +24,6 @@ async fn main() -> Result<()> {
 
     let clean = env::args().any(|a| a == "clean");
     let db_url = env::var("DATABASE_URL")?;
-    let seed_path = "./db/seed";
 
     if clean {
         // hardcoded for now
@@ -140,20 +139,6 @@ async fn main() -> Result<()> {
     )
     .await?;
 
-    // dump database
-    let output = tokio::task::spawn_blocking(move || {
-        let file = File::create(seed_path).unwrap();
-        Command::new("pg_dump")
-            .arg("--data-only")
-            .arg("--format=custom")
-            .arg("--exclude-table=_sqlx_migrations")
-            .arg(db_url)
-            .stdout(file)
-            .status()
-    })
-    .await??;
-    assert!(output.success());
-
     Ok(())
 }
 
@@ -233,13 +218,21 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     pages::set_chapter(conn, page_ch2, chapter_2.id).await?;
 
     // exercises
-    let exercise_c1p1_1 =
-        exercises::insert(conn, course.id, "Best exercise", page_ch1_1, 1).await?;
+    let exercise_c1p1_1 = exercises::insert(
+        conn,
+        course.id,
+        "Best exercise",
+        page_ch1_1,
+        chapter_1.id,
+        1,
+    )
+    .await?;
     let exercise_c1p2_1 = exercises::insert(
         conn,
         course.id,
         "Second page, first exercise",
         page_ch1_2,
+        chapter_1.id,
         1,
     )
     .await?;
@@ -248,6 +241,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         course.id,
         "second page, second exercise",
         page_ch1_2,
+        chapter_1.id,
         2,
     )
     .await?;
@@ -256,6 +250,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         course.id,
         "second page, third exercise",
         page_ch1_2,
+        chapter_1.id,
         3,
     )
     .await?;
@@ -264,6 +259,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
         course.id,
         "first exercise of chapter two",
         page_ch2,
+        chapter_2.id,
         3,
     )
     .await?;

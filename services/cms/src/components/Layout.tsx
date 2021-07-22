@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import Head from "next/head"
 import React, { ReactNode } from "react"
 
-import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 
 type Props = {
   children?: ReactNode

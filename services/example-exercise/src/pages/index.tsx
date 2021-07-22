@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import { useEffect, useRef, useState } from "react"
 import { v4 } from "uuid"
 
-import basePath from "../util/base-path"
+import basePath from "../shared-module/utils/base-path"
 
 const Title = styled.h1`
   font-size: 24px;

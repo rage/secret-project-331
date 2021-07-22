@@ -10,10 +10,10 @@ import {
 import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useStateQuery from "../../../shared-module/hooks/useStateQuery"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../utils/dontRenderUntilQueryParametersReady"
+} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 const EditorLoading = <div>Loading editor...</div>
 

@@ -14,12 +14,12 @@ import { postNewPage } from "../../../services/backend/pages"
 import { Chapter } from "../../../shared-module/bindings"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
-} from "../../../utils/dontRenderUntilQueryParametersReady"
+} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 export interface CoursePagesProps {
   query: SimplifiedUrlQuery<"id">

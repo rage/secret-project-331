@@ -13,6 +13,7 @@ import ExerciseBlock from "./ExerciseBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
 import HeadingBlock from "./HeadingBlock"
 import ImageBlock from "./ImageBlock"
+import LatexBlock from "./LatexBlock"
 import ListBlock from "./ListBlock"
 import PagesListBlock from "./PagesListBlock"
 import ParagraphBlock from "./ParagraphBlock"
@@ -49,6 +50,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/exercises-in-chapter": ExerciseListBlock,
   "moocfi/pages-in-chapter": PagesListBlock,
   "moocfi/course-chapter-grid": CourseChapterGrid,
+  "moocfi/latex": LatexBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

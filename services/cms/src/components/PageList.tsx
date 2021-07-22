@@ -27,6 +27,8 @@ interface Props {
   chapter?: Chapter
 }
 
+console.log("tests")
+
 const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
   const [showNewPageForm, setShowNewPageForm] = useState(false)
   const handleCreateTopLevelPage = () => {

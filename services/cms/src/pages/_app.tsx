@@ -12,7 +12,7 @@ import { ReactQueryDevtools } from "react-query/devtools"
 import { RecoilRoot } from "recoil"
 
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
-import muiTheme from "../utils/muiTheme"
+import muiTheme from "../shared-module/utils/muiTheme"
 
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
@@ -48,7 +48,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
-      jssStyles.parentElement.removeChild(jssStyles)
+      jssStyles.parentElement?.removeChild(jssStyles)
     }
   }, [])
 

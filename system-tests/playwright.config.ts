@@ -12,6 +12,7 @@ const config: PlaywrightTestConfig = {
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
   globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
   use: {},
+  timeout: 600000,
 }
 
 if (process.env.SLOWMO) {

@@ -26,6 +26,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
       <TextField
         fullWidth
         variant="outlined"
+        placeholder="Exercise name"
         value={attributes.name}
         onChange={(e) => setAttributes({ name: e.target.value })}
         className={css`

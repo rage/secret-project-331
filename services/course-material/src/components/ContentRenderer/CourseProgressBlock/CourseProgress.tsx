@@ -3,7 +3,7 @@ import React from "react"
 import { useQuery } from "react-query"
 
 import { fetchUserCourseProgress } from "../../../services/backend"
-import { normalWidthCenteredComponentStyles } from "../../../styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 
 interface CourseProgressProps {

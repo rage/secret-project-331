@@ -261,7 +261,7 @@ export interface CourseMaterialExerciseTask {
 }
 
 export interface CourseMaterialExerciseServiceInfo {
-  exercise_iframe_path: string
+  exercise_iframe_url: string
 }
 
 export interface ExerciseStatus {
@@ -297,8 +297,8 @@ export interface Grading {
   score_given: number | null
   grading_progress: GradingProgress
   user_points_update_strategy: UserPointsUpdateStrategy
+  unscaled_score_given: number | null
   unscaled_score_maximum: number | null
-  unscaled_max_points: number | null
   grading_started_at: Date | null
   grading_completed_at: Date | null
   feedback_json: unknown | null

@@ -1,11 +1,13 @@
 import { css } from "@emotion/css"
 import { Button } from "@material-ui/core"
 import HelpIcon from "@material-ui/icons/Help"
-import { useState } from "react"
-import { useQuery } from "react-query"
+import { useContext, useState } from "react"
+import { useQuery, useQueryClient } from "react-query"
 
 import ContentRenderer, { BlockRendererProps } from ".."
-import { Block, fetchExerciseById } from "../../../services/backend"
+import CoursePageContext from "../../../contexts/CoursePageContext"
+import { Block, fetchExerciseById, postSubmission } from "../../../services/backend"
+import { SubmissionResult } from "../../../shared-module/bindings"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../../shared-module/styles/constants"
@@ -22,8 +24,14 @@ interface ExerciseBlockAttributes {
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const id = props.data.attributes.id
-  const { isLoading, error, data } = useQuery(`exercise-${id}`, () => fetchExerciseById(id))
-  const [, setAnswer] = useState<unknown>(null)
+  const queryUniqueKey = `exercise-${id}`
+  const { isLoading, error, data } = useQuery(queryUniqueKey, () => fetchExerciseById(id))
+  const [answer, setAnswer] = useState<unknown>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const coursePageContext = useContext(CoursePageContext)
+  const [submissionResponse, setSubmissionResponse] = useState<SubmissionResult | null>(null)
+  const [submissionError, setSubmissionError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -33,10 +41,14 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     return <GenericLoading />
   }
 
-  const url = data.current_exercise_task_service_info?.exercise_iframe_path
+  const url = data.current_exercise_task_service_info?.exercise_iframe_url
 
   const currentExerciseTaskAssignment = data.current_exercise_task
     .assignment as unknown as Block<unknown>[]
+
+  const courseInstanceId = coursePageContext?.instance?.id
+
+  const feedbackText = submissionResponse?.grading?.feedback_text
 
   return (
     <div
@@ -105,9 +117,46 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           }
         `}
       >
-        <Button color="primary" variant="contained">
+        <Button
+          disabled={submitting || !courseInstanceId}
+          onClick={async () => {
+            if (!courseInstanceId) {
+              console.error("Tried to submit without a current course instance id")
+              return
+            }
+            try {
+              setSubmitting(true)
+              setSubmissionResponse(null)
+              setSubmissionError(null)
+              const res = await postSubmission({
+                exercise_task_id: data.current_exercise_task.id,
+                course_instance_id: courseInstanceId,
+                data_json: answer,
+              })
+              setSubmitting(false)
+              setSubmissionResponse(res)
+              const scoreGiven = res.grading.score_given ?? 0
+              const newData = { ...data }
+              if (newData.exercise_status) {
+                newData.exercise_status.score_given = scoreGiven
+                queryClient.setQueryData(queryUniqueKey, newData)
+              }
+            } catch (e) {
+              console.error(e)
+              setSubmissionResponse(null)
+              setSubmissionError(e)
+            } finally {
+              setSubmitting(false)
+            }
+          }}
+          color="primary"
+          variant="contained"
+        >
           Submit
         </Button>
+        {feedbackText && <p>{feedbackText}</p>}
+        {submissionResponse && <pre>{JSON.stringify(submissionResponse, undefined, 2)}</pre>}
+        {submissionError && <pre>{JSON.stringify(submissionError, undefined, 2)}</pre>}
         <br />
         <DebugModal data={data} />
       </div>

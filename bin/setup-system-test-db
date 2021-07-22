@@ -29,7 +29,7 @@ echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 "$COMMAND" "${ARGUMENTS[@]}"
 
 COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public  cargo run --bin seed "$@")
+ARGUMENTS=(exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public  cargo run --bin seed --release "$@")
 
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"

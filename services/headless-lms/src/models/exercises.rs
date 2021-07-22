@@ -13,6 +13,7 @@ use crate::models::{
 use super::{
     exercise_service_info::CourseMaterialExerciseServiceInfo,
     exercise_tasks::CourseMaterialExerciseTask,
+    user_exercise_states::get_user_exercise_state_if_exits,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
@@ -179,10 +180,11 @@ pub async fn get_course_material_exercise(
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
 
+    let mut current_course_instance_id: Option<Uuid> = None;
     // if the user is logged in, take the previously selected task or select a new one
     let selected_exercise_task = if let Some(user_id) = user_id {
         // user is logged in, see if they're enrolled on the course
-        let current_course_instance_id: Option<Uuid> = sqlx::query!(
+        current_course_instance_id = sqlx::query!(
             r#"
 SELECT course_instance_id AS id
 FROM course_instance_enrollments
@@ -278,15 +280,40 @@ SET selected_exercise_task_id = $4
         conn,
         &selected_exercise_task.exercise_type,
     )
-    .await;
+    .await?;
+
+    let user_exercise_state = if let Some(logged_in_user_id) = user_id {
+        if let Some(current_course_instance_id) = current_course_instance_id {
+            get_user_exercise_state_if_exits(
+                conn,
+                logged_in_user_id,
+                exercise.id,
+                current_course_instance_id,
+            )
+            .await?
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let mut score_given = None;
+    let mut activity_progress = ActivityProgress::Initialized;
+    let mut grading_progress = GradingProgress::NotReady;
+    if let Some(user_exercise_state) = user_exercise_state {
+        score_given = user_exercise_state.score_given;
+        activity_progress = user_exercise_state.activity_progress;
+        grading_progress = user_exercise_state.grading_progress;
+    }
 
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task: selected_exercise_task,
         exercise_status: Some(ExerciseStatus {
-            score_given: None,
-            activity_progress: ActivityProgress::Initialized,
-            grading_progress: GradingProgress::NotReady,
+            score_given,
+            activity_progress,
+            grading_progress,
         }),
         current_exercise_task_service_info,
     })

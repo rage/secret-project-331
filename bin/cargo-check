@@ -9,7 +9,7 @@ echo "> cd $RELATIVE_PATH"
 cd "$RELATIVE_PATH" || exit
 
 COMMAND="cargo"
-ARGUMENTS=(check "$@")
+ARGUMENTS=(check --all "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

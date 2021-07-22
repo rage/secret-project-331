@@ -49,6 +49,7 @@ const ButtonEditor: React.FC<Props> = ({ item, onDelete, onChange }) => {
         }}
       />
       <Input
+        placeholder="Option text"
         value={item.name}
         onChange={(e) => {
           onChange({ ...item, name: e.target.value })

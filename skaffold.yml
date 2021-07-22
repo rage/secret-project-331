@@ -13,6 +13,8 @@ build:
         manual:
           - src: "**/*.rs"
             dest: "/app"
+          - src: "**/*.sql"
+            dest: "/app"
     - image: cms
       context: services/cms
       docker:
@@ -56,6 +58,7 @@ deploy:
 portForward:
   - resourceType: statefulset
     resourceName: postgres
+    namespace: default
     port: 5432
     localPort: 54328
 profiles:

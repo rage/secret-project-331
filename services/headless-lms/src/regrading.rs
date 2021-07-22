@@ -1,7 +1,7 @@
 use crate::models::{
     self,
     exercise_service_info::ExerciseServiceInfo,
-    exercise_services::ExerciseService,
+    exercise_services::{get_internal_grade_url, ExerciseService},
     exercises::{Exercise, GradingProgress},
     gradings::Grading,
     regrading_submissions::RegradingSubmission,
@@ -82,7 +82,7 @@ pub async fn regrade(
                 submission.exercise_task_id,
             )
             .await?;
-            if let Some((exercise_service, info)) =
+            if let Some((exercise_service, exercise_service_info)) =
                 exercise_services_by_type.get(&exercise_task.exercise_type)
             {
                 // mark the grading as pending
@@ -110,8 +110,10 @@ pub async fn regrade(
                 if entry.len() < limit {
                     let exercise =
                         models::exercises::get_by_id(&mut *conn, submission.exercise_id).await?;
+                    let grade_url =
+                        get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
                     let grading_future = models::gradings::send_grading_request(
-                        info,
+                        grade_url,
                         exercise_task,
                         submission.clone(),
                     )
@@ -251,7 +253,7 @@ mod test {
             "",
             "test-exercise",
             "",
-            "",
+            &mockito::server_url(),
             1,
         )
         .await
@@ -259,10 +261,10 @@ mod test {
         let info = models::exercise_service_info::insert(
             tx.as_mut(),
             exercise_service.id,
-            "",
-            "",
-            &mockito::server_url(),
-            "",
+            "/editor",
+            "/exercise",
+            "/grade",
+            "/wat",
         )
         .await
         .unwrap();
@@ -340,7 +342,7 @@ mod test {
             "",
             "test-exercise-1",
             "",
-            "",
+            &mockito::server_url(),
             1,
         )
         .await
@@ -348,10 +350,10 @@ mod test {
         let info = models::exercise_service_info::insert(
             tx.as_mut(),
             exercise_service.id,
-            "",
-            "",
-            &mockito::server_url(),
-            "",
+            "/editor",
+            "/exercise",
+            "/grade",
+            "/wat",
         )
         .await
         .unwrap();
@@ -451,7 +453,7 @@ mod test {
             "",
             "test-exercise-1",
             "",
-            "",
+            &mockito::server_url(),
             1,
         )
         .await
@@ -459,10 +461,10 @@ mod test {
         let info_1 = models::exercise_service_info::insert(
             tx.as_mut(),
             exercise_service_1.id,
-            "",
-            "",
-            &mockito::server_url(),
-            "",
+            "/editor",
+            "/exercise",
+            "/grade",
+            "/wat",
         )
         .await
         .unwrap();
@@ -471,7 +473,7 @@ mod test {
             "",
             "test-exercise-2",
             "",
-            "",
+            &mockito::server_url(),
             0,
         )
         .await
@@ -479,10 +481,10 @@ mod test {
         let info_2 = models::exercise_service_info::insert(
             tx.as_mut(),
             exercise_service_2.id,
-            "",
-            "",
-            &mockito::server_url(),
-            "",
+            "/editor",
+            "/exercise",
+            "/grade",
+            "/wat",
         )
         .await
         .unwrap();

@@ -3,11 +3,20 @@ import { BlockConfiguration } from "@wordpress/blocks"
 import LatexEditor from "./LatexEditor"
 import LatexSave from "./LatexSave"
 
-const LatexBlockConfiguration: BlockConfiguration = {
+export interface TextAttributes {
+  text: string
+}
+
+const LatexBlockConfiguration: BlockConfiguration<TextAttributes> = {
   title: "Latex Block",
   description: "Block for writing LaTex",
   category: "text",
-  attributes: {},
+  attributes: {
+    text: {
+      type: "string",
+      default: "",
+    },
+  },
   edit: LatexEditor,
   save: LatexSave,
 }

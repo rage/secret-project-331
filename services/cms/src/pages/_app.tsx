@@ -16,7 +16,6 @@ import muiTheme from "../shared-module/utils/muiTheme"
 
 import "@fontsource/montserrat"
 import "@fontsource/montserrat/700.css"
-import "katex/dist/katex.min.css"
 
 const queryClient = new QueryClient({
   defaultOptions: {

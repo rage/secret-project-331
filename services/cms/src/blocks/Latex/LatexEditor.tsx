@@ -4,6 +4,9 @@ import { BlockEditProps } from "@wordpress/blocks"
 import KaTex from "katex"
 import React from "react"
 
+import "katex/dist/katex.min.css"
+import { TextAttributes } from "."
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -15,14 +18,10 @@ const Component = styled.div`
   padding: 10px;
 `
 
-export interface TextAttributes {
-  text: string
-}
-
 const LatexEditor: React.FC<BlockEditProps<TextAttributes>> = (props) => {
   const { attributes, setAttributes } = props
 
-  const update = (event) => {
+  const update = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setAttributes({
       text: event.target.value,
     })

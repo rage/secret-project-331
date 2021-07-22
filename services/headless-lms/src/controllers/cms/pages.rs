@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/pages`.
 use crate::{
     controllers::ControllerResult,
-    domain::authorization::AuthUser,
+    domain::authorization::{authorize, Action, AuthUser, Resource},
     models::pages::{NewPage, Page, PageUpdate},
 };
 use actix_web::web::ServiceConfig;
@@ -43,6 +43,12 @@ async fn get_page(
 ) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page = crate::models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
+    authorize(
+        conn,
+        Action::View,
+        user.id,
+        Resource::Course(page.course_id),
+    );
     Ok(Json(page))
 }
 
@@ -104,6 +110,12 @@ async fn post_new_page(
 ) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
+    authorize(
+        conn,
+        Action::Edit,
+        user.id,
+        Resource::Course(payload.course_id),
+    );
     let page = crate::models::pages::insert_page(&mut conn, new_page).await?;
     Ok(Json(page))
 }
@@ -161,6 +173,8 @@ async fn update_page(
 ) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page_update = payload.0;
+    let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
+    authorize(conn, Action::Edit, user.id, Resource::Course(course_id));
     let page = crate::models::pages::update_page(&mut conn, *request_page_id, page_update).await?;
     Ok(Json(page))
 }
@@ -199,6 +213,8 @@ async fn delete_page(
     user: AuthUser,
 ) -> ControllerResult<Json<Page>> {
     let mut conn = pool.acquire().await?;
+    let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
+    authorize(conn, Action::Edit, user.id, Resource::Course(course_id));
     let deleted_page =
         crate::models::pages::delete_page_and_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(deleted_page))

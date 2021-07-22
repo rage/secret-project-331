@@ -1,0 +1,40 @@
+#!/bin/bash
+set -euo pipefail
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+
+# Generate types
+
+FOLDER_PATH="$BASEDIR/../services/headless-lms/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+echo "> cd $RELATIVE_PATH"
+cd "$RELATIVE_PATH" || exit
+
+COMMAND="cargo"
+ARGUMENTS=(test --lib ts_binding_generator)
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+"$COMMAND" "${ARGUMENTS[@]}"
+
+# Fix formatting
+
+FOLDER_PATH="$BASEDIR/../"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+echo "> cd $RELATIVE_PATH"
+cd "$RELATIVE_PATH" || exit
+
+COMMAND="npm"
+ARGUMENTS=(run eslint:format-bindings)
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+"$COMMAND" "${ARGUMENTS[@]}"
+
+# Post-update for shared module
+
+COMMAND="npm"
+ARGUMENTS=(run postinstall)
+
+echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
+exec "$COMMAND" "${ARGUMENTS[@]}"

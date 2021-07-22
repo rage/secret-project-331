@@ -1,15 +1,15 @@
-use super::ModelResult;
+use super::{
+    exercise_services::{get_exercise_service_by_exercise_type, ExerciseService},
+    ModelError, ModelResult,
+};
 use chrono::{DateTime, Utc};
 use reqwest::IntoUrl;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use std::time::Duration;
 use ts_rs::TS;
+use url::Url;
 use uuid::Uuid;
-
-use crate::models::{exercise_services::get_exercise_service_by_exercise_type, ModelError};
-
-use super::exercise_services::ExerciseService;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct ExerciseServiceInfo {
@@ -24,7 +24,7 @@ pub struct ExerciseServiceInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseMaterialExerciseServiceInfo {
-    pub exercise_iframe_path: String,
+    pub exercise_iframe_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -155,13 +155,21 @@ pub async fn get_service_info_by_exercise_type(
     conn: &mut PgConnection,
     exercise_type: &str,
 ) -> ModelResult<ExerciseServiceInfo> {
-    let service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
-    let res = get_service_info(conn, service.id).await;
+    let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
+    let service_info = get_service_info_by_exercise_service(conn, &exercise_service).await?;
+    Ok(service_info)
+}
+
+pub async fn get_service_info_by_exercise_service(
+    conn: &mut PgConnection,
+    exercise_service: &ExerciseService,
+) -> ModelResult<ExerciseServiceInfo> {
+    let res = get_service_info(conn, exercise_service.id).await;
     let service_info = if let Ok(exercise_service_info) = res {
         exercise_service_info
     } else {
         warn!("Could not find service info for service. This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.");
-        let fetched_service_info = fetch_and_upsert_service_info(conn, &service).await?;
+        let fetched_service_info = fetch_and_upsert_service_info(conn, exercise_service).await?;
         fetched_service_info
     };
     Ok(service_info)
@@ -174,11 +182,28 @@ indicate that the service info is unavailable.
 pub async fn get_course_material_service_info_by_exercise_type(
     conn: &mut PgConnection,
     exercise_type: &str,
-) -> Option<CourseMaterialExerciseServiceInfo> {
-    let full_service_info = get_service_info_by_exercise_type(conn, exercise_type).await;
-    full_service_info
-        .ok()
-        .map(|o| CourseMaterialExerciseServiceInfo {
-            exercise_iframe_path: o.exercise_iframe_path,
-        })
+) -> ModelResult<Option<CourseMaterialExerciseServiceInfo>> {
+    if let Ok(exercise_service) = get_exercise_service_by_exercise_type(conn, exercise_type).await {
+        let full_service_info = get_service_info_by_exercise_service(conn, &exercise_service).await;
+        let service_info_option = if let Ok(o) = full_service_info {
+            // Need to convert relative url to absolute url because
+            // otherwise the material won't be able to request the path
+            // if the path is in a different domain
+            let mut url = Url::parse(&exercise_service.public_url)
+                .map_err(|original_err| ModelError::Generic(original_err.to_string()))?;
+            url.set_path(&o.exercise_iframe_path);
+            url.set_query(None);
+            url.set_fragment(None);
+
+            Some(CourseMaterialExerciseServiceInfo {
+                exercise_iframe_url: url.to_string(),
+            })
+        } else {
+            None
+        };
+
+        Ok(service_info_option)
+    } else {
+        Ok(None)
+    }
 }

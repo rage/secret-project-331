@@ -10,9 +10,9 @@ import useQueryParameter from "../../hooks/useQueryParameter"
 import coursePageStateReducer from "../../reducers/coursePageStateReducer"
 import { fetchCourseInstance, fetchCoursePageByPath } from "../../services/backend"
 import useStateQuery from "../../shared-module/hooks/useStateQuery"
+import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { tryToScrollToSelector } from "../../utils/dom"
-import dontRenderUntilQueryParametersReady from "../../utils/dontRenderUntilQueryParametersReady"
 
 const PagePage: React.FC = () => {
   const courseSlug = useQueryParameter("courseSlug")

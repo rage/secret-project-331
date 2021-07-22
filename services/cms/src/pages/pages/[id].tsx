@@ -6,13 +6,13 @@ import CourseContext from "../../contexts/CourseContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../utils/dontRenderUntilQueryParametersReady"
+} from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 interface PagesProps {
-  query: SimplifiedUrlQuery
+  query: SimplifiedUrlQuery<"id">
 }
 
 const EditorLoading = <div>Loading editor...</div>

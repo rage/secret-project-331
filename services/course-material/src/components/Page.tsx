@@ -4,7 +4,7 @@ import React, { useContext } from "react"
 import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
 import { Block } from "../services/backend"
 import DebugModal from "../shared-module/components/DebugModal"
-import { normalWidthCenteredComponentStyles } from "../styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 
 import ContentRenderer from "./ContentRenderer"
 import NavigationContainer from "./NavigationContainer"

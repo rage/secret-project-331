@@ -1,7 +1,9 @@
+import { css } from "@emotion/css"
 import { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import CoursePageContext from "../../../contexts/CoursePageContext"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../GenericLoading"
 
@@ -15,7 +17,15 @@ const ExerciseListBlock: React.FC<BlockRendererProps<unknown>> = () => {
   }
 
   if (!pageContext.instance) {
-    return <div>Select course version to see your progress.</div>
+    return (
+      <div
+        className={css`
+          ${normalWidthCenteredComponentStyles}
+        `}
+      >
+        Select course version to see your progress.
+      </div>
+    )
   }
 
   return <CourseProgress courseInstanceId={pageContext.instance.id} />

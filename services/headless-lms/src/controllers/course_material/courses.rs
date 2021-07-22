@@ -194,10 +194,7 @@ async fn get_chapters(
     let chapters = chapters
         .into_iter()
         .map(|chapter| {
-            let open = chapter
-                .opens_at
-                .map(|o| o <= Utc::now())
-                .unwrap_or_default();
+            let open = chapter.opens_at.map(|o| o <= Utc::now()).unwrap_or(true);
             let status = if open {
                 ChapterStatus::Open
             } else {

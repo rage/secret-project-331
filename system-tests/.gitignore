@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Shared module that has been copied to this project
 shared-module
+
+# Contains large artifacts like videos
+test-results

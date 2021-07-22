@@ -4,14 +4,30 @@ In project root execute `bin/test` to start test environment.<br />
 Run test suites with command `npm run test` or `npm run test-debug` for debugging tests.<br />
 Tests can be found in `src/tests/`.
 
-## Writing tests
+## Running tests
 
 Start test environment from project root with `bin/test`.
 
-> NB! Always intialize db before each test by running `bin/setup-system-test-db` in root.
+The tests can be ran using the following command in the `system-tests` folder:
+
+```sh
+npm run test
+```
+
+Also, following alternatives are available:
+
+```sh
+npm run test-headed # runs tests with with a visible browser
+npm run test-slowmo # runs tests in slow motion
+npm run test-video # runs tests and records a video to `system-tests/test-results`
+npm run test-debug # see https://playwright.dev/docs/debug#run-in-debug-mode
+npm run open # opens playwright without running tests
+```
+
+## Writing tests
 
 Record new tests with Playwright by changing directory, `cd system-tests`, and run `npm run create-login-states`.<br />
-To start recoding, run one of the following:
+To start recording, run one of the following:
 
 - `npm run record-test` &mdash; Record without login state
 - `npm run record-test-admin` &mdash; Record as admin

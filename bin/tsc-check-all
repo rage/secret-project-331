@@ -2,7 +2,7 @@
 set -euo pipefail
 
 COMMAND="npx"
-ARGUMENTS=(concurrently -n "cms,course-material,main-frontend,example-exercise" -c "green,red,blue,yellow" "npx tsc -p services/cms/ --noEmit" "npx tsc -p services/course-material/ --noEmit" "npx tsc -p services/main-frontend/ --noEmit" "npx tsc -p services/example-exercise/ --noEmit")
+ARGUMENTS=(concurrently -n "cms,course-material,main-frontend,example-exercise" -c "green.bold,red.bold,blue.bold,yellow.bold" "npx tsc -p services/cms/ --noEmit" "npx tsc -p services/course-material/ --noEmit" "npx tsc -p services/main-frontend/ --noEmit" "npx tsc -p services/example-exercise/ --noEmit")
 
 echo "> $COMMAND" "${ARGUMENTS[@]}"
 exec "$COMMAND" "${ARGUMENTS[@]}"

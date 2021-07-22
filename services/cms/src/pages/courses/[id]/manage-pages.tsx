@@ -10,7 +10,6 @@ import PageList from "../../../components/PageList"
 import NewChapterForm from "../../../components/forms/NewChapterForm"
 import CourseContext from "../../../contexts/CourseContext"
 import { fetchCourseStructure } from "../../../services/backend/courses"
-import { postNewPage } from "../../../services/backend/pages"
 import { Chapter } from "../../../shared-module/bindings"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
@@ -40,30 +39,6 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
     return <div>Loading...</div>
   }
 
-  const handleCreateFrontPage = async () => {
-    await postNewPage({
-      content: [],
-      url_path: "/",
-      title: data.course.name,
-      course_id: data.course.id,
-      chapter_id: null,
-      front_page_of_chapter_id: null,
-    })
-    await refetch()
-  }
-
-  const handleCreateChapterFrontPage = async (chapter: Chapter) => {
-    await postNewPage({
-      content: [],
-      url_path: `/chapter-${chapter.chapter_number}`,
-      title: chapter.name,
-      course_id: chapter.course_id,
-      chapter_id: chapter.id,
-      front_page_of_chapter_id: chapter.id,
-    })
-    await refetch()
-  }
-
   const handleCreateChapter = async () => {
     setShowForm(!showForm)
     await refetch()
@@ -72,8 +47,6 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
   const pagesByChapter = groupBy(data.pages, "chapter_id")
 
   const maxPart = max(data.chapters.map((p) => p.chapter_number))
-
-  const frontPage = data.pages.find((page) => page.url_path === "/")
 
   return (
     <CourseContext.Provider value={{ courseId: data.course.id }}>
@@ -85,9 +58,6 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
           `}
         >
           <h1>Course overview for {data.course.name}</h1>
-          {!frontPage && (
-            <Button onClick={handleCreateFrontPage}>Create front page for course</Button>
-          )}
           <PageList
             data={data.pages.filter((page) => !page.chapter_id)}
             refetch={refetch}
@@ -110,11 +80,6 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
                     Chapter {chapter.chapter_number}: {chapter.name}
                   </h3>
                   <ChapterImageWidget chapter={chapter} onChapterUpdated={() => refetch()} />
-                  {!chapter.front_page_id && (
-                    <Button onClick={async () => await handleCreateChapterFrontPage(chapter)}>
-                      Create chapter front page
-                    </Button>
-                  )}
                   <PageList
                     data={pagesByChapter[chapter.id] ?? []}
                     refetch={refetch}

@@ -36,6 +36,7 @@ async fn main() -> Result<()> {
         info!("*  Starting backend in test mode  *");
         info!("***********************************");
     }
+    let development_uuid_login = env::var("DEVELOPMENT_UUID_LOGIN").is_ok();
 
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();
@@ -59,6 +60,7 @@ async fn main() -> Result<()> {
         let app_conf = ApplicationConfiguration {
             base_url: base_url.clone(),
             test_mode,
+            development_uuid_login,
         };
         let file_store = futures::executor::block_on(async {
             LocalFileStore::new(

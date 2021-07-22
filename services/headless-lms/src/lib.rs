@@ -29,6 +29,7 @@ pub type OAuthClient = Arc<BasicClient>;
 pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,
+    pub development_uuid_login: bool,
 }
 
 pub fn configure<T: 'static + FileStore>(

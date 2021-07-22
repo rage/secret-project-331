@@ -36,6 +36,9 @@ export function dontRenderUntilQueryParametersReady<T>(
     }
 
     for (const [key, value] of Object.entries(router.query)) {
+      if (value === undefined) {
+        return null
+      }
       let queryValue = value
       if (Array.isArray(queryValue)) {
         queryValue = queryValue[0]

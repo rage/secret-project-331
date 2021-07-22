@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { HtmlAttributes } from "../../types/GutenbergBlockAttributes"
 import GenericLoading from "../GenericLoading"
 

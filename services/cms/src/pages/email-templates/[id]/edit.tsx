@@ -11,8 +11,8 @@ import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindi
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 import useStateQuery from "../../../shared-module/hooks/useStateQuery"
+import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-import dontRenderUntilQueryParametersReady from "../../../utils/dontRenderUntilQueryParametersReady"
 
 const EditorLoading = <div>Loading editor...</div>
 

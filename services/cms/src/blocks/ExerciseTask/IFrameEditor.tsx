@@ -8,7 +8,7 @@ import { ExerciseTaskAttributes } from "."
 
 interface IFrameEditorProps {
   props: PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>
-  url: string
+  url: string | null | undefined
   exerciseTaskid: string
 }
 

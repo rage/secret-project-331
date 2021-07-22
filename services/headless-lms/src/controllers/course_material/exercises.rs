@@ -59,7 +59,7 @@ expose the correct answers to the user.
     ]
   },
   "current_exercise_task_service_info": {
-    "exercise_iframe_path": "/example-exercise/exercise"
+    "exercise_iframe_url": "http://project-331.local/example-exercise/exercise"
   },
   "exercise_status": {
     "score_given": null,

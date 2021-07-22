@@ -32,7 +32,7 @@ const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ conte
             height="90vh"
             width="80vw"
             defaultLanguage="html"
-            defaultValue={serialized}
+            defaultValue={serialized ?? undefined}
           />
         </Paper>
       </Dialog>

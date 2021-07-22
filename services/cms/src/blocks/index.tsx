@@ -8,7 +8,11 @@ import ExerciseInChapter from "./ExerciseInChapter"
 import ExerciseTask from "./ExerciseTask"
 import PagesInChapter from "./PagesInChapter"
 
-export const blockTypeMapForPages: Array<[string, BlockConfiguration]> = [
+/**
+ * List of custom blocks to be passed on to Gutenberg.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const blockTypeMapForPages: Array<[string, BlockConfiguration<any>]> = [
   ["moocfi/exercise", Exercise],
   ["moocfi/exercise-task", ExerciseTask],
   ["moocfi/course-chapter-grid", CourseChapterGrid],
@@ -18,7 +22,8 @@ export const blockTypeMapForPages: Array<[string, BlockConfiguration]> = [
   ["moocfi/chapter-progress", ChapterProgress],
 ]
 
-export const blockTypeMapForTopLevelPages: Array<[string, BlockConfiguration]> = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const blockTypeMapForTopLevelPages: Array<[string, BlockConfiguration<any>]> = [
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/course-progress", CourseProgress],
 ]

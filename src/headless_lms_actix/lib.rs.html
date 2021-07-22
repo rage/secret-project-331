@@ -79,6 +79,7 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
+<span id="79">79</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">controllers</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">domain</span>;
@@ -111,6 +112,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ApplicationConfiguration</span> {
     <span class="kw">pub</span> <span class="ident">base_url</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">test_mode</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">development_uuid_login</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">configure</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">FileStore</span><span class="op">&gt;</span>(

@@ -23,7 +23,7 @@ const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
   const [content, setContent] = useState<BlockInstance[]>(data.content as BlockInstance[])
   const [name, setName] = useState(data.name)
-  const [subject, setSubject] = useState(data.subject)
+  const [subject, setSubject] = useState(data.subject ?? "")
   const [saving, setSaving] = useState(false)
 
   const handleOnSave = async () => {
@@ -37,7 +37,7 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
     })
     setContent(res.content as BlockInstance[])
     setName(res.name)
-    setSubject(res.subject)
+    setSubject(res.subject ?? "")
     setSaving(false)
   }
 

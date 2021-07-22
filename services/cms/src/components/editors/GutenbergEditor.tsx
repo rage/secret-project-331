@@ -24,7 +24,6 @@ import {
 } from "@wordpress/block-editor"
 import { registerCoreBlocks } from "@wordpress/block-library"
 import {
-  BlockConfiguration,
   BlockInstance,
   getBlockType,
   getBlockTypes,
@@ -35,7 +34,7 @@ import {
 } from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { addFilter } from "@wordpress/hooks"
-import React, { useContext, useEffect } from "react"
+import React, { useContext, useEffect, useState } from "react"
 
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
@@ -46,7 +45,7 @@ interface GutenbergEditorProps {
   onContentChange: React.Dispatch<BlockInstance[]>
   allowedBlocks?: string[]
   allowedBlockVariations?: Record<string, string[]>
-  customBlocks?: [string, BlockConfiguration<unknown>][]
+  customBlocks?: Array<Parameters<typeof registerBlockType>>
 }
 
 const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
@@ -56,7 +55,20 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   allowedBlocks,
   customBlocks,
 }: GutenbergEditorProps) => {
-  const courseId = useContext(CourseContext).courseId
+  const courseId = useContext(CourseContext)?.courseId
+
+  const [editorSettings, setEditorSettings] = useState<
+    Partial<
+      EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
+    >
+  >({})
+
+  useEffect(() => {
+    if (courseId) {
+      setEditorSettings((prev) => ({ ...prev, mediaUpload: mediaUploadBuilder(courseId) }))
+    }
+  }, [courseId])
+
   const handleChanges = (newContent: BlockInstance[]): void => {
     console.log(newContent)
     onContentChange(newContent)
@@ -102,12 +114,6 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
       })
     }
   }, [allowedBlockVariations, allowedBlocks, customBlocks])
-
-  const editorSettings: Partial<
-    EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
-  > = {}
-  // Enables uploading media
-  editorSettings.mediaUpload = mediaUploadBuilder(courseId)
 
   return (
     <div className="editor">

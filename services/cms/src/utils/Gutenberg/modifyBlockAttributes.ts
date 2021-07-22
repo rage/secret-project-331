@@ -1,6 +1,7 @@
 import { assign } from "lodash"
 
-export function modifyBlockAttributes(settings, name) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+export function modifyBlockAttributes(settings: any, name: string): any {
   if (name !== "core/image") {
     return settings
   }

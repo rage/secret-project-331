@@ -17,7 +17,7 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
   attributes: {
     id: {
       type: "string",
-      default: null,
+      default: undefined,
     },
     name: {
       type: "string",

@@ -24,38 +24,44 @@ export async function uploadMedia({
   onFileChange: (files: Partial<MediaItem>[]) => void
 }): Promise<void> {
   const validFiles = Array.from(filesList).filter((file) =>
-    validateFileAndBroadcastErrors(file, allowedTypes, maxUploadFileSize, onError),
+    validateFileAndBroadcastErrors(file, allowedTypes ?? [], maxUploadFileSize, onError),
   )
 
-  const mediaItems: Partial<MediaItem>[] = validFiles.map((file) => {
+  const initialItems = validFiles.map<Partial<MediaItem>>((file) => {
     // Indicate in the UI that the upload has started by initially placing a placeholder blob url.
     return { url: createBlobURL(file) }
   })
   // Tell gutenberg to show the placeholders
-  onFileChange(mediaItems)
+  onFileChange(initialItems)
 
-  const promises = validFiles.map(async (file, i) => {
-    let res: Partial<MediaItem> | null = null
-    try {
-      const uploadedMedia = await uploadFileFromPage(file, courseId)
-      res = {
-        alt: "Add alt",
-        caption: "Add caption",
-        title: "Add title",
-        url: uploadedMedia.url,
+  const mediaItems = initialItems as Array<typeof initialItems[0] | null>
+
+  await Promise.all(
+    validFiles.map(async (file, i) => {
+      let res: (Pick<MediaItem, "url"> & Partial<MediaItem>) | null = null
+      try {
+        const uploadedMedia = await uploadFileFromPage(file, courseId)
+        res = {
+          alt: "Add alt",
+          caption: "Add caption",
+          title: "Add title",
+          url: uploadedMedia.url,
+        }
+      } catch (error) {
+        onError(`${file.name}: ${error?.data?.detail || "Upload failed"}`)
+      } finally {
+        // Upload has either succeeded or failed so we can remove the placeholder that is being used as a upload indicator.
+        const url = mediaItems[i]?.url
+        if (url) {
+          revokeBlobURL(url)
+        }
+        // Either sets the result or sets the item to null
+        mediaItems[i] = res
+        // Broadcast only succeeded items to the consumer
+        onFileChange(mediaItems.filter((o): o is Partial<MediaItem> => !!o))
       }
-    } catch (error) {
-      onError(`${file.name}: ${error?.data?.detail || "Upload failed"}`)
-    } finally {
-      // Upload has either succeeded or failed so we can remove the placeholder that is being used as a upload indicator.
-      revokeBlobURL(mediaItems[i]?.url)
-      // Either sets the result or sets the item to null
-      mediaItems[i] = res
-      // Broadcast only succeeded items to the consumer
-      onFileChange(mediaItems.filter((o) => !!o))
-    }
-  })
-  await Promise.all(promises)
+    }),
+  )
 }
 
 function validateFileAndBroadcastErrors(

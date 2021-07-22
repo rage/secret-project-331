@@ -13,7 +13,7 @@ import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 interface Props {
   onRefresh: () => void
 }
-
+console.log("test")
 const Page: React.FC<Props> = ({ onRefresh }) => {
   const pageContext = useContext(CoursePageContext)
   const pageDispatch = useContext(CoursePageDispatch)

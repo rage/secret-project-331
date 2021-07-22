@@ -8,7 +8,7 @@ type Props = {
   children?: ReactNode
   title?: string
 }
-console.log("test")
+
 const Layout: React.FC<Props> = ({ children, title = "Päätön CMS" }) => (
   <div
     className={css`

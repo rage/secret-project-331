@@ -14,25 +14,12 @@ const PageExerciseList: React.FC<{ page: PageWithExercises }> = ({ page }) => {
   return (
     <div>
       <h5>
-        <Link
-          href={{
-            pathname: "/[courseSlug][urlPath]",
-            query: { courseSlug, urlPath: page.url_path },
-          }}
-        >
-          {page.title}
-        </Link>
+        <Link href={`/${courseSlug}${page.url_path}`}>{page.title}</Link>
       </h5>
       <div>
         {page.exercises.map((e) => (
           <div key={e.id}>
-            <Link
-              href={{
-                pathname: "/[courseSlug][urlPath]#[anchor]",
-                query: { anchor: e.id, courseSlug, urlPath: page.url_path },
-              }}
-              passHref
-            >
+            <Link href={`/${courseSlug}${page.url_path}#${e.id}`} passHref>
               <a>{e.name}</a>
             </Link>
           </div>

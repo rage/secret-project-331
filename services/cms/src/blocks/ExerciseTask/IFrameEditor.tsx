@@ -20,8 +20,10 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
     <MessageChannelIFrame
       url={url}
       onCommunicationChannelEstabilished={(port) => {
-        console.log("communication channel established")
-        port.postMessage({ message: "set-state", data: JSON.parse(props.attributes.private_spec) })
+        port.postMessage({
+          message: "set-state",
+          data: JSON.parse(props.attributes.private_spec ?? "null"),
+        })
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

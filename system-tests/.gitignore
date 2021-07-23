@@ -38,3 +38,6 @@ shared-module
 
 # Contains large artifacts like videos
 test-results
+
+# Not using firefox snapshot tests in ci, so we ignore those artifacts
+*firefox-*.png

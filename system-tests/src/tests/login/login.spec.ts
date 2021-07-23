@@ -50,7 +50,6 @@ test.describe("Login session with Playwright", async () => {
 
   test("able to logout", async ({ page }) => {
     await logout(page)
-    await page.goto("http://project-331.local")
     expect(await page.waitForSelector("text=Login")).toBeTruthy()
   })
 })
@@ -70,10 +69,14 @@ test.describe("Login return_to", async () => {
 
   test("works after succesful login", async ({ page }) => {
     // Click text=University of Helsinki, Department of Computer Science
-    await page.click("text=University of Helsinki, Department of Computer Science")
+    await Promise.all([
+      page.waitForNavigation(),
+      page.click("text=University of Helsinki, Department of Computer Science"),
+    ])
     expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
     // Click text=Login
-    await page.click("text=Login")
+    await Promise.all([page.waitForNavigation(), page.click("text=Login")])
+    await page.waitForSelector('input[name="password"]')
     expect(page.url().startsWith("http://project-331.local/login?return_to=")).toBe(true)
     // Click input[name="email"]
     await page.click('input[name="email"]')

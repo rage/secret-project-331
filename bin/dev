@@ -9,13 +9,18 @@ function ensure_program_in_path() {
   fi
 }
 
+function run_command() {
+  command=$1
+  shift
+  args=("$@")
+  echo "> $command" "$(printf "%q " "${args[@]}" )"
+  "$command" "${args[@]}"
+}
+
 ensure_program_in_path "skaffold"
 ensure_program_in_path "kubectl"
 ensure_program_in_path "minikube"
 ensure_program_in_path "kustomize"
 
-COMMAND="skaffold"
-ARGUMENTS=(dev --force --port-forward "$@")
+run_command skaffold dev --force --port-forward "$@"
 
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"

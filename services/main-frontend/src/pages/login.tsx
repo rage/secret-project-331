@@ -26,10 +26,12 @@ const Login: React.FC = () => {
       console.log("failed to login: ", e)
       if (e.response.status === 401) {
         setNotification("Incorrect email or password")
-        setTimeout(() => {
-          setNotification("")
-        }, 3000)
+      } else {
+        setNotification("Error logging in")
       }
+      setTimeout(() => {
+        setNotification(null)
+      }, 3000)
       return null
     }
 
@@ -58,7 +60,7 @@ const Login: React.FC = () => {
         />
         <button name="login">Submit</button>
       </form>
-      {notification ?? <p>{notification}</p>}
+      {notification && <p>{notification}</p>}
     </Layout>
   )
 }

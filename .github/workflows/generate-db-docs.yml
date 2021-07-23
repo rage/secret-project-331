@@ -2,7 +2,8 @@ name: Generate db docs
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
 
 jobs:
   generate-db-docs:

@@ -38,7 +38,15 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       chapter_id: data.chapter_id,
       front_page_of_chapter_id: null,
     })
-    setContent(res.content as BlockInstance[])
+    const resContent: BlockInstance[] = res.content as BlockInstance[]
+    const modfiedResContent = resContent.map((block) => {
+      if (block.name === "moocfi/unsupported-block-type") {
+        return block.attributes.originalBlockJson
+      } else {
+        return block
+      }
+    })
+    setContent(modfiedResContent as BlockInstance[])
     setSaving(false)
   }
 

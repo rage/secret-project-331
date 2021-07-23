@@ -7,6 +7,7 @@ import Exercise from "./Exercise"
 import ExerciseInChapter from "./ExerciseInChapter"
 import ExerciseTask from "./ExerciseTask"
 import PagesInChapter from "./PagesInChapter"
+import UnsupportedBlock from "./UnsupportedBlock"
 
 /**
  * List of custom blocks to be passed on to Gutenberg.
@@ -20,6 +21,7 @@ export const blockTypeMapForPages: Array<[string, BlockConfiguration<any>]> = [
   ["moocfi/exercises-in-chapter", ExerciseInChapter],
   ["moocfi/course-progress", CourseProgress],
   ["moocfi/chapter-progress", ChapterProgress],
+  ["moocfi/unsupported-block-type", UnsupportedBlock],
 ]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

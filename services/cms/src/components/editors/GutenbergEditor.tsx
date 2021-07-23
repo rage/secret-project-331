@@ -36,6 +36,7 @@ import { Popover, SlotFillProvider } from "@wordpress/components"
 import { addFilter } from "@wordpress/hooks"
 import React, { useContext, useEffect, useState } from "react"
 
+import { supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
@@ -70,8 +71,23 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   }, [courseId])
 
   const handleChanges = (newContent: BlockInstance[]): void => {
-    console.log(newContent)
-    onContentChange(newContent)
+    const modfiedNewContent = newContent.map((block) => {
+      if (
+        supportedCoreBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined
+      ) {
+        return {
+          clientId: block.clientId,
+          name: "moocfi/unsupported-block-type",
+          isValid: true,
+          attributes: { ...block.attributes, originalBlockJson: block },
+          innerBlocks: [],
+        }
+      } else {
+        return block
+      }
+    })
+    console.log(modfiedNewContent)
+    onContentChange(modfiedNewContent)
   }
   const handleInput = (newContent: BlockInstance[]): void => {
     console.log(newContent)

@@ -2,9 +2,12 @@ name: System tests
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - canary
   pull_request:
-    branches: [master]
+    branches:
+      - master
 
 env:
   CARGO_TERM_COLOR: always

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../system-tests/src"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+test "$(grep -r 'test.only' "$RELATIVE_PATH" | wc -l)" -eq 0
+status=$?
+
+if test $status -ne 0
+then
+  echo "Remove test.only so that other tests don't get skipped."  >&2
+  exit 1
+fi

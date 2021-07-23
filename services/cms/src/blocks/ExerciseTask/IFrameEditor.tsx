@@ -1,6 +1,6 @@
 import { Alert } from "@material-ui/lab"
 import { BlockEditProps } from "@wordpress/blocks"
-import React, { PropsWithChildren } from "react"
+import React, { PropsWithChildren, useState } from "react"
 
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
 
@@ -13,17 +13,31 @@ interface IFrameEditorProps {
 }
 
 const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
+  const [specParseable, setSpecParseable] = useState(true)
   if (!url || url.trim() === "") {
     return <Alert severity="error">Cannot render exercise task, missing url.</Alert>
+  }
+  if (!specParseable) {
+    return (
+      <>
+        <Alert severity="error">Spec not parseable.</Alert>
+        <pre>{props.attributes.private_spec}</pre>
+      </>
+    )
   }
   return (
     <MessageChannelIFrame
       url={url}
       onCommunicationChannelEstabilished={(port) => {
-        port.postMessage({
-          message: "set-state",
-          data: JSON.parse(props.attributes.private_spec ?? "null"),
-        })
+        console.log("communication channel established")
+        let parsedPrivateSpec = null
+        try {
+          parsedPrivateSpec = JSON.parse(props.attributes.private_spec ?? null)
+        } catch (e) {
+          setSpecParseable(false)
+          return
+        }
+        port.postMessage({ message: "set-state", data: parsedPrivateSpec })
       }}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

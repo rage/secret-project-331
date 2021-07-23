@@ -340,20 +340,138 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::ControllerResult</span>,
+    <span class="ident">controllers</span>::{<span class="ident">helpers::media::upload_media_for_course</span>, <span class="ident">ControllerResult</span>, <span class="ident">UploadResult</span>},
     <span class="ident">domain::authorization::AuthUser</span>,
     <span class="ident">models</span>::{
         <span class="ident">course_instances::CourseInstance</span>,
-        <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
+        <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
         <span class="ident">exercises::Exercise</span>,
         <span class="ident">submissions</span>::{<span class="ident">SubmissionCount</span>, <span class="ident">SubmissionCountByExercise</span>, <span class="ident">SubmissionCountByWeekAndHour</span>},
     },
+    <span class="ident">utils::file_store::FileStore</span>,
+    <span class="ident">ApplicationConfiguration</span>,
 };
-<span class="kw">use</span> <span class="ident">actix_web::web::ServiceConfig</span>;
+<span class="kw">use</span> <span class="ident">actix_multipart</span> <span class="kw">as</span> <span class="ident">mp</span>;
 <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>};
+<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">web::ServiceConfig</span>, <span class="ident">HttpRequest</span>};
 <span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
@@ -492,6 +610,110 @@ DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::courses::delete_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">course</span>))
+}
+
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure of a course.
+# Example
+```json
+{
+  &quot;course&quot;: {
+    &quot;id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
+    &quot;slug&quot;: &quot;introduction-to-everything&quot;,
+    &quot;created_at&quot;: &quot;2021-04-28T10:40:54.503917&quot;,
+    &quot;updated_at&quot;: &quot;2021-04-28T10:40:54.503917&quot;,
+    &quot;name&quot;: &quot;Introduction to everything&quot;,
+    &quot;organization_id&quot;: &quot;1b89e57e-8b57-42f2-9fed-c7a6736e3eec&quot;,
+    &quot;deleted_at&quot;: null
+  },
+  &quot;pages&quot;: [
+    {
+      &quot;id&quot;: &quot;f3b0d699-c9be-4d56-bd0a-9d40e5547e4d&quot;,
+      &quot;created_at&quot;: &quot;2021-04-28T13:51:51.024118&quot;,
+      &quot;updated_at&quot;: &quot;2021-04-28T14:36:18.179490&quot;,
+      &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
+      &quot;content&quot;: [],
+      &quot;url_path&quot;: &quot;/&quot;,
+      &quot;title&quot;: &quot;Welcome to Introduction to Everything&quot;,
+      &quot;deleted_at&quot;: null,
+      &quot;chapter_id&quot;: &quot;d332f3d9-39a5-4a18-80f4-251727693c37&quot;
+    }
+  ],
+  &quot;chapters&quot;: [
+    {
+      &quot;id&quot;: &quot;d332f3d9-39a5-4a18-80f4-251727693c37&quot;,
+      &quot;created_at&quot;: &quot;2021-04-28T16:11:47.477850&quot;,
+      &quot;updated_at&quot;: &quot;2021-04-28T16:11:47.477850&quot;,
+      &quot;name&quot;: &quot;The Basics&quot;,
+      &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
+      &quot;deleted_at&quot;: null,
+      &quot;chapter_image_url&quot;: &quot;http://project-331.local/api/v0/files/uploads/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/mbPQh8th96TdUwX96Y0ch1fjbJLRFr.png&quot;,
+      &quot;chapter_number&quot;: 1,
+      &quot;front_page_id&quot;: null
+    }
+  ]
+}
+```
+*/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_structure</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FileStore</span><span class="op">&gt;</span>(
+    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseStructure</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_structure</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::courses::get_course_structure</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="kw-2">*</span><span class="ident">request_course_id</span>,
+        <span class="ident">file_store</span>.<span class="ident">as_ref</span>(),
+        <span class="ident">app_conf</span>.<span class="ident">as_ref</span>(),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">course_structure</span>))
+}
+
+<span class="doccomment">/**
+POST `/api/v0/main-frontend/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
+
+Put the the contents of the media in a form and add a content type header multipart/form-data.
+# Example
+
+Request:
+```http
+POST /api/v0/main-frontend/pages/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/upload HTTP/1.1
+Content-Type: multipart/form-data
+
+BINARY_DATA
+```
+
+Response:
+```json
+{
+    &quot;url&quot;: &quot;http://project-331.local/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png&quot;
+}
+
+```
+*/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">request</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">add_media_for_course</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FileStore</span><span class="op">&gt;</span>(
+    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">payload</span>: <span class="ident">mp::Multipart</span>,
+    <span class="ident">request</span>: <span class="ident">HttpRequest</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">UploadResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::courses::get_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">media_path</span> <span class="op">=</span>
+        <span class="ident">upload_media_for_course</span>(<span class="ident">request</span>.<span class="ident">headers</span>(), <span class="ident">payload</span>, <span class="kw-2">&amp;</span><span class="ident">course</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">download_url</span> <span class="op">=</span> <span class="ident">file_store</span>.<span class="ident">get_download_url</span>(<span class="kw-2">&amp;</span><span class="ident">media_path</span>.<span class="ident">as_path</span>(), <span class="ident">app_conf</span>.<span class="ident">as_ref</span>());
+
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">UploadResult</span> { <span class="ident">url</span>: <span class="ident">download_url</span> }))
 }
 
 <span class="doccomment">/**
@@ -657,7 +879,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_courses_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_courses_routes</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">FileStore</span><span class="op">&gt;</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{course_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course</span>))
         .<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_course</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_course</span>))
@@ -667,6 +889,14 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_daily_submission_counts</span>),
         )
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/exercises&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_all_exercises</span>))
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/structure&quot;</span>,
+            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_structure</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
+        )
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/upload&quot;</span>,
+            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">add_media_for_course</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
+        )
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/weekday-hour-submission-counts&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_weekday_hour_submission_counts</span>),

@@ -148,6 +148,13 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
@@ -174,6 +181,7 @@ This documents all endpoints. Select a module below for a namespace.
 <span class="kw">use</span> <span class="ident">http_api_problem</span>::{<span class="ident">HttpApiProblem</span>, <span class="ident">StatusCode</span>};
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">models::ModelError</span>, <span class="ident">utils::file_store::FileStore</span>};
 
@@ -288,12 +296,18 @@ Only put information here that you want to be visible to users.
 */</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">ControllerError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>;
 
+<span class="doccomment">/// Result of a image upload. Tells where the uploaded image can be retrieved from.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UploadResult</span> {
+    <span class="kw">pub</span> <span class="ident">url</span>: <span class="ident">String</span>,
+}
+
 <span class="doccomment">/// Add controllers from all the submodules.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">configure_controllers</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">FileStore</span><span class="op">&gt;</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/course-material&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_course_material_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/cms&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_cms_routes</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/files&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_files_routes</span>))
-        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/main-frontend&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_main_frontend_routes</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/main-frontend&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_main_frontend_routes</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/auth&quot;</span>).<span class="ident">configure</span>(<span class="ident">add_auth_routes</span>));
 }
 </pre></div>

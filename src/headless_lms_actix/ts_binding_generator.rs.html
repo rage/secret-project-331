@@ -79,14 +79,10 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers</span>::{
-        <span class="ident">auth::Login</span>, <span class="ident">cms::courses::UploadResult</span>, <span class="ident">main_frontend::exercises::ExerciseSubmissions</span>,
-    },
+    <span class="ident">controllers</span>::{<span class="ident">auth::Login</span>, <span class="ident">main_frontend::exercises::ExerciseSubmissions</span>, <span class="ident">UploadResult</span>},
     <span class="ident">models</span>::{
         <span class="ident">chapters</span>::{<span class="ident">Chapter</span>, <span class="ident">ChapterStatus</span>, <span class="ident">ChapterUpdate</span>, <span class="ident">ChapterWithStatus</span>, <span class="ident">NewChapter</span>},
         <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,

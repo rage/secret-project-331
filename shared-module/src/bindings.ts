@@ -153,6 +153,7 @@ export interface ExerciseServiceInfoApi {
   exercise_iframe_path: string
   submission_iframe_path: string
   grade_endpoint_path: string
+  public_spec_endpoint_path: string
 }
 
 export interface SubmissionCount {

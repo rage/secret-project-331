@@ -20,6 +20,7 @@ pub struct ExerciseServiceInfo {
     pub exercise_iframe_path: String,
     pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
+    pub public_spec_endpoint_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -34,6 +35,7 @@ pub struct ExerciseServiceInfoApi {
     pub exercise_iframe_path: String,
     pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
+    pub public_spec_endpoint_path: String,
 }
 
 pub async fn insert(
@@ -41,8 +43,9 @@ pub async fn insert(
     exercise_service_id: Uuid,
     editor_iframe_path: &str,
     exercise_iframe_path: &str,
-    grade_endpoint_path: &str,
     submission_iframe_path: &str,
+    grade_endpoint_path: &str,
+    public_spec_endpoint_path: &str,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
@@ -51,17 +54,19 @@ INSERT INTO exercise_service_info (
     exercise_service_id,
     editor_iframe_path,
     exercise_iframe_path,
+    submission_iframe_path,
     grade_endpoint_path,
-    submission_iframe_path
+    public_spec_endpoint_path
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *
 ",
         exercise_service_id,
         editor_iframe_path,
         exercise_iframe_path,
+        submission_iframe_path,
         grade_endpoint_path,
-        submission_iframe_path
+        public_spec_endpoint_path,
     )
     .fetch_one(conn)
     .await?;
@@ -112,21 +117,24 @@ INSERT INTO exercise_service_info(
     editor_iframe_path,
     exercise_iframe_path,
     submission_iframe_path,
-    grade_endpoint_path
+    grade_endpoint_path,
+    public_spec_endpoint_path
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET editor_iframe_path = $2,
   exercise_iframe_path = $3,
   submission_iframe_path = $4,
-  grade_endpoint_path = $5
+  grade_endpoint_path = $5,
+  public_spec_endpoint_path = $6
 RETURNING *
     "#,
         exercise_service_id,
         update.editor_iframe_path,
         update.exercise_iframe_path,
         update.submission_iframe_path,
-        update.grade_endpoint_path
+        update.grade_endpoint_path,
+        update.public_spec_endpoint_path,
     )
     .fetch_one(conn)
     .await?;

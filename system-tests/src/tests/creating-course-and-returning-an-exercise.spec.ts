@@ -30,12 +30,12 @@ test("test", async ({ page }) => {
   await page.click("text=Create course")
 
   // Click :nth-match(:text("Manage"), 3)
-  await page.click(':nth-match(:text("Manage"), 3)')
+  await Promise.all([page.waitForNavigation(), page.click(':nth-match(:text("Manage"), 3)')])
   expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
   // Click text=Manage pages
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/cms/courses/1bd0eaef-ba4b-4c94-ba76-83ecab229274/manage-pages' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1bd0eaef-ba4b-4c94-ba76-83ecab229274/pages' }*/),
     page.click("text=Manage pages"),
   ])
 
@@ -112,7 +112,7 @@ test("test", async ({ page }) => {
   await page.click('button:has-text("Create page")')
 
   // Click text=System Testing
-  await page.click("text=System Testing")
+  await Promise.all([page.waitForNavigation(), page.click("text=System Testing")])
   expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
   // Click text=Type / to choose a block
@@ -141,10 +141,11 @@ test("test", async ({ page }) => {
   // Click text=Example Exercise
   await page.click("text=Example Exercise")
 
-  const frame = page.frames().find((f) => {
-    // Frame's url is an empty string. This might be because of sandboxing.
-    return f.url() == ""
-  })
+  const frame = await waitForFunction(page, () =>
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/example-exercise/editor")
+    }),
+  )
 
   // Click text=New
   await frame.click("text=New")
@@ -195,7 +196,10 @@ test("test", async ({ page }) => {
   ])
 
   // Click text=University of Helsinki, Department of Computer Science
-  await page.click("text=University of Helsinki, Department of Computer Science")
+  await Promise.all([
+    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
+    page.click("text=University of Helsinki, Department of Computer Science"),
+  ])
   expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
 
   // Click text=Introduction to System Level Testing

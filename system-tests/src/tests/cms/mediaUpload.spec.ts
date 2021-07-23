@@ -26,18 +26,21 @@ test.describe("Uploading media as admin", async () => {
   )
 
   test("test", async ({ page }) => {
-    await page.click("text=University of Helsinki, Department of Computer Science")
+    await Promise.all([
+      page.waitForNavigation(),
+      await page.click("text=University of Helsinki, Department of Computer Science"),
+    ])
     expect(page.url().startsWith("http://project-331.local/organizations/")).toBe(true)
 
-    await page.click("text=Manage")
+    await Promise.all([page.waitForNavigation(), page.click("text=Manage")])
     expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
-    await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/cms/courses/912d7b3c-816c-43e3-bce6-488f06c10869/manage-pages' }*/),
-      page.click("text=Manage pages"),
-    ])
+    await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])
 
-    await page.click("text=Welcome to Introduction to Everything")
+    await Promise.all([
+      page.waitForNavigation(),
+      page.click("text=Welcome to Introduction to Everything"),
+    ])
     expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
     // Click text=Type / to choose a block and type /image

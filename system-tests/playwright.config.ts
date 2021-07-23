@@ -16,6 +16,7 @@ const config: PlaywrightTestConfig = {
 
 if (process.env.SLOWMO) {
   config.use.slowMo = envToNumber(process.env.SLOWMO, 200)
+  config.timeout = 600000
 }
 
 if (process.env.RECORD_VIDEO) {

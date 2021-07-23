@@ -11,19 +11,25 @@ const Login: React.FC = () => {
   const loginStateContext = useContext(LoginStateContext)
 
   const router = useRouter()
-  const [notification, setNotification] = useState("")
+  const [notification, setNotification] = useState<string | null>(null)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
 
   async function submitForm(event) {
     event.preventDefault()
-    const loginResponse = await login(email, password)
-    if (loginResponse === false) {
-      setNotification("Incorrect email or password")
-      setTimeout(() => {
-        setNotification("")
-      }, 3000)
+    try {
+      await login(email, password).then((result) => {
+        console.log(result)
+      })
+    } catch (e) {
+      console.log("failed to login: ", e)
+      if (e.response.status === 401) {
+        setNotification("Incorrect email or password")
+        setTimeout(() => {
+          setNotification("")
+        }, 3000)
+      }
       return null
     }
 
@@ -52,7 +58,7 @@ const Login: React.FC = () => {
         />
         <button name="login">Submit</button>
       </form>
-      {notification !== "" ? <p>{notification}</p> : null}
+      {notification ?? <p>{notification}</p>}
     </Layout>
   )
 }

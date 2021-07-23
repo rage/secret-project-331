@@ -31,7 +31,7 @@ const LatexEditor: React.FC<BlockEditProps<TextAttributes>> = (props) => {
     const output = KaTex.renderToString(attributes.text, {
       throwOnError: false,
       displayMode: true,
-      output: "mathml",
+      output: "html",
     })
     return <div dangerouslySetInnerHTML={{ __html: output }} />
   }

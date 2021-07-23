@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic"
 import React from "react"
 
 import { Block } from "../../services/backend"
@@ -13,7 +14,6 @@ import ExerciseBlock from "./ExerciseBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
 import HeadingBlock from "./HeadingBlock"
 import ImageBlock from "./ImageBlock"
-import LatexBlock from "./LatexBlock"
 import ListBlock from "./ListBlock"
 import PagesListBlock from "./PagesListBlock"
 import ParagraphBlock from "./ParagraphBlock"
@@ -30,6 +30,8 @@ export interface ContentRendererProps {
 export interface BlockRendererProps<T> {
   data: Block<T>
 }
+
+const LatexBlock = dynamic(() => import("./LatexBlock"))
 
 const blockToRendererMap: { [blockName: string]: any } = {
   "core/audio": AudioBlock,

@@ -3,6 +3,7 @@ import KaTex from "katex"
 import { TextAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
+import "katex/dist/katex.min.css"
 
 const LatexBlock: React.FC<BlockRendererProps<TextAttributes>> = ({ data }) => {
   const attributes: TextAttributes = data.attributes
@@ -11,7 +12,7 @@ const LatexBlock: React.FC<BlockRendererProps<TextAttributes>> = ({ data }) => {
     const output = KaTex.renderToString(attributes.text, {
       throwOnError: false,
       displayMode: true,
-      output: "mathml",
+      output: "html",
     })
     return <div dangerouslySetInnerHTML={{ __html: output }} />
   }

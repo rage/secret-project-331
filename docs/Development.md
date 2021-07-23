@@ -137,10 +137,10 @@ profiles: {
 }
 ```
 
-### Install Cygwin in VSCode
+### Install Cygwin on VSCode
 
 1. Install Cgywin to your windows computer as described above
-2. In order to install Cqywen on VSCode we need to install shell launcher extension
+2. In order to install Cgywin on VSCode we need to install shell launcher extension
 3. Install shell launcher from the extension market on VSCode
 4. Read the installation guide to add keyboard shortcode to your VSCode keybindings.json file
 
@@ -150,8 +150,8 @@ profiles: {
     "command": "shellLauncher.launch"
 }]
 ```
-1. Next go to settings on VSCode and search for launcher and click "Edit in settings",
-2. Add the above code to the `shellLauncher.shells.windows` array
+1. Next go to settings on VSCode and search for shell launcher and click "Edit in settings",
+2. Add the code below to the `shellLauncher.shells.windows` array
 
 ```
 [{

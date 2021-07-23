@@ -1,28 +1,26 @@
 import styled from "@emotion/styled"
+import css from "@styled-system/css"
 import React from "react"
 
-import { fontWeights, neutral, primaryFont, typography } from "../utils"
+import { baseTheme, fontWeights, primaryFont, typography } from "../utils"
 
 export interface HeadingExtraProps {
   variant: "large" | "medium" | "small"
 }
 
-const getFontSize = ({ variant }: HeadingExtraProps) =>
-  `font-size: ${
-    variant === `large` ? typography.h1 : variant === `medium` ? typography.h2 : typography.h3
-  }
-`
-
 export type ButtonProps = React.HTMLAttributes<HTMLHeadingElement> & HeadingExtraProps
 
-const StyledTitle = styled.h1`
-  font-family: ${primaryFont};
-  font-weight: ${fontWeights.bold};
-  color: ${neutral[600]};
-  ${getFontSize}
-`
+const StyledTitle = styled.h1(
+  css({
+    fontFamily: primaryFont,
+    fontWeight: fontWeights.bold,
+    color: baseTheme.colors.neutral[600],
+    fontSize: ({ variant }) =>
+      variant === "large" ? typography.h1 : variant === "medium" ? typography.h2 : typography.h3,
+  }),
+)
 
-const Title: React.FC<ButtonProps> = ({ children }, props) => {
+const Title: React.FC<ButtonProps> = (props) => {
   return <StyledTitle {...props}>This is the main Title</StyledTitle>
 }
 

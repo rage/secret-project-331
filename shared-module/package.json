@@ -27,6 +27,7 @@
     "@testing-library/react-hooks": "^7.0.1",
     "@types/jest": "^26.0.23",
     "@types/styled-system": "^5.1.12",
+    "@types/styled-system__css": "^5.0.16",
     "babel-jest": "^27.0.6",
     "babel-loader": "^8.2.2",
     "jest": "^27.0.6",

@@ -27,8 +27,8 @@ pub struct CourseMaterialExerciseServiceInfo {
     pub exercise_iframe_url: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct FetchedExerciseServiceInfo {
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseServiceInfoApi {
     pub service_name: String,
     pub editor_iframe_path: String,
     pub exercise_iframe_path: String,
@@ -82,7 +82,7 @@ pub async fn fetch_and_upsert_service_info(
     Ok(res)
 }
 
-pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<FetchedExerciseServiceInfo> {
+pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<ExerciseServiceInfoApi> {
     let client = reqwest::Client::new();
     let res = client
         .get(url) // e.g. http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info
@@ -95,14 +95,14 @@ pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<FetchedExercis
             "Could not fetch service info.".to_string(),
         ));
     }
-    let res = res.json::<FetchedExerciseServiceInfo>().await?;
+    let res = res.json::<ExerciseServiceInfoApi>().await?;
     Ok(res)
 }
 
 pub async fn upsert_service_info(
     conn: &mut PgConnection,
     exercise_service_id: Uuid,
-    update: &FetchedExerciseServiceInfo,
+    update: &ExerciseServiceInfoApi,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,

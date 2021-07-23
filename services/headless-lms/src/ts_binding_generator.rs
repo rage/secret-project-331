@@ -7,7 +7,7 @@ use crate::{
         course_instances::{CourseInstance, VariantStatus},
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
-        exercise_service_info::CourseMaterialExerciseServiceInfo,
+        exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
         exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
@@ -42,6 +42,7 @@ ts_rs::export! {
   SubmissionResult,
   Course,
   Exercise,
+  ExerciseServiceInfoApi,
   SubmissionCount,
   SubmissionCountByWeekAndHour,
   SubmissionCountByExercise,

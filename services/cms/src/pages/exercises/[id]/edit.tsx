@@ -1,21 +1,16 @@
 import React from "react"
-import { useQuery } from "react-query"
 
-import { getExerciseById } from "../../../services/backend/exercises"
+import ExerciseEditor from "../../../components/editors/ExerciseEditor"
+import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
 
-interface ExerciseEditorProps {
-  id: string
-}
+const Exercise = () => {
+  const exerciseId = useQueryParameter("id")
 
-const ExerciseEditor: React.FC<ExerciseEditorProps> = ({ id }) => {
-  const { isLoading, error, data } = useQuery(`edit-exercise-${id}`, () => getExerciseById(id))
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
-  }
-  if (isLoading || !data) {
+  if (!exerciseId) {
     return <p>loading...</p>
   }
-  return <pre>{JSON.stringify(data, undefined, 2)}</pre>
+
+  return <ExerciseEditor id={exerciseId} />
 }
 
-export default ExerciseEditor
+export default Exercise

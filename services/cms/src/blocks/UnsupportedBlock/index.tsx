@@ -4,8 +4,8 @@ import UnsupportedEditor from "./UnsupportedEditor"
 import UnsupportedSave from "./UnsupportedSave"
 
 const UnsupportedConfiguration: BlockConfiguration = {
-  title: "Chapter Progress",
-  description: "Chapter Progress block.",
+  title: "Unsupported block",
+  description: "Unsupported component block.",
   category: "design",
   attributes: {},
   edit: UnsupportedEditor,

@@ -61,10 +61,17 @@ pub async fn login(
                 password.clone(),
                 &app_conf,
             )
-            .await?
+            .await
         };
-        authorization::remember(&session, user)?;
-        return Ok(HttpResponse::Ok().finish());
+
+        if let Ok(user) = user {
+            authorization::remember(&session, user)?;
+            return Ok(HttpResponse::Ok().finish());
+        } else {
+            return Ok(HttpResponse::Unauthorized().json(serde_json::json!({
+                "message": "Incorrect username or password.",
+            })));
+        }
     }
 
     // only used when testing
@@ -74,15 +81,20 @@ pub async fn login(
             &ResourceOwnerPassword::new(password.clone()),
         )
         .request_async(oauth2::reqwest::async_http_client)
-        .await
-        .context("Failed to authenticate")?;
+        .await;
+
+    if token.is_err() {
+        return Ok(HttpResponse::Unauthorized().json(serde_json::json!({
+            "message": "Incorrect username or password.",
+        })));
+    }
 
     // get upstream id for user from TMC
     let current_user_url = "https://tmc.mooc.fi/api/v8/users/current";
     let client = Client::default();
     let res = client
         .get(current_user_url)
-        .bearer_auth(token.access_token().secret())
+        .bearer_auth(token.unwrap().access_token().secret())
         .send()
         .await
         .context("Failed to send request to TMC")?;

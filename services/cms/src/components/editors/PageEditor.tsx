@@ -2,7 +2,7 @@ import SaveIcon from "@material-ui/icons/Save"
 import LoadingButton from "@material-ui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
@@ -31,38 +31,42 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
 
   const handleOnSave = async () => {
     setSaving(true)
-    const res = await handleSave({
-      title,
-      url_path: urlPath,
-      content,
-      chapter_id: data.chapter_id,
-      front_page_of_chapter_id: null,
-    })
-    const resContent: BlockInstance[] = res.content as BlockInstance[]
-    const modfiedResContent = resContent.map((block) => {
+    const modifiedContent: BlockInstance[] = content.map((block) => {
       if (block.name === "moocfi/unsupported-block-type") {
         return block.attributes.originalBlockJson
       } else {
         return block
       }
     })
-    setContent(modfiedResContent as BlockInstance[])
+    const res = await handleSave({
+      title,
+      url_path: urlPath,
+      content: modifiedContent,
+      chapter_id: data.chapter_id,
+      front_page_of_chapter_id: null,
+    })
+    setContent(res.content as BlockInstance[])
     setSaving(false)
   }
 
-  const modfiedNewContent = content.map((block) => {
-    if (supportedCoreBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined) {
-      return {
-        clientId: block.clientId,
-        name: "moocfi/unsupported-block-type",
-        isValid: true,
-        attributes: { ...block.attributes, originalBlockJson: block },
-        innerBlocks: [],
+  useEffect(() => {
+    const modifiedNewContent = content.map((block) => {
+      if (
+        supportedCoreBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined
+      ) {
+        return {
+          clientId: block.clientId,
+          name: "moocfi/unsupported-block-type",
+          isValid: true,
+          attributes: { ...block.attributes, originalBlockJson: block },
+          innerBlocks: [],
+        }
+      } else {
+        return block
       }
-    } else {
-      return block
-    }
-  })
+    })
+    setContent(modifiedNewContent)
+  }, [content])
 
   return (
     <>

@@ -50,6 +50,20 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     setSaving(false)
   }
 
+  const modfiedNewContent = content.map((block) => {
+    if (supportedCoreBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined) {
+      return {
+        clientId: block.clientId,
+        name: "moocfi/unsupported-block-type",
+        isValid: true,
+        attributes: { ...block.attributes, originalBlockJson: block },
+        innerBlocks: [],
+      }
+    } else {
+      return block
+    }
+  })
+
   return (
     <>
       <h1>{data.title}</h1>

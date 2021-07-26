@@ -3,7 +3,7 @@ import { BlockConfiguration } from "@wordpress/blocks"
 import UnsupportedEditor from "./UnsupportedEditor"
 import UnsupportedSave from "./UnsupportedSave"
 
-const UnsupportedConfiguration: BlockConfiguration = {
+const UnsupportedBlock: BlockConfiguration = {
   title: "Unsupported block",
   description: "Unsupported component block.",
   category: "design",
@@ -12,4 +12,4 @@ const UnsupportedConfiguration: BlockConfiguration = {
   save: UnsupportedSave,
 }
 
-export default UnsupportedConfiguration
+export default UnsupportedBlock

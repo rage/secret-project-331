@@ -71,23 +71,8 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   }, [courseId])
 
   const handleChanges = (newContent: BlockInstance[]): void => {
-    const modfiedNewContent = newContent.map((block) => {
-      if (
-        supportedCoreBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined
-      ) {
-        return {
-          clientId: block.clientId,
-          name: "moocfi/unsupported-block-type",
-          isValid: true,
-          attributes: { ...block.attributes, originalBlockJson: block },
-          innerBlocks: [],
-        }
-      } else {
-        return block
-      }
-    })
-    console.log(modfiedNewContent)
-    onContentChange(modfiedNewContent)
+    console.log(newContent)
+    onContentChange(newContent)
   }
   const handleInput = (newContent: BlockInstance[]): void => {
     console.log(newContent)

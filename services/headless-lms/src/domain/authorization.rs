@@ -109,7 +109,7 @@ pub async fn authorize(
 ) -> ControllerResult<()> {
     let user_roles = crate::models::roles::get_roles(conn, user_id)
         .await
-        .map_err(|original_err| ControllerError::InternalServerError(orginal_errl.to_string()))?;
+        .map_err(|original_err| ControllerError::InternalServerError(original_err.to_string()))?;
 
     // check global role
     for role in &user_roles {

@@ -18,7 +18,8 @@ const BaseButton = styled.button`
   ${border}
   position: relative;
   display: inline-block;
-  padding: 18px 36px;
+  padding: ${({ size }: ButtonProps) =>
+    size == "medium" ? theme.buttonSizes.medium : theme.buttonSizes.large};
   font-family: ${primaryFont};
   font-weight: ${fontWeights.bold};
   line-height: 18px;
@@ -32,8 +33,8 @@ const BaseButton = styled.button`
   text-transform: uppercase;
   font-size: 14px !important;
   letter-spacing: 0.02em;
-  border: 0;
   transition: all 150ms linear;
+  border: 2px solid;
 
   &:hover {
     text-decoration: none;
@@ -52,12 +53,12 @@ const PrimaryButton = styled(BaseButton)`
   font-size: ${typography.paragraph};
   color: ${theme.primary.text};
   background-color: ${theme.primary.bg};
-  border: 2px solid ${theme.primary.hoverBorder};
+  border-color: ${theme.primary.hoverBorder};
 
   &:hover {
     color: ${theme.primary.hoverText};
     background-color: ${theme.primary.hoverBg};
-    border: 2px solid ${theme.primary.hoverBorder};
+    border-color: ${theme.primary.hoverBorder};
   }
 
   ,

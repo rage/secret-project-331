@@ -80,16 +80,19 @@ const MenuIcon = css`
   display: flex;
 `
 const ToolTip = css`
-  background: cyan;
+  background: #fff;
+  border-color: #cacaca;
   top: 100px;
-  left: 90%;
+  right: 54px;
+  width: auto;
+  padding: 0;
   border-radius: 4px;
   position: absolute;
-  padding: 10px 15px;
   margin-bottom: 10px;
   margin-left: -95px;
   cursor: default;
-  animation: show 0.4s ease-in-out forwards;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
+  animation: show 3s ease-in-out forwards;
 
   &::after {
     bottom: 100%;
@@ -101,16 +104,22 @@ const ToolTip = css`
     position: absolute;
     pointer-events: none;
     border-color: rgba(0, 151, 167, 0);
-    border-bottom-color: cyan;
+    border-bottom-color: #fff;
     border-width: 12px;
     margin-left: -12px;
   }
 
   li {
     text-decoration: none;
+    padding: 12px 34px;
+    border-bottom: 2px solid #e1e1e1;
     list-style: none;
     margin: 0;
     font-family: ${primaryFont};
+
+    &:last-child {
+      border-bottom: none;
+    }
 
     Button {
       text-decoration: none;
@@ -158,6 +167,8 @@ const Navigation: React.FC = () => {
           </a>
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             <li>Login controls</li>
+            <li>Authors</li>
+            <li>License</li>
           </ul>
         </li>
         <li>

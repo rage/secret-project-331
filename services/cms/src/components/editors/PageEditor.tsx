@@ -29,6 +29,11 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   const [content, setContent] = useState<BlockInstance[]>(data.content as BlockInstance[])
   const [saving, setSaving] = useState(false)
 
+  const supportedBlocksForPages: string[] = blockTypeMapForPages.map((mapping) => mapping[0])
+  const supportedBlocksTopLevelPages: string[] = blockTypeMapForTopLevelPages.map(
+    (mapping) => mapping[0],
+  )
+
   const handleOnSave = async () => {
     setSaving(true)
     const modifiedContent: BlockInstance[] = content.map((block) => {
@@ -50,9 +55,14 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   }
 
   useEffect(() => {
-    const modifiedNewContent = content.map((block) => {
+    const allSupportedBlocks = supportedCoreBlocks.concat(
+      supportedBlocksForPages,
+      supportedBlocksTopLevelPages,
+    )
+    const initialContent = data.content as BlockInstance[]
+    const modifiedNewContent = initialContent.map((block) => {
       if (
-        supportedCoreBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined
+        allSupportedBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined
       ) {
         return {
           clientId: block.clientId,
@@ -66,7 +76,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       }
     })
     setContent(modifiedNewContent)
-  }, [content])
+  }, [data.content])
 
   return (
     <>

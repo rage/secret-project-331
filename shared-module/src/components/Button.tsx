@@ -52,10 +52,12 @@ const PrimaryButton = styled(BaseButton)`
   font-size: ${typography.paragraph};
   color: ${theme.primary.text};
   background-color: ${theme.primary.bg};
+  border: 2px solid ${theme.primary.hoverBorder};
 
   &:hover {
-    color: ${theme.primary.text};
+    color: ${theme.primary.hoverText};
     background-color: ${theme.primary.hoverBg};
+    border: 2px solid ${theme.primary.hoverBorder};
   }
 
   ,
@@ -107,7 +109,7 @@ Link */
 const Button: React.FC<ButtonProps> = (props) => {
   return (
     <ThemeProvider theme={theme}>
-      {props.variant === "secondary" ? (
+      {props.variant === "primary" ? (
         <PrimaryButton {...props}></PrimaryButton>
       ) : (
         <SecondaryButton title="button" {...props} />

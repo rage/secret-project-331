@@ -36,7 +36,6 @@ import { Popover, SlotFillProvider } from "@wordpress/components"
 import { addFilter } from "@wordpress/hooks"
 import React, { useContext, useEffect, useState } from "react"
 
-import { supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"

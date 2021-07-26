@@ -11,14 +11,14 @@ const StyledIcon = css`
   color: #333;
 `
 const NavbarItems = css`
-  background: #f1f1f1;
+  background: #f9f9f9;
   height: 90px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 1rem;
-  padding: 0 6rem;
-  border-bottom: 1.8px solid #333;
+  padding: 0 4rem;
+  border-bottom: 2px solid #333;
 
   h1 {
     width: 165px;
@@ -83,7 +83,7 @@ const ToolTip = css`
   background: #fff;
   border-color: #cacaca;
   top: 100px;
-  right: 54px;
+  right: 20px;
   width: auto;
   padding: 0;
   border-radius: 4px;

@@ -1,3 +1,5 @@
+use crate::models::exercise_tasks::ExerciseTask;
+use crate::models::exercises::Exercise;
 use crate::models::pages::PageUpdateExercise;
 use crate::models::pages::PageUpdateExerciseTask;
 use anyhow::anyhow;
@@ -37,6 +39,35 @@ impl GutenbergBlock {
             is_valid: true,
             attributes: serde_json::json!({}),
             inner_blocks: vec![],
+        }
+    }
+
+    pub fn exercise_block_with_exercise_ids(
+        exercise: Exercise,
+        exercise_tasks: Vec<ExerciseTask>,
+    ) -> Self {
+        let tasks: Vec<GutenbergBlock> = exercise_tasks
+            .into_iter()
+            .map(|task| GutenbergBlock {
+                client_id: Uuid::new_v4().to_string(),
+                is_valid: true,
+                name: "moocfi/exercise-task".to_string(),
+                attributes: serde_json::json!({
+                    "id": task.id,
+                    "exercise_type": task.exercise_type,
+                    "public_spec": task.public_spec,
+                    "private_spec": task.private_spec
+                }),
+                inner_blocks: vec![],
+            })
+            .collect();
+
+        GutenbergBlock {
+            client_id: Uuid::new_v4().to_string(),
+            is_valid: true,
+            name: "moocfi/exercise".to_string(),
+            attributes: serde_json::json!({"id": exercise.id, "name": exercise.name}),
+            inner_blocks: tasks,
         }
     }
 }

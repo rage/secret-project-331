@@ -1,13 +1,18 @@
-use super::ModelResult;
+use super::{exercise_tasks::ExerciseTask, ModelResult};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use ts_rs::TS;
 use uuid::Uuid;
 
-use crate::models::{
-    exercise_service_info::get_course_material_service_info_by_exercise_type,
-    exercise_tasks::get_random_exercise_task, ModelError,
+use crate::{
+    models::{
+        exercise_service_info::get_course_material_service_info_by_exercise_type,
+        exercise_tasks::{get_exercise_tasks_by_exercise_id, get_random_exercise_task},
+        pages::{PageUpdateExercise, PageUpdateExerciseTask},
+        ModelError,
+    },
+    utils::document_schema_processor::{denormalize, GutenbergBlock, NormalizedDocument},
 };
 
 use super::{
@@ -317,6 +322,46 @@ SET selected_exercise_task_id = $4
         }),
         current_exercise_task_service_info,
     })
+}
+
+pub async fn get_denormalized_exercise_by_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<GutenbergBlock>> {
+    let exercise = get_by_id(conn, exercise_id).await?;
+    let tasks = get_exercise_tasks_by_exercise_id(conn, exercise_id).await?;
+    let exercises = construct_page_update_exercise(exercise.clone(), tasks.clone())?;
+    let denormalized_exercise = denormalize(NormalizedDocument {
+        content: vec![GutenbergBlock::exercise_block_with_exercise_ids(
+            exercise, tasks,
+        )],
+        exercises,
+    })?;
+
+    Ok(denormalized_exercise)
+}
+
+pub fn construct_page_update_exercise(
+    exercise: Exercise,
+    exercise_tasks: Vec<ExerciseTask>,
+) -> ModelResult<Vec<PageUpdateExercise>> {
+    let denoramlized_tasks: Vec<PageUpdateExerciseTask> = exercise_tasks
+        .into_iter()
+        .map(|task| PageUpdateExerciseTask {
+            assignment: task.assignment,
+            exercise_type: task.exercise_type,
+            id: task.id,
+            private_spec: task.private_spec,
+            public_spec: task.public_spec,
+        })
+        .collect();
+
+    Ok(vec![PageUpdateExercise {
+        id: exercise.id,
+        name: exercise.name,
+        order_number: exercise.order_number,
+        exercise_tasks: denoramlized_tasks,
+    }])
 }
 
 #[cfg(test)]

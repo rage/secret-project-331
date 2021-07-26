@@ -1,6 +1,7 @@
 import {
   Course,
   CourseInstance,
+  CourseStructure,
   CourseUpdate,
   Exercise,
   NewCourse,
@@ -51,6 +52,13 @@ export const fetchCourseExercises = async (courseId: string): Promise<Array<Exer
     })
   ).data
   return data
+}
+
+export const fetchCourseStructure = async (courseId: string): Promise<CourseStructure> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/structure`, {
+    responseType: "json",
+  })
+  return response.data
 }
 
 export const fetchCourseWeekdayHourSubmissionCounts = async (

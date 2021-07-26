@@ -1,6 +1,5 @@
 import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
-import css from "@styled-system/css"
 import React from "react"
 import { border, color, space } from "styled-system"
 
@@ -49,53 +48,53 @@ const BaseButton = styled.button`
   }
 `
 
-const PrimaryButton = styled(BaseButton)(
-  css({
-    fontSize: typography.paragraph,
-    color: "black",
-    backgroundColor: "tomato",
+const PrimaryButton = styled(BaseButton)`
+  font-size: ${typography.paragraph};
+  color: "black";
+  background-color: "tomato";
 
-    "&:hover": {
-      color: theme.primary.text,
-      backgroundColor: theme.primary.bg,
-    },
+  &:hover {
+    color: ${theme.primary.text};
+    background-color: ${theme.primary.bg};
+  }
 
-    "&:active": {
-      color: theme.primary.hoverText,
-      backgroundColor: theme.primary.hoverBg,
-    },
+  ,
+  &:active {
+    color: ${theme.primary.hoverText};
+    background-color: ${theme.primary.hoverBg};
+  }
 
-    "&:disabled": {
-      color: theme.primary.disabledText,
-      backgroundColor: theme.primary.disabledBg,
-      borderColor: theme.primary.disabledBorder,
-    },
-  }),
-)
+  ,
+  &:disabled {
+    color: ${theme.primary.disabledText};
+    background-color: ${theme.primary.disabledBg};
+    border-color: ${theme.primary.disabledBorder};
+  }
+`
 
-const SecondaryButton = styled(BaseButton)(
-  css({
-    fontSize: typography.paragraph,
-    color: theme.secondary.text,
-    backgroundColor: theme.secondary.bg,
+const SecondaryButton = styled(BaseButton)`
+  font-size: ${typography.paragraph};
+  color: ${theme.secondary.text};
+  background-color: theme.secondary.bg;
 
-    "&:hover": {
-      color: theme.secondary.hoverText,
-      backgroundColor: theme.secondary.hoverBg,
-    },
+  &:hover {
+    color: ${theme.secondary.hoverText};
+    background-color: ${theme.secondary.hoverBg};
+  }
 
-    "&:active": {
-      color: theme.secondary.activeBg,
-      backgroundColor: theme.secondary.activeBg,
-    },
+  ,
+  &:active {
+    color: ${theme.secondary.activeBg};
+    background-color: ${theme.secondary.activeBg};
+  }
 
-    "&:disabled": {
-      color: theme.secondary.disabledText,
-      backgroundColor: theme.secondary.disabledBg,
-      borderColor: theme.secondary.disabledBorder,
-    },
-  }),
-)
+  ,
+  &:disabled {
+    color: ${theme.secondary.disabledText};
+    background-color: ${theme.secondary.disabledBg};
+    border-color: ${theme.secondary.disabledBorder};
+  }
+`
 
 /* BUTTON VARIANT
 PrimaryButton

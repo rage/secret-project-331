@@ -48,7 +48,8 @@ async fn get_page(
         Action::Edit,
         user.id,
         Resource::Course(page.course_id),
-    ).await?;
+    )
+    .await?;
     Ok(Json(page))
 }
 
@@ -106,7 +107,13 @@ async fn update_page(
     let mut conn = pool.acquire().await?;
     let page_update = payload.0;
     let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
-    authorize(&mut conn, Action::Edit, user.id, Resource::Course(course_id)).await?;
+    authorize(
+        &mut conn,
+        Action::Edit,
+        user.id,
+        Resource::Course(course_id),
+    )
+    .await?;
     let page = crate::models::pages::update_page(&mut conn, *request_page_id, page_update).await?;
     Ok(Json(page))
 }

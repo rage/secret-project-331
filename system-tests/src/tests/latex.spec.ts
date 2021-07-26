@@ -73,5 +73,5 @@ test("test", async ({ page }) => {
   await page.click("text=Chapter 1: first page")
   expectPath(page, "/courses/latex-course/chapter-1")
   // Click :nth-match(span:has-text("R"), 3)
-  await page.click(':nth-match(span:has-text("R"), 3)')
+  await page.waitForSelector(':nth-match(span:has-text("R"), 3)')
 })

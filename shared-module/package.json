@@ -48,6 +48,7 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@material-ui/core": "^4.12.1",
     "@monaco-editor/react": "^4.2.1",
+<<<<<<< HEAD
     "@styled-system/css": "^5.1.5",
     "axios": "^0.21.1",
     "date-fns": "^2.22.1",
@@ -56,5 +57,13 @@
     "styled-components": "^5.3.0",
     "styled-components-modifiers": "^1.2.5",
     "styled-system": "^5.1.5"
+=======
+    "axios": "^0.21.1",
+    "date-fns": "^2.22.1",
+    "react-animated-burgers": "^1.2.8",
+    "react-query": "^3.19.0",
+    "styled-components": "^5.3.0",
+    "styled-components-modifiers": "^1.2.5"
+>>>>>>> 012a5517a3e136b7b9ae1a7dd0e4df8d74263b10
   }
 }

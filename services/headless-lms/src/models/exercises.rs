@@ -2,6 +2,7 @@ use super::ModelResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::models::{
@@ -12,9 +13,10 @@ use crate::models::{
 use super::{
     exercise_service_info::CourseMaterialExerciseServiceInfo,
     exercise_tasks::CourseMaterialExerciseTask,
+    user_exercise_states::get_user_exercise_state_if_exits,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct Exercise {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -22,13 +24,14 @@ pub struct Exercise {
     pub name: String,
     pub course_id: Uuid,
     pub page_id: Uuid,
+    pub chapter_id: Uuid,
     pub deadline: Option<DateTime<Utc>>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_maximum: i32,
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
     pub current_exercise_task: CourseMaterialExerciseTask,
@@ -46,7 +49,7 @@ Indicates what is the user's completion status for a exercise.
 
 As close as possible to LTI's activity progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
 #[sqlx(type_name = "activity_progress", rename_all = "snake_case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
@@ -67,7 +70,7 @@ Tells what's the status of the grading progress for a user and exercise.
 
 As close as possible LTI's grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
 pub enum GradingProgress {
     /// The grading process is completed; the score value, if any, represents the current Final Grade;
@@ -88,7 +91,7 @@ impl GradingProgress {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, TS)]
 pub struct ExerciseStatus {
     // None when grading has not completed yet. Max score can be found from the associated exercise.
     score_given: Option<f32>,
@@ -101,17 +104,19 @@ pub async fn insert(
     course_id: Uuid,
     name: &str,
     page_id: Uuid,
+    chapter_id: Uuid,
     order_number: i32,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO exercises (course_id, name, page_id, order_number)
-VALUES ($1, $2, $3, $4)
+INSERT INTO exercises (course_id, name, page_id, chapter_id, order_number)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         course_id,
         name,
         page_id,
+        chapter_id,
         order_number
     )
     .fetch_one(conn)
@@ -119,11 +124,15 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_exercise(conn: &mut PgConnection, exercise_id: Uuid) -> ModelResult<Exercise> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercise> {
     let exercise = sqlx::query_as!(
         Exercise,
-        "SELECT * FROM exercises WHERE id = $1;",
-        exercise_id
+        "
+SELECT *
+FROM exercises
+WHERE id = $1
+",
+        id
     )
     .fetch_one(conn)
     .await?;
@@ -169,12 +178,13 @@ pub async fn get_course_material_exercise(
     user_id: Option<Uuid>,
     exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialExercise> {
-    let exercise = get_exercise_by_id(conn, exercise_id).await?;
+    let exercise = get_by_id(conn, exercise_id).await?;
 
+    let mut current_course_instance_id: Option<Uuid> = None;
     // if the user is logged in, take the previously selected task or select a new one
     let selected_exercise_task = if let Some(user_id) = user_id {
         // user is logged in, see if they're enrolled on the course
-        let current_course_instance_id: Option<Uuid> = sqlx::query!(
+        current_course_instance_id = sqlx::query!(
             r#"
 SELECT course_instance_id AS id
 FROM course_instance_enrollments
@@ -270,15 +280,40 @@ SET selected_exercise_task_id = $4
         conn,
         &selected_exercise_task.exercise_type,
     )
-    .await;
+    .await?;
+
+    let user_exercise_state = if let Some(logged_in_user_id) = user_id {
+        if let Some(current_course_instance_id) = current_course_instance_id {
+            get_user_exercise_state_if_exits(
+                conn,
+                logged_in_user_id,
+                exercise.id,
+                current_course_instance_id,
+            )
+            .await?
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let mut score_given = None;
+    let mut activity_progress = ActivityProgress::Initialized;
+    let mut grading_progress = GradingProgress::NotReady;
+    if let Some(user_exercise_state) = user_exercise_state {
+        score_given = user_exercise_state.score_given;
+        activity_progress = user_exercise_state.activity_progress;
+        grading_progress = user_exercise_state.grading_progress;
+    }
 
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task: selected_exercise_task,
         exercise_status: Some(ExerciseStatus {
-            score_given: None,
-            activity_progress: ActivityProgress::Initialized,
-            grading_progress: GradingProgress::NotReady,
+            score_given,
+            activity_progress,
+            grading_progress,
         }),
         current_exercise_task_service_info,
     })
@@ -303,32 +338,43 @@ mod test {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let user_id = users::insert(tx.as_mut(), "test@example.com")
-            .await
-            .unwrap();
-        let organization_id = organizations::insert(tx.as_mut(), "", "").await.unwrap();
+        let user_id = users::insert(
+            tx.as_mut(),
+            "test@example.com",
+            Uuid::parse_str("e656e0a1-3f55-4f52-b0ae-96855faee5e7").unwrap(),
+        )
+        .await
+        .unwrap();
+        let organization_id = organizations::insert(
+            tx.as_mut(),
+            "",
+            "",
+            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
+        )
+        .await
+        .unwrap();
         let course_id = courses::insert(tx.as_mut(), "", organization_id, "")
             .await
             .unwrap();
-        let course_instance_id = course_instances::insert(tx.as_mut(), course_id, None)
+        let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)
             .await
             .unwrap();
         course_instance_enrollments::insert(
             tx.as_mut(),
             user_id,
             course_id,
-            course_instance_id,
+            course_instance.id,
             true,
         )
         .await
         .unwrap();
-        let _chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
+        let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();
         let page_id = pages::insert(tx.as_mut(), course_id, "", "", 0)
             .await
             .unwrap();
-        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, 0)
+        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, chapter_id, 0)
             .await
             .unwrap();
         let exercise_task_id = exercise_tasks::insert(
@@ -358,7 +404,7 @@ WHERE user_id = $1
 ",
             user_id,
             exercise_id,
-            course_instance_id
+            course_instance.id
         )
         .fetch_optional(tx.as_mut())
         .await
@@ -380,7 +426,7 @@ WHERE user_id = $1
 ",
             user_id,
             exercise_id,
-            course_instance_id
+            course_instance.id
         )
         .fetch_one(tx.as_mut())
         .await

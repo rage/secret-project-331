@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import { Button, FormControlLabel, Radio, RadioGroup } from "@material-ui/core"
 import React, { useState } from "react"
 
-import { CourseInstance } from "../../services/backend"
+import { CourseInstance } from "../../shared-module/bindings"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

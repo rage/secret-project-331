@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import sanitizeHtml from "sanitize-html"
 
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { QuoteAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."

@@ -1,7 +1,6 @@
 import { css, cx } from "@emotion/css"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Link } from "@reach/router"
 import { useState } from "react"
 
 import { primaryFont } from "../../utils"
@@ -144,19 +143,19 @@ const Navigation: React.FC = () => {
   return (
     <nav className={cx(NavbarItems)}>
       <h1 className={cx(NavbarLogo)}>
-        <Link to="/" aria-label="Kotisivulle" role="button">
+        <a href="/" aria-label="Kotisivulle" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}
             aria-hidden="true"
           ></FontAwesomeIcon>
-        </Link>
+        </a>
       </h1>
       <ul className={clicked ? cx(NavMenu) : cx(NavMenu)} role="list">
         <li className="container">
-          <Link className={cx(NavLink)} to="/faq" aria-label="Kurssi valikko" role="button">
+          <a className={cx(NavLink)} href="/faq" aria-label="Kurssi valikko" role="button">
             FAQ
-          </Link>
+          </a>
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             <li>Login controls</li>
           </ul>

@@ -5,7 +5,7 @@ import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import { EmailTemplate, EmailTemplateUpdate } from "../../services/services.types"
+import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
 interface EmailEditorProps {
@@ -21,17 +21,23 @@ const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 })
 
 const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
-  const [content, setContent] = useState<BlockInstance[]>(data.content)
+  const [content, setContent] = useState<BlockInstance[]>(data.content as BlockInstance[])
   const [name, setName] = useState(data.name)
-  const [subject, setSubject] = useState(data.subject)
+  const [subject, setSubject] = useState(data.subject ?? "")
   const [saving, setSaving] = useState(false)
 
   const handleOnSave = async () => {
     setSaving(true)
-    const res = await handleSave({ subject, name, content })
-    setContent(res.content)
+    const res = await handleSave({
+      subject,
+      name,
+      content,
+      exercise_completions_threshold: null,
+      points_threshold: null,
+    })
+    setContent(res.content as BlockInstance[])
     setName(res.name)
-    setSubject(res.subject)
+    setSubject(res.subject ?? "")
     setSaving(false)
   }
 

@@ -1,16 +1,27 @@
 {
   "name": "example-exercise",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
-    "dev": "next -p 3002",
-    "build": "next build",
-    "start": "next start"
+    "dev": "node server.js",
+    "build": "NODE_ENV=production next build",
+    "export": "next export",
+    "start": "NODE_ENV=production PORT=3002 node server.js"
   },
   "dependencies": {
     "@emotion/css": "^11.1.3",
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
-    "next": "latest",
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@fortawesome/react-fontawesome": "^0.1.14",
+    "@material-ui/core": "^5.0.0-alpha.32",
+    "@material-ui/styles": "^4.11.4",
+    "@monaco-editor/react": "^4.2.1",
+    "date-fns": "^2.22.1",
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^1.1.0",
+    "monaco-editor": "^0.25.2",
+    "next": "^11.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-is": "^17.0.2",
@@ -24,7 +35,7 @@
     "@types/react-dom": "^17.0.7",
     "@types/uuid": "^8.3.0",
     "axios": "^0.21.1",
-    "react-query": "^3.18.1",
+    "react-query": "^3.19.0",
     "stylelint": "^13.13.1",
     "typescript": "^4.3.2"
   },

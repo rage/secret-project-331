@@ -11,9 +11,9 @@ import ExerciseList from "../../../../components/lists/ExerciseList"
 import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { normalWidthCenteredComponentStyles } from "../../../../styles/componentStyles"
-import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
 const ManageCoursePage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
@@ -64,18 +64,11 @@ const ManageCoursePage: React.FC<unknown> = () => {
           </div>
         </Dialog>
       </div>
-      <Link
-        href={{
-          pathname: "/manage/courses/[id]/stats",
-          query: {
-            id: course.id,
-          },
-        }}
-      >
-        Stats
-      </Link>
+      <Link href={{ pathname: "/manage/courses/[id]/stats", query: { id: course.id } }}>Stats</Link>
       <br />
-      <a href={`/cms/courses/${course.id}/manage-pages`}>Manage pages</a>{" "}
+      <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
+        Manage pages
+      </Link>{" "}
       <h3>All course instances</h3>
       <CourseInstancesList courseId={id} />
       <h3>All exercises</h3>

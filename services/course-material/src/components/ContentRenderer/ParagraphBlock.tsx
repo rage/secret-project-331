@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import KaTex from "katex"
 import sanitizeHtml from "sanitize-html"
 
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import colorMapper from "../../styles/colorMapper"
-import { normalWidthCenteredComponentStyles } from "../../styles/componentStyles"
 import fontSizeMapper from "../../styles/fontSizeMapper"
 
 import { BlockRendererProps } from "."
@@ -23,7 +23,7 @@ const LATEX_REGEX = /\[latex\](.*)\[\/latex\]/g
  * @returns HTML as string in which "[latex] ... [/latex]" will be replaced with katex
  */
 const convertToLatex = (data: string) => {
-  return data.replaceAll(LATEX_REGEX, (_, latex) => {
+  return data.replace(LATEX_REGEX, (_, latex) => {
     // Convert ampersand back to special symbol. This is needed e.g. in matrices
     const processed = latex.replaceAll("&amp;", "&")
     return KaTex.renderToString(processed, {

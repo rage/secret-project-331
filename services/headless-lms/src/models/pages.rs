@@ -1,9 +1,11 @@
 use super::ModelResult;
 use crate::{
-    models::chapters::Chapter,
-    models::exercise_tasks::ExerciseTask,
+    models::{
+        chapters::DatabaseChapter, exercise_tasks::ExerciseTask, exercises::Exercise, ModelError,
+    },
     utils::document_schema_processor::{
-        denormalize, normalize_from_json, GutenbergBlock, NormalizedDocument,
+        contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
+        GutenbergBlock, NormalizedDocument,
     },
 };
 use chrono::{DateTime, Utc};
@@ -11,9 +13,10 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
 use std::collections::HashMap;
+use ts_rs::TS;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Page {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -28,7 +31,7 @@ pub struct Page {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageWithExercises {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -44,7 +47,7 @@ pub struct PageWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new page.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewPage {
     pub content: serde_json::Value,
     pub url_path: String,
@@ -56,7 +59,7 @@ pub struct NewPage {
 }
 
 // Represents the subset of page fields that the user is allowed to modify.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdate {
     content: serde_json::Value,
     url_path: String,
@@ -66,7 +69,7 @@ pub struct PageUpdate {
     front_page_of_chapter_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdateExercise {
     // The id will be validated so that the client can't change it on us.
     pub id: Uuid,
@@ -75,7 +78,7 @@ pub struct PageUpdateExercise {
     pub exercise_tasks: Vec<PageUpdateExerciseTask>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageUpdateExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
@@ -102,7 +105,7 @@ pub struct PageExerciseTask {
     pub private_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageRoutingData {
     url_path: String,
     title: String,
@@ -119,22 +122,8 @@ pub struct PageMetadata {
     course_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
-struct Exercise {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    course_id: Uuid,
-    deleted_at: Option<DateTime<Utc>>,
-    name: String,
-    deadline: Option<DateTime<Utc>>,
-    page_id: Uuid,
-    score_maximum: i32,
-    order_number: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
-struct ExerciseWithExerciseTasks {
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseWithExerciseTasks {
     id: Uuid,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
@@ -348,6 +337,15 @@ pub async fn update_page(
     page_update: PageUpdate,
 ) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(page_update.content)?;
+
+    if page_update.chapter_id.is_none()
+        && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
+    {
+        return Err(ModelError::Generic(
+                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
+            ));
+    }
+
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content)?;
     let mut tx = conn.begin().await?;
@@ -476,17 +474,30 @@ async fn upsert_exercises_and_exercise_tasks(
         let exercise: Exercise = sqlx::query_as!(
             Exercise,
             r#"
-INSERT INTO exercises(id, course_id, name, order_number, page_id)
-VALUES ($1, $2, $3, $4, $5)
-ON CONFLICT (id) DO UPDATE
-SET course_id=$2, name=$3, order_number=$4, page_id=$5, deleted_at=NULL
+INSERT INTO exercises(
+    id,
+    course_id,
+    name,
+    order_number,
+    page_id,
+    chapter_id
+  )
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO
+UPDATE
+SET course_id = $2,
+  name = $3,
+  order_number = $4,
+  page_id = $5,
+  chapter_id = $6,
+  deleted_at = NULL
 RETURNING *;
         "#,
             safe_for_db_exercise_id,
             page.course_id,
             exercise_update.name,
             exercise_update.order_number,
-            page.id
+            page.id,
+            page.chapter_id,
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -557,6 +568,15 @@ fn update_ids_in_content(
 
 pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(new_page.content)?;
+
+    if new_page.chapter_id.is_none()
+        && contains_blocks_not_allowed_in_top_level_pages(&normalized_document.content)
+    {
+        return Err(ModelError::Generic(
+                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
+            ));
+    }
+
     let NormalizedDocument { content, exercises } = normalized_document;
     let content_as_json = serde_json::to_value(content.clone())?;
     let next_order_number = match new_page.chapter_id {
@@ -595,20 +615,12 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelRes
 
     if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
         let _res = sqlx::query_as!(
-            Chapter,
+            DatabaseChapter,
             r#"
 UPDATE chapters
 SET front_page_id = $1
 WHERE id = $2
-RETURNING id,
-  created_at,
-  updated_at,
-  name,
-  course_id,
-  deleted_at,
-  chapter_number,
-  front_page_id,
-  opens_at
+RETURNING *;
         "#,
             page.id,
             front_page_of_chapter_id
@@ -780,6 +792,12 @@ WHERE p.id = $1;
     )
     .fetch_one(conn)
     .await?;
+
+    if page_metadata.chapter_number.is_none() {
+        return Err(ModelError::InvalidRequest(
+            "Page is not related to any chapter".to_string(),
+        ));
+    }
 
     Ok(page_metadata)
 }

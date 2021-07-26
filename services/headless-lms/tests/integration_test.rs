@@ -10,6 +10,7 @@ use headless_lms_actix::{
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use std::env;
 use tokio::sync::Mutex;
+use uuid::Uuid;
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
@@ -62,7 +63,11 @@ pub async fn init_actix() -> (
             .await
             .expect("Failed to initialize test file store")
     });
-    let app_conf = ApplicationConfiguration { test_mode: true };
+    let app_conf = ApplicationConfiguration {
+        test_mode: true,
+        base_url: "http://project-331.local".to_string(),
+        development_uuid_login: false,
+    };
     let app = App::new()
         .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
         .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
@@ -75,9 +80,14 @@ pub async fn init_actix() -> (
 async fn gets_organizations() {
     let (actix, pool) = init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
-    organizations::insert(&mut conn, "org", "slug")
-        .await
-        .unwrap();
+    organizations::insert(
+        &mut conn,
+        "org",
+        "slug",
+        Uuid::parse_str("b1bde372-cc86-4e3a-a978-35695fdd884b").unwrap(),
+    )
+    .await
+    .unwrap();
     let req = test::TestRequest::with_uri("/api/v0/main-frontend/organizations").to_request();
     let organizations: Vec<Organization> = test::read_response_json(&actix, req).await;
     assert_eq!(organizations.len(), 1);

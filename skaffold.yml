@@ -1,33 +1,48 @@
 apiVersion: skaffold/v2beta12
 kind: Config
 build:
+  tagPolicy:
+    # sha256 tag policy pushes the latest tag, which is used for caching
+    sha256: {}
   artifacts:
     - image: headless-lms
+      docker:
+        dockerfile: Dockerfile
       context: services/headless-lms
       sync:
         manual:
           - src: "**/*.rs"
             dest: "/app"
+          - src: "**/*.sql"
+            dest: "/app"
     - image: cms
       context: services/cms
+      docker:
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*"
             dest: "/app"
     - image: main-frontend
       context: services/main-frontend
+      docker:
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*"
             dest: "/app"
     - image: example-exercise
       context: services/example-exercise
+      docker:
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*"
             dest: "/app"
     - image: course-material
       context: services/course-material
+      docker:
+        dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*"
@@ -43,6 +58,7 @@ deploy:
 portForward:
   - resourceType: statefulset
     resourceName: postgres
+    namespace: default
     port: 5432
     localPort: 54328
 profiles:
@@ -56,3 +72,72 @@ profiles:
       kubectl:
         manifests:
           - kubernetes/dev/postgres-dev.yml
+  # Push builds to moocfi-public
+  - name: push-images
+    patches:
+      - op: add
+        path: /build/local/push
+        value: true
+  - name: test
+    patches:
+      # Replace dockerfiles for containers
+      - op: replace
+        path: /build/artifacts/0/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /build/artifacts/1/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /build/artifacts/2/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /build/artifacts/3/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /build/artifacts/4/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+      # Replace which folder to use
+      - op: replace
+        path: /deploy/kustomize/paths
+        value: [kubernetes/test]
+      # Add cacheFrom, this should match the image name
+      - op: add
+        path: /build/artifacts/0/docker/cacheFrom
+        value:
+          - eu.gcr.io/moocfi-public/secret-project-headless-lms-production:latest
+      - op: add
+        path: /build/artifacts/1/docker/cacheFrom
+        value:
+          - eu.gcr.io/moocfi-public/secret-project-cms-production:latest
+      - op: add
+        path: /build/artifacts/2/docker/cacheFrom
+        value:
+          - eu.gcr.io/moocfi-public/secret-project-main-frontend-production:latest
+      - op: add
+        path: /build/artifacts/3/docker/cacheFrom
+        value:
+          - eu.gcr.io/moocfi-public/secret-project-example-exercise-production:latest
+      - op: add
+        path: /build/artifacts/4/docker/cacheFrom
+        value:
+          - eu.gcr.io/moocfi-public/secret-project-course-material-production:latest
+      # Replace the image name to match cacheFrom, same image name in kubernetes/test/<service> patch.
+      - op: replace
+        path: /build/artifacts/0/image
+        value: eu.gcr.io/moocfi-public/secret-project-headless-lms-production
+      - op: replace
+        path: /build/artifacts/1/image
+        value: eu.gcr.io/moocfi-public/secret-project-cms-production
+      - op: replace
+        path: /build/artifacts/2/image
+        value: eu.gcr.io/moocfi-public/secret-project-main-frontend-production
+      - op: replace
+        path: /build/artifacts/3/image
+        value: eu.gcr.io/moocfi-public/secret-project-example-exercise-production
+      - op: replace
+        path: /build/artifacts/4/image
+        value: eu.gcr.io/moocfi-public/secret-project-course-material-production
+
+      - op: add
+        path: /build/local/useDockerCLI
+        value: true

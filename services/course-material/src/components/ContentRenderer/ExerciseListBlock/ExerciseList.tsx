@@ -4,7 +4,7 @@ import { useQuery } from "react-query"
 import { fetchChaptersPagesWithExercises } from "../../../services/backend"
 import GenericLoading from "../../GenericLoading"
 
-import PageWithExercises from "./PageWithExercises"
+import PageExerciseList from "./PageExerciseList"
 
 const ExerciseList: React.FC<{ chapterId: string }> = ({ chapterId }) => {
   const { isLoading, error, data } = useQuery(`chapter-${chapterId}-pages-with-exercises`, () =>
@@ -24,7 +24,7 @@ const ExerciseList: React.FC<{ chapterId: string }> = ({ chapterId }) => {
       <h3>List of all chapters exercises in every page</h3>
       {data.map((page) => (
         <div key={page.id}>
-          <PageWithExercises page={page} />
+          <PageExerciseList page={page} />
         </div>
       ))}
     </>

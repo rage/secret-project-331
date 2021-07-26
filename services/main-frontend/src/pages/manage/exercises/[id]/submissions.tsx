@@ -1,3 +1,4 @@
+import Link from "next/link"
 import React from "react"
 import { useQuery } from "react-query"
 
@@ -5,8 +6,8 @@ import Layout from "../../../../components/Layout"
 import { fetchExerciseSubmissions } from "../../../../services/backend/exercises"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { dontRenderUntilQueryParametersReady } from "../../../../utils/dontRenderUntilQueryParametersReady"
 
 const SubmissionsPage: React.FC = () => {
   const id = useQueryParameter("id")
@@ -28,6 +29,7 @@ const SubmissionsPage: React.FC = () => {
       <table>
         <thead>
           <tr>
+            <th>Link</th>
             <th>Submission time</th>
             <th>Student</th>
             <th>Course instance</th>
@@ -37,6 +39,16 @@ const SubmissionsPage: React.FC = () => {
         <tbody>
           {data.data.map((x) => (
             <tr key={x.id}>
+              <td>
+                <Link
+                  href={{
+                    pathname: "/submissions/[id]",
+                    query: { id: x.id },
+                  }}
+                >
+                  link
+                </Link>
+              </td>
               <td>{x.created_at.toISOString()}</td>
               <td>{x.user_id}</td>
               <td>{x.course_instance_id}</td>

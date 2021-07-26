@@ -16,9 +16,10 @@ use oauth2::{ResourceOwnerPassword, ResourceOwnerUsername, TokenResponse};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use ts_rs::TS;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct Login {
     email: String,
     password: String,
@@ -44,13 +45,23 @@ pub async fn login(
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
-    // login to TMS
+    if app_conf.development_uuid_login {
+        if let Ok(id) = Uuid::parse_str(&email) {
+            let user = { models::users::get_by_id(&mut conn, id).await? };
+            authorization::remember(&session, user)?;
+            return Ok(HttpResponse::Ok().finish());
+        };
+    }
+
     if app_conf.test_mode {
-        let user = if let Ok(id) = Uuid::parse_str(&email) {
-            models::users::get_by_id(&mut conn, id).await?
-        } else {
-            models::users::authenticate_test_user(&mut conn, email.clone(), password.clone())
-                .await?
+        let user = {
+            models::users::authenticate_test_user(
+                &mut conn,
+                email.clone(),
+                password.clone(),
+                &app_conf,
+            )
+            .await?
         };
         authorization::remember(&session, user)?;
         return Ok(HttpResponse::Ok().finish());

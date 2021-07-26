@@ -29,12 +29,14 @@ async fn main() -> Result<()> {
     let oauth_secret = env::var("OAUTH_SECRET").expect("OAUTH_SECRET must be defined");
     let private_cookie_key =
         env::var("PRIVATE_COOKIE_KEY").expect("PRIVATE_COOKIE_KEY must be defined");
+    let base_url = env::var("BASE_URL").expect("BASE_URL must be defined");
     let test_mode = env::var("TEST_MODE").is_ok();
     if test_mode {
         info!("***********************************");
         info!("*  Starting backend in test mode  *");
         info!("***********************************");
     }
+    let development_uuid_login = env::var("DEVELOPMENT_UUID_LOGIN").is_ok();
 
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();
@@ -53,9 +55,13 @@ async fn main() -> Result<()> {
     ));
 
     let db_clone = db_pool.clone();
-    let app_conf = ApplicationConfiguration { test_mode };
 
     let mut server = HttpServer::new(move || {
+        let app_conf = ApplicationConfiguration {
+            base_url: base_url.clone(),
+            test_mode,
+            development_uuid_login,
+        };
         let file_store = futures::executor::block_on(async {
             LocalFileStore::new(
                 "uploads".into(),
@@ -69,7 +75,6 @@ async fn main() -> Result<()> {
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
             .data(db_clone.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())
-            .data(app_conf)
     });
 
     server = match listenfd.take_tcp_listener(0)? {

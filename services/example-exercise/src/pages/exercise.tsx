@@ -65,14 +65,7 @@ const ExercisePage: React.FC = () => {
   if (!port) {
     return <>Waiting for port...</>
   }
-  return <Exercise port={port} maxWidth={maxWidth} onHeightChange={onHeightChange} state={state} />
-}
-
-function onHeightChange(newHeight: number, port: MessagePort) {
-  port.postMessage({
-    message: "height-changed",
-    data: newHeight,
-  })
+  return <Exercise port={port} maxWidth={maxWidth} state={state} />
 }
 
 export default ExercisePage

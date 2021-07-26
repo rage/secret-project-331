@@ -9,6 +9,7 @@ pub mod auth;
 pub mod cms;
 pub mod course_material;
 pub mod files;
+pub mod helpers;
 pub mod main_frontend;
 
 use actix_web::{
@@ -22,6 +23,7 @@ use derive_more::Display;
 use http_api_problem::{HttpApiProblem, StatusCode};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 use crate::{models::ModelError, utils::file_store::FileStore};
 
@@ -124,6 +126,7 @@ impl From<ModelError> for ControllerError {
             ModelError::DatabaseConstraint { description, .. } => {
                 Self::BadRequest(description.to_string())
             }
+            ModelError::InvalidRequest(msg) => Self::BadRequest(msg),
             _ => Self::InternalServerError(err.to_string()),
         }
     }
@@ -135,11 +138,17 @@ Only put information here that you want to be visible to users.
 */
 pub type ControllerResult<T, E = ControllerError> = std::result::Result<T, E>;
 
+/// Result of a image upload. Tells where the uploaded image can be retrieved from.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct UploadResult {
+    pub url: String,
+}
+
 /// Add controllers from all the submodules.
 pub fn configure_controllers<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/course-material").configure(add_course_material_routes))
         .service(web::scope("/cms").configure(add_cms_routes::<T>))
         .service(web::scope("/files").configure(_add_files_routes))
-        .service(web::scope("/main-frontend").configure(add_main_frontend_routes))
+        .service(web::scope("/main-frontend").configure(add_main_frontend_routes::<T>))
         .service(web::scope("/auth").configure(add_auth_routes));
 }

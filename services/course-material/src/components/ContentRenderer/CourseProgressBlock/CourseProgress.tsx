@@ -1,7 +1,9 @@
+import { css } from "@emotion/css"
 import React from "react"
 import { useQuery } from "react-query"
 
-import { fetchCourseProgress } from "../../../services/backend"
+import { fetchUserCourseProgress } from "../../../services/backend"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 
 interface CourseProgressProps {
@@ -10,7 +12,7 @@ interface CourseProgressProps {
 
 const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => {
   const { isLoading, error, data } = useQuery(`course-instance-${courseInstanceId}-progress`, () =>
-    fetchCourseProgress(courseInstanceId),
+    fetchUserCourseProgress(courseInstanceId),
   )
 
   if (error) {
@@ -22,7 +24,11 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
   }
 
   return (
-    <div>
+    <div
+      className={css`
+        ${normalWidthCenteredComponentStyles}
+      `}
+    >
       <div>
         Total points: {data.score_given} / {data.score_maximum}
       </div>

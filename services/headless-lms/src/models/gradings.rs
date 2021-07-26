@@ -1,8 +1,9 @@
 use super::{
-    exercise_service_info::ExerciseServiceInfo,
+    exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     submissions::{GradingResult, Submission},
+    user_exercise_states::update_user_exercise_state,
     ModelResult,
 };
 use crate::models::{
@@ -10,12 +11,15 @@ use crate::models::{
     ModelError,
 };
 use chrono::{DateTime, Utc};
+
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use std::time::Duration;
+use ts_rs::TS;
+use url::Url;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct Grading {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -28,8 +32,8 @@ pub struct Grading {
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,
     pub user_points_update_strategy: UserPointsUpdateStrategy,
-    pub unscaled_score_maximum: Option<f32>,
-    pub unscaled_max_points: Option<i32>,
+    pub unscaled_score_given: Option<f32>,
+    pub unscaled_score_maximum: Option<i32>,
     pub grading_started_at: Option<DateTime<Utc>>,
     pub grading_completed_at: Option<DateTime<Utc>>,
     pub feedback_json: Option<serde_json::Value>,
@@ -37,7 +41,7 @@ pub struct Grading {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
 #[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 pub enum UserPointsUpdateStrategy {
     CanAddPointsButCannotRemovePoints,
@@ -88,7 +92,7 @@ SELECT id,
   grading_progress as "grading_progress: _",
   user_points_update_strategy as "user_points_update_strategy: _",
   unscaled_score_maximum,
-  unscaled_max_points,
+  unscaled_score_given,
   grading_started_at,
   grading_completed_at,
   feedback_json,
@@ -119,7 +123,7 @@ pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> Mo
 INSERT INTO
   gradings(submission_id, course_id, exercise_id, exercise_task_id, grading_started_at)
 VALUES($1, $2, $3, $4, now())
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_score_maximum, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         "#,
         submission.id,
         submission.course_id,
@@ -159,19 +163,23 @@ pub async fn grade_submission(
 ) -> ModelResult<Grading> {
     let exercise_service_info =
         get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
-    let obj = send_grading_request(&exercise_service_info, exercise_task, submission).await?;
-    let updated_grading = update_grading(conn, &grading, obj, exercise).await?;
+    let exercise_service =
+        get_exercise_service_by_exercise_type(conn, &exercise_task.exercise_type).await?;
+    let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
+    let obj = send_grading_request(grade_url, exercise_task, submission.clone()).await?;
+    let updated_grading = update_grading(conn, &grading, &obj, &exercise).await?;
+    update_user_exercise_state(conn, &updated_grading, &submission).await?;
     Ok(updated_grading)
 }
 
 pub async fn send_grading_request(
-    exercise_service_info: &ExerciseServiceInfo,
+    grade_url: Url,
     exercise_task: ExerciseTask,
     submission: Submission,
 ) -> ModelResult<GradingResult> {
     let client = reqwest::Client::new();
     let res = client
-        .post(&exercise_service_info.grade_endpoint_path)
+        .post(grade_url)
         .timeout(Duration::from_secs(120))
         .json(&GradingRequest {
             exercise_spec: exercise_task.private_spec,
@@ -181,7 +189,7 @@ pub async fn send_grading_request(
         .await?;
     let status = res.status();
     if !status.is_success() {
-        return Err(ModelError::Generic("Grading failed"));
+        return Err(ModelError::Generic("Grading failed".to_string()));
     }
     let obj = res.json::<GradingResult>().await?;
     info!("Received a grading result: {:#?}", &obj);
@@ -191,8 +199,8 @@ pub async fn send_grading_request(
 pub async fn update_grading(
     conn: &mut PgConnection,
     grading: &Grading,
-    grading_result: GradingResult,
-    exercise: Exercise,
+    grading_result: &GradingResult,
+    exercise: &Exercise,
 ) -> ModelResult<Grading> {
     let grading_completed_at = if grading_result.grading_progress.is_complete() {
         Some(Utc::now())
@@ -214,14 +222,14 @@ pub async fn update_grading(
 UPDATE gradings
   SET
     grading_progress = $2,
-    unscaled_score_maximum = $3,
-    unscaled_max_points = $4,
+    unscaled_score_given = $3,
+    unscaled_score_maximum = $4,
     feedback_text = $5,
     feedback_json = $6,
     grading_completed_at = $7,
     score_given = $8
 WHERE id = $1
-RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_maximum, unscaled_max_points, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
+RETURNING id, created_at, updated_at, submission_id, course_id, exercise_id, exercise_task_id, grading_priority, score_given, grading_progress as "grading_progress: _", user_points_update_strategy as "user_points_update_strategy: _", unscaled_score_given, unscaled_score_maximum, grading_started_at, grading_completed_at, feedback_json, feedback_text, deleted_at
         "#,
         grading.id,
         grading_result.grading_progress as GradingProgress,

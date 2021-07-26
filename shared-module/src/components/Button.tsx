@@ -2,6 +2,7 @@ import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import css from "@styled-system/css"
 import React from "react"
+import { border, color, space } from "styled-system"
 
 import { fontWeights, primaryFont, theme, typography } from "../utils"
 
@@ -13,6 +14,9 @@ export interface ButtonExtraProps {
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps
 
 const BaseButton = styled.button`
+  ${space}
+  ${color}
+  ${border}
   position: relative;
   display: inline-block;
   padding: 18px 36px;

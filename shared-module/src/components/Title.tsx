@@ -12,7 +12,7 @@ export type ButtonProps = React.HTMLAttributes<HTMLHeadingElement> & HeadingExtr
 
 const StyledTitle = styled.h1(
   css({
-    fontFamily: primaryFont,
+    fontFamily: "Josefin Sans, sans-serif",
     fontWeight: fontWeights.bold,
     color: baseTheme.colors.neutral[600],
     fontSize: ({ variant }) =>
@@ -21,7 +21,7 @@ const StyledTitle = styled.h1(
 )
 
 const Title: React.FC<ButtonProps> = (props) => {
-  return <StyledTitle {...props}>This is the main Title</StyledTitle>
+  return <StyledTitle {...props}>{props.children}</StyledTitle>
 }
 
 export default Title

@@ -172,7 +172,7 @@ pub async fn authorize(
         }
     }
 
-    return Err(ControllerError::Forbidden("Unauthorized".to_string()));
+    Err(ControllerError::Forbidden("Unauthorized".to_string()))
 }
 
 fn has_permission(user_role: UserRole, action: Action) -> bool {

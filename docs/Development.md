@@ -144,14 +144,15 @@ profiles: {
 3. Install shell launcher from the extension market on VSCode
 4. Read the installation guide to add keyboard shortcode to your VSCode keybindings.json file
 
- ```
+```
 [{
-    "key": "ctrl+shift+t",
-    "command": "shellLauncher.launch"
+   "key": "ctrl+shift+t",
+   "command": "shellLauncher.launch"
 }]
 ```
-1. Next go to settings on VSCode and search for shell launcher and click "Edit in settings",
-2. Add the code below to the `shellLauncher.shells.windows` array
+
+5. Next go to settings on VSCode and search for shell launcher and click "Edit in settings",
+6. Add the code below to the `shellLauncher.shells.windows` array
 
 ```
 [{
@@ -161,6 +162,7 @@ profiles: {
    "launchName": "Cygwin Bash",
 }]
 ```
+
 7. To use Cygwin hold CTLR + SHIFT + T
 
 ### Skaffold

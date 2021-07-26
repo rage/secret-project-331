@@ -4,7 +4,7 @@ use super::{
     submissions::Submission,
     ModelResult,
 };
-use crate::models::gradings::UserPointsUpdateStrategy;
+use crate::models::{gradings::UserPointsUpdateStrategy, ModelError};
 use chrono::{DateTime, Utc};
 use core::f32;
 use futures::future;
@@ -15,15 +15,15 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {
-    user_id: Uuid,
-    exercise_id: Uuid,
-    course_instance_id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    deleted_at: Option<DateTime<Utc>>,
-    score_given: Option<f32>,
-    grading_progress: GradingProgress,
-    activity_progress: ActivityProgress,
+    pub user_id: Uuid,
+    pub exercise_id: Uuid,
+    pub course_instance_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub score_given: Option<f32>,
+    pub grading_progress: GradingProgress,
+    pub activity_progress: ActivityProgress,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -114,9 +114,9 @@ pub async fn get_user_progress(
 
 pub async fn get_or_create_user_exercise_state(
     conn: &mut PgConnection,
-    user_id: &Uuid,
-    exercise_id: &Uuid,
-    course_instance_id: &Uuid,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
 ) -> ModelResult<UserExerciseState> {
     let res = sqlx::query_as!(
         UserExerciseState,
@@ -138,7 +138,52 @@ RETURNING user_id,
         exercise_id,
         course_instance_id
     )
-    .fetch_one(conn)
+    .fetch_optional(&mut *conn)
+    .await?;
+    if let Some(o) = res {
+        Ok(o)
+    } else {
+        let existing =
+            get_user_exercise_state_if_exits(conn, user_id, exercise_id, course_instance_id)
+                .await?;
+        if let Some(o) = existing {
+            Ok(o)
+        } else {
+            Err(ModelError::Generic(
+                "Record that existed a moment ago disappeared".to_string(),
+            ))
+        }
+    }
+}
+
+pub async fn get_user_exercise_state_if_exits(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<UserExerciseState>> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT user_id,
+  exercise_id,
+  course_instance_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress as "grading_progress: _",
+  activity_progress as "activity_progress: _"
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+      "#,
+        user_id,
+        exercise_id,
+        course_instance_id
+    )
+    .fetch_optional(conn)
     .await?;
     Ok(res)
 }
@@ -247,7 +292,8 @@ pub async fn update_user_exercise_state(
         ..
     } = submission;
     let current_state =
-        get_or_create_user_exercise_state(conn, user_id, exercise_id, course_instance_id).await?;
+        get_or_create_user_exercise_state(conn, *user_id, *exercise_id, *course_instance_id)
+            .await?;
 
     info!(
         "Using user points updating strategy {:?}",

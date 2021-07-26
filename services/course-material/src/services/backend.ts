@@ -3,10 +3,12 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  NewSubmission,
   Organization,
   Page,
   PageRoutingData,
   PageWithExercises,
+  SubmissionResult,
   UserProgress,
 } from "../shared-module/bindings"
 
@@ -122,4 +124,8 @@ export const fetchChaptersInTheCourse = async (courseId: string): Promise<Chapte
 
 export const fetchPageUrl = async (pageId: string): Promise<string> => {
   return (await courseMaterialClient.get(`/pages/${pageId}/url-path`)).data
+}
+
+export const postSubmission = async (newSubmission: NewSubmission): Promise<SubmissionResult> => {
+  return (await courseMaterialClient.post(`/submissions`, newSubmission)).data
 }

@@ -45,11 +45,16 @@ pub async fn login(
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
-    // login to TMS
+    if app_conf.development_uuid_login {
+        if let Ok(id) = Uuid::parse_str(&email) {
+            let user = { models::users::get_by_id(&mut conn, id).await? };
+            authorization::remember(&session, user)?;
+            return Ok(HttpResponse::Ok().finish());
+        };
+    }
+
     if app_conf.test_mode {
-        let user = if let Ok(id) = Uuid::parse_str(&email) {
-            models::users::get_by_id(&mut conn, id).await?
-        } else {
+        let user = {
             models::users::authenticate_test_user(
                 &mut conn,
                 email.clone(),

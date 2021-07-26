@@ -1,7 +1,9 @@
+import { css } from "@emotion/css"
 import React from "react"
 import { useQuery } from "react-query"
 
 import { fetchUserCourseProgress } from "../../../services/backend"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 
 interface CourseProgressProps {
@@ -22,7 +24,11 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
   }
 
   return (
-    <div>
+    <div
+      className={css`
+        ${normalWidthCenteredComponentStyles}
+      `}
+    >
       <div>
         Total points: {data.score_given} / {data.score_maximum}
       </div>

@@ -12,7 +12,7 @@ import dontRenderUntilQueryParametersReady, {
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 interface PagesProps {
-  query: SimplifiedUrlQuery
+  query: SimplifiedUrlQuery<"id">
 }
 
 const EditorLoading = <div>Loading editor...</div>

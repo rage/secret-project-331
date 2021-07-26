@@ -13,9 +13,10 @@ use crate::models::{
 use super::{
     exercise_service_info::CourseMaterialExerciseServiceInfo,
     exercise_tasks::CourseMaterialExerciseTask,
+    user_exercise_states::get_user_exercise_state_if_exits,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct Exercise {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -23,6 +24,7 @@ pub struct Exercise {
     pub name: String,
     pub course_id: Uuid,
     pub page_id: Uuid,
+    pub chapter_id: Uuid,
     pub deadline: Option<DateTime<Utc>>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_maximum: i32,
@@ -102,17 +104,19 @@ pub async fn insert(
     course_id: Uuid,
     name: &str,
     page_id: Uuid,
+    chapter_id: Uuid,
     order_number: i32,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO exercises (course_id, name, page_id, order_number)
-VALUES ($1, $2, $3, $4)
+INSERT INTO exercises (course_id, name, page_id, chapter_id, order_number)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         course_id,
         name,
         page_id,
+        chapter_id,
         order_number
     )
     .fetch_one(conn)
@@ -176,10 +180,11 @@ pub async fn get_course_material_exercise(
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
 
+    let mut current_course_instance_id: Option<Uuid> = None;
     // if the user is logged in, take the previously selected task or select a new one
     let selected_exercise_task = if let Some(user_id) = user_id {
         // user is logged in, see if they're enrolled on the course
-        let current_course_instance_id: Option<Uuid> = sqlx::query!(
+        current_course_instance_id = sqlx::query!(
             r#"
 SELECT course_instance_id AS id
 FROM course_instance_enrollments
@@ -275,15 +280,40 @@ SET selected_exercise_task_id = $4
         conn,
         &selected_exercise_task.exercise_type,
     )
-    .await;
+    .await?;
+
+    let user_exercise_state = if let Some(logged_in_user_id) = user_id {
+        if let Some(current_course_instance_id) = current_course_instance_id {
+            get_user_exercise_state_if_exits(
+                conn,
+                logged_in_user_id,
+                exercise.id,
+                current_course_instance_id,
+            )
+            .await?
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let mut score_given = None;
+    let mut activity_progress = ActivityProgress::Initialized;
+    let mut grading_progress = GradingProgress::NotReady;
+    if let Some(user_exercise_state) = user_exercise_state {
+        score_given = user_exercise_state.score_given;
+        activity_progress = user_exercise_state.activity_progress;
+        grading_progress = user_exercise_state.grading_progress;
+    }
 
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task: selected_exercise_task,
         exercise_status: Some(ExerciseStatus {
-            score_given: None,
-            activity_progress: ActivityProgress::Initialized,
-            grading_progress: GradingProgress::NotReady,
+            score_given,
+            activity_progress,
+            grading_progress,
         }),
         current_exercise_task_service_info,
     })
@@ -338,13 +368,13 @@ mod test {
         )
         .await
         .unwrap();
-        let _chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
+        let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
             .await
             .unwrap();
         let page_id = pages::insert(tx.as_mut(), course_id, "", "", 0)
             .await
             .unwrap();
-        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, 0)
+        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, chapter_id, 0)
             .await
             .unwrap();
         let exercise_task_id = exercise_tasks::insert(

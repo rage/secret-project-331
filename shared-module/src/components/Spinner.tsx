@@ -20,7 +20,7 @@ const StyledSpinner = styled.div`
   width: 30px;
   height: 30px;
   border: 5px solid #f1f1f1;
-  border-bottom-color: #ff3d00;
+  border-bottom-color: ${baseTheme.colors.green[100]};
   border-radius: 50%;
   display: inline-block;
   animation: ${rotation} 1s linear infinite;

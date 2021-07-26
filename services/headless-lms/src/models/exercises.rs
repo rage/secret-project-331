@@ -330,11 +330,9 @@ pub async fn get_denormalized_exercise_by_id(
 ) -> ModelResult<Vec<GutenbergBlock>> {
     let exercise = get_by_id(conn, exercise_id).await?;
     let tasks = get_exercise_tasks_by_exercise_id(conn, exercise_id).await?;
-    let exercises = construct_page_update_exercise(exercise.clone(), tasks.clone())?;
+    let exercises = construct_page_update_exercise(exercise.clone(), tasks)?;
     let denormalized_exercise = denormalize(NormalizedDocument {
-        content: vec![GutenbergBlock::exercise_block_with_exercise_ids(
-            exercise, tasks,
-        )],
+        content: vec![GutenbergBlock::exercise_block_with_exercise_ids(exercise)],
         exercises,
     })?;
 

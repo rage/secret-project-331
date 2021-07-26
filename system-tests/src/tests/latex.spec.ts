@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page }) => {
+test("latex-block renders", async ({ page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
   // Click text=University of Helsinki, Department of Mathematics and Statistics

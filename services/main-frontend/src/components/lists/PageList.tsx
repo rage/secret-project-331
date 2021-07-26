@@ -3,13 +3,11 @@ import styled from "@emotion/styled"
 import { faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button, Dialog } from "@material-ui/core"
-import Link from "next/link"
 import React, { useState } from "react"
 
-import { deletePage } from "../services/backend/pages"
-import { Chapter, Page } from "../shared-module/bindings"
-
-import NewPageForm from "./forms/NewPageForm"
+import { deletePage } from "../../services/backend/pages"
+import { Chapter, Page } from "../../shared-module/bindings"
+import NewPageForm from "../forms/NewPageForm"
 
 const DeleteButton = styled.button`
   border: 0;
@@ -57,15 +55,7 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
           .filter((page) => !page.deleted_at)
           .map((page: Page) => (
             <li key={page.id}>
-              <Link
-                href={{
-                  pathname: "/pages/[id]",
-                  query: { id: page.id },
-                }}
-              >
-                {page.title}
-              </Link>
-              ({page.url_path})
+              <a href={`/cms/pages/${page.id}`}>{page.title}</a>({page.url_path})
               <DeleteButton onClick={() => handleDeleteTopLevelPage(page.id, page.title)}>
                 <FontAwesomeIcon icon={faTrash} size="lg" />
               </DeleteButton>

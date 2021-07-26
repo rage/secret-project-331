@@ -1,4 +1,4 @@
-//! Controllers for requests starting with `/api/v0/cms/chapters`.
+//! Controllers for requests starting with `/api/v0/main-frontend/chapters`.
 use std::{path::PathBuf, str::FromStr};
 
 use crate::{
@@ -16,12 +16,12 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 /**
-POST `/api/v0/cms/chapters` - Create a new course part.
+POST `/api/v0/main-frontend/chapters` - Create a new course part.
 # Example
 
 Request:
 ```http
-POST /api/v0/cms/chapters HTTP/1.1
+POST /api/v0/main-frontend/chapters HTTP/1.1
 Content-Type: application/json
 
 {
@@ -67,7 +67,7 @@ async fn post_new_chapter<T: FileStore>(
 }
 
 /**
-DELETE `/api/v0/cms/courses-parts/:chapter_id` - Delete a course part.
+DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a course part.
 # Example
 
 ```json
@@ -104,12 +104,12 @@ async fn delete_chapter<T: FileStore>(
 }
 
 /**
-PUT `/api/v0/cms/chapters/:chapter_id` - Update course part.
+PUT `/api/v0/main-frontend/chapters/:chapter_id` - Update course part.
 # Example
 
 Request:
 ```http
-PUT /api/v0/cms/chapters/d332f3d9-39a5-4a18-80f4-251727693c37  HTTP/1.1
+PUT /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37  HTTP/1.1
 Content-Type: application/json
 
 {
@@ -158,13 +158,13 @@ async fn update_chapter<T: FileStore>(
 }
 
 /**
-PUT `/api/v0/cms/chapters/:chapter_id/image` - Sets or updates the chapter image.
+PUT `/api/v0/main-frontend/chapters/:chapter_id/image` - Sets or updates the chapter image.
 
 # Example
 
 Request:
 ```http
-PUT /api/v0/cms/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
+PUT /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 Content-Type: multipart/form-data
 
 BINARY_DATA
@@ -225,13 +225,13 @@ async fn set_chapter_image<T: FileStore>(
 }
 
 /**
-DELETE `/api/v0/cms/chapters/:chapter_id/image` - Removes the chapter image.
+DELETE `/api/v0/main-frontend/chapters/:chapter_id/image` - Removes the chapter image.
 
 # Example
 
 Request:
 ```http
-DELETE /api/v0/cms/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
+DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */
 #[instrument(skip(pool, file_store))]

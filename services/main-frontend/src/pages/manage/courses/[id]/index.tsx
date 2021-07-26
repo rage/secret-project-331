@@ -64,18 +64,11 @@ const ManageCoursePage: React.FC<unknown> = () => {
           </div>
         </Dialog>
       </div>
-      <Link
-        href={{
-          pathname: "/manage/courses/[id]/stats",
-          query: {
-            id: course.id,
-          },
-        }}
-      >
-        Stats
-      </Link>
+      <Link href={{ pathname: "/manage/courses/[id]/stats", query: { id: course.id } }}>Stats</Link>
       <br />
-      <a href={`/cms/courses/${course.id}/manage-pages`}>Manage pages</a>{" "}
+      <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
+        Manage pages
+      </Link>{" "}
       <h3>All course instances</h3>
       <CourseInstancesList courseId={id} />
       <h3>All exercises</h3>

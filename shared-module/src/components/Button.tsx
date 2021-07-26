@@ -50,12 +50,12 @@ const BaseButton = styled.button`
 
 const PrimaryButton = styled(BaseButton)`
   font-size: ${typography.paragraph};
-  color: "black";
-  background-color: "tomato";
+  color: ${theme.primary.text};
+  background-color: ${theme.primary.bg};
 
   &:hover {
     color: ${theme.primary.text};
-    background-color: ${theme.primary.bg};
+    background-color: ${theme.primary.hoverBg};
   }
 
   ,
@@ -75,7 +75,7 @@ const PrimaryButton = styled(BaseButton)`
 const SecondaryButton = styled(BaseButton)`
   font-size: ${typography.paragraph};
   color: ${theme.secondary.text};
-  background-color: theme.secondary.bg;
+  background-color: ${theme.secondary.bg};
 
   &:hover {
     color: ${theme.secondary.hoverText};

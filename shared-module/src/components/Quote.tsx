@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import quoteImg from "../img/quote.png"
+import * as quoteImg from "../img/quote.png"
 
 const Justify = styled.div`
   display: grid;
@@ -13,7 +13,7 @@ const StyledImg = styled.img`
   width: 40px;
   top: 40px;
   left: 46px;
-  opacity: 0.3;
+  opacity: 0.15;
 `
 
 const ContentWrapper = styled.div`

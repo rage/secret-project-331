@@ -137,6 +137,34 @@ profiles: {
 }
 ```
 
+### Install Cygwin on VSCode
+
+1. Install Cgywin to your windows computer as described above
+2. In order to install Cgywin on VSCode we need to install shell launcher extension
+3. Install shell launcher from the extension market on VSCode
+4. Read the installation guide to add keyboard shortcode to your VSCode keybindings.json file
+
+```
+[{
+   "key": "ctrl+shift+t",
+   "command": "shellLauncher.launch"
+}]
+```
+
+5. Next go to settings on VSCode and search for shell launcher and click "Edit in settings",
+6. Add the code below to the `shellLauncher.shells.windows` array
+
+```
+[{
+   "shell": "C:\\cygwin64\\bin\\bash.exe",
+   "args": ["--login"],
+   "label": "Cygwin Bash",
+   "launchName": "Cygwin Bash",
+}]
+```
+
+7. To use Cygwin hold CTLR + SHIFT + T
+
 ### Skaffold
 
 1. Download [Skaffold](https://skaffold.dev/docs/install/) latest [stable release](https://storage.googleapis.com/skaffold/releases/latest/skaffold-windows-amd64.exe) for Windows and save it under `C:\Binary`.

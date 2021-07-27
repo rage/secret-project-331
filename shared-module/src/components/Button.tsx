@@ -1,11 +1,13 @@
 import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
+import { border, color, space } from "styled-system"
 
-import { button, fontWeights, primaryFont, theme, typography } from "../utils"
+import { fontWeights, primaryFont, theme, typography } from "../utils"
 
 export interface ButtonExtraProps {
   variant: "primary" | "secondary"
+  size: "medium" | "large"
 }
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & ButtonExtraProps
@@ -13,7 +15,8 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & Button
 const BaseButton = styled.button`
   position: relative;
   display: inline-block;
-  padding: 18px 36px;
+  padding: ${({ size }: ButtonProps) =>
+    size == "medium" ? theme.buttonSizes.medium : theme.buttonSizes.large};
   font-family: ${primaryFont};
   font-weight: ${fontWeights.bold};
   line-height: 18px;
@@ -25,10 +28,10 @@ const BaseButton = styled.button`
   text-align: center;
   justify-content: center;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 14px !important;
   letter-spacing: 0.02em;
-  border: 0;
   transition: all 150ms linear;
+  border: 2px solid;
 
   &:hover {
     text-decoration: none;
@@ -41,50 +44,58 @@ const BaseButton = styled.button`
   &:disabled {
     cursor: default;
   }
+  ${border}
+  ${color}
+  ${space}
 `
 
 const PrimaryButton = styled(BaseButton)`
-  color : ${button.primary.text};
-  background-color: ${button.primary.bg};
-  font-size: ${typography.paragraph}
+  font-size: ${typography.paragraph};
+  color: ${theme.primary.text};
+  background-color: ${theme.primary.bg};
+  border-color: ${theme.primary.hoverBorder};
 
   &:hover {
-    color: ${theme.textColorInvented};
-    background-color: ${theme.textColorInvented};
+    color: ${theme.primary.hoverText};
+    background-color: ${theme.primary.hoverBg};
+    border-color: ${theme.primary.hoverBorder};
   }
 
+  ,
   &:active {
-    color: ${theme.textColorInvented};
-    background-color: ${theme.textColorInvented};
+    color: ${theme.primary.hoverText};
+    background-color: ${theme.primary.hoverBg};
   }
 
+  ,
   &:disabled {
-    color: ${theme.textColorInvented};
-    background-color: ${theme.textColorInvented};
-    border-color: ${theme.textColorInvented};
+    color: ${theme.primary.disabledText};
+    background-color: ${theme.primary.disabledBg};
+    border-color: ${theme.primary.disabledBorder};
   }
 `
 
 const SecondaryButton = styled(BaseButton)`
-  color : ${button.secondary.text};
-  background-color: ${button.primary.bg};
-  font-size: ${typography.paragraph}
-  font-family: ${primaryFont}
+  font-size: ${typography.paragraph};
+  color: ${theme.secondary.text};
+  background-color: ${theme.secondary.bg};
 
   &:hover {
-    color: ${theme.textColorInvented};
-    background-color: ${theme.textColorInvented};
+    color: ${theme.secondary.hoverText};
+    background-color: ${theme.secondary.hoverBg};
   }
 
+  ,
   &:active {
-    color: ${theme.textColorInvented};
-    background-color: ${theme.textColorInvented};
+    color: ${theme.secondary.activeBg};
+    background-color: ${theme.secondary.activeBg};
   }
 
+  ,
   &:disabled {
-    color: ${theme.textColorInvented};
-    background-color: ${theme.textColorInvented};
-    border-color: ${theme.textColorInvented};
+    color: ${theme.secondary.disabledText};
+    background-color: ${theme.secondary.disabledBg};
+    border-color: ${theme.secondary.disabledBorder};
   }
 `
 
@@ -97,12 +108,13 @@ IconButton
 Link */
 
 const Button: React.FC<ButtonProps> = (props) => {
-  if (props.variant === "secondary") {
-    return <PrimaryButton {...props}></PrimaryButton>
-  }
   return (
     <ThemeProvider theme={theme}>
-      <SecondaryButton title="button" {...props} />
+      {props.variant === "primary" ? (
+        <PrimaryButton {...props}></PrimaryButton>
+      ) : (
+        <SecondaryButton title="button" {...props} />
+      )}
     </ThemeProvider>
   )
 }

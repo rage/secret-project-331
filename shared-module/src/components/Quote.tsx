@@ -1,6 +1,8 @@
 import styled from "@emotion/styled"
 import React from "react"
 
+import quoteImg from "../img/quote.png"
+
 const Justify = styled.div`
   display: grid;
   justify-content: center;
@@ -8,10 +10,10 @@ const Justify = styled.div`
 
 const ContentWrapper = styled.div`
   padding: 4rem 2rem 4rem;
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 12px 0px;
+  background: rgba(0, 0, 0, 0.02);
   margin: 4rem 0;
   max-width: 780px;
-  border-left: 8px solid #bfbfbf;
+  border-left: 8px solid #333333;
 `
 
 const Text = styled.div`
@@ -19,20 +21,20 @@ const Text = styled.div`
   text-align: left;
   font-size: 1.2rem;
   line-height: 1.6;
-  font-style: italic;
 `
 
-export interface CardExtraProps {
+export interface QuoteExtraProps {
   variant: "pullquote" | "blockquote"
   content: string
 }
 
-export type QuoteProps = React.QuoteHTMLAttributes<HTMLQuoteElement> & CardExtraProps
+export type QuoteProps = React.QuoteHTMLAttributes<HTMLQuoteElement> & QuoteExtraProps
 
 const Quote: React.FC<QuoteProps> = ({ content }) => {
   return (
     <Justify>
       <ContentWrapper>
+        <img src={quoteImg} alt="Nothing" width="30px" />
         <Text> {content} </Text>
       </ContentWrapper>
     </Justify>

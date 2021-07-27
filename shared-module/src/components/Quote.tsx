@@ -8,19 +8,29 @@ const Justify = styled.div`
   justify-content: center;
 `
 
+const StyledImg = styled.img`
+  position: absolute;
+  width: 40px;
+  top: 40px;
+  left: 46px;
+  opacity: 0.3;
+`
+
 const ContentWrapper = styled.div`
-  padding: 4rem 2rem 4rem;
+  padding: 5rem 3rem 4rem 3rem;
   background: rgba(0, 0, 0, 0.02);
   margin: 4rem 0;
   max-width: 780px;
   border-left: 8px solid #333333;
+  position: relative;
 `
 
 const Text = styled.div`
   font-weight: 500;
   text-align: left;
-  font-size: 1.2rem;
-  line-height: 1.6;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  font-family: "Lato", sans-serif;
 `
 
 export interface QuoteExtraProps {
@@ -34,7 +44,7 @@ const Quote: React.FC<QuoteProps> = ({ content }) => {
   return (
     <Justify>
       <ContentWrapper>
-        <img src={quoteImg} alt="Nothing" width="30px" />
+        <StyledImg src={quoteImg} alt="Nothing" />
         <Text> {content} </Text>
       </ContentWrapper>
     </Justify>

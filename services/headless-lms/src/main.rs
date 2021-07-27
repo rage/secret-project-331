@@ -1,13 +1,22 @@
 #[macro_use]
 extern crate tracing;
 
+use actix_http::{
+    body::ResponseBody,
+    http::{self, HeaderMap, HeaderValue},
+};
 use actix_session::CookieSession;
-use actix_web::{App, HttpServer};
+use actix_web::{
+    dev,
+    middleware::{ErrorHandlerResponse, ErrorHandlers, Logger},
+    App, HttpServer, Result as ActixResult,
+};
 use anyhow::Result;
+use bytes::BytesMut;
 use dotenv::dotenv;
 use headless_lms_actix::{
-    setup_tracing, utils::file_store::local_file_store::LocalFileStore, ApplicationConfiguration,
-    OAuthClient,
+    controllers::ErrorResponse, setup_tracing, utils::file_store::local_file_store::LocalFileStore,
+    ApplicationConfiguration, OAuthClient,
 };
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
@@ -73,6 +82,7 @@ async fn main() -> Result<()> {
         App::new()
             .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
+            .wrap(Logger::new("%r %s %b bytes - %D ms"))
             .data(db_clone.clone()) // pass database pool to application so we can access it inside handlers
             .data(oauth_client.clone())
     });

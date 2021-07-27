@@ -2,19 +2,21 @@ import { useEffect, useState } from "react"
 
 import Editor from "../components/Editor"
 import useStateWithOnChange from "../hooks/useStateWithOnChange"
-import convertStateToSpecs from "../util/convertStateToSpecs"
 import { Alternative } from "../util/stateInterfaces"
 
 const EditorPage: React.FC = () => {
   const [port, setPort] = useState<MessagePort | null>(null)
   const [state, setState] = useStateWithOnChange<Alternative[] | null>(null, (newValue) => {
     if (!port) {
+      console.error("State changed but port is not set. Cannot send current state.")
       return
     }
-    port.postMessage({
+    const message = {
       message: "current-state",
-      data: convertStateToSpecs(newValue),
-    })
+      data: { private_spec: newValue },
+    }
+    console.log("Sending current data", JSON.stringify(message))
+    port.postMessage(message)
   })
 
   // const router = useRouter()

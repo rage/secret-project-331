@@ -67,7 +67,6 @@ pub struct GuternbergExerciseAttributes {
 pub struct GuternbergExerciseTaskAttributes {
     pub id: Uuid,
     pub exercise_type: String,
-    pub public_spec: Option<String>,
     pub private_spec: Option<String>,
 }
 
@@ -105,10 +104,6 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
                     }
                     let exercise_task_attributes: GuternbergExerciseTaskAttributes =
                         serde_json::from_value(inner_block.attributes)?;
-                    let mut public_spec = None;
-                    if let Some(spec_value) = exercise_task_attributes.public_spec {
-                        public_spec = Some(serde_json::from_str(&spec_value)?)
-                    }
 
                     let mut private_spec = None;
                     if let Some(spec_value) = exercise_task_attributes.private_spec {
@@ -118,7 +113,6 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
                     Ok(PageUpdateExerciseTask {
                         id: exercise_task_attributes.id,
                         exercise_type: exercise_task_attributes.exercise_type,
-                        public_spec,
                         private_spec,
                         assignment: serde_json::to_value(inner_block.inner_blocks)?,
                     })
@@ -170,10 +164,6 @@ pub fn denormalize(input: NormalizedDocument) -> Result<Vec<GutenbergBlock>> {
                     let exercise_type = &exercise_task.exercise_type;
                     let item_inner_blocks: Vec<GutenbergBlock> =
                         serde_json::from_value(exercise_task.assignment.clone())?;
-                    let mut public_spec = None;
-                    if let Some(spec_content) = &exercise_task.public_spec {
-                        public_spec = Some(serde_json::to_string(spec_content)?)
-                    }
                     let mut private_spec = None;
                     if let Some(spec_content) = &exercise_task.private_spec {
                         private_spec = Some(serde_json::to_string(spec_content)?)
@@ -185,7 +175,6 @@ pub fn denormalize(input: NormalizedDocument) -> Result<Vec<GutenbergBlock>> {
                         attributes: serde_json::to_value(GuternbergExerciseTaskAttributes {
                             id: exercise_task.id,
                             exercise_type: exercise_type.to_string(),
-                            public_spec,
                             private_spec,
                         })?,
                         inner_blocks: item_inner_blocks,
@@ -282,7 +271,6 @@ mod tests {
                         attributes: serde_json::to_value(GuternbergExerciseTaskAttributes {
                             id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
                             exercise_type: "example-exercise".to_string(),
-                            public_spec: Some("{}".to_string()),
                             private_spec: Some("{}".to_string()),
                         })
                         .unwrap(),
@@ -295,7 +283,6 @@ mod tests {
                         attributes: serde_json::to_value(GuternbergExerciseTaskAttributes {
                             id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                             exercise_type: "example-exercise".to_string(),
-                            public_spec: Some("{}".to_string()),
                             private_spec: Some("{}".to_string()),
                         })
                         .unwrap(),
@@ -327,14 +314,12 @@ mod tests {
                     PageUpdateExerciseTask {
                         id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
                         exercise_type: "example-exercise".to_string(),
-                        public_spec: serde_json::from_str("{}").unwrap(),
                         private_spec: serde_json::from_str("{}").unwrap(),
                         assignment: serde_json::from_str("[]").unwrap(),
                     },
                     PageUpdateExerciseTask {
                         id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                         exercise_type: "example-exercise".to_string(),
-                        public_spec: serde_json::from_str("{}").unwrap(),
                         private_spec: serde_json::from_str("{}").unwrap(),
                         assignment: serde_json::to_value(vec![GutenbergBlock {
                             client_id: "58333a81-6ee9-4638-8587-9f902bb9936f".to_string(),
@@ -388,14 +373,12 @@ mod tests {
                 PageUpdateExerciseTask {
                     id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
                     exercise_type: "example-exercise".to_string(),
-                    public_spec: serde_json::from_str("{}").unwrap(),
                     private_spec: serde_json::from_str("{}").unwrap(),
                     assignment: serde_json::from_str("[]").unwrap(),
                 },
                 PageUpdateExerciseTask {
                     id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                     exercise_type: "example-exercise".to_string(),
-                    public_spec: serde_json::from_str("{}").unwrap(),
                     private_spec: serde_json::from_str("{}").unwrap(),
                     assignment: serde_json::to_value(vec![GutenbergBlock {
                         client_id: "58333a81-6ee9-4638-8587-9f902bb9936f".to_string(),
@@ -459,7 +442,6 @@ mod tests {
             serde_json::to_value(GuternbergExerciseTaskAttributes {
                 id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                 exercise_type: "example-exercise".to_string(),
-                public_spec: Some("{}".to_string()),
                 private_spec: Some("{}".to_string()),
             })
             .unwrap()

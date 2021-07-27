@@ -361,6 +361,5 @@ export interface PageUpdateExerciseTask {
   id: string
   exercise_type: string
   assignment: unknown
-  public_spec: unknown | null
   private_spec: unknown | null
 }

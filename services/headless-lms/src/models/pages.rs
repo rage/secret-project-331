@@ -87,7 +87,6 @@ pub struct PageUpdateExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
-    pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
 }
 
@@ -99,14 +98,6 @@ pub struct PageUpdateExerciseTaskWithExerciseId {
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
     pub exercise_id: Uuid,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct PageExerciseTask {
-    pub exercise_type: String,
-    pub assignment: serde_json::Value,
-    pub public_spec: Option<serde_json::Value>,
-    pub private_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -296,7 +287,6 @@ pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> 
                         id: i.id,
                         exercise_type: i.exercise_type,
                         assignment: i.assignment,
-                        public_spec: i.public_spec,
                         private_spec: i.private_spec,
                     })
                     .collect(),
@@ -578,7 +568,7 @@ INSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_sp
 VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO UPDATE
 SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
-RETURNING id, exercise_type, assignment, public_spec, private_spec;
+RETURNING id, exercise_type, assignment, private_spec;
         "#,
                 safe_for_db_exercise_task_id,
                 safe_for_db_exercise_id,

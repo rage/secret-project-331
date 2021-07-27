@@ -33,6 +33,7 @@
     "@types/node": "^15.12.2",
     "@types/react": "^17.0.10",
     "@types/react-dom": "^17.0.7",
+    "@types/styled-system": "^5.1.12",
     "@types/uuid": "^8.3.0",
     "axios": "^0.21.1",
     "react-query": "^3.19.0",

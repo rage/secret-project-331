@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
-/* import { border, color, space } from "styled-system" */
+import { border, color, space } from "styled-system"
 
 import { fontWeights, primaryFont, theme, typography } from "../utils"
 
@@ -44,6 +44,9 @@ const BaseButton = styled.button`
   &:disabled {
     cursor: default;
   }
+  ${border}
+  ${color}
+  ${space}
 `
 
 const PrimaryButton = styled(BaseButton)`

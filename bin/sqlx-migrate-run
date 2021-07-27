@@ -3,15 +3,12 @@
 # either `bin/dev` or `bin/dev-only-db`.
 set -euo pipefail
 
+source ~/secret-project-331/bin/common-functions
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
-echo "> cd $RELATIVE_PATH"
-cd "$RELATIVE_PATH" || exit
+run_command cd "$RELATIVE_PATH" || exit
 
-COMMAND="cargo"
-ARGUMENTS=(sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev migrate run "$@")
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command cargo sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev migrate run "$@"

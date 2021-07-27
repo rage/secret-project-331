@@ -1,8 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-COMMAND="minikube"
-ARGUMENTS=(stop "$@")
+source ~/secret-project-331/bin/common-functions
 
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command minikube stop "$@"

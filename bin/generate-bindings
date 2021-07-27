@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+source ~/secret-project-331/bin/common-functions
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 
 # Generate types
@@ -8,33 +10,19 @@ BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
-echo "> cd $RELATIVE_PATH"
-cd "$RELATIVE_PATH" || exit
+run_command cd "$RELATIVE_PATH" || exit
 
-COMMAND="cargo"
-ARGUMENTS=(test --lib ts_binding_generator)
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-"$COMMAND" "${ARGUMENTS[@]}"
+run_command cargo test --lib ts_binding_generator
 
 # Fix formatting
 
 FOLDER_PATH="$BASEDIR/../"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
-echo "> cd $RELATIVE_PATH"
-cd "$RELATIVE_PATH" || exit
+run_command cd "$RELATIVE_PATH" || exit
 
-COMMAND="npm"
-ARGUMENTS=(run eslint:format-bindings)
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-"$COMMAND" "${ARGUMENTS[@]}"
+run_command npm run eslint:format-bindings
 
 # Post-update for shared module
 
-COMMAND="npm"
-ARGUMENTS=(run postinstall)
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command npm run postinstall

@@ -1,12 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+source ~/secret-project-331/bin/common-functions
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../kubernetes/dev/"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
-COMMAND="kustomize"
-ARGUMENTS=(build "$RELATIVE_PATH" "$@")
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command kustomize build "$RELATIVE_PATH" "$@"

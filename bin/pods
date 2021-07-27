@@ -1,8 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-COMMAND="watch"
-ARGUMENTS=(kubectl get pods "$@")
+source ~/secret-project-331/bin/common-functions
 
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command watch kubectl get pods "$@"

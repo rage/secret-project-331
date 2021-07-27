@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-COMMAND="uuidgen"
+source ~/secret-project-331/bin/common-functions
 
-echo "> $COMMAND"
-exec "$COMMAND"
+run_command uuidgen

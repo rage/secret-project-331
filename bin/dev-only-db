@@ -1,8 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-COMMAND="skaffold"
-ARGUMENTS=(dev --force --port-forward -p only-db "$@")
+source ~/secret-project-331/bin/common-functions
 
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command skaffold dev --force --port-forward -p only-db "$@"

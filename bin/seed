@@ -1,10 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+source ~/secret-project-331/bin/common-functions
+
 POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)
 
-COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" "$@" -- cargo run --bin seed "$@")
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command kubectl exec -it "$POD_NAME" "$@" -- cargo run --bin seed "$@"

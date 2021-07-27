@@ -2,35 +2,19 @@
 # Only meant to be ran against the database in minikube when running system tests with bin/test.
 set -euo pipefail
 
+source ~/secret-project-331/bin/common-functions
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)
 
-COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" -- wait-for-it --timeout=120 postgres:5432)
+run_command kubectl exec -it "$POD_NAME" -- wait-for-it --timeout=120 postgres:5432
 
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-"$COMMAND" "${ARGUMENTS[@]}"
+run_command cd "$RELATIVE_PATH" || exit
 
-echo "> cd $RELATIVE_PATH"
-cd "$RELATIVE_PATH" || exit
+run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force headless_lms_test
 
-COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force headless_lms_test)
+run_command kubectl exec -it "$POD_NAME" -- cargo sqlx --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test database setup
 
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-"$COMMAND" "${ARGUMENTS[@]}"
-
-COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" -- cargo sqlx --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test database setup)
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-"$COMMAND" "${ARGUMENTS[@]}"
-
-COMMAND="kubectl"
-ARGUMENTS=(exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public  cargo run --bin seed --release "$@")
-
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command kubectl exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public  cargo run --bin seed --release "$@"

@@ -3,18 +3,12 @@
 # either `bin/dev` or `bin/dev-only-db`.
 # set -euo pipefail
 
+source ~/secret-project-331/bin/common-functions
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/migrations"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 RANDOM_POD_NAME="temporary-pod-$(date --iso-8601=ns | sha256sum | cut -d ' ' -f 1 | cut -c -10)"
-
-function run_command() {
-  command=$1
-  shift
-  args=("$@")
-  echo "> $command" "$(printf "%q " "${args[@]}" )"
-  "$command" "${args[@]}"
-}
 
 run_command kubectl run "$RANDOM_POD_NAME" --image=eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest --command -- sleep infinity
 

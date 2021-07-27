@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function run_command() {
+  command=$1
+  shift
+  args=("$@")
+  echo "> $command" "$(printf "%q " "${args[@]}" )"
+  "$command" "${args[@]}"
+}
+
+function ensure_program_in_path() {
+  PROGRAM="$1"
+  if ! command -v "$PROGRAM" &> /dev/null; then
+      echo "$PROGRAM is not installed or it is not in your \$PATH. Aborting."
+      exit 1
+  fi
+}

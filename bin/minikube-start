@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+source ~/secret-project-331/bin/common-functions
+
 COMMAND="minikube"
 cores=$(nproc)
 

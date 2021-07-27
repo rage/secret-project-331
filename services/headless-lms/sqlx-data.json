@@ -1704,6 +1704,32 @@
       "nullable": [true]
     }
   },
+  "5ac084d6c54680ae0bacb041ff166f222ca586e413e332b1f20bfe85ea5fc2fc": {
+    "query": "\nSELECT et.id,\n  et.private_spec,\n  et.public_spec\nfrom exercise_tasks et\n  JOIN exercises e ON (e.id = et.exercise_id)\nWHERE page_id = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "private_spec",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 2,
+          "name": "public_spec",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, true, true]
+    }
+  },
   "5c55b14104bfdc1b23bb335ce5a747f7d9bba291bfa8ffd6abf84decd936040b": {
     "query": "\n    INSERT INTO\n      courses(name, slug, organization_id)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
     "describe": {
@@ -3165,22 +3191,6 @@
         "Left": ["Uuid", "Int8", "Int8"]
       },
       "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
-    }
-  },
-  "aa8073a0f2788eba303868988a8f5e04f6b15f456d0e13d640e2e365c2f3fc5e": {
-    "query": "\n    SELECT exercise_tasks.id from exercise_tasks JOIN exercises e ON (e.id = exercise_tasks.exercise_id) WHERE page_id = $1\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false]
     }
   },
   "b0302cd73ce7a9f3d86d798a9a6c8ae768a0722bfeef08cd89c8716b36bce665": {

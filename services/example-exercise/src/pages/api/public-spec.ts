@@ -16,7 +16,9 @@ function handleGet(
 ) {
   const uncheckedAlternatives: unknown = req.body
   if (!Array.isArray(uncheckedAlternatives)) {
-    return res.status(400).json({ message: "Malformed data." })
+    return res
+      .status(400)
+      .json({ message: "Malformed data:" + JSON.stringify(uncheckedAlternatives) })
   }
 
   const publicAlternatives = uncheckedAlternatives.map<PublicAlternative>((x: Alternative) => ({

@@ -1,12 +1,14 @@
 use super::{
-    exercise_services::{get_exercise_service_by_exercise_type, ExerciseService},
+    exercise_services::{
+        get_exercise_service_by_exercise_type, get_exercise_services, ExerciseService,
+    },
     ModelError, ModelResult,
 };
 use chrono::{DateTime, Utc};
 use reqwest::IntoUrl;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
@@ -166,6 +168,17 @@ pub async fn get_service_info_by_exercise_type(
     let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
     let service_info = get_service_info_by_exercise_service(conn, &exercise_service).await?;
     Ok(service_info)
+}
+
+pub async fn get_all_exercise_services_by_type(
+    conn: &mut PgConnection,
+) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
+    let mut exercise_services_by_type = HashMap::new();
+    for exercise_service in get_exercise_services(conn).await? {
+        let info = get_service_info(conn, exercise_service.id).await?;
+        exercise_services_by_type.insert(exercise_service.slug.clone(), (exercise_service, info));
+    }
+    Ok(exercise_services_by_type)
 }
 
 pub async fn get_service_info_by_exercise_service(

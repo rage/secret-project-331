@@ -38,8 +38,16 @@ Response:
 async fn get_course(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<Json<Course>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Action::Edit,
+        user.id,
+        Resource::Course(*request_course_id),
+    )
+    .await?;
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
     Ok(Json(course))
 }
@@ -459,8 +467,16 @@ GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course in
 async fn get_course_instances(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Action::View,
+        user.id,
+        Resource::Course(*request_course_id),
+    )
+    .await?;
     let course_instances = crate::models::course_instances::get_course_instances_for_course(
         &mut conn,
         *request_course_id,

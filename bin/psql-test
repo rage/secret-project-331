@@ -1,6 +1,5 @@
 #!/bin/bash
-
 set -euo pipefail
-source ~/secret-project-331/bin/.common
+source "$(dirname "$0")/.common"
 
 run_command psql postgres://headless-lms@localhost:54328/headless_lms_test "$@"

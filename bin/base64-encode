@@ -1,9 +1,10 @@
 #!/bin/bash
-
 set -euo pipefail
-source ~/secret-project-331/bin/.common
+source "$(dirname "$0")/.common"
 
 echo Type the string you want to base64 encode and press enter:
 read -r input
 
-run_command eval "echo -n '$input' | base64 -w 0"
+eval_command echo "-n '$input' | base64 -w 0"
+# Print newline because previous command does not print one and it it would confuse some shells otherwise (like bash).
+echo ""

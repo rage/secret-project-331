@@ -9,6 +9,8 @@ import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateC
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/utils/muiTheme"
 
+import "../styles/Gutenberg/style.scss"
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -120,5 +120,7 @@ test("latex-block renders", async ({ headless, page }) => {
   if (headless) {
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`latex.png`, { threshold: 0.2 })
+  } else {
+    console.warn("Not in headless mode, skipping screenshot comparison")
   }
 })

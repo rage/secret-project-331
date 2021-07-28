@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 use crate::{
     controllers::ControllerResult,
-    domain::authorization::{AuthUser, Action, Resource, authorize},
+    domain::authorization::{authorize, Action, AuthUser, Resource},
     models::pages::{NewPage, Page},
 };
 use actix_web::web::ServiceConfig;
@@ -68,12 +68,12 @@ async fn post_new_page(
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
     authorize(
-      &mut conn,
-      Action::Edit,
-      user.id,
-      Resource::Course(new_page.course_id),
-  )
-  .await?;
+        &mut conn,
+        Action::Edit,
+        user.id,
+        Resource::Course(new_page.course_id),
+    )
+    .await?;
     let page = crate::models::pages::insert_page(&mut conn, new_page).await?;
     Ok(Json(page))
 }
@@ -114,12 +114,12 @@ async fn delete_page(
     let mut conn = pool.acquire().await?;
     let course_id = crate::models::pages::get_course_id(&mut conn, *request_page_id).await?;
     authorize(
-      &mut conn,
-      Action::Edit,
-      user.id,
-      Resource::Course(course_id),
-  )
-  .await?;
+        &mut conn,
+        Action::Edit,
+        user.id,
+        Resource::Course(course_id),
+    )
+    .await?;
     let deleted_page =
         crate::models::pages::delete_page_and_exercises(&mut conn, *request_page_id).await?;
     Ok(Json(deleted_page))

@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::{
     controllers::ControllerResult,
-    domain::authorization::{AuthUser, Action, Resource, authorize},
+    domain::authorization::{authorize, Action, AuthUser, Resource},
     models::{self, submissions::SubmissionInfo},
 };
 

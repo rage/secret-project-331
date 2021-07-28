@@ -10,7 +10,10 @@ test("latex-block renders", async ({ page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
   // Click text=University of Helsinki, Department of Mathematics and Statistics
-  await page.click("text=University of Helsinki, Department of Mathematics and Statistics")
+  await Promise.all([
+    page.waitForNavigation(),
+    await page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
+  ])
   expectPath(page, "/organizations/[id]")
   // Click text=Add course
   await page.click("text=Add course")

@@ -140,6 +140,7 @@ export interface Exercise {
   name: string
   course_id: string
   page_id: string
+  chapter_id: string
   deadline: Date | null
   deleted_at: Date | null
   score_maximum: number

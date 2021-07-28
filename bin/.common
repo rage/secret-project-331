@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -euo pipefail
+
+function run_command() {
+  command=$1
+  shift
+  args=("$@")
+  echo "> $command" "$(printf "%q " "${args[@]}" )"
+  "$command" "${args[@]}"
+}
+
+function eval_command() {
+  command=$1
+  arguments=$2
+  echo "> $command" "$(printf "%s " "$arguments")"
+  eval "$command $arguments"
+}
+
+function ensure_program_in_path() {
+  PROGRAM="$1"
+  if ! command -v "$PROGRAM" &> /dev/null; then
+      echo "$PROGRAM is not installed or it is not in your \$PATH. Aborting."
+      exit 1
+  fi
+}

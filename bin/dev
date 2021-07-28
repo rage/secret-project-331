@@ -1,21 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-
-function ensure_program_in_path() {
-  PROGRAM="$1"
-  if ! command -v "$PROGRAM" &> /dev/null; then
-      echo "$PROGRAM is not installed or it is not in your \$PATH. Aborting."
-      exit 1
-  fi
-}
-
-function run_command() {
-  command=$1
-  shift
-  args=("$@")
-  echo "> $command" "$(printf "%q " "${args[@]}" )"
-  "$command" "${args[@]}"
-}
+source "$(dirname "$0")/.common"
 
 ensure_program_in_path "skaffold"
 ensure_program_in_path "kubectl"

@@ -1,7 +1,5 @@
 #!/bin/bash
 set -euo pipefail
+source "$(dirname "$0")/.common"
 
-COMMAND="uuidgen"
-
-echo "> $COMMAND"
-exec "$COMMAND"
+run_command uuidgen

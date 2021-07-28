@@ -3,7 +3,7 @@
 # either `bin/dev` or `bin/dev-only-db`.
 # set -euo pipefail
 
-source ~/secret-project-331/bin/common-functions
+source ~/secret-project-331/bin/.common
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/migrations"

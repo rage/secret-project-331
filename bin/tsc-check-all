@@ -1,7 +1,7 @@
 #!/bin/bash
-set -euo pipefail
 
-source ~/secret-project-331/bin/common-functions
+set -euo pipefail
+source ~/secret-project-331/bin/.common
 
 run_command npx concurrently -n "cms,course-material,main-frontend,example-exercise" -c "green.bold,red.bold,blue.bold,yellow.bold" "npx tsc -p services/cms/ --noEmit" "npx tsc -p services/course-material/ --noEmit" "npx tsc -p services/main-frontend/ --noEmit" "npx tsc -p services/example-exercise/ --noEmit"
 echo "finished"

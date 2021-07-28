@@ -1,6 +1,7 @@
 #!/bin/bash
-source ~/secret-project-331/bin/common-functions
+
 set -euo pipefail
+source ~/secret-project-331/bin/.common
 
 ensure_program_in_path "skaffold"
 ensure_program_in_path "kubectl"

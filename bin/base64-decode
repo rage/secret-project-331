@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source ~/secret-project-331/bin/common-functions
 set -euo pipefail
+source ~/secret-project-331/bin/.common
 
 echo Type the string you want to base64 decode and press enter:
 read -r input

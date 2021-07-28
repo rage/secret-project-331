@@ -1,8 +1,8 @@
 #!/bin/bash
+
 # Only meant to be ran against the database in minikube when running system tests with bin/test.
 set -euo pipefail
-
-source ~/secret-project-331/bin/common-functions
+source ~/secret-project-331/bin/.common
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/"

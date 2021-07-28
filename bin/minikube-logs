@@ -1,6 +1,6 @@
 #!/bin/bash
-set -euo pipefail
 
-source ~/secret-project-331/bin/common-functions
+set -euo pipefail
+source ~/secret-project-331/bin/.common
 
 run_command minikube logs -f "$@"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 function run_command() {
   command=$1
   shift

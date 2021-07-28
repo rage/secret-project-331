@@ -3,11 +3,11 @@ import { atom, atomFamily, selector, selectorFamily } from "recoil"
 import {
   ExerciseTask,
   ExerciseWithExerciseTasks,
-  PageUpdateExercise,
-  PageUpdateExerciseTask,
+  NormalizedCmsExercise,
+  NormalizedCmsExerciseTask,
 } from "../shared-module/bindings"
 
-export const exercisesAtoms = atomFamily<ExerciseWithExerciseTasks | PageUpdateExercise, any>({
+export const exercisesAtoms = atomFamily<ExerciseWithExerciseTasks | NormalizedCmsExercise, any>({
   key: "exercises",
   default: null,
 })
@@ -18,7 +18,7 @@ export const exercisesState = atom<Array<string>>({
 })
 
 export const exerciseFamilySelector = selectorFamily<
-  ExerciseWithExerciseTasks | PageUpdateExercise,
+  ExerciseWithExerciseTasks | NormalizedCmsExercise,
   string
 >({
   key: "individual-exercises-access",
@@ -30,7 +30,7 @@ export const exerciseFamilySelector = selectorFamily<
     },
   set:
     (id) =>
-    ({ set, get }, exercise: ExerciseWithExerciseTasks | PageUpdateExercise) => {
+    ({ set, get }, exercise: ExerciseWithExerciseTasks | NormalizedCmsExercise) => {
       set(exercisesAtoms(id), exercise)
       if (!get(exercisesState).includes(id)) {
         set(exercisesState, (prev) => [...prev, id])
@@ -39,7 +39,7 @@ export const exerciseFamilySelector = selectorFamily<
 })
 
 export const exerciseTaskFamilySelector = selectorFamily<
-  ExerciseTask | PageUpdateExerciseTask,
+  ExerciseTask | NormalizedCmsExerciseTask,
   [string, string]
 >({
   key: "individual-exercises-items-access",
@@ -66,7 +66,7 @@ export const exerciseTaskFamilySelector = selectorFamily<
     },
 })
 
-export const allExercises = selector<(ExerciseWithExerciseTasks | PageUpdateExercise)[]>({
+export const allExercises = selector<(ExerciseWithExerciseTasks | NormalizedCmsExercise)[]>({
   key: "all-exercises",
   get: ({ get }) => {
     const ids = get(exercisesState)

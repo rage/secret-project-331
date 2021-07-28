@@ -1,3 +1,4 @@
+use crate::models::exercises::Exercise;
 use crate::models::pages::PageUpdateExercise;
 use crate::models::pages::PageUpdateExerciseTask;
 use anyhow::anyhow;
@@ -36,6 +37,16 @@ impl GutenbergBlock {
             name,
             is_valid: true,
             attributes: serde_json::json!({}),
+            inner_blocks: vec![],
+        }
+    }
+
+    pub fn exercise_block_with_exercise_ids(exercise: Exercise) -> Self {
+        GutenbergBlock {
+            client_id: Uuid::new_v4().to_string(),
+            is_valid: true,
+            name: "moocfi/exercise".to_string(),
+            attributes: serde_json::json!({"id": exercise.id}),
             inner_blocks: vec![],
         }
     }

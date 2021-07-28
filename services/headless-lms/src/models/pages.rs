@@ -1,7 +1,7 @@
 use super::ModelResult;
 use crate::{
     models::{
-        chapters::DatabaseChapter, exercise_service_info::get_all_exercise_services_by_type,
+        chapters::DatabaseChapter, exercise_service_info,
         exercise_services::get_internal_public_spec_url, exercise_tasks::ExerciseTask,
         exercises::Exercise, ModelError,
     },
@@ -15,7 +15,10 @@ use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
-use std::collections::HashMap;
+use std::{
+    collections::{HashMap, HashSet},
+    time::Duration,
+};
 use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
@@ -465,12 +468,18 @@ WHERE page_id = $1
     .await?;
 
     // For generating public specs for exercises.
+    let exercise_types: HashSet<String> = exercises
+        .iter()
+        .flat_map(|exercise| &exercise.exercise_tasks)
+        .map(|task| task.exercise_type.clone())
+        .collect();
     let client = reqwest::Client::new();
-    let public_spec_urls_by_exercise_type = get_all_exercise_services_by_type(conn)
-        .await?
-        .into_iter()
-        .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(&service, &info)?)))
-        .collect::<ModelResult<HashMap<String, Url>>>()?;
+    let public_spec_urls_by_exercise_type =
+        exercise_service_info::get_selected_exercise_services_by_type(conn, &exercise_types)
+            .await?
+            .into_iter()
+            .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(&service, &info)?)))
+            .collect::<ModelResult<HashMap<String, Url>>>()?;
 
     // for returning the inserted values
     let mut result_exercises: Vec<NormalizedCmsExercise> = Vec::new();
@@ -546,6 +555,7 @@ RETURNING *;
                         .clone();
                     let res = client
                         .get(url)
+                        .timeout(Duration::from_secs(120))
                         .json(&task_update.private_spec)
                         .send()
                         .await?;

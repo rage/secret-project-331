@@ -8,7 +8,10 @@ use chrono::{DateTime, Utc};
 use reqwest::IntoUrl;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
-use std::{collections::HashMap, time::Duration};
+use std::{
+    collections::{HashMap, HashSet},
+    time::Duration,
+};
 use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
@@ -179,6 +182,19 @@ pub async fn get_all_exercise_services_by_type(
         exercise_services_by_type.insert(exercise_service.slug.clone(), (exercise_service, info));
     }
     Ok(exercise_services_by_type)
+}
+
+pub async fn get_selected_exercise_services_by_type(
+    conn: &mut PgConnection,
+    slugs: &HashSet<String>,
+) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
+    // TODO: Make optimized query for this.
+    let services = get_all_exercise_services_by_type(conn)
+        .await?
+        .into_iter()
+        .filter(|(key, _)| slugs.contains(key))
+        .collect();
+    Ok(services)
 }
 
 pub async fn get_service_info_by_exercise_service(

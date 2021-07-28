@@ -2,8 +2,7 @@
 # Only meant to be ran against the database in minikube. You can start it with
 # either `bin/dev` or `bin/dev-only-db`.
 # set -euo pipefail
-
-source ~/secret-project-331/bin/.common
+source "$(dirname "$0")/.common"
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/migrations"

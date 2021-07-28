@@ -544,18 +544,14 @@ RETURNING *;
                         })?
                         .clone();
                     let res = client
-                        .get(url.clone())
+                        .get(url)
                         .json(&task_update.private_spec)
                         .send()
                         .await?;
                     if !res.status().is_success() {
-                        return Err(ModelError::Generic(format!(
-                            "Failed to generate public spec for exercise. {}, {}, {}, {:?}",
-                            url,
-                            res.status(),
-                            res.text().await?,
-                            &task_update.private_spec,
-                        )));
+                        return Err(ModelError::Generic(
+                            "Failed to generate public spec for exercise.".to_string(),
+                        ));
                     }
                     ModelResult::Ok(Some(res.json::<serde_json::Value>().await?))
                 }

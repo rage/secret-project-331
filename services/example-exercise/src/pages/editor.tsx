@@ -8,14 +8,13 @@ const EditorPage: React.FC = () => {
   const [port, setPort] = useState<MessagePort | null>(null)
   const [state, setState] = useStateWithOnChange<Alternative[] | null>(null, (newValue) => {
     if (!port) {
-      console.error("State changed but port is not set. Cannot send current state.")
       return
     }
     const message = {
       message: "current-state",
       data: { private_spec: newValue },
     }
-    console.log("Sending current data", JSON.stringify(message))
+    console.info("Sending current data", JSON.stringify(message))
     port.postMessage(message)
   })
 

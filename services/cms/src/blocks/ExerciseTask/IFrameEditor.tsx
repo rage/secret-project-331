@@ -54,7 +54,6 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
             return
           }
           props.setAttributes({
-            public_spec: JSON.stringify(uncheckedData.public_spec),
             private_spec: JSON.stringify(uncheckedData.private_spec),
           })
         }

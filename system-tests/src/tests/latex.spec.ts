@@ -111,6 +111,8 @@ test("latex-block renders", async ({ page }) => {
   await Promise.all([page.waitForNavigation, page.click("text=Chapter 1: first page")])
   expectPath(page, "/courses/latex-course/chapter-1")
 
+  await page.waitForSelector("text=This is the last page")
+
   // Compare to working image
   const screenshot = await page.screenshot()
   expect(screenshot).toMatchSnapshot(`latex.png`, { threshold: 0.2 })

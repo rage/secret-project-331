@@ -87,7 +87,7 @@ test("latex-block renders", async ({ page }) => {
   )
 
   // Click button:has-text("Save")
-  await Promise.all([page.waitForNavigation, page.click('button:has-text("Save")')])
+  await Promise.all([page.waitForNavigation(), page.click('button:has-text("Save")')])
 
   // Click text=Home
   await Promise.all([
@@ -96,7 +96,7 @@ test("latex-block renders", async ({ page }) => {
   ])
   // Click text=University of Helsinki, Department of Mathematics and Statistics
   await Promise.all([
-    page.waitForNavigation,
+    page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
   ])
   expectPath(page, "/organizations/[id]")
@@ -108,7 +108,7 @@ test("latex-block renders", async ({ page }) => {
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')
   // Click text=Chapter 1: first page
-  await Promise.all([page.waitForNavigation, page.click("text=Chapter 1: first page")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Chapter 1: first page")])
   expectPath(page, "/courses/latex-course/chapter-1")
 
   await page.waitForSelector("text=This is the last page")

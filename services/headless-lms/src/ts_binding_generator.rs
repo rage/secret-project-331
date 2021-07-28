@@ -15,8 +15,8 @@ use crate::{
         gradings::{Grading, UserPointsUpdateStrategy},
         organizations::Organization,
         pages::{
-            ExerciseWithExerciseTasks, NewPage, Page, PageRoutingData, PageUpdate,
-            PageUpdateExercise, PageUpdateExerciseTask, PageWithExercises,
+            ExerciseWithExerciseTasks, NewPage, NormalizedCmsExercise, NormalizedCmsExerciseTask,
+            Page, PageRoutingData, PageUpdate, PageWithExercises,
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
@@ -73,7 +73,7 @@ ts_rs::export! {
   // returned from the API as serde_json::Value
   ExerciseTask,
   ExerciseWithExerciseTasks,
-  PageUpdateExercise,
-  PageUpdateExerciseTask
+  NormalizedCmsExercise,
+  NormalizedCmsExerciseTask
     => "../../shared-module/src/bindings.ts"
 }

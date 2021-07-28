@@ -74,16 +74,16 @@ pub struct PageUpdate {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct PageUpdateExercise {
+pub struct NormalizedCmsExercise {
     // The id will be validated so that the client can't change it on us.
     pub id: Uuid,
     pub name: String,
     pub order_number: i32,
-    pub exercise_tasks: Vec<PageUpdateExerciseTask>,
+    pub exercise_tasks: Vec<NormalizedCmsExerciseTask>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct PageUpdateExerciseTask {
+pub struct NormalizedCmsExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
@@ -91,7 +91,7 @@ pub struct PageUpdateExerciseTask {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct PageUpdateExerciseTaskWithExerciseId {
+pub struct NormalizedCmsExerciseTaskWithExerciseId {
     pub id: Uuid,
     pub exercise_type: String,
     pub assignment: serde_json::Value,
@@ -266,42 +266,43 @@ pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> 
     .fetch_all(&mut *conn)
     .await?;
 
-    let exercise_tasks: Vec<PageUpdateExerciseTaskWithExerciseId> = sqlx::query_as!(
-        PageUpdateExerciseTaskWithExerciseId,
+    let exercise_tasks: Vec<NormalizedCmsExerciseTaskWithExerciseId> = sqlx::query_as!(
+        NormalizedCmsExerciseTaskWithExerciseId,
         "SELECT id, exercise_type, assignment, public_spec, private_spec, exercise_id FROM exercise_tasks WHERE exercise_id IN (SELECT id FROM exercises WHERE page_id = $1);",
         page_id
     )
     .fetch_all(&mut *conn)
     .await?;
 
-    let mut exercise_tasks_by_exercise: HashMap<Uuid, Vec<PageUpdateExerciseTask>> = exercise_tasks
-        .into_iter()
-        .into_group_map_by(|et| et.exercise_id)
-        .into_iter()
-        .map(|(key, value)| {
-            (
-                key,
-                value
-                    .into_iter()
-                    .map(|i| PageUpdateExerciseTask {
-                        id: i.id,
-                        exercise_type: i.exercise_type,
-                        assignment: i.assignment,
-                        private_spec: i.private_spec,
-                    })
-                    .collect(),
-            )
-        })
-        .collect();
+    let mut exercise_tasks_by_exercise: HashMap<Uuid, Vec<NormalizedCmsExerciseTask>> =
+        exercise_tasks
+            .into_iter()
+            .into_group_map_by(|et| et.exercise_id)
+            .into_iter()
+            .map(|(key, value)| {
+                (
+                    key,
+                    value
+                        .into_iter()
+                        .map(|i| NormalizedCmsExerciseTask {
+                            id: i.id,
+                            exercise_type: i.exercise_type,
+                            assignment: i.assignment,
+                            private_spec: i.private_spec,
+                        })
+                        .collect(),
+                )
+            })
+            .collect();
 
-    let exercises_with_tasks: Vec<PageUpdateExercise> = exercises
+    let exercises_with_tasks: Vec<NormalizedCmsExercise> = exercises
         .into_iter()
         .map(|e| {
             let exercise_tasks = match exercise_tasks_by_exercise.remove(&e.id) {
                 Some(et) => et,
                 None => Vec::new(),
             };
-            PageUpdateExercise {
+            NormalizedCmsExercise {
                 id: e.id,
                 name: e.name,
                 order_number: e.order_number,
@@ -411,10 +412,10 @@ struct ExerciseTaskIdAndSpec {
 
 /// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.
 async fn upsert_exercises_and_exercise_tasks(
-    exercises: &[PageUpdateExercise],
+    exercises: &[NormalizedCmsExercise],
     page: &Page,
     conn: &mut PgConnection,
-) -> ModelResult<(Vec<PageUpdateExercise>, serde_json::Value)> {
+) -> ModelResult<(Vec<NormalizedCmsExercise>, serde_json::Value)> {
     // All related exercises and items should be deleted if not included in the update
     // We accomplish this by deleting everyting first in the transaction and then
     // undeleting the necessary items when doing the actual updates
@@ -472,10 +473,10 @@ WHERE page_id = $1
         .collect::<ModelResult<HashMap<String, Url>>>()?;
 
     // for returning the inserted values
-    let mut result_exercises: Vec<PageUpdateExercise> = Vec::new();
+    let mut result_exercises: Vec<NormalizedCmsExercise> = Vec::new();
     let mut changed_ids: HashMap<Uuid, Uuid> = HashMap::new();
     for exercise_update in exercises.iter() {
-        let mut exercise_exercise_tasks: Vec<PageUpdateExerciseTask> = Vec::new();
+        let mut exercise_exercise_tasks: Vec<NormalizedCmsExerciseTask> = Vec::new();
         let safe_for_db_exercise_id = if existing_exercise_ids
             .iter()
             .any(|o| o.id == exercise_update.id)
@@ -557,8 +558,8 @@ RETURNING *;
                 }
             }?;
             // Upsert
-            let exercise_task: PageUpdateExerciseTask = sqlx::query_as!(
-                PageUpdateExerciseTask,
+            let exercise_task: NormalizedCmsExerciseTask = sqlx::query_as!(
+                NormalizedCmsExerciseTask,
                 r#"
 INSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
 VALUES ($1, $2, $3, $4, $5, $6)
@@ -577,7 +578,7 @@ RETURNING id, exercise_type, assignment, private_spec;
             .await?;
             exercise_exercise_tasks.push(exercise_task);
         }
-        result_exercises.push(PageUpdateExercise {
+        result_exercises.push(NormalizedCmsExercise {
             id: exercise.id,
             name: exercise.name,
             order_number: exercise.order_number,

@@ -1,5 +1,5 @@
-use crate::models::pages::PageUpdateExercise;
-use crate::models::pages::PageUpdateExerciseTask;
+use crate::models::pages::NormalizedCmsExercise;
+use crate::models::pages::NormalizedCmsExerciseTask;
 use anyhow::anyhow;
 use anyhow::Result;
 use once_cell::sync::Lazy;
@@ -44,7 +44,7 @@ impl GutenbergBlock {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NormalizedDocument {
     pub content: Vec<GutenbergBlock>,
-    pub exercises: Vec<PageUpdateExercise>,
+    pub exercises: Vec<NormalizedCmsExercise>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -83,7 +83,7 @@ pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) 
 }
 
 pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
-    let mut exercises: Vec<PageUpdateExercise> = Vec::new();
+    let mut exercises: Vec<NormalizedCmsExercise> = Vec::new();
     let res: Result<Vec<GutenbergBlock>> = input
         .into_iter()
         .enumerate()
@@ -93,7 +93,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
             }
             let exercise_attributes: GuternbergExerciseAttributes =
                 serde_json::from_value(block.attributes)?;
-            let exercise_tasks: Result<Vec<PageUpdateExerciseTask>> = block
+            let exercise_tasks: Result<Vec<NormalizedCmsExerciseTask>> = block
                 .inner_blocks
                 .into_iter()
                 .map(|inner_block| {
@@ -110,7 +110,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
                         private_spec = Some(serde_json::from_str(&spec_value)?)
                     }
 
-                    Ok(PageUpdateExerciseTask {
+                    Ok(NormalizedCmsExerciseTask {
                         id: exercise_task_attributes.id,
                         exercise_type: exercise_task_attributes.exercise_type,
                         private_spec,
@@ -119,7 +119,7 @@ pub fn normalize(input: Vec<GutenbergBlock>) -> Result<NormalizedDocument> {
                 })
                 .collect();
 
-            let exercise = PageUpdateExercise {
+            let exercise = NormalizedCmsExercise {
                 id: exercise_attributes.id,
                 name: exercise_attributes.name,
                 order_number: i as i32,
@@ -306,18 +306,18 @@ mod tests {
         let first_exercise = output.exercises.first().unwrap();
         assert_eq!(
             first_exercise,
-            &PageUpdateExercise {
+            &NormalizedCmsExercise {
                 id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
                 name: "Best exercise".to_string(),
                 order_number: 1,
                 exercise_tasks: vec![
-                    PageUpdateExerciseTask {
+                    NormalizedCmsExerciseTask {
                         id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
                         exercise_type: "example-exercise".to_string(),
                         private_spec: serde_json::from_str("{}").unwrap(),
                         assignment: serde_json::from_str("[]").unwrap(),
                     },
-                    PageUpdateExerciseTask {
+                    NormalizedCmsExerciseTask {
                         id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                         exercise_type: "example-exercise".to_string(),
                         private_spec: serde_json::from_str("{}").unwrap(),
@@ -365,18 +365,18 @@ mod tests {
 
     #[test]
     fn denormalization_works() {
-        let exercises = vec![PageUpdateExercise {
+        let exercises = vec![NormalizedCmsExercise {
             id: Uuid::parse_str("20dff562-0657-4e8e-b34e-65be68e96a81").unwrap(),
             name: "Best exercise".to_string(),
             order_number: 1,
             exercise_tasks: vec![
-                PageUpdateExerciseTask {
+                NormalizedCmsExerciseTask {
                     id: Uuid::parse_str("f0aa52bf-16f4-4f5a-a5cc-a15b1510220c").unwrap(),
                     exercise_type: "example-exercise".to_string(),
                     private_spec: serde_json::from_str("{}").unwrap(),
                     assignment: serde_json::from_str("[]").unwrap(),
                 },
-                PageUpdateExerciseTask {
+                NormalizedCmsExerciseTask {
                     id: Uuid::parse_str("0b39498e-fb6c-43c7-b5e0-9fbc510d0e60").unwrap(),
                     exercise_type: "example-exercise".to_string(),
                     private_spec: serde_json::from_str("{}").unwrap(),

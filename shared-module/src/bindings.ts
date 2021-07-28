@@ -350,14 +350,14 @@ export interface ExerciseWithExerciseTasks {
   score_maximum: number
 }
 
-export interface PageUpdateExercise {
+export interface NormalizedCmsExercise {
   id: string
   name: string
   order_number: number
-  exercise_tasks: PageUpdateExerciseTask[]
+  exercise_tasks: NormalizedCmsExerciseTask[]
 }
 
-export interface PageUpdateExerciseTask {
+export interface NormalizedCmsExerciseTask {
   id: string
   exercise_type: string
   assignment: unknown

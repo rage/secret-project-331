@@ -87,7 +87,7 @@ test("latex-block renders", async ({ page }) => {
   )
 
   // Click button:has-text("Save")
-  await Promise.all([page.waitForNavigation(), page.click('button:has-text("Save")')])
+  await page.click('button:has-text("Save")')
 
   // Click text=Home
   await Promise.all([

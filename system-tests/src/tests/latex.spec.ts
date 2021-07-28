@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("latex-block renders", async ({ page }) => {
+test("latex-block renders", async ({ headless, page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
   // Click text=University of Helsinki, Department of Mathematics and Statistics
@@ -117,6 +117,8 @@ test("latex-block renders", async ({ page }) => {
   await page.waitForSelector("text=This is the last page")
 
   // Compare to working image
-  const screenshot = await page.screenshot()
-  expect(screenshot).toMatchSnapshot(`latex.png`, { threshold: 0.2 })
+  if (headless) {
+    const screenshot = await page.screenshot()
+    expect(screenshot).toMatchSnapshot(`latex.png`, { threshold: 0.2 })
+  }
 })

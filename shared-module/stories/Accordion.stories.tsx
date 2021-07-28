@@ -2,7 +2,6 @@ import { Meta, Story } from "@storybook/react"
 import React from "react"
 
 import Accordion from "../src/components/Accordion/index"
-import GlobalStyles from "../src/styles/GlobalStyles"
 
 export default {
   component: Accordion,

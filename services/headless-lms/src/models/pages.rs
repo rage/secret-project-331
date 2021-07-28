@@ -15,10 +15,7 @@ use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, FromRow, PgConnection};
-use std::{
-    collections::{HashMap, HashSet},
-    time::Duration,
-};
+use std::{collections::HashMap, time::Duration};
 use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
@@ -468,14 +465,15 @@ WHERE page_id = $1
     .await?;
 
     // For generating public specs for exercises.
-    let exercise_types: HashSet<String> = exercises
+    let exercise_types: Vec<String> = exercises
         .iter()
         .flat_map(|exercise| &exercise.exercise_tasks)
         .map(|task| task.exercise_type.clone())
+        .unique()
         .collect();
     let client = reqwest::Client::new();
     let public_spec_urls_by_exercise_type =
-        exercise_service_info::get_selected_exercise_services_by_type(conn, &exercise_types)
+        exercise_service_info::get_selected_exercise_services_by_type(conn, exercise_types)
             .await?
             .into_iter()
             .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(&service, &info)?)))

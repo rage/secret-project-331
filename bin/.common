@@ -7,7 +7,7 @@ function run_command() {
   shift
   args=("$@")
   echo "> $command" "$(printf "%q " "${args[@]}" )"
-  bash -c "$command ${args[*]}"
+  "$command" "${args[@]}"
 }
 
 function eval_command() {

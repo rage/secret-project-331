@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::{
     controllers::ControllerResult,
+    domain::authorization::{AuthUser, Action, Resource, authorize},
     models::{self, submissions::SubmissionInfo},
 };
 
@@ -14,8 +15,18 @@ GET `/api/v0/main-frontend/submissions/{submission_id}/info"` - Returns data nec
 async fn get_submission_info(
     submission_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<Json<SubmissionInfo>> {
     let mut conn = pool.acquire().await?;
+    let course_id = crate::models::submissions::get_course_id(&mut conn, *submission_id).await?;
+    authorize(
+        &mut conn,
+        Action::View,
+        user.id,
+        Resource::Course(course_id),
+    )
+    .await?;
+
     let submission = models::submissions::get_by_id(&mut conn, *submission_id).await?;
     let exercise = models::exercises::get_by_id(&mut conn, submission.exercise_id).await?;
     let exercise_task =

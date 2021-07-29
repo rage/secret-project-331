@@ -1,1 +1,0 @@
-initSidebarItems({"static":[["PROBLEM_JSON_MEDIA_TYPE","The recommended media type when serialized to JSON"]],"struct":[["HttpApiProblem","Description of a problem that can be returned by an HTTP API based on RFC7807"],["StatusCode","An HTTP status code (`status-code` in RFC 7230 et al.)."]]});

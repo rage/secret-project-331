@@ -106,7 +106,6 @@ sourcesIndex["hkdf"] = {"name":"","files":["hkdf.rs"]};
 sourcesIndex["hmac"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["hostname"] = {"name":"","files":["lib.rs","nix.rs"]};
 sourcesIndex["http"] = {"name":"","dirs":[{"name":"header","files":["map.rs","mod.rs","name.rs","value.rs"]},{"name":"uri","files":["authority.rs","builder.rs","mod.rs","path.rs","port.rs","scheme.rs"]}],"files":["byte_str.rs","convert.rs","error.rs","extensions.rs","lib.rs","method.rs","request.rs","response.rs","status.rs","version.rs"]};
-sourcesIndex["http_api_problem"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["http_body"] = {"name":"","dirs":[{"name":"combinators","files":["box_body.rs","map_data.rs","map_err.rs","mod.rs"]}],"files":["empty.rs","full.rs","lib.rs","next.rs","size_hint.rs"]};
 sourcesIndex["httparse"] = {"name":"","dirs":[{"name":"simd","files":["avx2.rs","mod.rs","sse42.rs"]}],"files":["iter.rs","lib.rs","macros.rs"]};
 sourcesIndex["httpdate"] = {"name":"","files":["date.rs","lib.rs"]};

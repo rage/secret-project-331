@@ -115,11 +115,12 @@ test("latex-block renders", async ({ headless, page }) => {
   expectPath(page, "/courses/latex-course/chapter-1")
 
   await page.waitForSelector("text=This is the last page")
+  await page.waitForSelector('button:has-text("Debug")')
 
   // Compare to working image
   if (headless) {
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`latex.png`, { threshold: 0.3 })
+    expect(screenshot).toMatchSnapshot(`latex.png`, { threshold: 0.2 })
   } else {
     console.warn("Not in headless mode, skipping screenshot comparison")
   }

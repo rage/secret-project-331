@@ -30,8 +30,8 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^1.12.3",
-    "playwright": "^1.12.3",
+    "@playwright/test": "^1.13.0",
+    "playwright": "^1.13.0",
     "typescript": "^4.3.5"
   },
   "dependencies": {}

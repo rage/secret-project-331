@@ -1,10 +1,13 @@
-import { createMuiTheme } from "@material-ui/core/styles"
+import { createTheme } from "@material-ui/core/styles"
 
-const muiTheme = createMuiTheme({
+import { primaryFont } from "./typography"
+
+const muiTheme = createTheme({
   typography: {
     button: {
       textTransform: "none",
     },
+    fontFamily: primaryFont,
   },
 })
 

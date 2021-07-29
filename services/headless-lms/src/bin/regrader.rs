@@ -2,7 +2,7 @@ use anyhow::Result;
 use headless_lms_actix::models;
 use headless_lms_actix::regrading;
 use sqlx::{Connection, PgConnection};
-use std::{collections::HashMap, env, time::Duration};
+use std::{env, time::Duration};
 
 /**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
@@ -17,12 +17,8 @@ async fn main() -> Result<()> {
 
     // fetch exercise services
     let mut conn = PgConnection::connect(&db_url).await?;
-    let mut exercise_services_by_type = HashMap::new();
-    for exercise_service in models::exercise_services::get_exercise_services(&mut conn).await? {
-        let info =
-            models::exercise_service_info::get_service_info(&mut conn, exercise_service.id).await?;
-        exercise_services_by_type.insert(exercise_service.slug.clone(), (exercise_service, info));
-    }
+    let exercise_services_by_type =
+        models::exercise_service_info::get_all_exercise_services_by_type(&mut conn).await?;
     drop(conn);
 
     let mut interval = tokio::time::interval(Duration::from_secs(60));

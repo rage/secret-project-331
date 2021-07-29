@@ -54,7 +54,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     setSaving(false)
   }
 
-  const allSupportedBlocks = urlPath.startsWith("/chapter-1/")
+  const allSupportedBlocks = data.chapter_id
     ? supportedCoreBlocks.concat(supportedBlocksForPages)
     : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
 

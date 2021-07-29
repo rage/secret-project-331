@@ -1,22 +1,13 @@
 #[macro_use]
 extern crate tracing;
 
-use actix_http::{
-    body::ResponseBody,
-    http::{self, HeaderMap, HeaderValue},
-};
 use actix_session::CookieSession;
-use actix_web::{
-    dev,
-    middleware::{ErrorHandlerResponse, ErrorHandlers, Logger},
-    App, HttpServer, Result as ActixResult,
-};
+use actix_web::{middleware::Logger, App, HttpServer};
 use anyhow::Result;
-use bytes::BytesMut;
 use dotenv::dotenv;
 use headless_lms_actix::{
-    controllers::ErrorResponse, setup_tracing, utils::file_store::local_file_store::LocalFileStore,
-    ApplicationConfiguration, OAuthClient,
+    setup_tracing, utils::file_store::local_file_store::LocalFileStore, ApplicationConfiguration,
+    OAuthClient,
 };
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};

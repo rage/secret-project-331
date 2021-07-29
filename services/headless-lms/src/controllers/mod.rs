@@ -101,7 +101,7 @@ impl error::ResponseError for ControllerError {
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
-            .body(serde_json::to_string(&error_response).unwrap_or(r#"{"title": "Internal server error", "message": "Error occured while formatting error message."}"#.to_string()))
+            .body(serde_json::to_string(&error_response).unwrap_or_else(|_| r#"{"title": "Internal server error", "message": "Error occured while formatting error message."}"#.to_string()))
     }
 
     fn status_code(&self) -> StatusCode {

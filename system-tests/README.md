@@ -53,6 +53,16 @@ expect(screenshot).toMatchSnapshot(`picture.png`, { threshold: 0.2 })
 
 Remember to update Playwright snapshots with `npm run update-snapshots` and commit these to Git.
 
+### Tracing test results
+
+In order to trace the test results, run the `npm run view-trace` with the `trace.zip` file as a parameter
+
+```sh
+npm run view-trace test-results/src-tests-latex-latex-block-renders-chromium/trace.zip
+```
+
+This should open a window where you can see each step of test.
+
 ## Useful links
 
 - [Playwright](https://playwright.dev/docs/intro/)

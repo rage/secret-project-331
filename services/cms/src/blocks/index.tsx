@@ -6,6 +6,7 @@ import CourseProgress from "./CourseProgress"
 import Exercise from "./Exercise"
 import ExerciseInChapter from "./ExerciseInChapter"
 import ExerciseTask from "./ExerciseTask"
+import Latex from "./Latex"
 import PagesInChapter from "./PagesInChapter"
 
 /**
@@ -20,10 +21,12 @@ export const blockTypeMapForPages: Array<[string, BlockConfiguration<any>]> = [
   ["moocfi/exercises-in-chapter", ExerciseInChapter],
   ["moocfi/course-progress", CourseProgress],
   ["moocfi/chapter-progress", ChapterProgress],
+  ["moocfi/latex", Latex],
 ]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const blockTypeMapForTopLevelPages: Array<[string, BlockConfiguration<any>]> = [
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/course-progress", CourseProgress],
+  ["moocfi/latex", Latex],
 ]

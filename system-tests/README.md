@@ -58,7 +58,7 @@ Remember to update Playwright snapshots with `npm run update-snapshots` and comm
 In order to trace the test results, run the `npm run view-trace` with the `trace.zip` file as a parameter
 
 ```sh
-npm run view-trace test-results/src-tests-latex-latex-block-renders-chromium/trace.zip
+npm run view-trace test-results/path_to/trace.zip
 ```
 
 This should open a window where you can see each step of test.

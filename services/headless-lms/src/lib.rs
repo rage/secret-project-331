@@ -70,7 +70,10 @@ env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
 */
 pub fn setup_tracing() -> Result<()> {
     let subscriber = tracing_subscriber::Registry::default()
-        .with(tracing_subscriber::fmt::layer())
+        .with(
+            tracing_subscriber::fmt::layer()
+                .event_format(tracing_subscriber::fmt::format().compact()),
+        )
         .with(ErrorLayer::default())
         .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")));
     tracing::subscriber::set_global_default(subscriber)?;

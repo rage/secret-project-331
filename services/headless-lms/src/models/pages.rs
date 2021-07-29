@@ -552,7 +552,7 @@ RETURNING *;
                         })?
                         .clone();
                     let res = client
-                        .get(url)
+                        .post(url)
                         .timeout(Duration::from_secs(120))
                         .json(&task_update.private_spec)
                         .send()

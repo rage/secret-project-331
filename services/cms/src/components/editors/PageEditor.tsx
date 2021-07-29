@@ -2,7 +2,7 @@ import SaveIcon from "@material-ui/icons/Save"
 import LoadingButton from "@material-ui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useEffect, useState } from "react"
+import React, { useMemo, useState } from "react"
 
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
@@ -54,13 +54,13 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     setSaving(false)
   }
 
-  useEffect(() => {
-    const allSupportedBlocks = supportedCoreBlocks.concat(
-      supportedBlocksForPages,
-      supportedBlocksTopLevelPages,
-    )
+  const allSupportedBlocks = urlPath.startsWith("/chapter-1/")
+    ? supportedCoreBlocks.concat(supportedBlocksForPages)
+    : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
+
+  useMemo(() => {
     const initialContent = data.content as BlockInstance[]
-    const modifiedNewContent = initialContent.map((block) => {
+    const modifiedContent = initialContent.map((block) => {
       if (
         allSupportedBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined
       ) {
@@ -75,7 +75,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         return block
       }
     })
-    setContent(modifiedNewContent)
+    setContent(modifiedContent)
   }, [data.content])
 
   return (

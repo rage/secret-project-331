@@ -90,6 +90,13 @@ jobs:
         run: npm run test-without-database-reset
         working-directory: ./system-tests/
 
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: test-results
+          path: ./system-tests/test-results/
+          if-no-files-found: ignore
+
       - name: Authenticate to Google Cloud
         env:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}

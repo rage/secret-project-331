@@ -1,5 +1,7 @@
 
+import { ThemeProvider } from '@emotion/react';
 import { MINIMAL_VIEWPORTS} from '@storybook/addon-viewport';
+import GlobalStyles from "../src/styles/GlobalStyles"
 
 const customViewports = {
   Laptop: {
@@ -24,6 +26,16 @@ const customViewports = {
     },
   },
 };
+
+// Global decorator to apply the styles to all stories
+export const decorators = [
+  Story => (
+    <>
+      <GlobalStyles />
+      <Story />
+    </>
+  ),
+];
 
 export const parameters = {
   viewport: {

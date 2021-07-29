@@ -11,7 +11,9 @@ function envToNumber(env: string, defaultNumber: number) {
 const config: PlaywrightTestConfig = {
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
   globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
-  use: {},
+  use: {
+    trace: "retain-on-failure",
+  },
 }
 
 if (process.env.SLOWMO) {

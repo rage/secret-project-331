@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 
 import Editor from "../components/Editor"
 import useStateWithOnChange from "../hooks/useStateWithOnChange"
-import convertStateToSpecs from "../util/convertStateToSpecs"
 import { Alternative } from "../util/stateInterfaces"
 
 const EditorPage: React.FC = () => {
@@ -11,10 +10,12 @@ const EditorPage: React.FC = () => {
     if (!port) {
       return
     }
-    port.postMessage({
+    const message = {
       message: "current-state",
-      data: convertStateToSpecs(newValue),
-    })
+      data: { private_spec: newValue },
+    }
+    console.info("Sending current data", JSON.stringify(message))
+    port.postMessage(message)
   })
 
   // const router = useRouter()

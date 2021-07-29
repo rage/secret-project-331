@@ -147,6 +147,15 @@ export interface Exercise {
   order_number: number
 }
 
+export interface ExerciseServiceInfoApi {
+  service_name: string
+  editor_iframe_path: string
+  exercise_iframe_path: string
+  submission_iframe_path: string
+  grade_endpoint_path: string
+  public_spec_endpoint_path: string
+}
+
 export interface SubmissionCount {
   date: Date | null
   count: number | null
@@ -341,17 +350,16 @@ export interface ExerciseWithExerciseTasks {
   score_maximum: number
 }
 
-export interface PageUpdateExercise {
+export interface NormalizedCmsExercise {
   id: string
   name: string
   order_number: number
-  exercise_tasks: PageUpdateExerciseTask[]
+  exercise_tasks: NormalizedCmsExerciseTask[]
 }
 
-export interface PageUpdateExerciseTask {
+export interface NormalizedCmsExerciseTask {
   id: string
   exercise_type: string
   assignment: unknown
-  public_spec: unknown | null
   private_spec: unknown | null
 }

@@ -28,6 +28,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     // We use port 1 for communication, defining a event handler
     messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
       const data = message.data
+      console.info("Received message", JSON.stringify(data))
       if (data.message === "height-changed") {
         if (!iframeRef.current) {
           console.error("Cannot send data to iframe because reference does not exist.")

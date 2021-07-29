@@ -1,12 +1,14 @@
 use super::{
-    exercise_services::{get_exercise_service_by_exercise_type, ExerciseService},
+    exercise_services::{
+        get_exercise_service_by_exercise_type, get_exercise_services, ExerciseService,
+    },
     ModelError, ModelResult,
 };
 use chrono::{DateTime, Utc};
 use reqwest::IntoUrl;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
@@ -20,6 +22,7 @@ pub struct ExerciseServiceInfo {
     pub exercise_iframe_path: String,
     pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
+    pub public_spec_endpoint_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -27,13 +30,14 @@ pub struct CourseMaterialExerciseServiceInfo {
     pub exercise_iframe_url: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct FetchedExerciseServiceInfo {
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseServiceInfoApi {
     pub service_name: String,
     pub editor_iframe_path: String,
     pub exercise_iframe_path: String,
     pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
+    pub public_spec_endpoint_path: String,
 }
 
 pub async fn insert(
@@ -41,8 +45,9 @@ pub async fn insert(
     exercise_service_id: Uuid,
     editor_iframe_path: &str,
     exercise_iframe_path: &str,
-    grade_endpoint_path: &str,
     submission_iframe_path: &str,
+    grade_endpoint_path: &str,
+    public_spec_endpoint_path: &str,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
@@ -51,17 +56,19 @@ INSERT INTO exercise_service_info (
     exercise_service_id,
     editor_iframe_path,
     exercise_iframe_path,
+    submission_iframe_path,
     grade_endpoint_path,
-    submission_iframe_path
+    public_spec_endpoint_path
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *
 ",
         exercise_service_id,
         editor_iframe_path,
         exercise_iframe_path,
+        submission_iframe_path,
         grade_endpoint_path,
-        submission_iframe_path
+        public_spec_endpoint_path,
     )
     .fetch_one(conn)
     .await?;
@@ -82,7 +89,7 @@ pub async fn fetch_and_upsert_service_info(
     Ok(res)
 }
 
-pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<FetchedExerciseServiceInfo> {
+pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<ExerciseServiceInfoApi> {
     let client = reqwest::Client::new();
     let res = client
         .get(url) // e.g. http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info
@@ -95,14 +102,14 @@ pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<FetchedExercis
             "Could not fetch service info.".to_string(),
         ));
     }
-    let res = res.json::<FetchedExerciseServiceInfo>().await?;
+    let res = res.json::<ExerciseServiceInfoApi>().await?;
     Ok(res)
 }
 
 pub async fn upsert_service_info(
     conn: &mut PgConnection,
     exercise_service_id: Uuid,
-    update: &FetchedExerciseServiceInfo,
+    update: &ExerciseServiceInfoApi,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
@@ -112,21 +119,24 @@ INSERT INTO exercise_service_info(
     editor_iframe_path,
     exercise_iframe_path,
     submission_iframe_path,
-    grade_endpoint_path
+    grade_endpoint_path,
+    public_spec_endpoint_path
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET editor_iframe_path = $2,
   exercise_iframe_path = $3,
   submission_iframe_path = $4,
-  grade_endpoint_path = $5
+  grade_endpoint_path = $5,
+  public_spec_endpoint_path = $6
 RETURNING *
     "#,
         exercise_service_id,
         update.editor_iframe_path,
         update.exercise_iframe_path,
         update.submission_iframe_path,
-        update.grade_endpoint_path
+        update.grade_endpoint_path,
+        update.public_spec_endpoint_path,
     )
     .fetch_one(conn)
     .await?;
@@ -158,6 +168,39 @@ pub async fn get_service_info_by_exercise_type(
     let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
     let service_info = get_service_info_by_exercise_service(conn, &exercise_service).await?;
     Ok(service_info)
+}
+
+pub async fn get_all_exercise_services_by_type(
+    conn: &mut PgConnection,
+) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
+    let mut exercise_services_by_type = HashMap::new();
+    for exercise_service in get_exercise_services(conn).await? {
+        let info = get_service_info_by_exercise_service(conn, &exercise_service).await?;
+        exercise_services_by_type.insert(exercise_service.slug.clone(), (exercise_service, info));
+    }
+    Ok(exercise_services_by_type)
+}
+
+pub async fn get_selected_exercise_services_by_type(
+    conn: &mut PgConnection,
+    slugs: Vec<String>,
+) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
+    let selected_services = sqlx::query_as!(
+        ExerciseService,
+        "
+SELECT *
+FROM exercise_services
+WHERE slug = ANY($1);",
+        &slugs[..],
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let mut exercise_services_by_type = HashMap::new();
+    for exercise_service in selected_services {
+        let info = get_service_info_by_exercise_service(conn, &exercise_service).await?;
+        exercise_services_by_type.insert(exercise_service.slug.clone(), (exercise_service, info));
+    }
+    Ok(exercise_services_by_type)
 }
 
 pub async fn get_service_info_by_exercise_service(

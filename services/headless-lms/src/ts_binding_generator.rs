@@ -7,7 +7,7 @@ use crate::{
         course_instances::{CourseInstance, VariantStatus},
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
-        exercise_service_info::CourseMaterialExerciseServiceInfo,
+        exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
         exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
@@ -15,8 +15,8 @@ use crate::{
         gradings::{Grading, UserPointsUpdateStrategy},
         organizations::Organization,
         pages::{
-            ExerciseWithExerciseTasks, NewPage, Page, PageRoutingData, PageUpdate,
-            PageUpdateExercise, PageUpdateExerciseTask, PageWithExercises,
+            ExerciseWithExerciseTasks, NewPage, NormalizedCmsExercise, NormalizedCmsExerciseTask,
+            Page, PageRoutingData, PageUpdate, PageWithExercises,
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
@@ -42,6 +42,7 @@ ts_rs::export! {
   SubmissionResult,
   Course,
   Exercise,
+  ExerciseServiceInfoApi,
   SubmissionCount,
   SubmissionCountByWeekAndHour,
   SubmissionCountByExercise,
@@ -72,7 +73,7 @@ ts_rs::export! {
   // returned from the API as serde_json::Value
   ExerciseTask,
   ExerciseWithExerciseTasks,
-  PageUpdateExercise,
-  PageUpdateExerciseTask
+  NormalizedCmsExercise,
+  NormalizedCmsExerciseTask
     => "../../shared-module/src/bindings.ts"
 }

@@ -1,8 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
+import { ExerciseServiceInfoApi } from "../../shared-module/bindings"
 import basePath from "../../shared-module/utils/base-path"
+import { ClientErrorResponse } from "../../util/stateInterfaces"
 
-export default (req: NextApiRequest, res: NextApiResponse): unknown => {
+export default (
+  req: NextApiRequest,
+  res: NextApiResponse<ExerciseServiceInfoApi | ClientErrorResponse>,
+): void => {
   if (req.method !== "GET") {
     return res.status(404).json({ message: "Not found" })
   }
@@ -10,15 +15,7 @@ export default (req: NextApiRequest, res: NextApiResponse): unknown => {
   return handleGet(req, res)
 }
 
-interface ServiceInfo {
-  service_name: string
-  editor_iframe_path: string
-  exercise_iframe_path: string
-  submission_iframe_path: string
-  grade_endpoint_path: string
-}
-
-const handleGet = (_req: NextApiRequest, res: NextApiResponse<ServiceInfo>) => {
+const handleGet = (_req: NextApiRequest, res: NextApiResponse<ExerciseServiceInfoApi>) => {
   const prefix = basePath()
   res.json({
     service_name: "Example exercise",
@@ -26,5 +23,6 @@ const handleGet = (_req: NextApiRequest, res: NextApiResponse<ServiceInfo>) => {
     exercise_iframe_path: `${prefix}/exercise`,
     submission_iframe_path: `${prefix}/submission`,
     grade_endpoint_path: `${prefix}/api/grade`,
+    public_spec_endpoint_path: `${prefix}/api/public-spec`,
   })
 }

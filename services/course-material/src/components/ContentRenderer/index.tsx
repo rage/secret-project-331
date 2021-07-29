@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic"
 import React from "react"
 
 import { Block } from "../../services/backend"
@@ -30,6 +31,8 @@ export interface BlockRendererProps<T> {
   data: Block<T>
 }
 
+const LatexBlock = dynamic(() => import("./LatexBlock"))
+
 const blockToRendererMap: { [blockName: string]: any } = {
   "core/audio": AudioBlock,
   "core/paragraph": ParagraphBlock,
@@ -49,6 +52,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/exercises-in-chapter": ExerciseListBlock,
   "moocfi/pages-in-chapter": PagesListBlock,
   "moocfi/course-chapter-grid": CourseChapterGrid,
+  "moocfi/latex": LatexBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

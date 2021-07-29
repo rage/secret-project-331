@@ -6,8 +6,6 @@ import { fetchOrganizations } from "../services/backend"
 import basePath from "../shared-module/utils/base-path"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
-import "katex/dist/katex.min.css"
-
 const Title = styled.h1`
   font-size: 24px;
 `

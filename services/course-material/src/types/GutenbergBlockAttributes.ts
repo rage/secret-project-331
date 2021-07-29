@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
+
+export interface TextAttributes {
+  text: string
+}
 export interface ParagraphAttributes {
   align?: string
   content: string

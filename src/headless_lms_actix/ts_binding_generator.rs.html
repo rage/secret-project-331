@@ -79,6 +79,7 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
+<span id="79">79</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -89,7 +90,7 @@
         <span class="ident">course_instances</span>::{<span class="ident">CourseInstance</span>, <span class="ident">VariantStatus</span>},
         <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
         <span class="ident">email_templates</span>::{<span class="ident">EmailTemplate</span>, <span class="ident">EmailTemplateNew</span>, <span class="ident">EmailTemplateUpdate</span>},
-        <span class="ident">exercise_service_info::CourseMaterialExerciseServiceInfo</span>,
+        <span class="ident">exercise_service_info</span>::{<span class="ident">CourseMaterialExerciseServiceInfo</span>, <span class="ident">ExerciseServiceInfoApi</span>},
         <span class="ident">exercise_tasks</span>::{<span class="ident">CourseMaterialExerciseTask</span>, <span class="ident">ExerciseTask</span>},
         <span class="ident">exercises</span>::{
             <span class="ident">ActivityProgress</span>, <span class="ident">CourseMaterialExercise</span>, <span class="ident">Exercise</span>, <span class="ident">ExerciseStatus</span>, <span class="ident">GradingProgress</span>,
@@ -97,8 +98,8 @@
         <span class="ident">gradings</span>::{<span class="ident">Grading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
         <span class="ident">organizations::Organization</span>,
         <span class="ident">pages</span>::{
-            <span class="ident">ExerciseWithExerciseTasks</span>, <span class="ident">NewPage</span>, <span class="ident">Page</span>, <span class="ident">PageRoutingData</span>, <span class="ident">PageUpdate</span>,
-            <span class="ident">PageUpdateExercise</span>, <span class="ident">PageUpdateExerciseTask</span>, <span class="ident">PageWithExercises</span>,
+            <span class="ident">ExerciseWithExerciseTasks</span>, <span class="ident">NewPage</span>, <span class="ident">NormalizedCmsExercise</span>, <span class="ident">NormalizedCmsExerciseTask</span>,
+            <span class="ident">Page</span>, <span class="ident">PageRoutingData</span>, <span class="ident">PageUpdate</span>, <span class="ident">PageWithExercises</span>,
         },
         <span class="ident">submissions</span>::{
             <span class="ident">NewSubmission</span>, <span class="ident">Submission</span>, <span class="ident">SubmissionCount</span>, <span class="ident">SubmissionCountByExercise</span>,
@@ -124,6 +125,7 @@
   <span class="ident">SubmissionResult</span>,
   <span class="ident">Course</span>,
   <span class="ident">Exercise</span>,
+  <span class="ident">ExerciseServiceInfoApi</span>,
   <span class="ident">SubmissionCount</span>,
   <span class="ident">SubmissionCountByWeekAndHour</span>,
   <span class="ident">SubmissionCountByExercise</span>,
@@ -154,8 +156,8 @@
   <span class="comment">// returned from the API as serde_json::Value</span>
   <span class="ident">ExerciseTask</span>,
   <span class="ident">ExerciseWithExerciseTasks</span>,
-  <span class="ident">PageUpdateExercise</span>,
-  <span class="ident">PageUpdateExerciseTask</span>
+  <span class="ident">NormalizedCmsExercise</span>,
+  <span class="ident">NormalizedCmsExerciseTask</span>
     <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;../../shared-module/src/bindings.ts&quot;</span>
 }
 </pre></div>

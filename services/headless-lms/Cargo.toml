@@ -52,8 +52,6 @@ chrono = { version = "0.4.19", features = ["serde"] }
 serde_json = "1.0.62"
 # Adds #[derive(x)] macros for more traits
 derive_more = "0.99.11"
-# A library to create HTTP error response content for APIs based on RFC 7807
-http-api-problem = "0.21.0"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
 cloud-storage = "0.8.0"
 # A library for managing a temporary directory and deleting all contents when it's dropped.

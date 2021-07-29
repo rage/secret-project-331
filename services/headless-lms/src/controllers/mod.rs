@@ -12,6 +12,9 @@ pub mod files;
 pub mod helpers;
 pub mod main_frontend;
 
+use std::error::Error;
+
+use actix_web::http::StatusCode;
 use actix_web::{
     dev::HttpResponseBuilder,
     error,
@@ -20,7 +23,6 @@ use actix_web::{
     HttpResponse,
 };
 use derive_more::Display;
-use http_api_problem::{HttpApiProblem, StatusCode};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -63,6 +65,14 @@ pub enum ControllerError {
     Forbidden(String),
 }
 
+/// The format all error messages from the API is in
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ErrorResponse {
+    pub title: String,
+    pub message: String,
+    pub source: Option<String>,
+}
+
 impl std::error::Error for ControllerError {}
 
 impl error::ResponseError for ControllerError {
@@ -76,12 +86,22 @@ impl error::ResponseError for ControllerError {
         } else {
             "Error"
         };
-        let problem_description =
-            HttpApiProblem::with_title_and_type_from_status(status).set_detail(detail);
+
+        let source = self.source();
+        let source_message = source.map(|o| o.to_string());
+
+        let error_response = ErrorResponse {
+            title: status
+                .canonical_reason()
+                .map(|o| o.to_string())
+                .unwrap_or_else(|| status.to_string()),
+            message: detail.to_string(),
+            source: source_message,
+        };
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
-            .body(&problem_description.json_string())
+            .body(serde_json::to_string(&error_response).unwrap_or_else(|_| r#"{"title": "Internal server error", "message": "Error occured while formatting error message."}"#.to_string()))
     }
 
     fn status_code(&self) -> StatusCode {

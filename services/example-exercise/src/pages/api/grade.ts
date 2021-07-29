@@ -1,8 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { Alternative, Answer } from "../../util/stateInterfaces"
+import { Alternative, Answer, ClientErrorResponse } from "../../util/stateInterfaces"
 
-export default (req: NextApiRequest, res: NextApiResponse): unknown => {
+export default (
+  req: NextApiRequest,
+  res: NextApiResponse<GradingResult | ClientErrorResponse>,
+): void => {
   if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
   }

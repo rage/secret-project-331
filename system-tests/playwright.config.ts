@@ -13,6 +13,7 @@ const config: PlaywrightTestConfig = {
   globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
   use: {
     headless: true,
+    trace: "retain-on-failure",
   },
 }
 

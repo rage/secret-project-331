@@ -12,3 +12,7 @@ export interface Alternative {
 export interface Answer {
   selectedOptionId?: string
 }
+
+export interface ClientErrorResponse {
+  message: string
+}

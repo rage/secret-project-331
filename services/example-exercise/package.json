@@ -25,6 +25,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-is": "^17.0.2",
+    "styled-system": "^5.1.5",
     "use-memo-one": "^1.1.2",
     "uuid": "^8.3.2"
   },
@@ -32,6 +33,7 @@
     "@types/node": "^15.12.2",
     "@types/react": "^17.0.10",
     "@types/react-dom": "^17.0.7",
+    "@types/styled-system": "^5.1.12",
     "@types/uuid": "^8.3.0",
     "axios": "^0.21.1",
     "react-query": "^3.19.0",

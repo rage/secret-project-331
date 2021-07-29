@@ -1,9 +1,6 @@
 {
   "editor.tabSize": 2,
   "files.eol": "\n",
-  "eslint.alwaysShowStatus": true,
-  "eslint.lintTask.enable": true,
-  "eslint.format.enable": true,
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
   "sqltools.highlightQuery": false,
@@ -29,5 +26,9 @@
     "**/.hg/store/**": true,
     "**/target/**": true,
     "**/.next/**": true
-  }
+  },
+  "eslint.alwaysShowStatus": true,
+  "eslint.lintTask.enable": true,
+  "eslint.format.enable": true,
+  "shellcheck.customArgs": ["--external-sources"]
 }

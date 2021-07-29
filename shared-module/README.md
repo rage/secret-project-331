@@ -21,6 +21,18 @@ To get new entries to the Storybook UI, add new stories to the `stories` folder.
 
 Adding controls: https://storybook.js.org/docs/react/essentials/controls
 
+## Type checking all packages when something changes here
+
+Do this for example if typescript compilation fails in CI after changes.
+
+In the root of the repo:
+
+```bash
+npm run postinstall
+bin/npm-ci-all
+bin/tsc-check-all
+```
+
 ### Tests
 
 Tests are located in the `tests`-folder. The tests are not inside the `src` folder because we don't want to copy the test files to all the services.

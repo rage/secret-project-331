@@ -5,7 +5,7 @@ import { primaryFont } from "../utils"
 import cssReset from "./cssReset"
 
 import "@fontsource/josefin-sans"
-import "@fontsource/lato"
+import "@fontsource/roboto-mono"
 
 // Using this instead of directly injectGlobal because stylelint works in this one.
 const globalCss = css`

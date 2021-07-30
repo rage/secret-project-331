@@ -72,7 +72,7 @@ pub fn get_exercise_service_internally_preferred_baseurl(
         .internal_url
         .as_ref()
         .unwrap_or(&exercise_service.public_url);
-    let mut url = Url::parse(&stored_url_str)
+    let mut url = Url::parse(stored_url_str)
         .map_err(|original_error| ModelError::Generic(original_error.to_string()))?;
     // remove the path because all relative urls in service info assume
     // that the base url prefix has no path

@@ -1,6 +1,6 @@
 use actix_http::{body::Body, Request};
 use actix_session::CookieSession;
-use actix_web::{dev::ServiceResponse, test, App};
+use actix_web::{dev::ServiceResponse, test, web::Data, App};
 use headless_lms_actix::{
     models::organizations::{self, Organization},
     setup_tracing,
@@ -50,7 +50,7 @@ pub async fn init_db() -> String {
 
 /// Initialises the actix server for testing
 pub async fn init_actix() -> (
-    impl actix_web::dev::Service<Request, Response = ServiceResponse<Body>, Error = actix_http::Error>,
+    impl actix_web::dev::Service<Request, Response = ServiceResponse<Body>, Error = actix_web::Error>,
     PgPool,
 ) {
     let db = init_db().await;
@@ -71,8 +71,8 @@ pub async fn init_actix() -> (
     let app = App::new()
         .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
         .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
-        // .data(oauth_client.clone())
-        .data(pool.clone());
+        // .app_data(Data::new(oauth_client.clone()))
+        .app_data(Data::new(pool.clone()));
     (actix_web::test::init_service(app).await, pool)
 }
 

@@ -11,8 +11,12 @@ pub mod test_helper;
 #[macro_use]
 extern crate tracing;
 
-use actix_http::error::InternalError;
-use actix_web::web::{self, HttpResponse, ServiceConfig};
+use actix_http::{body::AnyBody, StatusCode};
+use actix_web::{
+    error::InternalError,
+    web::{self, Data, ServiceConfig},
+    HttpResponse,
+};
 use anyhow::Result;
 use oauth2::basic::BasicClient;
 use serde::{Deserialize, Serialize};
@@ -37,17 +41,20 @@ pub fn configure<T: 'static + FileStore>(
     file_store: T,
     app_conf: ApplicationConfiguration,
 ) {
-    let json_config = web::JsonConfig::default()
-        .limit(81920)
-        .error_handler(|err, _req| {
-            info!("Bad request: {}", &err);
-            // create custom error response
-            let response = HttpResponse::BadRequest().body(format!(
-                "{{\"title\": \"Bad Request\", \"detail\": \"{}\"}}",
-                &err
-            ));
-            InternalError::from_response(err, response).into()
-        });
+    let json_config =
+        web::JsonConfig::default()
+            .limit(81920)
+            .error_handler(|err, _req| -> actix_web::Error {
+                info!("Bad request: {}", &err);
+                let body = format!("{{\"title\": \"Bad Request\", \"message\": \"{}\"}}", &err);
+                let body_bytes = body.as_bytes();
+                // create custom error response
+                let response = HttpResponse::with_body(
+                    StatusCode::BAD_REQUEST,
+                    AnyBody::from_slice(body_bytes),
+                );
+                InternalError::from_response(err, response).into()
+            });
     config
         .app_data(json_config)
         .service(
@@ -55,8 +62,8 @@ pub fn configure<T: 'static + FileStore>(
                 .wrap(TracingLogger::default())
                 .configure(controllers::configure_controllers::<T>),
         )
-        .data(file_store)
-        .data(app_conf);
+        .app_data(Data::new(file_store))
+        .app_data(Data::new(app_conf));
 }
 
 /**

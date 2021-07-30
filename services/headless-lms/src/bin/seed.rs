@@ -298,7 +298,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
                 is_valid: true,
                 client_id: Uuid::new_v4().to_string(),
                 attributes: serde_json::json!({
-                    "contet": "First chapters second page.",
+                    "content": "First chapters second page.",
                     "dropCap": false,
                 }),
                 inner_blocks: vec![],

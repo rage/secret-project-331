@@ -1,7 +1,7 @@
 resources:
   - ../base
   - postgres-dev.yml
-  - headless-lms/dev.yml
+  - headless-lms/env.yml
   - headless-lms/persistent-file-storage.yml
 patches:
   - path: headless-lms/patch-deployment.yml

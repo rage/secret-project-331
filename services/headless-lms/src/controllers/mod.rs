@@ -14,14 +14,13 @@ pub mod main_frontend;
 
 use std::error::Error;
 
-use actix_web::http::StatusCode;
 use actix_web::{
-    dev::HttpResponseBuilder,
     error,
     http::header::ContentType,
     web::{self, ServiceConfig},
     HttpResponse,
 };
+use actix_web::{http::StatusCode, HttpResponseBuilder};
 use derive_more::Display;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};

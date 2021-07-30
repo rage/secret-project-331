@@ -1,9 +1,11 @@
 import KaTex from "katex"
 
-import { TextAttributes } from "../../types/GutenbergBlockAttributes"
-
 import { BlockRendererProps } from "."
 import "katex/dist/katex.min.css"
+
+export interface TextAttributes {
+  text: string
+}
 
 const LatexBlock: React.FC<BlockRendererProps<TextAttributes>> = ({ data }) => {
   const attributes: TextAttributes = data.attributes

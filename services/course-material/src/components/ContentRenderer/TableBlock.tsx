@@ -6,11 +6,20 @@ import { TableAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 
+interface CellContainer {
+  cells: Cell[]
+}
+
+interface Cell {
+  tag: string
+  content: string
+}
+
 const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
   const innerBlocks = data.attributes
-  const body = innerBlocks.body
-  const head = innerBlocks.head[0]
-  const foot = innerBlocks.foot[0]
+  const body = innerBlocks.body as CellContainer[]
+  const head = innerBlocks.head[0] as CellContainer
+  const foot = innerBlocks.foot[0] as CellContainer
   return (
     <table
       className={css`

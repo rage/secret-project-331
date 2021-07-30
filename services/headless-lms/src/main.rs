@@ -2,8 +2,9 @@
 extern crate tracing;
 
 use actix_session::CookieSession;
-use actix_web::{middleware::Logger, App, HttpServer};
+use actix_web::{cookie::SameSite, middleware::Logger, web::Data, App, HttpServer};
 use anyhow::Result;
+use chrono::Duration;
 use dotenv::dotenv;
 use headless_lms_actix::{
     setup_tracing, utils::file_store::local_file_store::LocalFileStore, ApplicationConfiguration,
@@ -31,6 +32,7 @@ async fn main() -> Result<()> {
         env::var("PRIVATE_COOKIE_KEY").expect("PRIVATE_COOKIE_KEY must be defined");
     let base_url = env::var("BASE_URL").expect("BASE_URL must be defined");
     let test_mode = env::var("TEST_MODE").is_ok();
+    let allow_no_https_for_development = env::var("ALLOW_NO_HTTPS_FOR_DEVELOPMENT").is_ok();
     if test_mode {
         info!("***********************************");
         info!("*  Starting backend in test mode  *");
@@ -72,10 +74,18 @@ async fn main() -> Result<()> {
         });
         App::new()
             .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
-            .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
+            .wrap(
+                CookieSession::private(private_cookie_key.as_bytes())
+                    .name("session")
+                    .secure(!allow_no_https_for_development)
+                    .same_site(SameSite::Strict) // Default api can only be accessed from the main website. Public api will be less strict on this.
+                    .http_only(true) // Cookie is inaccessible from javascript for security
+                    .path("/api") // browser won't send the cookie unless this path exists in the request url
+                    .expires_in(Duration::days(730).num_seconds()),
+            )
             .wrap(Logger::new("%r %s %b bytes - %D ms"))
-            .data(db_clone.clone()) // pass database pool to application so we can access it inside handlers
-            .data(oauth_client.clone())
+            .app_data(Data::new(db_clone.clone())) // pass app_databData::new(ase pool to application so we can access it inside handlers
+            .app_data(Data::new(oauth_client.clone()))
     });
 
     server = match listenfd.take_tcp_listener(0)? {

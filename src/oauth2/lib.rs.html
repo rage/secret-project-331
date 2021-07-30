@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/oauth2-4.0.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/oauth2-4.1.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../oauth2/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -3043,6 +3043,69 @@
 <span id="3040">3040</span>
 <span id="3041">3041</span>
 <span id="3042">3042</span>
+<span id="3043">3043</span>
+<span id="3044">3044</span>
+<span id="3045">3045</span>
+<span id="3046">3046</span>
+<span id="3047">3047</span>
+<span id="3048">3048</span>
+<span id="3049">3049</span>
+<span id="3050">3050</span>
+<span id="3051">3051</span>
+<span id="3052">3052</span>
+<span id="3053">3053</span>
+<span id="3054">3054</span>
+<span id="3055">3055</span>
+<span id="3056">3056</span>
+<span id="3057">3057</span>
+<span id="3058">3058</span>
+<span id="3059">3059</span>
+<span id="3060">3060</span>
+<span id="3061">3061</span>
+<span id="3062">3062</span>
+<span id="3063">3063</span>
+<span id="3064">3064</span>
+<span id="3065">3065</span>
+<span id="3066">3066</span>
+<span id="3067">3067</span>
+<span id="3068">3068</span>
+<span id="3069">3069</span>
+<span id="3070">3070</span>
+<span id="3071">3071</span>
+<span id="3072">3072</span>
+<span id="3073">3073</span>
+<span id="3074">3074</span>
+<span id="3075">3075</span>
+<span id="3076">3076</span>
+<span id="3077">3077</span>
+<span id="3078">3078</span>
+<span id="3079">3079</span>
+<span id="3080">3080</span>
+<span id="3081">3081</span>
+<span id="3082">3082</span>
+<span id="3083">3083</span>
+<span id="3084">3084</span>
+<span id="3085">3085</span>
+<span id="3086">3086</span>
+<span id="3087">3087</span>
+<span id="3088">3088</span>
+<span id="3089">3089</span>
+<span id="3090">3090</span>
+<span id="3091">3091</span>
+<span id="3092">3092</span>
+<span id="3093">3093</span>
+<span id="3094">3094</span>
+<span id="3095">3095</span>
+<span id="3096">3096</span>
+<span id="3097">3097</span>
+<span id="3098">3098</span>
+<span id="3099">3099</span>
+<span id="3100">3100</span>
+<span id="3101">3101</span>
+<span id="3102">3102</span>
+<span id="3103">3103</span>
+<span id="3104">3104</span>
+<span id="3105">3105</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
 <span class="doccomment">//!</span>
@@ -3071,7 +3134,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//!    Example import in `Cargo.toml`:</span>
 <span class="doccomment">//!    ```toml</span>
-<span class="doccomment">//!    oauth2 = &quot;3.0&quot;</span>
+<span class="doccomment">//!    oauth2 = &quot;4.1&quot;</span>
 <span class="doccomment">//!    ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! For the HTTP client modes described above, the following HTTP client implementations can be</span>
@@ -3104,7 +3167,7 @@
 <span class="doccomment">//!    may wish to disable the default `reqwest` 0.10 dependency by specifying</span>
 <span class="doccomment">//!    `default-features = false` in `Cargo.toml`:</span>
 <span class="doccomment">//!    ```toml</span>
-<span class="doccomment">//!    oauth2 = { version = &quot;3.0&quot;, default-features = false }</span>
+<span class="doccomment">//!    oauth2 = { version = &quot;4.1&quot;, default-features = false }</span>
 <span class="doccomment">//!    ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!    Synchronous HTTP clients should implement the following trait:</span>
@@ -3830,7 +3893,7 @@
             <span class="ident">extra_params</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">pkce_verifier</span>: <span class="prelude-val">None</span>,
             <span class="ident">token_url</span>: <span class="self">self</span>.<span class="ident">token_url</span>.<span class="ident">as_ref</span>(),
-            <span class="ident">redirect_url</span>: <span class="self">self</span>.<span class="ident">redirect_url</span>.<span class="ident">as_ref</span>(),
+            <span class="ident">redirect_url</span>: <span class="self">self</span>.<span class="ident">redirect_url</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="ident">Cow::Borrowed</span>),
             <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
         }
     }
@@ -4037,6 +4100,17 @@
     }
 
     <span class="doccomment">///</span>
+    <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
+    <span class="doccomment">///</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">extend</span>(<span class="ident">scopes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Cow::Owned</span>));
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">///</span>
     <span class="doccomment">/// Appends an extra param to the authorization URL.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method allows extensions to be used without direct support from</span>
@@ -4192,7 +4266,7 @@
     <span class="ident">extra_params</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
     <span class="ident">pkce_verifier</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PkceCodeVerifier</span><span class="op">&gt;</span>,
     <span class="ident">token_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TokenUrl</span><span class="op">&gt;</span>,
-    <span class="ident">redirect_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">RedirectUrl</span><span class="op">&gt;</span>,
+    <span class="ident">redirect_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">RedirectUrl</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span>)<span class="op">&gt;</span>,
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span> <span class="ident">CodeTokenRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">TE</span>, <span class="ident">TR</span>, <span class="ident">TT</span><span class="op">&gt;</span>
@@ -4234,6 +4308,14 @@
     <span class="doccomment">///</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_pkce_verifier</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pkce_verifier</span>: <span class="ident">PkceCodeVerifier</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">pkce_verifier</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pkce_verifier</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Overrides the `redirect_url` to the one specified.</span>
+    <span class="doccomment">///</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_redirect_uri</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">redirect_url</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">RedirectUrl</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">redirect_url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">redirect_url</span>);
         <span class="self">self</span>
     }
 
@@ -4356,6 +4438,17 @@
     }
 
     <span class="doccomment">///</span>
+    <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
+    <span class="doccomment">///</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">extend</span>(<span class="ident">scopes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Cow::Owned</span>));
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">///</span>
     <span class="doccomment">/// Synchronously sends the request to the authorization server and awaits a response.</span>
     <span class="doccomment">///</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
@@ -4469,6 +4562,17 @@
     }
 
     <span class="doccomment">///</span>
+    <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
+    <span class="doccomment">///</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">extend</span>(<span class="ident">scopes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Cow::Owned</span>));
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">///</span>
     <span class="doccomment">/// Synchronously sends the request to the authorization server and awaits a response.</span>
     <span class="doccomment">///</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">RE</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">http_client</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>
@@ -4578,6 +4682,17 @@
     <span class="doccomment">///</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">push</span>(<span class="ident">Cow::Owned</span>(<span class="ident">scope</span>));
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
+    <span class="doccomment">///</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">extend</span>(<span class="ident">scopes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Cow::Owned</span>));
         <span class="self">self</span>
     }
 
@@ -4883,7 +4998,7 @@
     <span class="ident">client_id</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ClientId</span>,
     <span class="ident">client_secret</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ClientSecret</span><span class="op">&gt;</span>,
     <span class="ident">extra_params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [(<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>)],
-    <span class="ident">redirect_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">RedirectUrl</span><span class="op">&gt;</span>,
+    <span class="ident">redirect_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">RedirectUrl</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">scopes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Scope</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Url</span>,
     <span class="ident">params</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>)<span class="op">&gt;</span>,
@@ -4945,7 +5060,7 @@
     }
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">redirect_url</span>) <span class="op">=</span> <span class="ident">redirect_url</span> {
-        <span class="ident">params</span>.<span class="ident">push</span>((<span class="string">&quot;redirect_uri&quot;</span>, <span class="ident">redirect_url</span>.<span class="ident">as_ref</span>()));
+        <span class="ident">params</span>.<span class="ident">push</span>((<span class="string">&quot;redirect_uri&quot;</span>, <span class="ident">redirect_url</span>.<span class="ident">as_str</span>()));
     }
 
     <span class="ident">params</span>.<span class="ident">extend_from_slice</span>(
@@ -5114,6 +5229,17 @@
     <span class="doccomment">///</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Scope</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">push</span>(<span class="ident">Cow::Owned</span>(<span class="ident">scope</span>));
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Appends a collection of scopes to the token request.</span>
+    <span class="doccomment">///</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_scopes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scopes</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Scope</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">scopes</span>.<span class="ident">extend</span>(<span class="ident">scopes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Cow::Owned</span>));
         <span class="self">self</span>
     }
 
@@ -5309,7 +5435,7 @@
             }
 
             <span class="comment">// Sleep here using the provided sleep function.</span>
-            <span class="ident">sleep_fn</span>(<span class="ident">interval</span>);
+            <span class="ident">sleep_fn</span>(<span class="ident">interval</span>).<span class="kw">await</span>;
         }
     }
 

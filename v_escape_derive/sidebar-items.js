@@ -1,1 +1,0 @@
-initSidebarItems({"macro":[["derive","Generate static tables and call macros"]]});

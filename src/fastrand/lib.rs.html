@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/fastrand-1.4.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/fastrand-1.5.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../fastrand/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -607,19 +607,11 @@
 <span id="604">604</span>
 <span id="605">605</span>
 <span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A simple and fast random number generator.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! The implementation uses [PCG XSH RR 64/32][paper], a simple and fast generator but **not**</span>
-<span class="doccomment">//! cryptographically secure.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [paper]: https://www.pcg-random.org/pdf/hmc-cs-2014-0905.pdf</span>
+<span class="doccomment">//! The implementation uses [Wyrand](https://github.com/wangyi-fudan/wyhash), a simple and fast</span>
+<span class="doccomment">//! generator but **not** cryptographically secure.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Examples</span>
 <span class="doccomment">//!</span>
@@ -738,25 +730,22 @@
     <span class="doccomment">/// Generates a random `u32`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">gen_u32</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
-        <span class="comment">// Adapted from: https://en.wikipedia.org/wiki/Permuted_congruential_generator</span>
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>();
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">set</span>(
-            <span class="ident">s</span>.<span class="ident">wrapping_mul</span>(<span class="number">6364136223846793005</span>)
-                .<span class="ident">wrapping_add</span>(<span class="number">1442695040888963407</span>),
-        );
-        (((<span class="ident">s</span> <span class="op">^</span> (<span class="ident">s</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">18</span>)) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">27</span>) <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">rotate_right</span>((<span class="ident">s</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">59</span>) <span class="kw">as</span> <span class="ident">u32</span>)
+        <span class="self">self</span>.<span class="ident">gen_u64</span>() <span class="kw">as</span> <span class="ident">u32</span>
     }
 
     <span class="doccomment">/// Generates a random `u64`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">gen_u64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
-        ((<span class="self">self</span>.<span class="ident">gen_u32</span>() <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>) <span class="op">|</span> (<span class="self">self</span>.<span class="ident">gen_u32</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>().<span class="ident">wrapping_add</span>(<span class="number">0xA0761D6478BD642F</span>);
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">set</span>(<span class="ident">s</span>);
+        <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">u128::from</span>(<span class="ident">s</span>) <span class="op">*</span> <span class="ident">u128::from</span>(<span class="ident">s</span> <span class="op">^</span> <span class="number">0xE7037ED1A0B428DB</span>);
+        (<span class="ident">t</span> <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">^</span> (<span class="ident">t</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">64</span>) <span class="kw">as</span> <span class="ident">u64</span>
     }
 
     <span class="doccomment">/// Generates a random `u128`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">gen_u128</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u128</span> {
-        ((<span class="self">self</span>.<span class="ident">gen_u64</span>() <span class="kw">as</span> <span class="ident">u128</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">64</span>) <span class="op">|</span> (<span class="self">self</span>.<span class="ident">gen_u64</span>() <span class="kw">as</span> <span class="ident">u128</span>)
+        (<span class="ident">u128::from</span>(<span class="self">self</span>.<span class="ident">gen_u64</span>()) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">64</span>) <span class="op">|</span> <span class="ident">u128::from</span>(<span class="self">self</span>.<span class="ident">gen_u64</span>())
     }
 
     <span class="doccomment">/// Generates a random `u32` in `0..n`.</span>
@@ -1045,8 +1034,7 @@
     <span class="doccomment">/// Initializes this generator with the given seed.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">seed</span>: <span class="ident">u64</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">set</span>(<span class="ident">seed</span>.<span class="ident">wrapping_add</span>(<span class="number">1442695040888963407</span>));
-        <span class="self">self</span>.<span class="ident">gen_u32</span>();
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">set</span>(<span class="ident">seed</span>);
     }
 
     <span class="doccomment">/// Shuffles a slice randomly.</span>

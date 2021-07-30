@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.34/src/dh.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dh.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.35/src/dh.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dh.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -451,35 +451,6 @@
 <span id="448">448</span>
 <span id="449">449</span>
 <span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 <span class="kw">use</span> <span class="ident">foreign_types</span>::{<span class="ident">ForeignType</span>, <span class="ident">ForeignTypeRef</span>};
@@ -870,41 +841,12 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl102</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_dh_stored_restored</span>() {
-        <span class="kw">let</span> <span class="ident">prime_p</span> <span class="op">=</span> <span class="ident">BigNum::from_hex_str</span>(
-            <span class="string">&quot;87A8E61DB4B6663CFFBBD19C651959998CEEF608660DD0F25D2CEED4435E3B00E00DF8F1D61957D4FAF7DF\
-             4561B2AA3016C3D91134096FAA3BF4296D830E9A7C209E0C6497517ABD5A8A9D306BCF67ED91F9E6725B47\
-             58C022E0B1EF4275BF7B6C5BFC11D45F9088B941F54EB1E59BB8BC39A0BF12307F5C4FDB70C581B23F76B6\
-             3ACAE1CAA6B7902D52526735488A0EF13C6D9A51BFA4AB3AD8347796524D8EF6A167B5A41825D967E144E5\
-             140564251CCACB83E6B486F6B3CA3F7971506026C0B857F689962856DED4010ABD0BE621C3A3960A54E710\
-             C375F26375D7014103A4B54330C198AF126116D2276E11715F693877FAD7EF09CADB094AE91E1A1597&quot;</span>,
-        ).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">prime_q</span> <span class="op">=</span> <span class="ident">BigNum::from_hex_str</span>(
-            <span class="string">&quot;3FB32C9B73134D0B2E77506660EDBD484CA7B18F21EF205407F4793A1A0BA12510DBC15077BE463FFF4FED\
-             4AAC0BB555BE3A6C1B0C6B47B1BC3773BF7E8C6F62901228F8C28CBB18A55AE31341000A650196F931C77A\
-             57F2DDF463E5E9EC144B777DE62AAAB8A8628AC376D282D6ED3864E67982428EBC831D14348F6F2F9193B5\
-             045AF2767164E1DFC967C1FB3F2E55A4BD1BFFE83B9C80D052B985D182EA0ADB2A3B7313D3FE14C8484B1E\
-             052588B9B7D2BBD2DF016199ECD06E1557CD0915B3353BBB64E0EC377FD028370DF92B52C7891428CDC67E\
-             B6184B523D1DB246C32F63078490F00EF8D647D148D47954515E2327CFEF98C582664B4C0F6CC41659&quot;</span>,
-        ).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">generator</span> <span class="op">=</span> <span class="ident">BigNum::from_hex_str</span>(
-            <span class="string">&quot;8CF83642A709A097B447997640129DA299B1A47D1EB3750BA308B0FE64F5FBD3&quot;</span>,
-        )
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">dh1</span> <span class="op">=</span> <span class="ident">Dh::from_params</span>(
-            <span class="ident">prime_p</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">generator</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">prime_q</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
-        )
-        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">dh1</span> <span class="op">=</span> <span class="ident">Dh::get_2048_256</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">key1</span> <span class="op">=</span> <span class="ident">dh1</span>.<span class="ident">generate_key</span>().<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">dh2</span> <span class="op">=</span> <span class="ident">Dh::from_params</span>(
-            <span class="ident">prime_p</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">generator</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">prime_q</span>.<span class="ident">to_owned</span>().<span class="ident">unwrap</span>(),
-        )
-        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">dh2</span> <span class="op">=</span> <span class="ident">Dh::get_2048_256</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">key2</span> <span class="op">=</span> <span class="ident">dh2</span>
             .<span class="ident">set_private_key</span>(<span class="ident">key1</span>.<span class="ident">private_key</span>().<span class="ident">to_owned</span>().<span class="ident">unwrap</span>())
             .<span class="ident">unwrap</span>();

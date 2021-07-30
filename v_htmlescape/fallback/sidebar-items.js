@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["_b_escape",""],["_f_escape",""],["b_escape","Escape byte slice to `Buffer`"],["b_escape_char","Escape char to `buf-min::Buffer`"],["escape",""],["escape_char",""],["f_escape",""],["f_escape_char",""]],"struct":[["HTMLEscape",""]]});

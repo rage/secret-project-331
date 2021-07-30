@@ -1,1 +1,0 @@
-initSidebarItems({"macro":[["derive","Generate static tables and call macros"],["loop_range_switch_avx2","Generate ranges avx2 implementation"],["loop_range_switch_sse2","Generate ranges sse2 implementation"],["new","Generates struct `$name` with escaping functionality at `fmt`"]],"trait":[["Buffer","Minimal Buffer trait"]]});

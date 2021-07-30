@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["SerialJoin","The trivial, serial implementation of `Join`. The left and right sides are executed one after the other, on the calling thread. The standalone hashing functions and the `Hasher::update` method use this implementation internally."]],"trait":[["Join","The trait that abstracts over single-threaded and multi-threaded recursion."]]});

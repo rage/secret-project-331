@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.0/src/sys/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/socket2-0.4.1/src/sys/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../socket2/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1468,6 +1468,292 @@
 <span id="1465">1465</span>
 <span id="1466">1466</span>
 <span id="1467">1467</span>
+<span id="1468">1468</span>
+<span id="1469">1469</span>
+<span id="1470">1470</span>
+<span id="1471">1471</span>
+<span id="1472">1472</span>
+<span id="1473">1473</span>
+<span id="1474">1474</span>
+<span id="1475">1475</span>
+<span id="1476">1476</span>
+<span id="1477">1477</span>
+<span id="1478">1478</span>
+<span id="1479">1479</span>
+<span id="1480">1480</span>
+<span id="1481">1481</span>
+<span id="1482">1482</span>
+<span id="1483">1483</span>
+<span id="1484">1484</span>
+<span id="1485">1485</span>
+<span id="1486">1486</span>
+<span id="1487">1487</span>
+<span id="1488">1488</span>
+<span id="1489">1489</span>
+<span id="1490">1490</span>
+<span id="1491">1491</span>
+<span id="1492">1492</span>
+<span id="1493">1493</span>
+<span id="1494">1494</span>
+<span id="1495">1495</span>
+<span id="1496">1496</span>
+<span id="1497">1497</span>
+<span id="1498">1498</span>
+<span id="1499">1499</span>
+<span id="1500">1500</span>
+<span id="1501">1501</span>
+<span id="1502">1502</span>
+<span id="1503">1503</span>
+<span id="1504">1504</span>
+<span id="1505">1505</span>
+<span id="1506">1506</span>
+<span id="1507">1507</span>
+<span id="1508">1508</span>
+<span id="1509">1509</span>
+<span id="1510">1510</span>
+<span id="1511">1511</span>
+<span id="1512">1512</span>
+<span id="1513">1513</span>
+<span id="1514">1514</span>
+<span id="1515">1515</span>
+<span id="1516">1516</span>
+<span id="1517">1517</span>
+<span id="1518">1518</span>
+<span id="1519">1519</span>
+<span id="1520">1520</span>
+<span id="1521">1521</span>
+<span id="1522">1522</span>
+<span id="1523">1523</span>
+<span id="1524">1524</span>
+<span id="1525">1525</span>
+<span id="1526">1526</span>
+<span id="1527">1527</span>
+<span id="1528">1528</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
+<span id="1556">1556</span>
+<span id="1557">1557</span>
+<span id="1558">1558</span>
+<span id="1559">1559</span>
+<span id="1560">1560</span>
+<span id="1561">1561</span>
+<span id="1562">1562</span>
+<span id="1563">1563</span>
+<span id="1564">1564</span>
+<span id="1565">1565</span>
+<span id="1566">1566</span>
+<span id="1567">1567</span>
+<span id="1568">1568</span>
+<span id="1569">1569</span>
+<span id="1570">1570</span>
+<span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
+<span id="1599">1599</span>
+<span id="1600">1600</span>
+<span id="1601">1601</span>
+<span id="1602">1602</span>
+<span id="1603">1603</span>
+<span id="1604">1604</span>
+<span id="1605">1605</span>
+<span id="1606">1606</span>
+<span id="1607">1607</span>
+<span id="1608">1608</span>
+<span id="1609">1609</span>
+<span id="1610">1610</span>
+<span id="1611">1611</span>
+<span id="1612">1612</span>
+<span id="1613">1613</span>
+<span id="1614">1614</span>
+<span id="1615">1615</span>
+<span id="1616">1616</span>
+<span id="1617">1617</span>
+<span id="1618">1618</span>
+<span id="1619">1619</span>
+<span id="1620">1620</span>
+<span id="1621">1621</span>
+<span id="1622">1622</span>
+<span id="1623">1623</span>
+<span id="1624">1624</span>
+<span id="1625">1625</span>
+<span id="1626">1626</span>
+<span id="1627">1627</span>
+<span id="1628">1628</span>
+<span id="1629">1629</span>
+<span id="1630">1630</span>
+<span id="1631">1631</span>
+<span id="1632">1632</span>
+<span id="1633">1633</span>
+<span id="1634">1634</span>
+<span id="1635">1635</span>
+<span id="1636">1636</span>
+<span id="1637">1637</span>
+<span id="1638">1638</span>
+<span id="1639">1639</span>
+<span id="1640">1640</span>
+<span id="1641">1641</span>
+<span id="1642">1642</span>
+<span id="1643">1643</span>
+<span id="1644">1644</span>
+<span id="1645">1645</span>
+<span id="1646">1646</span>
+<span id="1647">1647</span>
+<span id="1648">1648</span>
+<span id="1649">1649</span>
+<span id="1650">1650</span>
+<span id="1651">1651</span>
+<span id="1652">1652</span>
+<span id="1653">1653</span>
+<span id="1654">1654</span>
+<span id="1655">1655</span>
+<span id="1656">1656</span>
+<span id="1657">1657</span>
+<span id="1658">1658</span>
+<span id="1659">1659</span>
+<span id="1660">1660</span>
+<span id="1661">1661</span>
+<span id="1662">1662</span>
+<span id="1663">1663</span>
+<span id="1664">1664</span>
+<span id="1665">1665</span>
+<span id="1666">1666</span>
+<span id="1667">1667</span>
+<span id="1668">1668</span>
+<span id="1669">1669</span>
+<span id="1670">1670</span>
+<span id="1671">1671</span>
+<span id="1672">1672</span>
+<span id="1673">1673</span>
+<span id="1674">1674</span>
+<span id="1675">1675</span>
+<span id="1676">1676</span>
+<span id="1677">1677</span>
+<span id="1678">1678</span>
+<span id="1679">1679</span>
+<span id="1680">1680</span>
+<span id="1681">1681</span>
+<span id="1682">1682</span>
+<span id="1683">1683</span>
+<span id="1684">1684</span>
+<span id="1685">1685</span>
+<span id="1686">1686</span>
+<span id="1687">1687</span>
+<span id="1688">1688</span>
+<span id="1689">1689</span>
+<span id="1690">1690</span>
+<span id="1691">1691</span>
+<span id="1692">1692</span>
+<span id="1693">1693</span>
+<span id="1694">1694</span>
+<span id="1695">1695</span>
+<span id="1696">1696</span>
+<span id="1697">1697</span>
+<span id="1698">1698</span>
+<span id="1699">1699</span>
+<span id="1700">1700</span>
+<span id="1701">1701</span>
+<span id="1702">1702</span>
+<span id="1703">1703</span>
+<span id="1704">1704</span>
+<span id="1705">1705</span>
+<span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
+<span id="1730">1730</span>
+<span id="1731">1731</span>
+<span id="1732">1732</span>
+<span id="1733">1733</span>
+<span id="1734">1734</span>
+<span id="1735">1735</span>
+<span id="1736">1736</span>
+<span id="1737">1737</span>
+<span id="1738">1738</span>
+<span id="1739">1739</span>
+<span id="1740">1740</span>
+<span id="1741">1741</span>
+<span id="1742">1742</span>
+<span id="1743">1743</span>
+<span id="1744">1744</span>
+<span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
+<span id="1748">1748</span>
+<span id="1749">1749</span>
+<span id="1750">1750</span>
+<span id="1751">1751</span>
+<span id="1752">1752</span>
+<span id="1753">1753</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2015 The Rust Project Developers.</span>
 <span class="comment">//</span>
@@ -1484,6 +1770,8 @@
 <span class="kw">use</span> <span class="ident">std::mem</span>::{<span class="self">self</span>, <span class="ident">size_of</span>, <span class="ident">MaybeUninit</span>};
 <span class="kw">use</span> <span class="ident">std::net::Shutdown</span>;
 <span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">Ipv4Addr</span>, <span class="ident">Ipv6Addr</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>))]</span>
+<span class="kw">use</span> <span class="ident">std::num::NonZeroU32</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
     <span class="ident">any</span>(
@@ -1544,6 +1832,13 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>))]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">MSG_TRUNC</span>, <span class="ident">SO_OOBINLINE</span>};
 <span class="comment">// Used in `Socket`.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(
+    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuschia&quot;</span>,
+    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>,
+    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;solaris&quot;</span>,
+    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>,
+)))]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">libc::IP_TOS</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>))]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">libc::SO_LINGER</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>)]</span>
@@ -1553,7 +1848,7 @@
     <span class="ident">IPV6_MULTICAST_HOPS</span>, <span class="ident">IPV6_MULTICAST_IF</span>, <span class="ident">IPV6_MULTICAST_LOOP</span>, <span class="ident">IPV6_UNICAST_HOPS</span>, <span class="ident">IPV6_V6ONLY</span>,
     <span class="ident">IP_ADD_MEMBERSHIP</span>, <span class="ident">IP_DROP_MEMBERSHIP</span>, <span class="ident">IP_MULTICAST_IF</span>, <span class="ident">IP_MULTICAST_LOOP</span>, <span class="ident">IP_MULTICAST_TTL</span>,
     <span class="ident">IP_TTL</span>, <span class="ident">MSG_OOB</span>, <span class="ident">MSG_PEEK</span>, <span class="ident">SOL_SOCKET</span>, <span class="ident">SO_BROADCAST</span>, <span class="ident">SO_ERROR</span>, <span class="ident">SO_KEEPALIVE</span>, <span class="ident">SO_RCVBUF</span>,
-    <span class="ident">SO_RCVTIMEO</span>, <span class="ident">SO_REUSEADDR</span>, <span class="ident">SO_SNDBUF</span>, <span class="ident">SO_SNDTIMEO</span>, <span class="ident">TCP_NODELAY</span>,
+    <span class="ident">SO_RCVTIMEO</span>, <span class="ident">SO_REUSEADDR</span>, <span class="ident">SO_SNDBUF</span>, <span class="ident">SO_SNDTIMEO</span>, <span class="ident">SO_TYPE</span>, <span class="ident">TCP_NODELAY</span>,
 };
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(
     <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
@@ -1583,6 +1878,7 @@
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
     <span class="ident">any</span>(
         <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
+        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
         <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
         <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>,
         <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>,
@@ -1596,11 +1892,9 @@
 <span class="comment">// See this type in the Windows file.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">Bool</span> <span class="op">=</span> <span class="ident">c_int</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;haiku&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">libc::SO_KEEPALIVE</span> <span class="kw">as</span> <span class="ident">KEEPALIVE_TIME</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">libc::TCP_KEEPALIVE</span> <span class="kw">as</span> <span class="ident">KEEPALIVE_TIME</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;haiku&quot;</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;haiku&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>)))]</span>
 <span class="kw">use</span> <span class="ident">libc::TCP_KEEPIDLE</span> <span class="kw">as</span> <span class="ident">KEEPALIVE_TIME</span>;
 
 <span class="doccomment">/// Helper macro to execute a system call that returns an `io::Result`.</span>
@@ -1631,14 +1925,30 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>)]</span>
 <span class="kw">const</span> <span class="ident">MAX_BUF_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span><span class="ident">::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">-</span> <span class="number">1</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">all</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;gnu&quot;</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
+    <span class="ident">all</span>(
+        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
+        <span class="ident">any</span>(
+            <span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;gnu&quot;</span>,
+            <span class="ident">all</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;uclibc&quot;</span>, <span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;64&quot;</span>)
+        )
+    ),
+    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
+))]</span>
 <span class="kw">type</span> <span class="ident">IovLen</span> <span class="op">=</span> <span class="ident">usize</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
-    <span class="ident">all</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;musl&quot;</span>),
+    <span class="ident">all</span>(
+        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
+        <span class="ident">any</span>(
+            <span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;musl&quot;</span>,
+            <span class="ident">all</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;uclibc&quot;</span>, <span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;32&quot;</span>)
+        )
+    ),
     <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
     <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
     <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>,
+    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;haiku&quot;</span>,
     <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>,
     <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>,
     <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>,
@@ -1650,25 +1960,29 @@
 <span class="doccomment">/// Unix only API.</span>
 <span class="kw">impl</span> <span class="ident">Domain</span> {
     <span class="doccomment">/// Domain for Unix socket communication, corresponding to `AF_UNIX`.</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">unix</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">UNIX</span>: <span class="ident">Domain</span> <span class="op">=</span> <span class="ident">Domain</span>(<span class="ident">libc::AF_UNIX</span>);
 
     <span class="doccomment">/// Domain for low-level packet interface, corresponding to `AF_PACKET`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Notes</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Fuchsia and Linux.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PACKET</span>: <span class="ident">Domain</span> <span class="op">=</span> <span class="ident">Domain</span>(<span class="ident">libc::AF_PACKET</span>);
 
     <span class="doccomment">/// Domain for low-level VSOCK interface, corresponding to `AF_VSOCK`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Notes</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Linux.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">VSOCK</span>: <span class="ident">Domain</span> <span class="op">=</span> <span class="ident">Domain</span>(<span class="ident">libc::AF_VSOCK</span>);
 }
 
@@ -1678,8 +1992,13 @@
     <span class="ident">libc::AF_INET6</span>,
     <span class="ident">libc::AF_UNIX</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)))
+    )]</span>
     <span class="ident">libc::AF_PACKET</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))))]</span>
     <span class="ident">libc::AF_VSOCK</span>,
     <span class="ident">libc::AF_UNSPEC</span>, <span class="comment">// = 0.</span>
 );
@@ -1687,11 +2006,6 @@
 <span class="doccomment">/// Unix only API.</span>
 <span class="kw">impl</span> <span class="ident">Type</span> {
     <span class="doccomment">/// Set `SOCK_NONBLOCK` on the `Type`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Notes</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Android, DragonFlyBSD, Fuchsia,</span>
-    <span class="doccomment">/// FreeBSD, Linux, NetBSD and OpenBSD.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">any</span>(
@@ -1705,16 +2019,27 @@
             <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>
         )
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>
+            )
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">nonblocking</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
         <span class="ident">Type</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">|</span> <span class="ident">libc::SOCK_NONBLOCK</span>)
     }
 
     <span class="doccomment">/// Set `SOCK_CLOEXEC` on the `Type`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Notes</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Android, DragonFlyBSD, Fuchsia,</span>
-    <span class="doccomment">/// FreeBSD, Linux, NetBSD and OpenBSD.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">any</span>(
@@ -1728,6 +2053,22 @@
             <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>
         )
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>
+            )
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">cloexec</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
         <span class="self">self</span>.<span class="ident">_cloexec</span>()
     }
@@ -1854,12 +2195,11 @@
 <span class="kw">impl</span> <span class="ident">SockAddr</span> {
     <span class="doccomment">/// Constructs a `SockAddr` with the family `AF_UNIX` and the provided path.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Unix.</span>
-    <span class="doccomment">///</span>
     <span class="doccomment">/// # Failure</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns an error if the path is longer than `SUN_LEN`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>))))]</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span> <span class="comment">// TODO: replace with `unsafe_op_in_unsafe_fn` once stable.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unix</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">SockAddr</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -1873,7 +2213,13 @@
                 <span class="kw">let</span> <span class="ident">len</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">socklen_t</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">len</span> };
 
                 <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">as_ref</span>().<span class="ident">as_os_str</span>().<span class="ident">as_bytes</span>();
-                <span class="kw">if</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">storage</span>.<span class="ident">sun_path</span>.<span class="ident">len</span>() {
+                <span class="kw">let</span> <span class="ident">too_long</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bytes</span>.<span class="ident">first</span>() {
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                    <span class="comment">// linux abstract namespaces aren&#39;t null-terminated</span>
+                    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">storage</span>.<span class="ident">sun_path</span>.<span class="ident">len</span>(),
+                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">storage</span>.<span class="ident">sun_path</span>.<span class="ident">len</span>(),
+                };
+                <span class="kw">if</span> <span class="ident">too_long</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                         <span class="ident">io::ErrorKind::InvalidInput</span>,
                         <span class="string">&quot;path must be shorter than SUN_LEN&quot;</span>,
@@ -1914,9 +2260,16 @@
 <span class="kw">impl</span> <span class="ident">SockAddr</span> {
     <span class="doccomment">/// Constructs a `SockAddr` with the family `AF_VSOCK` and the provided CID/port.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Linux.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)))]</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function can never fail. In a future version of this library it will be made</span>
+    <span class="doccomment">/// infallible.</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span> <span class="comment">// TODO: replace with `unsafe_op_in_unsafe_fn` once stable.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vsock</span>(<span class="ident">cid</span>: <span class="ident">u32</span>, <span class="ident">port</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">SockAddr</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">SockAddr::init</span>(<span class="op">|</span><span class="ident">storage</span>, <span class="ident">len</span><span class="op">|</span> {
@@ -1940,6 +2293,10 @@
     <span class="doccomment">/// Returns this address VSOCK CID/port if it is in the `AF_VSOCK` family,</span>
     <span class="doccomment">/// otherwise return `None`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vsock_address</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">u32</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">family</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">libc::AF_VSOCK</span> <span class="kw">as</span> <span class="ident">sa_family_t</span> {
             <span class="comment">// Safety: if the ss_family field is AF_VSOCK then storage must be a sockaddr_vm.</span>
@@ -1952,6 +2309,18 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">Socket</span> <span class="op">=</span> <span class="ident">c_int</span>;
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">socket_from_raw</span>(<span class="ident">socket</span>: <span class="ident">Socket</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::socket::Inner</span> {
+    <span class="kw">crate</span><span class="ident">::socket::Inner::from_raw_fd</span>(<span class="ident">socket</span>)
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">socket_as_raw</span>(<span class="ident">socket</span>: <span class="kw-2">&amp;</span><span class="kw">crate</span><span class="ident">::socket::Inner</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Socket</span> {
+    <span class="ident">socket</span>.<span class="ident">as_raw_fd</span>()
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">socket_into_raw</span>(<span class="ident">socket</span>: <span class="kw">crate</span><span class="ident">::socket::Inner</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Socket</span> {
+    <span class="ident">socket</span>.<span class="ident">into_raw_fd</span>()
+}
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">socket</span>(<span class="ident">family</span>: <span class="ident">c_int</span>, <span class="ident">ty</span>: <span class="ident">c_int</span>, <span class="ident">protocol</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Socket</span><span class="op">&gt;</span> {
     <span class="macro">syscall!</span>(<span class="ident">socket</span>(<span class="ident">family</span>, <span class="ident">ty</span>, <span class="ident">protocol</span>))
@@ -1975,7 +2344,7 @@
     <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pollfd</span> <span class="op">=</span> <span class="ident">libc::pollfd</span> {
-        <span class="ident">fd</span>: <span class="ident">socket</span>.<span class="ident">inner</span>,
+        <span class="ident">fd</span>: <span class="ident">socket</span>.<span class="ident">as_raw</span>(),
         <span class="ident">events</span>: <span class="ident">libc::POLLIN</span> <span class="op">|</span> <span class="ident">libc::POLLOUT</span>,
         <span class="ident">revents</span>: <span class="number">0</span>,
     };
@@ -2240,6 +2609,8 @@
 
 <span class="kw">fn</span> <span class="ident">into_timeval</span>(<span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">libc::timeval</span> {
     <span class="kw">match</span> <span class="ident">duration</span> {
+        <span class="comment">// https://github.com/rust-lang/libc/issues/1848</span>
+        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;musl&quot;</span>, <span class="ident">allow</span>(<span class="ident">deprecated</span>))]</span>
         <span class="prelude-val">Some</span>(<span class="ident">duration</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">libc::timeval</span> {
             <span class="ident">tv_sec</span>: <span class="ident">min</span>(<span class="ident">duration</span>.<span class="ident">as_secs</span>(), <span class="ident">libc::time_t::max_value</span>() <span class="kw">as</span> <span class="ident">u64</span>) <span class="kw">as</span> <span class="ident">libc::time_t</span>,
             <span class="ident">tv_usec</span>: <span class="ident">duration</span>.<span class="ident">subsec_micros</span>() <span class="kw">as</span> <span class="ident">libc::suseconds_t</span>,
@@ -2259,7 +2630,9 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">set_tcp_keepalive</span>(<span class="ident">fd</span>: <span class="ident">Socket</span>, <span class="ident">keepalive</span>: <span class="kw-2">&amp;</span><span class="ident">TcpKeepalive</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;haiku&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>)))]</span>
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">time</span>) <span class="op">=</span> <span class="ident">keepalive</span>.<span class="ident">time</span> {
         <span class="kw">let</span> <span class="ident">secs</span> <span class="op">=</span> <span class="ident">into_secs</span>(<span class="ident">time</span>);
         <span class="kw">unsafe</span> { <span class="ident">setsockopt</span>(<span class="ident">fd</span>, <span class="ident">libc::IPPROTO_TCP</span>, <span class="ident">KEEPALIVE_TIME</span>, <span class="ident">secs</span>)<span class="question-mark">?</span> }
@@ -2289,6 +2662,7 @@
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;haiku&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>)))]</span>
 <span class="kw">fn</span> <span class="ident">into_secs</span>(<span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
     <span class="ident">min</span>(<span class="ident">duration</span>.<span class="ident">as_secs</span>(), <span class="ident">c_int::max_value</span>() <span class="kw">as</span> <span class="ident">u64</span>) <span class="kw">as</span> <span class="ident">c_int</span>
 }
@@ -2353,12 +2727,6 @@
     .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ())
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">close</span>(<span class="ident">fd</span>: <span class="ident">Socket</span>) {
-    <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">libc::close</span>(<span class="ident">fd</span>);
-    }
-}
-
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_in_addr</span>(<span class="ident">addr</span>: <span class="kw-2">&amp;</span><span class="ident">Ipv4Addr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">in_addr</span> {
     <span class="comment">// `s_addr` is stored as BE on all machines, and the array is in BE order.</span>
     <span class="comment">// So the native endian conversion method is used so that it&#39;s never</span>
@@ -2404,6 +2772,22 @@
             <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>
         )
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>
+            )
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">accept4</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">flags</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>(<span class="kw">crate</span><span class="ident">::Socket</span>, <span class="ident">SockAddr</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">_accept4</span>(<span class="ident">flags</span>)
     }
@@ -2422,8 +2806,8 @@
         <span class="comment">// Safety: `accept4` initialises the `SockAddr` for us.</span>
         <span class="kw">unsafe</span> {
             <span class="ident">SockAddr::init</span>(<span class="op">|</span><span class="ident">storage</span>, <span class="ident">len</span><span class="op">|</span> {
-                <span class="macro">syscall!</span>(<span class="ident">accept4</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">storage</span>.<span class="ident">cast</span>(), <span class="ident">len</span>, <span class="ident">flags</span>))
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="kw">crate</span><span class="ident">::Socket</span> { <span class="ident">inner</span> })
+                <span class="macro">syscall!</span>(<span class="ident">accept4</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">storage</span>.<span class="ident">cast</span>(), <span class="ident">len</span>, <span class="ident">flags</span>))
+                    .<span class="ident">map</span>(<span class="kw">crate</span><span class="ident">::Socket::from_raw</span>)
             })
         }
     }
@@ -2434,24 +2818,32 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// On supported platforms you can use [`Type::cloexec`].</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">unix</span>))))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_cloexec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">close_on_exec</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">_set_cloexec</span>(<span class="ident">close_on_exec</span>)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">_set_cloexec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">close_on_exec</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">close_on_exec</span> {
-            <span class="ident">fcntl_add</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::F_GETFD</span>, <span class="ident">libc::F_SETFD</span>, <span class="ident">libc::FD_CLOEXEC</span>)
+            <span class="ident">fcntl_add</span>(
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
+                <span class="ident">libc::F_GETFD</span>,
+                <span class="ident">libc::F_SETFD</span>,
+                <span class="ident">libc::FD_CLOEXEC</span>,
+            )
         } <span class="kw">else</span> {
-            <span class="ident">fcntl_remove</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::F_GETFD</span>, <span class="ident">libc::F_SETFD</span>, <span class="ident">libc::FD_CLOEXEC</span>)
+            <span class="ident">fcntl_remove</span>(
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
+                <span class="ident">libc::F_GETFD</span>,
+                <span class="ident">libc::F_SETFD</span>,
+                <span class="ident">libc::FD_CLOEXEC</span>,
+            )
         }
     }
 
     <span class="doccomment">/// Sets `SO_NOSIGPIPE` on the socket.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Notes</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Only supported on Apple platforms (`target_vendor = &quot;apple&quot;`).</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">doc</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>))))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_nosigpipe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">nosigpipe</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">_set_nosigpipe</span>(<span class="ident">nosigpipe</span>)
     }
@@ -2460,7 +2852,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">_set_nosigpipe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">nosigpipe</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">setsockopt</span>(
-                <span class="self">self</span>.<span class="ident">inner</span>,
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
                 <span class="ident">libc::SOL_SOCKET</span>,
                 <span class="ident">libc::SO_NOSIGPIPE</span>,
                 <span class="ident">nosigpipe</span> <span class="kw">as</span> <span class="ident">c_int</span>,
@@ -2474,9 +2866,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`set_mss`]: crate::Socket::set_mss</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">unix</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)))))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mss</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::IPPROTO_TCP</span>, <span class="ident">libc::TCP_MAXSEG</span>)
+            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">libc::IPPROTO_TCP</span>, <span class="ident">libc::TCP_MAXSEG</span>)
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">mss</span><span class="op">|</span> <span class="ident">mss</span> <span class="kw">as</span> <span class="ident">u32</span>)
         }
     }
@@ -2486,10 +2879,11 @@
     <span class="doccomment">/// The `TCP_MAXSEG` option denotes the TCP Maximum Segment Size and is only</span>
     <span class="doccomment">/// available on TCP sockets.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">unix</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)))))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_mss</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mss</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">setsockopt</span>(
-                <span class="self">self</span>.<span class="ident">inner</span>,
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
                 <span class="ident">libc::IPPROTO_TCP</span>,
                 <span class="ident">libc::TCP_MAXSEG</span>,
                 <span class="ident">mss</span> <span class="kw">as</span> <span class="ident">c_int</span>,
@@ -2508,9 +2902,22 @@
             <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
         )
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
+            )
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_listener</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_ACCEPTCONN</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
+            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_ACCEPTCONN</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
         }
     }
 
@@ -2526,8 +2933,18 @@
             <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
         )
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+        <span class="ident">any</span>(
+            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
+            <span class="comment">// TODO: add FreeBSD.</span>
+            <span class="comment">// target_os = &quot;freebsd&quot;,</span>
+            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>,
+            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
+        )
+    ))))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">domain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Domain</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_DOMAIN</span>).<span class="ident">map</span>(<span class="ident">Domain</span>) }
+        <span class="kw">unsafe</span> { <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_DOMAIN</span>).<span class="ident">map</span>(<span class="ident">Domain</span>) }
     }
 
     <span class="doccomment">/// Returns the [`Protocol`] of this socket by checking the `SO_PROTOCOL`</span>
@@ -2541,28 +2958,26 @@
             <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
         )
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
+            )
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">protocol</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Protocol</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_PROTOCOL</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">v</span> {
+            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_PROTOCOL</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">v</span>
+            {
                 <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
                 <span class="ident">p</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Protocol</span>(<span class="ident">p</span>)),
             })
         }
-    }
-
-    <span class="doccomment">/// Returns the [`Type`] of this socket by checking the `SO_TYPE` option on</span>
-    <span class="doccomment">/// this socket.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
-        <span class="ident">any</span>(
-            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
-            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
-            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>,
-            <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
-        )
-    ))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">r#type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_TYPE</span>).<span class="ident">map</span>(<span class="ident">Type</span>) }
     }
 
     <span class="doccomment">/// Gets the value for the `SO_MARK` option on this socket.</span>
@@ -2570,15 +2985,22 @@
     <span class="doccomment">/// This value gets the socket mark field for each packet sent through</span>
     <span class="doccomment">/// this socket.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Fuchsia and Linux. On Linux it</span>
-    <span class="doccomment">/// requires the `CAP_NET_ADMIN` capability.</span>
+    <span class="doccomment">/// On Linux this function requires the `CAP_NET_ADMIN` capability.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_MARK</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">mark</span><span class="op">|</span> <span class="ident">mark</span> <span class="kw">as</span> <span class="ident">u32</span>)
+            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_MARK</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">mark</span><span class="op">|</span> <span class="ident">mark</span> <span class="kw">as</span> <span class="ident">u32</span>)
         }
     }
 
@@ -2588,25 +3010,43 @@
     <span class="doccomment">/// this socket. Changing the mark can be used for mark-based routing</span>
     <span class="doccomment">/// without netfilter or for packet filtering.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Fuchsia and Linux. On Linux it</span>
-    <span class="doccomment">/// requires the `CAP_NET_ADMIN` capability.</span>
+    <span class="doccomment">/// On Linux this function requires the `CAP_NET_ADMIN` capability.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_mark</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mark</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">setsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_MARK</span>, <span class="ident">mark</span> <span class="kw">as</span> <span class="ident">c_int</span>) }
+        <span class="kw">unsafe</span> {
+            <span class="ident">setsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
+                <span class="ident">libc::SOL_SOCKET</span>,
+                <span class="ident">libc::SO_MARK</span>,
+                <span class="ident">mark</span> <span class="kw">as</span> <span class="ident">c_int</span>,
+            )
+        }
     }
 
     <span class="doccomment">/// Gets the value for the `SO_BINDTODEVICE` option on this socket.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This value gets the socket binded device&#39;s interface name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Fuchsia and Linux.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">device</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// TODO: replace with `MaybeUninit::uninit_array` once stable.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>; <span class="ident">libc::IFNAMSIZ</span>] <span class="op">=</span>
@@ -2614,7 +3054,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">libc::socklen_t</span>;
         <span class="kw">unsafe</span> {
             <span class="macro">syscall!</span>(<span class="ident">getsockopt</span>(
-                <span class="self">self</span>.<span class="ident">inner</span>,
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
                 <span class="ident">libc::SOL_SOCKET</span>,
                 <span class="ident">libc::SO_BINDTODEVICE</span>,
                 <span class="ident">buf</span>.<span class="ident">as_mut_ptr</span>().<span class="ident">cast</span>(),
@@ -2637,12 +3077,17 @@
     <span class="doccomment">/// works for some socket types, particularly `AF_INET` sockets.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If `interface` is `None` or an empty string it removes the binding.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Fuchsia and Linux.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_device</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">interface</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">len</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">interface</span>) <span class="op">=</span> <span class="ident">interface</span> {
             (<span class="ident">interface</span>.<span class="ident">as_ptr</span>(), <span class="ident">interface</span>.<span class="ident">len</span>())
@@ -2650,7 +3095,7 @@
             (<span class="ident">ptr::null</span>(), <span class="number">0</span>)
         };
         <span class="macro">syscall!</span>(<span class="ident">setsockopt</span>(
-            <span class="self">self</span>.<span class="ident">inner</span>,
+            <span class="self">self</span>.<span class="ident">as_raw</span>(),
             <span class="ident">libc::SOL_SOCKET</span>,
             <span class="ident">libc::SO_BINDTODEVICE</span>,
             <span class="ident">value</span>.<span class="ident">cast</span>(),
@@ -2659,17 +3104,46 @@
         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ())
     }
 
+    <span class="doccomment">/// Sets the value for `IP_BOUND_IF` option on this socket.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If a socket is bound to an interface, only packets received from that</span>
+    <span class="doccomment">/// particular interface are processed by the socket.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If `interface` is `None`, the binding is removed. If the `interface`</span>
+    <span class="doccomment">/// index is not valid, an error is returned.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// One can use `libc::if_nametoindex` to convert an interface alias to an</span>
+    <span class="doccomment">/// index.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>))))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_device_by_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">interface</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonZeroU32</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">interface</span>.<span class="ident">map</span>(<span class="ident">NonZeroU32::get</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+        <span class="kw">unsafe</span> { <span class="ident">setsockopt</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">IPPROTO_IP</span>, <span class="ident">libc::IP_BOUND_IF</span>, <span class="ident">index</span>) }
+    }
+
+    <span class="doccomment">/// Gets the value for `IP_BOUND_IF` option on this socket, i.e. the index</span>
+    <span class="doccomment">/// for the interface to which the socket is bound.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns `None` if the socket is not bound to any interface, otherwise</span>
+    <span class="doccomment">/// returns an interface index.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>))))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">device_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonZeroU32</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span>
+            <span class="kw">unsafe</span> { <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">libc::c_uint</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">IPPROTO_IP</span>, <span class="ident">libc::IP_BOUND_IF</span>)<span class="question-mark">?</span> };
+        <span class="prelude-val">Ok</span>(<span class="ident">NonZeroU32::new</span>(<span class="ident">index</span>))
+    }
+
     <span class="doccomment">/// Get the value of the `SO_INCOMING_CPU` option on this socket.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more information about this option, see [`set_cpu_affinity`].</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Linux.</span>
-    <span class="doccomment">///</span>
     <span class="doccomment">/// [`set_cpu_affinity`]: crate::Socket::set_cpu_affinity</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cpu_affinity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_INCOMING_CPU</span>)
+            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_INCOMING_CPU</span>)
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cpu</span><span class="op">|</span> <span class="ident">cpu</span> <span class="kw">as</span> <span class="ident">usize</span>)
         }
     }
@@ -2677,13 +3151,12 @@
     <span class="doccomment">/// Set value for the `SO_INCOMING_CPU` option on this socket.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Sets the CPU affinity of the socket.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Linux.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>))))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_cpu_affinity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cpu</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">setsockopt</span>(
-                <span class="self">self</span>.<span class="ident">inner</span>,
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
                 <span class="ident">libc::SOL_SOCKET</span>,
                 <span class="ident">libc::SO_INCOMING_CPU</span>,
                 <span class="ident">cpu</span> <span class="kw">as</span> <span class="ident">c_int</span>,
@@ -2695,16 +3168,22 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more information about this option, see [`set_reuse_port`].</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Unix.</span>
-    <span class="doccomment">///</span>
     <span class="doccomment">/// [`set_reuse_port`]: crate::Socket::set_reuse_port</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;solaris&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>))
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">unix</span>,
+            <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;solaris&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>))
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reuse_port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_REUSEPORT</span>)
+            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::SO_REUSEPORT</span>)
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">reuse</span><span class="op">|</span> <span class="ident">reuse</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
         }
     }
@@ -2714,16 +3193,22 @@
     <span class="doccomment">/// This indicates that further calls to `bind` may allow reuse of local</span>
     <span class="doccomment">/// addresses. For IPv4 sockets this means that a socket may bind even when</span>
     <span class="doccomment">/// there&#39;s a socket already listening on this port.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Unix.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;solaris&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>))
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">unix</span>,
+            <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;solaris&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;illumos&quot;</span>))
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_reuse_port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">reuse</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">setsockopt</span>(
-                <span class="self">self</span>.<span class="ident">inner</span>,
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
                 <span class="ident">libc::SOL_SOCKET</span>,
                 <span class="ident">libc::SO_REUSEPORT</span>,
                 <span class="ident">reuse</span> <span class="kw">as</span> <span class="ident">c_int</span>,
@@ -2735,16 +3220,21 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more information about this option, see [`set_freebind`].</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Fuchsia and Linux.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`set_freebind`]: Socket::set_freebind</span>
+    <span class="doccomment">/// [`set_freebind`]: crate::Socket::set_freebind</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">freebind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::IP_FREEBIND</span>)
+            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">c_int</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">libc::SOL_SOCKET</span>, <span class="ident">libc::IP_FREEBIND</span>)
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">reuse</span><span class="op">|</span> <span class="ident">reuse</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
         }
     }
@@ -2756,16 +3246,21 @@
     <span class="doccomment">/// without requiring the underlying network interface or the specified</span>
     <span class="doccomment">/// dynamic IP address to be up at the time that the application is trying</span>
     <span class="doccomment">/// to bind to it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on Fuchsia and Linux.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
         <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_freebind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">reuse</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">setsockopt</span>(
-                <span class="self">self</span>.<span class="ident">inner</span>,
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
                 <span class="ident">libc::SOL_SOCKET</span>,
                 <span class="ident">libc::IP_FREEBIND</span>,
                 <span class="ident">reuse</span> <span class="kw">as</span> <span class="ident">c_int</span>,
@@ -2800,6 +3295,18 @@
             <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>,
         )
     ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
+                <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
+                <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;apple&quot;</span>,
+            )
+        )))
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sendfile</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>,
@@ -2828,7 +3335,7 @@
         };
         <span class="macro">syscall!</span>(<span class="ident">sendfile</span>(
             <span class="ident">file</span>,
-            <span class="self">self</span>.<span class="ident">inner</span>,
+            <span class="self">self</span>.<span class="ident">as_raw</span>(),
             <span class="ident">offset</span>,
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">length</span>,
             <span class="ident">ptr::null_mut</span>(),
@@ -2850,7 +3357,7 @@
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0x7ffff000</span>, <span class="comment">// 2,147,479,552 bytes.</span>
         };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">offset</span>;
-        <span class="macro">syscall!</span>(<span class="ident">sendfile</span>(<span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">file</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">offset</span>, <span class="ident">count</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">usize</span>)
+        <span class="macro">syscall!</span>(<span class="ident">sendfile</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">file</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">offset</span>, <span class="ident">count</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">usize</span>)
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>))]</span>
@@ -2868,7 +3375,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sbytes</span>: <span class="ident">libc::off_t</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="macro">syscall!</span>(<span class="ident">sendfile</span>(
             <span class="ident">file</span>,
-            <span class="self">self</span>.<span class="ident">inner</span>,
+            <span class="self">self</span>.<span class="ident">as_raw</span>(),
             <span class="ident">offset</span>,
             <span class="ident">nbytes</span>,
             <span class="ident">ptr::null_mut</span>(),
@@ -2877,25 +3384,90 @@
         ))
         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">sbytes</span> <span class="kw">as</span> <span class="ident">usize</span>)
     }
+
+    <span class="doccomment">/// Set the value of the `TCP_USER_TIMEOUT` option on this socket.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If set, this specifies the maximum amount of time that transmitted data may remain</span>
+    <span class="doccomment">/// unacknowledged or buffered data may remain untransmitted before TCP will forcibly close the</span>
+    <span class="doccomment">/// corresponding connection.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Setting `timeout` to `None` or a zero duration causes the system default timeouts to</span>
+    <span class="doccomment">/// be used. If `timeout` in milliseconds is larger than `c_uint::MAX`, the timeout is clamped</span>
+    <span class="doccomment">/// to `c_uint::MAX`. For example, when `c_uint` is a 32-bit value, this limits the timeout to</span>
+    <span class="doccomment">/// approximately 49.71 days.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
+        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+        <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+    ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+        )))
+    )]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_tcp_user_timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="ident">timeout</span>
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">to</span><span class="op">|</span> <span class="ident">min</span>(<span class="ident">to</span>.<span class="ident">as_millis</span>(), <span class="ident">libc::c_uint::MAX</span> <span class="kw">as</span> <span class="ident">u128</span>) <span class="kw">as</span> <span class="ident">libc::c_uint</span>)
+            .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+        <span class="kw">unsafe</span> {
+            <span class="ident">setsockopt</span>(
+                <span class="self">self</span>.<span class="ident">as_raw</span>(),
+                <span class="ident">libc::IPPROTO_TCP</span>,
+                <span class="ident">libc::TCP_USER_TIMEOUT</span>,
+                <span class="ident">timeout</span>,
+            )
+        }
+    }
+
+    <span class="doccomment">/// Get the value of the `TCP_USER_TIMEOUT` option on this socket.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more information about this option, see [`set_tcp_user_timeout`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`set_tcp_user_timeout`]: Socket::set_tcp_user_timeout</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
+        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+        <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+    ))]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;all&quot;</span>,
+            <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)
+        )))
+    )]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tcp_user_timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> {
+            <span class="ident">getsockopt</span>::<span class="op">&lt;</span><span class="ident">libc::c_uint</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">as_raw</span>(), <span class="ident">libc::IPPROTO_TCP</span>, <span class="ident">libc::TCP_USER_TIMEOUT</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">millis</span><span class="op">|</span> {
+                    <span class="kw">if</span> <span class="ident">millis</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                        <span class="prelude-val">None</span>
+                    } <span class="kw">else</span> {
+                        <span class="prelude-val">Some</span>(<span class="ident">Duration::from_millis</span>(<span class="ident">millis</span> <span class="kw">as</span> <span class="ident">u64</span>))
+                    }
+                })
+        }
+    }
 }
 
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">unix</span>)))]</span>
 <span class="kw">impl</span> <span class="ident">AsRawFd</span> <span class="kw">for</span> <span class="kw">crate</span><span class="ident">::Socket</span> {
     <span class="kw">fn</span> <span class="ident">as_raw_fd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>
+        <span class="self">self</span>.<span class="ident">as_raw</span>()
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">unix</span>)))]</span>
 <span class="kw">impl</span> <span class="ident">IntoRawFd</span> <span class="kw">for</span> <span class="kw">crate</span><span class="ident">::Socket</span> {
     <span class="kw">fn</span> <span class="ident">into_raw_fd</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
-        <span class="kw">let</span> <span class="ident">fd</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>;
-        <span class="ident">mem::forget</span>(<span class="self">self</span>);
-        <span class="ident">fd</span>
+        <span class="self">self</span>.<span class="ident">into_raw</span>()
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">unix</span>)))]</span>
 <span class="kw">impl</span> <span class="ident">FromRawFd</span> <span class="kw">for</span> <span class="kw">crate</span><span class="ident">::Socket</span> {
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw_fd</span>(<span class="ident">fd</span>: <span class="ident">c_int</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Socket</span> {
-        <span class="kw">crate</span><span class="ident">::Socket</span> { <span class="ident">inner</span>: <span class="ident">fd</span> }
+        <span class="kw">crate</span><span class="ident">::Socket::from_raw</span>(<span class="ident">fd</span>)
     }
 }
 
@@ -2918,13 +3490,13 @@
     <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">to_in_addr</span>(<span class="kw-2">&amp;</span><span class="ident">ip</span>);
     <span class="comment">// NOTE: `in_addr` is packed on NetBSD and it&#39;s unsafe to borrow.</span>
     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">s_addr</span>;
-    <span class="macro">assert_eq!</span>(<span class="ident">a</span>, <span class="number">127</span> <span class="op">|</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">24</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">a</span>, <span class="ident">u32::from_ne_bytes</span>([<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]));
     <span class="macro">assert_eq!</span>(<span class="ident">from_in_addr</span>(<span class="ident">raw</span>), <span class="ident">ip</span>);
 
     <span class="kw">let</span> <span class="ident">ip</span> <span class="op">=</span> <span class="ident">Ipv4Addr::new</span>(<span class="number">127</span>, <span class="number">34</span>, <span class="number">4</span>, <span class="number">12</span>);
     <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">to_in_addr</span>(<span class="kw-2">&amp;</span><span class="ident">ip</span>);
     <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">s_addr</span>;
-    <span class="macro">assert_eq!</span>(<span class="ident">a</span>, <span class="number">127</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">0</span> <span class="op">|</span> <span class="number">34</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span> <span class="op">|</span> <span class="number">4</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span> <span class="op">|</span> <span class="number">12</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">24</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">a</span>, <span class="ident">u32::from_ne_bytes</span>([<span class="number">127</span>, <span class="number">34</span>, <span class="number">4</span>, <span class="number">12</span>]));
     <span class="macro">assert_eq!</span>(<span class="ident">from_in_addr</span>(<span class="ident">raw</span>), <span class="ident">ip</span>);
 }
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/net/tcp/split.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>split.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.9.0/src/net/tcp/split.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>split.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -226,7 +226,7 @@
 
 <span class="doccomment">/// Borrowed write half of a [`TcpStream`], created by [`split`].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Note that in the [`AsyncWrite`] implemenation of this type, [`poll_shutdown`] will</span>
+<span class="doccomment">/// Note that in the [`AsyncWrite`] implementation of this type, [`poll_shutdown`] will</span>
 <span class="doccomment">/// shut down the TCP stream in the write direction.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Writing to an `WriteHalf` is usually done using the convenience methods found</span>
@@ -253,7 +253,7 @@
     <span class="doccomment">/// `Waker` from the `Context` passed to the most recent call is scheduled</span>
     <span class="doccomment">/// to receive a wakeup.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// See the [`TcpStream::poll_peek`] level documenation for more details.</span>
+    <span class="doccomment">/// See the [`TcpStream::poll_peek`] level documentation for more details.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -291,7 +291,7 @@
     <span class="doccomment">/// connected, without removing that data from the queue. On success,</span>
     <span class="doccomment">/// returns the number of bytes peeked.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// See the [`TcpStream::peek`] level documenation for more details.</span>
+    <span class="doccomment">/// See the [`TcpStream::peek`] level documentation for more details.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`TcpStream::peek`]: TcpStream::peek</span>
     <span class="doccomment">///</span>

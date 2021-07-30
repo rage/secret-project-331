@@ -711,7 +711,7 @@ Response:
 
     <span class="kw">let</span> <span class="ident">media_path</span> <span class="op">=</span>
         <span class="ident">upload_media_for_course</span>(<span class="ident">request</span>.<span class="ident">headers</span>(), <span class="ident">payload</span>, <span class="kw-2">&amp;</span><span class="ident">course</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">download_url</span> <span class="op">=</span> <span class="ident">file_store</span>.<span class="ident">get_download_url</span>(<span class="kw-2">&amp;</span><span class="ident">media_path</span>.<span class="ident">as_path</span>(), <span class="ident">app_conf</span>.<span class="ident">as_ref</span>());
+    <span class="kw">let</span> <span class="ident">download_url</span> <span class="op">=</span> <span class="ident">file_store</span>.<span class="ident">get_download_url</span>(<span class="ident">media_path</span>.<span class="ident">as_path</span>(), <span class="ident">app_conf</span>.<span class="ident">as_ref</span>());
 
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">UploadResult</span> { <span class="ident">url</span>: <span class="ident">download_url</span> }))
 }

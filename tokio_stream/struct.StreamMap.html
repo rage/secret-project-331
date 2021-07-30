@@ -259,11 +259,11 @@ more, but is guaranteed to be able to hold at least this many.</p>
 </div><h4 id="method.is_empty" class="method"><code>pub fn <a href="#method.is_empty" class="fnname">is_empty</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code><a href="#method.is_empty" class="anchor"></a><a class="srclink" href="../src/tokio_stream/stream_map.rs.html#374-376" title="goto source code">[src]</a></h4><div class="docblock"><p>Returns <code>true</code> if the map contains no elements.</p>
 <h1 id="examples-10" class="section-header"><a href="#examples-10">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span class="kw">use</span> <span class="ident">tokio_stream</span>::{<span class="ident">StreamMap</span>, <span class="ident">pending</span>};
 
-<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">StreamMap::new</span>();
 <span class="macro">assert!</span>(<span class="ident">a</span>.<span class="ident">is_empty</span>());
-<span class="ident">a</span>.<span class="ident">insert</span>(<span class="number">1</span>, <span class="string">&quot;a&quot;</span>);
+<span class="ident">a</span>.<span class="ident">insert</span>(<span class="number">1</span>, <span class="ident">pending</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>());
 <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">a</span>.<span class="ident">is_empty</span>());</pre></div>
 </div><h4 id="method.clear" class="method"><code>pub fn <a href="#method.clear" class="fnname">clear</a>(&amp;mut self)</code><a href="#method.clear" class="anchor"></a><a class="srclink" href="../src/tokio_stream/stream_map.rs.html#391-393" title="goto source code">[src]</a></h4><div class="docblock"><p>Clears the map, removing all key-stream pairs. Keeps the allocated
 memory for reuse.</p>

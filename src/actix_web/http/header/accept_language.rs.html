@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.0-beta.5/src/http/header/accept_language.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>accept_language.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.0-beta.8/src/http/header/accept_language.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>accept_language.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
@@ -65,14 +65,12 @@
 <span id="64">64</span>
 <span id="65">65</span>
 <span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">QualityItem</span>, <span class="ident">ACCEPT_LANGUAGE</span>};
 <span class="kw">use</span> <span class="ident">language_tags::LanguageTag</span>;
 
-<span class="kw">crate</span><span class="macro">::header!</span> {
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">QualityItem</span>, <span class="ident">ACCEPT_LANGUAGE</span>};
+
+<span class="kw">crate</span><span class="macro">::http::header::common_header!</span> {
     <span class="doccomment">/// `Accept-Language` header, defined in</span>
     <span class="doccomment">/// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.3.5)</span>
     <span class="doccomment">///</span>
@@ -94,14 +92,11 @@
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::langtag;</span>
     <span class="doccomment">/// use actix_web::HttpResponse;</span>
     <span class="doccomment">/// use actix_web::http::header::{AcceptLanguage, LanguageTag, qitem};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// let mut langtag: LanguageTag = Default::default();</span>
-    <span class="doccomment">/// langtag.language = Some(&quot;en&quot;.to_owned());</span>
-    <span class="doccomment">/// langtag.region = Some(&quot;US&quot;.to_owned());</span>
+    <span class="doccomment">/// let langtag = LanguageTag::parse(&quot;en-US&quot;).unwrap();</span>
     <span class="doccomment">/// builder.insert_header(</span>
     <span class="doccomment">///     AcceptLanguage(vec![</span>
     <span class="doccomment">///         qitem(langtag),</span>
@@ -110,16 +105,15 @@
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::langtag;</span>
     <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::{AcceptLanguage, QualityItem, q, qitem};</span>
+    <span class="doccomment">/// use actix_web::http::header::{AcceptLanguage, LanguageTag, QualityItem, q, qitem};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
     <span class="doccomment">/// builder.insert_header(</span>
     <span class="doccomment">///     AcceptLanguage(vec![</span>
-    <span class="doccomment">///         qitem(langtag!(da)),</span>
-    <span class="doccomment">///         QualityItem::new(langtag!(en;;;GB), q(800)),</span>
-    <span class="doccomment">///         QualityItem::new(langtag!(en), q(700)),</span>
+    <span class="doccomment">///         qitem(LanguageTag::parse(&quot;da&quot;).unwrap()),</span>
+    <span class="doccomment">///         QualityItem::new(LanguageTag::parse(&quot;en-GB&quot;).unwrap(), q(800)),</span>
+    <span class="doccomment">///         QualityItem::new(LanguageTag::parse(&quot;en&quot;).unwrap(), q(700)),</span>
     <span class="doccomment">///     ])</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
@@ -127,9 +121,9 @@
 
     <span class="ident">test_accept_language</span> {
         <span class="comment">// From the RFC</span>
-        <span class="macro">test_header!</span>(<span class="ident">test1</span>, <span class="macro">vec!</span>[<span class="string">b&quot;da, en-gb;q=0.8, en;q=0.7&quot;</span>]);
+        <span class="kw">crate</span><span class="macro">::http::header::common_header_test!</span>(<span class="ident">test1</span>, <span class="macro">vec!</span>[<span class="string">b&quot;da, en-gb;q=0.8, en;q=0.7&quot;</span>]);
         <span class="comment">// Own test</span>
-        <span class="macro">test_header!</span>(
+        <span class="kw">crate</span><span class="macro">::http::header::common_header_test!</span>(
             <span class="ident">test2</span>, <span class="macro">vec!</span>[<span class="string">b&quot;en-US, en; q=0.5, fr&quot;</span>],
             <span class="prelude-val">Some</span>(<span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[
                 <span class="ident">qitem</span>(<span class="string">&quot;en-US&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),

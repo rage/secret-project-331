@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/sync/mpsc/bounded.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bounded.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.9.0/src/sync/mpsc/bounded.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bounded.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1109,6 +1109,38 @@
 <span id="1106">1106</span>
 <span id="1107">1107</span>
 <span id="1108">1108</span>
+<span id="1109">1109</span>
+<span id="1110">1110</span>
+<span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::batch_semaphore</span>::{<span class="self">self</span> <span class="kw">as</span> <span class="ident">semaphore</span>, <span class="ident">TryAcquireError</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::mpsc::chan</span>;
@@ -1177,7 +1209,7 @@
 <span class="doccomment">/// with backpressure.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The channel will buffer up to the provided number of messages.  Once the</span>
-<span class="doccomment">/// buffer is full, attempts to `send` new messages will wait until a message is</span>
+<span class="doccomment">/// buffer is full, attempts to send new messages will wait until a message is</span>
 <span class="doccomment">/// received from the channel. The provided buffer capacity must be at least 1.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// All data sent on `Sender` will become available on `Receiver` in the same</span>
@@ -1188,7 +1220,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// If the `Receiver` is disconnected while trying to `send`, the `send` method</span>
 <span class="doccomment">/// will return a `SendError`. Similarly, if `Sender` is disconnected while</span>
-<span class="doccomment">/// trying to `recv`, the `recv` method will return a `RecvError`.</span>
+<span class="doccomment">/// trying to `recv`, the `recv` method will return `None`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Panics</span>
 <span class="doccomment">///</span>
@@ -1246,11 +1278,16 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If there are no messages in the channel&#39;s buffer, but the channel has</span>
     <span class="doccomment">/// not yet been closed, this method will sleep until a message is sent or</span>
-    <span class="doccomment">/// the channel is closed.</span>
+    <span class="doccomment">/// the channel is closed.  Note that if [`close`] is called, but there are</span>
+    <span class="doccomment">/// still outstanding [`Permits`] from before it was closed, the channel is</span>
+    <span class="doccomment">/// not considered closed by `recv` until the permits are released.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that if [`close`] is called, but there are still outstanding</span>
-    <span class="doccomment">/// [`Permits`] from before it was closed, the channel is not considered</span>
-    <span class="doccomment">/// closed by `recv` until the permits are released.</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method is cancel safe. If `recv` is used as the event in a</span>
+    <span class="doccomment">/// [`tokio::select!`](crate::select) statement and some other branch</span>
+    <span class="doccomment">/// completes first, it is guaranteed that no messages were received on this</span>
+    <span class="doccomment">/// channel.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`close`]: Self::close</span>
     <span class="doccomment">/// [`Permits`]: struct@crate::sync::mpsc::Permit</span>
@@ -1447,6 +1484,16 @@
     <span class="doccomment">/// [`close`]: Receiver::close</span>
     <span class="doccomment">/// [`Receiver`]: Receiver</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If `send` is used as the event in a [`tokio::select!`](crate::select)</span>
+    <span class="doccomment">/// statement and some other branch completes first, then it is guaranteed</span>
+    <span class="doccomment">/// that the message was not sent.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This channel uses a queue to ensure that calls to `send` and `reserve`</span>
+    <span class="doccomment">/// complete in the order they were requested.  Cancelling a call to</span>
+    <span class="doccomment">/// `send` makes you lose your place in the queue.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// In the following example, each call to `send` will block until the</span>
@@ -1487,6 +1534,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This allows the producers to get notified when interest in the produced</span>
     <span class="doccomment">/// values is canceled and immediately stop doing work.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method is cancel safe. Once the channel is closed, it stays closed</span>
+    <span class="doccomment">/// forever and all future calls to `closed` will return immediately.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1729,6 +1781,12 @@
     <span class="doccomment">/// [`Permit`]: Permit</span>
     <span class="doccomment">/// [`send`]: Permit::send</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This channel uses a queue to ensure that calls to `send` and `reserve`</span>
+    <span class="doccomment">/// complete in the order they were requested.  Cancelling a call to</span>
+    <span class="doccomment">/// `reserve` makes you lose your place in the queue.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
@@ -1777,6 +1835,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Dropping the [`OwnedPermit`] without sending a message releases the</span>
     <span class="doccomment">/// capacity back to the channel.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This channel uses a queue to ensure that calls to `send` and `reserve`</span>
+    <span class="doccomment">/// complete in the order they were requested.  Cancelling a call to</span>
+    <span class="doccomment">/// `reserve_owned` makes you lose your place in the queue.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// Sending a message using an [`OwnedPermit`]:</span>
@@ -1999,7 +2063,7 @@
     <span class="doccomment">///     let permit = tx.reserve().await.unwrap();</span>
     <span class="doccomment">///     assert_eq!(tx.capacity(), 4);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">///     // Sending and receiving a value increases the caapcity by one.</span>
+    <span class="doccomment">///     // Sending and receiving a value increases the capacity by one.</span>
     <span class="doccomment">///     permit.send(());</span>
     <span class="doccomment">///     rx.recv().await.unwrap();</span>
     <span class="doccomment">///     assert_eq!(tx.capacity(), 5);</span>

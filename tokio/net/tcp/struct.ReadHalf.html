@@ -10,7 +10,7 @@ available.</p>
 <p>Note that on multiple calls to <code>poll_peek</code> or <code>poll_read</code>, only the
 <code>Waker</code> from the <code>Context</code> passed to the most recent call is scheduled
 to receive a wakeup.</p>
-<p>See the <a href="../struct.TcpStream.html#method.poll_peek"><code>TcpStream::poll_peek</code></a> level documenation for more details.</p>
+<p>See the <a href="../struct.TcpStream.html#method.poll_peek"><code>TcpStream::poll_peek</code></a> level documentation for more details.</p>
 <h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">tokio::io</span>::{<span class="self">self</span>, <span class="ident">ReadBuf</span>};
@@ -34,7 +34,7 @@ to receive a wakeup.</p>
 </div><h4 id="method.peek" class="method"><code>pub async fn <a href="#method.peek" class="fnname">peek</a>(&amp;mut self, buf: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;mut [</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/std/io/error/type.Result.html" title="type std::io::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt;</code><a href="#method.peek" class="anchor"></a><a class="srclink" href="../../../src/tokio/net/tcp/split.rs.html#133-136" title="goto source code">[src]</a></h4><div class="docblock"><p>Receives data on the socket from the remote address to which it is
 connected, without removing that data from the queue. On success,
 returns the number of bytes peeked.</p>
-<p>See the <a href="../struct.TcpStream.html#method.peek"><code>TcpStream::peek</code></a> level documenation for more details.</p>
+<p>See the <a href="../struct.TcpStream.html#method.peek"><code>TcpStream::peek</code></a> level documentation for more details.</p>
 <h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">tokio::net::TcpStream</span>;

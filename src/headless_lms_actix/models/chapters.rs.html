@@ -392,7 +392,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">chapter_image_url</span> <span class="op">=</span> <span class="ident">chapter</span>.<span class="ident">chapter_image</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">image</span>);
-            <span class="ident">file_store</span>.<span class="ident">get_download_url</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>.<span class="ident">as_path</span>(), <span class="ident">app_conf</span>)
+            <span class="ident">file_store</span>.<span class="ident">get_download_url</span>(<span class="ident">path</span>.<span class="ident">as_path</span>(), <span class="ident">app_conf</span>)
         });
         <span class="self">Self</span> {
             <span class="ident">id</span>: <span class="ident">chapter</span>.<span class="ident">id</span>,

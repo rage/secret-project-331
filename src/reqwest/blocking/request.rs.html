@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.3/src/blocking/request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.4/src/blocking/request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../reqwest/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1026,13 +1026,54 @@
 <span id="1023">1023</span>
 <span id="1024">1024</span>
 <span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
 <span class="kw">use</span> <span class="ident">base64::encode</span>;
-<span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">request::Parts</span>, <span class="ident">Request</span> <span class="kw">as</span> <span class="ident">HttpRequest</span>};
+<span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">request::Parts</span>, <span class="ident">Request</span> <span class="kw">as</span> <span class="ident">HttpRequest</span>, <span class="ident">Version</span>};
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde_json</span>;
@@ -1107,6 +1148,18 @@
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">headers_mut</span>()
     }
 
+    <span class="doccomment">/// Get the http version.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Version</span> {
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">version</span>()
+    }
+
+    <span class="doccomment">/// Get a mutable reference to the http version.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Version</span> {
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">version_mut</span>()
+    }
+
     <span class="doccomment">/// Get the body.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Body</span><span class="op">&gt;</span> {
@@ -1147,6 +1200,7 @@
         };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Request::new</span>(<span class="self">self</span>.<span class="ident">method</span>().<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">url</span>().<span class="ident">clone</span>());
         <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">headers_mut</span>() <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>().<span class="ident">clone</span>();
+        <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">version_mut</span>() <span class="op">=</span> <span class="self">self</span>.<span class="ident">version</span>().<span class="ident">clone</span>();
         <span class="ident">req</span>.<span class="ident">body</span> <span class="op">=</span> <span class="ident">body</span>;
         <span class="prelude-val">Some</span>(<span class="ident">req</span>)
     }
@@ -1423,6 +1477,14 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Set HTTP version</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">version</span>: <span class="ident">Version</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
+            <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">version_mut</span>() <span class="op">=</span> <span class="ident">version</span>;
+        }
+        <span class="self">self</span>
+    }
+
     <span class="doccomment">/// Send a form body.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Sets the body to the url encoded serialization of the passed value,</span>
@@ -1669,7 +1731,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw">super</span>::{<span class="ident">body</span>, <span class="ident">Client</span>};
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">HttpRequest</span>, <span class="ident">Request</span>};
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">HttpRequest</span>, <span class="ident">Request</span>, <span class="ident">Version</span>};
     <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::header</span>::{<span class="ident">HeaderMap</span>, <span class="ident">HeaderValue</span>, <span class="ident">ACCEPT</span>, <span class="ident">CONTENT_TYPE</span>, <span class="ident">HOST</span>};
     <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Method</span>;
     <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
@@ -2015,6 +2077,26 @@
         <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>(<span class="string">&quot;User-Agent&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;my-awesome-agent/1.0&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="ident">Method::GET</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;http://localhost/&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set_http_request_version</span>() {
+        <span class="kw">let</span> <span class="ident">http_request</span> <span class="op">=</span> <span class="ident">HttpRequest::builder</span>()
+            .<span class="ident">method</span>(<span class="string">&quot;GET&quot;</span>)
+            .<span class="ident">uri</span>(<span class="string">&quot;http://localhost/&quot;</span>)
+            .<span class="ident">header</span>(<span class="string">&quot;User-Agent&quot;</span>, <span class="string">&quot;my-awesome-agent/1.0&quot;</span>)
+            .<span class="ident">version</span>(<span class="ident">Version::HTTP_11</span>)
+            .<span class="ident">body</span>(<span class="string">&quot;test test test&quot;</span>)
+            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">req</span>: <span class="ident">Request</span> <span class="op">=</span> <span class="ident">Request::try_from</span>(<span class="ident">http_request</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">body</span>().<span class="ident">is_none</span>(), <span class="bool-val">false</span>);
+        <span class="kw">let</span> <span class="ident">test_data</span> <span class="op">=</span> <span class="string">b&quot;test test test&quot;</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">body</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">test_data</span>[..]));
+        <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>(<span class="string">&quot;User-Agent&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;my-awesome-agent/1.0&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="ident">Method::GET</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;http://localhost/&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">version</span>(), <span class="ident">Version::HTTP_11</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

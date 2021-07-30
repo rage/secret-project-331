@@ -174,7 +174,6 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
-<span id="174">174</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
@@ -192,14 +191,13 @@ This documents all endpoints. Select a module below for a namespace.
 
 <span class="kw">use</span> <span class="ident">std::error::Error</span>;
 
-<span class="kw">use</span> <span class="ident">actix_web::http::StatusCode</span>;
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">dev::HttpResponseBuilder</span>,
     <span class="ident">error</span>,
     <span class="ident">http::header::ContentType</span>,
     <span class="ident">web</span>::{<span class="self">self</span>, <span class="ident">ServiceConfig</span>},
     <span class="ident">HttpResponse</span>,
 };
+<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">http::StatusCode</span>, <span class="ident">HttpResponseBuilder</span>};
 <span class="kw">use</span> <span class="ident">derive_more::Display</span>;
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};

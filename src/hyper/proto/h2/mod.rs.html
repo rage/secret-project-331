@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.14.9/src/proto/h2/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.14.11/src/proto/h2/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../hyper/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -440,13 +440,24 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">Bytes</span>};
-<span class="kw">use</span> <span class="ident">h2</span>::{<span class="ident">RecvStream</span>, <span class="ident">SendStream</span>};
-<span class="kw">use</span> <span class="ident">http::header</span>::{
-    <span class="ident">HeaderName</span>, <span class="ident">CONNECTION</span>, <span class="ident">PROXY_AUTHENTICATE</span>, <span class="ident">PROXY_AUTHORIZATION</span>, <span class="ident">TE</span>, <span class="ident">TRAILER</span>,
-    <span class="ident">TRANSFER_ENCODING</span>, <span class="ident">UPGRADE</span>,
-};
+<span class="kw">use</span> <span class="ident">h2</span>::{<span class="ident">Reason</span>, <span class="ident">RecvStream</span>, <span class="ident">SendStream</span>};
+<span class="kw">use</span> <span class="ident">http::header</span>::{<span class="ident">HeaderName</span>, <span class="ident">CONNECTION</span>, <span class="ident">TE</span>, <span class="ident">TRAILER</span>, <span class="ident">TRANSFER_ENCODING</span>, <span class="ident">UPGRADE</span>};
 <span class="kw">use</span> <span class="ident">http::HeaderMap</span>;
 <span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
 <span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
@@ -483,8 +494,6 @@
     <span class="kw">let</span> <span class="ident">connection_headers</span> <span class="op">=</span> [
         <span class="ident">HeaderName::from_lowercase</span>(<span class="string">b&quot;keep-alive&quot;</span>).<span class="ident">unwrap</span>(),
         <span class="ident">HeaderName::from_lowercase</span>(<span class="string">b&quot;proxy-connection&quot;</span>).<span class="ident">unwrap</span>(),
-        <span class="ident">PROXY_AUTHENTICATE</span>,
-        <span class="ident">PROXY_AUTHORIZATION</span>,
         <span class="ident">TRAILER</span>,
         <span class="ident">TRANSFER_ENCODING</span>,
         <span class="ident">UPGRADE</span>,
@@ -698,7 +707,7 @@
     <span class="kw">fn</span> <span class="ident">remaining</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="self">Self</span><span class="ident">::Buf</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">remaining</span>(),
-            <span class="self">Self</span><span class="ident">::Cursor</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>.<span class="ident">remaining</span>(),
+            <span class="self">Self</span><span class="ident">::Cursor</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Buf::remaining</span>(<span class="ident">c</span>),
             <span class="self">Self</span><span class="ident">::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
         }
     }
@@ -761,7 +770,11 @@
                         <span class="kw">break</span> <span class="ident">buf</span>;
                     }
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">h2_to_io_error</span>(<span class="ident">e</span>)));
+                        <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="kw">match</span> <span class="ident">e</span>.<span class="ident">reason</span>() {
+                            <span class="prelude-val">Some</span>(<span class="ident">Reason::NO_ERROR</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">Reason::CANCEL</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+                            <span class="prelude-val">Some</span>(<span class="ident">Reason::STREAM_CLOSED</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::BrokenPipe</span>.<span class="ident">into</span>()),
+                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">h2_to_io_error</span>(<span class="ident">e</span>)),
+                        })
                     }
                 }
             };
@@ -783,21 +796,36 @@
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Poll::Ready</span>(<span class="ident">reset</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">send_stream</span>.<span class="ident">poll_reset</span>(<span class="ident">cx</span>) {
-            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">h2_to_io_error</span>(<span class="kw">match</span> <span class="ident">reset</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">reason</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">reason</span>.<span class="ident">into</span>(),
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>,
-            })));
-        }
         <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>));
         }
         <span class="self">self</span>.<span class="ident">send_stream</span>.<span class="ident">reserve_capacity</span>(<span class="ident">buf</span>.<span class="ident">len</span>());
-        <span class="ident">Poll::Ready</span>(<span class="kw">match</span> <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">send_stream</span>.<span class="ident">poll_capacity</span>(<span class="ident">cx</span>)) {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="number">0</span>),
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">cnt</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">send_stream</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">cnt</span>], <span class="bool-val">false</span>).<span class="ident">map</span>(<span class="op">|</span>()<span class="op">|</span> <span class="ident">cnt</span>),
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">h2_to_io_error</span>(<span class="ident">e</span>)),
-        })
+
+        <span class="comment">// We ignore all errors returned by `poll_capacity` and `write`, as we</span>
+        <span class="comment">// will get the correct from `poll_reset` anyway.</span>
+        <span class="kw">let</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">send_stream</span>.<span class="ident">poll_capacity</span>(<span class="ident">cx</span>)) {
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="number">0</span>),
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">cnt</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>
+                .<span class="ident">send_stream</span>
+                .<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">cnt</span>], <span class="bool-val">false</span>)
+                .<span class="ident">ok</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>()<span class="op">|</span> <span class="ident">cnt</span>),
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        };
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cnt</span>) <span class="op">=</span> <span class="ident">cnt</span> {
+            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">cnt</span>));
+        }
+
+        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">h2_to_io_error</span>(
+            <span class="kw">match</span> <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">send_stream</span>.<span class="ident">poll_reset</span>(<span class="ident">cx</span>)) {
+                <span class="prelude-val">Ok</span>(<span class="ident">Reason::NO_ERROR</span>) <span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">Reason::CANCEL</span>) <span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">Reason::STREAM_CLOSED</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::BrokenPipe</span>.<span class="ident">into</span>()))
+                }
+                <span class="prelude-val">Ok</span>(<span class="ident">reason</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">reason</span>.<span class="ident">into</span>(),
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>,
+            },
+        )))
     }
 
     <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">_cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {

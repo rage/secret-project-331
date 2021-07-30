@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/subtle-2.4.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/subtle-2.4.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../subtle/index.html'><div class='logo-container'><img src='https://doc.dalek.rs/assets/dalek-logo-clear.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -803,6 +803,68 @@
 <span id="800">800</span>
 <span id="801">801</span>
 <span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// -*- mode: rust; -*-</span>
 <span class="comment">//</span>
@@ -815,21 +877,83 @@
 <span class="comment">// - Henry de Valence &lt;hdevalence@hdevalence.ca&gt;</span>
 
 <span class="attribute">#![<span class="ident">no_std</span>]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">external_doc</span>))]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">doc</span>(<span class="ident">include</span> <span class="op">=</span> <span class="string">&quot;../README.md&quot;</span>))]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">deny</span>(<span class="ident">missing_docs</span>))]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://doc.dalek.rs/assets/dalek-logo-clear.png&quot;</span>)]</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/subtle/2.4.0&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/subtle/2.4.1&quot;</span>)]</span>
 
-<span class="doccomment">//! Note that docs will only build on nightly Rust until</span>
-<span class="doccomment">//! [RFC 1990 stabilizes](https://github.com/rust-lang/rust/issues/44732).</span>
+<span class="doccomment">//! # subtle [![](https://img.shields.io/crates/v/subtle.svg)](https://crates.io/crates/subtle) [![](https://img.shields.io/badge/dynamic/json.svg?label=docs&amp;uri=https%3A%2F%2Fcrates.io%2Fapi%2Fv1%2Fcrates%2Fsubtle%2Fversions&amp;query=%24.versions%5B0%5D.num&amp;colorB=4F74A6)](https://doc.dalek.rs/subtle) [![](https://travis-ci.org/dalek-cryptography/subtle.svg?branch=master)](https://travis-ci.org/dalek-cryptography/subtle)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! **Pure-Rust traits and utilities for constant-time cryptographic implementations.**</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! It consists of a `Choice` type, and a collection of traits using `Choice`</span>
+<span class="doccomment">//! instead of `bool` which are intended to execute in constant-time.  The `Choice`</span>
+<span class="doccomment">//! type is a wrapper around a `u8` that holds a `0` or `1`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```toml</span>
+<span class="doccomment">//! subtle = &quot;2.4&quot;</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate represents a “best-effort” attempt, since side-channels</span>
+<span class="doccomment">//! are ultimately a property of a deployed cryptographic system</span>
+<span class="doccomment">//! including the hardware it runs on, not just of software.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The traits are implemented using bitwise operations, and should execute in</span>
+<span class="doccomment">//! constant time provided that a) the bitwise operations are constant-time and</span>
+<span class="doccomment">//! b) the bitwise operations are not recognized as a conditional assignment and</span>
+<span class="doccomment">//! optimized back into a branch.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! For a compiler to recognize that bitwise operations represent a conditional</span>
+<span class="doccomment">//! assignment, it needs to know that the value used to generate the bitmasks is</span>
+<span class="doccomment">//! really a boolean `i1` rather than an `i8` byte value. In an attempt to</span>
+<span class="doccomment">//! prevent this refinement, the crate tries to hide the value of a `Choice`&#39;s</span>
+<span class="doccomment">//! inner `u8` by passing it through a volatile read. For more information, see</span>
+<span class="doccomment">//! the _About_ section below.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Versions prior to `2.2` recommended use of the `nightly` feature to enable an</span>
+<span class="doccomment">//! optimization barrier; this is not required in versions `2.2` and above.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Note: the `subtle` crate contains `debug_assert`s to check invariants during</span>
+<span class="doccomment">//! debug builds. These invariant checks involve secret-dependent branches, and</span>
+<span class="doccomment">//! are not present when compiled in release mode. This crate is intended to be</span>
+<span class="doccomment">//! used in release mode.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Documentation</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Documentation is available [here][docs].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Minimum Supported Rust Version</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Rust **1.41** or higher.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Minimum supported Rust version can be changed in the future, but it will be done with a minor version bump.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## About</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This library aims to be the Rust equivalent of Go’s `crypto/subtle` module.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The optimization barrier in `impl From&lt;u8&gt; for Choice` was based on Tim</span>
+<span class="doccomment">//! Maclean&#39;s [work on `rust-timing-shield`][rust-timing-shield], which attempts to</span>
+<span class="doccomment">//! provide a more comprehensive approach for preventing software side-channels in</span>
+<span class="doccomment">//! Rust code.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! `subtle` is authored by isis agora lovecruft and Henry de Valence.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Warning</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This code is a low-level library, intended for specific use-cases implementing</span>
+<span class="doccomment">//! cryptographic protocols.  It represents a best-effort attempt to protect</span>
+<span class="doccomment">//! against some software side-channels.  Because side-channel resistance is not a</span>
+<span class="doccomment">//! property of software alone, but of software together with hardware, any such</span>
+<span class="doccomment">//! effort is fundamentally limited.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! **USE AT YOUR OWN RISK**</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [docs]: https://docs.rs/subtle</span>
+<span class="doccomment">//! [rust-timing-shield]: https://www.chosenplaintext.ca/open-source/rust-timing-shield/security</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">std</span>;
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">rand</span>;
 
 <span class="kw">use</span> <span class="ident">core::ops</span>::{<span class="ident">BitAnd</span>, <span class="ident">BitAndAssign</span>, <span class="ident">BitOr</span>, <span class="ident">BitOrAssign</span>, <span class="ident">BitXor</span>, <span class="ident">BitXorAssign</span>, <span class="ident">Neg</span>, <span class="ident">Not</span>};
 <span class="kw">use</span> <span class="ident">core::option::Option</span>;

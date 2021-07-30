@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/sync/semaphore.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>semaphore.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.9.0/src/sync/semaphore.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>semaphore.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -326,6 +326,245 @@
 <span id="323">323</span>
 <span id="324">324</span>
 <span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::batch_semaphore</span> <span class="kw">as</span> <span class="ident">ll</span>; <span class="comment">// low level implementation</span>
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">AcquireError</span>, <span class="ident">TryAcquireError</span>};
@@ -353,7 +592,55 @@
 <span class="doccomment">/// To use the `Semaphore` in a poll function, you can use the [`PollSemaphore`]</span>
 <span class="doccomment">/// utility.</span>
 <span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Basic usage:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use tokio::sync::{Semaphore, TryAcquireError};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// #[tokio::main]</span>
+<span class="doccomment">/// async fn main() {</span>
+<span class="doccomment">///     let semaphore = Semaphore::new(3);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     let a_permit = semaphore.acquire().await.unwrap();</span>
+<span class="doccomment">///     let two_permits = semaphore.acquire_many(2).await.unwrap();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     assert_eq!(semaphore.available_permits(), 0);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     let permit_attempt = semaphore.try_acquire();</span>
+<span class="doccomment">///     assert_eq!(permit_attempt.err(), Some(TryAcquireError::NoPermits));</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Use [`Semaphore::acquire_owned`] to move permits across tasks:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use std::sync::Arc;</span>
+<span class="doccomment">/// use tokio::sync::Semaphore;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// #[tokio::main]</span>
+<span class="doccomment">/// async fn main() {</span>
+<span class="doccomment">///     let semaphore = Arc::new(Semaphore::new(3));</span>
+<span class="doccomment">///     let mut join_handles = Vec::new();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     for _ in 0..5 {</span>
+<span class="doccomment">///         let permit = semaphore.clone().acquire_owned().await.unwrap();</span>
+<span class="doccomment">///         join_handles.push(tokio::spawn(async move {</span>
+<span class="doccomment">///             // perform task...</span>
+<span class="doccomment">///             // explicitly own `permit` in the task</span>
+<span class="doccomment">///             drop(permit);</span>
+<span class="doccomment">///         }));</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     for handle in join_handles {</span>
+<span class="doccomment">///         handle.await.unwrap();</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// [`PollSemaphore`]: https://docs.rs/tokio-util/0.6/tokio_util/sync/struct.PollSemaphore.html</span>
+<span class="doccomment">/// [`Semaphore::acquire_owned`]: crate::sync::Semaphore::acquire_owned</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Semaphore</span> {
     <span class="doccomment">/// The low level semaphore</span>
@@ -408,6 +695,15 @@
     }
 
     <span class="doccomment">/// Creates a new semaphore with the initial number of permits.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tokio::sync::Semaphore;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// static SEM: Semaphore = Semaphore::const_new(10);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parking_lot&quot;</span>, <span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">loom</span>, <span class="ident">test</span>))))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parking_lot&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_new</span>(<span class="ident">permits</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
@@ -434,6 +730,32 @@
     <span class="doccomment">/// Otherwise, this returns a [`SemaphorePermit`] representing the</span>
     <span class="doccomment">/// acquired permit.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method uses a queue to fairly distribute permits in the order they</span>
+    <span class="doccomment">/// were requested. Cancelling a call to `acquire` makes you lose your place</span>
+    <span class="doccomment">/// in the queue.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tokio::sync::Semaphore;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[tokio::main]</span>
+    <span class="doccomment">/// async fn main() {</span>
+    <span class="doccomment">///     let semaphore = Semaphore::new(2);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     let permit_1 = semaphore.acquire().await.unwrap();</span>
+    <span class="doccomment">///     assert_eq!(semaphore.available_permits(), 1);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     let permit_2 = semaphore.acquire().await.unwrap();</span>
+    <span class="doccomment">///     assert_eq!(semaphore.available_permits(), 0);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     drop(permit_1);</span>
+    <span class="doccomment">///     assert_eq!(semaphore.available_permits(), 1);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// [`AcquireError`]: crate::sync::AcquireError</span>
     <span class="doccomment">/// [`SemaphorePermit`]: crate::sync::SemaphorePermit</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">acquire</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SemaphorePermit</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">AcquireError</span><span class="op">&gt;</span> {
@@ -449,6 +771,26 @@
     <span class="doccomment">/// If the semaphore has been closed, this returns an [`AcquireError`].</span>
     <span class="doccomment">/// Otherwise, this returns a [`SemaphorePermit`] representing the</span>
     <span class="doccomment">/// acquired permits.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method uses a queue to fairly distribute permits in the order they</span>
+    <span class="doccomment">/// were requested. Cancelling a call to `acquire_many` makes you lose your</span>
+    <span class="doccomment">/// place in the queue.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tokio::sync::Semaphore;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[tokio::main]</span>
+    <span class="doccomment">/// async fn main() {</span>
+    <span class="doccomment">///     let semaphore = Semaphore::new(5);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     let permit = semaphore.acquire_many(3).await.unwrap();</span>
+    <span class="doccomment">///     assert_eq!(semaphore.available_permits(), 2);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`AcquireError`]: crate::sync::AcquireError</span>
     <span class="doccomment">/// [`SemaphorePermit`]: crate::sync::SemaphorePermit</span>
@@ -466,6 +808,25 @@
     <span class="doccomment">/// and a [`TryAcquireError::NoPermits`] if there are no permits left. Otherwise,</span>
     <span class="doccomment">/// this returns a [`SemaphorePermit`] representing the acquired permits.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tokio::sync::{Semaphore, TryAcquireError};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # fn main() {</span>
+    <span class="doccomment">/// let semaphore = Semaphore::new(2);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_1 = semaphore.try_acquire().unwrap();</span>
+    <span class="doccomment">/// assert_eq!(semaphore.available_permits(), 1);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_2 = semaphore.try_acquire().unwrap();</span>
+    <span class="doccomment">/// assert_eq!(semaphore.available_permits(), 0);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_3 = semaphore.try_acquire();</span>
+    <span class="doccomment">/// assert_eq!(permit_3.err(), Some(TryAcquireError::NoPermits));</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// [`TryAcquireError::Closed`]: crate::sync::TryAcquireError::Closed</span>
     <span class="doccomment">/// [`TryAcquireError::NoPermits`]: crate::sync::TryAcquireError::NoPermits</span>
     <span class="doccomment">/// [`SemaphorePermit`]: crate::sync::SemaphorePermit</span>
@@ -482,8 +843,24 @@
     <span class="doccomment">/// Tries to acquire `n` permits from the semaphore.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the semaphore has been closed, this returns a [`TryAcquireError::Closed`]</span>
-    <span class="doccomment">/// and a [`TryAcquireError::NoPermits`] if there are no permits left. Otherwise,</span>
-    <span class="doccomment">/// this returns a [`SemaphorePermit`] representing the acquired permits.</span>
+    <span class="doccomment">/// and a [`TryAcquireError::NoPermits`] if there are not enough permits left.</span>
+    <span class="doccomment">/// Otherwise, this returns a [`SemaphorePermit`] representing the acquired permits.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tokio::sync::{Semaphore, TryAcquireError};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # fn main() {</span>
+    <span class="doccomment">/// let semaphore = Semaphore::new(4);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_1 = semaphore.try_acquire_many(3).unwrap();</span>
+    <span class="doccomment">/// assert_eq!(semaphore.available_permits(), 1);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_2 = semaphore.try_acquire_many(2);</span>
+    <span class="doccomment">/// assert_eq!(permit_2.err(), Some(TryAcquireError::NoPermits));</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`TryAcquireError::Closed`]: crate::sync::TryAcquireError::Closed</span>
     <span class="doccomment">/// [`TryAcquireError::NoPermits`]: crate::sync::TryAcquireError::NoPermits</span>
@@ -505,6 +882,38 @@
     <span class="doccomment">/// Otherwise, this returns a [`OwnedSemaphorePermit`] representing the</span>
     <span class="doccomment">/// acquired permit.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method uses a queue to fairly distribute permits in the order they</span>
+    <span class="doccomment">/// were requested. Cancelling a call to `acquire_owned` makes you lose your</span>
+    <span class="doccomment">/// place in the queue.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use std::sync::Arc;</span>
+    <span class="doccomment">/// use tokio::sync::Semaphore;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[tokio::main]</span>
+    <span class="doccomment">/// async fn main() {</span>
+    <span class="doccomment">///     let semaphore = Arc::new(Semaphore::new(3));</span>
+    <span class="doccomment">///     let mut join_handles = Vec::new();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     for _ in 0..5 {</span>
+    <span class="doccomment">///         let permit = semaphore.clone().acquire_owned().await.unwrap();</span>
+    <span class="doccomment">///         join_handles.push(tokio::spawn(async move {</span>
+    <span class="doccomment">///             // perform task...</span>
+    <span class="doccomment">///             // explicitly own `permit` in the task</span>
+    <span class="doccomment">///             drop(permit);</span>
+    <span class="doccomment">///         }));</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     for handle in join_handles {</span>
+    <span class="doccomment">///         handle.await.unwrap();</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// [`Arc`]: std::sync::Arc</span>
     <span class="doccomment">/// [`AcquireError`]: crate::sync::AcquireError</span>
     <span class="doccomment">/// [`OwnedSemaphorePermit`]: crate::sync::OwnedSemaphorePermit</span>
@@ -522,6 +931,38 @@
     <span class="doccomment">/// If the semaphore has been closed, this returns an [`AcquireError`].</span>
     <span class="doccomment">/// Otherwise, this returns a [`OwnedSemaphorePermit`] representing the</span>
     <span class="doccomment">/// acquired permit.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method uses a queue to fairly distribute permits in the order they</span>
+    <span class="doccomment">/// were requested. Cancelling a call to `acquire_many_owned` makes you lose</span>
+    <span class="doccomment">/// your place in the queue.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use std::sync::Arc;</span>
+    <span class="doccomment">/// use tokio::sync::Semaphore;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[tokio::main]</span>
+    <span class="doccomment">/// async fn main() {</span>
+    <span class="doccomment">///     let semaphore = Arc::new(Semaphore::new(10));</span>
+    <span class="doccomment">///     let mut join_handles = Vec::new();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     for _ in 0..5 {</span>
+    <span class="doccomment">///         let permit = semaphore.clone().acquire_many_owned(2).await.unwrap();</span>
+    <span class="doccomment">///         join_handles.push(tokio::spawn(async move {</span>
+    <span class="doccomment">///             // perform task...</span>
+    <span class="doccomment">///             // explicitly own `permit` in the task</span>
+    <span class="doccomment">///             drop(permit);</span>
+    <span class="doccomment">///         }));</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     for handle in join_handles {</span>
+    <span class="doccomment">///         handle.await.unwrap();</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Arc`]: std::sync::Arc</span>
     <span class="doccomment">/// [`AcquireError`]: crate::sync::AcquireError</span>
@@ -545,6 +986,26 @@
     <span class="doccomment">/// Otherwise, this returns a [`OwnedSemaphorePermit`] representing the</span>
     <span class="doccomment">/// acquired permit.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use std::sync::Arc;</span>
+    <span class="doccomment">/// use tokio::sync::{Semaphore, TryAcquireError};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # fn main() {</span>
+    <span class="doccomment">/// let semaphore = Arc::new(Semaphore::new(2));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_1 = Arc::clone(&amp;semaphore).try_acquire_owned().unwrap();</span>
+    <span class="doccomment">/// assert_eq!(semaphore.available_permits(), 1);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_2 = Arc::clone(&amp;semaphore).try_acquire_owned().unwrap();</span>
+    <span class="doccomment">/// assert_eq!(semaphore.available_permits(), 0);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_3 = semaphore.try_acquire_owned();</span>
+    <span class="doccomment">/// assert_eq!(permit_3.err(), Some(TryAcquireError::NoPermits));</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// [`Arc`]: std::sync::Arc</span>
     <span class="doccomment">/// [`TryAcquireError::Closed`]: crate::sync::TryAcquireError::Closed</span>
     <span class="doccomment">/// [`TryAcquireError::NoPermits`]: crate::sync::TryAcquireError::NoPermits</span>
@@ -566,6 +1027,23 @@
     <span class="doccomment">/// and a [`TryAcquireError::NoPermits`] if there are no permits left.</span>
     <span class="doccomment">/// Otherwise, this returns a [`OwnedSemaphorePermit`] representing the</span>
     <span class="doccomment">/// acquired permit.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use std::sync::Arc;</span>
+    <span class="doccomment">/// use tokio::sync::{Semaphore, TryAcquireError};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # fn main() {</span>
+    <span class="doccomment">/// let semaphore = Arc::new(Semaphore::new(4));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_1 = Arc::clone(&amp;semaphore).try_acquire_many_owned(3).unwrap();</span>
+    <span class="doccomment">/// assert_eq!(semaphore.available_permits(), 1);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let permit_2 = semaphore.try_acquire_many_owned(2);</span>
+    <span class="doccomment">/// assert_eq!(permit_2.err(), Some(TryAcquireError::NoPermits));</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Arc`]: std::sync::Arc</span>
     <span class="doccomment">/// [`TryAcquireError::Closed`]: crate::sync::TryAcquireError::Closed</span>

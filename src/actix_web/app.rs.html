@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.0-beta.5/src/app.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.0-beta.8/src/app.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -679,6 +679,39 @@
 <span id="678">678</span>
 <span id="679">679</span>
 <span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -725,13 +758,14 @@
     <span class="doccomment">/// Create application builder. Application can be configured with a builder-like pattern.</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::new_without_default</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">fref</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">RefCell::new</span>(<span class="prelude-val">None</span>));
+        <span class="kw">let</span> <span class="ident">factory_ref</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">RefCell::new</span>(<span class="prelude-val">None</span>));
+
         <span class="ident">App</span> {
-            <span class="ident">endpoint</span>: <span class="ident">AppEntry::new</span>(<span class="ident">fref</span>.<span class="ident">clone</span>()),
+            <span class="ident">endpoint</span>: <span class="ident">AppEntry::new</span>(<span class="ident">factory_ref</span>.<span class="ident">clone</span>()),
             <span class="ident">data_factories</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">services</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">default</span>: <span class="prelude-val">None</span>,
-            <span class="ident">factory_ref</span>: <span class="ident">fref</span>,
+            <span class="ident">factory_ref</span>,
             <span class="ident">external</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">extensions</span>: <span class="ident">Extensions::new</span>(),
             <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
@@ -750,43 +784,83 @@
         <span class="ident">InitError</span> <span class="op">=</span> (),
     <span class="op">&gt;</span>,
 {
-    <span class="doccomment">/// Set application data. Application data could be accessed</span>
-    <span class="doccomment">/// by using `Data&lt;T&gt;` extractor where `T` is data type.</span>
+    <span class="doccomment">/// Set application (root level) data.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// **Note**: HTTP server accepts an application factory rather than</span>
-    <span class="doccomment">/// an application instance. Http server constructs an application</span>
-    <span class="doccomment">/// instance for each thread, thus application data must be constructed</span>
-    <span class="doccomment">/// multiple times. If you want to share data between different</span>
-    <span class="doccomment">/// threads, a shared object should be used, e.g. `Arc`. Internally `Data` type</span>
-    <span class="doccomment">/// uses `Arc` so data could be created outside of app factory and clones could</span>
-    <span class="doccomment">/// be stored via `App::app_data()` method.</span>
+    <span class="doccomment">/// Application data stored with `App::app_data()` method is available through the</span>
+    <span class="doccomment">/// [`HttpRequest::app_data`](crate::HttpRequest::app_data) method at runtime.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # [`Data&lt;T&gt;`]</span>
+    <span class="doccomment">/// Any [`Data&lt;T&gt;`] type added here can utilize it&#39;s extractor implementation in handlers.</span>
+    <span class="doccomment">/// Types not wrapped in `Data&lt;T&gt;` cannot use this extractor. See [its docs](Data&lt;T&gt;) for more</span>
+    <span class="doccomment">/// about its usage and patterns.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use std::cell::Cell;</span>
-    <span class="doccomment">/// use actix_web::{web, App, HttpResponse, Responder};</span>
+    <span class="doccomment">/// use actix_web::{web, App, HttpRequest, HttpResponse, Responder};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// struct MyData {</span>
-    <span class="doccomment">///     counter: Cell&lt;usize&gt;,</span>
+    <span class="doccomment">///     count: std::cell::Cell&lt;usize&gt;,</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// async fn index(data: web::Data&lt;MyData&gt;) -&gt; impl Responder {</span>
-    <span class="doccomment">///     data.counter.set(data.counter.get() + 1);</span>
-    <span class="doccomment">///     HttpResponse::Ok()</span>
+    <span class="doccomment">/// async fn handler(req: HttpRequest, counter: web::Data&lt;MyData&gt;) -&gt; impl Responder {</span>
+    <span class="doccomment">///     // note this cannot use the Data&lt;T&gt; extractor because it was not added with it</span>
+    <span class="doccomment">///     let incr = *req.app_data::&lt;usize&gt;().unwrap();</span>
+    <span class="doccomment">///     assert_eq!(incr, 3);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     // update counter using other value from app data</span>
+    <span class="doccomment">///     counter.count.set(counter.count.get() + incr);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     HttpResponse::Ok().body(counter.count.get().to_string())</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let app = App::new()</span>
-    <span class="doccomment">///     .data(MyData{ counter: Cell::new(0) })</span>
-    <span class="doccomment">///     .service(</span>
-    <span class="doccomment">///         web::resource(&quot;/index.html&quot;).route(</span>
-    <span class="doccomment">///             web::get().to(index)));</span>
+    <span class="doccomment">/// let app = App::new().service(</span>
+    <span class="doccomment">///     web::resource(&quot;/&quot;)</span>
+    <span class="doccomment">///         .app_data(3usize)</span>
+    <span class="doccomment">///         .app_data(web::Data::new(MyData { count: Default::default() }))</span>
+    <span class="doccomment">///         .route(web::get().to(handler))</span>
+    <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Shared Mutable State</span>
+    <span class="doccomment">/// [`HttpServer::new`](crate::HttpServer::new) accepts an application factory rather than an</span>
+    <span class="doccomment">/// application instance; the factory closure is called on each worker thread independently.</span>
+    <span class="doccomment">/// Therefore, if you want to share a data object between different workers, a shareable object</span>
+    <span class="doccomment">/// needs to be created first, outside the `HttpServer::new` closure and cloned into it.</span>
+    <span class="doccomment">/// [`Data&lt;T&gt;`] is an example of such a sharable object.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// let counter = web::Data::new(AppStateWithCounter {</span>
+    <span class="doccomment">///     counter: Mutex::new(0),</span>
+    <span class="doccomment">/// });</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// HttpServer::new(move || {</span>
+    <span class="doccomment">///     // move counter object into the closure and clone for each worker</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     App::new()</span>
+    <span class="doccomment">///         .app_data(counter.clone())</span>
+    <span class="doccomment">///         .route(&quot;/&quot;, web::get().to(handler))</span>
+    <span class="doccomment">/// })</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_data</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ext</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="ident">ext</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Add application (root) data after wrapping in `Data&lt;T&gt;`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Deprecated in favor of [`app_data`](Self::app_data).</span>
+    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Use `.app_data(Data::new(val))` instead.&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">data</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">data</span>))
     }
 
-    <span class="doccomment">/// Set application data factory. This function is</span>
-    <span class="doccomment">/// similar to `.data()` but it accepts data factory. Data object get</span>
-    <span class="doccomment">/// constructed asynchronously during application initialization.</span>
+    <span class="doccomment">/// Add application data factory. This function is similar to `.data()` but it accepts a</span>
+    <span class="doccomment">/// &quot;data factory&quot;. Data values are constructed asynchronously during application</span>
+    <span class="doccomment">/// initialization, before the server starts accepting requests.</span>
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Construct data value before starting server and use `.app_data(Data::new(val))` instead.&quot;</span>
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data_factory</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Out</span>, <span class="ident">D</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">Fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Out</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -812,18 +886,6 @@
             }
             .<span class="ident">boxed_local</span>()
         }));
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Set application level arbitrary data item.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Application data stored with `App::app_data()` method is available</span>
-    <span class="doccomment">/// via `HttpRequest::app_data()` method at runtime.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method could be used for storing `Data&lt;T&gt;` as well, in that case</span>
-    <span class="doccomment">/// data could be accessed by using `Data&lt;T&gt;` extractor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_data</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ext</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="ident">ext</span>);
         <span class="self">self</span>
     }
 
@@ -1200,6 +1262,8 @@
         <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::CREATED</span>);
     }
 
+    <span class="comment">// allow deprecated App::data</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
     <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_data_factory</span>() {
         <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
@@ -1223,6 +1287,8 @@
         <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>);
     }
 
+    <span class="comment">// allow deprecated App::data</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
     <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_data_factory_errors</span>() {
         <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">try_init_service</span>(

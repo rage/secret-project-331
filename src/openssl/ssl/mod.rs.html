@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.34/src/ssl/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.35/src/ssl/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -4188,6 +4188,45 @@
 <span id="4185">4185</span>
 <span id="4186">4186</span>
 <span id="4187">4187</span>
+<span id="4188">4188</span>
+<span id="4189">4189</span>
+<span id="4190">4190</span>
+<span id="4191">4191</span>
+<span id="4192">4192</span>
+<span id="4193">4193</span>
+<span id="4194">4194</span>
+<span id="4195">4195</span>
+<span id="4196">4196</span>
+<span id="4197">4197</span>
+<span id="4198">4198</span>
+<span id="4199">4199</span>
+<span id="4200">4200</span>
+<span id="4201">4201</span>
+<span id="4202">4202</span>
+<span id="4203">4203</span>
+<span id="4204">4204</span>
+<span id="4205">4205</span>
+<span id="4206">4206</span>
+<span id="4207">4207</span>
+<span id="4208">4208</span>
+<span id="4209">4209</span>
+<span id="4210">4210</span>
+<span id="4211">4211</span>
+<span id="4212">4212</span>
+<span id="4213">4213</span>
+<span id="4214">4214</span>
+<span id="4215">4215</span>
+<span id="4216">4216</span>
+<span id="4217">4217</span>
+<span id="4218">4218</span>
+<span id="4219">4219</span>
+<span id="4220">4220</span>
+<span id="4221">4221</span>
+<span id="4222">4222</span>
+<span id="4223">4223</span>
+<span id="4224">4224</span>
+<span id="4225">4225</span>
+<span id="4226">4226</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! SSL/TLS support.</span>
 <span class="doccomment">//!</span>
@@ -4251,7 +4290,7 @@
 <span class="kw">use</span> <span class="ident">bitflags::bitflags</span>;
 <span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 <span class="kw">use</span> <span class="ident">foreign_types</span>::{<span class="ident">ForeignType</span>, <span class="ident">ForeignTypeRef</span>, <span class="ident">Opaque</span>};
-<span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_long</span>, <span class="ident">c_uchar</span>, <span class="ident">c_uint</span>, <span class="ident">c_ulong</span>, <span class="ident">c_void</span>};
+<span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_long</span>, <span class="ident">c_uchar</span>, <span class="ident">c_uint</span>, <span class="ident">c_void</span>};
 <span class="kw">use</span> <span class="ident">once_cell::sync</span>::{<span class="ident">Lazy</span>, <span class="ident">OnceCell</span>};
 <span class="kw">use</span> <span class="ident">std::any::TypeId</span>;
 <span class="kw">use</span> <span class="ident">std::cmp</span>;
@@ -4325,9 +4364,17 @@
     }
 }
 
+<span class="macro">cfg_if!</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span> {
+        <span class="kw">type</span> <span class="ident">SslOptionsRepr</span> <span class="op">=</span> <span class="ident">u64</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">type</span> <span class="ident">SslOptionsRepr</span> <span class="op">=</span> <span class="ident">libc::c_ulong</span>;
+    }
+}
+
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Options controlling the behavior of an `SslContext`.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SslOptions</span>: <span class="ident">c_ulong</span> {
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SslOptions</span>: <span class="ident">SslOptionsRepr</span> {
         <span class="doccomment">/// Disables a countermeasure against an SSLv3/TLSv1.0 vulnerability affecting CBC ciphers.</span>
         <span class="kw">const</span> <span class="ident">DONT_INSERT_EMPTY_FRAGMENTS</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS</span>;
 
@@ -6651,6 +6698,11 @@
         <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_read</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">buf</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">len</span>) }
     }
 
+    <span class="kw">fn</span> <span class="ident">peek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">c_int::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">buf</span>.<span class="ident">len</span>()) <span class="kw">as</span> <span class="ident">c_int</span>;
+        <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_peek</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">buf</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">len</span>) }
+    }
+
     <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">c_int</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">c_int::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">buf</span>.<span class="ident">len</span>()) <span class="kw">as</span> <span class="ident">c_int</span>;
         <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_write</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">buf</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>, <span class="ident">len</span>) }
@@ -6872,7 +6924,7 @@
     <span class="doccomment">/// [`SSL_get_peer_certificate`]: https://www.openssl.org/docs/man1.1.0/ssl/SSL_get_peer_certificate.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peer_certificate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">X509</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::SSL_get_peer_certificate</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>());
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">SSL_get1_peer_certificate</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>());
             <span class="ident">X509::from_ptr_opt</span>(<span class="ident">ptr</span>)
         }
     }
@@ -7895,6 +7947,25 @@
         }
     }
 
+    <span class="doccomment">/// Reads data from the stream, without removing it from the queue.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This corresponds to [`SSL_peek`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`SSL_peek`]: https://www.openssl.org/docs/manmaster/man3/SSL_peek.html</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_peek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="comment">// See above for why we short-circuit on zero-length buffers</span>
+        <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="number">0</span>);
+        }
+
+        <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ssl</span>.<span class="ident">peek</span>(<span class="ident">buf</span>);
+        <span class="kw">if</span> <span class="ident">ret</span> <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">ret</span> <span class="kw">as</span> <span class="ident">usize</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">make_error</span>(<span class="ident">ret</span>))
+        }
+    }
+
     <span class="doccomment">/// Shuts down the session.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The shutdown process consists of two steps. The first step sends a close notify message to</span>
@@ -8319,6 +8390,13 @@
     }
 }
 
+<span class="macro">cfg_if!</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span> {
+        <span class="kw">use</span> <span class="ident">ffi::SSL_get1_peer_certificate</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">use</span> <span class="ident">ffi::SSL_get_peer_certificate</span> <span class="kw">as</span> <span class="ident">SSL_get1_peer_certificate</span>;
+    }
+}
 <span class="macro">cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">libressl291</span>))]</span> {
         <span class="kw">use</span> <span class="ident">ffi</span>::{<span class="ident">TLS_method</span>, <span class="ident">DTLS_method</span>, <span class="ident">TLS_client_method</span>, <span class="ident">TLS_server_method</span>};

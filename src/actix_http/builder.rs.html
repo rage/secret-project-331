@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.0.0-beta.5/src/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_http/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.0.0-beta.8/src/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_http/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -244,23 +244,21 @@
 <span id="243">243</span>
 <span id="244">244</span>
 <span id="245">245</span>
+<span id="246">246</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">net</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>, <span class="ident">fmt</span>, <span class="ident">marker::PhantomData</span>, <span class="ident">net</span>, <span class="ident">rc::Rc</span>};
 
 <span class="kw">use</span> <span class="ident">actix_codec::Framed</span>;
 <span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">IntoServiceFactory</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::body::MessageBody</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::config</span>::{<span class="ident">KeepAlive</span>, <span class="ident">ServiceConfig</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Error</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::h1</span>::{<span class="ident">Codec</span>, <span class="ident">ExpectHandler</span>, <span class="ident">H1Service</span>, <span class="ident">UpgradeHandler</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::h2::H2Service</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::request::Request</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::response::Response</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::service::HttpService</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ConnectCallback</span>, <span class="ident">Extensions</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">body</span>::{<span class="ident">AnyBody</span>, <span class="ident">MessageBody</span>},
+    <span class="ident">config</span>::{<span class="ident">KeepAlive</span>, <span class="ident">ServiceConfig</span>},
+    <span class="ident">h1</span>::{<span class="self">self</span>, <span class="ident">ExpectHandler</span>, <span class="ident">H1Service</span>, <span class="ident">UpgradeHandler</span>},
+    <span class="ident">h2::H2Service</span>,
+    <span class="ident">service::HttpService</span>,
+    <span class="ident">ConnectCallback</span>, <span class="ident">Extensions</span>, <span class="ident">Request</span>, <span class="ident">Response</span>,
+};
 
 <span class="doccomment">/// A HTTP service builder</span>
 <span class="doccomment">///</span>
@@ -281,7 +279,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">HttpServiceBuilder</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">ExpectHandler</span>, <span class="ident">UpgradeHandler</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
     <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
 {
@@ -304,13 +302,13 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">HttpServiceBuilder</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
     <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
     <span class="ident">X</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">X::InitError</span>: <span class="ident">fmt::Debug</span>,
-    <span class="ident">U</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
+    <span class="ident">U</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
     <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
     <span class="ident">U::InitError</span>: <span class="ident">fmt::Debug</span>,
 {
@@ -370,7 +368,7 @@
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">X1</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
         <span class="ident">X1</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">X1::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+        <span class="ident">X1::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">X1::InitError</span>: <span class="ident">fmt::Debug</span>,
     {
         <span class="ident">HttpServiceBuilder</span> {
@@ -392,8 +390,8 @@
     <span class="doccomment">/// and this service get called with original request and framed object.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U1</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">upgrade</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpServiceBuilder</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U1</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">U1</span>, (<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-        <span class="ident">U1</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">U1</span>, (<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+        <span class="ident">U1</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
         <span class="ident">U1::Error</span>: <span class="ident">fmt::Display</span>,
         <span class="ident">U1::InitError</span>: <span class="ident">fmt::Debug</span>,
     {
@@ -428,7 +426,7 @@
     <span class="kw">where</span>
         <span class="ident">B</span>: <span class="ident">MessageBody</span>,
         <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
         <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -449,11 +447,13 @@
     <span class="doccomment">/// Finish service configuration and create a HTTP service for HTTP/2 protocol.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">h2</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">service</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">H2Service</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
         <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+
+        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="ident">ServiceConfig::new</span>(
             <span class="self">self</span>.<span class="ident">keep_alive</span>,
@@ -470,11 +470,13 @@
     <span class="doccomment">/// Finish service configuration and create `HttpService` instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">service</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
         <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+
+        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="ident">ServiceConfig::new</span>(
             <span class="self">self</span>.<span class="ident">keep_alive</span>,

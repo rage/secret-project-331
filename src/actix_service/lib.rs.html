@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.0-beta.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_service/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https://actix.rs/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_service/index.html'><div class='logo-container'><img src='https://actix.rs/img/logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -315,11 +315,20 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! See [`Service`] docs for information on this crate&#39;s foundational trait.</span>
 
 <span class="attribute">#![<span class="ident">no_std</span>]</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">rust_2018_idioms</span>, <span class="ident">nonstandard_style</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">rust_2018_idioms</span>, <span class="ident">nonstandard_style</span>, <span class="ident">future_incompatible</span>)]</span>
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://actix.rs/img/logo.png&quot;</span>)]</span>
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://actix.rs/favicon.ico&quot;</span>)]</span>
@@ -355,7 +364,6 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::ext</span>::{<span class="ident">ServiceExt</span>, <span class="ident">ServiceFactoryExt</span>, <span class="ident">TransformExt</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::fn_service</span>::{<span class="ident">fn_factory</span>, <span class="ident">fn_factory_with_config</span>, <span class="ident">fn_service</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::map_config</span>::{<span class="ident">map_config</span>, <span class="ident">unit_config</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::pipeline</span>::{<span class="ident">pipeline</span>, <span class="ident">pipeline_factory</span>, <span class="ident">Pipeline</span>, <span class="ident">PipelineFactory</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::transform</span>::{<span class="ident">apply</span>, <span class="ident">ApplyTransform</span>, <span class="ident">Transform</span>};
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
@@ -371,8 +379,14 @@
 <span class="doccomment">/// async fn(Request) -&gt; Result&lt;Response, Err&gt;</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The `Service` trait just generalizes this form where each parameter is described as an</span>
-<span class="doccomment">/// associated type on the trait. Services can also have mutable state that influence computation.</span>
+<span class="doccomment">/// The `Service` trait just generalizes this form. Requests are defined as a generic type parameter</span>
+<span class="doccomment">/// and responses and other details are defined as associated types on the trait impl. Notice that</span>
+<span class="doccomment">/// this design means that services can receive many request types and converge them to a single</span>
+<span class="doccomment">/// response type.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Services can also have mutable state that influence computation by using a `Cell`, `RefCell`</span>
+<span class="doccomment">/// or `Mutex`. Services intentionally do not take `&amp;mut self` to reduce overhead in the</span>
+<span class="doccomment">/// common cases.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// `Service` provides a symmetric and uniform API; the same abstractions can be used to represent</span>
 <span class="doccomment">/// both clients and servers. Services describe only _transformation_ operations which encourage</span>
@@ -382,11 +396,10 @@
 <span class="doccomment">/// ```ignore</span>
 <span class="doccomment">/// struct MyService;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// impl Service for MyService {</span>
-<span class="doccomment">///      type Request = u8;</span>
+<span class="doccomment">/// impl Service&lt;u8&gt; for MyService {</span>
 <span class="doccomment">///      type Response = u64;</span>
 <span class="doccomment">///      type Error = MyError;</span>
-<span class="doccomment">///      type Future = Pin&lt;Box&lt;Future&lt;Output=Result&lt;Self::Response, Self::Error&gt;&gt;&gt;&gt;;</span>
+<span class="doccomment">///      type Future = Pin&lt;Box&lt;dyn Future&lt;Output = Result&lt;Self::Response, Self::Error&gt;&gt;&gt;&gt;;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///      fn poll_ready(&amp;self, cx: &amp;mut Context&lt;&#39;_&gt;) -&gt; Poll&lt;Result&lt;(), Self::Error&gt;&gt; { ... }</span>
 <span class="doccomment">///</span>
@@ -395,10 +408,13 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Sometimes it is not necessary to implement the Service trait. For example, the above service</span>
-<span class="doccomment">/// could be rewritten as a simple function and passed to [fn_service](fn_service()).</span>
+<span class="doccomment">/// could be rewritten as a simple function and passed to [`fn_service`](fn_service()).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```ignore</span>
 <span class="doccomment">/// async fn my_service(req: u8) -&gt; Result&lt;u64, MyError&gt;;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let svc = fn_service(my_service)</span>
+<span class="doccomment">/// svc.call(123)</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Responses given by the service.</span>
@@ -412,13 +428,12 @@
 
     <span class="doccomment">/// Returns `Ready` when the service is able to process requests.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// If the service is at capacity, then `Pending` is returned and the task</span>
-    <span class="doccomment">/// is notified when the service becomes ready again. This function is</span>
-    <span class="doccomment">/// expected to be called while on a task.</span>
+    <span class="doccomment">/// If the service is at capacity, then `Pending` is returned and the task is notified when the</span>
+    <span class="doccomment">/// service becomes ready again. This function is expected to be called while on a task.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a **best effort** implementation. False positives are permitted.</span>
-    <span class="doccomment">/// It is permitted for the service to return `Ready` from a `poll_ready`</span>
-    <span class="doccomment">/// call and the next invocation of `call` results in an error.</span>
+    <span class="doccomment">/// This is a best effort implementation. False positives are permitted. It is permitted for</span>
+    <span class="doccomment">/// the service to return `Ready` from a `poll_ready` call and the next invocation of `call`</span>
+    <span class="doccomment">/// results in an error.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Notes</span>
     <span class="doccomment">/// 1. `poll_ready` might be called on a different task to `call`.</span>
@@ -427,25 +442,26 @@
 
     <span class="doccomment">/// Process the request and return the response asynchronously.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is expected to be callable off task. As such,</span>
-    <span class="doccomment">/// implementations should take care to not call `poll_ready`. If the</span>
-    <span class="doccomment">/// service is at capacity and the request is unable to be handled, the</span>
-    <span class="doccomment">/// returned `Future` should resolve to an error.</span>
+    <span class="doccomment">/// This function is expected to be callable off-task. As such, implementations of `call` should</span>
+    <span class="doccomment">/// take care to not call `poll_ready`. If the service is at capacity and the request is unable</span>
+    <span class="doccomment">/// to be handled, the returned `Future` should resolve to an error.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Calling `call` without calling `poll_ready` is permitted. The</span>
-    <span class="doccomment">/// implementation must be resilient to this fact.</span>
+    <span class="doccomment">/// Invoking `call` without first invoking `poll_ready` is permitted. Implementations must be</span>
+    <span class="doccomment">/// resilient to this fact.</span>
     <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Future</span>;
 }
 
 <span class="doccomment">/// Factory for creating `Service`s.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Acts as a service factory. This is useful for cases where new `Service`s</span>
-<span class="doccomment">/// must be produced. One case is a TCP server listener. The listener</span>
-<span class="doccomment">/// accepts new TCP streams, obtains a new `Service` using the</span>
-<span class="doccomment">/// `ServiceFactory` trait, and uses the new `Service` to process inbound</span>
-<span class="doccomment">/// requests on that new TCP stream.</span>
+<span class="doccomment">/// This is useful for cases where new `Service`s must be produced. One case is a TCP</span>
+<span class="doccomment">/// server listener: a listener accepts new connections, constructs a new `Service` for each using</span>
+<span class="doccomment">/// the `ServiceFactory` trait, and uses the new `Service` to process inbound requests on that new</span>
+<span class="doccomment">/// connection.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// `Config` is a service factory configuration type.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Simple factories may be able to use [`fn_factory`] or [`fn_factory_with_config`] to</span>
+<span class="doccomment">/// reduce boilerplate.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Responses given by the created services.</span>
     <span class="kw">type</span> <span class="ident">Response</span>;
@@ -462,7 +478,7 @@
     <span class="doccomment">/// Errors potentially raised while building a service.</span>
     <span class="kw">type</span> <span class="ident">InitError</span>;
 
-    <span class="doccomment">/// The future of the `Service` instance.</span>
+    <span class="doccomment">/// The future of the `Service` instance.g</span>
     <span class="kw">type</span> <span class="ident">Future</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Service</span>, <span class="self">Self</span><span class="ident">::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Create and return a new service asynchronously.</span>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.3/src/async_impl/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.4/src/async_impl/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../reqwest/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1632,13 +1632,94 @@
 <span id="1629">1629</span>
 <span id="1630">1630</span>
 <span id="1631">1631</span>
+<span id="1632">1632</span>
+<span id="1633">1633</span>
+<span id="1634">1634</span>
+<span id="1635">1635</span>
+<span id="1636">1636</span>
+<span id="1637">1637</span>
+<span id="1638">1638</span>
+<span id="1639">1639</span>
+<span id="1640">1640</span>
+<span id="1641">1641</span>
+<span id="1642">1642</span>
+<span id="1643">1643</span>
+<span id="1644">1644</span>
+<span id="1645">1645</span>
+<span id="1646">1646</span>
+<span id="1647">1647</span>
+<span id="1648">1648</span>
+<span id="1649">1649</span>
+<span id="1650">1650</span>
+<span id="1651">1651</span>
+<span id="1652">1652</span>
+<span id="1653">1653</span>
+<span id="1654">1654</span>
+<span id="1655">1655</span>
+<span id="1656">1656</span>
+<span id="1657">1657</span>
+<span id="1658">1658</span>
+<span id="1659">1659</span>
+<span id="1660">1660</span>
+<span id="1661">1661</span>
+<span id="1662">1662</span>
+<span id="1663">1663</span>
+<span id="1664">1664</span>
+<span id="1665">1665</span>
+<span id="1666">1666</span>
+<span id="1667">1667</span>
+<span id="1668">1668</span>
+<span id="1669">1669</span>
+<span id="1670">1670</span>
+<span id="1671">1671</span>
+<span id="1672">1672</span>
+<span id="1673">1673</span>
+<span id="1674">1674</span>
+<span id="1675">1675</span>
+<span id="1676">1676</span>
+<span id="1677">1677</span>
+<span id="1678">1678</span>
+<span id="1679">1679</span>
+<span id="1680">1680</span>
+<span id="1681">1681</span>
+<span id="1682">1682</span>
+<span id="1683">1683</span>
+<span id="1684">1684</span>
+<span id="1685">1685</span>
+<span id="1686">1686</span>
+<span id="1687">1687</span>
+<span id="1688">1688</span>
+<span id="1689">1689</span>
+<span id="1690">1690</span>
+<span id="1691">1691</span>
+<span id="1692">1692</span>
+<span id="1693">1693</span>
+<span id="1694">1694</span>
+<span id="1695">1695</span>
+<span id="1696">1696</span>
+<span id="1697">1697</span>
+<span id="1698">1698</span>
+<span id="1699">1699</span>
+<span id="1700">1700</span>
+<span id="1701">1701</span>
+<span id="1702">1702</span>
+<span id="1703">1703</span>
+<span id="1704">1704</span>
+<span id="1705">1705</span>
+<span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>,))]</span>
 <span class="kw">use</span> <span class="ident">std::any::Any</span>;
-<span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
 <span class="kw">use</span> <span class="ident">std::net::IpAddr</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">convert::TryInto</span>, <span class="ident">net::SocketAddr</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">str</span>};
 
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
@@ -1688,7 +1769,7 @@
 <span class="doccomment">/// The `Client` holds a connection pool internally, so it is advised that</span>
 <span class="doccomment">/// you create one and **reuse** it.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// You do **not** have to wrap the `Client` it in an [`Rc`] or [`Arc`] to **reuse** it,</span>
+<span class="doccomment">/// You do **not** have to wrap the `Client` in an [`Rc`] or [`Arc`] to **reuse** it,</span>
 <span class="doccomment">/// because it already uses an [`Arc`] internally.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`Rc`]: std::rc::Rc</span>
@@ -1697,7 +1778,7 @@
     <span class="ident">inner</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">ClientRef</span><span class="op">&gt;</span>,
 }
 
-<span class="doccomment">/// A `ClientBuilder` can be used to create a `Client` with  custom configuration.</span>
+<span class="doccomment">/// A `ClientBuilder` can be used to create a `Client` with custom configuration.</span>
 <span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ClientBuilder</span> {
     <span class="ident">config</span>: <span class="ident">Config</span>,
@@ -1742,6 +1823,7 @@
     <span class="ident">trust_dns</span>: <span class="ident">bool</span>,
     <span class="ident">error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span>,
     <span class="ident">https_only</span>: <span class="ident">bool</span>,
+    <span class="ident">dns_overrides</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">SocketAddr</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ClientBuilder</span> {
@@ -1799,6 +1881,7 @@
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
                 <span class="ident">cookie_store</span>: <span class="prelude-val">None</span>,
                 <span class="ident">https_only</span>: <span class="bool-val">false</span>,
+                <span class="ident">dns_overrides</span>: <span class="ident">HashMap::new</span>(),
             },
         }
     }
@@ -1807,7 +1890,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails if TLS backend cannot be initialized, or the resolver</span>
+    <span class="doccomment">/// This method fails if a TLS backend cannot be initialized, or the resolver</span>
     <span class="doccomment">/// cannot load the system configuration.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">Client</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">config</span>;
@@ -1829,9 +1912,21 @@
             }
 
             <span class="kw">let</span> <span class="ident">http</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">config</span>.<span class="ident">trust_dns</span> {
-                <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HttpConnector::new_gai</span>(),
+                <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">dns_overrides</span>.<span class="ident">is_empty</span>() {
+                        <span class="ident">HttpConnector::new_gai</span>()
+                    } <span class="kw">else</span> {
+                        <span class="ident">HttpConnector::new_gai_with_overrides</span>(<span class="ident">config</span>.<span class="ident">dns_overrides</span>)
+                    }
+                }
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trust-dns&quot;</span>)]</span>
-                <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HttpConnector::new_trust_dns</span>()<span class="question-mark">?</span>,
+                <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">dns_overrides</span>.<span class="ident">is_empty</span>() {
+                        <span class="ident">HttpConnector::new_trust_dns</span>()<span class="question-mark">?</span>
+                    } <span class="kw">else</span> {
+                        <span class="ident">HttpConnector::new_trust_dns_with_overrides</span>(<span class="ident">config</span>.<span class="ident">dns_overrides</span>)<span class="question-mark">?</span>
+                    }
+                }
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trust-dns&quot;</span>))]</span>
                 <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;trust-dns shouldn&#39;t be enabled unless the feature is&quot;</span>),
             };
@@ -1841,6 +1936,15 @@
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;default-tls&quot;</span>)]</span>
                 <span class="ident">TlsBackend::Default</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">TlsConnector::builder</span>();
+
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls-alpn&quot;</span>)]</span>
+                    {
+                        <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">http2_only</span> {
+                            <span class="ident">tls</span>.<span class="ident">request_alpns</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;h2&quot;</span>]);
+                        } <span class="kw">else</span> {
+                            <span class="ident">tls</span>.<span class="ident">request_alpns</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;h2&quot;</span>, <span class="string">&quot;http/1.1&quot;</span>]);
+                        }
+                    }
 
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
                     {
@@ -2132,8 +2236,8 @@
     <span class="doccomment">/// - When sending a request and if the request&#39;s headers do not already contain</span>
     <span class="doccomment">///   an `Accept-Encoding` **and** `Range` values, the `Accept-Encoding` header is set to `gzip`.</span>
     <span class="doccomment">///   The request body is **not** automatically compressed.</span>
-    <span class="doccomment">/// - When receiving a response, if it&#39;s headers contain a `Content-Encoding` value that</span>
-    <span class="doccomment">///   equals to `gzip`, both values `Content-Encoding` and `Content-Length` are removed from the</span>
+    <span class="doccomment">/// - When receiving a response, if its headers contain a `Content-Encoding` value of</span>
+    <span class="doccomment">///   `gzip`, both `Content-Encoding` and `Content-Length` are removed from the</span>
     <span class="doccomment">///   headers&#39; set. The response body is automatically decompressed.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the `gzip` feature is turned on, the default option is enabled.</span>
@@ -2155,8 +2259,8 @@
     <span class="doccomment">/// - When sending a request and if the request&#39;s headers do not already contain</span>
     <span class="doccomment">///   an `Accept-Encoding` **and** `Range` values, the `Accept-Encoding` header is set to `br`.</span>
     <span class="doccomment">///   The request body is **not** automatically compressed.</span>
-    <span class="doccomment">/// - When receiving a response, if it&#39;s headers contain a `Content-Encoding` value that</span>
-    <span class="doccomment">///   equals to `br`, both values `Content-Encoding` and `Content-Length` are removed from the</span>
+    <span class="doccomment">/// - When receiving a response, if its headers contain a `Content-Encoding` value of</span>
+    <span class="doccomment">///   `br`, both `Content-Encoding` and `Content-Length` are removed from the</span>
     <span class="doccomment">///   headers&#39; set. The response body is automatically decompressed.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the `brotli` feature is turned on, the default option is enabled.</span>
@@ -2168,6 +2272,29 @@
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">accepts</span>.<span class="ident">brotli</span> <span class="op">=</span> <span class="ident">enable</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Enable auto deflate decompression by checking the `Content-Encoding` response header.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If auto deflate decompression is turned on:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - When sending a request and if the request&#39;s headers do not already contain</span>
+    <span class="doccomment">///   an `Accept-Encoding` **and** `Range` values, the `Accept-Encoding` header is set to `deflate`.</span>
+    <span class="doccomment">///   The request body is **not** automatically compressed.</span>
+    <span class="doccomment">/// - When receiving a response, if it&#39;s headers contain a `Content-Encoding` value that</span>
+    <span class="doccomment">///   equals to `deflate`, both values `Content-Encoding` and `Content-Length` are removed from the</span>
+    <span class="doccomment">///   headers&#39; set. The response body is automatically decompressed.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the `deflate` feature is turned on, the default option is enabled.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Optional</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This requires the optional `deflate` feature to be enabled</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>)))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deflate</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+        <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">accepts</span>.<span class="ident">deflate</span> <span class="op">=</span> <span class="ident">enable</span>;
         <span class="self">self</span>
     }
 
@@ -2200,6 +2327,23 @@
         }
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>))]</span>
+        {
+            <span class="self">self</span>
+        }
+    }
+
+    <span class="doccomment">/// Disable auto response body deflate decompression.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method exists even if the optional `deflate` feature is not enabled.</span>
+    <span class="doccomment">/// This can be used to ensure a `Client` doesn&#39;t use deflate decompression</span>
+    <span class="doccomment">/// even if another dependency were to enable the optional `deflate` feature.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_deflate</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>)]</span>
+        {
+            <span class="self">self</span>.<span class="ident">deflate</span>(<span class="bool-val">false</span>)
+        }
+
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>))]</span>
         {
             <span class="self">self</span>
         }
@@ -2623,6 +2767,19 @@
         <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">https_only</span> <span class="op">=</span> <span class="ident">enabled</span>;
         <span class="self">self</span>
     }
+
+    <span class="doccomment">/// Override DNS resolution for specific domains to particular IP addresses.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Warning</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Since the DNS protocol has no notion of ports, if you wish to send</span>
+    <span class="doccomment">/// traffic to a particular port you must include this port in the URL</span>
+    <span class="doccomment">/// itself, any port in the overridden addr will be ignored and traffic sent</span>
+    <span class="doccomment">/// to the conventional port for the given scheme (e.g. 80 for http).</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">domain</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">addr</span>: <span class="ident">SocketAddr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientBuilder</span> {
+        <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">dns_overrides</span>.<span class="ident">insert</span>(<span class="ident">domain</span>.<span class="ident">to_string</span>(), <span class="ident">addr</span>);
+        <span class="self">self</span>
+    }
 }
 
 <span class="kw">type</span> <span class="ident">HyperClient</span> <span class="op">=</span> <span class="ident">hyper::Client</span><span class="op">&lt;</span><span class="ident">Connector</span>, <span class="kw">super</span><span class="ident">::body::ImplStream</span><span class="op">&gt;</span>;
@@ -2638,7 +2795,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method panics if TLS backend cannot initialized, or the resolver</span>
+    <span class="doccomment">/// This method panics if a TLS backend cannot initialized, or the resolver</span>
     <span class="doccomment">/// cannot load the system configuration.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Use `Client::builder()` if you wish to handle the failure as an `Error`</span>
@@ -2658,7 +2815,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
+    <span class="doccomment">/// This method fails whenever the supplied `Url` cannot be parsed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::GET</span>, <span class="ident">url</span>)
     }
@@ -2667,7 +2824,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
+    <span class="doccomment">/// This method fails whenever the supplied `Url` cannot be parsed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">post</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::POST</span>, <span class="ident">url</span>)
     }
@@ -2676,7 +2833,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
+    <span class="doccomment">/// This method fails whenever the supplied `Url` cannot be parsed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::PUT</span>, <span class="ident">url</span>)
     }
@@ -2685,7 +2842,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
+    <span class="doccomment">/// This method fails whenever the supplied `Url` cannot be parsed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::PATCH</span>, <span class="ident">url</span>)
     }
@@ -2694,7 +2851,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
+    <span class="doccomment">/// This method fails whenever the supplied `Url` cannot be parsed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::DELETE</span>, <span class="ident">url</span>)
     }
@@ -2703,7 +2860,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
+    <span class="doccomment">/// This method fails whenever the supplied `Url` cannot be parsed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
         <span class="self">self</span>.<span class="ident">request</span>(<span class="ident">Method::HEAD</span>, <span class="ident">url</span>)
     }
@@ -2711,11 +2868,11 @@
     <span class="doccomment">/// Start building a `Request` with the `Method` and `Url`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns a `RequestBuilder`, which will allow setting headers and</span>
-    <span class="doccomment">/// request body before sending.</span>
+    <span class="doccomment">/// the request body before sending.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails whenever supplied `Url` cannot be parsed.</span>
+    <span class="doccomment">/// This method fails whenever the supplied `Url` cannot be parsed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">IntoUrl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">method</span>: <span class="ident">Method</span>, <span class="ident">url</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestBuilder</span> {
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">into_url</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> <span class="ident">Request::new</span>(<span class="ident">method</span>, <span class="ident">url</span>));
         <span class="ident">RequestBuilder::new</span>(<span class="self">self</span>.<span class="ident">clone</span>(), <span class="ident">req</span>)
@@ -2741,7 +2898,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">execute_request</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Request</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pending</span> {
-        <span class="kw">let</span> (<span class="ident">method</span>, <span class="ident">url</span>, <span class="kw-2">mut</span> <span class="ident">headers</span>, <span class="ident">body</span>, <span class="ident">timeout</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">pieces</span>();
+        <span class="kw">let</span> (<span class="ident">method</span>, <span class="ident">url</span>, <span class="kw-2">mut</span> <span class="ident">headers</span>, <span class="ident">body</span>, <span class="ident">timeout</span>, <span class="ident">version</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">pieces</span>();
         <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">scheme</span>() <span class="op">!</span><span class="op">=</span> <span class="string">&quot;http&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">url</span>.<span class="ident">scheme</span>() <span class="op">!</span><span class="op">=</span> <span class="string">&quot;https&quot;</span> {
             <span class="kw">return</span> <span class="ident">Pending::new_err</span>(<span class="ident">error::url_bad_scheme</span>(<span class="ident">url</span>));
         }
@@ -2792,6 +2949,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">hyper::Request::builder</span>()
             .<span class="ident">method</span>(<span class="ident">method</span>.<span class="ident">clone</span>())
             .<span class="ident">uri</span>(<span class="ident">uri</span>)
+            .<span class="ident">version</span>(<span class="ident">version</span>)
             .<span class="ident">body</span>(<span class="ident">body</span>.<span class="ident">into_stream</span>())
             .<span class="ident">expect</span>(<span class="string">&quot;valid request parts&quot;</span>);
 
@@ -2934,6 +3092,10 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls-crate&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>))]</span>
         {
             <span class="ident">f</span>.<span class="ident">field</span>(<span class="string">&quot;tls_backend&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tls</span>);
+        }
+
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">dns_overrides</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">f</span>.<span class="ident">field</span>(<span class="string">&quot;dns_overrides&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dns_overrides</span>);
         }
     }
 }

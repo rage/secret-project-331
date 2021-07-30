@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-util-0.3.15/src/stream/try_stream/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-util-0.3.16/src/stream/try_stream/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../futures_util/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1006,6 +1006,65 @@
 <span id="1003">1003</span>
 <span id="1004">1004</span>
 <span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Streams</span>
 <span class="doccomment">//!</span>
@@ -1021,6 +1080,8 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::future::assert_future</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stream::assert_stream</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stream</span>::{<span class="ident">Inspect</span>, <span class="ident">Map</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">alloc::vec::Vec</span>;
 <span class="kw">use</span> <span class="ident">core::pin::Pin</span>;
 <span class="kw">use</span> <span class="ident">futures_core</span>::{
     <span class="ident">future</span>::{<span class="ident">Future</span>, <span class="ident">TryFuture</span>},
@@ -1103,6 +1164,12 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_concat::TryConcat</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">try_chunks</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_chunks</span>::{<span class="ident">TryChunks</span>, <span class="ident">TryChunksError</span>};
+
 <span class="kw">mod</span> <span class="ident">try_fold</span>;
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_fold::TryFold</span>;
@@ -1119,25 +1186,29 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_take_while::TryTakeWhile</span>;
 
-<span class="macro">cfg_target_has_atomic!</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-    <span class="kw">mod</span> <span class="ident">try_buffer_unordered</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_buffer_unordered::TryBufferUnordered</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">futures_no_atomic_cas</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">try_buffer_unordered</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">futures_no_atomic_cas</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_buffer_unordered::TryBufferUnordered</span>;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-    <span class="kw">mod</span> <span class="ident">try_buffered</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_buffered::TryBuffered</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">futures_no_atomic_cas</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">try_buffered</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">futures_no_atomic_cas</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_buffered::TryBuffered</span>;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-    <span class="kw">mod</span> <span class="ident">try_for_each_concurrent</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_for_each_concurrent::TryForEachConcurrent</span>;
-}
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">futures_no_atomic_cas</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">try_for_each_concurrent</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">futures_no_atomic_cas</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_pub</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust/issues/57411</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::try_for_each_concurrent::TryForEachConcurrent</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
@@ -1579,6 +1650,53 @@
         <span class="self">Self</span>: <span class="ident">Sized</span>,
     {
         <span class="ident">assert_future</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">TryCollect::new</span>(<span class="self">self</span>))
+    }
+
+    <span class="doccomment">/// An adaptor for chunking up successful items of the stream inside a vector.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This combinator will attempt to pull successful items from this stream and buffer</span>
+    <span class="doccomment">/// them into a local vector. At most `capacity` items will get buffered</span>
+    <span class="doccomment">/// before they&#39;re yielded from the returned stream.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note that the vectors returned from this iterator may not always have</span>
+    <span class="doccomment">/// `capacity` elements. If the underlying stream ended and only a partial</span>
+    <span class="doccomment">/// vector was created, it&#39;ll be returned. Additionally if an error happens</span>
+    <span class="doccomment">/// from the underlying stream then the currently buffered items will be</span>
+    <span class="doccomment">/// yielded.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method is only available when the `std` or `alloc` feature of this</span>
+    <span class="doccomment">/// library is activated, and it is activated by default.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function is similar to</span>
+    <span class="doccomment">/// [`StreamExt::chunks`](crate::stream::StreamExt::chunks) but exits</span>
+    <span class="doccomment">/// early if an error occurs.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # futures::executor::block_on(async {</span>
+    <span class="doccomment">/// use futures::stream::{self, TryChunksError, TryStreamExt};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let stream = stream::iter(vec![Ok::&lt;i32, i32&gt;(1), Ok(2), Ok(3), Err(4), Ok(5), Ok(6)]);</span>
+    <span class="doccomment">/// let mut stream = stream.try_chunks(2);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(stream.try_next().await, Ok(Some(vec![1, 2])));</span>
+    <span class="doccomment">/// assert_eq!(stream.try_next().await, Err(TryChunksError(vec![3], 4)));</span>
+    <span class="doccomment">/// assert_eq!(stream.try_next().await, Ok(Some(vec![5, 6])));</span>
+    <span class="doccomment">/// # })</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method will panic if `capacity` is zero.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">try_chunks</span>(<span class="self">self</span>, <span class="ident">capacity</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TryChunks</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    {
+        <span class="ident">assert_stream</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Ok</span><span class="op">&gt;</span>, <span class="ident">TryChunksError</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Ok</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+            <span class="ident">TryChunks::new</span>(<span class="self">self</span>, <span class="ident">capacity</span>),
+        )
     }
 
     <span class="doccomment">/// Attempt to filter the values produced by this stream according to the</span>

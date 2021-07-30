@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.14.9/src/proto/h1/role.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>role.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.14.11/src/proto/h1/role.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>role.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../hyper/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -2535,6 +2535,98 @@
 <span id="2532">2532</span>
 <span id="2533">2533</span>
 <span id="2534">2534</span>
+<span id="2535">2535</span>
+<span id="2536">2536</span>
+<span id="2537">2537</span>
+<span id="2538">2538</span>
+<span id="2539">2539</span>
+<span id="2540">2540</span>
+<span id="2541">2541</span>
+<span id="2542">2542</span>
+<span id="2543">2543</span>
+<span id="2544">2544</span>
+<span id="2545">2545</span>
+<span id="2546">2546</span>
+<span id="2547">2547</span>
+<span id="2548">2548</span>
+<span id="2549">2549</span>
+<span id="2550">2550</span>
+<span id="2551">2551</span>
+<span id="2552">2552</span>
+<span id="2553">2553</span>
+<span id="2554">2554</span>
+<span id="2555">2555</span>
+<span id="2556">2556</span>
+<span id="2557">2557</span>
+<span id="2558">2558</span>
+<span id="2559">2559</span>
+<span id="2560">2560</span>
+<span id="2561">2561</span>
+<span id="2562">2562</span>
+<span id="2563">2563</span>
+<span id="2564">2564</span>
+<span id="2565">2565</span>
+<span id="2566">2566</span>
+<span id="2567">2567</span>
+<span id="2568">2568</span>
+<span id="2569">2569</span>
+<span id="2570">2570</span>
+<span id="2571">2571</span>
+<span id="2572">2572</span>
+<span id="2573">2573</span>
+<span id="2574">2574</span>
+<span id="2575">2575</span>
+<span id="2576">2576</span>
+<span id="2577">2577</span>
+<span id="2578">2578</span>
+<span id="2579">2579</span>
+<span id="2580">2580</span>
+<span id="2581">2581</span>
+<span id="2582">2582</span>
+<span id="2583">2583</span>
+<span id="2584">2584</span>
+<span id="2585">2585</span>
+<span id="2586">2586</span>
+<span id="2587">2587</span>
+<span id="2588">2588</span>
+<span id="2589">2589</span>
+<span id="2590">2590</span>
+<span id="2591">2591</span>
+<span id="2592">2592</span>
+<span id="2593">2593</span>
+<span id="2594">2594</span>
+<span id="2595">2595</span>
+<span id="2596">2596</span>
+<span id="2597">2597</span>
+<span id="2598">2598</span>
+<span id="2599">2599</span>
+<span id="2600">2600</span>
+<span id="2601">2601</span>
+<span id="2602">2602</span>
+<span id="2603">2603</span>
+<span id="2604">2604</span>
+<span id="2605">2605</span>
+<span id="2606">2606</span>
+<span id="2607">2607</span>
+<span id="2608">2608</span>
+<span id="2609">2609</span>
+<span id="2610">2610</span>
+<span id="2611">2611</span>
+<span id="2612">2612</span>
+<span id="2613">2613</span>
+<span id="2614">2614</span>
+<span id="2615">2615</span>
+<span id="2616">2616</span>
+<span id="2617">2617</span>
+<span id="2618">2618</span>
+<span id="2619">2619</span>
+<span id="2620">2620</span>
+<span id="2621">2621</span>
+<span id="2622">2622</span>
+<span id="2623">2623</span>
+<span id="2624">2624</span>
+<span id="2625">2625</span>
+<span id="2626">2626</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// `mem::uninitialized` replaced with `mem::MaybeUninit`,</span>
 <span class="comment">// can&#39;t upgrade yet</span>
@@ -2743,7 +2835,7 @@
                     <span class="comment">// malformed. A server should respond with 400 Bad Request.</span>
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">is_http_11</span> {
                         <span class="macro">debug!</span>(<span class="string">&quot;HTTP/1.0 cannot have Transfer-Encoding header&quot;</span>);
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Parse::Header</span>);
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Parse::transfer_encoding_unexpected</span>());
                     }
                     <span class="ident">is_te</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="kw">if</span> <span class="ident">headers::is_chunked_</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>) {
@@ -2757,17 +2849,15 @@
                     <span class="kw">if</span> <span class="ident">is_te</span> {
                         <span class="kw">continue</span>;
                     }
-                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">value</span>
-                        .<span class="ident">to_str</span>()
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Parse::Header</span>)
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Parse::Header</span>))<span class="question-mark">?</span>;
+                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">headers::content_length_parse</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>)
+                        .<span class="ident">ok_or_else</span>(<span class="ident">Parse::content_length_invalid</span>)<span class="question-mark">?</span>;
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev</span>) <span class="op">=</span> <span class="ident">con_len</span> {
                         <span class="kw">if</span> <span class="ident">prev</span> <span class="op">!</span><span class="op">=</span> <span class="ident">len</span> {
                             <span class="macro">debug!</span>(
                                 <span class="string">&quot;multiple Content-Length headers with different values: [{}, {}]&quot;</span>,
                                 <span class="ident">prev</span>, <span class="ident">len</span>,
                             );
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Parse::Header</span>);
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Parse::content_length_invalid</span>());
                         }
                         <span class="comment">// we don&#39;t need to append this secondary length</span>
                         <span class="kw">continue</span>;
@@ -2805,7 +2895,7 @@
 
         <span class="kw">if</span> <span class="ident">is_te</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_te_chunked</span> {
             <span class="macro">debug!</span>(<span class="string">&quot;request with transfer-encoding header, but not chunked, bad request&quot;</span>);
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Parse::Header</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Parse::transfer_encoding_invalid</span>());
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extensions</span> <span class="op">=</span> <span class="ident">http::Extensions::default</span>();
@@ -2924,7 +3014,7 @@
         <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Kind</span>;
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">err</span>.<span class="ident">kind</span>() {
             <span class="ident">Kind::Parse</span>(<span class="ident">Parse::Method</span>)
-            <span class="op">|</span> <span class="ident">Kind::Parse</span>(<span class="ident">Parse::Header</span>)
+            <span class="op">|</span> <span class="ident">Kind::Parse</span>(<span class="ident">Parse::Header</span>(<span class="kw">_</span>))
             <span class="op">|</span> <span class="ident">Kind::Parse</span>(<span class="ident">Parse::Uri</span>)
             <span class="op">|</span> <span class="ident">Kind::Parse</span>(<span class="ident">Parse::Version</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::BAD_REQUEST</span>,
             <span class="ident">Kind::Parse</span>(<span class="ident">Parse::TooLarge</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::REQUEST_HEADER_FIELDS_TOO_LARGE</span>,
@@ -3508,6 +3598,11 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>))]</span>
             <span class="ident">drop</span>(<span class="ident">reason</span>);
 
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">raw_headers</span> {
+                <span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="kw">crate</span><span class="ident">::ffi::RawHeaders</span>(<span class="kw">crate</span><span class="ident">::ffi::hyper_buf</span>(<span class="ident">slice</span>)));
+            }
+
             <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">MessageHead</span> {
                 <span class="ident">version</span>,
                 <span class="ident">subject</span>: <span class="ident">status</span>,
@@ -3524,6 +3619,13 @@
                     <span class="ident">keep_alive</span>: <span class="ident">keep_alive</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_upgrade</span>,
                     <span class="ident">wants_upgrade</span>: <span class="ident">is_upgrade</span>,
                 }));
+            }
+
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="kw">if</span> <span class="ident">head</span>.<span class="ident">subject</span>.<span class="ident">is_informational</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">callback</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">on_informational</span> {
+                    <span class="ident">callback</span>.<span class="ident">call</span>(<span class="ident">head</span>.<span class="ident">into_response</span>(<span class="kw">crate</span><span class="ident">::Body::empty</span>()));
+                }
             }
 
             <span class="comment">// Parsing a 1xx response could have consumed the buffer, check if</span>
@@ -3644,7 +3746,7 @@
             <span class="comment">// malformed. A server should respond with 400 Bad Request.</span>
             <span class="kw">if</span> <span class="ident">inc</span>.<span class="ident">version</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Version::HTTP_10</span> {
                 <span class="macro">debug!</span>(<span class="string">&quot;HTTP/1.0 cannot have Transfer-Encoding header&quot;</span>);
-                <span class="prelude-val">Err</span>(<span class="ident">Parse::Header</span>)
+                <span class="prelude-val">Err</span>(<span class="ident">Parse::transfer_encoding_unexpected</span>())
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">headers::transfer_encoding_is_chunked</span>(<span class="kw-2">&amp;</span><span class="ident">inc</span>.<span class="ident">headers</span>) {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">DecodedLength::CHUNKED</span>, <span class="bool-val">false</span>)))
             } <span class="kw">else</span> {
@@ -3655,7 +3757,7 @@
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">DecodedLength::checked_new</span>(<span class="ident">len</span>)<span class="question-mark">?</span>, <span class="bool-val">false</span>)))
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">inc</span>.<span class="ident">headers</span>.<span class="ident">contains_key</span>(<span class="ident">header::CONTENT_LENGTH</span>) {
             <span class="macro">debug!</span>(<span class="string">&quot;illegal Content-Length header&quot;</span>);
-            <span class="prelude-val">Err</span>(<span class="ident">Parse::Header</span>)
+            <span class="prelude-val">Err</span>(<span class="ident">Parse::content_length_invalid</span>())
         } <span class="kw">else</span> {
             <span class="macro">trace!</span>(<span class="string">&quot;neither Transfer-Encoding nor Content-Length&quot;</span>);
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">DecodedLength::CLOSE_DELIMITED</span>, <span class="bool-val">false</span>)))
@@ -3962,6 +4064,10 @@
                 <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
                 <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                 <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
             },
         )
         .<span class="ident">unwrap</span>()
@@ -3985,6 +4091,10 @@
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
         <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">Client::parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>, <span class="ident">ctx</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">raw</span>.<span class="ident">len</span>(), <span class="number">0</span>);
@@ -4003,6 +4113,10 @@
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
         <span class="ident">Server::parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>, <span class="ident">ctx</span>).<span class="ident">unwrap_err</span>();
     }
@@ -4019,6 +4133,10 @@
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">true</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
         <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">Client::parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>, <span class="ident">ctx</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">raw</span>, <span class="ident">H09_RESPONSE</span>);
@@ -4037,6 +4155,10 @@
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
         <span class="ident">Client::parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>, <span class="ident">ctx</span>).<span class="ident">unwrap_err</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">raw</span>, <span class="ident">H09_RESPONSE</span>);
@@ -4059,6 +4181,10 @@
             <span class="ident">h1_parser_config</span>,
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
         <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">Client::parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>, <span class="ident">ctx</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">raw</span>.<span class="ident">len</span>(), <span class="number">0</span>);
@@ -4078,6 +4204,10 @@
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
         <span class="ident">Client::parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>, <span class="ident">ctx</span>).<span class="ident">unwrap_err</span>();
     }
@@ -4092,6 +4222,10 @@
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
             <span class="ident">preserve_header_case</span>: <span class="bool-val">true</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
         <span class="kw">let</span> <span class="ident">parsed_message</span> <span class="op">=</span> <span class="ident">Server::parse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>, <span class="ident">ctx</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">orig_headers</span> <span class="op">=</span> <span class="ident">parsed_message</span>
@@ -4127,6 +4261,10 @@
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
             )
             .<span class="ident">expect</span>(<span class="string">&quot;parse ok&quot;</span>)
@@ -4143,6 +4281,10 @@
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
             )
             .<span class="ident">expect_err</span>(<span class="ident">comment</span>)
@@ -4288,6 +4430,16 @@
             <span class="string">&quot;multiple content-lengths&quot;</span>,
         );
 
+        <span class="comment">// content-length with prefix is not allowed</span>
+        <span class="ident">parse_err</span>(
+            <span class="string">&quot;\
+             POST / HTTP/1.1\r\n\
+             content-length: +10\r\n\
+             \r\n\
+             &quot;</span>,
+            <span class="string">&quot;prefixed content-length&quot;</span>,
+        );
+
         <span class="comment">// transfer-encoding that isn&#39;t chunked is an error</span>
         <span class="ident">parse_err</span>(
             <span class="string">&quot;\
@@ -4358,6 +4510,10 @@
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 }
             )
             .<span class="ident">expect</span>(<span class="string">&quot;parse ok&quot;</span>)
@@ -4374,6 +4530,10 @@
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
             )
             .<span class="ident">expect</span>(<span class="string">&quot;parse ok&quot;</span>)
@@ -4390,6 +4550,10 @@
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
             )
             .<span class="ident">expect_err</span>(<span class="string">&quot;parse should err&quot;</span>)
@@ -4461,6 +4625,14 @@
              HTTP/1.1 200 OK\r\n\
              content-length: 8\r\n\
              content-length: 9\r\n\
+             \r\n\
+             &quot;</span>,
+        );
+
+        <span class="ident">parse_err</span>(
+            <span class="string">&quot;\
+             HTTP/1.1 200 OK\r\n\
+             content-length: +8\r\n\
              \r\n\
              &quot;</span>,
         );
@@ -4873,6 +5045,10 @@
                 <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
                 <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                 <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
             },
         )
         .<span class="ident">expect</span>(<span class="string">&quot;parse ok&quot;</span>)
@@ -4953,6 +5129,10 @@
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
             )
             .<span class="ident">unwrap</span>()
@@ -4989,6 +5169,10 @@
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
             )
             .<span class="ident">unwrap</span>()

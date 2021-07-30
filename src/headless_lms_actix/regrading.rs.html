@@ -632,7 +632,7 @@
                     <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span>
                         <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">submission</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="ident">grade_url</span> <span class="op">=</span>
-                        <span class="ident">get_internal_grade_url</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                        <span class="ident">get_internal_grade_url</span>(<span class="ident">exercise_service</span>, <span class="ident">exercise_service_info</span>).<span class="kw">await</span><span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="ident">grading_future</span> <span class="op">=</span> <span class="ident">models::gradings::send_grading_request</span>(
                         <span class="ident">grade_url</span>,
                         <span class="ident">exercise_task</span>,

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/sync/watch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>watch.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.9.0/src/sync/watch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>watch.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -519,6 +519,143 @@
 <span id="516">516</span>
 <span id="517">517</span>
 <span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>), <span class="ident">allow</span>(<span class="ident">dead_code</span>, <span class="ident">unreachable_pub</span>))]</span>
 
@@ -578,7 +715,7 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sync::notify::Notify</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic::AtomicUsize</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic::Ordering</span>::{<span class="ident">Relaxed</span>, <span class="ident">SeqCst</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic::Ordering::Relaxed</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync</span>::{<span class="ident">Arc</span>, <span class="ident">RwLock</span>, <span class="ident">RwLockReadGuard</span>};
 <span class="kw">use</span> <span class="ident">std::ops</span>;
 
@@ -596,7 +733,7 @@
     <span class="ident">shared</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Shared</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Last observed version</span>
-    <span class="ident">version</span>: <span class="ident">usize</span>,
+    <span class="ident">version</span>: <span class="ident">Version</span>,
 }
 
 <span class="doccomment">/// Sends values to the associated [`Receiver`](struct@Receiver).</span>
@@ -626,7 +763,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The lowest bit represents a &quot;closed&quot; state. The rest of the bits</span>
     <span class="doccomment">/// represent the current version.</span>
-    <span class="ident">version</span>: <span class="ident">AtomicUsize</span>,
+    <span class="ident">state</span>: <span class="ident">AtomicState</span>,
 
     <span class="doccomment">/// Tracks the number of `Receiver` instances</span>
     <span class="ident">ref_count_rx</span>: <span class="ident">AtomicUsize</span>,
@@ -674,7 +811,69 @@
     <span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">RecvError</span> {}
 }
 
-<span class="kw">const</span> <span class="ident">CLOSED</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::state</span>::{<span class="ident">AtomicState</span>, <span class="ident">Version</span>};
+<span class="kw">mod</span> <span class="ident">state</span> {
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic::AtomicUsize</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::sync::atomic::Ordering::SeqCst</span>;
+
+    <span class="kw">const</span> <span class="ident">CLOSED</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
+
+    <span class="doccomment">/// The version part of the state. The lowest bit is always zero.</span>
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Version</span>(<span class="ident">usize</span>);
+
+    <span class="doccomment">/// Snapshot of the state. The first bit is used as the CLOSED bit.</span>
+    <span class="doccomment">/// The remaining bits are used as the version.</span>
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">StateSnapshot</span>(<span class="ident">usize</span>);
+
+    <span class="doccomment">/// The state stored in an atomic integer.</span>
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">AtomicState</span>(<span class="ident">AtomicUsize</span>);
+
+    <span class="kw">impl</span> <span class="ident">Version</span> {
+        <span class="doccomment">/// Get the initial version when creating the channel.</span>
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">initial</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="ident">Version</span>(<span class="number">0</span>)
+        }
+    }
+
+    <span class="kw">impl</span> <span class="ident">StateSnapshot</span> {
+        <span class="doccomment">/// Extract the version from the state.</span>
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">version</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Version</span> {
+            <span class="ident">Version</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">&amp;</span> <span class="op">!</span><span class="ident">CLOSED</span>)
+        }
+
+        <span class="doccomment">/// Is the closed bit set?</span>
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_closed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+            (<span class="self">self</span>.<span class="number">0</span> <span class="op">&amp;</span> <span class="ident">CLOSED</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">CLOSED</span>
+        }
+    }
+
+    <span class="kw">impl</span> <span class="ident">AtomicState</span> {
+        <span class="doccomment">/// Create a new `AtomicState` that is not closed and which has the</span>
+        <span class="doccomment">/// version set to `Version::initial()`.</span>
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="ident">AtomicState</span>(<span class="ident">AtomicUsize::new</span>(<span class="number">0</span>))
+        }
+
+        <span class="doccomment">/// Load the current value of the state.</span>
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StateSnapshot</span> {
+            <span class="ident">StateSnapshot</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">load</span>(<span class="ident">SeqCst</span>))
+        }
+
+        <span class="doccomment">/// Increment the version counter.</span>
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">increment_version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+            <span class="comment">// Increment by two to avoid touching the CLOSED bit.</span>
+            <span class="self">self</span>.<span class="number">0</span>.<span class="ident">fetch_add</span>(<span class="number">2</span>, <span class="ident">SeqCst</span>);
+        }
+
+        <span class="doccomment">/// Set the closed bit in the state.</span>
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">set_closed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+            <span class="self">self</span>.<span class="number">0</span>.<span class="ident">fetch_or</span>(<span class="ident">CLOSED</span>, <span class="ident">SeqCst</span>);
+        }
+    }
+}
 
 <span class="doccomment">/// Creates a new watch channel, returning the &quot;send&quot; and &quot;receive&quot; handles.</span>
 <span class="doccomment">///</span>
@@ -706,7 +905,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">channel</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">init</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">Shared</span> {
         <span class="ident">value</span>: <span class="ident">RwLock::new</span>(<span class="ident">init</span>),
-        <span class="ident">version</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>),
+        <span class="ident">state</span>: <span class="ident">AtomicState::new</span>(),
         <span class="ident">ref_count_rx</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">1</span>),
         <span class="ident">notify_rx</span>: <span class="ident">Notify::new</span>(),
         <span class="ident">notify_tx</span>: <span class="ident">Notify::new</span>(),
@@ -716,13 +915,16 @@
         <span class="ident">shared</span>: <span class="ident">shared</span>.<span class="ident">clone</span>(),
     };
 
-    <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">Receiver</span> { <span class="ident">shared</span>, <span class="ident">version</span>: <span class="number">0</span> };
+    <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">Receiver</span> {
+        <span class="ident">shared</span>,
+        <span class="ident">version</span>: <span class="ident">Version::initial</span>(),
+    };
 
     (<span class="ident">tx</span>, <span class="ident">rx</span>)
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from_shared</span>(<span class="ident">version</span>: <span class="ident">usize</span>, <span class="ident">shared</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Shared</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from_shared</span>(<span class="ident">version</span>: <span class="ident">Version</span>, <span class="ident">shared</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Shared</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="comment">// No synchronization necessary as this is only used as a counter and</span>
         <span class="comment">// not memory access.</span>
         <span class="ident">shared</span>.<span class="ident">ref_count_rx</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Relaxed</span>);
@@ -730,11 +932,17 @@
         <span class="self">Self</span> { <span class="ident">shared</span>, <span class="ident">version</span> }
     }
 
-    <span class="doccomment">/// Returns a reference to the most recently sent value</span>
+    <span class="doccomment">/// Returns a reference to the most recently sent value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method does not mark the returned value as seen, so future calls to</span>
+    <span class="doccomment">/// [`changed`] may return immediately even if you have already seen the</span>
+    <span class="doccomment">/// value with a call to `borrow`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Outstanding borrows hold a read lock. This means that long lived borrows</span>
     <span class="doccomment">/// could cause the send half to block. It is recommended to keep the borrow</span>
     <span class="doccomment">/// as short lived as possible.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`changed`]: Receiver::changed</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -749,11 +957,40 @@
         <span class="ident">Ref</span> { <span class="ident">inner</span> }
     }
 
-    <span class="doccomment">/// Wait for a change notification</span>
+    <span class="doccomment">/// Returns a reference to the most recently sent value and mark that value</span>
+    <span class="doccomment">/// as seen.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns when a new value has been sent by the [`Sender`] since the last</span>
-    <span class="doccomment">/// time `changed()` was called. When the `Sender` half is dropped, `Err` is</span>
-    <span class="doccomment">/// returned.</span>
+    <span class="doccomment">/// This method marks the value as seen, so [`changed`] will not return</span>
+    <span class="doccomment">/// immediately if the newest value is one previously returned by</span>
+    <span class="doccomment">/// `borrow_and_update`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Outstanding borrows hold a read lock. This means that long lived borrows</span>
+    <span class="doccomment">/// could cause the send half to block. It is recommended to keep the borrow</span>
+    <span class="doccomment">/// as short lived as possible.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`changed`]: Receiver::changed</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">borrow_and_update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">value</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">version</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">state</span>.<span class="ident">load</span>().<span class="ident">version</span>();
+        <span class="ident">Ref</span> { <span class="ident">inner</span> }
+    }
+
+    <span class="doccomment">/// Wait for a change notification, then mark the newest value as seen.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the newest value in the channel has not yet been marked seen when</span>
+    <span class="doccomment">/// this method is called, the method marks that value seen and returns</span>
+    <span class="doccomment">/// immediately. If the newest value has already been marked seen, then the</span>
+    <span class="doccomment">/// method sleeps until a new message is sent by the [`Sender`] connected to</span>
+    <span class="doccomment">/// this `Receiver`, or until the [`Sender`] is dropped.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method returns an error if and only if the [`Sender`] is dropped.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method is cancel safe. If you use it as the event in a</span>
+    <span class="doccomment">/// [`tokio::select!`](crate::select) statement and some other branch</span>
+    <span class="doccomment">/// completes first, then it is guaranteed that no values have been marked</span>
+    <span class="doccomment">/// seen by this call to `changed`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`Sender`]: struct@Sender</span>
     <span class="doccomment">///</span>
@@ -802,11 +1039,11 @@
 
 <span class="kw">fn</span> <span class="ident">maybe_changed</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
     <span class="ident">shared</span>: <span class="kw-2">&amp;</span><span class="ident">Shared</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">version</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
+    <span class="ident">version</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Version</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">error::RecvError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="comment">// Load the version from the state</span>
-    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">version</span>.<span class="ident">load</span>(<span class="ident">SeqCst</span>);
-    <span class="kw">let</span> <span class="ident">new_version</span> <span class="op">=</span> <span class="ident">state</span> <span class="op">&amp;</span> <span class="op">!</span><span class="ident">CLOSED</span>;
+    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">state</span>.<span class="ident">load</span>();
+    <span class="kw">let</span> <span class="ident">new_version</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">version</span>();
 
     <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">version</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_version</span> {
         <span class="comment">// Observe the new version and return</span>
@@ -814,7 +1051,7 @@
         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(()));
     }
 
-    <span class="kw">if</span> <span class="ident">CLOSED</span> <span class="op">=</span><span class="op">=</span> <span class="ident">state</span> <span class="op">&amp;</span> <span class="ident">CLOSED</span> {
+    <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">is_closed</span>() {
         <span class="comment">// All receivers have dropped.</span>
         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">error::RecvError</span>(())));
     }
@@ -850,10 +1087,20 @@
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::SendError</span> { <span class="ident">inner</span>: <span class="ident">value</span> });
         }
 
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">value</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">value</span>;
+        {
+            <span class="comment">// Acquire the write lock and update the value.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">value</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>();
+            <span class="kw-2">*</span><span class="ident">lock</span> <span class="op">=</span> <span class="ident">value</span>;
 
-        <span class="comment">// Update the version. 2 is used so that the CLOSED bit is not set.</span>
-        <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">version</span>.<span class="ident">fetch_add</span>(<span class="number">2</span>, <span class="ident">SeqCst</span>);
+            <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">state</span>.<span class="ident">increment_version</span>();
+
+            <span class="comment">// Release the write lock.</span>
+            <span class="comment">//</span>
+            <span class="comment">// Incrementing the version counter while holding the lock ensures</span>
+            <span class="comment">// that receivers are able to figure out the version number of the</span>
+            <span class="comment">// value they are currently looking at.</span>
+            <span class="ident">drop</span>(<span class="ident">lock</span>);
+        }
 
         <span class="comment">// Notify all watchers</span>
         <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">notify_rx</span>.<span class="ident">notify_waiters</span>();
@@ -901,6 +1148,11 @@
     <span class="doccomment">/// This allows the producer to get notified when interest in the produced</span>
     <span class="doccomment">/// values is canceled and immediately stop doing work.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// # Cancel safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method is cancel safe. Once the channel is closed, it stays closed</span>
+    <span class="doccomment">/// forever and all future calls to `closed` will return immediately.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
@@ -934,16 +1186,38 @@
     <span class="macro">cfg_signal_internal!</span> {
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">subscribe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">clone</span>();
-            <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">version</span>.<span class="ident">load</span>(<span class="ident">SeqCst</span>);
+            <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">state</span>.<span class="ident">load</span>().<span class="ident">version</span>();
 
             <span class="ident">Receiver::from_shared</span>(<span class="ident">version</span>, <span class="ident">shared</span>)
         }
+    }
+
+    <span class="doccomment">/// Returns the number of receivers that currently exist</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tokio::sync::watch;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[tokio::main]</span>
+    <span class="doccomment">/// async fn main() {</span>
+    <span class="doccomment">///     let (tx, rx1) = watch::channel(&quot;hello&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     assert_eq!(1, tx.receiver_count());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     let mut _rx2 = rx1.clone();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     assert_eq!(2, tx.receiver_count());</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">receiver_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">ref_count_rx</span>.<span class="ident">load</span>(<span class="ident">Relaxed</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">version</span>.<span class="ident">fetch_or</span>(<span class="ident">CLOSED</span>, <span class="ident">SeqCst</span>);
+        <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">state</span>.<span class="ident">set_closed</span>();
         <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">notify_rx</span>.<span class="ident">notify_waiters</span>();
     }
 }

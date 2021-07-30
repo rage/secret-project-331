@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.1/src/sync/once_cell.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>once_cell.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.9.0/src/sync/once_cell.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>once_cell.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -401,8 +401,65 @@
 <span id="398">398</span>
 <span id="399">399</span>
 <span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">super</span><span class="ident">::Semaphore</span>;
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Semaphore</span>, <span class="ident">SemaphorePermit</span>, <span class="ident">TryAcquireError</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::loom::cell::UnsafeCell</span>;
 <span class="kw">use</span> <span class="ident">std::error::Error</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -412,15 +469,30 @@
 <span class="kw">use</span> <span class="ident">std::ptr</span>;
 <span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
 
-<span class="doccomment">/// A thread-safe cell which can be written to only once.</span>
+<span class="comment">// This file contains an implementation of an OnceCell. The principle</span>
+<span class="comment">// behind the safety the of the cell is that any thread with an `&amp;OnceCell` may</span>
+<span class="comment">// access the `value` field according the following rules:</span>
+<span class="comment">//</span>
+<span class="comment">//  1. When `value_set` is false, the `value` field may be modified by the</span>
+<span class="comment">//     thread holding the permit on the semaphore.</span>
+<span class="comment">//  2. When `value_set` is true, the `value` field may be accessed immutably by</span>
+<span class="comment">//     any thread.</span>
+<span class="comment">//</span>
+<span class="comment">// It is an invariant that if the semaphore is closed, then `value_set` is true.</span>
+<span class="comment">// The reverse does not necessarily hold — but if not, the semaphore may not</span>
+<span class="comment">// have any available permits.</span>
+<span class="comment">//</span>
+<span class="comment">// A thread with a `&amp;mut OnceCell` may modify the value in any way it wants as</span>
+<span class="comment">// long as the invariants are upheld.</span>
+
+<span class="doccomment">/// A thread-safe cell that can be written to only once.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Provides the functionality to either set the value, in case `OnceCell`</span>
-<span class="doccomment">/// is uninitialized, or get the already initialized value by using an async</span>
-<span class="doccomment">/// function via [`OnceCell::get_or_init`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`OnceCell::get_or_init`]: crate::sync::OnceCell::get_or_init</span>
+<span class="doccomment">/// A `OnceCell` is typically used for global variables that need to be</span>
+<span class="doccomment">/// initialized once on first use, but need no further changes. The `OnceCell`</span>
+<span class="doccomment">/// in Tokio allows the initialization procedure to be asynchronous.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use tokio::sync::OnceCell;</span>
 <span class="doccomment">///</span>
@@ -432,8 +504,28 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// #[tokio::main]</span>
 <span class="doccomment">/// async fn main() {</span>
-<span class="doccomment">///     let result1 = ONCE.get_or_init(some_computation).await;</span>
-<span class="doccomment">///     assert_eq!(*result1, 2);</span>
+<span class="doccomment">///     let result = ONCE.get_or_init(some_computation).await;</span>
+<span class="doccomment">///     assert_eq!(*result, 2);</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// It is often useful to write a wrapper method for accessing the value.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use tokio::sync::OnceCell;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// static ONCE: OnceCell&lt;u32&gt; = OnceCell::const_new();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// async fn get_global_integer() -&gt; &amp;&#39;static u32 {</span>
+<span class="doccomment">///     ONCE.get_or_init(|| async {</span>
+<span class="doccomment">///         1 + 1</span>
+<span class="doccomment">///     }).await</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// #[tokio::main]</span>
+<span class="doccomment">/// async fn main() {</span>
+<span class="doccomment">///     let result = get_global_integer().await;</span>
+<span class="doccomment">///     assert_eq!(*result, 2);</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
@@ -472,7 +564,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized</span>() {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized_mut</span>() {
             <span class="kw">unsafe</span> {
                 <span class="self">self</span>.<span class="ident">value</span>
                     .<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="ident">ptr::drop_in_place</span>((<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_mut_ptr</span>()));
@@ -481,8 +573,20 @@
     }
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">semaphore</span> <span class="op">=</span> <span class="ident">Semaphore::new</span>(<span class="number">0</span>);
+        <span class="ident">semaphore</span>.<span class="ident">close</span>();
+        <span class="ident">OnceCell</span> {
+            <span class="ident">value_set</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">true</span>),
+            <span class="ident">value</span>: <span class="ident">UnsafeCell::new</span>(<span class="ident">MaybeUninit::new</span>(<span class="ident">value</span>)),
+            <span class="ident">semaphore</span>,
+        }
+    }
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new uninitialized OnceCell instance.</span>
+    <span class="doccomment">/// Creates a new empty `OnceCell` instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">OnceCell</span> {
             <span class="ident">value_set</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>),
@@ -491,26 +595,44 @@
         }
     }
 
-    <span class="doccomment">/// Creates a new initialized OnceCell instance if `value` is `Some`, otherwise</span>
-    <span class="doccomment">/// has the same functionality as [`OnceCell::new`].</span>
+    <span class="doccomment">/// Creates a new `OnceCell` that contains the provided value, if any.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the `Option` is `None`, this is equivalent to `OnceCell::new`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`OnceCell::new`]: crate::sync::OnceCell::new</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with</span>(<span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">value</span> {
-            <span class="kw">let</span> <span class="ident">semaphore</span> <span class="op">=</span> <span class="ident">Semaphore::new</span>(<span class="number">0</span>);
-            <span class="ident">semaphore</span>.<span class="ident">close</span>();
-            <span class="ident">OnceCell</span> {
-                <span class="ident">value_set</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">true</span>),
-                <span class="ident">value</span>: <span class="ident">UnsafeCell::new</span>(<span class="ident">MaybeUninit::new</span>(<span class="ident">v</span>)),
-                <span class="ident">semaphore</span>,
-            }
+            <span class="ident">OnceCell::from</span>(<span class="ident">v</span>)
         } <span class="kw">else</span> {
             <span class="ident">OnceCell::new</span>()
         }
     }
 
-    <span class="doccomment">/// Creates a new uninitialized OnceCell instance.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parking_lot&quot;</span>, <span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">loom</span>, <span class="ident">test</span>)),))]</span>
+    <span class="doccomment">/// Creates a new empty `OnceCell` instance.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Equivalent to `OnceCell::new`, except that it can be used in static</span>
+    <span class="doccomment">/// variables.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use tokio::sync::OnceCell;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// static ONCE: OnceCell&lt;u32&gt; = OnceCell::const_new();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// async fn get_global_integer() -&gt; &amp;&#39;static u32 {</span>
+    <span class="doccomment">///     ONCE.get_or_init(|| async {</span>
+    <span class="doccomment">///         1 + 1</span>
+    <span class="doccomment">///     }).await</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[tokio::main]</span>
+    <span class="doccomment">/// async fn main() {</span>
+    <span class="doccomment">///     let result = get_global_integer().await;</span>
+    <span class="doccomment">///     assert_eq!(*result, 2);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parking_lot&quot;</span>, <span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">loom</span>, <span class="ident">test</span>))))]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parking_lot&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">OnceCell</span> {
@@ -520,33 +642,48 @@
         }
     }
 
-    <span class="doccomment">/// Whether the value of the OnceCell is set or not.</span>
+    <span class="doccomment">/// Returns `true` if the `OnceCell` currently contains a value, and `false`</span>
+    <span class="doccomment">/// otherwise.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="comment">// Using acquire ordering so any threads that read a true from this</span>
+        <span class="comment">// atomic is able to read the value.</span>
         <span class="self">self</span>.<span class="ident">value_set</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>)
     }
 
-    <span class="comment">// SAFETY: safe to call only once self.initialized() is true</span>
+    <span class="doccomment">/// Returns `true` if the `OnceCell` currently contains a value, and `false`</span>
+    <span class="doccomment">/// otherwise.</span>
+    <span class="kw">fn</span> <span class="ident">initialized_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">value_set</span>.<span class="ident">get_mut</span>()
+    }
+
+    <span class="comment">// SAFETY: The OnceCell must not be empty.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">value</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> (<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_ptr</span>())
     }
 
-    <span class="comment">// SAFETY: safe to call only once self.initialized() is true. Safe because</span>
-    <span class="comment">// because of the mutable reference.</span>
+    <span class="comment">// SAFETY: The OnceCell must not be empty.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">value</span>.<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> (<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_mut_ptr</span>())
     }
 
-    <span class="comment">// SAFETY: safe to call only once a permit on the semaphore has been</span>
-    <span class="comment">// acquired</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) {
-        <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> (<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_mut_ptr</span>().<span class="ident">write</span>(<span class="ident">value</span>));
+    <span class="kw">fn</span> <span class="ident">set_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">permit</span>: <span class="ident">SemaphorePermit</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
+        <span class="comment">// SAFETY: We are holding the only permit on the semaphore.</span>
+        <span class="kw">unsafe</span> {
+            <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">with_mut</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> (<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">as_mut_ptr</span>().<span class="ident">write</span>(<span class="ident">value</span>));
+        }
+
+        <span class="comment">// Using release ordering so any threads that read a true from this</span>
+        <span class="comment">// atomic is able to read the value we just stored.</span>
         <span class="self">self</span>.<span class="ident">value_set</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::Release</span>);
         <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">close</span>();
+        <span class="ident">permit</span>.<span class="ident">forget</span>();
+
+        <span class="comment">// SAFETY: We just initialized the cell.</span>
+        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">get_unchecked</span>() }
     }
 
-    <span class="doccomment">/// Tries to get a reference to the value of the OnceCell.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns None if the value of the OnceCell hasn&#39;t previously been initialized.</span>
+    <span class="doccomment">/// Returns a reference to the value currently stored in the `OnceCell`, or</span>
+    <span class="doccomment">/// `None` if the `OnceCell` is empty.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized</span>() {
             <span class="prelude-val">Some</span>(<span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">get_unchecked</span>() })
@@ -555,179 +692,161 @@
         }
     }
 
-    <span class="doccomment">/// Tries to return a mutable reference to the value of the cell.</span>
+    <span class="doccomment">/// Returns a mutable reference to the value currently stored in the</span>
+    <span class="doccomment">/// `OnceCell`, or `None` if the `OnceCell` is empty.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns None if the cell hasn&#39;t previously been initialized.</span>
+    <span class="doccomment">/// Since this call borrows the `OnceCell` mutably, it is safe to mutate the</span>
+    <span class="doccomment">/// value inside the `OnceCell` — the mutable borrow statically guarantees</span>
+    <span class="doccomment">/// no other references exist.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized</span>() {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized_mut</span>() {
             <span class="prelude-val">Some</span>(<span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">get_unchecked_mut</span>() })
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
     }
 
-    <span class="doccomment">/// Sets the value of the OnceCell to the argument value.</span>
+    <span class="doccomment">/// Set the value of the `OnceCell` to the given value if the `OnceCell` is</span>
+    <span class="doccomment">/// empty.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// If the value of the OnceCell was already set prior to this call</span>
-    <span class="doccomment">/// then [`SetError::AlreadyInitializedError`] is returned. If another thread</span>
-    <span class="doccomment">/// is initializing the cell while this method is called,</span>
-    <span class="doccomment">/// [`SetError::InitializingError`] is returned. In order to wait</span>
-    <span class="doccomment">/// for an ongoing initialization to finish, call</span>
-    <span class="doccomment">/// [`OnceCell::get_or_init`] instead.</span>
+    <span class="doccomment">/// If the `OnceCell` already has a value, this call will fail with an</span>
+    <span class="doccomment">/// [`SetError::AlreadyInitializedError`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the `OnceCell` is empty, but some other task is currently trying to</span>
+    <span class="doccomment">/// set the value, this call will fail with [`SetError::InitializingError`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`SetError::AlreadyInitializedError`]: crate::sync::SetError::AlreadyInitializedError</span>
     <span class="doccomment">/// [`SetError::InitializingError`]: crate::sync::SetError::InitializingError</span>
-    <span class="doccomment">/// [&#39;OnceCell::get_or_init`]: crate::sync::OnceCell::get_or_init</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SetError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">initialized</span>() {
-            <span class="comment">// Another thread might be initializing the cell, in which case `try_acquire` will</span>
-            <span class="comment">// return an error</span>
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">try_acquire</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">_permit</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">initialized</span>() {
-                        <span class="comment">// SAFETY: There is only one permit on the semaphore, hence only one</span>
-                        <span class="comment">// mutable reference is created</span>
-                        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">set_value</span>(<span class="ident">value</span>) };
-
-                        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
-                    } <span class="kw">else</span> {
-                        <span class="macro">unreachable!</span>(
-                            <span class="string">&quot;acquired the permit after OnceCell value was already initialized.&quot;</span>
-                        );
-                    }
-                }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="comment">// Couldn&#39;t acquire the permit, look if initializing process is already completed</span>
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">initialized</span>() {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SetError::InitializingError</span>(<span class="ident">value</span>));
-                    }
-                }
-            }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SetError::AlreadyInitializedError</span>(<span class="ident">value</span>));
         }
 
-        <span class="prelude-val">Err</span>(<span class="ident">SetError::AlreadyInitializedError</span>(<span class="ident">value</span>))
+        <span class="comment">// Another task might be initializing the cell, in which case</span>
+        <span class="comment">// `try_acquire` will return an error. If we succeed to acquire the</span>
+        <span class="comment">// permit, then we can set the value.</span>
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">try_acquire</span>() {
+            <span class="prelude-val">Ok</span>(<span class="ident">permit</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">initialized</span>());
+                <span class="self">self</span>.<span class="ident">set_value</span>(<span class="ident">value</span>, <span class="ident">permit</span>);
+                <span class="prelude-val">Ok</span>(())
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">TryAcquireError::NoPermits</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// Some other task is holding the permit. That task is</span>
+                <span class="comment">// currently trying to initialize the value.</span>
+                <span class="prelude-val">Err</span>(<span class="ident">SetError::InitializingError</span>(<span class="ident">value</span>))
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">TryAcquireError::Closed</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// The semaphore was closed. Some other task has initialized</span>
+                <span class="comment">// the value.</span>
+                <span class="prelude-val">Err</span>(<span class="ident">SetError::AlreadyInitializedError</span>(<span class="ident">value</span>))
+            }
+        }
     }
 
-    <span class="doccomment">/// Tries to initialize the value of the OnceCell using the async function `f`.</span>
-    <span class="doccomment">/// If the value of the OnceCell was already initialized prior to this call,</span>
-    <span class="doccomment">/// a reference to that initialized value is returned. If some other thread</span>
-    <span class="doccomment">/// initiated the initialization prior to this call and the initialization</span>
-    <span class="doccomment">/// hasn&#39;t completed, this call waits until the initialization is finished.</span>
+    <span class="doccomment">/// Get the value currently in the `OnceCell`, or initialize it with the</span>
+    <span class="doccomment">/// given asynchronous operation.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This will deadlock if `f` tries to initialize the cell itself.</span>
+    <span class="doccomment">/// If some other task is currently working on initializing the `OnceCell`,</span>
+    <span class="doccomment">/// this call will wait for that other task to finish, then return the value</span>
+    <span class="doccomment">/// that the other task produced.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the provided operation is cancelled or panics, the initialization</span>
+    <span class="doccomment">/// attempt is cancelled. If there are other tasks waiting for the value to</span>
+    <span class="doccomment">/// be initialized, one of them will start another attempt at initializing</span>
+    <span class="doccomment">/// the value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This will deadlock if `f` tries to initialize the cell recursively.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_init</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span>,
         <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized</span>() {
-            <span class="comment">// SAFETY: once the value is initialized, no mutable references are given out, so</span>
-            <span class="comment">// we can give out arbitrarily many immutable references</span>
+            <span class="comment">// SAFETY: The OnceCell has been fully initialized.</span>
             <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">get_unchecked</span>() }
         } <span class="kw">else</span> {
-            <span class="comment">// After acquire().await we have either acquired a permit while self.value</span>
-            <span class="comment">// is still uninitialized, or the current thread is awoken after another thread</span>
-            <span class="comment">// has intialized the value and closed the semaphore, in which case self.initialized</span>
-            <span class="comment">// is true and we don&#39;t set the value here</span>
+            <span class="comment">// Here we try to acquire the semaphore permit. Holding the permit</span>
+            <span class="comment">// will allow us to set the value of the OnceCell, and prevents</span>
+            <span class="comment">// other tasks from initializing the OnceCell while we are holding</span>
+            <span class="comment">// it.</span>
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">acquire</span>().<span class="kw">await</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">_permit</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">initialized</span>() {
-                        <span class="comment">// If `f()` panics or `select!` is called, this `get_or_init` call</span>
-                        <span class="comment">// is aborted and the semaphore permit is dropped.</span>
-                        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">f</span>().<span class="kw">await</span>;
+                <span class="prelude-val">Ok</span>(<span class="ident">permit</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">initialized</span>());
 
-                        <span class="comment">// SAFETY: There is only one permit on the semaphore, hence only one</span>
-                        <span class="comment">// mutable reference is created</span>
-                        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">set_value</span>(<span class="ident">value</span>) };
+                    <span class="comment">// If `f()` panics or `select!` is called, this</span>
+                    <span class="comment">// `get_or_init` call is aborted and the semaphore permit is</span>
+                    <span class="comment">// dropped.</span>
+                    <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">f</span>().<span class="kw">await</span>;
 
-                        <span class="comment">// SAFETY: once the value is initialized, no mutable references are given out, so</span>
-                        <span class="comment">// we can give out arbitrarily many immutable references</span>
-                        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">get_unchecked</span>() }
-                    } <span class="kw">else</span> {
-                        <span class="macro">unreachable!</span>(<span class="string">&quot;acquired semaphore after value was already initialized.&quot;</span>);
-                    }
+                    <span class="self">self</span>.<span class="ident">set_value</span>(<span class="ident">value</span>, <span class="ident">permit</span>)
                 }
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized</span>() {
-                        <span class="comment">// SAFETY: once the value is initialized, no mutable references are given out, so</span>
-                        <span class="comment">// we can give out arbitrarily many immutable references</span>
-                        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">get_unchecked</span>() }
-                    } <span class="kw">else</span> {
-                        <span class="macro">unreachable!</span>(
-                            <span class="string">&quot;Semaphore closed, but the OnceCell has not been initialized.&quot;</span>
-                        );
-                    }
+                    <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">initialized</span>());
+
+                    <span class="comment">// SAFETY: The semaphore has been closed. This only happens</span>
+                    <span class="comment">// when the OnceCell is fully initialized.</span>
+                    <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">get_unchecked</span>() }
                 }
             }
         }
     }
 
-    <span class="doccomment">/// Tries to initialize the value of the OnceCell using the async function `f`.</span>
-    <span class="doccomment">/// If the value of the OnceCell was already initialized prior to this call,</span>
-    <span class="doccomment">/// a reference to that initialized value is returned. If some other thread</span>
-    <span class="doccomment">/// initiated the initialization prior to this call and the initialization</span>
-    <span class="doccomment">/// hasn&#39;t completed, this call waits until the initialization is finished.</span>
-    <span class="doccomment">/// If the function argument `f` returns an error, `get_or_try_init`</span>
-    <span class="doccomment">/// returns that error, otherwise the result of `f` will be stored in the cell.</span>
+    <span class="doccomment">/// Get the value currently in the `OnceCell`, or initialize it with the</span>
+    <span class="doccomment">/// given asynchronous operation.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This will deadlock if `f` tries to initialize the cell itself.</span>
+    <span class="doccomment">/// If some other task is currently working on initializing the `OnceCell`,</span>
+    <span class="doccomment">/// this call will wait for that other task to finish, then return the value</span>
+    <span class="doccomment">/// that the other task produced.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the provided operation returns an error, is cancelled or panics, the</span>
+    <span class="doccomment">/// initialization attempt is cancelled. If there are other tasks waiting</span>
+    <span class="doccomment">/// for the value to be initialized, one of them will start another attempt</span>
+    <span class="doccomment">/// at initializing the value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This will deadlock if `f` tries to initialize the cell recursively.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_try_init</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fut</span>,
         <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized</span>() {
-            <span class="comment">// SAFETY: once the value is initialized, no mutable references are given out, so</span>
-            <span class="comment">// we can give out arbitrarily many immutable references</span>
+            <span class="comment">// SAFETY: The OnceCell has been fully initialized.</span>
             <span class="kw">unsafe</span> { <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_unchecked</span>()) }
         } <span class="kw">else</span> {
-            <span class="comment">// After acquire().await we have either acquired a permit while self.value</span>
-            <span class="comment">// is still uninitialized, or the current thread is awoken after another thread</span>
-            <span class="comment">// has intialized the value and closed the semaphore, in which case self.initialized</span>
-            <span class="comment">// is true and we don&#39;t set the value here</span>
+            <span class="comment">// Here we try to acquire the semaphore permit. Holding the permit</span>
+            <span class="comment">// will allow us to set the value of the OnceCell, and prevents</span>
+            <span class="comment">// other tasks from initializing the OnceCell while we are holding</span>
+            <span class="comment">// it.</span>
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">acquire</span>().<span class="kw">await</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">_permit</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">initialized</span>() {
-                        <span class="comment">// If `f()` panics or `select!` is called, this `get_or_try_init` call</span>
-                        <span class="comment">// is aborted and the semaphore permit is dropped.</span>
-                        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">f</span>().<span class="kw">await</span>;
+                <span class="prelude-val">Ok</span>(<span class="ident">permit</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">initialized</span>());
 
-                        <span class="kw">match</span> <span class="ident">value</span> {
-                            <span class="prelude-val">Ok</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="comment">// SAFETY: There is only one permit on the semaphore, hence only one</span>
-                                <span class="comment">// mutable reference is created</span>
-                                <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">set_value</span>(<span class="ident">value</span>) };
+                    <span class="comment">// If `f()` panics or `select!` is called, this</span>
+                    <span class="comment">// `get_or_try_init` call is aborted and the semaphore</span>
+                    <span class="comment">// permit is dropped.</span>
+                    <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">f</span>().<span class="kw">await</span>;
 
-                                <span class="comment">// SAFETY: once the value is initialized, no mutable references are given out, so</span>
-                                <span class="comment">// we can give out arbitrarily many immutable references</span>
-                                <span class="kw">unsafe</span> { <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_unchecked</span>()) }
-                            }
-                            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-                        }
-                    } <span class="kw">else</span> {
-                        <span class="macro">unreachable!</span>(<span class="string">&quot;acquired semaphore after value was already initialized.&quot;</span>);
+                    <span class="kw">match</span> <span class="ident">value</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">set_value</span>(<span class="ident">value</span>, <span class="ident">permit</span>)),
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
                     }
                 }
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized</span>() {
-                        <span class="comment">// SAFETY: once the value is initialized, no mutable references are given out, so</span>
-                        <span class="comment">// we can give out arbitrarily many immutable references</span>
-                        <span class="kw">unsafe</span> { <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_unchecked</span>()) }
-                    } <span class="kw">else</span> {
-                        <span class="macro">unreachable!</span>(
-                            <span class="string">&quot;Semaphore closed, but the OnceCell has not been initialized.&quot;</span>
-                        );
-                    }
+                    <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">initialized</span>());
+
+                    <span class="comment">// SAFETY: The semaphore has been closed. This only happens</span>
+                    <span class="comment">// when the OnceCell is fully initialized.</span>
+                    <span class="kw">unsafe</span> { <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_unchecked</span>()) }
                 }
             }
         }
     }
 
-    <span class="doccomment">/// Moves the value out of the cell, destroying the cell in the process.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if the cell is uninitialized.</span>
+    <span class="doccomment">/// Take the value from the cell, destroying the cell in the process.</span>
+    <span class="doccomment">/// Returns `None` if the cell is empty.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized</span>() {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">initialized_mut</span>() {
             <span class="comment">// Set to uninitialized for the destructor of `OnceCell` to work properly</span>
             <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">value_set</span>.<span class="ident">get_mut</span>() <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="prelude-val">Some</span>(<span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">ptr</span><span class="op">|</span> <span class="ident">ptr::read</span>(<span class="ident">ptr</span>).<span class="ident">assume_init</span>()) })
@@ -736,20 +855,18 @@
         }
     }
 
-    <span class="doccomment">/// Takes ownership of the current value, leaving the cell uninitialized.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if the cell is uninitialized.</span>
+    <span class="doccomment">/// Takes ownership of the current value, leaving the cell empty.  Returns</span>
+    <span class="doccomment">/// `None` if the cell is empty.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">std::mem::take</span>(<span class="self">self</span>).<span class="ident">into_inner</span>()
     }
 }
 
-<span class="comment">// Since `get` gives us access to immutable references of the</span>
-<span class="comment">// OnceCell, OnceCell can only be Sync if T is Sync, otherwise</span>
-<span class="comment">// OnceCell would allow sharing references of !Sync values across</span>
-<span class="comment">// threads. We need T to be Send in order for OnceCell to by Sync</span>
-<span class="comment">// because we can use `set` on `&amp;OnceCell&lt;T&gt;` to send</span>
-<span class="comment">// values (of type T) across threads.</span>
+<span class="comment">// Since `get` gives us access to immutable references of the OnceCell, OnceCell</span>
+<span class="comment">// can only be Sync if T is Sync, otherwise OnceCell would allow sharing</span>
+<span class="comment">// references of !Sync values across threads. We need T to be Send in order for</span>
+<span class="comment">// OnceCell to by Sync because we can use `set` on `&amp;OnceCell&lt;T&gt;` to send values</span>
+<span class="comment">// (of type T) across threads.</span>
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
 <span class="comment">// Access to OnceCell&#39;s value is guarded by the semaphore permit</span>
@@ -757,20 +874,17 @@
 <span class="comment">// it&#39;s safe to send it to another thread</span>
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
-<span class="doccomment">/// Errors that can be returned from [`OnceCell::set`]</span>
+<span class="doccomment">/// Errors that can be returned from [`OnceCell::set`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`OnceCell::set`]: crate::sync::OnceCell::set</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SetError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Error resulting from [`OnceCell::set`] calls if the cell was previously initialized.</span>
+    <span class="doccomment">/// The cell was already initialized when [`OnceCell::set`] was called.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`OnceCell::set`]: crate::sync::OnceCell::set</span>
     <span class="ident">AlreadyInitializedError</span>(<span class="ident">T</span>),
 
-    <span class="doccomment">/// Error resulting from [`OnceCell::set`] calls when the cell is currently being</span>
-    <span class="doccomment">/// inintialized during the calls to that method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`OnceCell::set`]: crate::sync::OnceCell::set</span>
+    <span class="doccomment">/// The cell is currently being initialized.</span>
     <span class="ident">InitializingError</span>(<span class="ident">T</span>),
 }
 

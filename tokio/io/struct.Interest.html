@@ -28,7 +28,7 @@ I/O resource readiness states.</p>
 
 <span class="kw">let</span> <span class="ident">both</span> <span class="op">=</span> <span class="ident">Interest::READABLE</span> <span class="op">|</span> <span class="ident">Interest::WRITABLE</span>;
 <span class="macro">assert!</span>(<span class="ident">both</span>.<span class="ident">is_writable</span>());</pre></div>
-</div><h4 id="method.add" class="method"><code>pub const fn <a href="#method.add" class="fnname">add</a>(self, other: <a class="struct" href="struct.Interest.html" title="struct tokio::io::Interest">Interest</a>) -&gt; <a class="struct" href="struct.Interest.html" title="struct tokio::io::Interest">Interest</a></code><a href="#method.add" class="anchor"></a><a class="srclink" href="../../src/tokio/io/driver/interest.rs.html#74-76" title="goto source code">[src]</a></h4><div class="docblock"><p>Add together two <code>Interst</code> values.</p>
+</div><h4 id="method.add" class="method"><code>pub const fn <a href="#method.add" class="fnname">add</a>(self, other: <a class="struct" href="struct.Interest.html" title="struct tokio::io::Interest">Interest</a>) -&gt; <a class="struct" href="struct.Interest.html" title="struct tokio::io::Interest">Interest</a></code><a href="#method.add" class="anchor"></a><a class="srclink" href="../../src/tokio/io/driver/interest.rs.html#74-76" title="goto source code">[src]</a></h4><div class="docblock"><p>Add together two <code>Interest</code> values.</p>
 <p>This function works from a <code>const</code> context.</p>
 <h1 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered">

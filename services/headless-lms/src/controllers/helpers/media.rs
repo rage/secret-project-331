@@ -16,7 +16,7 @@ pub async fn upload_media_for_course(
     course: &Course,
     file_store: &impl FileStore,
 ) -> ControllerResult<PathBuf> {
-    validate_media_headers(&headers)?;
+    validate_media_headers(headers)?;
 
     let next_payload = payload
         .next()
@@ -25,9 +25,9 @@ pub async fn upload_media_for_course(
     match next_payload {
         Ok(field) => {
             let path: PathBuf = match field.content_type().type_() {
-                mime::AUDIO => generate_audio_path(&field, &course),
-                mime::IMAGE => generate_image_path(&field, &course),
-                _ => generate_file_path(&field, &course),
+                mime::AUDIO => generate_audio_path(&field, course),
+                mime::IMAGE => generate_image_path(&field, course),
+                _ => generate_file_path(&field, course),
             }?;
             upload_media_to_storage(&path, field, file_store).await?;
             Ok(path)
@@ -55,7 +55,7 @@ fn generate_audio_path(field: &mp::Field, course: &Course) -> ControllerResult<P
     };
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
-    let path = course_audio_path(&course, file_name)
+    let path = course_audio_path(course, file_name)
         .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     Ok(path)
@@ -75,7 +75,7 @@ fn generate_file_path(field: &mp::Field, course: &Course) -> ControllerResult<Pa
         file_name.push_str(format!(".{}", extension).as_str());
     }
 
-    let path = course_file_path(&course, file_name)
+    let path = course_file_path(course, file_name)
         .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     Ok(path)
@@ -103,7 +103,7 @@ fn generate_image_path(field: &mp::Field, course: &Course) -> ControllerResult<P
     // b) we don't want the filename to be too easily guessable (so no uuid)
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
-    let path = course_image_path(&course, file_name)
+    let path = course_image_path(course, file_name)
         .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
 
     Ok(path)

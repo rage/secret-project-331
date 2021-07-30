@@ -111,7 +111,7 @@ pub async fn regrade(
                     let exercise =
                         models::exercises::get_by_id(&mut *conn, submission.exercise_id).await?;
                     let grade_url =
-                        get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
+                        get_internal_grade_url(exercise_service, exercise_service_info).await?;
                     let grading_future = models::gradings::send_grading_request(
                         grade_url,
                         exercise_task,

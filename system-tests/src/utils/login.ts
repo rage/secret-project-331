@@ -6,35 +6,31 @@ export async function login(
   password: string,
   page?: Page | undefined,
 ): Promise<void> {
-  let loginPage = page
-  if (!page) {
-    const browser = await chromium.launch()
-    loginPage = await browser.newPage()
-  }
-
-  await loginPage.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/")
 
   await Promise.all([
-    loginPage.waitForNavigation(/*{ url: 'http://project-331.local/login?return_to=%2F' }*/),
-    loginPage.click("text=Login"),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/login?return_to=%2F' }*/),
+    page.click("text=Login"),
   ])
 
-  await loginPage.click('input[name="email"]')
-  await loginPage.fill('input[name="email"]', user)
+  await page.click('input[name="email"]')
+  await page.fill('input[name="email"]', user)
 
-  await loginPage.click('input[name="password"]')
-  await loginPage.fill('input[name="password"]', password)
+  await page.click('input[name="password"]')
+  await page.fill('input[name="password"]', password)
 
   await Promise.all([
-    loginPage.waitForNavigation(/*{ url: "http://project-331.local/" }*/),
-    loginPage.click("button[name=login]"),
+    page.waitForNavigation(/*{ url: "http://project-331.local/" }*/),
+    page.click("button[name=login]"),
   ])
 
   // Ensure we are logged in
-  const afterLogin = await loginPage.content()
+  const afterLogin = await page.content()
   expect(afterLogin).toContain("Logout")
   expect(afterLogin).not.toContain("Login")
 
   // Store login state
-  await loginPage.context().storageState({ path: `src/states/${user}.json` })
+  await page.context().storageState({ path: `src/states/${user}.json` })
+  await page.click("text=Logout")
+  await page.waitForSelector("text=Login")
 }

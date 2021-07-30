@@ -46,7 +46,7 @@ test.describe("Uploading media as admin", async () => {
     // Click text=Type / to choose a block and type /image
     await page.type("text=Type / to choose a block", "/image")
     // Click :nth-match(:text("Image"), 2)
-    await page.click(':nth-match(:text("Image"), 2)')
+    await page.click('text="Image"')
 
     // Upload file with fileChooser
     const [fileChooser] = await Promise.all([
@@ -59,14 +59,8 @@ test.describe("Uploading media as admin", async () => {
     await page.click('img[alt="Add alt"]')
     await page.click("text=Replace")
 
-    // Click on the anchor with following class that has a child svg[role=img]
-    // This will probably fail in the future if the anchor classes change in Gutenberg
-    const [newPage] = await Promise.all([
-      page.waitForEvent("popup"),
-      page.click(
-        "a[class='components-external-link block-editor-link-control__search-item-title'] >> svg[role=img]",
-      ),
-    ])
+    // Click image direct link to open the uploaded image
+    const [newPage] = await Promise.all([page.waitForEvent("popup"), page.click("a[href$='.png']")])
     const screenshot = await newPage.screenshot()
     expect(screenshot).toMatchSnapshot(`uploadMediaPicture.png`, { threshold: 0.2 })
   })

@@ -1,4 +1,4 @@
-import { PlaywrightTestConfig } from "@playwright/test"
+import { LaunchOptions, PlaywrightTestConfig } from "@playwright/test"
 
 function envToNumber(env: string, defaultNumber: number) {
   try {
@@ -14,11 +14,14 @@ const config: PlaywrightTestConfig = {
   use: {
     headless: true,
     trace: "retain-on-failure",
+    baseURL: "http://project-331.local",
+    launchOptions: {},
   },
 }
 
 if (process.env.SLOWMO) {
-  config.use.slowMo = envToNumber(process.env.SLOWMO, 200)
+  const launchOptions = config.use.launchOptions as LaunchOptions
+  launchOptions.slowMo = envToNumber(process.env.SLOWMO, 200)
   config.timeout = 600000
 }
 

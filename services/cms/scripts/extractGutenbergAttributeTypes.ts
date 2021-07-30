@@ -6,7 +6,7 @@ import { Block } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
 import fs from "fs"
 import { compile } from "json-schema-to-typescript"
-import { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
+import { JSONSchema, JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
 
 import { modifyBlockAttributes } from "../src/utils/Gutenberg/modifyBlockAttributes"
 
@@ -74,7 +74,7 @@ async function main() {
 
   const typescriptTypes = await Promise.all(
     jsonSchemaTypes.map(async (schema) => {
-      return await compile(schema, schema.title, { bannerComment: "" })
+      return await compile(schema as JSONSchema, schema.title, { bannerComment: "" })
     }),
   )
 

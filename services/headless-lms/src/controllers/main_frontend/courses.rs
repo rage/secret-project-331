@@ -89,6 +89,13 @@ async fn post_new_course(
 ) -> ControllerResult<Json<Course>> {
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
+    authorize(
+        &mut conn,
+        Action::Teach,
+        user.id,
+        Resource::Organization(new_course.organization_id),
+    )
+    .await?;
     let (course, ..) = crate::models::courses::insert_course(&mut conn, new_course).await?;
     Ok(Json(course))
 }

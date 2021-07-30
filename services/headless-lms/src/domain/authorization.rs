@@ -82,6 +82,7 @@ pub enum Action {
     View,
     Edit,
     Grade,
+    Teach,
     Download,
     Duplicate,
     DeleteAnswer,
@@ -182,7 +183,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
     match user_role {
         Admin => true,
         Assistant => matches!(action, View | Edit | Grade | DeleteAnswer),
-        Teacher => matches!(action, View | Edit | Grade | DeleteAnswer),
+        Teacher => matches!(action, View | Teach | Edit | Grade | DeleteAnswer),
         Reviewer => matches!(action, View | Grade),
     }
 }

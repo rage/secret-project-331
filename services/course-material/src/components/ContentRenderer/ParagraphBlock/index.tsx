@@ -1,12 +1,12 @@
 import { css } from "@emotion/css"
 import KaTex from "katex"
+import dynamic from "next/dynamic"
 import sanitizeHtml from "sanitize-html"
 
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import colorMapper from "../../styles/colorMapper"
-import fontSizeMapper from "../../styles/fontSizeMapper"
-
-import { BlockRendererProps } from "."
+import { BlockRendererProps } from "../"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import colorMapper from "../../../styles/colorMapper"
+import fontSizeMapper from "../../../styles/fontSizeMapper"
 
 interface ParagraphBlockAttributes {
   content: string
@@ -16,21 +16,29 @@ interface ParagraphBlockAttributes {
   fontSize?: string
 }
 
+const Paragraph = dynamic(() => import("./BasicParagraph"))
+const LatexParagraph = dynamic(() => import("./LatexParagraph"))
+
 const LATEX_REGEX = /\[latex\](.*)\[\/latex\]/g
+
 /**
  *
  * @param data HTML-content from the server
  * @returns HTML as string in which "[latex] ... [/latex]" will be replaced with katex
  */
 const convertToLatex = (data: string) => {
-  return data.replace(LATEX_REGEX, (_, latex) => {
+  let count = 0
+  const converted = data.replace(LATEX_REGEX, (_, latex) => {
     // Convert ampersand back to special symbol. This is needed e.g. in matrices
     const processed = latex.replaceAll("&amp;", "&")
+    count++
     return KaTex.renderToString(processed, {
       throwOnError: false,
-      output: "mathml",
+      output: "html",
     })
   })
+
+  return { count, converted }
 }
 
 const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = ({ data }) => {
@@ -43,9 +51,13 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
   const backgroundColor = colorMapper(attributes.backgroundColor, "unset")
 
   const fontSize = fontSizeMapper(attributes.fontSize)
+  const sanitizedHTML = sanitizeHtml(attributes.content)
+  const { count, converted } = convertToLatex(sanitizedHTML)
+
+  const P = count > 0 ? LatexParagraph : Paragraph
 
   return (
-    <p
+    <P
       className={css`
         ${normalWidthCenteredComponentStyles}
         white-space: pre-line;
@@ -56,7 +68,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
         ${backgroundColor && `padding: 1.25em 2.375em;`}
       `}
       dangerouslySetInnerHTML={{
-        __html: convertToLatex(sanitizeHtml(attributes.content)),
+        __html: converted,
       }}
     />
   )

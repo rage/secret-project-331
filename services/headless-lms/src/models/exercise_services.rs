@@ -60,10 +60,12 @@ pub async fn get_exercise_service_internally_preferred_baseurl_by_exercise_type(
     exercise_type: &str,
 ) -> ModelResult<Url> {
     let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
-    Ok(get_exercise_service_internally_preferred_baseurl(&exercise_service).await?)
+    Ok(get_exercise_service_internally_preferred_baseurl(
+        &exercise_service,
+    )?)
 }
 
-pub async fn get_exercise_service_internally_preferred_baseurl(
+pub fn get_exercise_service_internally_preferred_baseurl(
     exercise_service: &ExerciseService,
 ) -> ModelResult<Url> {
     let stored_url_str = exercise_service
@@ -85,8 +87,20 @@ pub async fn get_internal_grade_url(
     exercise_service: &ExerciseService,
     exercise_service_info: &ExerciseServiceInfo,
 ) -> ModelResult<Url> {
-    let mut url = get_exercise_service_internally_preferred_baseurl(exercise_service).await?;
+    let mut url = get_exercise_service_internally_preferred_baseurl(exercise_service)?;
     url.set_path(&exercise_service_info.grade_endpoint_path);
+    Ok(url)
+}
+
+/**
+Returns a url that can be used to generate a public version of a private spec.
+*/
+pub fn get_internal_public_spec_url(
+    exercise_service: &ExerciseService,
+    exercise_service_info: &ExerciseServiceInfo,
+) -> ModelResult<Url> {
+    let mut url = get_exercise_service_internally_preferred_baseurl(exercise_service)?;
+    url.set_path(&exercise_service_info.public_spec_endpoint_path);
     Ok(url)
 }
 

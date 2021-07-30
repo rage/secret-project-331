@@ -263,8 +263,9 @@ mod test {
             exercise_service.id,
             "/editor",
             "/exercise",
-            "/grade",
             "/wat",
+            "/grade",
+            "/public-spec",
         )
         .await
         .unwrap();
@@ -352,8 +353,9 @@ mod test {
             exercise_service.id,
             "/editor",
             "/exercise",
-            "/grade",
             "/wat",
+            "/grade",
+            "/public-spec",
         )
         .await
         .unwrap();
@@ -463,8 +465,9 @@ mod test {
             exercise_service_1.id,
             "/editor",
             "/exercise",
-            "/grade",
             "/wat",
+            "/grade",
+            "/public-spec",
         )
         .await
         .unwrap();
@@ -483,8 +486,9 @@ mod test {
             exercise_service_2.id,
             "/editor",
             "/exercise",
-            "/grade",
             "/wat",
+            "/grade",
+            "/public-spec",
         )
         .await
         .unwrap();

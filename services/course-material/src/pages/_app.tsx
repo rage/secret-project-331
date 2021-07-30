@@ -1,6 +1,3 @@
-import { css } from "@emotion/css"
-import { Global } from "@emotion/react"
-import { CssBaseline } from "@material-ui/core"
 import { ThemeProvider } from "@material-ui/core/styles"
 import type { AppProps } from "next/app"
 import React from "react"
@@ -9,9 +6,8 @@ import { ReactQueryDevtools } from "react-query/devtools"
 import { RecoilRoot } from "recoil"
 
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
+import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/utils/muiTheme"
-import "@fontsource/montserrat"
-import "@fontsource/montserrat/700.css"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,7 +25,7 @@ const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // Don't want to retry any client errors (4XX) -- it just gives the impression of slowness.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const statusCode: number | undefined = (error as any)?.status
+        const statusCode: number | undefined = (error as any)?.response?.status
         if (statusCode && Math.floor(statusCode / 100) === 4) {
           return false
         }
@@ -44,110 +40,16 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
-      jssStyles?.parentElement?.removeChild(jssStyles)
+      jssStyles.parentElement?.removeChild(jssStyles)
     }
   }, [])
 
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
+        {/* <Devtools /> */}
         <ThemeProvider theme={muiTheme}>
-          {/* Material UI default CSS */}
-          <CssBaseline />
-          <Global
-            styles={css`
-              html {
-                box-sizing: border-box;
-              }
-
-              *,
-              *::before,
-              *::after {
-                box-sizing: inherit;
-              }
-
-              html,
-              body {
-                margin: 0;
-                padding: 0;
-                font-family: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif, "Segoe UI",
-                  Roboto, "Helvetica Neue", Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji",
-                  "Segoe UI Symbol", "Noto Color Emoji";
-                font-size: 1rem;
-                font-weight: 400;
-                line-height: 1.5;
-                color: #212529;
-                background-color: #fff;
-                -webkit-text-size-adjust: 100%;
-                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-              }
-
-              h6,
-              h5,
-              h4,
-              h3,
-              h2,
-              h1 {
-                margin-top: 0;
-                margin-bottom: 0.5rem;
-                font-weight: 500;
-                line-height: 1.2;
-              }
-
-              h1 {
-                font-size: calc(1.375rem + 1.5vw);
-              }
-
-              @media (min-width: 1200px) {
-                h1 {
-                  font-size: 2.5rem;
-                }
-              }
-
-              h2 {
-                font-size: calc(1.325rem + 0.9vw);
-              }
-
-              @media (min-width: 1200px) {
-                h2 {
-                  font-size: 2rem;
-                }
-              }
-
-              h3 {
-                font-size: calc(1.3rem + 0.6vw);
-              }
-
-              @media (min-width: 1200px) {
-                h3 {
-                  font-size: 1.75rem;
-                }
-              }
-
-              h4 {
-                font-size: calc(1.275rem + 0.3vw);
-              }
-
-              @media (min-width: 1200px) {
-                h4 {
-                  font-size: 1.5rem;
-                }
-              }
-
-              h5 {
-                font-size: 1.25rem;
-              }
-
-              h6 {
-                font-size: 1rem;
-              }
-
-              p {
-                margin-top: 0;
-                margin-bottom: 1rem;
-              }
-            `}
-          />
+          <GlobalStyles />
           <LoginStateContextProvider>
             <Component {...pageProps} />
           </LoginStateContextProvider>

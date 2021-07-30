@@ -232,7 +232,9 @@ const Navigation: React.FC = () => {
               <a> Login Controls</a>
             </li>
             <li className={cx(navLinks, hide)}>
-              <Button variant="primary">Translate</Button>
+              <Button variant="primary" size="medium">
+                Translate
+              </Button>
             </li>
           </ol>
         </ul>
@@ -242,7 +244,9 @@ const Navigation: React.FC = () => {
             <a> Login Controls</a>
           </li>
           <li>
-            <Button variant="primary">Translate</Button>
+            <Button variant="primary" size="medium">
+              Translate
+            </Button>
           </li>
         </ul>
       </nav>

@@ -54,10 +54,10 @@ pub enum ControllerError {
     BadRequest(String),
 
     #[display(fmt = "Not found")]
-    NotFound,
+    NotFound(String),
 
     #[display(fmt = "Unauthorized")]
-    Unauthorized,
+    Unauthorized(String),
 
     #[display(fmt = "Forbidden")]
     Forbidden(String),
@@ -88,8 +88,8 @@ impl error::ResponseError for ControllerError {
         match *self {
             ControllerError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ControllerError::BadRequest(_) => StatusCode::BAD_REQUEST,
-            ControllerError::NotFound => StatusCode::NOT_FOUND,
-            ControllerError::Unauthorized => StatusCode::UNAUTHORIZED,
+            ControllerError::NotFound(_) => StatusCode::NOT_FOUND,
+            ControllerError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             ControllerError::Forbidden(_) => StatusCode::FORBIDDEN,
         }
     }
@@ -98,7 +98,7 @@ impl error::ResponseError for ControllerError {
 impl From<anyhow::Error> for ControllerError {
     fn from(err: anyhow::Error) -> ControllerError {
         if let Some(sqlx::Error::RowNotFound) = err.downcast_ref::<sqlx::Error>() {
-            return Self::NotFound;
+            return Self::NotFound(err.to_string());
         }
 
         error!("Internal server error: {}", err.chain().join("\n    "));
@@ -121,7 +121,7 @@ impl From<sqlx::Error> for ControllerError {
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
         match err {
-            ModelError::RecordNotFound(_) => Self::NotFound,
+            ModelError::RecordNotFound(_) => Self::NotFound(err.to_string()),
             ModelError::PreconditionFailed(msg) => Self::BadRequest(msg),
             ModelError::DatabaseConstraint { description, .. } => {
                 Self::BadRequest(description.to_string())

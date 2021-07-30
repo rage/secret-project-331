@@ -2,7 +2,7 @@
 extern crate tracing;
 
 use actix_session::CookieSession;
-use actix_web::{middleware::Logger, App, HttpServer};
+use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use anyhow::Result;
 use dotenv::dotenv;
 use headless_lms_actix::{
@@ -74,8 +74,8 @@ async fn main() -> Result<()> {
             .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
             .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
             .wrap(Logger::new("%r %s %b bytes - %D ms"))
-            .data(db_clone.clone()) // pass database pool to application so we can access it inside handlers
-            .data(oauth_client.clone())
+            .app_data(Data::new(db_clone.clone())) // pass app_databData::new(ase pool to application so we can access it inside handlers
+            .app_data(Data::new(oauth_client.clone()))
     });
 
     server = match listenfd.take_tcp_listener(0)? {

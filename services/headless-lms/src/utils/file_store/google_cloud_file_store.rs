@@ -2,7 +2,7 @@ use super::{path_to_str, FileStore, GenericPayload};
 use anyhow::Result;
 use async_trait::async_trait;
 use bytes::Bytes;
-use cloud_storage::{Bucket, Object};
+use cloud_storage::Client;
 use futures::{future::try_join, StreamExt};
 use std::path::Path;
 use tokio_stream::wrappers::ReceiverStream;
@@ -11,36 +11,55 @@ const BUFFER_SIZE: usize = 512;
 
 pub struct GoogleCloudFileStore {
     bucket_name: String,
+    client: Client,
 }
 
 impl GoogleCloudFileStore {
     pub async fn new(bucket_name: String) -> Result<Self> {
-        let _bucket = Bucket::read(&bucket_name).await?;
+        let client = Client::default();
+        let _bucket = client.bucket().read(&bucket_name).await?;
         // bucket exists, continue
-        Ok(Self { bucket_name })
+        Ok(Self {
+            bucket_name,
+            client,
+        })
     }
 }
 
 #[async_trait(?Send)]
 impl FileStore for GoogleCloudFileStore {
     async fn upload(&self, path: &Path, file: Vec<u8>, mime_type: String) -> Result<()> {
-        Object::create(&self.bucket_name, file, path_to_str(path)?, &mime_type).await?;
+        self.client
+            .object()
+            .create(&self.bucket_name, file, path_to_str(path)?, &mime_type)
+            .await?;
         Ok(())
     }
 
     async fn download(&self, path: &Path) -> Result<Vec<u8>> {
-        let res = Object::download(&self.bucket_name, path_to_str(path)?).await?;
+        let res = self
+            .client
+            .object()
+            .download(&self.bucket_name, path_to_str(path)?)
+            .await?;
         Ok(res)
     }
 
     async fn get_direct_download_url(&self, path: &Path) -> Result<String> {
-        let object = Object::read(&self.bucket_name, path_to_str(path)?).await?;
+        let object = self
+            .client
+            .object()
+            .read(&self.bucket_name, path_to_str(path)?)
+            .await?;
         let url = object.download_url(60)?;
         Ok(url)
     }
 
     async fn delete(&self, path: &Path) -> Result<()> {
-        Object::delete(&self.bucket_name, path_to_str(path)?).await?;
+        self.client
+            .object()
+            .delete(&self.bucket_name, path_to_str(path)?)
+            .await?;
         Ok(())
     }
 
@@ -50,6 +69,7 @@ impl FileStore for GoogleCloudFileStore {
         mut contents: GenericPayload,
         mime_type: String,
     ) -> Result<()> {
+        let object_client = self.client.object();
         let (sender, receiver) = tokio::sync::mpsc::channel(BUFFER_SIZE);
         let receiver_stream = ReceiverStream::new(receiver);
         let send_fut = async {
@@ -62,7 +82,7 @@ impl FileStore for GoogleCloudFileStore {
             drop(sender);
             Ok(())
         };
-        let recv_fut = Object::create_streamed(
+        let recv_fut = object_client.create_streamed(
             &self.bucket_name,
             receiver_stream,
             None,
@@ -77,7 +97,11 @@ impl FileStore for GoogleCloudFileStore {
         &self,
         path: &Path,
     ) -> Result<Box<dyn futures::Stream<Item = std::io::Result<bytes::Bytes>>>> {
-        let stream = Object::download_streamed(&self.bucket_name, path_to_str(path)?).await?;
+        let stream = self
+            .client
+            .object()
+            .download_streamed(&self.bucket_name, path_to_str(path)?)
+            .await?;
         let stream_with_corrected_type: _ = stream
             // cloud_storage download_streamed returns the bytes one by one which is not optimal for us
             // that's why why group the singular bytes to chunks and convert those chunks to Bytes objects.

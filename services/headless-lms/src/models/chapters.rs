@@ -47,7 +47,7 @@ impl Chapter {
     ) -> Self {
         let chapter_image_url = chapter.chapter_image.as_ref().map(|image| {
             let path = PathBuf::from(image);
-            file_store.get_download_url(&path.as_path(), app_conf)
+            file_store.get_download_url(path.as_path(), app_conf)
         });
         Self {
             id: chapter.id,

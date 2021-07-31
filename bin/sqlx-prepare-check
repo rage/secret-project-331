@@ -2,17 +2,13 @@
 # Only meant to be ran against the database in minikube. You can start it with
 # either `bin/dev` or `bin/dev-only-db`.
 set -euo pipefail
+source "$(dirname "$0")/.common"
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
-echo "> cd $RELATIVE_PATH"
-cd "$RELATIVE_PATH" || exit
+run_command cd "$RELATIVE_PATH" || exit
 
-COMMAND="cargo"
 # We're using `--lib` instead of `--merge` because currently sqlx runs `cargo clean` when using `--merge` (https://github.com/launchbadge/sqlx/blob/e33e4510fcab184f6bb655be3ba811e7f8a5b63f/sqlx-cli/src/prepare.rs#L112) and that removes the dependency compilation cache. Using `--lib` makes this command and other cargo commands much faster.
-ARGUMENTS=(sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev prepare --check -- --lib)
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command cargo sqlx --database-url postgres://headless-lms@localhost:54328/headless_lms_dev prepare --check -- --lib

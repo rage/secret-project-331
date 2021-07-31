@@ -8,20 +8,20 @@ import { PullquoteAttributes } from "../../types/GutenbergBlockAttributes"
 
 import { BlockRendererProps } from "."
 
-interface FigureAttributes {
-  currentColor: string
+const Figure = styled.figure<{
+  backgroundColor: string
   solidColor: boolean
-}
-
-const Figure = styled.figure<FigureAttributes>`
+}>`
   ${(props) =>
     props.solidColor === true
-      ? `background-color: ${props.currentColor}`
-      : `border-bottom: 4px solid ${props.currentColor}; border-top: 4px solid ${props.currentColor}; margin-bottom: 1.75em;`}
+      ? `background-color: ${props.backgroundColor}`
+      : `border-bottom: 4px solid ${props.backgroundColor};
+         border-top: 4px solid ${props.backgroundColor};
+         margin-bottom: 1.75em;`}
 `
 
-const Blockquote = styled.blockquote<{ currentColor: string }>`
-  color: ${(props) => props.currentColor};
+const Blockquote = styled.blockquote<{ textColor: string }>`
+  color: ${(props) => props.textColor};
   padding: 3em 0;
   text-align: center;
 `
@@ -29,22 +29,20 @@ const Blockquote = styled.blockquote<{ currentColor: string }>`
 const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ data }) => {
   const attributes: PullquoteAttributes = data.attributes
 
-  let mainColor = colorMapper(attributes.mainColor, "#FFFFFF")
-
-  mainColor = attributes.customMainColor ?? "#FFFFFF"
+  const backgroundColor = colorMapper(attributes.backgroundColor, "#FFFFFF")
 
   const textColor = colorMapper(attributes.textColor, "#000000")
   const solidColor = attributes.className === "is-style-solid-color" ? true : false
   const value = attributes.value !== undefined ? attributes.value : "<p></p>"
   return (
     <Figure
-      currentColor={mainColor}
+      backgroundColor={backgroundColor}
       solidColor={solidColor}
       className={css`
         ${normalWidthCenteredComponentStyles}
       `}
     >
-      <Blockquote currentColor={textColor}>
+      <Blockquote textColor={textColor}>
         <div>
           <p
             className={css`

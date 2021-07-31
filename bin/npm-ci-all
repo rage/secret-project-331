@@ -1,10 +1,7 @@
 #!/bin/bash
 set -euo pipefail
+source "$(dirname "$0")/.common"
 
-COMMAND="npx"
-ARGUMENTS=(concurrently -n "cms,course-material,main-frontend,example-exercise,shared-module" -c "green.bold,red.bold,blue.bold,yellow.bold,purple.bold" "bash -c 'cd services/cms/ && npm ci'" "bash -c 'cd services/course-material/ && npm ci'" "bash -c 'cd services/main-frontend && npm ci'" "bash -c 'cd services/example-exercise && npm ci'" "bash -c 'cd shared-module && npm ci'")
-
-echo "> $COMMAND" "${ARGUMENTS[@]}"
-exec "$COMMAND" "${ARGUMENTS[@]}"
+run_command npx concurrently -n "cms,course-material,main-frontend,example-exercise,shared-module" -c "green.bold,red.bold,blue.bold,yellow.bold,purple.bold" "bash -c 'cd services/cms/ && npm ci'" "bash -c 'cd services/course-material/ && npm ci'" "bash -c 'cd services/main-frontend && npm ci'" "bash -c 'cd services/example-exercise && npm ci'" "bash -c 'cd shared-module && npm ci'"
 
 echo "finished"

@@ -1,8 +1,6 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import next from "../../img/next.png"
-
 const BannerWrapper = styled.div`
   background: rgba(212, 212, 217, 1);
   width: 100%;

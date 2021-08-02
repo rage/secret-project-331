@@ -56,25 +56,6 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/email-templates`.</span>
 
@@ -120,21 +101,6 @@
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">updated_template</span>))
 }
 
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_email_template</span>(
-    <span class="ident">request_email_template_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">EmailTemplate</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::models::email_templates::delete_email_template</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">request_email_template_id</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">deleted</span>))
-}
-
 <span class="doccomment">/**
 Add a route for each controller in this module.
 
@@ -144,11 +110,7 @@ We add the routes by calling the route method instead of using the route annotat
 */</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_email_templates_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{email_template_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_email_template</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{email_template_id}&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_email_template</span>))
-        .<span class="ident">route</span>(
-            <span class="string">&quot;/{email_template_id}&quot;</span>,
-            <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">delete_email_template</span>),
-        );
+        .<span class="ident">route</span>(<span class="string">&quot;/{email_template_id}&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_email_template</span>));
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>

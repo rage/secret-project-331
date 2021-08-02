@@ -34,6 +34,11 @@
 <span id="31">31</span>
 <span id="32">32</span>
 <span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/main_frontend`.
@@ -43,7 +48,9 @@ This documents all endpoints. Select a module below for a category.
 */</span>
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">chapters</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_instances</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">courses</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">email_templates</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercises</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">organizations</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pages</span>;
@@ -54,15 +61,18 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::utils::file_store::FileStore</span>;
 
 <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">chapters::_add_chapters_routes</span>, <span class="ident">courses::_add_courses_routes</span>, <span class="ident">exercises::_add_exercises_routes</span>,
-    <span class="ident">organizations::_add_organizations_routes</span>, <span class="ident">pages::_add_pages_routes</span>,
-    <span class="ident">submissions::_add_submissions_routes</span>,
+    <span class="ident">chapters::_add_chapters_routes</span>, <span class="ident">course_instances::_add_course_instances_routes</span>,
+    <span class="ident">courses::_add_courses_routes</span>, <span class="ident">email_templates::_add_email_templates_routes</span>,
+    <span class="ident">exercises::_add_exercises_routes</span>, <span class="ident">organizations::_add_organizations_routes</span>,
+    <span class="ident">pages::_add_pages_routes</span>, <span class="ident">submissions::_add_submissions_routes</span>,
 };
 
 <span class="doccomment">/// Add controllers from all the submodules.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_main_frontend_routes</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">FileStore</span><span class="op">&gt;</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/chapters&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_chapters_routes</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/course-instances&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_course_instances_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/courses&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_courses_routes</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/email-templates&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_email_templates_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exercises&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_exercises_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/organizations&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_organizations_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/pages&quot;</span>).<span class="ident">configure</span>(<span class="ident">_add_pages_routes</span>))

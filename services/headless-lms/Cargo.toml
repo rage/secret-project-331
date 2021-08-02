@@ -114,3 +114,7 @@ indexmap = "=1.6.2"
 pretty_assertions = "0.7.1"
 # HTTP mocking for Rust.
 mockito = "0.30"
+
+[profile.dev]
+# Speeds up builds, makes backtraces to lose the source line
+debug = 0

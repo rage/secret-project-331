@@ -4,9 +4,10 @@ import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useMemo, useState } from "react"
 
-import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
+import { UseBlocksWithUnsupportedBlocksRemoved } from "../../utils/Gutenberg/UseBlocksWithUnsupportedBlocksRemoved"
+import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 interface EmailEditorProps {
   data: EmailTemplate
@@ -26,24 +27,12 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
   const [subject, setSubject] = useState(data.subject ?? "")
   const [saving, setSaving] = useState(false)
 
-  const supportedBlocksForPages: string[] = blockTypeMapForPages.map((mapping) => mapping[0])
-  const supportedBlocksTopLevelPages: string[] = blockTypeMapForTopLevelPages.map(
-    (mapping) => mapping[0],
-  )
-
   const handleOnSave = async () => {
     setSaving(true)
-    const modifiedContent: BlockInstance[] = content.map((block) => {
-      if (block.name === "moocfi/unsupported-block-type") {
-        return block.attributes.originalBlockJson
-      } else {
-        return block
-      }
-    })
     const res = await handleSave({
       subject,
       name,
-      content: modifiedContent,
+      content: removeUnsupportedBlockType(content),
       exercise_completions_threshold: null,
       points_threshold: null,
     })
@@ -53,36 +42,9 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
     setSaving(false)
   }
 
-  /*-----
-  const allSupportedBlocks = data.chapter_id
-    ? allowedEmailCoreBlocks.concat(supportedBlocksForPages)
-    : allowedEmailCoreBlocks.concat(supportedBlocksTopLevelPages)
-  -----*/
-
-  const allSupportedBlocks = allowedEmailCoreBlocks.concat(
-    supportedBlocksForPages,
-    supportedBlocksTopLevelPages,
-  )
-
   useMemo(() => {
-    const initialContent = data.content as BlockInstance[]
-    const modifiedContent = initialContent.map((block) => {
-      if (
-        allSupportedBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined
-      ) {
-        return {
-          clientId: block.clientId,
-          name: "moocfi/unsupported-block-type",
-          isValid: true,
-          attributes: { ...block.attributes, originalBlockJson: block },
-          innerBlocks: [],
-        }
-      } else {
-        return block
-      }
-    })
-    setContent(modifiedContent)
-  }, [data.content])
+    setContent(UseBlocksWithUnsupportedBlocksRemoved(content, allowedEmailCoreBlocks))
+  }, [content])
 
   return (
     <>

@@ -8,6 +8,8 @@ import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
+import { UseBlocksWithUnsupportedBlocksRemoved } from "../../utils/Gutenberg/UseBlocksWithUnsupportedBlocksRemoved"
+import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
@@ -36,17 +38,10 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
 
   const handleOnSave = async () => {
     setSaving(true)
-    const modifiedContent: BlockInstance[] = content.map((block) => {
-      if (block.name === "moocfi/unsupported-block-type") {
-        return block.attributes.originalBlockJson
-      } else {
-        return block
-      }
-    })
     const res = await handleSave({
       title,
       url_path: urlPath,
-      content: modifiedContent,
+      content: removeUnsupportedBlockType(content),
       chapter_id: data.chapter_id,
       front_page_of_chapter_id: null,
     })
@@ -59,24 +54,8 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
 
   useMemo(() => {
-    const initialContent = data.content as BlockInstance[]
-    const modifiedContent = initialContent.map((block) => {
-      if (
-        allSupportedBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined
-      ) {
-        return {
-          clientId: block.clientId,
-          name: "moocfi/unsupported-block-type",
-          isValid: true,
-          attributes: { ...block.attributes, originalBlockJson: block },
-          innerBlocks: [],
-        }
-      } else {
-        return block
-      }
-    })
-    setContent(modifiedContent)
-  }, [data.content])
+    setContent(UseBlocksWithUnsupportedBlocksRemoved(content, allSupportedBlocks))
+  }, [content, allSupportedBlocks])
 
   return (
     <>

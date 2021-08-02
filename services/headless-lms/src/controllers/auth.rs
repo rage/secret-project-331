@@ -3,22 +3,30 @@ Handlers for HTTP requests to `/api/v0/login`.
 */
 
 use crate::{
-    controllers::ControllerResult, domain::authorization, models, ApplicationConfiguration,
-    OAuthClient,
+    controllers::{ControllerError, ControllerResult},
+    domain::authorization,
+    models::{self, users::User},
+    ApplicationConfiguration, OAuthClient,
 };
+use actix_http::Result;
 use actix_session::Session;
 use actix_web::{
     web::{self, Json, ServiceConfig},
     HttpResponse,
 };
 use anyhow::Context;
-use oauth2::{ResourceOwnerPassword, ResourceOwnerUsername, TokenResponse};
+use oauth2::{
+    basic::{BasicErrorResponseType, BasicTokenType},
+    EmptyExtraTokenFields, RequestTokenError, ResourceOwnerPassword, ResourceOwnerUsername,
+    StandardErrorResponse, StandardTokenResponse, TokenResponse,
+};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use sqlx::PgConnection;
 use sqlx::PgPool;
 use ts_rs::TS;
+use url::form_urlencoded::Target;
 use uuid::Uuid;
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct Login {
     email: String,
@@ -61,10 +69,17 @@ pub async fn login(
                 password.clone(),
                 &app_conf,
             )
-            .await?
+            .await
         };
-        authorization::remember(&session, user)?;
-        return Ok(HttpResponse::Ok().finish());
+
+        if let Ok(user) = user {
+            authorization::remember(&session, user)?;
+            return Ok(HttpResponse::Ok().finish());
+        } else {
+            return Err(ControllerError::Unauthorized(
+                "Incorrect email or password.".to_string(),
+            ));
+        };
     }
 
     // only used when testing
@@ -74,38 +89,23 @@ pub async fn login(
             &ResourceOwnerPassword::new(password.clone()),
         )
         .request_async(oauth2::reqwest::async_http_client)
-        .await
-        .context("Failed to authenticate")?;
+        .await;
 
-    // get upstream id for user from TMC
-    let current_user_url = "https://tmc.mooc.fi/api/v8/users/current";
-    let client = Client::default();
-    let res = client
-        .get(current_user_url)
-        .bearer_auth(token.access_token().secret())
-        .send()
-        .await
-        .context("Failed to send request to TMC")?;
-    if !res.status().is_success() {
-        return Err(anyhow::anyhow!("Failed to get current user from TMC").into());
+    if token.is_err() {
+        return Err(ControllerError::Unauthorized(
+            "Incorrect email or password.".to_string(),
+        ));
     }
-    let current_user: CurrentUser = res.json().await.context("Unexpected response from TMC")?;
-    let upstream_id = current_user.id;
-    let email = current_user.email;
 
-    // fetch existing user or create new one
-    let user = match crate::models::users::find_by_upstream_id(&mut conn, upstream_id)
-        .await
-        .context("Error while trying to find user")?
-    {
-        Some(existing_user) => existing_user,
-        None => {
-            crate::models::users::insert_with_upstream_id(&mut conn, &email, upstream_id).await?
-        }
-    };
-
-    authorization::remember(&session, user)?;
-    Ok(HttpResponse::Ok().finish())
+    let user = get_user_from_tmc(&token, &mut conn).await;
+    if let Ok(user) = user {
+        authorization::remember(&session, user)?;
+        Ok(HttpResponse::Ok().finish())
+    } else {
+        Err(ControllerError::Unauthorized(
+            "Incorrect email or password.".to_string().finish(),
+        ))
+    }
 }
 
 /**
@@ -131,4 +131,50 @@ pub fn add_auth_routes(cfg: &mut ServiceConfig) {
     cfg.route("/login", web::post().to(login))
         .route("/logout", web::post().to(logout))
         .route("/logged-in", web::get().to(logged_in));
+}
+
+pub type LoginToken = Result<
+    StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>,
+    RequestTokenError<
+        oauth2::reqwest::Error<reqwest::Error>,
+        StandardErrorResponse<BasicErrorResponseType>,
+    >,
+>;
+
+pub async fn get_user_from_tmc(
+    token: &LoginToken,
+    conn: &mut PgConnection,
+) -> ControllerResult<User> {
+    if let Ok(token) = token {
+        let current_user_url = "https://tmc.mooc.fi/api/v8/users/current";
+        let client = Client::default();
+        let res = client
+            .get(current_user_url)
+            .bearer_auth(token.access_token().secret())
+            .send()
+            .await
+            .context("Failed to send request to TMC")?;
+        if !res.status().is_success() {
+            return Err(anyhow::anyhow!("Failed to get current user from TMC").into());
+        }
+        let current_user: CurrentUser = res.json().await.context("Unexpected response from TMC")?;
+        let upstream_id = current_user.id;
+        let email = current_user.email;
+
+        // fetch existing user or create new one
+        let user = match crate::models::users::find_by_upstream_id(conn, upstream_id)
+            .await
+            .context("Error while trying to find user")?
+        {
+            Some(existing_user) => existing_user,
+            None => {
+                crate::models::users::insert_with_upstream_id(conn, &email, upstream_id).await?
+            }
+        };
+        Ok(user)
+    } else {
+        Err(ControllerError::NotFound(
+            "User not found.".to_string().finish(),
+        ))
+    }
 }

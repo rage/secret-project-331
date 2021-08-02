@@ -8,14 +8,10 @@ export const loggedIn = async (): Promise<boolean> => {
 
 export const login = async (email: string, password: string): Promise<void> => {
   const url = `/api/v0/auth/login`
-  try {
-    await axios.post(url, {
-      email,
-      password,
-    })
-  } catch (e) {
-    console.log("failed to login: ", e)
-  }
+  await axios.post(url, {
+    email,
+    password,
+  })
 }
 
 export const logout = async (): Promise<void> => {

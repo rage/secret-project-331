@@ -77,7 +77,8 @@ async fn serve_upload(req: HttpRequest) -> ControllerResult<HttpResponse> {
         .map_err(|_e| ControllerError::BadRequest("Invalid file path".to_string()))?;
     let path = base_folder.join(relative_path);
 
-    let named_file = NamedFile::open(path).map_err(|_e| ControllerError::NotFound)?;
+    let named_file = NamedFile::open(path)
+        .map_err(|_e| ControllerError::NotFound("File not found".to_string()))?;
     let path = named_file.path();
     let contents = read(path)
         .await

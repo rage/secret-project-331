@@ -43,11 +43,11 @@ impl FromRequest for AuthUser {
         let session = req.get_session();
         match session.get::<AuthUser>(SESSION_KEY) {
             Ok(Some(user)) => ok(user),
-            Ok(None) => err(ControllerError::Unauthorized),
+            Ok(None) => err(ControllerError::Unauthorized("Unauthorized.".to_string())),
             Err(_) => {
                 // session had an invalid value
                 session.remove(SESSION_KEY);
-                err(ControllerError::Unauthorized)
+                err(ControllerError::Unauthorized("Unauthorized.".to_string()))
             }
         }
     }

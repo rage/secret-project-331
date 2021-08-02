@@ -1,23 +1,21 @@
 import { css } from "@emotion/css"
 import { Button, Dialog } from "@material-ui/core"
-import Link from "next/link"
-import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useQuery } from "react-query"
 
-import Layout from "../../../components/Layout"
-import NewEmailTemplateForm from "../../../components/forms/NewEmailTemplateForm"
+import Layout from "../../../../components/Layout"
+import NewEmailTemplateForm from "../../../../components/forms/NewEmailTemplateForm"
 import {
   fetchCourseInstanceEmailTemplates,
   postNewEmailTemplateForCourseInstance,
-} from "../../../services/backend/course-instances"
-import { deleteEmailTemplate } from "../../../services/backend/email-templates"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+} from "../../../../services/backend/course-instances"
+import { deleteEmailTemplate } from "../../../../services/backend/email-templates"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 export interface CourseInstanceEmailTemplatesProps {
   query: SimplifiedUrlQuery<"id">
@@ -34,7 +32,6 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
     fetchCourseInstanceEmailTemplates(courseInstanceId),
   )
   const [showForm, setShowForm] = useState(false)
-  const router = useRouter()
 
   if (error) {
     return (
@@ -54,10 +51,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
       name: newName,
     })
     setShowForm(!showForm)
-    await router.push({
-      pathname: "/email-templates/[id]/edit",
-      query: { id: result.id },
-    })
+    window.location.assign(`/cms/email-templates/${result.id}/edit`)
   }
 
   const handleOnDelete = async (templateId: string) => {
@@ -91,15 +85,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
           {courseInstanceEmailTemplates.map((template) => {
             return (
               <li key={template.id}>
-                {template.name}{" "}
-                <Link
-                  href={{
-                    pathname: "/email-templates/[id]/edit",
-                    query: { id: template.id },
-                  }}
-                >
-                  Edit
-                </Link>{" "}
+                {template.name} <a href={`/cms/email-templates/${template.id}/edit`}>Edit</a>{" "}
                 <Button onClick={async () => await handleOnDelete(template.id)}>Delete</Button>
               </li>
             )

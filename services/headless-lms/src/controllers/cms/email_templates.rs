@@ -42,21 +42,6 @@ async fn update_email_template(
     Ok(Json(updated_template))
 }
 
-#[instrument(skip(pool))]
-async fn delete_email_template(
-    request_email_template_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<Json<EmailTemplate>> {
-    let mut conn = pool.acquire().await?;
-    let deleted = crate::models::email_templates::delete_email_template(
-        &mut conn,
-        *request_email_template_id,
-    )
-    .await?;
-    Ok(Json(deleted))
-}
-
 /**
 Add a route for each controller in this module.
 
@@ -66,9 +51,5 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_email_templates_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{email_template_id}", web::get().to(get_email_template))
-        .route("/{email_template_id}", web::put().to(update_email_template))
-        .route(
-            "/{email_template_id}",
-            web::delete().to(delete_email_template),
-        );
+        .route("/{email_template_id}", web::put().to(update_email_template));
 }

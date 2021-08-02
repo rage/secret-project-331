@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import arrow from "../img/next.png"
+import arrow from "../img/arrow.svg"
 
 const Wrapper = styled.aside`
   padding: 0 0 4em 0;
@@ -14,7 +14,7 @@ const Wrapper = styled.aside`
   h2 {
     text-align: center;
     color: #3b4754;
-    font-family: Josefin Sans;
+    font-family: "Josefin Sans", sans-serif;
     text-transform: uppercase;
     font-size: 1.6rem;
     margin-bottom: 2rem;
@@ -59,8 +59,6 @@ const ImageBox = styled.div`
   right: 0;
 ` */
 
-const Body = styled.div``
-
 const ChapterParts = styled.div`
   position: relative;
   margin-left: 0em;
@@ -72,8 +70,8 @@ const ChapterParts = styled.div`
   margin-bottom: 0.4em;
   background: #f1f1f1;
 
-  ${(props) =>
-    props.currentPage &&
+  ${({ selected }: ChapterBoxExtraProps) =>
+    selected &&
     `
     background-color: #D8D8D8;
     font-weight: 600;
@@ -99,22 +97,24 @@ const ChapterParts = styled.div`
     display: inline-block;
     width: 80%;
     margin: 0.4em 0 0.4em 0.2em;
-    font-family: Josefin Sans;
+    font-family: "Josefin Sans", sans-serif;
     text-transform: uppercase;
   }
 `
-
+/*
 const chooseChapterValue = {
   0: "I",
   1: "II",
   2: "III",
   3: "IV",
   4: "V",
-}
+} */
 
 export interface ChapterBoxExtraProps {
   variant: "text" | "link" | "readOnly"
-  content: string
+  selected: boolean
+  chapterIndex: string
+  chapterTitle: string
 }
 
 export type ChapterBoxProps = React.HTMLAttributes<HTMLDivElement> & ChapterBoxExtraProps
@@ -122,20 +122,19 @@ export type ChapterBoxProps = React.HTMLAttributes<HTMLDivElement> & ChapterBoxE
 const ChapterBox: React.FC<ChapterBoxProps> = (props) => {
   return (
     <Wrapper>
-      <h2>Introduction to everything</h2>
-      <Body>
+      <>
         <Link href="/">
-          <ChapterParts>
+          <ChapterParts {...props}>
             <ImageBox>
               <div>
-                <p>I</p>
+                <p>{props.chapterIndex}</p>
               </div>
             </ImageBox>
-            <span>Introduction to everything</span>
+            <span>{props.chapterTitle}</span>
             <img src={arrow} width="20px" />
           </ChapterParts>
         </Link>
-      </Body>
+      </>
     </Wrapper>
   )
 }

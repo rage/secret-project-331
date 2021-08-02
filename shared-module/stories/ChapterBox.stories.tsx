@@ -14,5 +14,10 @@ type ComponentProps = React.ComponentProps<typeof Component>
 
 const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {...args} />
 
-export const Primary: Story<ComponentProps> = Template.bind({})
-Primary.args = {}
+export const Selected: Story<ComponentProps> = Template.bind({})
+Selected.args = {
+  children: "ChapterBox",
+  chapterIndex: "I",
+  chapterTitle: "Introduction to everything",
+  selected: true,
+}

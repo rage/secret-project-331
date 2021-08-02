@@ -50,7 +50,7 @@ export interface CardExtraProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, subTitle }) => {
+const SimpleCard: React.FC<CardProps> = (props) => {
   return (
     <ThemeProvider theme={theme}>
       <>

@@ -3,6 +3,7 @@ import React, { Fragment } from "react"
 
 import UHLogo from "../img/UHLogo.png"
 import Moocfi from "../img/moocfi.png"
+import arrow from "../img/next.png"
 import { respond } from "../utils/respond"
 
 import Banner from "./Banner/Banner"

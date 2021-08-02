@@ -26,12 +26,14 @@
     "test-debug-logs": "env DEBUG=pw:api npm run test",
     "open": "npx playwright open project-331.local",
     "open-firefox": "npx playwright open project-331.local --browser firefox",
-    "update-snapshots": "npx playwright test --update-snapshots --browser=chromium"
+    "update-snapshots": "npm run test -- --update-snapshots --browser=chromium",
+    "reset-db": "../bin/setup-system-test-db",
+    "view-trace": "npx playwright show-trace"
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^1.12.3",
-    "playwright": "^1.12.3",
+    "@playwright/test": "^1.13.0",
+    "playwright": "^1.13.0",
     "typescript": "^4.3.5"
   },
   "dependencies": {}

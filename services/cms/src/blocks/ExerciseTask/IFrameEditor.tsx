@@ -49,12 +49,11 @@ const IFrameEditor: React.FC<IFrameEditorProps> = ({ url, props }) => {
         if (uncheckedMessage === "current-state") {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const uncheckedData = (messageContainer as any).data
-          if (!uncheckedData || !uncheckedData.private_spec || !uncheckedData.public_spec) {
-            console.error("Invalid message")
+          if (!uncheckedData || !uncheckedData.private_spec) {
+            console.error("Invalid message: missing message.data or message.data.private_spec")
             return
           }
           props.setAttributes({
-            public_spec: JSON.stringify(uncheckedData.public_spec),
             private_spec: JSON.stringify(uncheckedData.private_spec),
           })
         }

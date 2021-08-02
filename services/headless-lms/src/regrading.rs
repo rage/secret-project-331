@@ -111,7 +111,7 @@ pub async fn regrade(
                     let exercise =
                         models::exercises::get_by_id(&mut *conn, submission.exercise_id).await?;
                     let grade_url =
-                        get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
+                        get_internal_grade_url(exercise_service, exercise_service_info).await?;
                     let grading_future = models::gradings::send_grading_request(
                         grade_url,
                         exercise_task,
@@ -263,8 +263,9 @@ mod test {
             exercise_service.id,
             "/editor",
             "/exercise",
-            "/grade",
             "/wat",
+            "/grade",
+            "/public-spec",
         )
         .await
         .unwrap();
@@ -352,8 +353,9 @@ mod test {
             exercise_service.id,
             "/editor",
             "/exercise",
-            "/grade",
             "/wat",
+            "/grade",
+            "/public-spec",
         )
         .await
         .unwrap();
@@ -463,8 +465,9 @@ mod test {
             exercise_service_1.id,
             "/editor",
             "/exercise",
-            "/grade",
             "/wat",
+            "/grade",
+            "/public-spec",
         )
         .await
         .unwrap();
@@ -483,8 +486,9 @@ mod test {
             exercise_service_2.id,
             "/editor",
             "/exercise",
-            "/grade",
             "/wat",
+            "/grade",
+            "/public-spec",
         )
         .await
         .unwrap();

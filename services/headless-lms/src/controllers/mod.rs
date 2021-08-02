@@ -12,15 +12,16 @@ pub mod files;
 pub mod helpers;
 pub mod main_frontend;
 
+use std::error::Error;
+
 use actix_web::{
-    dev::HttpResponseBuilder,
     error,
     http::header::ContentType,
     web::{self, ServiceConfig},
     HttpResponse,
 };
+use actix_web::{http::StatusCode, HttpResponseBuilder};
 use derive_more::Display;
-use http_api_problem::{HttpApiProblem, StatusCode};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -54,13 +55,21 @@ pub enum ControllerError {
     BadRequest(String),
 
     #[display(fmt = "Not found")]
-    NotFound,
+    NotFound(String),
 
     #[display(fmt = "Unauthorized")]
-    Unauthorized,
+    Unauthorized(String),
 
     #[display(fmt = "Forbidden")]
     Forbidden(String),
+}
+
+/// The format all error messages from the API is in
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ErrorResponse {
+    pub title: String,
+    pub message: String,
+    pub source: Option<String>,
 }
 
 impl std::error::Error for ControllerError {}
@@ -76,20 +85,30 @@ impl error::ResponseError for ControllerError {
         } else {
             "Error"
         };
-        let problem_description =
-            HttpApiProblem::with_title_and_type_from_status(status).set_detail(detail);
+
+        let source = self.source();
+        let source_message = source.map(|o| o.to_string());
+
+        let error_response = ErrorResponse {
+            title: status
+                .canonical_reason()
+                .map(|o| o.to_string())
+                .unwrap_or_else(|| status.to_string()),
+            message: detail.to_string(),
+            source: source_message,
+        };
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
-            .body(&problem_description.json_string())
+            .body(serde_json::to_string(&error_response).unwrap_or_else(|_| r#"{"title": "Internal server error", "message": "Error occured while formatting error message."}"#.to_string()))
     }
 
     fn status_code(&self) -> StatusCode {
         match *self {
             ControllerError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ControllerError::BadRequest(_) => StatusCode::BAD_REQUEST,
-            ControllerError::NotFound => StatusCode::NOT_FOUND,
-            ControllerError::Unauthorized => StatusCode::UNAUTHORIZED,
+            ControllerError::NotFound(_) => StatusCode::NOT_FOUND,
+            ControllerError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             ControllerError::Forbidden(_) => StatusCode::FORBIDDEN,
         }
     }
@@ -98,7 +117,7 @@ impl error::ResponseError for ControllerError {
 impl From<anyhow::Error> for ControllerError {
     fn from(err: anyhow::Error) -> ControllerError {
         if let Some(sqlx::Error::RowNotFound) = err.downcast_ref::<sqlx::Error>() {
-            return Self::NotFound;
+            return Self::NotFound(err.to_string());
         }
 
         error!("Internal server error: {}", err.chain().join("\n    "));
@@ -121,7 +140,7 @@ impl From<sqlx::Error> for ControllerError {
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
         match err {
-            ModelError::RecordNotFound(_) => Self::NotFound,
+            ModelError::RecordNotFound(_) => Self::NotFound(err.to_string()),
             ModelError::PreconditionFailed(msg) => Self::BadRequest(msg),
             ModelError::DatabaseConstraint { description, .. } => {
                 Self::BadRequest(description.to_string())

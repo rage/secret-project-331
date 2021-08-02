@@ -8,7 +8,6 @@ use crate::{
     models::{self, users::User},
     ApplicationConfiguration, OAuthClient,
 };
-use actix_http::Result;
 use actix_session::Session;
 use actix_web::{
     web::{self, Json, ServiceConfig},

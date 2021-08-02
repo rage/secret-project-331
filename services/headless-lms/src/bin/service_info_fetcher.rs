@@ -9,7 +9,7 @@ use headless_lms_actix::{
 use sqlx::PgPool;
 use std::{env, usize};
 use tokio::time::{sleep, Duration};
-use tracing::log::info;
+use tracing::info;
 
 const N: usize = 10;
 

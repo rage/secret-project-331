@@ -63,11 +63,11 @@ pub fn process_content_to_plaintext(blocks: &[EmailGutenbergBlock]) -> String {
         .iter()
         .map(|block| match &block.attributes {
             BlockAttributes::Paragraph { content, .. } => {
-                let res = ALL_TAG_REGEX.replace_all(&content, "").to_string();
+                let res = ALL_TAG_REGEX.replace_all(content, "").to_string();
                 format!("{}\n\n", res)
             }
             BlockAttributes::Image { alt, url, .. } => {
-                let result = DOUBLE_QUOTE_REGEX.replace_all(&alt, "").to_string();
+                let result = DOUBLE_QUOTE_REGEX.replace_all(alt, "").to_string();
                 format!("\"{}\", <{}>", result, url)
             }
             BlockAttributes::Heading { content, .. } => format!("{}\n\n\n", content),
@@ -77,7 +77,7 @@ pub fn process_content_to_plaintext(blocks: &[EmailGutenbergBlock]) -> String {
                 if *ordered {
                     let mut counter = 0;
                     let first_tags = LI_START_TAG_REGEX
-                        .replace_all(&values, |_caps: &Captures| {
+                        .replace_all(values, |_caps: &Captures| {
                             counter += 1;
                             format!("{}. ", counter)
                         })
@@ -85,7 +85,7 @@ pub fn process_content_to_plaintext(blocks: &[EmailGutenbergBlock]) -> String {
                     let snd_tags = LI_END_TAG_REGEX.replace_all(&first_tags, "\n").to_string();
                     ALL_TAG_REGEX.replace_all(&snd_tags, "").to_string()
                 } else {
-                    let first_tags = LI_START_TAG_REGEX.replace_all(&values, "* ").to_string();
+                    let first_tags = LI_START_TAG_REGEX.replace_all(values, "* ").to_string();
                     let snd_tags = LI_END_TAG_REGEX.replace_all(&first_tags, "\n").to_string();
                     ALL_TAG_REGEX.replace_all(&snd_tags, "").to_string()
                 }

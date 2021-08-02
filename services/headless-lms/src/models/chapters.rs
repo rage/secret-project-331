@@ -47,7 +47,7 @@ impl Chapter {
     ) -> Self {
         let chapter_image_url = chapter.chapter_image.as_ref().map(|image| {
             let path = PathBuf::from(image);
-            file_store.get_download_url(&path.as_path(), app_conf)
+            file_store.get_download_url(path.as_path(), app_conf)
         });
         Self {
             id: chapter.id,
@@ -199,7 +199,7 @@ pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> ModelRe
 
 pub async fn update_chapter(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    chapter_id: Uuid,
     chapter_update: ChapterUpdate,
 ) -> ModelResult<DatabaseChapter> {
     let res = sqlx::query_as!(
@@ -213,7 +213,7 @@ RETURNING *;
     "#,
         chapter_update.name,
         chapter_update.chapter_number,
-        course_id
+        chapter_id
     )
     .fetch_one(conn)
     .await?;

@@ -116,6 +116,7 @@
 <span id="113">113</span>
 <span id="114">114</span>
 <span id="115">115</span>
+<span id="116">116</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/files`.
@@ -196,7 +197,8 @@ The file.
         .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Invalid file path&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">base_folder</span>.<span class="ident">join</span>(<span class="ident">relative_path</span>);
 
-    <span class="kw">let</span> <span class="ident">named_file</span> <span class="op">=</span> <span class="ident">NamedFile::open</span>(<span class="ident">path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ControllerError::NotFound</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">named_file</span> <span class="op">=</span> <span class="ident">NamedFile::open</span>(<span class="ident">path</span>)
+        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ControllerError::NotFound</span>(<span class="string">&quot;File not found&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">named_file</span>.<span class="ident">path</span>();
     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">read</span>(<span class="ident">path</span>)
         .<span class="kw">await</span>

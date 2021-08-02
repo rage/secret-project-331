@@ -1,7 +1,9 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 use crate::{
-    controllers::ControllerResult, domain::authorization::AuthUser,
-    models::submissions::Submission, utils::pagination::Pagination,
+    controllers::ControllerResult,
+    domain::authorization::{authorize, Action, AuthUser, Resource},
+    models::submissions::Submission,
+    utils::pagination::Pagination,
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use futures::future;
@@ -52,6 +54,15 @@ async fn get_exercise_submissions(
     let submission_count =
         crate::models::submissions::exercise_submission_count(&mut conn, &request_exercise_id);
     let mut conn = pool.acquire().await?;
+    let course_id =
+        crate::models::exercises::get_course_id(&mut conn, *request_exercise_id).await?;
+    authorize(
+        &mut conn,
+        Action::View,
+        user.id,
+        Resource::Course(course_id),
+    )
+    .await?;
     let submissions = crate::models::submissions::exercise_submissions(
         &mut conn,
         &request_exercise_id,

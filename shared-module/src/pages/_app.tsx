@@ -5,11 +5,9 @@ import { QueryClient, QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
 import { RecoilRoot } from "recoil"
 
-import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
-import GlobalStyles from "../shared-module/styles/GlobalStyles"
-import muiTheme from "../shared-module/utils/muiTheme"
-
-import "../styles/Gutenberg/style.scss"
+import { LoginStateContextProvider } from "../contexts/LoginStateContext"
+import GlobalStyles from "../styles/GlobalStyles"
+import muiTheme from "../utils/muiTheme"
 
 const queryClient = new QueryClient({
   defaultOptions: {

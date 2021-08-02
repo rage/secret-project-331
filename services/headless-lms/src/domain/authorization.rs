@@ -1,5 +1,6 @@
 use crate::{
     controllers::ControllerError,
+    controllers::ControllerResult,
     models::{self, roles::UserRole},
 };
 use actix_http::Payload;
@@ -81,6 +82,7 @@ pub enum Action {
     View,
     Edit,
     Grade,
+    Teach,
     Download,
     Duplicate,
     DeleteAnswer,
@@ -105,8 +107,10 @@ pub async fn authorize(
     action: Action,
     user_id: Uuid,
     resource: Resource,
-) -> Result<()> {
-    let user_roles = crate::models::roles::get_roles(conn, user_id).await?;
+) -> ControllerResult<()> {
+    let user_roles = crate::models::roles::get_roles(conn, user_id)
+        .await
+        .map_err(|original_err| ControllerError::InternalServerError(original_err.to_string()))?;
 
     // check global role
     for role in &user_roles {
@@ -169,7 +173,7 @@ pub async fn authorize(
         }
     }
 
-    anyhow::bail!("Unauthorized")
+    Err(ControllerError::Forbidden("Unauthorized".to_string()))
 }
 
 fn has_permission(user_role: UserRole, action: Action) -> bool {
@@ -179,7 +183,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
     match user_role {
         Admin => true,
         Assistant => matches!(action, View | Edit | Grade | DeleteAnswer),
-        Teacher => matches!(action, View | Edit | Grade | DeleteAnswer),
+        Teacher => matches!(action, View | Teach | Edit | Grade | DeleteAnswer),
         Reviewer => matches!(action, View | Grade),
     }
 }

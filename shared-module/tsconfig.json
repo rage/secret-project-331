@@ -2,8 +2,14 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "typeRoots": [
+      "./types"
+    ],
     "jsx": "preserve",
-    "lib": ["dom", "es2017"],
+    "lib": [
+      "dom",
+      "es2017"
+    ],
     "moduleResolution": "node",
     "allowJs": true,
     "noEmit": true,
@@ -21,6 +27,12 @@
     "isolatedModules": false,
     "jsxImportSource": "@emotion/react"
   },
-  "exclude": ["node_modules"],
-  "include": ["env.d.ts", "**/*.ts", "**/*.tsx"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }

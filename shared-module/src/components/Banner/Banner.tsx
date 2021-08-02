@@ -1,7 +1,9 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import next from "../img/next.png"
+import next from "../../img/next.png"
+
+import ReadOnlyBanner from "./ReadOnlyBanner"
 
 const Justify = styled.div`
   display: grid;
@@ -66,25 +68,28 @@ const Text = styled.div`
 `
 
 export interface BannerExtraProps {
-  variant: "text" | "link"
+  variant: "text" | "link" | "readOnly"
   content: string
 }
 
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
-const Quote: React.FC<BannerProps> = ({ content }) => {
+const Quote: React.FC<BannerProps> = ({ content, variant }, props) => {
+  if (variant === "readOnly") return <ReadOnlyBanner {...props}>{content}</ReadOnlyBanner>
   return (
     <Justify>
-      <BannerWrapper>
+      <BannerWrapper {...props}>
         <Content>
           <Text>
             <div>{content}</div>
-            <a>
-              <div>Click link</div>
-              <span>
-                <img src={next} alt="next icon" width="12px" />
-              </span>
-            </a>
+            {variant === "link" && (
+              <a>
+                <div>Click link</div>
+                <span>
+                  <img src={next} alt="next icon" width="12px" />
+                </span>
+              </a>
+            )}
           </Text>
         </Content>
       </BannerWrapper>

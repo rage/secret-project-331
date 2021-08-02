@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
-import next from "../img/next.png"
+import Arrow from "../img/arrow.svg"
 
 const SectionWrapper = styled.div`
   margin-top: 3rem;
@@ -27,11 +27,12 @@ const SectionWrapper = styled.div`
   }
 `
 
-const StyledArrow = styled.img`
+const StyledArrow = styled(Arrow)`
   position: absolute;
-  top: 0%;
-  right: 0%;
-  width: 14.5px;
+  top: 0;
+  right: 0;
+  width: auto;
+  height: 100%;
   padding: 1.2rem;
   background: #cacaca;
   cursor: pointer;
@@ -42,10 +43,10 @@ const StyledArrow = styled.img`
       fill: #fe9677;
     }
   }
-  &.arrow {
+  /*   &.arrow {
     transition: fill 0.2s ease-in;
     fill: rgb(22, 179, 199);
-  }
+  } */
 `
 
 const StyledLink = styled.a`
@@ -70,13 +71,6 @@ const StyledLink = styled.a`
     color: white !important;
     line-height: 1.3;
   }
-
-  &:after {
-    content: "";
-    background: red;
-    height: 100%;
-    width: 100px;
-  }
 `
 
 const ButtonWrapper = styled.div`
@@ -100,7 +94,9 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = () => {
         <ButtonWrapper>
           <StyledLink href={"source"}>
             <span>Introduction to Rust</span>
-            <StyledArrow src={next} />
+            <StyledArrow />
+            {/*               <img src={next} alt="next icon" width="12px" />
+            </StyledArrow> */}
           </StyledLink>
         </ButtonWrapper>
       </Fragment>

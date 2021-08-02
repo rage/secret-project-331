@@ -32,7 +32,7 @@ const CardTextBox = styled.div`
   right: 0;
   display: flex;
   padding: 2rem 2.5rem;
-  height: 40%;
+  height: 50%;
   text-align: left;
   margin-bottom: 1rem;
 

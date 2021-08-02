@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
 import Arrow from "../img/arrow.svg"
+import { typography } from "../utils"
 
 const SectionWrapper = styled.div`
   margin-top: 3rem;
@@ -23,20 +24,23 @@ const SectionWrapper = styled.div`
   }
 
   h2 {
-    text-align: left !important;
+    font-size: ${typography.h4};
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
   }
 `
 
-const StyledArrow = styled(Arrow)`
+const StyledArrow = styled.div`
   position: absolute;
   top: 0;
   right: 0;
   width: auto;
   height: 100%;
-  padding: 1.2rem;
+  padding: 1.2rem 1.6rem;
   background: #cacaca;
   cursor: pointer;
   display: inline-block;
+  display: flex;
 
   &:hover {
     .arrow {
@@ -53,7 +57,7 @@ const StyledLink = styled.a`
   position: relative;
   color: #c4c4c4;
   text-decoration: none;
-  padding: 1rem 1.4rem;
+  padding: 1.4rem 1.4rem;
   margin: 1rem 0;
   display: flex;
   min-width: 90%;
@@ -68,6 +72,7 @@ const StyledLink = styled.a`
 
   span {
     font-family: "Josefin Sans", sans-serif;
+    font-size: ${typography.h6};
     color: white !important;
     line-height: 1.3;
   }
@@ -89,14 +94,18 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = () => {
   return (
     <SectionWrapper>
       <Fragment>
-        <h2>Impressive! you’ve reach the end of this topic.</h2>
+        <h2>
+          Impressive! you’ve reach
+          <br />
+          the end of this topic.
+        </h2>
         <p>proceed to the next section </p>
         <ButtonWrapper>
           <StyledLink href={"source"}>
             <span>Introduction to Rust</span>
-            <StyledArrow />
-            {/*               <img src={next} alt="next icon" width="12px" />
-            </StyledArrow> */}
+            <StyledArrow>
+              <img src={Arrow} alt="next icon" width="20px" />
+            </StyledArrow>
           </StyledLink>
         </ButtonWrapper>
       </Fragment>

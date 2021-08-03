@@ -1,19 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { Alternative, ClientErrorResponse, PublicAlternative } from "../../util/stateInterfaces"
+import { ClientErrorResponse, PublicAlternative } from "../../util/stateInterfaces"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
-  if (req.method !== "POST") {
+  if (req.method !== "GET") {
     return res.status(404).json({ message: "Not found" })
   }
 
-  return handlePost(req, res)
+  return handleRequest(req, res)
 }
 
-function handlePost(
+const handleRequest = (
   req: NextApiRequest,
   res: NextApiResponse<PublicAlternative[] | ClientErrorResponse>,
-) {
+) => {
   const uncheckedAlternatives: unknown = req.body
   if (!Array.isArray(uncheckedAlternatives)) {
     return res
@@ -21,9 +21,12 @@ function handlePost(
       .json({ message: "Malformed data:" + JSON.stringify(uncheckedAlternatives) })
   }
 
-  const publicAlternatives = uncheckedAlternatives.map<PublicAlternative>((x: Alternative) => ({
-    id: x.id,
-    name: x.name,
-  }))
-  return res.status(200).json(publicAlternatives)
+  const correctAlternatives = uncheckedAlternatives
+    .filter((alt) => Boolean(alt.correct))
+    .map<PublicAlternative>((x: PublicAlternative) => ({
+      id: x.id,
+      name: x.name,
+    }))
+
+  return res.status(200).json(correctAlternatives)
 }

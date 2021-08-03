@@ -9,21 +9,14 @@ const FieldContainer = styled.div`
 
 interface UpdatePageDetailsFormProps {
   title: string
-  urlPath: string
   setTitle: (newTitle: string) => void
-  setUrlPath: (newUrlPath: string) => void
 }
 
-const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({
-  title,
-  urlPath,
-  setTitle,
-  setUrlPath,
-}) => {
+const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({ title, setTitle }) => {
   return (
     <div
       className={css`
-        padding: 1rem;
+        padding: 1rem 0;
       `}
     >
       <div>
@@ -37,19 +30,6 @@ const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({
             fullWidth
             onChange={(e) => {
               setTitle(e.target.value)
-            }}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <TextField
-            required
-            id="outlined-required"
-            label="Path"
-            variant="outlined"
-            value={urlPath}
-            fullWidth
-            onChange={(e) => {
-              setUrlPath(e.target.value)
             }}
           />
         </FieldContainer>

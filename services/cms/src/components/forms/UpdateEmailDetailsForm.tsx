@@ -23,7 +23,7 @@ const UpdateEmailDetailsForm: React.FC<UpdateEmailDetailsFormProps> = ({
   return (
     <div
       className={css`
-        padding: 1rem;
+        padding: 1rem 0;
       `}
     >
       <div>

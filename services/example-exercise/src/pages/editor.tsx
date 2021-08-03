@@ -1,3 +1,4 @@
+import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 
 import Editor from "../components/Editor"
@@ -18,12 +19,12 @@ const EditorPage: React.FC = () => {
     port.postMessage(message)
   })
 
-  // const router = useRouter()
-  // const rawMaxWidth = router?.query?.width
-  // let _maxWidth: number | null = null
-  // if (rawMaxWidth) {
-  //   _maxWidth = Number(rawMaxWidth)
-  // }
+  const router = useRouter()
+  const rawMaxWidth = router?.query?.width
+  let maxWidth: number | null = 500
+  if (rawMaxWidth) {
+    maxWidth = Number(rawMaxWidth)
+  }
 
   useEffect(() => {
     const handler = (message: WindowEventMap["message"]) => {
@@ -70,7 +71,15 @@ const EditorPage: React.FC = () => {
     return <>Waiting for port...</>
   }
 
-  return <Editor onHeightChange={onHeightChange} state={state} setState={setState} port={port} />
+  return (
+    <Editor
+      maxWidth={maxWidth}
+      onHeightChange={onHeightChange}
+      state={state}
+      setState={setState}
+      port={port}
+    />
+  )
 }
 
 function onHeightChange(newHeight: number, port: MessagePort) {

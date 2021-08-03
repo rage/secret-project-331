@@ -105,6 +105,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
          Only top and bottom because frame is 100% of window width
          and extra border would create a scrollbar
         */
+        border: 0;
         border-top: 1px solid black;
         border-bottom: 1px solid black;
       `}

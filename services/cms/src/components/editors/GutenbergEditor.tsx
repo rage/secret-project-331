@@ -11,6 +11,7 @@ import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
 import "@wordpress/format-library/build-style/style.css"
 
+import { css } from "@emotion/css"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -38,7 +39,14 @@ import React, { useContext, useEffect, useState } from "react"
 
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
+
+export const giveSpaceToSidebarStyles = css`
+  /* Give space for sidebar so that it won't accidentally overlap the main editor */
+  /* Same as sidebar width */
+  margin-right: 280px;
+`
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
@@ -116,7 +124,43 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   }, [allowedBlockVariations, allowedBlocks, customBlocks])
 
   return (
-    <div className="editor">
+    <div
+      className={css`
+        padding-top: 1rem;
+
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+
+        iframe {
+          width: 100%;
+        }
+
+        .wp-block,
+        .block-list-appender {
+          ${normalWidthCenteredComponentStyles}
+          margin-bottom: 2rem;
+        }
+
+        .block-editor-inner-blocks {
+          .wp-block {
+            /* max-width: unset; */
+          }
+        }
+
+        .wp-block[data-type="moocfi/exercise"],
+        .wp-block[data-type="moocfi/exercise-task"] {
+          /* Exercises are full width */
+          max-width: unset;
+        }
+
+        /* Give space for sidebar so that it won't accidentally overlap the main editor */
+        .editor__content {
+          ${giveSpaceToSidebarStyles}
+        }
+      `}
+    >
       <SlotFillProvider>
         <BlockEditorProvider
           settings={editorSettings}
@@ -128,7 +172,6 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
             <BlockInspector />
           </div>
           <div className="editor__content">
-            {/* <BlockTools> */}
             <div className="editor-styles-wrapper">
               <Popover.Slot />
               {/* @ts-ignore: type signature incorrect */}
@@ -140,7 +183,6 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
                 </ObserveTyping>
               </WritingFlow>
             </div>
-            {/* </BlockTools> */}
           </div>
         </BlockEditorProvider>
       </SlotFillProvider>

@@ -2,8 +2,6 @@ import { css } from "@emotion/css"
 import Head from "next/head"
 import React, { ReactNode } from "react"
 
-import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
-
 type Props = {
   children?: ReactNode
   title?: string
@@ -32,13 +30,7 @@ const Layout: React.FC<Props> = ({ children, title = "Päätön CMS" }) => (
         <a href="/">Home</a>
       </nav>
     </header>
-    <div
-      className={css`
-        ${normalWidthCenteredComponentStyles}
-      `}
-    >
-      {children}
-    </div>
+    <div>{children}</div>
     <footer
       className={css`
         margin-top: auto;

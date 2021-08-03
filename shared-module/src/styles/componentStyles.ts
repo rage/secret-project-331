@@ -10,8 +10,6 @@ export const normalWidthCenteredComponentStyles = css`
   max-width: ${defaultContainerWidth}px;
   margin-left: auto;
   margin-right: auto;
-  padding-right: 1rem;
-  padding-left: 1rem;
 `
 
 export const chapterBox = css`

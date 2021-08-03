@@ -2,6 +2,8 @@ import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 
+import { defaultContainerWidth } from "../../shared-module/styles/constants"
+
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import { ExerciseTaskTypes, exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
 import IFrameEditor from "./IFrameEditor"
@@ -9,9 +11,7 @@ import IFrameEditor from "./IFrameEditor"
 import { ExerciseTaskAttributes } from "."
 
 const ExerciseTaskEditorCard = styled.div`
-  padding: 2rem;
-  border: 1px solid black;
-  border-radius: 2px;
+  padding: 2rem 0;
   margin-bottom: 2rem;
 `
 
@@ -30,7 +30,14 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = (pr
     <ExerciseTaskEditorCard id={attributes.id}>
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       {!exerciseType && <ChooseExerciseTaskType onChooseItem={handleChooseExerciseTask} />}
-      {exerciseType && <IFrameEditor key={id} exerciseTaskid={id} url={url} props={props} />}
+      {exerciseType && (
+        <IFrameEditor
+          key={id}
+          exerciseTaskid={id}
+          url={`${url}?width=${defaultContainerWidth}`}
+          props={props}
+        />
+      )}
     </ExerciseTaskEditorCard>
   )
 }

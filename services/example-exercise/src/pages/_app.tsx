@@ -3,6 +3,8 @@ import React from "react"
 
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
 
+import "./app.css"
+
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   React.useEffect(() => {
     // Remove the server-side injected CSS.

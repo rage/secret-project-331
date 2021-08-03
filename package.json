@@ -10,7 +10,7 @@
     "eslint:ci": "eslint .",
     "prepare": "husky install",
     "lint:css": "stylelint '**/*.tsx'",
-    "postinstall": "ts-node  -O '{\"module\":\"commonjs\"}' shared-module/setup-shared-module.ts"
+    "postinstall": "./bin/setup-shared-module"
   },
   "repository": {
     "type": "git",

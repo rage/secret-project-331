@@ -175,8 +175,16 @@ pub async fn get_all_exercise_services_by_type(
 ) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
     let mut exercise_services_by_type = HashMap::new();
     for exercise_service in get_exercise_services(conn).await? {
-        let info = get_service_info_by_exercise_service(conn, &exercise_service).await?;
-        exercise_services_by_type.insert(exercise_service.slug.clone(), (exercise_service, info));
+        if let Ok(info) = get_service_info_by_exercise_service(conn, &exercise_service).await {
+            exercise_services_by_type
+                .insert(exercise_service.slug.clone(), (exercise_service, info));
+        } else {
+            tracing::error!(
+                "No corresponding service info found for {} ({})",
+                exercise_service.name,
+                exercise_service.id
+            );
+        }
     }
     Ok(exercise_services_by_type)
 }

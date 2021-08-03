@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useLayoutEffect, useRef } from "react"
 import { v4 } from "uuid"
@@ -10,6 +11,7 @@ interface Props {
   setState: (newState: Alternative[]) => void
   onHeightChange: (newHeight: number, port: MessagePort) => void
   port: MessagePort
+  maxWidth: number
 }
 
 const Wrapper = styled.div`
@@ -19,14 +21,13 @@ const Wrapper = styled.div`
 `
 
 const ButtonWrapper = styled.div`
-  padding: 1rem;
+  padding: 1rem 0;
 `
 
 const NewButton = styled.button`
   margin: 0 auto;
   margin-bottom: 1rem;
   width: 100%;
-  max-width: 500px;
   display: block;
   padding: 0.5rem;
   background-color: white;
@@ -38,7 +39,7 @@ const NewButton = styled.button`
   }
 `
 
-const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port }) => {
+const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWidth }) => {
   const contentRef = useRef<HTMLDivElement>(null)
   // Automatic height resizing events
   useLayoutEffect(() => {
@@ -49,7 +50,17 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port }) => {
     onHeightChange(ref.getBoundingClientRect().height, port)
   })
   return (
-    <Wrapper ref={contentRef}>
+    <Wrapper
+      className={css`
+        /* Overflows break height calculations */
+        overflow: hidden;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: ${maxWidth}px;
+        margin: 0 auto;
+      `}
+      ref={contentRef}
+    >
       <ButtonWrapper>
         {state.map((o) => (
           <ButtonEditor

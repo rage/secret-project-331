@@ -22,6 +22,20 @@ export interface Quiz {
   submitMessage: string | null
 }
 
+export interface PublicQuiz {
+  id: string
+  courseId: string
+  part: number
+  section: number
+  deadline: Date | null
+  open: Date | null
+  tries: number
+  triesLimited: boolean
+  items: PublicItem[]
+  title: string
+  body: string
+}
+
 export interface Item {
   id: string
   quizId: string
@@ -40,14 +54,32 @@ export interface Item {
   minLabel: string | null
   usesSharedOptionFeedbackMessage: boolean
   options: Option[]
-  title: null
-  body: null
+  title: string
+  body: string
   successMessage: null
   failureMessage: null
   sharedOptionFeedbackMessage: null
   allAnswersCorrect: boolean
   direction: "row" | "column"
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
+}
+
+export interface PublicItem {
+  id: string
+  quizId: string
+  type: string
+  order: number
+  multi: boolean
+  minWords: number | null
+  maxWords: number | null
+  maxValue: number | null
+  minValue: number | null
+  maxLabel: string | null
+  minLabel: string | null
+  options: PublicOption[]
+  title: string
+  body: string
+  direction: "row" | "column"
 }
 
 export interface Option {
@@ -61,6 +93,14 @@ export interface Option {
   body: string | null
   successMessage: null | string
   failureMessage: null | string
+}
+
+export interface PublicOption {
+  id: string
+  quizItemId?: string
+  order: number
+  title: string
+  body: string | null
 }
 
 export interface PeerReviewCollection {

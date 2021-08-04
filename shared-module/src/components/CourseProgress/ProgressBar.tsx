@@ -1,6 +1,5 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
-import React from "react"
 
 import CourseProgressExtraProps from "./index"
 
@@ -76,10 +75,8 @@ const ProgresssBar = ({
   n = 20,
   exercisesDone = 10,
   exercisesTotal = 30,
-  label,
 }: CourseProgressExtraProps) => {
   const exerciseScaled = (exercisesDone / exercisesTotal) * 100
-  const pointScaled = (exercisesDone / exercisesTotal) * 100
   return (
     <div>
       <Label>

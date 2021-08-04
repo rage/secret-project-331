@@ -1,8 +1,6 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import next from "../../img/next.png"
-
 import ReadOnlyBanner from "./ReadOnlyBanner"
 
 const Justify = styled.div`
@@ -86,7 +84,7 @@ const Quote: React.FC<BannerProps> = ({ content, variant }, props) => {
               <a>
                 <div>Click link</div>
                 <span>
-                  <img src={next} alt="next icon" width="12px" />
+                  <img src={"../../img/next.png"} alt="next icon" width="12px" />
                 </span>
               </a>
             )}

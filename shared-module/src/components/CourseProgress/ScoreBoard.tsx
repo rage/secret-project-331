@@ -1,9 +1,7 @@
-import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import { useLayoutEffect, useState } from "react"
-import { animated, config, useSpring } from "react-spring"
+import { useSpring } from "react-spring"
 
-import Score from "../../img/score.svg"
 import { respond } from "../../utils/respond"
 
 const Container = styled.div`
@@ -67,7 +65,7 @@ const ScoreBoard = ({ point = 10, max = 50 }: CourseProgressExtraProps) => {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  const props = useSpring({
+  useSpring({
     number: !willAnimate ? 0 : point,
     config: { duration: 1000 },
   })

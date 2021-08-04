@@ -104,8 +104,8 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
             margin-bottom: 1rem;
           `}
         >
-          <SerializeGutenbergModal content={content} />
-          <DebugModal data={content} />
+          <SerializeGutenbergModal content={contentWithUsupportedBlocksRemoved} />
+          <DebugModal data={contentWithUsupportedBlocksRemoved} />
         </div>
       </div>
     </>

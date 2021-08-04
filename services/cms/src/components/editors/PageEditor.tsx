@@ -2,14 +2,14 @@ import SaveIcon from "@material-ui/icons/Save"
 import LoadingButton from "@material-ui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useMemo, useState } from "react"
+import React, { useState } from "react"
 
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
-import { UseBlocksWithUnsupportedBlocksRemoved } from "../../utils/Gutenberg/UseBlocksWithUnsupportedBlocksRemoved"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
+import useBlocksWithUnsupportedBlocksRemoved from "../../utils/Gutenberg/useBlocksWithUnsupportedBlocksRemoved"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
@@ -53,9 +53,10 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     ? supportedCoreBlocks.concat(supportedBlocksForPages)
     : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
 
-  useMemo(() => {
-    setContent(UseBlocksWithUnsupportedBlocksRemoved(content, allSupportedBlocks))
-  }, [content, allSupportedBlocks])
+  const contentWithUsupportedBlocksRemoved = useBlocksWithUnsupportedBlocksRemoved(
+    content,
+    allSupportedBlocks,
+  )
 
   return (
     <>
@@ -77,7 +78,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       />
       {data.chapter_id !== null ? (
         <GutenbergEditor
-          content={content}
+          content={contentWithUsupportedBlocksRemoved}
           onContentChange={setContent}
           customBlocks={blockTypeMapForPages}
           allowedBlocks={supportedCoreBlocks}
@@ -85,7 +86,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         />
       ) : (
         <GutenbergEditor
-          content={content}
+          content={contentWithUsupportedBlocksRemoved}
           onContentChange={setContent}
           customBlocks={blockTypeMapForTopLevelPages}
           allowedBlocks={supportedCoreBlocks}

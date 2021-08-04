@@ -2,12 +2,12 @@ import SaveIcon from "@material-ui/icons/Save"
 import LoadingButton from "@material-ui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useMemo, useState } from "react"
+import React, { useState } from "react"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
-import { UseBlocksWithUnsupportedBlocksRemoved } from "../../utils/Gutenberg/UseBlocksWithUnsupportedBlocksRemoved"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
+import useBlocksWithUnsupportedBlocksRemoved from "../../utils/Gutenberg/useBlocksWithUnsupportedBlocksRemoved"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 interface EmailEditorProps {
   data: EmailTemplate
@@ -42,9 +42,10 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
     setSaving(false)
   }
 
-  useMemo(() => {
-    setContent(UseBlocksWithUnsupportedBlocksRemoved(content, allowedEmailCoreBlocks))
-  }, [content])
+  const contentWithUsupportedBlocksRemoved = useBlocksWithUnsupportedBlocksRemoved(
+    content,
+    allowedEmailCoreBlocks,
+  )
 
   return (
     <>
@@ -65,7 +66,7 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
       />
 
       <EmailGutenbergEditor
-        content={content}
+        content={contentWithUsupportedBlocksRemoved}
         onContentChange={setContent}
         allowedBlocks={allowedEmailCoreBlocks}
       />

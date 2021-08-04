@@ -3,7 +3,8 @@
     "target": "esnext",
     "module": "esnext",
     "typeRoots": [
-      "./types"
+      "./types",
+      "./node_modules/@types"
     ],
     "jsx": "preserve",
     "lib": [

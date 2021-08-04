@@ -6,7 +6,10 @@ import React, { useState } from "react"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
+
+import { giveSpaceToSidebarStyles } from "./GutenbergEditor"
 
 interface EmailEditorProps {
   data: EmailTemplate
@@ -43,21 +46,25 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
 
   return (
     <>
-      <LoadingButton
-        loadingPosition="start"
-        startIcon={<SaveIcon />}
-        loading={saving}
-        onClick={handleOnSave}
-      >
-        Save
-      </LoadingButton>
+      <div className={giveSpaceToSidebarStyles}>
+        <div className={normalWidthCenteredComponentStyles}>
+          <LoadingButton
+            loadingPosition="start"
+            startIcon={<SaveIcon />}
+            loading={saving}
+            onClick={handleOnSave}
+          >
+            Save
+          </LoadingButton>
 
-      <UpdateEmailDetailsForm
-        name={name}
-        subject={subject}
-        setName={setName}
-        setSubject={setSubject}
-      />
+          <UpdateEmailDetailsForm
+            name={name}
+            subject={subject}
+            setName={setName}
+            setSubject={setSubject}
+          />
+        </div>
+      </div>
 
       <EmailGutenbergEditor
         content={content}

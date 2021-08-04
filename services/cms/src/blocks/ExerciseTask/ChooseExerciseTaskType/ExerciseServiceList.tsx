@@ -1,5 +1,7 @@
 import { List, ListItem } from "@material-ui/core"
 
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+
 export interface ExerciseTaskTypes {
   name: string
   url: null | string
@@ -18,7 +20,7 @@ interface Props {
 
 const ExerciseServiceList: React.FC<Props> = ({ onChooseItem }) => {
   return (
-    <div>
+    <div className={normalWidthCenteredComponentStyles}>
       <h2>Please select an exercise type:</h2>
       <List>
         {exerciseTaskTypes.map((eit) => (

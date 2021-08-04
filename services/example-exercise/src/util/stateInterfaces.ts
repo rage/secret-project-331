@@ -17,6 +17,6 @@ export interface ClientErrorResponse {
   message: string
 }
 
-export interface ModalSolutionApi {
+export interface ModelSolutionApi {
   correctOptionIds: string[]
 }

@@ -154,6 +154,7 @@ export interface ExerciseServiceInfoApi {
   submission_iframe_path: string
   grade_endpoint_path: string
   public_spec_endpoint_path: string
+  model_solution_path: string
 }
 
 export interface SubmissionCount {

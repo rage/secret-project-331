@@ -1,6 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { ClientErrorResponse, PublicAlternative } from "../../util/stateInterfaces"
+import {
+  ClientErrorResponse,
+  ModelSolutionApi,
+  PublicAlternative,
+} from "../../util/stateInterfaces"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "GET") {
@@ -12,7 +16,7 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
 
 const handleRequest = (
   req: NextApiRequest,
-  res: NextApiResponse<PublicAlternative[] | ClientErrorResponse>,
+  res: NextApiResponse<ModelSolutionApi | ClientErrorResponse>,
 ) => {
   const uncheckedAlternatives: unknown = req.body
   if (!Array.isArray(uncheckedAlternatives)) {
@@ -21,12 +25,11 @@ const handleRequest = (
       .json({ message: "Malformed data:" + JSON.stringify(uncheckedAlternatives) })
   }
 
-  const correctAlternatives = uncheckedAlternatives
-    .filter((alt) => Boolean(alt.correct))
-    .map<PublicAlternative>((x: PublicAlternative) => ({
-      id: x.id,
-      name: x.name,
-    }))
+  const correctAlternatives: ModelSolutionApi = {
+    correctOptionIds: uncheckedAlternatives
+      .filter((alt) => Boolean(alt.correct))
+      .map<string>((x: PublicAlternative) => x.id),
+  }
 
   return res.status(200).json(correctAlternatives)
 }

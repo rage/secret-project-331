@@ -39,6 +39,15 @@ impl GutenbergBlock {
             inner_blocks: vec![],
         }
     }
+    pub fn block_with_name_and_attributes(name: &str, attributes: serde_json::Value) -> Self {
+        GutenbergBlock {
+            client_id: Uuid::new_v4().to_string(),
+            name: name.to_string(),
+            is_valid: true,
+            attributes,
+            inner_blocks: vec![],
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

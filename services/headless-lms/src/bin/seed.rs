@@ -23,7 +23,6 @@ async fn main() -> Result<()> {
     setup_tracing()?;
 
     let clean = env::args().any(|a| a == "clean");
-    let test = env::args().any(|a| a == "release");
     let db_url = env::var("DATABASE_URL")?;
 
     if clean {
@@ -34,11 +33,7 @@ async fn main() -> Result<()> {
             .args(["-p", "54328"])
             .arg("--force")
             .arg("-e")
-            .arg(if test {
-                "headless_lms_test"
-            } else {
-                "headless_lms_dev"
-            })
+            .arg("headless_lms_dev")
             .status()?;
         assert!(status.success());
         Postgres::create_database(&db_url).await?;

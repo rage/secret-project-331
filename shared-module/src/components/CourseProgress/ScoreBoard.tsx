@@ -44,13 +44,13 @@ const StyledSVG = styled.div`
   }
 `
 export interface CourseProgressExtraProps {
-  max: number
+  max: string
   min: string
   point: number
   label: string
 }
 
-const ScoreBoard = ({ point = 10, max = 50 }: CourseProgressExtraProps) => {
+const ScoreBoard = ({ point = 10 }: CourseProgressExtraProps) => {
   const [willAnimate, setWillAnimate] = useState(false)
 
   useLayoutEffect(() => {

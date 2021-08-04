@@ -1,8 +1,6 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import * as quoteImg from "../img/quote.png"
-
 const Justify = styled.div`
   display: grid;
   justify-content: center;
@@ -44,7 +42,7 @@ const Quote: React.FC<QuoteProps> = ({ content }) => {
   return (
     <Justify>
       <ContentWrapper>
-        <StyledImg src={quoteImg} alt="quote icon" />
+        <StyledImg src={"../img/quote.png"} alt="quote icon" />
         <Text> {content} </Text>
       </ContentWrapper>
     </Justify>

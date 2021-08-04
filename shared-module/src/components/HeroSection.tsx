@@ -1,4 +1,3 @@
-import { css, cx } from "@emotion/css"
 import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
@@ -50,7 +49,7 @@ export interface CardExtraProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = (props) => {
+const SimpleCard: React.FC<CardProps> = () => {
   return (
     <ThemeProvider theme={theme}>
       <>

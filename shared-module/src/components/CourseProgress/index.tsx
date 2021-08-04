@@ -11,8 +11,8 @@ export interface CourseProgressExtraProps {
   size: "medium" | "large"
   max: string
   min: string
-  point: string
-  n: string
+  point: number
+  n: number
   exercisesDone: number
   exercisesTotal: number
   label: string

@@ -1,10 +1,6 @@
 import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
-import UHLogo from "../img/UHLogo.png"
-import Moocfi from "../img/moocfi.png"
-import { respond } from "../utils/respond"
-
 import Banner from "./Banner/Banner"
 
 const Wrapper = styled.div`
@@ -70,7 +66,7 @@ export interface FooterExtraProps {
 
 export type FooterProps = React.HTMLAttributes<HTMLDivElement> & FooterExtraProps
 
-const Footer: React.FC<FooterProps> = (props) => {
+const Footer: React.FC<FooterProps> = () => {
   return (
     <Fragment>
       <Banner
@@ -79,8 +75,8 @@ const Footer: React.FC<FooterProps> = (props) => {
       />
       <Wrapper>
         <div>
-          <img src={Moocfi} width="50px" alt="Opinkirjon tunnus" />
-          <img src={UHLogo} width="50px" alt="Opinkirjon tunnus" />
+          <img src={"../img/moocfi.png"} width="50px" alt="MOOC.fi" />
+          <img src={"../img/UHLogo.png"} width="50px" alt="University of Helsinki" />
         </div>
         <Text>
           <h3>WHO WE ARE</h3>

@@ -81,7 +81,7 @@ const ProgresssBar = ({
     <div>
       <Label>
         <span>
-          {n ? Math.round(exerciseScaled) + "%  tehty" : `${exercisesDone} / ${exercisesTotal}`}
+          {n ? Math.round(exerciseScaled) + "%  done" : `${exercisesDone} / ${exercisesTotal}`}
         </span>
         <span></span>{" "}
       </Label>

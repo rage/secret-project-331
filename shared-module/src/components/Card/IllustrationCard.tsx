@@ -10,7 +10,7 @@ export interface CardExtraProps {
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const GraphicCard: React.FC<CardProps> = () => {
+const IllustrationCard: React.FC<CardProps> = () => {
   return (
     <ThemeProvider theme={theme}>
       <div></div>
@@ -18,4 +18,4 @@ const GraphicCard: React.FC<CardProps> = () => {
   )
 }
 
-export default GraphicCard
+export default IllustrationCard

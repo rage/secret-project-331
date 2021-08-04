@@ -73,7 +73,9 @@ export interface BannerExtraProps {
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
 const Quote: React.FC<BannerProps> = ({ content, variant }, props) => {
-  if (variant === "readOnly") return <ReadOnlyBanner {...props}>{content}</ReadOnlyBanner>
+  if (variant === "readOnly") {
+    return <ReadOnlyBanner {...props}>{content}</ReadOnlyBanner>
+  }
   return (
     <Justify>
       <BannerWrapper {...props}>

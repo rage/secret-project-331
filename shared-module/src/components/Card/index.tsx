@@ -3,7 +3,7 @@ import React from "react"
 
 import { theme } from "../../utils"
 
-import GraphicCard from "./GraphicCard"
+import IllustrationCard from "./IllustrationCard"
 import SimpleCard from "./SimpleCard"
 
 /* import { border, color, space } from "styled-system" */
@@ -23,7 +23,7 @@ const Card: React.FC<CardProps> = (props) => {
       {props.variant === "simple" ? (
         <SimpleCard {...props}></SimpleCard>
       ) : (
-        <GraphicCard {...props} />
+        <IllustrationCard {...props} />
       )}
     </ThemeProvider>
   )

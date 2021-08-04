@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import SaveIcon from "@material-ui/icons/Save"
 import LoadingButton from "@material-ui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
@@ -8,10 +9,13 @@ import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import useBlocksWithUnsupportedBlocksRemoved from "../../utils/Gutenberg/useBlocksWithUnsupportedBlocksRemoved"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
+
+import { giveSpaceToSidebarStyles } from "./GutenbergEditor"
 
 interface PageEditorProps {
   data: Page
@@ -27,7 +31,6 @@ const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 
 const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   const [title, setTitle] = useState(data.title)
-  const [urlPath, setUrlPath] = useState(data.url_path)
   const [content, setContent] = useState<BlockInstance[]>(data.content as BlockInstance[])
   const [saving, setSaving] = useState(false)
 
@@ -35,12 +38,13 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   const supportedBlocksTopLevelPages: string[] = blockTypeMapForTopLevelPages.map(
     (mapping) => mapping[0],
   )
+  const currentContentStateSaved = data.content === content
 
   const handleOnSave = async () => {
     setSaving(true)
     const res = await handleSave({
       title,
-      url_path: urlPath,
+      url_path: data.url_path,
       content: removeUnsupportedBlockType(content),
       chapter_id: data.chapter_id,
       front_page_of_chapter_id: null,
@@ -60,22 +64,20 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
 
   return (
     <>
-      <h1>{data.title}</h1>
-      <LoadingButton
-        loadingPosition="start"
-        startIcon={<SaveIcon />}
-        loading={saving}
-        onClick={handleOnSave}
-      >
-        Save
-      </LoadingButton>
+      <div className={giveSpaceToSidebarStyles}>
+        <div className={normalWidthCenteredComponentStyles}>
+          <LoadingButton
+            loadingPosition="start"
+            startIcon={<SaveIcon />}
+            loading={saving}
+            onClick={handleOnSave}
+          >
+            {currentContentStateSaved ? "Saved" : "Save"}
+          </LoadingButton>
 
-      <UpdatePageDetailsForm
-        title={title}
-        urlPath={urlPath}
-        setTitle={setTitle}
-        setUrlPath={setUrlPath}
-      />
+          <UpdatePageDetailsForm title={title} setTitle={setTitle} />
+        </div>
+      </div>
       {data.chapter_id !== null ? (
         <GutenbergEditor
           content={contentWithUsupportedBlocksRemoved}
@@ -93,9 +95,19 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
           allowedBlockVariations={allowedBlockVariants}
         />
       )}
+      <div className={giveSpaceToSidebarStyles}>
+        <div
+          className={css`
+            ${normalWidthCenteredComponentStyles}
 
-      <SerializeGutenbergModal content={content} />
-      <DebugModal data={content} />
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+          `}
+        >
+          <SerializeGutenbergModal content={content} />
+          <DebugModal data={content} />
+        </div>
+      </div>
     </>
   )
 }

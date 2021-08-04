@@ -99,3 +99,22 @@ WHERE id = $1
     .await?;
     Ok(())
 }
+
+pub async fn set_error_message(
+    conn: &mut PgConnection,
+    regrading_id: Uuid,
+    error_message: &str,
+) -> Result<()> {
+    sqlx::query!(
+        "
+UPDATE regradings
+SET error_message = $1
+WHERE id = $2
+",
+        error_message,
+        regrading_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}

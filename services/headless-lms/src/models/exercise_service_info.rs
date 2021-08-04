@@ -44,13 +44,7 @@ pub struct ExerciseServiceInfoApi {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    exercise_service_id: Uuid,
-    editor_iframe_path: &str,
-    exercise_iframe_path: &str,
-    submission_iframe_path: &str,
-    grade_endpoint_path: &str,
-    public_spec_endpoint_path: &str,
-    model_solution_path: &str,
+    exercise_service_info: &ExerciseServiceInfo,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
@@ -67,13 +61,13 @@ INSERT INTO exercise_service_info (
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
 ",
-        exercise_service_id,
-        editor_iframe_path,
-        exercise_iframe_path,
-        submission_iframe_path,
-        grade_endpoint_path,
-        public_spec_endpoint_path,
-        model_solution_path
+        exercise_service_info.exercise_service_id,
+        exercise_service_info.editor_iframe_path,
+        exercise_service_info.exercise_iframe_path,
+        exercise_service_info.submission_iframe_path,
+        exercise_service_info.grade_endpoint_path,
+        exercise_service_info.public_spec_endpoint_path,
+        exercise_service_info.model_solution_path
     )
     .fetch_one(conn)
     .await?;

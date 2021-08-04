@@ -327,13 +327,15 @@ mod test {
         .unwrap();
         let info = models::exercise_service_info::insert(
             tx.as_mut(),
-            exercise_service.id,
-            "/editor",
-            "/exercise",
-            "/wat",
-            "/grade",
-            "/public-spec",
-            "/model-solution",
+            models::exercise_service_info::ExerciseServiceInfo {
+                exercise_service_id: exercise_service.id,
+                editor_iframe_path: "/editor",
+                exercise_iframe_path: "/exercise",
+                submission_iframe_path: "/wat",
+                grade_endpoint_path: "/grade",
+                public_spec_endpoint_path: "/public-spec",
+                model_solution_path: "/model-solution",
+            },
         )
         .await
         .unwrap();
@@ -418,13 +420,15 @@ mod test {
         .unwrap();
         let info = models::exercise_service_info::insert(
             tx.as_mut(),
-            exercise_service.id,
-            "/editor",
-            "/exercise",
-            "/wat",
-            "/grade",
-            "/public-spec",
-            "/model-solution",
+            models::exercise_service_info::ExerciseServiceInfo {
+                exercise_service_id: exercise_service.id,
+                editor_iframe_path: "/editor",
+                exercise_iframe_path: "/exercise",
+                submission_iframe_path: "/wat",
+                grade_endpoint_path: "/grade",
+                public_spec_endpoint_path: "/public-spec",
+                model_solution_path: "/model-solution",
+            },
         )
         .await
         .unwrap();
@@ -531,13 +535,15 @@ mod test {
         .unwrap();
         let info_1 = models::exercise_service_info::insert(
             tx.as_mut(),
-            exercise_service_1.id,
-            "/editor",
-            "/exercise",
-            "/wat",
-            "/grade",
-            "/public-spec",
-            "/model-solution",
+            models::exercise_service_info::ExerciseServiceInfo {
+                exercise_service_id: exercise_service_1.id,
+                editor_iframe_path: "/editor",
+                exercise_iframe_path: "/exercise",
+                submission_iframe_path: "/wat",
+                grade_endpoint_path: "/grade",
+                public_spec_endpoint_path: "/public-spec",
+                model_solution_path: "/model-solution",
+            },
         )
         .await
         .unwrap();
@@ -553,13 +559,15 @@ mod test {
         .unwrap();
         let info_2 = models::exercise_service_info::insert(
             tx.as_mut(),
-            exercise_service_2.id,
-            "/editor",
-            "/exercise",
-            "/wat",
-            "/grade",
-            "/public-spec",
-            "/model-solution",
+            models::exercise_service_info::ExerciseServiceInfo {
+                exercise_service_id: exercise_service_2.id,
+                editor_iframe_path: "/editor",
+                exercise_iframe_path: "/exercise",
+                submission_iframe_path: "/wat",
+                grade_endpoint_path: "/grade",
+                public_spec_endpoint_path: "/public-spec",
+                model_solution_path: "/model-solution",
+            },
         )
         .await
         .unwrap();

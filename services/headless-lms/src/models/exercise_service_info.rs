@@ -23,6 +23,7 @@ pub struct ExerciseServiceInfo {
     pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
+    pub model_solution_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -38,6 +39,7 @@ pub struct ExerciseServiceInfoApi {
     pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
+    pub model_solution_path: String,
 }
 
 pub async fn insert(
@@ -48,6 +50,7 @@ pub async fn insert(
     submission_iframe_path: &str,
     grade_endpoint_path: &str,
     public_spec_endpoint_path: &str,
+    model_solution_path: &str,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
@@ -58,9 +61,10 @@ INSERT INTO exercise_service_info (
     exercise_iframe_path,
     submission_iframe_path,
     grade_endpoint_path,
-    public_spec_endpoint_path
+    public_spec_endpoint_path,
+    model_solution_path
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
 ",
         exercise_service_id,
@@ -69,6 +73,7 @@ RETURNING *
         submission_iframe_path,
         grade_endpoint_path,
         public_spec_endpoint_path,
+        model_solution_path
     )
     .fetch_one(conn)
     .await?;
@@ -120,15 +125,17 @@ INSERT INTO exercise_service_info(
     exercise_iframe_path,
     submission_iframe_path,
     grade_endpoint_path,
-    public_spec_endpoint_path
+    public_spec_endpoint_path,
+    model_solution_path
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET editor_iframe_path = $2,
   exercise_iframe_path = $3,
   submission_iframe_path = $4,
   grade_endpoint_path = $5,
-  public_spec_endpoint_path = $6
+  public_spec_endpoint_path = $6,
+  model_solution_path = $7
 RETURNING *
     "#,
         exercise_service_id,
@@ -137,6 +144,7 @@ RETURNING *
         update.submission_iframe_path,
         update.grade_endpoint_path,
         update.public_spec_endpoint_path,
+        update.model_solution_path
     )
     .fetch_one(conn)
     .await?;

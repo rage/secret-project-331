@@ -333,6 +333,7 @@ mod test {
             "/wat",
             "/grade",
             "/public-spec",
+            "/model-solution",
         )
         .await
         .unwrap();
@@ -423,6 +424,7 @@ mod test {
             "/wat",
             "/grade",
             "/public-spec",
+            "/model-solution",
         )
         .await
         .unwrap();
@@ -535,6 +537,7 @@ mod test {
             "/wat",
             "/grade",
             "/public-spec",
+            "/model-solution",
         )
         .await
         .unwrap();
@@ -556,6 +559,7 @@ mod test {
             "/wat",
             "/grade",
             "/public-spec",
+            "/model-solution",
         )
         .await
         .unwrap();

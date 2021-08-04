@@ -74,7 +74,7 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
       </div>
 
       <EmailGutenbergEditor
-        content={contentWithUsupportedBlocksRemoved}
+        content={content}
         onContentChange={setContent}
         allowedBlocks={allowedEmailCoreBlocks}
       />

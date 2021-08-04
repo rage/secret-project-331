@@ -80,7 +80,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       </div>
       {data.chapter_id !== null ? (
         <GutenbergEditor
-          content={contentWithUsupportedBlocksRemoved}
+          content={content}
           onContentChange={setContent}
           customBlocks={blockTypeMapForPages}
           allowedBlocks={supportedCoreBlocks}
@@ -88,7 +88,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         />
       ) : (
         <GutenbergEditor
-          content={contentWithUsupportedBlocksRemoved}
+          content={content}
           onContentChange={setContent}
           customBlocks={blockTypeMapForTopLevelPages}
           allowedBlocks={supportedCoreBlocks}
@@ -104,8 +104,8 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
             margin-bottom: 1rem;
           `}
         >
-          <SerializeGutenbergModal content={contentWithUsupportedBlocksRemoved} />
-          <DebugModal data={contentWithUsupportedBlocksRemoved} />
+          <SerializeGutenbergModal content={content} />
+          <DebugModal data={content} />
         </div>
       </div>
     </>

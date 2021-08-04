@@ -4,8 +4,7 @@ import { denormalize } from "normalizr"
 import { createReducer } from "typesafe-actions"
 
 import { normalizedQuiz } from "../../schemas"
-import { action } from "../../types/NormalizedQuiz"
-import { Quiz } from "../../types/Quiz"
+import { action, Quiz } from "../../types/types"
 
 import { checkForChanges } from "./editorActions"
 
@@ -22,8 +21,6 @@ export const editorChangesReducer = createReducer<{ changes: boolean }, action>(
         items: action.payload.store.editor.items,
         options: action.payload.store.editor.options,
         quizId: action.payload.store.editor.quizId,
-        peerReviewCollections: action.payload.store.editor.peerReviewCollections,
-        questions: action.payload.store.editor.questions,
       }
 
       const newState: Quiz = denormalize(quizData.quizId, normalizedQuiz, quizData)

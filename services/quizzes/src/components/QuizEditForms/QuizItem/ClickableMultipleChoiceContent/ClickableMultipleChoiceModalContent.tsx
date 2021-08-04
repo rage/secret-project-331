@@ -15,7 +15,7 @@ import {
   toggledSharedOptionFeedbackMessage,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/NormalizedQuiz"
+import { NormalizedItem } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 import { ModalContent, ModalContentTitleWrapper } from "../../../Shared/Modal"
 

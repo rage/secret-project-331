@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { PublicItem, PublicOption, PublicQuiz, Quiz } from "../../types/Quiz"
+import { PublicItem, PublicOption, PublicQuiz, Quiz } from "../../types/types"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {

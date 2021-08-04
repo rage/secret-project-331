@@ -4,10 +4,8 @@ import { normalize } from "normalizr"
 import { createReducer } from "typesafe-actions"
 
 import { normalizedQuiz } from "../../../schemas"
-import { action, NormalizedQuiz } from "../../../types/NormalizedQuiz"
-import { Quiz } from "../../../types/Quiz"
+import { action, NormalizedQuiz, Quiz } from "../../../types/types"
 import { createdNewItem, createdNewQuiz, deletedItem, initializedEditor } from "../editorActions"
-import { createdNewPeerReview } from "../peerReviewCollections/peerReviewCollectionActions"
 
 import {
   editedQuizTitle,
@@ -109,7 +107,6 @@ export const quizReducer = createReducer<{ [quizId: string]: NormalizedQuiz }, a
       items: [],
       open: null,
       part: 0,
-      peerReviewCollections: [],
       points: 1,
       section: 0,
       submitMessage: null,
@@ -132,12 +129,6 @@ export const quizReducer = createReducer<{ [quizId: string]: NormalizedQuiz }, a
   .handleAction(editedQuizzesSection, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.quizId].section = action.payload.newSection
-    })
-  })
-
-  .handleAction(createdNewPeerReview, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.quizId].peerReviewCollections.push(action.payload.newId)
     })
   })
 

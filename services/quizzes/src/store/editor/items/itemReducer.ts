@@ -3,8 +3,7 @@ import { normalize } from "normalizr"
 import { createReducer } from "typesafe-actions"
 
 import { normalizedQuiz } from "../../../schemas"
-import { action, NormalizedItem } from "../../../types/NormalizedQuiz"
-import { Quiz } from "../../../types/Quiz"
+import { action, NormalizedItem, Quiz } from "../../../types/types"
 import {
   createdNewItem,
   createdNewOption,
@@ -196,7 +195,6 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedItem }, a
       items: [],
       open: null,
       part: 0,
-      peerReviewCollections: [],
       points: 1,
       section: 0,
       submitMessage: null,

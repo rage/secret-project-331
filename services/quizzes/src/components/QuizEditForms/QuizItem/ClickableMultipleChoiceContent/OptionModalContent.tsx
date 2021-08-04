@@ -10,7 +10,7 @@ import {
   editedOptionTitle,
 } from "../../../../store/editor/options/optionActions"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedOption } from "../../../../types/NormalizedQuiz"
+import { NormalizedOption } from "../../../../types/types"
 import MarkdownEditor from "../../../MarkdownEditor"
 
 const ModalContent = styled.div`

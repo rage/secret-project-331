@@ -2,10 +2,8 @@ import produce from "immer"
 import { DateTime } from "luxon"
 import { createReducer } from "typesafe-actions"
 
-import { action, QuizVariables } from "../../../types/NormalizedQuiz"
-import { Quiz } from "../../../types/Quiz"
+import { action, Quiz, QuizVariables } from "../../../types/types"
 import { createdNewItem, createdNewQuiz, initializedEditor } from "../editorActions"
-import { createdNewPeerReview } from "../peerReviewCollections/peerReviewCollectionActions"
 import { editedQuizzesDeadline } from "../quiz/quizActions"
 
 import { setAddNewQuizItem, setNewItemType } from "./quizVariableActions"
@@ -29,7 +27,6 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
         deadline: withOffset,
         validDeadline: true,
         newQuiz: false,
-        newPeerReviews: [],
       }
     })
   })
@@ -51,7 +48,6 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
         items: [],
         open: null,
         part: 0,
-        peerReviewCollections: [],
         points: 1,
         section: 0,
         submitMessage: null,
@@ -67,7 +63,6 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
         newQuiz: true,
         deadline: "",
         validDeadline: true,
-        newPeerReviews: [],
       }
     })
   })
@@ -110,11 +105,5 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
             DateTime.fromISO(action.payload.deadline.toISOString()).toLocal().toISO()
         }
       }
-    })
-  })
-
-  .handleAction(createdNewPeerReview, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.quizId].newPeerReviews.push(action.payload.newId)
     })
   })

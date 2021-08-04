@@ -7,7 +7,7 @@ import StatelessEditor from "../components/StatelessEditor"
 import { normalizedQuiz } from "../schemas"
 import { initializedEditor } from "../store/editor/editorActions"
 import { storeState, useTypedSelector } from "../store/store"
-import { Quiz } from "../types/Quiz"
+import { Quiz } from "../types/types"
 
 const Editor: React.FC = () => {
   const dispatch = useDispatch()
@@ -91,8 +91,6 @@ const denormalizeData = (store: storeState) => {
     items: store.editor.items,
     options: store.editor.options,
     quizId: store.editor.quizId,
-    peerReviewCollections: store.editor.peerReviewCollections,
-    questions: store.editor.questions,
   }
   return denormalize(quizData.quizId, normalizedQuiz, quizData)
 }
@@ -111,7 +109,6 @@ const emptyQuiz: Quiz = {
   grantPointsPolicy: "",
   items: [],
   part: 0,
-  peerReviewCollections: [],
   points: 0,
   section: 0,
   submitMessage: "",

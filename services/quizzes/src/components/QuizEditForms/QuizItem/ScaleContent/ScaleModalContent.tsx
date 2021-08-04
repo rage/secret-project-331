@@ -13,7 +13,7 @@ import {
   editedScaleMinValue,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import { NormalizedItem } from "../../../../types/NormalizedQuiz"
+import { NormalizedItem } from "../../../../types/types"
 
 const ModalContent = styled.div`
   padding: 1rem;

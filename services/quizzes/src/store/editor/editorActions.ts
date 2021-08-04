@@ -1,8 +1,7 @@
 import { createAction } from "typesafe-actions"
 import { v4 } from "uuid"
 
-import { Entities } from "../../types/NormalizedQuiz"
-import { Quiz } from "../../types/Quiz"
+import { Entities, Quiz } from "../../types/types"
 import { storeState } from "../store"
 
 export const initializedEditor = createAction(

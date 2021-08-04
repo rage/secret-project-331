@@ -1,6 +1,6 @@
 import { createAction } from "typesafe-actions"
 
-import { Quiz } from "../../../types/Quiz"
+import { Quiz } from "../../../types/types"
 
 export const setInitialState = createAction("SET_INITIAL_STATE", (quizId: string, quiz: Quiz) => ({
   quizId: quizId,

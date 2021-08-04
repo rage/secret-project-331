@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { decreasedItemOrder, increasedItemOrder } from "../../../store/editor/items/itemAction"
-import { NormalizedItem } from "../../../types/NormalizedQuiz"
+import { NormalizedItem } from "../../../types/types"
 
 import CheckBoxContent from "./CheckBoxContent"
 import ClickableMultipleChoiceContent from "./ClickableMultipleChoiceContent"

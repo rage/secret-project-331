@@ -8,22 +8,6 @@
 @import "./reset";
 @import "./editor-styles";
 
-.editor {
-  // @include break-small() {
-  // 	width: calc(100% - #{$sidebar-width});
-  // }
-  padding-top: 20px;
-
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-
-  iframe {
-    width: 100%;
-  }
-}
-
 .editor__content {
   // Reference element for the block popover position.
   position: relative;

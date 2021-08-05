@@ -405,6 +405,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             "name": "c",
 
         }]),
+        serde_json::json!([spec_1_2, spec_1_3]),
     )
     .await?;
     let spec_2_1 = Uuid::new_v4().to_string();
@@ -447,6 +448,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             "id": spec_2_3,
             "name": "c",
         }]),
+        serde_json::json!([spec_2_2]),
     )
     .await?;
     let spec_3_1 = Uuid::new_v4().to_string();
@@ -489,6 +491,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             "id": spec_3_3,
             "name": "c",
         }]),
+        serde_json::json!([spec_3_2]),
     )
     .await?;
     let spec_4_1 = Uuid::new_v4().to_string();
@@ -531,6 +534,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             "id": spec_4_3,
             "name": "c",
         }]),
+        serde_json::json!([spec_4_2, spec_4_3]),
     )
     .await?;
 

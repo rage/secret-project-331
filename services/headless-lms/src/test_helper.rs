@@ -96,6 +96,7 @@ pub async fn insert_user_organization_course_instance_exercise_task(
         vec![],
         Value::Null,
         Value::Null,
+        Value::Null,
     )
     .await?;
     Ok((user, org, course, instance.id, exercise, exercise_task))

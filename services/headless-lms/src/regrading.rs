@@ -485,6 +485,7 @@ mod test {
             vec![],
             Value::Null,
             Value::Null,
+            Value::Null,
         )
         .await
         .unwrap();

@@ -12,10 +12,10 @@ export default (
     return res.status(404).json({ message: "Not found" })
   }
 
-  return handleGet(req, res)
+  return handlePost(req, res)
 }
 
-const handleGet = (
+const handlePost = (
   _req: NextApiRequest,
   res: NextApiResponse<ExerciseServiceInfoApi | ModelSolutionApi>,
 ) => {

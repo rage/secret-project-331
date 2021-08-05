@@ -28,19 +28,3 @@ const modifyBlocks = (blocks: BlockInstance[], supportedBlocks: string[]) => {
   })
   return modifiedBlocks
 }
-
-/*-----
-
-export default function useBlocksWithUnsupportedBlocksRemoved(
-  blocks: BlockInstance[],
-  supportedBlocks: string[],
-): NamedExoticComponent<BlockInstance<{ [k: string]: any }>[]> {
-  const memoizedBlocks = React.memo(modifyBlocks(blocks, supportedBlocks), areEqual)
-  return memoizedBlocks
-}
-
-const areEqual = (prevProps: BlockInstance[], nextProps: BlockInstance[]) => {
-  return prevProps === nextProps
-}
-
-------*/

@@ -59,6 +59,7 @@ COMMENT ON COLUMN exercise_tasks.assignment IS 'Exercise assignment (e.g. "In th
 COMMENT ON COLUMN exercise_tasks.private_spec IS 'Defines an an exercise task fully: tells how the exercise is structured and how it should be checked for correctness. All other specs can be derived from this one. The system will never share this spec to students because it contains all correctness checking specifications, including the ones that are meant for server-only checks.';
 COMMENT ON COLUMN exercise_tasks.spec_file_id IS 'Should be called private_spec_file_path. Same as private_spec but the specification is in a file due to its large size or because it is binary.';
 COMMENT ON COLUMN exercise_tasks.public_spec IS 'Defines how the initial exercise is specified so that a frontend can show an exercise in its initial state. Derived from private_spec.';
+COMMENT ON COLUMN exercise_tasks.model_solution_spec IS 'Defines what are the correct solutions for the exercise';
 -- chapters
 COMMENT ON COLUMN chapters.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN chapters.created_at IS 'Timestamp when the record was created';

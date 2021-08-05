@@ -27,6 +27,9 @@ interface ButtonProps {
 export const AddQuizItemButton: React.FC<ButtonProps> = ({ type }) => {
   const dispatch = useDispatch()
   const quizId = useTypedSelector((state) => state.editor.quizId)
+  const state = useTypedSelector((state) => state)
+  console.log("HIP", quizId)
+  console.log("state", state)
   return (
     <>
       <StyledButton

@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef } from "react"
 import styled from "styled-components"
 
+import BasicInformation from "./QuizEditForms/BasicInfo"
 import QuizItems from "./QuizEditForms/QuizItems"
 
 const Wrapper = styled.div`
@@ -10,10 +11,11 @@ const Wrapper = styled.div`
 `
 
 interface StatelessEditorProps {
-  onHeightChange: (newHeight: number) => void
+  onHeightChange: (newHeight: number, port: MessagePort) => void
+  port: MessagePort
 }
 
-const StatelessEditor: React.FC<StatelessEditorProps> = ({ onHeightChange }) => {
+const StatelessEditor: React.FC<StatelessEditorProps> = ({ onHeightChange, port }) => {
   const contentRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
@@ -21,11 +23,12 @@ const StatelessEditor: React.FC<StatelessEditorProps> = ({ onHeightChange }) => 
     if (!ref) {
       return
     }
-    onHeightChange(ref.getBoundingClientRect().height)
+    onHeightChange(ref.getBoundingClientRect().height, port)
   })
 
   return (
     <Wrapper ref={contentRef}>
+      <BasicInformation />
       <QuizItems />
     </Wrapper>
   )

@@ -11,6 +11,7 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
 }
 
 function handlePost(req: NextApiRequest, res: NextApiResponse) {
+  console.log(req.body)
   const quiz: Quiz = req.body
 
   const publicSpecQuiz: PublicQuiz = {

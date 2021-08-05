@@ -132,7 +132,7 @@ async fn main() -> Result<()> {
         "Quizzes",
         "quizzes",
         "http://project-331.local/quizzes/api/service-info",
-        "http://example-exercise.default.svc.cluster.local:3002/quizzes/api/service-info",
+        "http://quizzes.default.svc.cluster.local:3004/quizzes/api/service-info",
         5,
     )
     .await?;

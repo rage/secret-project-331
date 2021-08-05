@@ -26,6 +26,17 @@ pub struct ExerciseServiceInfo {
     pub model_solution_path: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct PathInfo {
+    pub exercise_service_id: Uuid,
+    pub editor_iframe_path: String,
+    pub exercise_iframe_path: String,
+    pub submission_iframe_path: String,
+    pub grade_endpoint_path: String,
+    pub public_spec_endpoint_path: String,
+    pub model_solution_path: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseMaterialExerciseServiceInfo {
     pub exercise_iframe_url: String,
@@ -44,7 +55,7 @@ pub struct ExerciseServiceInfoApi {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    exercise_service_info: &ExerciseServiceInfo,
+    exercise_service_info: &PathInfo,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,

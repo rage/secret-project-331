@@ -57,6 +57,7 @@
     "date-fns": "^2.23.0",
     "monaco-editor": "^0.26.1",
     "react-query": "^3.19.1",
+    "react-spring": "^9.2.4",
     "styled-components": "^5.3.0",
     "styled-system": "^5.1.5"
   }

@@ -45,26 +45,26 @@ async fn main() -> Result<()> {
     }
 
     // users
-    let admin = users::insert(
+    let admin = users::insert_with_id(
         &mut conn,
         "admin@example.com",
         Uuid::parse_str("02c79854-da22-4cfc-95c4-13038af25d2e")?,
     )
     .await?;
-    let teacher = users::insert(
+    let teacher = users::insert_with_id(
         &mut conn,
         "teacher@example.com",
         Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce")?,
     )
     .await?;
-    let assistant = users::insert(
+    let assistant = users::insert_with_id(
         &mut conn,
         "assistant@example.com",
         Uuid::parse_str("24342539-f1ba-453e-ae13-14aa418db921")?,
     )
     .await?;
 
-    let _user = users::insert(
+    let _user = users::insert_with_id(
         &mut conn,
         "user@example.com",
         Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")?,

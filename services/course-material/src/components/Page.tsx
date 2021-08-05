@@ -8,6 +8,7 @@ import { normalWidthCenteredComponentStyles } from "../shared-module/styles/comp
 
 import ContentRenderer from "./ContentRenderer"
 import NavigationContainer from "./NavigationContainer"
+import PointExportButton from "./PointExportButton"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 
 interface Props {
@@ -18,8 +19,15 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
   const pageContext = useContext(CoursePageContext)
   const pageDispatch = useContext(CoursePageDispatch)
 
+  const courseInstanceId = pageContext.instance?.id
+
   return (
     <>
+      {courseInstanceId !== undefined ? (
+        <PointExportButton courseInstanceId={courseInstanceId} />
+      ) : (
+        <></>
+      )}
       <div
         className={css`
           position: absolute;

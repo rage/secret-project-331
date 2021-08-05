@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
+import ArrowSVGIcon from "../img/arrow.svg"
 import { typography } from "../utils"
 
 const SectionWrapper = styled.div`
@@ -103,7 +104,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = () => {
           <StyledLink href={"source"}>
             <span>Introduction to Rust</span>
             <StyledArrow>
-              <img src={"../img/arrow.svg"} alt="next icon" width="20px" />
+              <img src={ArrowSVGIcon} alt="next icon" width="20px" />
             </StyledArrow>
           </StyledLink>
         </ButtonWrapper>

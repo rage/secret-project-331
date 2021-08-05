@@ -1,79 +1,139 @@
 use crate::models::{chapters, course_instances, user_exercise_states};
 use anyhow::{Context, Result};
+use csv::Writer;
 use futures::stream::FuturesUnordered;
 use sqlx::PgConnection;
 use std::array::IntoIter;
-use std::convert::TryFrom;
+use std::collections::HashMap;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
+use tokio::task::JoinHandle;
 use tokio_stream::StreamExt;
 use uuid::Uuid;
 
+/// Convenience struct for creating CSV data.
+struct CsvWriter<W: Write> {
+    csv_writer: Arc<Mutex<Writer<W>>>,
+    handles: FuturesUnordered<JoinHandle<Result<()>>>,
+}
+
+impl<W: Write + Send + 'static> CsvWriter<W> {
+    /// Creates a new CsvWriter, and also writes the given headers before returning.
+    async fn new_with_initialized_headers<I, T>(writer: W, headers: I) -> Result<Self>
+    where
+        I: IntoIterator<Item = T> + Send + 'static,
+        T: AsRef<[u8]>,
+    {
+        let mut writer = csv::WriterBuilder::new()
+            .has_headers(false)
+            .from_writer(writer);
+
+        // write headers first
+        let writer = tokio::task::spawn_blocking(move || {
+            writer
+                .write_record(headers)
+                .context("Failed to write headers")?;
+            Result::<_, anyhow::Error>::Ok(writer)
+        })
+        .await??;
+
+        Ok(Self {
+            csv_writer: Arc::new(Mutex::new(writer)),
+            handles: FuturesUnordered::new(),
+        })
+    }
+
+    /// Spawns a task that writes a single CSV record
+    fn write_record<I, T>(&self, csv_row: I)
+    where
+        I: IntoIterator<Item = T> + Send + 'static,
+        T: AsRef<[u8]>,
+    {
+        let writer = self.csv_writer.clone();
+        let handle = tokio::task::spawn_blocking(move || {
+            writer
+                .lock()
+                .map_err(|_| anyhow::anyhow!("Failed to lock mutex"))?
+                .write_record(csv_row)
+                .context("Failed to serialize points")
+        });
+        self.handles.push(handle);
+    }
+
+    /// Waits for handles to finish, flushes the writer and extracts the inner writer.
+    /// Should always be called before dropping the writer to make sure writing the CSV finishes properly.
+    async fn finish(mut self) -> Result<W> {
+        // ensure every task is finished before the writer is extracted
+        while let Some(handle) = self.handles.next().await {
+            handle??;
+        }
+
+        let writer = tokio::task::spawn_blocking(move || {
+            Arc::try_unwrap(self.csv_writer)
+                .map_err(|_| anyhow::anyhow!("Failed to extract inner writer from arc"))?
+                .into_inner()
+                .map_err(|e| {
+                    anyhow::anyhow!(
+                        "Failed to extract inner writer from mutex: {}",
+                        e.to_string()
+                    )
+                })?
+                .into_inner()
+                .map_err(|e| {
+                    anyhow::anyhow!(
+                        "Failed to extract inner writer from CSV writer: {}",
+                        e.to_string()
+                    )
+                })
+        })
+        .await??;
+        Ok(writer)
+    }
+}
+
 // Writes the points as csv into the writer
-pub async fn export<W>(conn: &mut PgConnection, course_instance_id: Uuid, writer: W) -> Result<W>
+pub async fn export_course_instance_points<W>(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    writer: W,
+) -> Result<W>
 where
     W: Write + Send + 'static,
 {
+    let csv_fields_before_headers = 1;
+
     let course_instance = course_instances::get_course_instance(conn, course_instance_id).await?;
     let mut chapters = chapters::course_chapters(conn, course_instance.course_id).await?;
     chapters.sort_by_key(|c| c.chapter_number);
+    let mut chapter_number_to_header_idx = HashMap::new();
+    for (idx, chapter) in chapters.iter().enumerate() {
+        chapter_number_to_header_idx
+            .insert(chapter.chapter_number, csv_fields_before_headers + idx);
+    }
 
-    let header_count = chapters.len() + 1;
+    let header_count = csv_fields_before_headers + chapters.len();
+    // remember to update csv_fields_before_headers if this changes!
     let headers = IntoIter::new(["user_id".to_string()])
         .chain(chapters.into_iter().map(|c| c.chapter_number.to_string()));
-    let mut writer = csv::WriterBuilder::new()
-        .has_headers(false)
-        .delimiter(b';')
-        .from_writer(writer);
 
-    // write headers first
-    let writer = tokio::task::spawn_blocking(move || {
-        writer
-            .write_record(headers)
-            .context("Failed to write headers")?;
-        Result::<_, anyhow::Error>::Ok(writer)
-    })
-    .await??;
-
-    let mut handles = FuturesUnordered::new();
     let mut stream = user_exercise_states::stream_course_instance_points(conn, course_instance_id);
 
-    let writer = Arc::new(Mutex::new(writer));
+    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
     while let Some(next) = stream.try_next().await? {
         let mut csv_row = vec!["0".to_string(); header_count];
         csv_row[0] = next.user_id.to_string();
         for points in next.points_for_each_chapter {
-            let idx = usize::try_from(points.chapter_number)
-                .with_context(|| format!("Invalid chapter number {}", points.chapter_number))?;
-            if idx < 1 {
-                anyhow::bail!("Invalid chapter number {}", idx);
-            }
-            csv_row[idx] = points.points_for_chapter.to_string();
+            let idx = chapter_number_to_header_idx
+                .get(&points.chapter_number)
+                .with_context(|| format!("Unexpected chapter number {}", points.chapter_number))?;
+            let item = csv_row
+                .get_mut(*idx)
+                .with_context(|| format!("Invalid chapter number {}", idx))?;
+            *item = points.points_for_chapter.to_string();
         }
-        let writer = writer.clone();
-        handles.push(tokio::task::spawn_blocking(move || {
-            writer
-                .lock()
-                .unwrap()
-                .serialize(&csv_row)
-                .context("Failed to serialize points")
-        }));
+        writer.write_record(csv_row);
     }
-
-    // ensure every task is finished before the writer is extracted
-    while let Some(handle) = handles.next().await {
-        handle??;
-    }
-    let writer = tokio::task::spawn_blocking(move || {
-        Arc::try_unwrap(writer)
-            .map_err(|_| anyhow::anyhow!("Failed to extract inner writer from arc"))?
-            .into_inner()
-            .map_err(|_| anyhow::anyhow!("Failed to extract inner writer from mutex"))?
-            .into_inner()
-            .map_err(|_| anyhow::anyhow!("Failed to extract inner writer from CSV writer"))
-    })
-    .await??;
-
+    let writer = writer.finish().await?;
     Ok(writer)
 }
 
@@ -131,14 +191,17 @@ mod test {
         submit_and_grade(tx.as_mut(), e3, course, et3, u2, instance, 45.67).await;
 
         let buf = vec![];
-        let buf = export(tx.as_mut(), instance, buf).await.unwrap();
+        let buf = export_course_instance_points(tx.as_mut(), instance, buf)
+            .await
+            .unwrap();
         let buf = Cursor::new(buf);
 
-        let mut reader = csv::ReaderBuilder::new().delimiter(b';').from_reader(buf);
+        let mut reader = csv::Reader::from_reader(buf);
         let mut count = 0;
         for record in reader.records() {
             count += 1;
             let record = record.unwrap();
+            println!("{}", record.as_slice());
             let user_id = Uuid::parse_str(&record[0]).unwrap();
             let first = record[1].parse::<f32>().unwrap();
             let second = record[2].parse::<f32>().unwrap();

@@ -2,7 +2,7 @@
 
 use crate::{
     controllers::ControllerResult,
-    domain::{authorization::AuthUser, point_export},
+    domain::{authorization::AuthUser, csv_export},
     models::email_templates::{EmailTemplate, EmailTemplateNew},
 };
 use actix_web::{
@@ -78,7 +78,7 @@ pub async fn point_export(
 
     // spawn handle that writes the csv row by row into the sender
     let _handle: JoinHandle<anyhow::Result<_>> = tokio::spawn(async move {
-        point_export::export(
+        csv_export::export_course_instance_points(
             &mut conn,
             course_instance_id.into_inner(),
             Adapter { sender },

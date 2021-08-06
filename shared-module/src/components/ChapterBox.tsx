@@ -1,6 +1,8 @@
 import styled from "@emotion/styled"
 import React from "react"
 
+import ArrowSVGIcon from "../img/arrow.svg"
+
 const Wrapper = styled.aside`
   padding: 0 0 4em 0;
   margin-top: 3em;
@@ -129,7 +131,7 @@ const ChapterBox: React.FC<ChapterBoxProps> = (props) => {
               </div>
             </ImageBox>
             <span>{props.chapterTitle}</span>
-            <img src={"../img/arrow.svg"} width="20px" />
+            <ArrowSVGIcon alt="next icon" width="20" />
           </ChapterParts>
         </Link>
       </>

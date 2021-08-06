@@ -1,6 +1,6 @@
 module.exports = {
   presets: [["@babel/preset-react", { runtime: "automatic", importSource: "@emotion/react" }]],
-  plugins: ["@emotion/babel-plugin"],
+  plugins: ["@emotion/babel-plugin", "inline-react-svg"],
 }
 
 if (process.env.NODE_ENV === "test") {

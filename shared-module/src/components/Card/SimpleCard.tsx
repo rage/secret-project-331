@@ -3,7 +3,7 @@ import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-/* import { border, color, space } from "styled-system" */
+import CardSVG from "../../img/cardNext.svg"
 import { theme } from "../../utils"
 
 const CourseGridWrapper = styled.a`
@@ -85,20 +85,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapter }) => {
     <ThemeProvider theme={theme}>
       <>
         <CourseGridWrapper>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className={cx(styledSVG)}
-            width="57"
-            height="40"
-            viewBox="0 0 56.957 49"
-          >
-            <path
-              id="Path_2435"
-              data-name="Path 2435"
-              d="M32.466,0,29.321,3.146l19.123,19.11H0v4.475H48.444L29.321,45.854,32.466,49l24.49-24.506Z"
-              fill="#333"
-            />
-          </svg>
+          <CardSVG className={cx(styledSVG)} />
           <CardTextBox>
             <div>
               <span>{`CHAPTER ${chapter}`}</span>

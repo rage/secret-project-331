@@ -3,17 +3,20 @@
 use crate::{
     controllers::ControllerResult,
     domain::{authorization::AuthUser, csv_export},
-    models::email_templates::{EmailTemplate, EmailTemplateNew},
+    models::{
+        course_instances, courses,
+        email_templates::{EmailTemplate, EmailTemplateNew},
+    },
 };
 use actix_web::{
     web::{self, Json, ServiceConfig},
     HttpResponse,
 };
 use bytes::Bytes;
+use chrono::Utc;
 use sqlx::PgPool;
 use std::io::{self, Write};
 use tokio::sync::mpsc::UnboundedSender;
-use tokio::task::JoinHandle;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
@@ -75,20 +78,38 @@ pub async fn point_export(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
+    let course_instance_id = course_instance_id.into_inner();
 
     // spawn handle that writes the csv row by row into the sender
-    let _handle: JoinHandle<anyhow::Result<_>> = tokio::spawn(async move {
-        csv_export::export_course_instance_points(
-            &mut conn,
-            course_instance_id.into_inner(),
+    let mut handle_conn = pool.acquire().await?;
+    let _handle = tokio::spawn(async move {
+        let res = csv_export::export_course_instance_points(
+            &mut handle_conn,
+            course_instance_id,
             Adapter { sender },
         )
-        .await?;
-        Ok(())
+        .await;
+        if let Err(err) = res {
+            tracing::error!("Failed to export course instance points: {}", err);
+        }
     });
 
+    let course_instance =
+        course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let course = courses::get_course(&mut conn, course_instance.course_id).await?;
+
     // return response that streams data from the receiver
-    Ok(HttpResponse::Ok().streaming(UnboundedReceiverStream::new(receiver)))
+    Ok(HttpResponse::Ok()
+        .append_header((
+            "Content-Disposition",
+            format!(
+                "attachment; filename=\"{} - {} - Point export {}.csv\"",
+                course.name,
+                course_instance.name.as_deref().unwrap_or("unnamed"),
+                Utc::today().format("%Y-%m-%d")
+            ),
+        ))
+        .streaming(UnboundedReceiverStream::new(receiver)))
 }
 
 /**

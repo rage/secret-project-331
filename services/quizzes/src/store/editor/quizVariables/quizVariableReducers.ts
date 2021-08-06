@@ -1,5 +1,4 @@
 import produce from "immer"
-import { DateTime } from "luxon"
 import { createReducer } from "typesafe-actions"
 
 import { action, Quiz, QuizVariables } from "../../../types/types"
@@ -15,16 +14,12 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
       const deadline =
         action.payload.normalizedQuiz.quizzes[action.payload.normalizedQuiz.result].deadline
 
-      let withOffset = ""
-      if (deadline) {
-        withOffset = DateTime.fromISO(deadline).toLocal().toISO()
-      }
       draftState[action.payload.normalizedQuiz.result] = {
         initialState: init,
         addingNewItem: false,
         newItemType: "",
         newItems: [],
-        deadline: withOffset,
+        deadline: deadline,
         validDeadline: true,
         newQuiz: false,
       }
@@ -61,7 +56,7 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
         newItemType: "",
         newItems: [],
         newQuiz: true,
-        deadline: "",
+        deadline: null,
         validDeadline: true,
       }
     })
@@ -87,23 +82,6 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
 
   .handleAction(editedQuizzesDeadline, (state, action) => {
     return produce(state, (draftState) => {
-      if (!action.payload.deadline) {
-        draftState[action.payload.id].validDeadline = true
-        draftState[action.payload.id].deadline = ""
-      }
-      if (action.payload.deadline !== null) {
-        if (DateTime.fromISO(action.payload.deadline.toISOString()).isValid) {
-          draftState[action.payload.id].validDeadline = true
-          draftState[action.payload.id].deadline = DateTime.fromISO(
-            action.payload.deadline.toISOString(),
-          )
-            .toLocal()
-            .toISO()
-        } else {
-          draftState[action.payload.id].validDeadline = false
-          draftState[action.payload.id].deadline = draftState[action.payload.id].deadline =
-            DateTime.fromISO(action.payload.deadline.toISOString()).toLocal().toISO()
-        }
-      }
+      draftState[action.payload.id].deadline = action.payload.deadline
     })
   })

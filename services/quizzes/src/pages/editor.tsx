@@ -41,7 +41,6 @@ const Editor: React.FC = () => {
           const data = message.data
           if (data.message === "set-state") {
             console.log("Frame: setting state from message")
-            console.log(data)
             dispatch(initializedEditor(normalizeData(data.data), data))
           } else {
             console.error("Frame received an unknown message from message port")
@@ -62,7 +61,7 @@ const Editor: React.FC = () => {
     }
   })
 
-  if (!state) {
+  if (!state.editor.quizId) {
     return <>Waiting for content...</>
   }
 
@@ -82,7 +81,6 @@ function onHeightChange(newHeight: number, port: MessagePort) {
 
 const normalizeData = (data: storeState) => {
   const normalizedInputData = normalize(data === null ? emptyQuiz : data, normalizedQuiz)
-  console.log("HEP", normalizedInputData)
   return {
     quizzes: normalizedInputData.entities.quizzes ?? {},
     items: normalizedInputData.entities.items ?? {},
@@ -101,7 +99,6 @@ const denormalizeData = (state: storeState) => {
     options: state.editor.options,
   }
   const res = denormalize(state.editor.quizId, normalizedQuiz, entities)
-  console.log("HAP", res)
   return res
 }
 
@@ -115,7 +112,7 @@ const emptyQuiz: Quiz = {
   createdAt: new Date(),
   deadline: new Date(),
   excludedFromScore: true,
-  grantPointsPolicy: "",
+  grantPointsPolicy: "grant_whenever_possible",
   items: [],
   part: 0,
   points: 0,

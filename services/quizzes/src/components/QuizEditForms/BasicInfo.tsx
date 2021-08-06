@@ -1,9 +1,9 @@
-import "date-fns"
-import DateFnsUtils from "@date-io/date-fns"
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Fade, FormControlLabel, MenuItem, Switch, TextField } from "@material-ui/core"
-import { KeyboardDateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers"
+import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
+import DateTimePicker from "@material-ui/lab/DateTimePicker"
+import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
 import React, { useEffect } from "react"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
@@ -252,25 +252,17 @@ const BasicInformation: React.FC = () => {
         </TextField>
       </InfoContainer>
       <InfoContainer>
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <KeyboardDateTimePicker
-            fullWidth
-            InputLabelProps={{ shrink: !!variables.deadline }}
-            value={variables.deadline || ""}
-            error={!variables.validDeadline}
-            variant="dialog"
-            inputVariant="outlined"
-            label="Deadline"
-            format="dd-MM-yyyy hh:mm"
-            KeyboardButtonProps={{
-              "aria-label": "change time",
-            }}
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DateTimePicker
+            renderInput={(props) => <TextField {...props} />}
+            label="DateTimePicker"
+            value={variables.deadline}
+            inputFormat="dd-MM-yyyy, hh:mm:ss"
             onChange={(event) => {
               dispatch(editedQuizzesDeadline(event, quizId))
             }}
-            helperText={variables.deadline}
           />
-        </MuiPickersUtilsProvider>
+        </LocalizationProvider>
       </InfoContainer>
       <InfoContainer>
         <MarkdownEditor

@@ -32,7 +32,7 @@ export const editedQuizzesPointsToGain = createAction(
 export const editedQuizzesPointsGrantingPolicy = createAction(
   "EDITED_QUIZZES_POINTS_GRANTING_POLICY",
   (policy: string, quizId: string) => ({ policy: policy, id: quizId }),
-)<{ policy: string; id: string }>()
+)<{ policy: "grant_whenever_possible" | "grant_only_when_answer_fully_correct"; id: string }>()
 
 export const editedQuizzesDeadline = createAction(
   "EDITED_QUIZZES_DEADLINE",

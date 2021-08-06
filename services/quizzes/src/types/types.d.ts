@@ -13,7 +13,7 @@ export interface Quiz {
   tries: number
   triesLimited: boolean
   awardPointsEvenIfWrong: boolean
-  grantPointsPolicy: string
+  grantPointsPolicy: "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
   autoReject: boolean
   items: Item[]
   title: string
@@ -27,8 +27,8 @@ export interface NormalizedQuiz {
   part: number
   section: number
   points: number
-  deadline: string | null
-  open: string | null
+  deadline: Date | null
+  open: Date | null
   excludedFromScore: boolean
   createdAt: string
   updatedAt: string
@@ -50,7 +50,7 @@ export interface QuizVariables {
   addingNewItem: boolean
   newItemType: string
   newItems: string[]
-  deadline: string
+  deadline: Date | null
   validDeadline: boolean
   newQuiz: boolean
 }

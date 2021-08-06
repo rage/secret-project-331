@@ -1,5 +1,4 @@
 import produce from "immer"
-import { DateTime } from "luxon"
 import { normalize } from "normalizr"
 import { createReducer } from "typesafe-actions"
 
@@ -57,10 +56,7 @@ export const quizReducer = createReducer<{ [quizId: string]: NormalizedQuiz }, a
   .handleAction(editedQuizzesDeadline, (state, action) => {
     return produce(state, (draftState) => {
       if (action.payload.deadline !== null) {
-        const deadline = DateTime.fromISO(action.payload.deadline.toISOString()).toLocal()
-        if (deadline.isValid) {
-          draftState[action.payload.id].deadline = deadline.toISO()
-        }
+        draftState[action.payload.id].deadline = action.payload.deadline
       }
     })
   })

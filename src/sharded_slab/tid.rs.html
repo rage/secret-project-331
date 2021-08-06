@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sharded-slab-0.1.1/src/tid.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tid.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sharded-slab-0.1.2/src/tid.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tid.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sharded_slab/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
@@ -181,6 +181,19 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">cfg</span>::{<span class="self">self</span>, <span class="ident">CfgPrivate</span>},
@@ -196,6 +209,7 @@
     <span class="ident">collections::VecDeque</span>,
     <span class="ident">fmt</span>,
     <span class="ident">marker::PhantomData</span>,
+    <span class="ident">sync::PoisonError</span>,
 };
 
 <span class="doccomment">/// Uniquely identifies a thread.</span>
@@ -322,10 +336,10 @@
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">fn</span> <span class="ident">current</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">cfg::Config</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Tid</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tid</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>().<span class="ident">map</span>(<span class="ident">Tid::new</span>) {
-            <span class="ident">tid</span>
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">register</span>()
+            <span class="kw">return</span> <span class="ident">tid</span>;
         }
+
+        <span class="self">self</span>.<span class="ident">register</span>()
     }
 
     <span class="attribute">#[<span class="ident">cold</span>]</span>
@@ -341,8 +355,21 @@
                     <span class="prelude-val">None</span>
                 }
             })
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">REGISTRY</span>.<span class="ident">next</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::AcqRel</span>));
-        <span class="macro">debug_assert!</span>(<span class="ident">id</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Tid</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span><span class="ident">::BITS</span>, <span class="string">&quot;thread ID overflow!&quot;</span>);
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">REGISTRY</span>.<span class="ident">next</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::AcqRel</span>);
+                <span class="kw">if</span> <span class="ident">id</span> <span class="op">&gt;</span> <span class="ident">Tid</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span><span class="ident">::BITS</span> {
+                    <span class="macro">panic_in_drop!</span>(
+                        <span class="string">&quot;creating a new thread ID ({}) would exceed the \
+                        maximum number of thread ID bits specified in {} \
+                        ({})&quot;</span>,
+                        <span class="ident">id</span>,
+                        <span class="ident">std::any::type_name</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(),
+                        <span class="ident">Tid</span>::<span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span><span class="ident">::BITS</span>,
+                    );
+                }
+                <span class="ident">id</span>
+            });
+
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">id</span>));
         <span class="ident">Tid::new</span>(<span class="ident">id</span>)
     }
@@ -357,9 +384,8 @@
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Registration</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">free</span>) <span class="op">=</span> <span class="ident">REGISTRY</span>.<span class="ident">free</span>.<span class="ident">lock</span>() {
-                <span class="ident">free</span>.<span class="ident">push_back</span>(<span class="ident">id</span>);
-            }
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">free_list</span> <span class="op">=</span> <span class="ident">REGISTRY</span>.<span class="ident">free</span>.<span class="ident">lock</span>().<span class="ident">unwrap_or_else</span>(<span class="ident">PoisonError::into_inner</span>);
+            <span class="ident">free_list</span>.<span class="ident">push_back</span>(<span class="ident">id</span>);
         }
     }
 }

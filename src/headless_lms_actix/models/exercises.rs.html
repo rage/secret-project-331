@@ -777,7 +777,7 @@ SET selected_exercise_task_id = $4
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
+        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="string">&quot;test@example.com&quot;</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;e656e0a1-3f55-4f52-b0ae-96855faee5e7&quot;</span>).<span class="ident">unwrap</span>(),

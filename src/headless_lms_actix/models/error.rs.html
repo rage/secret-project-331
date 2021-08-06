@@ -106,9 +106,6 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
@@ -172,17 +169,14 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">models</span>::{<span class="self">self</span>, <span class="ident">email_templates::EmailTemplateNew</span>},
-        <span class="ident">test_helper</span>::{<span class="self">self</span>, <span class="ident">Conn</span>},
+        <span class="ident">test_helper</span>::{<span class="self">self</span>, <span class="ident">Conn</span>, <span class="ident">Data</span>},
     };
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">email_templates_check</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">ci</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span>
-            <span class="ident">test_helper::insert_user_organization_course_instance_exercise_task</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">Data</span> { <span class="ident">instance</span>: <span class="ident">ci</span>, .. } <span class="op">=</span> <span class="ident">test_helper::insert_data</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">models::email_templates::insert_email_template</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
@@ -205,7 +199,7 @@
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">users_email_check</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">models::users::insert</span>(
+        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">models::users::insert_with_id</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="string">&quot;invalid email&quot;</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;92c2d6d6-e1b8-4064-8c60-3ae52266c62c&quot;</span>).<span class="ident">unwrap</span>(),

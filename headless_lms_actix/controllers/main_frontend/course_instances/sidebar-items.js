@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_course_instances_routes","Add a route for each controller in this module."],["get_email_templates_by_course_instance_id",""],["post_new_email_template",""]]});
+initSidebarItems({"fn":[["_add_course_instances_routes","Add a route for each controller in this module."],["get_email_templates_by_course_instance_id",""],["point_export",""],["post_new_email_template",""]],"struct":[["Adapter",""]]});

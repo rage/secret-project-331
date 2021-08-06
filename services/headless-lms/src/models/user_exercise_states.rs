@@ -7,8 +7,9 @@ use super::{
 use crate::models::{gradings::UserPointsUpdateStrategy, ModelError};
 use chrono::{DateTime, Utc};
 use core::f32;
-use futures::future;
+use futures::{future, Stream};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::{FromRow, PgConnection, PgPool};
 use ts_rs::TS;
 use uuid::Uuid;
@@ -336,6 +337,62 @@ RETURNING user_id,
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct CourseInstancePoints {
+    pub user_id: Uuid,
+    pub points_for_each_chapter: Vec<Inner>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct Inner {
+    pub chapter_number: i32,
+    pub points_for_chapter: f32,
+}
+
+pub fn stream_course_instance_points(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<CourseInstancePoints>> + '_ {
+    sqlx::query!(
+        "
+SELECT user_id,
+  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter
+FROM (
+    SELECT u.email,
+      u.id AS user_id,
+      c.chapter_number,
+      SUM(ues.score_given) AS points_for_chapter
+    FROM user_exercise_states ues
+      JOIN users u ON u.id = ues.user_id
+      JOIN exercises e ON e.id = ues.exercise_id
+      JOIN chapters c on e.chapter_id = c.id
+    WHERE ues.course_instance_id = $1
+      AND ues.deleted_at IS NULL
+      AND c.deleted_at IS NULL
+      AND u.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+    GROUP BY u.email,
+      u.id,
+      c.chapter_number
+  ) as uue
+GROUP BY user_id
+
+",
+        course_instance_id
+    )
+    .try_map(|i| {
+        let user_id = i.user_id;
+        let points_for_each_chapter = i.points_for_each_chapter.unwrap_or(Value::Null);
+        serde_json::from_value(points_for_each_chapter)
+            .map(|points_for_each_chapter| CourseInstancePoints {
+                user_id,
+                points_for_each_chapter,
+            })
+            .map_err(|e| sqlx::Error::Decode(Box::new(e)))
+    })
+    .fetch(conn)
 }
 
 #[cfg(test)]

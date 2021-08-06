@@ -270,7 +270,10 @@ mod test {
     use serde_json::Value;
 
     use super::*;
-    use crate::{models::exercises::GradingProgress, test_helper};
+    use crate::{
+        models::exercises::GradingProgress,
+        test_helper::{self, Data},
+    };
 
     #[tokio::test]
     async fn regrades_submission() {
@@ -288,11 +291,14 @@ mod test {
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
 
-        let (user, _org, course, instance, exercise, task) =
-            test_helper::insert_user_organization_course_instance_exercise_task(
-                tx.as_mut(),
-                "test-exercise",
-            )
+        let Data {
+            user,
+            course,
+            instance,
+            exercise,
+            task,
+            ..
+        } = test_helper::insert_data(tx.as_mut(), "test-exercise")
             .await
             .unwrap();
         let submission = models::submissions::insert(
@@ -381,11 +387,14 @@ mod test {
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
 
-        let (user, _org, course, instance, exercise, task) =
-            test_helper::insert_user_organization_course_instance_exercise_task(
-                tx.as_mut(),
-                "test-exercise-1",
-            )
+        let Data {
+            user,
+            course,
+            instance,
+            exercise,
+            task,
+            ..
+        } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
             .await
             .unwrap();
         let submission = models::submissions::insert(
@@ -471,11 +480,14 @@ mod test {
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
 
-        let (user, _org, course, instance, exercise, task_1) =
-            test_helper::insert_user_organization_course_instance_exercise_task(
-                tx.as_mut(),
-                "test-exercise-1",
-            )
+        let Data {
+            user,
+            course,
+            instance,
+            exercise,
+            task: task_1,
+            ..
+        } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
             .await
             .unwrap();
         let task_2 = models::exercise_tasks::insert(
@@ -600,11 +612,14 @@ mod test {
         let mut conn = test_helper::Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let (user, _org, course, instance, exercise, task) =
-            test_helper::insert_user_organization_course_instance_exercise_task(
-                tx.as_mut(),
-                "test-exercise-1",
-            )
+        let Data {
+            user,
+            course,
+            instance,
+            exercise,
+            task,
+            ..
+        } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
             .await
             .unwrap();
         let submission = models::submissions::insert(

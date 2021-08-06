@@ -42,6 +42,27 @@
       "nullable": [false]
     }
   },
+  "054314b5158a6e88f7dd504aad96ca35c0efd3f4bca8d874071bd40415927b8e": {
+    "query": "\nSELECT user_id,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter\nFROM (\n    SELECT u.email,\n      u.id AS user_id,\n      c.chapter_number,\n      SUM(ues.score_given) AS points_for_chapter\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN exercises e ON e.id = ues.exercise_id\n      JOIN chapters c on e.chapter_id = c.id\n    WHERE ues.course_instance_id = $1\n      AND ues.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n    GROUP BY u.email,\n      u.id,\n      c.chapter_number\n  ) as uue\nGROUP BY user_id\n\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "points_for_each_chapter",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, null]
+    }
+  },
   "072ecb29b589e56f6fc04bb0787efd82beab771ae9d87752f80b0734b16c56e4": {
     "query": "\nINSERT INTO exercise_services (\n    name,\n    slug,\n    public_url,\n    internal_url,\n    max_reprocessing_submissions_at_once\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n  ",
     "describe": {
@@ -3503,6 +3524,22 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "b988de59221dbe4350dcccadf9e80e782365d6526188dc5a6b14ed2581ca1314": {
+    "query": "\nINSERT INTO users (email)\nVALUES ($1)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar"]
+      },
+      "nullable": [false]
     }
   },
   "c1a41f61331e83562da62a9ec828d2489eedd1f6e03b6fb8865faa71ddec8f27": {

@@ -1,5 +1,6 @@
 import { BlockConfiguration } from "@wordpress/blocks"
 
+import ChapterHeroSection from "./ChapterHeroSection"
 import ChapterProgress from "./ChapterProgress"
 import CourseChapterGrid from "./CourseChapterGrid"
 import CourseObjectiveSection from "./CourseObjectiveSection"
@@ -25,6 +26,7 @@ export const blockTypeMapForPages: Array<[string, BlockConfiguration<any>]> = [
   ["moocfi/chapter-progress", ChapterProgress],
   ["moocfi/latex", Latex],
   ["moocfi/hero-section", HeroSection],
+  ["moocfi/chapter-hero-section", ChapterHeroSection],
 ]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

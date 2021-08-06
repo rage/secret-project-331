@@ -1,9 +1,12 @@
 use super::ModelResult;
 use crate::{
     models::{
-        chapters::DatabaseChapter, exercise_service_info,
-        exercise_services::get_internal_public_spec_url, exercise_tasks::ExerciseTask,
-        exercises::Exercise, ModelError,
+        chapters::DatabaseChapter,
+        exercise_service_info,
+        exercise_services::{get_internal_public_spec_url, get_model_solution_url},
+        exercise_tasks::ExerciseTask,
+        exercises::Exercise,
+        ModelError,
     },
     utils::document_schema_processor::{
         contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
@@ -473,12 +476,17 @@ WHERE page_id = $1
         .collect();
     let client = reqwest::Client::new();
     let public_spec_urls_by_exercise_type =
-        exercise_service_info::get_selected_exercise_services_by_type(conn, exercise_types)
+        exercise_service_info::get_selected_exercise_services_by_type(conn, exercise_types.clone())
             .await?
             .into_iter()
             .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(&service, &info)?)))
             .collect::<ModelResult<HashMap<String, Url>>>()?;
-
+    let model_solution_urls_by_exercise_type =
+        exercise_service_info::get_selected_exercise_services_by_type(conn, exercise_types.clone())
+            .await?
+            .into_iter()
+            .map(|(key, (service, info))| Ok((key, get_model_solution_url(&service, &info)?)))
+            .collect::<ModelResult<HashMap<String, Url>>>()?;
     // for returning the inserted values
     let mut result_exercises: Vec<NormalizedCmsExercise> = Vec::new();
     let mut changed_ids: HashMap<Uuid, Uuid> = HashMap::new();
@@ -537,6 +545,34 @@ RETURNING *;
                     Uuid::new_v4()
                 }
             };
+            let model_solution_spec: Option<serde_json::Value> = match existing_exercise_task {
+                Some(exercise_task) if exercise_task.private_spec == task_update.private_spec => {
+                    // Skip generating public spec for an existing exercise again if private spec is still the same.
+                    ModelResult::Ok(exercise_task.public_spec.clone())
+                }
+                _ => {
+                    let url = model_solution_urls_by_exercise_type
+                        .get(&task_update.exercise_type)
+                        .ok_or_else(|| {
+                            ModelError::PreconditionFailed(
+                                "Missing info for exercise type.".to_string(),
+                            )
+                        })?
+                        .clone();
+                    let res = client
+                        .post(url)
+                        .timeout(Duration::from_secs(120))
+                        .json(&task_update.private_spec)
+                        .send()
+                        .await?;
+                    if !res.status().is_success() {
+                        return Err(ModelError::Generic(
+                            "Failed to generate model solution spec for exercise.".to_string(),
+                        ));
+                    }
+                    ModelResult::Ok(Some(res.json::<serde_json::Value>().await?))
+                }
+            }?;
             let public_spec: Option<serde_json::Value> = match existing_exercise_task {
                 Some(exercise_task) if exercise_task.private_spec == task_update.private_spec => {
                     // Skip generating public spec for an existing exercise again if private spec is still the same.
@@ -569,8 +605,8 @@ RETURNING *;
             let exercise_task: NormalizedCmsExerciseTask = sqlx::query_as!(
                 NormalizedCmsExerciseTask,
                 r#"
-INSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec, model_solution_spec)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT (id) DO UPDATE
 SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
 RETURNING id, exercise_type, assignment, private_spec;
@@ -581,6 +617,7 @@ RETURNING id, exercise_type, assignment, private_spec;
                 task_update.assignment,
                 public_spec,
                 task_update.private_spec,
+                model_solution_spec,
             )
             .fetch_one(&mut *conn)
             .await?;

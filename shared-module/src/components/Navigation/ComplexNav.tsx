@@ -173,8 +173,8 @@ const menuIcon = css`
     display: block;
     height: auto;
     position: absolute;
-    top: 18px;
-    right: 0;
+    top: 2px;
+    right: -20px;
     transform: translate(-100%, 25%);
     font-size: 1.8rem;
     cursor: pointer;

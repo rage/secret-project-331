@@ -79,6 +79,7 @@ async fn main() -> Result<()> {
     )
     .await?;
     let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin).await?;
+    let _cs_design = seed_cs_course_material(&mut conn, uh_cs).await?;
     let new_course = NewCourse {
         name: "Introduction to Computer Science".to_string(),
         slug: "introduction-to-computer-science".to_string(),
@@ -144,7 +145,7 @@ async fn main() -> Result<()> {
 
 async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Result<Uuid> {
     let new_course = NewCourse {
-        name: "Introduction to everything".to_string(),
+        name: "Introduction to Everything".to_string(),
         organization_id: org,
         slug: "introduction-to-everything".to_string(),
     };
@@ -156,15 +157,21 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     let _page = pages::insert(
         conn,
         course.id,
-        "/",
+        "/welcome",
         "Welcome to Introduction to Everything",
         1,
     )
     .await?;
-    let page_ch1_1 = pages::insert(conn, course.id, "/chapter-1", "Chapter One", 1).await?;
+    let page_ch1_1 = pages::insert(conn, course.id, "/chapter-1/page-1", "Page One", 1).await?;
     let page_ch1_2 = pages::insert(conn, course.id, "/chapter-1/page-2", "page 2", 2).await?;
-    let page_ch2 =
-        pages::insert(conn, course.id, "/chapter-2", "In the second chapter...", 1).await?;
+    let page_ch2 = pages::insert(
+        conn,
+        course.id,
+        "/chapter-2/intro",
+        "In the second chapter...",
+        1,
+    )
+    .await?;
 
     let new_chapter = NewChapter {
         chapter_number: 1,
@@ -239,7 +246,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     let exercise_c1p2_2 = exercises::insert(
         conn,
         course.id,
-        "second page, second exercise",
+        "Second page, second exercise",
         page_ch1_2,
         chapter_1.id,
         2,
@@ -248,7 +255,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     let exercise_c1p2_3 = exercises::insert(
         conn,
         course.id,
-        "second page, third exercise",
+        "Second page, third exercise",
         page_ch1_2,
         chapter_1.id,
         3,
@@ -257,7 +264,7 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     let exercise_c2p1_1 = exercises::insert(
         conn,
         course.id,
-        "first exercise of chapter two",
+        "First exercise of chapter two",
         page_ch2,
         chapter_2.id,
         3,
@@ -599,6 +606,286 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     let submission_3 = submissions::get_by_id(conn, submission_3).await?;
     let grading_3 = gradings::new_grading(conn, &submission_3).await?;
     submissions::set_grading_id(conn, grading_3.id, submission_3.id).await?;
+
+    Ok(course.id)
+}
+
+async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<Uuid> {
+    // Create new course
+    let new_course = NewCourse {
+        name: "Introduction to Course Material".to_string(),
+        organization_id: org,
+        slug: "introduction-to-course-material".to_string(),
+    };
+    let (course, front_page, _default_instance) = courses::insert_course(conn, new_course).await?;
+
+    // Set / page data
+    pages::update_content(
+        conn,
+        front_page.id,
+        &[
+            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
+                "textAlign": "center",
+                "content": "Course Material Main Front Page",
+                "level": 1
+            })),
+            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
+                "align": "center",
+                "content": "The Introduction to Course Material is a free online course created by the University of Helsinki. The course is for anyone who is interested in design systems – we want to encourage people to learn some frontend development, what can and can’t be done in a sustainable way, and how to start thinking about design from an user point of view.",
+                "dropCap": false
+            })),
+            GutenbergBlock {
+                name: "core/columns".to_string(),
+                is_valid: true,
+                client_id: Uuid::new_v4().to_string(),
+                attributes: serde_json::json!({
+                    "isStackedOnMobile": true
+                }),
+                inner_blocks: vec![
+                    GutenbergBlock {
+                        name: "core/column".to_string(),
+                        is_valid: true,
+                        client_id: Uuid::new_v4().to_string(),
+                        attributes: serde_json::json!({
+                            "width": "100%",
+                            "backgroundColor": "cyan-bluish-gray"
+                        }),
+                        inner_blocks: vec![
+                            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
+                                "content": "In this course you'll...",
+                                "level": 2,
+                                "textAlign": "center"
+                            })),
+                            GutenbergBlock {
+                                name: "core/columns".to_string(),
+                                is_valid: true,
+                                client_id: Uuid::new_v4().to_string(),
+                                attributes: serde_json::json!({
+                                    "isStackedOnMobile": true
+                                }),
+                                inner_blocks: vec![
+                                    GutenbergBlock {
+                                        name: "core/column".to_string(),
+                                        is_valid: true,
+                                        client_id: Uuid::new_v4().to_string(),
+                                        attributes: serde_json::json!({}),
+                                        inner_blocks: vec![
+                                            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
+                                                "content": "Discover why user interface matters.",
+                                                "dropCap": false
+                                              }))
+                                        ]
+                                    },
+                                    GutenbergBlock {
+                                        name: "core/column".to_string(),
+                                        is_valid: true,
+                                        client_id: Uuid::new_v4().to_string(),
+                                        attributes: serde_json::json!({}),
+                                        inner_blocks: vec![
+                                            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
+                                                "content": "Become familiar with keywords, such as UX / UI.",
+                                                "dropCap": false
+                                              }))
+                                        ]
+                                    },
+                                    GutenbergBlock {
+                                        name: "core/column".to_string(),
+                                        is_valid: true,
+                                        client_id: Uuid::new_v4().to_string(),
+                                        attributes: serde_json::json!({}),
+                                        inner_blocks: vec![
+                                            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
+                                                "content": "Learn how to think out of the box.",
+                                                "dropCap": false
+                                              }))
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+            },
+            GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string())
+        ],
+    )
+    .await?;
+
+    // FAQ, we should add card/accordion block to visualize here.
+    let _page = pages::insert(conn, course.id, "/faq", "FAQ", 1).await?;
+
+    // Chapter-1
+    let new_chapter = NewChapter {
+        chapter_number: 1,
+        course_id: course.id,
+        front_front_page_id: None,
+        name: "User Interface".to_string(),
+    };
+    let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter).await?;
+    chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
+
+    pages::update_content(
+        conn,
+        front_page_ch_1.id,
+        &[
+            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
+                "textAlign": "center",
+                "content": "User Interface",
+                "level": 2
+              })),
+            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
+                "content": "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.",
+                "dropCap": false,
+                "align": "center"
+              })),
+            GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
+        ],
+    )
+    .await?;
+    // /chapter-1/design
+    let page_ch1_1 = pages::insert(conn, course.id, "/chapter-1/design", "Design", 1).await?;
+    pages::set_chapter(conn, page_ch1_1, chapter_1.id).await?;
+    pages::update_content(
+        conn,
+        page_ch1_1,
+        &[
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!({
+                  "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
+                  "dropCap": false
+                }),
+            ),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!( {
+                  "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
+                  "dropCap": false
+                }),
+            ),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!({
+                  "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
+                  "dropCap": false
+                }),
+            ),
+        ],
+    ).await?;
+
+    // /chapter-1/human-machine-interface
+    let page_ch1_2 = pages::insert(
+        conn,
+        course.id,
+        "/chapter-1/human-machine-interface",
+        "Human-machine interface",
+        2,
+    )
+    .await?;
+    pages::set_chapter(conn, page_ch1_2, chapter_1.id).await?;
+    pages::update_content(
+        conn,
+        page_ch1_2,
+        &[
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!({
+                  "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
+                  "dropCap": false
+                }),
+            ),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!( {
+                  "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
+                  "dropCap": false
+                }),
+            ),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!({
+                  "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
+                  "dropCap": false
+                }),
+            ),
+        ],
+    ).await?;
+
+    // Chapter-2
+    let new_chapter_2 = NewChapter {
+        chapter_number: 2,
+        course_id: course.id,
+        front_front_page_id: None,
+        name: "User Experience".to_string(),
+    };
+    let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2).await?;
+    chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;
+
+    pages::update_content(
+        conn,
+        front_page_ch_2.id,
+        &[
+            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
+                "textAlign": "center",
+                "content": "User Experience",
+                "level": 2
+              })),
+            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
+                "content": "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency.",
+                "dropCap": false,
+                "align": "center"
+              })),
+            GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
+        ],
+    )
+    .await?;
+
+    // /chapter-2/user-research
+    let page_ch2_1 = pages::insert(
+        conn,
+        course.id,
+        "/chapter-2/user-research",
+        "User research",
+        1,
+    )
+    .await?;
+    pages::set_chapter(conn, page_ch2_1, chapter_2.id).await?;
+    pages::update_content(
+        conn,
+        page_ch2_1,
+        &[
+            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
+                "content": "User Research",
+                "level": 2
+              })),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!({
+                  "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
+                  "dropCap": false
+                }),
+            ),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!( {
+                  "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
+                  "dropCap": false
+                }),
+            ),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!({
+                  "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
+                  "dropCap": false
+                }),
+            ),
+        ],
+    ).await?;
 
     Ok(course.id)
 }

@@ -7,7 +7,8 @@ use headless_lms_actix::models::gradings;
 use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
     chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
-    exercise_tasks, exercises, organizations, pages, roles, roles::UserRole, submissions, users,
+    exercise_tasks, exercises, organizations, pages, roles, roles::UserRole, submissions,
+    user_exercise_states, users,
 };
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
@@ -44,26 +45,26 @@ async fn main() -> Result<()> {
     }
 
     // users
-    let admin = users::insert(
+    let admin = users::insert_with_id(
         &mut conn,
         "admin@example.com",
         Uuid::parse_str("02c79854-da22-4cfc-95c4-13038af25d2e")?,
     )
     .await?;
-    let teacher = users::insert(
+    let teacher = users::insert_with_id(
         &mut conn,
         "teacher@example.com",
         Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce")?,
     )
     .await?;
-    let assistant = users::insert(
+    let assistant = users::insert_with_id(
         &mut conn,
         "assistant@example.com",
         Uuid::parse_str("24342539-f1ba-453e-ae13-14aa418db921")?,
     )
     .await?;
 
-    let _user = users::insert(
+    let _user = users::insert_with_id(
         &mut conn,
         "user@example.com",
         Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")?,
@@ -78,7 +79,7 @@ async fn main() -> Result<()> {
         Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
-    let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin).await?;
+    let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin, teacher).await?;
     let _cs_design = seed_cs_course_material(&mut conn, uh_cs).await?;
     let new_course = NewCourse {
         name: "Introduction to Computer Science".to_string(),
@@ -143,7 +144,12 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Result<Uuid> {
+async fn seed_cs_intro(
+    conn: &mut PgConnection,
+    org: Uuid,
+    admin: Uuid,
+    teacher: Uuid,
+) -> Result<Uuid> {
     let new_course = NewCourse {
         name: "Introduction to Everything".to_string(),
         organization_id: org,
@@ -360,9 +366,9 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
     .await?;
 
     // exercise tasks
-    let spec_1_1 = Uuid::new_v4().to_string();
-    let spec_1_2 = Uuid::new_v4().to_string();
-    let spec_1_3 = Uuid::new_v4().to_string();
+    let spec_c1p1e1t1_1 = Uuid::new_v4().to_string();
+    let spec_c1p1e1t1_2 = Uuid::new_v4().to_string();
+    let spec_c1p1e1t1_3 = Uuid::new_v4().to_string();
     let exercise_task_c1p1e1_1 = exercise_tasks::insert(
         conn,
         exercise_c1p1_1,
@@ -378,39 +384,39 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             inner_blocks: vec![],
         }],
         serde_json::json!([{
-            "id": spec_1_1,
+            "id": spec_c1p1e1t1_1,
             "name": "a",
             "correct": false,
         },
         {
-            "id": spec_1_2,
+            "id": spec_c1p1e1t1_2,
             "name": "b",
             "correct": true,
         },
         {
-            "id": spec_1_3,
+            "id": spec_c1p1e1t1_3,
             "name": "c",
             "correct": true,
         }]),
         serde_json::json!([{
-            "id": spec_1_1,
+            "id": spec_c1p1e1t1_1,
             "name": "a",
 
         },{
-            "id": spec_1_2,
+            "id": spec_c1p1e1t1_2,
             "name": "b",
 
         },{
-            "id": spec_1_3,
+            "id": spec_c1p1e1t1_3,
             "name": "c",
 
         }]),
     )
     .await?;
-    let spec_2_1 = Uuid::new_v4().to_string();
-    let spec_2_2 = Uuid::new_v4().to_string();
-    let spec_2_3 = Uuid::new_v4().to_string();
-    let _exercise_task_c2p1e1_1 = exercise_tasks::insert(
+    let spec_c1p2e1t1_1 = Uuid::new_v4().to_string();
+    let spec_c1p2e1t1_2 = Uuid::new_v4().to_string();
+    let spec_c1p2e1t1_3 = Uuid::new_v4().to_string();
+    let exercise_task_c1p2e1_1 = exercise_tasks::insert(
         conn,
         exercise_c1p2_1,
         "example-exercise",
@@ -425,34 +431,34 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             inner_blocks: vec![],
         }],
         serde_json::json!([{
-            "id": spec_2_1,
+            "id": spec_c1p2e1t1_1,
             "name": "a",
             "correct": false,
         }, {
-            "id": spec_2_2,
+            "id": spec_c1p2e1t1_2,
             "name": "b",
             "correct": true,
         }, {
-            "id": spec_2_3,
+            "id": spec_c1p2e1t1_3,
             "name": "c",
             "correct": false,
         }]),
         serde_json::json!([{
-            "id": spec_2_1,
+            "id": spec_c1p2e1t1_1,
             "name": "a",
         }, {
-            "id": spec_2_2,
+            "id": spec_c1p2e1t1_2,
             "name": "b",
         }, {
-            "id": spec_2_3,
+            "id": spec_c1p2e1t1_3,
             "name": "c",
         }]),
     )
     .await?;
-    let spec_3_1 = Uuid::new_v4().to_string();
-    let spec_3_2 = Uuid::new_v4().to_string();
-    let spec_3_3 = Uuid::new_v4().to_string();
-    let _exercise_task_c1p2e2_1 = exercise_tasks::insert(
+    let spec_c1p2e2t1_1 = Uuid::new_v4().to_string();
+    let spec_c1p2e2t1_2 = Uuid::new_v4().to_string();
+    let spec_c1p2e2t1_3 = Uuid::new_v4().to_string();
+    let exercise_task_c1p2e2_1 = exercise_tasks::insert(
         conn,
         exercise_c1p2_2,
         "example-exercise",
@@ -467,34 +473,34 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             inner_blocks: vec![],
         }],
         serde_json::json!([{
-            "id": spec_3_1,
+            "id": spec_c1p2e2t1_1,
             "name": "a",
             "correct": false,
         },{
-            "id": spec_3_2,
+            "id": spec_c1p2e2t1_2,
             "name": "b",
             "correct": true,
         },{
-            "id": spec_3_3,
+            "id": spec_c1p2e2t1_3,
             "name": "c",
             "correct": false,
         }]),
         serde_json::json!([{
-            "id": spec_3_1,
+            "id": spec_c1p2e2t1_1,
             "name": "a",
         },{
-            "id": spec_3_2,
+            "id": spec_c1p2e2t1_2,
             "name": "b",
         },{
-            "id": spec_3_3,
+            "id": spec_c1p2e2t1_3,
             "name": "c",
         }]),
     )
     .await?;
-    let spec_4_1 = Uuid::new_v4().to_string();
-    let spec_4_2 = Uuid::new_v4().to_string();
-    let spec_4_3 = Uuid::new_v4().to_string();
-    let _exercise_task_c2p1e1_1 = exercise_tasks::insert(
+    let spec_c2p1e1t1_1 = Uuid::new_v4().to_string();
+    let spec_c2p1e1t1_2 = Uuid::new_v4().to_string();
+    let spec_c2p1e1t1_3 = Uuid::new_v4().to_string();
+    let exercise_task_c2p1e1_1 = exercise_tasks::insert(
         conn,
         exercise_c2p1_1,
         "example-exercise",
@@ -509,105 +515,205 @@ async fn seed_cs_intro(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Resul
             inner_blocks: vec![],
         }],
         serde_json::json!([{
-            "id": spec_4_1,
+            "id": spec_c2p1e1t1_1,
             "name": "a",
             "correct": false,
         },{
-            "id": spec_4_2,
+            "id": spec_c2p1e1t1_2,
             "name": "b",
             "correct": true,
         },{
-            "id": spec_4_3,
+            "id": spec_c2p1e1t1_3,
             "name": "c",
             "correct": true
         }]),
         serde_json::json!([{
-            "id": spec_4_1,
+            "id": spec_c2p1e1t1_1,
             "name": "a",
         },{
-            "id": spec_4_2,
+            "id": spec_c2p1e1t1_2,
             "name": "b",
         },{
-            "id": spec_4_3,
+            "id": spec_c2p1e1t1_3,
             "name": "c",
         }]),
     )
     .await?;
 
-    // intro submissions
-    let submission_1 = submissions::insert(
+    // submissions
+    let submission_admin_c1p1e1t1_1 = submissions::insert(
         conn,
         exercise_c1p1_1,
         course.id,
         exercise_task_c1p1e1_1,
         admin,
         course_instance.id,
-        Value::String(spec_1_1.to_string()),
+        Value::String(spec_c1p1e1t1_1.to_string()),
     )
     .await?;
-    let submission_2 = submissions::insert(
+    let submission_admin_c1p1e1t1_2 = submissions::insert(
         conn,
         exercise_c1p1_1,
         course.id,
         exercise_task_c1p1e1_1,
         admin,
         course_instance.id,
-        Value::String(spec_1_2.to_string()),
+        Value::String(spec_c1p1e1t1_2.to_string()),
     )
     .await?;
-    let submission_3 = submissions::insert(
+    let submission_admin_c1p1e1t1_3 = submissions::insert(
         conn,
         exercise_c1p1_1,
         course.id,
         exercise_task_c1p1e1_1,
         admin,
         course_instance.id,
-        Value::String(spec_1_3.to_string()),
+        Value::String(spec_c1p1e1t1_3.to_string()),
     )
     .await?;
-    let _submission_4 = submissions::insert(
+    let _submission_admin_c1p1e1t1_4 = submissions::insert(
         conn,
         exercise_c1p1_1,
         course.id,
         exercise_task_c1p1e1_1,
         admin,
         course_instance.id,
-        Value::String(spec_1_1.to_string()),
+        Value::String(spec_c1p1e1t1_1.to_string()),
+    )
+    .await?;
+    let submission_admin_c1p2e1t1 = submissions::insert(
+        conn,
+        exercise_c1p2_1,
+        course.id,
+        exercise_task_c1p2e1_1,
+        admin,
+        course_instance.id,
+        Value::String(spec_c1p2e1t1_1.to_string()),
+    )
+    .await?;
+    let submission_admin_c1p2e2t1 = submissions::insert(
+        conn,
+        exercise_c1p2_2,
+        course.id,
+        exercise_task_c1p2e2_1,
+        admin,
+        course_instance.id,
+        Value::String(spec_c1p2e2t1_1.to_string()),
+    )
+    .await?;
+    let submission_admin_c2p1e1t1 = submissions::insert(
+        conn,
+        exercise_c2p1_1,
+        course.id,
+        exercise_task_c2p1e1_1,
+        admin,
+        course_instance.id,
+        Value::String(spec_c2p1e1t1_1.to_string()),
+    )
+    .await?;
+    let submission_teacher_c1p1e1t1 = submissions::insert(
+        conn,
+        exercise_c1p1_1,
+        course.id,
+        exercise_task_c1p1e1_1,
+        teacher,
+        course_instance.id,
+        Value::String(spec_c1p1e1t1_1.to_string()),
     )
     .await?;
 
     // intro gradings
-    let submission_1 = submissions::get_by_id(conn, submission_1).await?;
-    let grading_1 = gradings::new_grading(conn, &submission_1).await?;
-    let grading_result_1 = GradingResult {
-        feedback_json: None,
-        feedback_text: None,
-        grading_progress: GradingProgress::FullyGraded,
-        score_given: 100.0,
-        score_maximum: 100,
-    };
-    let exercise_1 = exercises::get_by_id(conn, exercise_c1p1_1).await?;
-    gradings::update_grading(conn, &grading_1, &grading_result_1, &exercise_1).await?;
-    submissions::set_grading_id(conn, grading_1.id, submission_1.id).await?;
-
-    let submission_2 = submissions::get_by_id(conn, submission_2).await?;
-    let grading_2 = gradings::new_grading(conn, &submission_2).await?;
-    let grading_result_2 = GradingResult {
-        feedback_json: None,
-        feedback_text: None,
-        grading_progress: GradingProgress::Failed,
-        score_given: 0.0,
-        score_maximum: 100,
-    };
-    let exercise_1 = exercises::get_by_id(conn, exercise_c1p1_1).await?;
-    gradings::update_grading(conn, &grading_2, &grading_result_2, &exercise_1).await?;
-    submissions::set_grading_id(conn, grading_2.id, submission_2.id).await?;
-
-    let submission_3 = submissions::get_by_id(conn, submission_3).await?;
-    let grading_3 = gradings::new_grading(conn, &submission_3).await?;
-    submissions::set_grading_id(conn, grading_3.id, submission_3.id).await?;
+    grade(
+        conn,
+        submission_admin_c1p1e1t1_1,
+        exercise_c1p1_1,
+        GradingProgress::FullyGraded,
+        100.0,
+        100,
+    )
+    .await?;
+    // this grading is for the same exercise, but no points are removed due to the update strategy
+    grade(
+        conn,
+        submission_admin_c1p1e1t1_2,
+        exercise_c1p1_1,
+        GradingProgress::Failed,
+        1.0,
+        100,
+    )
+    .await?;
+    // this grading is for the same exercise, but no points are removed due to the update strategy
+    grade(
+        conn,
+        submission_admin_c1p1e1t1_3,
+        exercise_c1p1_1,
+        GradingProgress::Pending,
+        0.0,
+        100,
+    )
+    .await?;
+    grade(
+        conn,
+        submission_admin_c1p2e1t1,
+        exercise_c1p2_1,
+        GradingProgress::FullyGraded,
+        60.0,
+        100,
+    )
+    .await?;
+    grade(
+        conn,
+        submission_admin_c1p2e2t1,
+        exercise_c1p2_2,
+        GradingProgress::FullyGraded,
+        70.0,
+        100,
+    )
+    .await?;
+    grade(
+        conn,
+        submission_admin_c2p1e1t1,
+        exercise_c2p1_1,
+        GradingProgress::FullyGraded,
+        80.0,
+        100,
+    )
+    .await?;
+    grade(
+        conn,
+        submission_teacher_c1p1e1t1,
+        exercise_c1p1_1,
+        GradingProgress::FullyGraded,
+        90.0,
+        100,
+    )
+    .await?;
 
     Ok(course.id)
+}
+
+async fn grade(
+    conn: &mut PgConnection,
+    sub_id: Uuid,
+    ex_id: Uuid,
+    grading_progress: GradingProgress,
+    score_given: f32,
+    score_maximum: i32,
+) -> Result<()> {
+    let submission = submissions::get_by_id(conn, sub_id).await?;
+    let grading = gradings::new_grading(conn, &submission).await?;
+    let grading_result = GradingResult {
+        feedback_json: None,
+        feedback_text: None,
+        grading_progress,
+        score_given,
+        score_maximum,
+    };
+    let exercise = exercises::get_by_id(conn, ex_id).await?;
+    let grading = gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
+    submissions::set_grading_id(conn, grading.id, submission.id).await?;
+    user_exercise_states::update_user_exercise_state(conn, &grading, &submission).await?;
+    Ok(())
 }
 
 async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<Uuid> {

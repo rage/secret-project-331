@@ -411,7 +411,7 @@ async fn seed_cs_intro(
             "name": "c",
 
         }]),
-        serde_json::json!([spec_1_2, spec_1_3]),
+        serde_json::json!([spec_c1p1e1t1_2, spec_c1p1e1t1_3]),
     )
     .await?;
     let spec_c1p2e1t1_1 = Uuid::new_v4().to_string();
@@ -454,7 +454,7 @@ async fn seed_cs_intro(
             "id": spec_c1p2e1t1_3,
             "name": "c",
         }]),
-        serde_json::json!([spec_2_2]),
+        serde_json::json!([spec_c1p2e1t1_2]),
     )
     .await?;
     let spec_c1p2e2t1_1 = Uuid::new_v4().to_string();
@@ -497,7 +497,7 @@ async fn seed_cs_intro(
             "id": spec_c1p2e2t1_3,
             "name": "c",
         }]),
-        serde_json::json!([spec_3_2]),
+        serde_json::json!([spec_c1p2e2t1_2]),
     )
     .await?;
     let spec_c2p1e1t1_1 = Uuid::new_v4().to_string();
@@ -540,7 +540,7 @@ async fn seed_cs_intro(
             "id": spec_c2p1e1t1_3,
             "name": "c",
         }]),
-        serde_json::json!([spec_4_2, spec_4_3]),
+        serde_json::json!([spec_c2p1e1t1_2, spec_c2p1e1t1_3]),
     )
     .await?;
 

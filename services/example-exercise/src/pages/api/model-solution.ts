@@ -7,7 +7,7 @@ import {
 } from "../../util/stateInterfaces"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
-  if (req.method !== "GET") {
+  if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
   }
 

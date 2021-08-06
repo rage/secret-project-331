@@ -108,6 +108,9 @@ pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<ExerciseServic
         .await?;
     let status = res.status();
     if !status.is_success() {
+        let response_url = res.url().to_string();
+        let body = res.text().await?;
+        warn!(url=?response_url, status=?status, body=?body, "Could not fetch service info.");
         return Err(ModelError::Generic(
             "Could not fetch service info.".to_string(),
         ));
@@ -204,7 +207,7 @@ pub async fn get_all_exercise_services_by_type(
 
 pub async fn get_selected_exercise_services_by_type(
     conn: &mut PgConnection,
-    slugs: Vec<String>,
+    slugs: &[String],
 ) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
     let selected_services = sqlx::query_as!(
         ExerciseService,
@@ -212,7 +215,7 @@ pub async fn get_selected_exercise_services_by_type(
 SELECT *
 FROM exercise_services
 WHERE slug = ANY($1);",
-        &slugs[..],
+        slugs,
     )
     .fetch_all(&mut *conn)
     .await?;

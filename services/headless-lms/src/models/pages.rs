@@ -476,13 +476,13 @@ WHERE page_id = $1
         .collect();
     let client = reqwest::Client::new();
     let public_spec_urls_by_exercise_type =
-        exercise_service_info::get_selected_exercise_services_by_type(conn, exercise_types.clone())
+        exercise_service_info::get_selected_exercise_services_by_type(conn, &exercise_types)
             .await?
             .into_iter()
             .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(&service, &info)?)))
             .collect::<ModelResult<HashMap<String, Url>>>()?;
     let model_solution_urls_by_exercise_type =
-        exercise_service_info::get_selected_exercise_services_by_type(conn, exercise_types.clone())
+        exercise_service_info::get_selected_exercise_services_by_type(conn, &exercise_types)
             .await?
             .into_iter()
             .map(|(key, (service, info))| Ok((key, get_model_solution_url(&service, &info)?)))

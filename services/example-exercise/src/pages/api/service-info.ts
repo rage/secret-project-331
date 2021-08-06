@@ -8,7 +8,7 @@ export default (
   req: NextApiRequest,
   res: NextApiResponse<ExerciseServiceInfoApi | ModelSolutionApi | ClientErrorResponse>,
 ): void => {
-  if (req.method !== "POST") {
+  if (req.method !== "GET") {
     return res.status(404).json({ message: "Not found" })
   }
 

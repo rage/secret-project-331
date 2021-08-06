@@ -16,7 +16,21 @@ pub struct User {
     pub email: String,
 }
 
-pub async fn insert(conn: &mut PgConnection, email: &str, id: Uuid) -> ModelResult<Uuid> {
+pub async fn insert(conn: &mut PgConnection, email: &str) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO users (email)
+VALUES ($1)
+RETURNING id
+",
+        email
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
+pub async fn insert_with_id(conn: &mut PgConnection, email: &str, id: Uuid) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO users (id, email)

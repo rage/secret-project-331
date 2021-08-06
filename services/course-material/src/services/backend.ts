@@ -129,3 +129,7 @@ export const fetchPageUrl = async (pageId: string): Promise<string> => {
 export const postSubmission = async (newSubmission: NewSubmission): Promise<SubmissionResult> => {
   return (await courseMaterialClient.post(`/submissions`, newSubmission)).data
 }
+
+export const postFeedback = async (courseSlug: string, newFeedback: unknown): Promise<unknown> => {
+  return (await courseMaterialClient.post(`/courses/${courseSlug}/feedback`, newFeedback)).data
+}

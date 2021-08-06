@@ -258,6 +258,31 @@ export interface SubmissionInfo {
   submission_iframe_path: string
 }
 
+export interface Feedback {
+  id: string
+  user_id: string
+  course_id: string
+  feedback_given: string
+  feedback_target_text: string
+  marked_as_read: boolean
+  created_at: Date
+  block_ids: string[]
+}
+
+export interface MarkAsRead {
+  read: boolean
+}
+
+export interface NewFeedback {
+  feedback_given: string
+  related_blocks: FeedbackBlock[]
+}
+
+export interface FeedbackBlock {
+  id: string
+  text: string
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"

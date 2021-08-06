@@ -58,15 +58,19 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphBlockAttributes>> = (
 
   return (
     <P
-      className={css`
-        ${normalWidthCenteredComponentStyles}
-        white-space: pre-line;
-        min-width: 1px;
-        color: ${textColor};
-        background-color: ${backgroundColor};
-        font-size: ${fontSize};
-        ${backgroundColor && `padding: 1.25em 2.375em;`}
-      `}
+      id={data.clientId}
+      className={
+        "block " +
+        css`
+          ${normalWidthCenteredComponentStyles}
+          white-space: pre-line;
+          min-width: 1px;
+          color: ${textColor};
+          background-color: ${backgroundColor};
+          font-size: ${fontSize};
+          ${backgroundColor && `padding: 1.25em 2.375em;`}
+        `
+      }
       dangerouslySetInnerHTML={{
         __html: converted,
       }}

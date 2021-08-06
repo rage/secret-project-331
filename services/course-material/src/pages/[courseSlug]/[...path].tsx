@@ -79,7 +79,7 @@ const PagePage: React.FC = () => {
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <CoursePageContext.Provider value={pageState}>
-        <Page onRefresh={handleRefresh} />
+        <Page courseSlug={courseSlug} onRefresh={handleRefresh} />
       </CoursePageContext.Provider>
     </CoursePageDispatch.Provider>
   )

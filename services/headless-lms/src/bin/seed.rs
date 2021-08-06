@@ -3,13 +3,14 @@ use chrono::Utc;
 use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
-use headless_lms_actix::models::gradings;
+use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
 use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
     chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
     exercise_tasks, exercises, organizations, pages, roles, roles::UserRole, submissions,
     user_exercise_states, users,
 };
+use headless_lms_actix::models::{feedback, gradings};
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
@@ -64,7 +65,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
-    let _user = users::insert_with_id(
+    let student = users::insert_with_id(
         &mut conn,
         "user@example.com",
         Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")?,
@@ -79,7 +80,7 @@ async fn main() -> Result<()> {
         Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
-    let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin, teacher).await?;
+    let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin, teacher, student).await?;
     let _cs_design = seed_cs_course_material(&mut conn, uh_cs).await?;
     let new_course = NewCourse {
         name: "Introduction to Computer Science".to_string(),
@@ -149,6 +150,7 @@ async fn seed_cs_intro(
     org: Uuid,
     admin: Uuid,
     teacher: Uuid,
+    student: Uuid,
 ) -> Result<Uuid> {
     let new_course = NewCourse {
         name: "Introduction to Everything".to_string(),
@@ -276,6 +278,10 @@ async fn seed_cs_intro(
         3,
     )
     .await?;
+    let block_id_1 = Uuid::new_v4();
+    let block_id_2 = Uuid::new_v4();
+    let block_id_3 = Uuid::new_v4();
+    let block_id_4 = Uuid::new_v4();
     pages::update_content(
         conn,
         page_ch1_1,
@@ -283,9 +289,39 @@ async fn seed_cs_intro(
             GutenbergBlock {
                 name: "core/paragraph".to_string(),
                 is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
+                client_id: block_id_1.to_string(),
                 attributes: serde_json::json!({
-                    "content": "Everything is a big topic",
+                    "content": "Everything is a big topic.",
+                    "dropCap": false,
+                }),
+                inner_blocks: vec![],
+            },
+            GutenbergBlock {
+                name: "core/paragraph".to_string(),
+                is_valid: true,
+                client_id: block_id_2.to_string(),
+                attributes: serde_json::json!({
+                    "content": "So big, that we need many paragraphs.",
+                    "dropCap": false,
+                }),
+                inner_blocks: vec![],
+            },
+            GutenbergBlock {
+                name: "core/paragraph".to_string(),
+                is_valid: true,
+                client_id: block_id_3.to_string(),
+                attributes: serde_json::json!({
+                    "content": "Like this.",
+                    "dropCap": false,
+                }),
+                inner_blocks: vec![],
+            },
+            GutenbergBlock {
+                name: "core/paragraph".to_string(),
+                is_valid: true,
+                client_id: block_id_4.to_string(),
+                attributes: serde_json::json!({
+                    "content": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(16),
                     "dropCap": false,
                 }),
                 inner_blocks: vec![],
@@ -688,6 +724,36 @@ async fn seed_cs_intro(
         100,
     )
     .await?;
+
+    // feedback
+    let new_feedback = NewFeedback {
+        feedback_given: "this part was unclear to me".to_string(),
+        related_blocks: vec![FeedbackBlock {
+            id: block_id_4,
+            text: "blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas"
+                .to_string(),
+        }],
+    };
+    let feedback = feedback::insert(conn, student, course.id, new_feedback).await?;
+    feedback::mark_as_read(conn, feedback, true).await?;
+    let new_feedback = NewFeedback {
+        feedback_given: "I dont think we need these paragraphs".to_string(),
+        related_blocks: vec![
+            FeedbackBlock {
+                id: block_id_1,
+                text: "verything is a big topic.".to_string(),
+            },
+            FeedbackBlock {
+                id: block_id_2,
+                text: "So big, that we need many paragraphs.".to_string(),
+            },
+            FeedbackBlock {
+                id: block_id_3,
+                text: "Like th".to_string(),
+            },
+        ],
+    };
+    feedback::insert(conn, student, course.id, new_feedback).await?;
 
     Ok(course.id)
 }

@@ -1,6 +1,10 @@
 #[cfg(test)]
 use crate::{
-    controllers::{auth::Login, main_frontend::exercises::ExerciseSubmissions, UploadResult},
+    controllers::{
+        auth::Login,
+        main_frontend::{exercises::ExerciseSubmissions, feedback::MarkAsRead},
+        UploadResult,
+    },
     models::{
         chapters::{Chapter, ChapterStatus, ChapterUpdate, ChapterWithStatus, NewChapter},
         course_instance_enrollments::CourseInstanceEnrollment,
@@ -12,6 +16,7 @@ use crate::{
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
         },
+        feedback::{Feedback, FeedbackBlock, NewFeedback},
         gradings::{Grading, UserPointsUpdateStrategy},
         organizations::Organization,
         pages::{
@@ -59,6 +64,10 @@ ts_rs::export! {
   CourseUpdate,
   Login,
   SubmissionInfo,
+  Feedback,
+  MarkAsRead,
+  NewFeedback,
+  FeedbackBlock,
   // dependencies
   VariantStatus,
   ChapterStatus,

@@ -1,3 +1,4 @@
+import Link from "next/link"
 import React from "react"
 import { useQuery } from "react-query"
 
@@ -26,7 +27,17 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
         return (
           <li key={instance.id}>
             {instance.name ?? "Default"}{" "}
-            <a href={`/cms/course-instances/${instance.id}/manage-emails`}>Manage emails</a>
+            <Link
+              href={{
+                pathname: "/manage/course-instances/[id]/emails",
+                query: { id: instance.id },
+              }}
+            >
+              Manage emails
+            </Link>{" "}
+            <a href={`/api/v0/main-frontend/course-instances/${instance.id}/point_export`} download>
+              Export points
+            </a>
           </li>
         )
       })}

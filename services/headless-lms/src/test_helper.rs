@@ -62,16 +62,24 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
     }
 }
 
-pub async fn insert_user_organization_course_instance_exercise_task(
-    conn: &mut PgConnection,
-    exercise_type: &str,
-) -> Result<(Uuid, Uuid, Uuid, Uuid, Uuid, Uuid)> {
+pub struct Data {
+    pub user: Uuid,
+    pub org: Uuid,
+    pub course: Uuid,
+    pub instance: Uuid,
+    pub chapter: Uuid,
+    pub page: Uuid,
+    pub exercise: Uuid,
+    pub task: Uuid,
+}
+
+pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result<Data> {
     let random_string: String = rand::thread_rng()
         .sample_iter(&rand::distributions::Alphanumeric)
         .take(32)
         .map(char::from)
         .collect();
-    let user = models::users::insert(
+    let user = models::users::insert_with_id(
         &mut *conn,
         "test@example.com",
         Uuid::parse_str("21a2b6b5-0e66-4708-8a0b-d818576ab950")?,
@@ -86,7 +94,7 @@ pub async fn insert_user_organization_course_instance_exercise_task(
     .await?;
     let course = models::courses::insert(&mut *conn, "", org, &random_string).await?;
     let instance = models::course_instances::insert(&mut *conn, course, None, None).await?;
-    let chapter = models::chapters::insert(&mut *conn, "", course, 0).await?;
+    let chapter = models::chapters::insert(&mut *conn, "", course, 1).await?;
     let page = models::pages::insert(&mut *conn, course, "", "", 0).await?;
     let exercise = models::exercises::insert(conn, course, "", page, chapter, 0).await?;
     let exercise_task = models::exercise_tasks::insert(
@@ -98,5 +106,14 @@ pub async fn insert_user_organization_course_instance_exercise_task(
         Value::Null,
     )
     .await?;
-    Ok((user, org, course, instance.id, exercise, exercise_task))
+    Ok(Data {
+        chapter,
+        course,
+        exercise,
+        instance: instance.id,
+        org,
+        page,
+        task: exercise_task,
+        user,
+    })
 }

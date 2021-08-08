@@ -99,6 +99,8 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", branch = "ext", features = 
 actix-http = "=3.0.0-beta.8"
 # Service trait and combinators for representing asynchronous request/response operations.
 actix-service = "2.0"
+# Fast CSV parsing with support for serde.
+csv = "1"
 # Email client
 lettre = "0.10.0-rc.3"
 # An implementation of regular expressions for Rust.
@@ -114,3 +116,7 @@ indexmap = "=1.6.2"
 pretty_assertions = "0.7.1"
 # HTTP mocking for Rust.
 mockito = "0.30"
+
+[profile.dev]
+# Speeds up builds, makes backtraces to lose the source line
+debug = 0

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import expectPath from "../../../utils/expect"
+import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -32,7 +33,7 @@ test.describe("quizzes tests", () => {
 
     await Promise.all([
       page.waitForNavigation(),
-      await page.click(':nth-match(:text("Manage"), 4)'),
+      await page.click("text=quizzes test Manage >> :nth-match(a, 2)"),
     ])
     // Click :nth-match(:text("Manage"), 4)
 
@@ -99,323 +100,142 @@ test.describe("quizzes tests", () => {
     // Click text=Quizzes
     await page.click("text=Quizzes")
 
+    const frame = await waitForFunction(page, () =>
+      page.frames().find((f) => {
+        return f.url().startsWith("http://project-331.local/quizzes/editor")
+      }),
+    )
+
     // Fill textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill("textarea", "testing quizzes")
+    await frame.fill("textarea", "testing quizzes")
 
     // Click input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('input[type="number"]')
+    await frame.click('input[type="number"]')
 
     // Fill input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('input[type="number"]', "01")
+    await frame.fill('input[type="number"]', "01")
 
     // Click text=SectionSection >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=SectionSection >> input[type="number"]')
+    await frame.click('text=SectionSection >> input[type="number"]')
 
     // Fill text=SectionSection >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=SectionSection >> input[type="number"]', "01")
+    await frame.fill('text=SectionSection >> input[type="number"]', "01")
 
     // Click text=Number of tries allowedNumber of tries allowed >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=Number of tries allowedNumber of tries allowed >> input[type="number"]')
+    await frame.click('text=Number of tries allowedNumber of tries allowed >> input[type="number"]')
 
     // Fill text=Number of tries allowedNumber of tries allowed >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=Number of tries allowedNumber of tries allowed >> input[type="number"]', "03")
+    await frame.fill(
+      'text=Number of tries allowedNumber of tries allowed >> input[type="number"]',
+      "03",
+    )
 
     // Click text=Points to gainPoints to gain >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=Points to gainPoints to gain >> input[type="number"]')
+    await frame.click('text=Points to gainPoints to gain >> input[type="number"]')
 
     // Fill text=Points to gainPoints to gain >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=Points to gainPoints to gain >> input[type="number"]', "05")
+    await frame.fill('text=Points to gainPoints to gain >> input[type="number"]', "05")
 
     // Click text=grant_whenever_possible
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=grant_whenever_possible")
+    await frame.click("text=grant_whenever_possible")
 
     // Click text=grant_only_when_fully_complete
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=grant_only_when_fully_complete")
+    await frame.click("text=grant_only_when_fully_complete")
 
     // Click [aria-label="Choose date, selected date is Aug 9, 2021"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('[aria-label="Choose date, selected date is Aug 9, 2021"]')
+    await frame.click('[aria-label="Choose date, selected date is Aug 9, 2021"]')
 
     // Click text=10
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=10")
+    await frame.click("text=10")
 
     // Click [aria-label="open next view"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('[aria-label="open next view"]')
+    await frame.click('[aria-label="open next view"]')
 
     // Click .css-1i3at1m
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click(".css-1i3at1m")
+    await frame.click(".css-1i3at1m")
 
     // Click text=Quiz description *Quiz description * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=Quiz description *Quiz description * >> textarea")
+    await frame.click("text=Quiz description *Quiz description * >> textarea")
 
     // Fill text=Quiz description *Quiz description * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill("text=Quiz description *Quiz description * >> textarea", "quiz description")
+    await frame.fill("text=Quiz description *Quiz description * >> textarea", "quiz description")
 
     // Click text=Submit message *Submit message * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=Submit message *Submit message * >> textarea")
+    await frame.click("text=Submit message *Submit message * >> textarea")
 
     // Fill text=Submit message *Submit message * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill("text=Submit message *Submit message * >> textarea", "message")
+    await frame.fill("text=Submit message *Submit message * >> textarea", "message")
 
     // Click text=essay
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=essay")
+    await frame.click("text=essay")
 
     // Click text=Description for this quiz item *Description for this quiz item * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=Description for this quiz item *Description for this quiz item * >> textarea")
+    await frame.click(
+      "text=Description for this quiz item *Description for this quiz item * >> textarea",
+    )
 
     // Fill text=Description for this quiz item *Description for this quiz item * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill(
-        "text=Description for this quiz item *Description for this quiz item * >> textarea",
-        "essay quiz",
-      )
+    await frame.fill(
+      "text=Description for this quiz item *Description for this quiz item * >> textarea",
+      "essay quiz",
+    )
 
     // Click text=Min wordsMin words >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=Min wordsMin words >> input[type="number"]')
+    await frame.click('text=Min wordsMin words >> input[type="number"]')
 
     // Fill text=Min wordsMin words >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=Min wordsMin words >> input[type="number"]', "100")
+    await frame.fill('text=Min wordsMin words >> input[type="number"]', "100")
 
     // Click text=Max wordsMax words >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=Max wordsMax words >> input[type="number"]')
+    await frame.click('text=Max wordsMax words >> input[type="number"]')
 
     // Fill text=Max wordsMax words >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=Max wordsMax words >> input[type="number"]', "500")
+    await frame.fill('text=Max wordsMax words >> input[type="number"]', "500")
 
     // Click text=scale
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=scale")
+    await frame.click("text=scale")
     // Click text=Title *Title * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=Title *Title * >> textarea")
+    await frame.click("text=Title *Title * >> textarea")
     // Fill text=Title *Title * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill("text=Title *Title * >> textarea", "scale test")
+    await frame.fill("text=Title *Title * >> textarea", "scale test")
     // Click text=minmin >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=minmin >> input[type="number"]')
+    await frame.click('text=minmin >> input[type="number"]')
     // Fill text=minmin >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=minmin >> input[type="number"]', "01")
+    await frame.fill('text=minmin >> input[type="number"]', "01")
     // Click text=maxmax >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=maxmax >> input[type="number"]')
+    await frame.click('text=maxmax >> input[type="number"]')
     // Fill text=maxmax >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=maxmax >> input[type="number"]', "07")
+    await frame.fill('text=maxmax >> input[type="number"]', "07")
     // Click text=minmininvalid min value >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=minmininvalid min value >> input[type="number"]')
+    await frame.click('text=minmininvalid min value >> input[type="number"]')
     // Fill text=minmininvalid min value >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=minmininvalid min value >> input[type="number"]', "")
+    await frame.fill('text=minmininvalid min value >> input[type="number"]', "")
     // Click text=minmin >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=minmin >> input[type="number"]')
+    await frame.click('text=minmin >> input[type="number"]')
     // Fill text=minmin >> input[type="number"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=minmin >> input[type="number"]', "01")
+    await frame.fill('text=minmin >> input[type="number"]', "01")
     // Click text=open
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=open")
+    await frame.click("text=open")
     // Click text=Title *Title * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=Title *Title * >> textarea")
+    await frame.click("text=Title *Title * >> textarea")
     // Fill text=Title *Title * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill("text=Title *Title * >> textarea", "open test")
+    await frame.fill("text=Title *Title * >> textarea", "open test")
     // Click text=Body *Body * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=Body *Body * >> textarea")
+    await frame.click("text=Body *Body * >> textarea")
     // Fill text=Body *Body * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill("text=Body *Body * >> textarea", "open body")
+    await frame.fill("text=Body *Body * >> textarea", "open body")
     // Click text=Validity regexValidity regex >> input[type="text"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=Validity regexValidity regex >> input[type="text"]')
+    await frame.click('text=Validity regexValidity regex >> input[type="text"]')
     // Fill text=Validity regexValidity regex >> input[type="text"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=Validity regexValidity regex >> input[type="text"]', "[]")
+    await frame.fill('text=Validity regexValidity regex >> input[type="text"]', "[]")
     // Press ArrowLeft
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .press('text=Validity regexValidity regex >> input[type="text"]', "ArrowLeft")
+    await frame.press('text=Validity regexValidity regex >> input[type="text"]', "ArrowLeft")
     // Fill text=Validity regexValidity regex >> input[type="text"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=Validity regexValidity regex >> input[type="text"]', "[0,9]")
+    await frame.fill('text=Validity regexValidity regex >> input[type="text"]', "[0,9]")
     // Click text=Format regexFormat regex >> input[type="text"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click('text=Format regexFormat regex >> input[type="text"]')
+    await frame.click('text=Format regexFormat regex >> input[type="text"]')
     // Fill text=Format regexFormat regex >> input[type="text"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill('text=Format regexFormat regex >> input[type="text"]', "*")
+    await frame.fill('text=Format regexFormat regex >> input[type="text"]', "*")
 
     // Click text=Save
     await page.click("text=Save")
@@ -444,7 +264,7 @@ test.describe("quizzes tests", () => {
     await page.click("text=Create course")
 
     // Click :nth-match(:text("Manage"), 4)
-    await page.click(':nth-match(:text("Manage"), 5)')
+    await page.click("text=quizzes test, multiple choice Manage >> :nth-match(a, 2)")
     expectPath(page, "/manage/courses/[id]")
 
     // Click text=Manage pages
@@ -511,114 +331,64 @@ test.describe("quizzes tests", () => {
     // Click text=Quizzes
     await page.click("text=Quizzes")
 
+    const frame = await waitForFunction(page, () =>
+      page.frames().find((f) => {
+        return f.url().startsWith("http://project-331.local/quizzes/editor")
+      }),
+    )
+
     // Click text=multiple-choice
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=multiple-choice")
+    await frame.click("text=multiple-choice")
 
     // Click text=title *title * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=title *title * >> textarea")
+    await frame.click("text=title *title * >> textarea")
 
     // Fill text=title *title * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill("text=title *title * >> textarea", "multiple choice test")
+    await frame.fill("text=title *title * >> textarea", "multiple choice test")
 
     // Click .sc-fcmMJX .MuiButton-root
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click(".sc-fcmMJX .MuiButton-root")
+    await frame.click(".sc-fcmMJX .MuiButton-root")
 
     // Click .MuiButton-root.MuiButton-outlined
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click(".MuiButton-root.MuiButton-outlined")
+    await frame.click(".MuiButton-root.MuiButton-outlined")
 
     // Click text=Option title *Option title * >> textarea
 
     await page.evaluate(() => window.scrollTo(0, 800))
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=Option title *Option title * >> textarea")
+    await frame.click("text=Option title *Option title * >> textarea")
 
     // Fill text=Option title *Option title * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill("text=Option title *Option title * >> textarea", "first")
+    await frame.fill("text=Option title *Option title * >> textarea", "first")
 
     // Check text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> input[type="checkbox"]
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .check(
-        'text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> input[type="checkbox"]',
-      )
+    await frame.check(
+      'text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> input[type="checkbox"]',
+    )
 
     // Click text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> button
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click(
-        "text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> button",
-      )
+    await frame.click(
+      "text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> button",
+    )
 
     // Click .sc-GvhzO div:nth-child(2) .MuiButton-root
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click(".sc-GvhzO div:nth-child(2) .MuiButton-root")
+    await frame.click(".sc-GvhzO div:nth-child(2) .MuiButton-root")
 
     // Click .MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButtonBase-root.sc-hOPeYd
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click(
-        ".MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButtonBase-root.sc-hOPeYd",
-      )
+    await frame.click(
+      ".MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButtonBase-root.sc-hOPeYd",
+    )
 
     // Click text=Option title *Option title * >> textarea
     await page.evaluate(() => window.scrollTo(0, 800))
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click("text=Option title *Option title * >> textarea")
+    await frame.click("text=Option title *Option title * >> textarea")
 
     // Fill text=Option title *Option title * >> textarea
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .fill("text=Option title *Option title * >> textarea", "second")
+    await frame.fill("text=Option title *Option title * >> textarea", "second")
 
     // Click text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> button
-    await page
-      .frame({
-        url: "http://project-331.local/quizzes/editor?width=780",
-      })
-      .click(
-        "text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> button",
-      )
+    await frame.click(
+      "text=Editing OptionCorrectSourcePreviewThis is markdown editor. You can write your te >> button",
+    )
 
     // Click text=Save
     await page.click("text=Save")

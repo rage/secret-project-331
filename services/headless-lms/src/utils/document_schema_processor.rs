@@ -85,9 +85,9 @@ impl GutenbergBlock {
             )],
         )
     }
-    pub fn chapter_objective_section() -> Self {
+    pub fn course_objective_section() -> Self {
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-            "moocfi/chapter-objective-section",
+            "moocfi/course-objective-section",
             serde_json::json!({
                 "title": "In this course you'll..."
             }),

@@ -731,7 +731,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         front_page.id,
         &[
             GutenbergBlock::landing_page_hero_section(),
-            GutenbergBlock::chapter_objective_section(),
+            GutenbergBlock::course_objective_section(),
             GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
         ],

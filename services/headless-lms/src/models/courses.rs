@@ -142,7 +142,7 @@ pub async fn insert_course(
     // Create front page for course
     let course_front_page_content = serde_json::to_value(vec![
         GutenbergBlock::landing_page_hero_section(),
-        GutenbergBlock::chapter_objective_section(),
+        GutenbergBlock::course_objective_section(),
         GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
     ])?;

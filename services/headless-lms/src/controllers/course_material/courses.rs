@@ -2,9 +2,12 @@
 use crate::{
     controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
-    models::chapters::{ChapterStatus, ChapterWithStatus},
-    models::course_instances::CourseInstance,
     models::pages::Page,
+    models::{
+        chapters::{ChapterStatus, ChapterWithStatus},
+        pages::PageSearchRequest,
+    },
+    models::{course_instances::CourseInstance, pages::PageSearchResult},
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use chrono::Utc;
@@ -215,6 +218,55 @@ async fn get_chapters(
         })
         .collect();
     Ok(Json(chapters))
+}
+
+/**
+POST `/api/v0/course-material/courses/:course_id/search` - Returns a list of pages given a search query.
+# Example
+
+Request:
+
+```http
+POST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search HTTP/1.1
+Content-Type: application/json
+
+{
+  "query": "Everything",
+}
+```
+
+Response:
+
+```json
+[
+    {
+        "id": "86ac4f0a-ccca-464e-89f4-ed58969b1103",
+        "created_at": "2021-03-05T22:50:47.920120",
+        "updated_at": "2021-03-05T22:50:47.920120",
+        "course_id": "a90c39f8-5d23-461f-8375-0b05a55d7ac1",
+        "content": [
+            {
+                "id": "55be197d-4145-444a-bc1f-ee1091c47ad9"
+            }
+        ],
+        "url_path": "/part-1/01-loops-and-variables",
+        "title": "Loops and Variables",
+        "deleted_at": null
+    }
+]
+```
+*/
+#[instrument(skip(pool))]
+async fn search_pages(
+    request_course_id: web::Path<Uuid>,
+    payload: web::Json<PageSearchRequest>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<Vec<PageSearchResult>>> {
+    let mut conn = pool.acquire().await?;
+    let res =
+        crate::models::pages::get_page_search_results(&mut conn, *request_course_id, &*payload)
+            .await?;
+    Ok(Json(res))
 }
 
 /**

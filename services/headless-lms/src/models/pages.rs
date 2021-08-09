@@ -117,6 +117,20 @@ pub struct PageMetadata {
     course_id: Uuid,
 }
 
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+pub struct PageSearchResult {
+    id: Uuid,
+    title: String,
+    rank: Option<f32>,
+    ts_headline: Option<String>,
+    url_path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+pub struct PageSearchRequest {
+    query: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseWithExerciseTasks {
     id: Uuid,
@@ -206,7 +220,21 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uui
 pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE course_id = $1 AND deleted_at IS NULL;",
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
+FROM pages
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        ",
         course_id
     )
     .fetch_all(conn)
@@ -217,7 +245,21 @@ pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResu
 pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Vec<Page>> {
     let pages = sqlx::query_as!(
         Page,
-        "SELECT * FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL;",
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
+FROM pages
+WHERE chapter_id = $1
+  AND deleted_at IS NULL;
+        ",
         chapter_id
     )
     .fetch_all(conn)
@@ -226,9 +268,26 @@ pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelRe
 }
 
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
-    let pages = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
-        .fetch_one(conn)
-        .await?;
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
+FROM pages
+WHERE id = $1;
+",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(pages)
 }
 
@@ -239,12 +298,24 @@ pub async fn get_page_by_path(
 ) -> ModelResult<Page> {
     let page = sqlx::query_as!(
         Page,
-        "SELECT pages.* FROM pages
-        JOIN courses ON (pages.course_id = courses.id)
-        WHERE courses.slug = $1
-        AND url_path = $2
-        AND courses.deleted_at IS NULL
-        AND pages.deleted_at IS NULL;",
+        "
+SELECT pages.id,
+  pages.created_at,
+  pages.updated_at,
+  pages.course_id,
+  pages.chapter_id,
+  pages.url_path,
+  pages.title,
+  pages.deleted_at,
+  pages.content,
+  pages.order_number
+FROM pages
+  JOIN courses ON (pages.course_id = courses.id)
+WHERE courses.slug = $1
+  AND url_path = $2
+  AND courses.deleted_at IS NULL
+  AND pages.deleted_at IS NULL;
+        ",
         course_slug,
         url_path
     )
@@ -254,9 +325,26 @@ pub async fn get_page_by_path(
 }
 
 pub async fn get_page_with_exercises(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
-    let mut page = sqlx::query_as!(Page, "SELECT * FROM pages WHERE id = $1;", page_id)
-        .fetch_one(&mut *conn)
-        .await?;
+    let mut page = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
+FROM pages
+WHERE id = $1;
+    ",
+        page_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
 
     let exercises: Vec<Exercise> = sqlx::query_as!(
         Exercise,
@@ -349,13 +437,21 @@ pub async fn update_page(
         Page,
         r#"
 UPDATE pages
-SET
-    content = $2,
-    url_path = $3,
-    title = $4,
-    chapter_id = $5
+SET content = $2,
+  url_path = $3,
+  title = $4,
+  chapter_id = $5
 WHERE id = $1
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
             "#,
         page_id,
         content_as_json,
@@ -643,10 +739,25 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelRes
     let page = sqlx::query_as!(
         Page,
         r#"
-  INSERT INTO
-    pages(course_id, content, url_path, title, order_number, chapter_id)
-  VALUES($1, $2, $3, $4, $5, $6)
-  RETURNING *
+INSERT INTO pages(
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number,
+    chapter_id
+  )
+VALUES($1, $2, $3, $4, $5, $6)
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
           "#,
         new_page.course_id,
         content_as_json,
@@ -706,11 +817,19 @@ pub async fn delete_page_and_exercises(
     let page = sqlx::query_as!(
         Page,
         r#"
-  UPDATE pages
-  SET
-    deleted_at = now()
-  WHERE id = $1
-  RETURNING *
+UPDATE pages
+SET deleted_at = now()
+WHERE id = $1
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
           "#,
         page_id,
     )
@@ -750,7 +869,16 @@ pub async fn get_chapters_pages_with_exercises(
     let chapter_pages = sqlx::query_as!(
         Page,
         r#"
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -971,7 +1099,16 @@ pub async fn get_chapters_pages_exclude_main_frontpage(
     let pages = sqlx::query_as!(
         Page,
         "
-SELECT p.*
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL
@@ -987,4 +1124,39 @@ WHERE p.chapter_id = $1
     .await?;
 
     Ok(pages)
+}
+
+pub async fn get_page_search_results(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_search_request: &PageSearchRequest,
+) -> ModelResult<Vec<PageSearchResult>> {
+    let res = sqlx::query_as!(
+        PageSearchResult,
+        "
+SELECT id,
+  title,
+  ts_rank(
+    content_search,
+    to_tsquery('english', $2)
+  ) as rank,
+  ts_headline(
+    'english',
+    content_search_original_text,
+    to_tsquery('english', $2)
+  ),
+  url_path
+FROM pages
+WHERE course_id = $1
+  AND deleted_at IS NULL
+  AND content_search @@ to_tsquery('english', $2)
+ORDER BY rank DESC
+LIMIT 50;
+    ",
+        course_id,
+        page_search_request.query
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }

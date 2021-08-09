@@ -1,24 +1,16 @@
+import { css } from "@emotion/css"
 import { InnerBlocks, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
 
+import Button from "../../shared-module/components/Button"
 import BlockWrapper from "../BlockWrapper"
 
 import { HeroSectionAttributes } from "."
 
-const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/buttons", "core/paragraph"]
+const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph"]
 const HERO_SECTION_TEMPLATE: Template[] = [
-  ["core/paragraph", { placeholder: "Insert short sales speech...", align: "center" }],
-  [
-    "core/buttons",
-    { orientation: "vertical", contentJustification: "center" },
-    [
-      [
-        "core/button",
-        { text: "Start", className: "is-style-outline", url: "/start", rel: "/start" },
-      ],
-    ],
-  ],
+  ["core/paragraph", { placeholder: "Insert sales speech...", align: "center" }],
 ]
 
 const HeroSectionEditor: React.FC<BlockEditProps<HeroSectionAttributes>> = ({
@@ -37,6 +29,17 @@ const HeroSectionEditor: React.FC<BlockEditProps<HeroSectionAttributes>> = ({
         placeholder={"Welcome message for course..."}
       />
       <InnerBlocks template={HERO_SECTION_TEMPLATE} allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      <div
+        className={css`
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        `}
+      >
+        <Button variant="primary" size="large">
+          Start
+        </Button>
+      </div>
     </BlockWrapper>
   )
 }

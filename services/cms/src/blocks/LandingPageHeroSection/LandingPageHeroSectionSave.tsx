@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const ChapterHeroSectionSave: React.FC = () => {
+const LandingPageHeroSectionSave: React.FC = () => {
   return (
     <div>
       <InnerBlocks.Content />
@@ -8,4 +8,4 @@ const ChapterHeroSectionSave: React.FC = () => {
   )
 }
 
-export default ChapterHeroSectionSave
+export default LandingPageHeroSectionSave

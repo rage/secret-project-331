@@ -7,8 +7,8 @@
     "build": "NODE_ENV=production next build",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3000 node server.js",
-    "extract-gutenberg-types": "ts-node -O '{\"module\": \"commonjs\"}' scripts/extractGutenbergAttributeTypes.ts && npx eslint --fix ../course-material/src/types/GutenbergBlockAttributes.ts",
-    "list-gutenberg-block-names": "ts-node -O '{\"module\": \"commonjs\"}' scripts/listGutenbergBlockNames.ts"
+    "extract-gutenberg-types": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/extractGutenbergAttributeTypes.ts && npx eslint --fix ../course-material/src/types/GutenbergBlockAttributes.ts",
+    "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/listGutenbergBlockNames.ts"
   },
   "dependencies": {
     "@emotion/babel-plugin": "^11.3.0",
@@ -51,6 +51,7 @@
     "react-dom": "^17.0.2",
     "react-i18next": "^11.11.4",
     "react-query": "^3.19.1",
+    "react-spring": "^9.2.4",
     "recoil": "^0.3.1",
     "recoil-devtools": "^0.3.1",
     "recoil-devtools-dock": "^0.2.0",

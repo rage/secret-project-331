@@ -2,12 +2,22 @@
 
 use crate::{
     controllers::ControllerResult,
-    domain::authorization::AuthUser,
-    models::email_templates::{EmailTemplate, EmailTemplateNew},
+    domain::{authorization::AuthUser, csv_export},
+    models::{
+        course_instances, courses,
+        email_templates::{EmailTemplate, EmailTemplateNew},
+    },
 };
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
+use actix_web::{
+    web::{self, Json, ServiceConfig},
+    HttpResponse,
+};
+use bytes::Bytes;
+use chrono::Utc;
 use sqlx::PgPool;
+use std::io::{self, Write};
+use tokio::sync::mpsc::UnboundedSender;
+use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
 #[instrument(skip(payload, pool))]
@@ -43,6 +53,65 @@ async fn get_email_templates_by_course_instance_id(
     Ok(Json(email_templates))
 }
 
+struct Adapter {
+    sender: UnboundedSender<ControllerResult<Bytes>>,
+}
+
+impl Write for Adapter {
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        let bytes = Bytes::copy_from_slice(buf);
+        self.sender
+            .send(Ok(bytes))
+            .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        Ok(buf.len())
+    }
+}
+
+#[instrument(skip(pool))]
+pub async fn point_export(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
+    let course_instance_id = course_instance_id.into_inner();
+
+    // spawn handle that writes the csv row by row into the sender
+    let mut handle_conn = pool.acquire().await?;
+    let _handle = tokio::spawn(async move {
+        let res = csv_export::export_course_instance_points(
+            &mut handle_conn,
+            course_instance_id,
+            Adapter { sender },
+        )
+        .await;
+        if let Err(err) = res {
+            tracing::error!("Failed to export course instance points: {}", err);
+        }
+    });
+
+    let course_instance =
+        course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let course = courses::get_course(&mut conn, course_instance.course_id).await?;
+
+    // return response that streams data from the receiver
+    Ok(HttpResponse::Ok()
+        .append_header((
+            "Content-Disposition",
+            format!(
+                "attachment; filename=\"{} - {} - Point export {}.csv\"",
+                course.name,
+                course_instance.name.as_deref().unwrap_or("unnamed"),
+                Utc::today().format("%Y-%m-%d")
+            ),
+        ))
+        .streaming(UnboundedReceiverStream::new(receiver)))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -58,5 +127,9 @@ pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_instance_id}/email-templates",
         web::get().to(get_email_templates_by_course_instance_id),
+    )
+    .route(
+        "/{course_instance_id}/point_export",
+        web::get().to(point_export),
     );
 }

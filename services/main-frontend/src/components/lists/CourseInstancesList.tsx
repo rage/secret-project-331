@@ -34,7 +34,10 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
               }}
             >
               Manage emails
-            </Link>
+            </Link>{" "}
+            <a href={`/api/v0/main-frontend/course-instances/${instance.id}/point_export`} download>
+              Export points
+            </a>
           </li>
         )
       })}

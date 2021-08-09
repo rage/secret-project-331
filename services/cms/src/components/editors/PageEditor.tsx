@@ -10,8 +10,8 @@ import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supporte
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
-import useBlocksWithUnsupportedBlocksRemoved from "../../utils/Gutenberg/useBlocksWithUnsupportedBlocksRemoved"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
@@ -29,15 +29,29 @@ const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   loading: () => EditorLoading,
 })
 
-const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
-  const [title, setTitle] = useState(data.title)
-  const [content, setContent] = useState<BlockInstance[]>(data.content as BlockInstance[])
-  const [saving, setSaving] = useState(false)
-
+const supportedBlocks = (chapter_id: string | null): string[] => {
   const supportedBlocksForPages: string[] = blockTypeMapForPages.map((mapping) => mapping[0])
   const supportedBlocksTopLevelPages: string[] = blockTypeMapForTopLevelPages.map(
     (mapping) => mapping[0],
   )
+
+  const allSupportedBlocks = chapter_id
+    ? supportedCoreBlocks.concat(supportedBlocksForPages)
+    : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
+
+  return allSupportedBlocks
+}
+
+const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
+  const [title, setTitle] = useState(data.title)
+  const [content, setContent] = useState<BlockInstance[]>(
+    modifyBlocks(
+      data.content as BlockInstance[],
+      supportedBlocks(data.chapter_id),
+    ) as BlockInstance[],
+  )
+  const [saving, setSaving] = useState(false)
+
   const currentContentStateSaved = data.content === content
 
   const handleOnSave = async () => {
@@ -52,15 +66,6 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     setContent(res.content as BlockInstance[])
     setSaving(false)
   }
-
-  const allSupportedBlocks = data.chapter_id
-    ? supportedCoreBlocks.concat(supportedBlocksForPages)
-    : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
-
-  const contentWithUsupportedBlocksRemoved = useBlocksWithUnsupportedBlocksRemoved(
-    content,
-    allSupportedBlocks,
-  )
 
   return (
     <>

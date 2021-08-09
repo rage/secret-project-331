@@ -1,5 +1,5 @@
 import { BlockInstance } from "@wordpress/blocks"
-import { useMemo } from "react"
+/*import { useMemo } from "react"
 
 export default function useBlocksWithUnsupportedBlocksRemoved(
   blocks: BlockInstance[],
@@ -11,8 +11,11 @@ export default function useBlocksWithUnsupportedBlocksRemoved(
   )
   return memoizedBlocks
 }
-
-const modifyBlocks = (blocks: BlockInstance[], supportedBlocks: string[]) => {
+*/
+export const modifyBlocks = (
+  blocks: BlockInstance[],
+  supportedBlocks: string[],
+): BlockInstance[] => {
   const modifiedBlocks = blocks.map((block) => {
     if (supportedBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined) {
       return {

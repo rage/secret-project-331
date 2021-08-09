@@ -17,11 +17,13 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
       type: "string",
       source: "html",
       selector: "h2",
+      default: "Hero section title...",
     },
     subTitle: {
       type: "string",
       source: "html",
       selector: "h3",
+      default: "Hero section subtitle...",
     },
   },
   edit: HeroSectionEditor,

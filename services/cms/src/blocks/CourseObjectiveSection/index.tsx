@@ -16,6 +16,7 @@ const CourseObjectiveSectionConfiguration: BlockConfiguration<CourseObjectiveSec
       type: "string",
       source: "html",
       selector: "h2",
+      default: "In this course you'll...",
     },
   },
   edit: CourseObjectiveSectionEditor,

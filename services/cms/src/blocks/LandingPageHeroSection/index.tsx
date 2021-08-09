@@ -17,6 +17,7 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSec
       type: "string",
       source: "html",
       selector: "h1",
+      default: "Welcome message for course...",
     },
   },
   edit: LandingPageHeroSectionEditor,

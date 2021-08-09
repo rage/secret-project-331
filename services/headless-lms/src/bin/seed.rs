@@ -730,8 +730,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page.id,
         &[
-            GutenbergBlock::empty_block_from_name("moocfi/landing-page-hero-section".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/course-objective-section".to_string()),
+            GutenbergBlock::landing_page_hero_section(),
+            GutenbergBlock::chapter_objective_section(),
             GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
         ],
@@ -755,7 +755,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page_ch_1.id,
         &[
-            GutenbergBlock::empty_block_from_name("moocfi/hero-section".to_string()),
+            GutenbergBlock::hero_section(),
             GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
@@ -845,7 +845,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page_ch_2.id,
         &[
-            GutenbergBlock::empty_block_from_name("moocfi/hero-section".to_string()),
+            GutenbergBlock::hero_section(),
             GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),

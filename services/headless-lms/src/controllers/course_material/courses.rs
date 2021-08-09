@@ -231,7 +231,7 @@ POST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search
 Content-Type: application/json
 
 {
-  "query": "Everything",
+  "query": "Everything"
 }
 ```
 
@@ -239,20 +239,34 @@ Response:
 
 ```json
 [
-    {
-        "id": "86ac4f0a-ccca-464e-89f4-ed58969b1103",
-        "created_at": "2021-03-05T22:50:47.920120",
-        "updated_at": "2021-03-05T22:50:47.920120",
-        "course_id": "a90c39f8-5d23-461f-8375-0b05a55d7ac1",
-        "content": [
-            {
-                "id": "55be197d-4145-444a-bc1f-ee1091c47ad9"
-            }
-        ],
-        "url_path": "/part-1/01-loops-and-variables",
-        "title": "Loops and Variables",
-        "deleted_at": null
-    }
+  {
+    "id": "c89bd5b3-5f2b-4326-834a-db9f20bdaf1b",
+    "title": "Introduction to everything",
+    "rank": 0.6079271,
+    "ts_headline": null,
+    "url_path": "/"
+  },
+  {
+    "id": "1d744426-27da-4821-80ab-7fd1fcd727f8",
+    "title": "Welcome to Introduction to Everything",
+    "rank": 0.6079271,
+    "ts_headline": null,
+    "url_path": "/"
+  },
+  {
+    "id": "1c75eabe-8e19-456d-b107-f8e87b395c76",
+    "title": "Chapter One",
+    "rank": 0.24317084,
+    "ts_headline": "<b>Everything</b> is a big topic",
+    "url_path": "/chapter-1"
+  },
+  {
+    "id": "c2060330-cea0-46ad-94f9-9be9858adab5",
+    "title": "In the second chapter...",
+    "rank": 0.24317084,
+    "ts_headline": "<b>Everything</b> is a big topic.",
+    "url_path": "/chapter-2"
+  }
 ]
 ```
 */
@@ -290,5 +304,6 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_id}/current-instance",
         web::get().to(get_current_course_instance),
-    );
+    )
+    .route("/{course_id}/search", web::post().to(search_pages));
 }

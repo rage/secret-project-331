@@ -213,6 +213,8 @@
 <span id="211">211</span>
 <span id="212">212</span>
 <span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">course_instances::CourseInstance</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -357,6 +359,8 @@ RETURNING id
 
     <span class="comment">// Create front page for course</span>
     <span class="kw">let</span> <span class="ident">course_front_page_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="macro">vec!</span>[
+        <span class="ident">GutenbergBlock::landing_page_hero_section</span>(),
+        <span class="ident">GutenbergBlock::chapter_objective_section</span>(),
         <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-progress&quot;</span>.<span class="ident">to_string</span>()),
     ])<span class="question-mark">?</span>;

@@ -899,104 +899,6 @@
 <span id="897">897</span>
 <span id="898">898</span>
 <span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
-<span id="909">909</span>
-<span id="910">910</span>
-<span id="911">911</span>
-<span id="912">912</span>
-<span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
-<span id="921">921</span>
-<span id="922">922</span>
-<span id="923">923</span>
-<span id="924">924</span>
-<span id="925">925</span>
-<span id="926">926</span>
-<span id="927">927</span>
-<span id="928">928</span>
-<span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
-<span id="933">933</span>
-<span id="934">934</span>
-<span id="935">935</span>
-<span id="936">936</span>
-<span id="937">937</span>
-<span id="938">938</span>
-<span id="939">939</span>
-<span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
-<span id="944">944</span>
-<span id="945">945</span>
-<span id="946">946</span>
-<span id="947">947</span>
-<span id="948">948</span>
-<span id="949">949</span>
-<span id="950">950</span>
-<span id="951">951</span>
-<span id="952">952</span>
-<span id="953">953</span>
-<span id="954">954</span>
-<span id="955">955</span>
-<span id="956">956</span>
-<span id="957">957</span>
-<span id="958">958</span>
-<span id="959">959</span>
-<span id="960">960</span>
-<span id="961">961</span>
-<span id="962">962</span>
-<span id="963">963</span>
-<span id="964">964</span>
-<span id="965">965</span>
-<span id="966">966</span>
-<span id="967">967</span>
-<span id="968">968</span>
-<span id="969">969</span>
-<span id="970">970</span>
-<span id="971">971</span>
-<span id="972">972</span>
-<span id="973">973</span>
-<span id="974">974</span>
-<span id="975">975</span>
-<span id="976">976</span>
-<span id="977">977</span>
-<span id="978">978</span>
-<span id="979">979</span>
-<span id="980">980</span>
-<span id="981">981</span>
-<span id="982">982</span>
-<span id="983">983</span>
-<span id="984">984</span>
-<span id="985">985</span>
-<span id="986">986</span>
-<span id="987">987</span>
-<span id="988">988</span>
-<span id="989">989</span>
-<span id="990">990</span>
-<span id="991">991</span>
-<span id="992">992</span>
-<span id="993">993</span>
-<span id="994">994</span>
-<span id="995">995</span>
-<span id="996">996</span>
-<span id="997">997</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
@@ -1730,90 +1632,10 @@
         <span class="ident">conn</span>,
         <span class="ident">front_page</span>.<span class="ident">id</span>,
         <span class="kw-2">&amp;</span>[
-            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/heading&quot;</span>, <span class="macro">serde_json::json!</span>({
-                <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Course Material Main Front Page&quot;</span>,
-                <span class="string">&quot;level&quot;</span>: <span class="number">1</span>
-            })),
-            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/paragraph&quot;</span>, <span class="macro">serde_json::json!</span>({
-                <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;The Introduction to Course Material is a free online course created by the University of Helsinki. The course is for anyone who is interested in design systems – we want to encourage people to learn some frontend development, what can and can’t be done in a sustainable way, and how to start thinking about design from an user point of view.&quot;</span>,
-                <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-            })),
-            <span class="ident">GutenbergBlock</span> {
-                <span class="ident">name</span>: <span class="string">&quot;core/columns&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-                <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({
-                    <span class="string">&quot;isStackedOnMobile&quot;</span>: <span class="bool-val">true</span>
-                }),
-                <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[
-                    <span class="ident">GutenbergBlock</span> {
-                        <span class="ident">name</span>: <span class="string">&quot;core/column&quot;</span>.<span class="ident">to_string</span>(),
-                        <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-                        <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                        <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({
-                            <span class="string">&quot;width&quot;</span>: <span class="string">&quot;100%&quot;</span>,
-                            <span class="string">&quot;backgroundColor&quot;</span>: <span class="string">&quot;cyan-bluish-gray&quot;</span>
-                        }),
-                        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[
-                            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/heading&quot;</span>, <span class="macro">serde_json::json!</span>({
-                                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;In this course you&#39;ll...&quot;</span>,
-                                <span class="string">&quot;level&quot;</span>: <span class="number">2</span>,
-                                <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>
-                            })),
-                            <span class="ident">GutenbergBlock</span> {
-                                <span class="ident">name</span>: <span class="string">&quot;core/columns&quot;</span>.<span class="ident">to_string</span>(),
-                                <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-                                <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                                <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({
-                                    <span class="string">&quot;isStackedOnMobile&quot;</span>: <span class="bool-val">true</span>
-                                }),
-                                <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[
-                                    <span class="ident">GutenbergBlock</span> {
-                                        <span class="ident">name</span>: <span class="string">&quot;core/column&quot;</span>.<span class="ident">to_string</span>(),
-                                        <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-                                        <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                                        <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({}),
-                                        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[
-                                            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/paragraph&quot;</span>, <span class="macro">serde_json::json!</span>({
-                                                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Discover why user interface matters.&quot;</span>,
-                                                <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                                              }))
-                                        ]
-                                    },
-                                    <span class="ident">GutenbergBlock</span> {
-                                        <span class="ident">name</span>: <span class="string">&quot;core/column&quot;</span>.<span class="ident">to_string</span>(),
-                                        <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-                                        <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                                        <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({}),
-                                        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[
-                                            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/paragraph&quot;</span>, <span class="macro">serde_json::json!</span>({
-                                                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Become familiar with keywords, such as UX / UI.&quot;</span>,
-                                                <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                                              }))
-                                        ]
-                                    },
-                                    <span class="ident">GutenbergBlock</span> {
-                                        <span class="ident">name</span>: <span class="string">&quot;core/column&quot;</span>.<span class="ident">to_string</span>(),
-                                        <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-                                        <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(),
-                                        <span class="ident">attributes</span>: <span class="macro">serde_json::json!</span>({}),
-                                        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[
-                                            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/paragraph&quot;</span>, <span class="macro">serde_json::json!</span>({
-                                                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Learn how to think out of the box.&quot;</span>,
-                                                <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                                              }))
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-            },
+            <span class="ident">GutenbergBlock::landing_page_hero_section</span>(),
+            <span class="ident">GutenbergBlock::chapter_objective_section</span>(),
             <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-progress&quot;</span>.<span class="ident">to_string</span>())
+            <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-progress&quot;</span>.<span class="ident">to_string</span>()),
         ],
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1835,19 +1657,10 @@
         <span class="ident">conn</span>,
         <span class="ident">front_page_ch_1</span>.<span class="ident">id</span>,
         <span class="kw-2">&amp;</span>[
-            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/heading&quot;</span>, <span class="macro">serde_json::json!</span>({
-                <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;User Interface&quot;</span>,
-                <span class="string">&quot;level&quot;</span>: <span class="number">2</span>
-              })),
-            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/paragraph&quot;</span>, <span class="macro">serde_json::json!</span>({
-                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.&quot;</span>,
-                <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>
-              })),
+            <span class="ident">GutenbergBlock::hero_section</span>(),
             <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
             <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
         ],
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1934,19 +1747,10 @@
         <span class="ident">conn</span>,
         <span class="ident">front_page_ch_2</span>.<span class="ident">id</span>,
         <span class="kw-2">&amp;</span>[
-            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/heading&quot;</span>, <span class="macro">serde_json::json!</span>({
-                <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;User Experience&quot;</span>,
-                <span class="string">&quot;level&quot;</span>: <span class="number">2</span>
-              })),
-            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(<span class="string">&quot;core/paragraph&quot;</span>, <span class="macro">serde_json::json!</span>({
-                <span class="string">&quot;content&quot;</span>: <span class="string">&quot;The user experience is how a user interacts with and experiences a product, system or service. It includes a person&#39;s perceptions of utility, ease of use, and efficiency.&quot;</span>,
-                <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>
-              })),
+            <span class="ident">GutenbergBlock::hero_section</span>(),
             <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
             <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
         ],
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

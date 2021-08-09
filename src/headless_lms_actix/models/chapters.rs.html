@@ -341,6 +341,7 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
+<span id="342">342</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">pages::Page</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">models::pages::NewPage</span>, <span class="ident">utils::document_schema_processor::GutenbergBlock</span>};
@@ -647,9 +648,10 @@ RETURNING *;
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">chapter_frontpage_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="macro">vec!</span>[
+        <span class="ident">GutenbergBlock::hero_section</span>(),
         <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
     ])<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">chapter_frontpage</span> <span class="op">=</span> <span class="ident">NewPage</span> {
         <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">id</span>),

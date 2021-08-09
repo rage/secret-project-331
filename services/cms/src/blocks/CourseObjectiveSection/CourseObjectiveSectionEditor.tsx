@@ -1,12 +1,14 @@
-import { InnerBlocks } from "@wordpress/block-editor"
+import { EditAttributes } from "@material-ui/icons"
+import { InnerBlocks, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
 
+import { CourseObjectiveSectionAttributes } from "."
+
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/buttons", "core/button", "core/paragraph"]
 const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
-  ["core/heading", { content: "In this course you'll...", level: 2, textAlign: "center" }],
   [
     "core/columns",
     { isStackedOnMobile: true },
@@ -39,12 +41,22 @@ const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
   ],
 ]
 
-const CourseObjectiveSectionEditor: React.FC<BlockEditProps<Record<string, never>>> = ({
+const CourseObjectiveSectionEditor: React.FC<BlockEditProps<CourseObjectiveSectionAttributes>> = ({
   clientId,
+  attributes,
+  setAttributes,
 }) => {
+  const { title } = attributes
   return (
     <BlockWrapper id={clientId}>
       <div className={"course-objective-wrapper"}>
+        <RichText
+          className="has-text-align-center wp-block-heading"
+          tagName="h2"
+          value={title}
+          onChange={(value: string) => setAttributes({ title: value })}
+          placeholder={"In this course you'll..."}
+        />
         <InnerBlocks
           template={COURSE_OBJECTIVE_SECTION_TEMPLATE}
           allowedBlocks={ALLOWED_NESTED_BLOCKS}

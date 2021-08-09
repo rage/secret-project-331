@@ -1,14 +1,13 @@
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Fade, FormControlLabel, MenuItem, Switch, TextField } from "@material-ui/core"
+import { FormControlLabel, MenuItem, Switch, TextField } from "@material-ui/core"
 import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import DateTimePicker from "@material-ui/lab/DateTimePicker"
 import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
-import React, { useEffect } from "react"
+import React from "react"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
-import { checkForChanges } from "../../store/editor/editorActions"
 import {
   editedQuizTitle,
   editedQuizTriesLimited,
@@ -30,28 +29,6 @@ const SubsectionTitleWrapper = styled.div`
   align-items: center;
   margin-bottom: 1.5rem;
   justify-content: center;
-`
-
-const WarningWrapper = styled.div`
-  display: flex;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  width: 100%;
-  height: 35px;
-  justify-content: center;
-`
-
-const WarningBox = styled.div`
-  display: flex;
-  border-style: solid;
-  border-width: 3px;
-  border-color: #f44336;
-  width: 50%;
-  justify-content: center;
-  align-items: baseline !important;
-  @media only screen and (max-width: 600px) {
-    width: 100%;
-  }
 `
 
 const NumberOfTriesContainer = styled.div`
@@ -137,15 +114,7 @@ const BasicInformation: React.FC = () => {
 
   const variables = useTypedSelector((state) => state.editor.quizVariables[quizId])
 
-  const store = useTypedSelector((state) => state)
-
-  const changes = useTypedSelector((state) => state.editor.editorChanges.changes)
-
   const autoConfirm = useTypedSelector((state) => state.editor.quizzes[quizId].autoConfirm)
-
-  useEffect(() => {
-    dispatch(checkForChanges(store))
-  }, [store, dispatch])
 
   return (
     <>
@@ -153,14 +122,6 @@ const BasicInformation: React.FC = () => {
         <TitleIcon icon={faInfoCircle} />
         <h2>Quiz Information</h2>
       </SubsectionTitleWrapper>
-
-      <WarningWrapper>
-        <Fade in={changes} timeout={500}>
-          <WarningBox>
-            <h4>You have unsaved changes</h4>
-          </WarningBox>
-        </Fade>
-      </WarningWrapper>
 
       <InfoContainer>
         <MarkdownEditor
@@ -175,7 +136,8 @@ const BasicInformation: React.FC = () => {
           type="number"
           label="Part"
           variant="outlined"
-          value={part ?? ""}
+          value={part}
+          InputLabelProps={{ shrink: true }}
           onChange={(event) => dispatch(editedQuizzesPart(quizId, Number(event.target.value)))}
         />
         <SectionField
@@ -183,7 +145,8 @@ const BasicInformation: React.FC = () => {
           type="number"
           label="Section"
           variant="outlined"
-          value={section ?? ""}
+          value={section}
+          InputLabelProps={{ shrink: true }}
           onChange={(event) => dispatch(editedQuizzesSection(quizId, Number(event.target.value)))}
         />
       </InfoContainer>
@@ -210,10 +173,10 @@ const BasicInformation: React.FC = () => {
           {triesAreLimited && (
             <TextField
               type="number"
-              InputProps={{ inputProps: { min: 1, max: null } }}
+              InputLabelProps={{ shrink: true }}
               label="Number of tries allowed"
               variant="outlined"
-              value={numberOfTries ?? ""}
+              value={numberOfTries}
               fullWidth
               onChange={(event) =>
                 dispatch(editedQuizzesNumberOfTries(Number(event.target.value), quizId))
@@ -228,7 +191,8 @@ const BasicInformation: React.FC = () => {
           type="number"
           fullWidth
           variant="outlined"
-          value={pointsToGain ?? ""}
+          value={pointsToGain}
+          InputLabelProps={{ shrink: true }}
           onChange={(event) =>
             dispatch(editedQuizzesPointsToGain(Number(event.target.value), quizId))
           }
@@ -266,7 +230,7 @@ const BasicInformation: React.FC = () => {
       </InfoContainer>
       <InfoContainer>
         <MarkdownEditor
-          text={body ?? ""}
+          text={body}
           label="Quiz description"
           onChange={(event) => dispatch(editedQuizzesBody(quizId, event.target.value))}
         />

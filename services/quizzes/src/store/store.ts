@@ -11,7 +11,6 @@ import {
   QuizVariables,
 } from "../types/types"
 
-import editorChangesReducer from "./editor/editorReducer"
 import { itemVariableReducers } from "./editor/itemVariables/itemVariableReducers"
 import { itemReducer } from "./editor/items/itemReducer"
 import { optionVariableReducers } from "./editor/optionVariables/optionVariableReducers"
@@ -28,7 +27,6 @@ const editorReducer = combineReducers({
   itemVariables: itemVariableReducers,
   optionVariables: optionVariableReducers,
   quizVariables: quizVariableReducers,
-  editorChanges: editorChangesReducer,
 })
 
 const reducer = combineReducers({
@@ -46,7 +44,6 @@ export interface storeState {
     itemVariables: { [itemId: string]: ItemVariables }
     optionVariables: { [optionId: string]: OptionVariables }
     quizVariables: { [quizId: string]: QuizVariables }
-    editorChanges: { changes: boolean }
   }
 }
 

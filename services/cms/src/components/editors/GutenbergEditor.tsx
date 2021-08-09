@@ -42,12 +42,6 @@ import mediaUploadBuilder, { MediaUploadProps } from "../../services/backend/med
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 
-export const giveSpaceToSidebarStyles = css`
-  /* Give space for sidebar so that it won't accidentally overlap the main editor */
-  /* Same as sidebar width */
-  margin-right: 280px;
-`
-
 interface GutenbergEditorProps {
   content: BlockInstance[]
   onContentChange: React.Dispatch<BlockInstance[]>
@@ -127,38 +121,6 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     <div
       className={css`
         padding-top: 1rem;
-
-        img {
-          max-width: 100%;
-          height: auto;
-        }
-
-        iframe {
-          width: 100%;
-        }
-
-        .wp-block,
-        .block-list-appender {
-          ${normalWidthCenteredComponentStyles}
-          margin-bottom: 2rem;
-        }
-
-        .block-editor-inner-blocks {
-          .wp-block {
-            /* max-width: unset; */
-          }
-        }
-
-        .wp-block[data-type="moocfi/exercise"],
-        .wp-block[data-type="moocfi/exercise-task"] {
-          /* Exercises are full width */
-          max-width: unset;
-        }
-
-        /* Give space for sidebar so that it won't accidentally overlap the main editor */
-        .editor__content {
-          ${giveSpaceToSidebarStyles}
-        }
       `}
     >
       <SlotFillProvider>

@@ -730,90 +730,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page.id,
         &[
-            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
-                "textAlign": "center",
-                "content": "Course Material Main Front Page",
-                "level": 1
-            })),
-            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
-                "align": "center",
-                "content": "The Introduction to Course Material is a free online course created by the University of Helsinki. The course is for anyone who is interested in design systems – we want to encourage people to learn some frontend development, what can and can’t be done in a sustainable way, and how to start thinking about design from an user point of view.",
-                "dropCap": false
-            })),
-            GutenbergBlock {
-                name: "core/columns".to_string(),
-                is_valid: true,
-                client_id: Uuid::new_v4().to_string(),
-                attributes: serde_json::json!({
-                    "isStackedOnMobile": true
-                }),
-                inner_blocks: vec![
-                    GutenbergBlock {
-                        name: "core/column".to_string(),
-                        is_valid: true,
-                        client_id: Uuid::new_v4().to_string(),
-                        attributes: serde_json::json!({
-                            "width": "100%",
-                            "backgroundColor": "cyan-bluish-gray"
-                        }),
-                        inner_blocks: vec![
-                            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
-                                "content": "In this course you'll...",
-                                "level": 2,
-                                "textAlign": "center"
-                            })),
-                            GutenbergBlock {
-                                name: "core/columns".to_string(),
-                                is_valid: true,
-                                client_id: Uuid::new_v4().to_string(),
-                                attributes: serde_json::json!({
-                                    "isStackedOnMobile": true
-                                }),
-                                inner_blocks: vec![
-                                    GutenbergBlock {
-                                        name: "core/column".to_string(),
-                                        is_valid: true,
-                                        client_id: Uuid::new_v4().to_string(),
-                                        attributes: serde_json::json!({}),
-                                        inner_blocks: vec![
-                                            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
-                                                "content": "Discover why user interface matters.",
-                                                "dropCap": false
-                                              }))
-                                        ]
-                                    },
-                                    GutenbergBlock {
-                                        name: "core/column".to_string(),
-                                        is_valid: true,
-                                        client_id: Uuid::new_v4().to_string(),
-                                        attributes: serde_json::json!({}),
-                                        inner_blocks: vec![
-                                            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
-                                                "content": "Become familiar with keywords, such as UX / UI.",
-                                                "dropCap": false
-                                              }))
-                                        ]
-                                    },
-                                    GutenbergBlock {
-                                        name: "core/column".to_string(),
-                                        is_valid: true,
-                                        client_id: Uuid::new_v4().to_string(),
-                                        attributes: serde_json::json!({}),
-                                        inner_blocks: vec![
-                                            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
-                                                "content": "Learn how to think out of the box.",
-                                                "dropCap": false
-                                              }))
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-            },
+            GutenbergBlock::landing_page_hero_section(),
+            GutenbergBlock::chapter_objective_section(),
             GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string())
+            GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
         ],
     )
     .await?;
@@ -835,19 +755,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page_ch_1.id,
         &[
-            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
-                "textAlign": "center",
-                "content": "User Interface",
-                "level": 2
-              })),
-            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
-                "content": "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.",
-                "dropCap": false,
-                "align": "center"
-              })),
+            GutenbergBlock::hero_section(),
             GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
         ],
     )
     .await?;
@@ -934,19 +845,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page_ch_2.id,
         &[
-            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
-                "textAlign": "center",
-                "content": "User Experience",
-                "level": 2
-              })),
-            GutenbergBlock::block_with_name_and_attributes("core/paragraph", serde_json::json!({
-                "content": "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency.",
-                "dropCap": false,
-                "align": "center"
-              })),
+            GutenbergBlock::hero_section(),
             GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
+            GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
         ],
     )
     .await?;

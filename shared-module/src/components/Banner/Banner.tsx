@@ -1,5 +1,8 @@
 import styled from "@emotion/styled"
+import Image from "next/image"
 import React from "react"
+
+import next from "../../img/next.png"
 
 import ReadOnlyBanner from "./ReadOnlyBanner"
 
@@ -86,7 +89,7 @@ const Quote: React.FC<BannerProps> = ({ content, variant }, props) => {
               <a>
                 <div>Click link</div>
                 <span>
-                  <img src={"../../img/next.png"} alt="next icon" width="12px" />
+                  <Image src={next} alt="next icon" width="12px" />
                 </span>
               </a>
             )}

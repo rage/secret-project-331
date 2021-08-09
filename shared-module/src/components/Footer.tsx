@@ -1,5 +1,9 @@
 import styled from "@emotion/styled"
+import Image from "next/image"
 import React, { Fragment } from "react"
+
+import UHLogo from "../img/UHLogo.png"
+import MOOCfi from "../img/moocfi.png"
 
 import Banner from "./Banner/Banner"
 
@@ -75,8 +79,8 @@ const Footer: React.FC<FooterProps> = () => {
       />
       <Wrapper>
         <div>
-          <img src={"../img/moocfi.png"} width="50px" alt="MOOC.fi" />
-          <img src={"../img/UHLogo.png"} width="50px" alt="University of Helsinki" />
+          <Image src={MOOCfi} width="50px" alt="MOOC.fi" />
+          <Image src={UHLogo} width="50px" alt="University of Helsinki" />
         </div>
         <Text>
           <h3>WHO WE ARE</h3>

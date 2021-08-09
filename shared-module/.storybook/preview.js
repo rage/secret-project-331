@@ -2,6 +2,7 @@
 import { ThemeProvider } from '@emotion/react';
 import { MINIMAL_VIEWPORTS} from '@storybook/addon-viewport';
 import GlobalStyles from "../src/styles/GlobalStyles"
+import * as nextImage from 'next/image';
 
 const customViewports = {
   Laptop: {
@@ -26,6 +27,11 @@ const customViewports = {
     },
   },
 };
+
+Object.defineProperty(nextImage, 'default', {
+  configurable: true,
+  value: props => <img {...props} />
+});
 
 // Global decorator to apply the styles to all stories
 export const decorators = [

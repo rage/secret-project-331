@@ -13,8 +13,6 @@ import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/c
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
-import { giveSpaceToSidebarStyles } from "./GutenbergEditor"
-
 interface PageEditorProps {
   data: Page
   handleSave: (page: PageUpdate) => Promise<Page>
@@ -49,7 +47,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
 
   return (
     <>
-      <div className={giveSpaceToSidebarStyles}>
+      <div className="editor__component">
         <div className={normalWidthCenteredComponentStyles}>
           <LoadingButton
             loadingPosition="start"
@@ -80,11 +78,10 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
           allowedBlockVariations={allowedBlockVariants}
         />
       )}
-      <div className={giveSpaceToSidebarStyles}>
+      <div className="editor__component">
         <div
           className={css`
             ${normalWidthCenteredComponentStyles}
-
             margin-top: 1rem;
             margin-bottom: 1rem;
           `}

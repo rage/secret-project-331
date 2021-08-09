@@ -1,6 +1,4 @@
 .editor-styles-wrapper {
-  font-family: $default-font;
-  font-size: $editor-font-size;
   line-height: $editor-line-height;
   color: $gray-900;
 
@@ -34,11 +32,22 @@
     list-style-type: circle;
   }
 
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  iframe {
+    width: 100%;
+  }
+
   // These are default editor styles
-  .wp-block {
-    // TODO: the default padding/margin of the block editor content are not set properly
+  .wp-block,
+  .block-list-appender {
+    max-width: 780px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 2rem;
   }
 
   .wp-block[data-align="wide"],
@@ -49,6 +58,12 @@
   .wp-block[data-align="full"],
   .wp-block.alignfull {
     max-width: none;
+  }
+
+  .wp-block[data-type="moocfi/exercise"],
+  .wp-block[data-type="moocfi/exercise-task"] {
+    /* Exercises are full width */
+    max-width: unset;
   }
 }
 

@@ -11,6 +11,7 @@ import HeroSection from "./HeroSection"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
 import PagesInChapter from "./PagesInChapter"
+import UnsupportedBlock from "./UnsupportedBlock"
 
 /**
  * List of custom blocks to be passed on to Gutenberg.
@@ -24,6 +25,7 @@ export const blockTypeMapForPages: Array<[string, BlockConfiguration<any>]> = [
   ["moocfi/exercises-in-chapter", ExerciseInChapter],
   ["moocfi/course-progress", CourseProgress],
   ["moocfi/chapter-progress", ChapterProgress],
+  ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/latex", Latex],
   ["moocfi/hero-section", HeroSection],
 ]
@@ -32,6 +34,7 @@ export const blockTypeMapForPages: Array<[string, BlockConfiguration<any>]> = [
 export const blockTypeMapForTopLevelPages: Array<[string, BlockConfiguration<any>]> = [
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/course-progress", CourseProgress],
+  ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/latex", Latex],
   ["moocfi/landing-page-hero-section", LandingPageHeroSection],
   ["moocfi/course-objective-section", CourseObjectiveSection],

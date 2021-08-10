@@ -7,6 +7,8 @@ import React, { useState } from "react"
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
+import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
 interface EmailEditorProps {
@@ -22,7 +24,9 @@ const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 })
 
 const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
-  const [content, setContent] = useState<BlockInstance[]>(data.content as BlockInstance[])
+  const [content, setContent] = useState<BlockInstance[]>(
+    modifyBlocks(data.content as BlockInstance[], allowedEmailCoreBlocks) as BlockInstance[],
+  )
   const [name, setName] = useState(data.name)
   const [subject, setSubject] = useState(data.subject ?? "")
   const [saving, setSaving] = useState(false)
@@ -32,7 +36,7 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
     const res = await handleSave({
       subject,
       name,
-      content,
+      content: removeUnsupportedBlockType(content),
       exercise_completions_threshold: null,
       points_threshold: null,
     })

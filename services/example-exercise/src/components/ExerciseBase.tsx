@@ -40,8 +40,6 @@ const ExerciseBase: React.FC<Props> = ({
             className={
               interactable
                 ? css`
-                    width: 97%;
-                    display: inline;
                     float: right;
                     padding: 1rem 2rem;
                     background-color: ${selected ? "#4210f5" : "#6188ff"};
@@ -61,9 +59,7 @@ const ExerciseBase: React.FC<Props> = ({
                     }
                   `
                 : css`
-                    display: inline;
                     padding: 1rem 2rem;
-                    width: 97%;
                     background-color: ${selected ? "#4210f5" : "#6188ff"};
                     border-radius: 1rem;
                     border: ${!hasSolutions ? `0` : `4px solid ${correct ? green : red}`};

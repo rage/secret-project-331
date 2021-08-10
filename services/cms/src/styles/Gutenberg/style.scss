@@ -5,14 +5,36 @@
 @import "~@wordpress/base-styles/animations";
 @import "~@wordpress/base-styles/z-index";
 
-@import "./reset";
 @import "./editor-styles";
 
+// The Gutenberg components styling
 .editor__content {
   // Reference element for the block popover position.
   position: relative;
+
+  // Disable the margin-right if min-width more than 600px for responsiveness
+  margin-right: 0px;
+  /* stylelint-disable-next-line */
+  @include break-small() {
+    /* Give space for sidebar so that it won't accidentally overlap the main editor */
+    /* Same as sidebar width */
+    margin-right: $sidebar-width;
+  }
 }
 
+// Components that are on the same page as a Gutenberg Editor
+.editor__component {
+  // Disable the margin-right if min-width more than 600px for responsiveness
+  margin-right: 0px;
+  /* stylelint-disable-next-line */
+  @include break-small() {
+    /* Give space for sidebar so that it won't accidentally overlap the main editor */
+    /* Same as sidebar width */
+    margin-right: $sidebar-width;
+  }
+}
+
+// Gutenberg editor sidebar styling
 .editor__sidebar {
   position: fixed;
   top: 0;
@@ -25,25 +47,10 @@
   -webkit-overflow-scrolling: touch;
 
   // Temporarily disable the sidebar on mobile
+  // Do we want to support advanced content editing with a mobile phone?
   display: none;
   /* stylelint-disable-next-line */
   @include break-small() {
     display: block;
-  }
-}
-
-/**
- * Animations
- */
-
-// These keyframes should not be part of the _animations.scss mixins file.
-// Because keyframe animations can't be defined as mixins properly, they are duplicated.
-// Since hey are intended only for the editor, we add them here instead.
-@keyframes edit-post__fade-in-animation {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }

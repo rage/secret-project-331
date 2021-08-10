@@ -60,17 +60,14 @@ mod test {
     use super::*;
     use crate::{
         models::{self, email_templates::EmailTemplateNew},
-        test_helper::{self, Conn},
+        test_helper::{self, Conn, Data},
     };
 
     #[tokio::test]
     async fn email_templates_check() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let (_, _, _, ci, _, _) =
-            test_helper::insert_user_organization_course_instance_exercise_task(tx.as_mut(), "")
-                .await
-                .unwrap();
+        let Data { instance: ci, .. } = test_helper::insert_data(tx.as_mut(), "").await.unwrap();
 
         let err = models::email_templates::insert_email_template(
             tx.as_mut(),
@@ -93,7 +90,7 @@ mod test {
     async fn users_email_check() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let err = models::users::insert(
+        let err = models::users::insert_with_id(
             tx.as_mut(),
             "invalid email",
             Uuid::parse_str("92c2d6d6-e1b8-4064-8c60-3ae52266c62c").unwrap(),

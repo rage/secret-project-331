@@ -68,6 +68,10 @@ test("latex-block renders", async ({ headless, page }) => {
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
   await page.click("text=Remove blockShift+Alt+Z")
+  // Click [aria-label="Options"]
+  await page.click('[aria-label="Options"]')
+  // Click text=Remove blockShift+Alt+Z
+  await page.click("text=Remove blockShift+Alt+Z")
   // - CREATE LATEX BLOCK
   // Click text=No block selected.Pages In Chapter Grid PlaceholderThis block is placed on each  >> button
   await page.click('[aria-label="Add block"]')

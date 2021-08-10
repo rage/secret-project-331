@@ -9,8 +9,6 @@ import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
-import { giveSpaceToSidebarStyles } from "./GutenbergEditor"
-
 interface EmailEditorProps {
   data: EmailTemplate
   handleSave: (updatedTemplate: EmailTemplateUpdate) => Promise<EmailTemplate>
@@ -46,7 +44,7 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
 
   return (
     <>
-      <div className={giveSpaceToSidebarStyles}>
+      <div className="editor__component">
         <div className={normalWidthCenteredComponentStyles}>
           <LoadingButton
             loadingPosition="start"

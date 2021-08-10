@@ -30,7 +30,7 @@ test("test", async ({ page }) => {
   await page.click("text=Create course")
 
   // Click :nth-match(:text("Manage"), 3)
-  await Promise.all([page.waitForNavigation(), page.click(':nth-match(:text("Manage"), 3)')])
+  await Promise.all([page.waitForNavigation(), page.click(':nth-match(:text("Manage"), 4)')])
   expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
   // Click text=Manage pages

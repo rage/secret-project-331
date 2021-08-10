@@ -22,9 +22,7 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
     <>
       <div
         className={css`
-          position: absolute;
-          top: 10px;
-          right: 10px;
+          text-align: right;
         `}
       >
         <DebugModal

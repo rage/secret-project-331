@@ -1,7 +1,7 @@
 import React, { useContext } from "react"
 
 import CoursePageContext from "../../../contexts/CoursePageContext"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../GenericLoading"
 
@@ -15,7 +15,7 @@ const CourseChapterGrid: React.FC = () => {
   }
 
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div className={wideWidthCenteredComponentStyles}>
       <ChapterGrid courseId={pageContext.pageData.course_id} />
     </div>
   )

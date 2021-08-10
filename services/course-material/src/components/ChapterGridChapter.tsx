@@ -4,7 +4,7 @@ import { useQuery } from "react-query"
 
 import { fetchPageUrl } from "../services/backend"
 import { ChapterWithStatus } from "../shared-module/bindings"
-import { chapterBox } from "../shared-module/styles/componentStyles"
+import Card from "../shared-module/components/Card"
 
 import GenericLoading from "./GenericLoading"
 
@@ -33,13 +33,13 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
 
   if (chapter.status == "open") {
     return (
-      <div key={chapter.id} className={chapterBox}>
+      <Card variant="simple" title={chapter.name} chapter={chapter.chapter_number} key={chapter.id}>
         <Link href={`/${courseSlug}${data}`}>
           <a>
             Chapter {chapter.chapter_number}: {chapter.name}
           </a>
         </Link>
-      </div>
+      </Card>
     )
   } else {
     let closedUntil
@@ -68,10 +68,10 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
       closedUntil = "Closed"
     }
     return (
-      <div key={chapter.id} className={chapterBox}>
+      <Card variant="simple" title={chapter.name} chapter={chapter.chapter_number} key={chapter.id}>
         Chapter {chapter.chapter_number}: {chapter.name} <br />
         {closedUntil}
-      </div>
+      </Card>
     )
   }
 }

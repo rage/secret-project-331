@@ -3,8 +3,8 @@ import type { AppProps } from "next/app"
 import React from "react"
 import { QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
-import { RecoilRoot } from "recoil"
 
+import Layout from "../components/Layout"
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
@@ -21,8 +21,9 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RecoilRoot>
-        {/* <Devtools /> */}
+      {/* <RecoilRoot> */}
+      {/* <Devtools /> */}
+      <Layout>
         <ThemeProvider theme={muiTheme}>
           <GlobalStyles />
           <LoginStateContextProvider>
@@ -30,7 +31,8 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
           </LoginStateContextProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </ThemeProvider>
-      </RecoilRoot>
+      </Layout>
+      {/* </RecoilRoot> */}
     </QueryClientProvider>
   )
 }

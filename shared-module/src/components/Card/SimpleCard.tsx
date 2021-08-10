@@ -4,20 +4,28 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import CardSVG from "../../img/cardNext.svg"
+import { cardDefaultMargin, wideContainerWidth } from "../../styles/constants"
 import { theme } from "../../utils"
 
 const CourseGridWrapper = styled.a`
   background: rgba(247, 227, 83, 0.8);
   text-decoration: none;
   display: block;
-  max-width: 529px;
-  height: 484px;
+  max-width: ${wideContainerWidth / 2 - cardDefaultMargin * 2}px;
+  max-height: ${wideContainerWidth / 2 - cardDefaultMargin * 2}px;
+  height: ${wideContainerWidth / 2 - cardDefaultMargin * 2}px;
+  margin: ${cardDefaultMargin}px;
+  box-sizing: content-box;
   border-radius: 1px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   &:hover {
     /*     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); */
     border: none;
+  }
+  &::before,
+  &::after {
+    box-sizing: content-box;
   }
 `
 const styledSVG = css`
@@ -29,7 +37,6 @@ const styledSVG = css`
 const CardTextBox = styled.div`
   position: absolute;
   bottom: 0;
-  right: 0;
   display: flex;
   padding: 2rem 2.5rem;
   height: 50%;
@@ -45,6 +52,7 @@ const CardTextBox = styled.div`
     font-family: "Josefin Sans", sans-serif;
     font-size: 50px;
     font-weight: 400;
+    word-break: break-word;
     z-index: 20;
     margin-bottom: 0.6rem;
     margin-top: 1.5rem;
@@ -74,7 +82,7 @@ const CardTextBox = styled.div`
 export interface CardExtraProps {
   variant: "simple" | "graphics"
   title: string
-  chapter: string
+  chapter: number
   bg?: string
 }
 

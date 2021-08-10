@@ -32,6 +32,7 @@ const BaseButton = styled.button`
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2px solid;
+  z-index: 1;
 
   &:hover {
     text-decoration: none;

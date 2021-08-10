@@ -4,7 +4,7 @@ import { useQuery } from "react-query"
 
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { fetchChaptersInTheCourse } from "../../../services/backend"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import ChapterGridChapter from "../../ChapterGridChapter"
 import GenericLoading from "../../GenericLoading"
@@ -32,24 +32,43 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   }
 
   return (
-    <div
-      className={css`
-        ${normalWidthCenteredComponentStyles}
-      `}
-    >
-      <h3>Chapters in this course</h3>
-      {data
-        .sort((a, b) => a.chapter_number - b.chapter_number)
-        .map((chapter) => {
-          return (
-            <ChapterGridChapter
-              key={chapter.id}
-              now={now}
-              chapter={chapter}
-              courseSlug={courseSlug}
-            />
-          )
-        })}
+    <div className={wideWidthCenteredComponentStyles}>
+      <h2
+        className={css`
+          font-style: normal;
+          font-weight: bold;
+          font-size: 76px;
+          line-height: 76px;
+          text-align: center;
+        `}
+      >
+        Course Overview
+      </h2>
+      <div
+        className={css`
+          display: flex;
+          flex-wrap: wrap;
+        `}
+      >
+        {data
+          .sort((a, b) => a.chapter_number - b.chapter_number)
+          .map((chapter) => {
+            return (
+              <div
+                className={css`
+                  flex: 50%;
+                  @media screen and (max-width: 600px) {
+                    flex: 100%;
+                    width: 100%;
+                  }
+                `}
+                key={chapter.id}
+              >
+                <ChapterGridChapter now={now} chapter={chapter} courseSlug={courseSlug} />
+              </div>
+            )
+          })}
+      </div>
     </div>
   )
 }

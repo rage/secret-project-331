@@ -93,6 +93,7 @@ const ToolTip = css`
   cursor: default;
   box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
   animation: show 3s ease-in-out forwards;
+  z-index: 9001;
 
   &::after {
     bottom: 100%;

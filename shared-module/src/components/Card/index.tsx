@@ -11,7 +11,7 @@ import SimpleCard from "./SimpleCard"
 export interface CardExtraProps {
   variant: "simple" | "graphics"
   title: string
-  chapter: string
+  chapter: number
   bg?: string
 }
 

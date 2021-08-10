@@ -1,17 +1,5 @@
 import { BlockInstance } from "@wordpress/blocks"
-/*import { useMemo } from "react"
 
-export default function useBlocksWithUnsupportedBlocksRemoved(
-  blocks: BlockInstance[],
-  supportedBlocks: string[],
-): BlockInstance[] {
-  const memoizedBlocks = useMemo(
-    () => modifyBlocks(blocks, supportedBlocks),
-    [supportedBlocks, blocks],
-  )
-  return memoizedBlocks
-}
-*/
 export const modifyBlocks = (
   blocks: BlockInstance[],
   supportedBlocks: string[],

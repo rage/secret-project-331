@@ -16,6 +16,7 @@ const config: PlaywrightTestConfig = {
     trace: "retain-on-failure",
     baseURL: "http://project-331.local",
     launchOptions: {},
+    screenshot: "only-on-failure",
   },
 }
 

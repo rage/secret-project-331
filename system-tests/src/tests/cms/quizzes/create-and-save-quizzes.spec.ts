@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { format } from "date-fns"
 
 import expectPath from "../../../utils/expect"
 import waitForFunction from "../../../utils/waitForFunction"
@@ -142,8 +143,9 @@ test.describe("quizzes tests", () => {
     // Click text=grant_only_when_fully_complete
     await frame.click("text=grant_only_when_fully_complete")
 
-    // Click [aria-label="Choose date, selected date is Aug 9, 2021"]
-    await frame.click('[aria-label="Choose date, selected date is Aug 9, 2021"]')
+    // Click [aria-label="Choose date, selected date is <CURRENT_DATE>"]
+    const date = format(new Date(), "MMM dd, yyyy")
+    await frame.click(`[aria-label="Choose date, selected date is ${date}"]`)
 
     // Click text=10
     await frame.click("text=10")

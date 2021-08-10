@@ -32,6 +32,7 @@ const ExerciseBase: React.FC<Props> = ({
       {alternatives.map((option) => {
         const selected = selectedId === option.id
         const correct = model_solutions.includes(option.id)
+        const hasSolutions = model_solutions.length > 0
         const green = baseTheme.colors.green[100]
         const red = baseTheme.colors.red[100]
         return (
@@ -45,7 +46,7 @@ const ExerciseBase: React.FC<Props> = ({
                     padding: 1rem 2rem;
                     background-color: ${selected ? "#4210f5" : "#6188ff"};
                     border-radius: 1rem;
-                    border: 4px solid ${correct ? green : red};
+                    border: ${!hasSolutions ? `0` : `4px solid ${correct ? green : red}`};
                     color: white;
                     transition: all 0.3s;
                     cursor: pointer;
@@ -65,7 +66,7 @@ const ExerciseBase: React.FC<Props> = ({
                     width: 97%;
                     background-color: ${selected ? "#4210f5" : "#6188ff"};
                     border-radius: 1rem;
-                    border: 4px solid ${correct ? green : red};
+                    border: ${!hasSolutions ? `0` : `4px solid ${correct ? green : red}`};
                     color: white;
                     margin-top: 0.5rem;
                     margin-bottom: 0.5rem;

@@ -8,6 +8,7 @@ import { PublicAlternative } from "../util/stateInterfaces"
 interface SubmissionState {
   public_spec: PublicAlternative[]
   submission_data: string
+  model_solution_spec: Array<string>
 }
 
 const SubmissionPage: React.FC = () => {
@@ -67,6 +68,7 @@ const SubmissionPage: React.FC = () => {
     <HeightTrackingContainer port={port}>
       <ExerciseBase
         alternatives={state.public_spec}
+        model_solutions={state.model_solution_spec}
         selectedId={state.submission_data}
         maxWidth={maxWidth}
         onClick={(_) => {

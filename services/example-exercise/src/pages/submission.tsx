@@ -8,7 +8,7 @@ import { PublicAlternative } from "../util/stateInterfaces"
 interface SubmissionState {
   public_spec: PublicAlternative[]
   submission_data: string
-  model_solution_spec: Array<string>
+  model_solution_spec: string[]
 }
 
 const SubmissionPage: React.FC = () => {

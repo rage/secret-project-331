@@ -1,5 +1,4 @@
 import { differenceInSeconds, formatDuration } from "date-fns"
-import Link from "next/link"
 import { useQuery } from "react-query"
 
 import { fetchPageUrl } from "../services/backend"
@@ -33,13 +32,13 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
 
   if (chapter.status == "open") {
     return (
-      <Card variant="simple" title={chapter.name} chapter={chapter.chapter_number} key={chapter.id}>
-        <Link href={`/${courseSlug}${data}`}>
-          <a>
-            Chapter {chapter.chapter_number}: {chapter.name}
-          </a>
-        </Link>
-      </Card>
+      <Card
+        variant="simple"
+        title={chapter.name}
+        chapter={chapter.chapter_number}
+        key={chapter.id}
+        url={`/courses/${courseSlug}${data}`}
+      />
     )
   } else {
     let closedUntil
@@ -68,6 +67,7 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
       closedUntil = "Closed"
     }
     return (
+      // TODO: Card to support closedUntil
       <Card variant="simple" title={chapter.name} chapter={chapter.chapter_number} key={chapter.id}>
         Chapter {chapter.chapter_number}: {chapter.name} <br />
         {closedUntil}

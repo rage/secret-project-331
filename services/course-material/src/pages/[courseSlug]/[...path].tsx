@@ -70,6 +70,7 @@ const PagePage: React.FC = () => {
   }, [instanceQuery, pageDataQuery])
 
   if (pageDataQuery.state === "error") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((pageDataQuery.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} />
     }

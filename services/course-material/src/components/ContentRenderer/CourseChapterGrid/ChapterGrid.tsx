@@ -5,6 +5,7 @@ import { useQuery } from "react-query"
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { fetchChaptersInTheCourse } from "../../../services/backend"
 import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { cardMaxWidth } from "../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import ChapterGridChapter from "../../ChapterGridChapter"
 import GenericLoading from "../../GenericLoading"
@@ -40,14 +41,29 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           font-size: 76px;
           line-height: 76px;
           text-align: center;
+          padding-bottom: 1em;
         `}
       >
         Course Overview
       </h2>
       <div
         className={css`
-          display: flex;
-          flex-wrap: wrap;
+          @supports (display: grid) {
+            display: grid;
+            grid-gap: 100px;
+            align-content: space-around;
+            /* On small screens allow the cards to be really narrow */
+            grid-template-columns: 1fr;
+            grid-auto-rows: 1fr;
+            /*
+            Automatically place the cards on the grid so that they resize based on content,
+            are all the same height, and don't get narrower than 450px.
+            */
+            @media only screen and (min-width: 450px) {
+              grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+              grid-auto-rows: 1fr;
+            }
+          }
         `}
       >
         {data
@@ -56,10 +72,13 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
             return (
               <div
                 className={css`
-                  flex: 50%;
-                  @media screen and (max-width: 600px) {
-                    flex: 100%;
-                    width: 100%;
+                  width: 100%;
+                  max-width: ${cardMaxWidth}em;
+                  /* Basic styles for browsers without css grid support */
+                  margin: 0 auto;
+                  margin-bottom: 1rem;
+                  @supports (display: grid) {
+                    margin-bottom: 0;
                   }
                 `}
                 key={chapter.id}

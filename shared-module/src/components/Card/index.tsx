@@ -12,6 +12,7 @@ export interface CardExtraProps {
   variant: "simple" | "graphics"
   title: string
   chapter: number
+  url?: string
   bg?: string
 }
 

@@ -740,7 +740,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page.id,
         &[
-            GutenbergBlock::landing_page_hero_section(),
+            GutenbergBlock::landing_page_hero_section("Welcome to Introduction to Course Material", "In this course you'll learn the basics of UI/UX design. At the end of course you should be able to create your own design system."),
             GutenbergBlock::course_objective_section(),
             GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
@@ -765,7 +765,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page_ch_1.id,
         &[
-            GutenbergBlock::hero_section(),
+            GutenbergBlock::hero_section("User Interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur."),
             GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
@@ -779,6 +779,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         page_ch1_1,
         &[
+            GutenbergBlock::hero_section("Deign", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process."),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
@@ -817,6 +818,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         page_ch1_2,
         &[
+            GutenbergBlock::hero_section("Human-machine interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur."),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
@@ -855,7 +857,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page_ch_2.id,
         &[
-            GutenbergBlock::hero_section(),
+            GutenbergBlock::hero_section("User Experience", "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency."),
             GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
@@ -877,10 +879,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         page_ch2_1,
         &[
-            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
-                "content": "User Research",
-                "level": 2
-              })),
+            GutenbergBlock::hero_section("User research", "User research focuses on understanding user behaviors, needs, and motivations through observation techniques, task analysis, and other feedback methodologies."),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({

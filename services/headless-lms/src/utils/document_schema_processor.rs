@@ -61,26 +61,26 @@ impl GutenbergBlock {
             inner_blocks,
         }
     }
-    pub fn hero_section() -> Self {
+    pub fn hero_section(title: &str, sub_title: &str) -> Self {
         GutenbergBlock::block_with_name_and_attributes(
             "moocfi/hero-section",
             serde_json::json!({
-                "title": "Hero section title...",
-                "subTitle": "Hero section subtitle..."
+                "title": title.to_string(),
+                "subTitle": sub_title.to_string()
             }),
         )
     }
-    pub fn landing_page_hero_section() -> Self {
+    pub fn landing_page_hero_section(title: &str, sub_title: &str) -> Self {
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
             "moocfi/landing-page-hero-section",
-            serde_json::json!({"title": "Welcome message for course..."}),
+            serde_json::json!({"title": title.to_string()}),
             vec![GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
                     "align": "center",
                     "content": "",
                     "dropCap": false,
-                    "placeholder": "Insert sales speech..."
+                    "placeholder": sub_title.to_string()
                 }),
             )],
         )

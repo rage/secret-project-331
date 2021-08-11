@@ -6,14 +6,14 @@ import { Block } from "../../services/backend"
 import AudioBlock from "./AudioBlock"
 import ButtonBlock from "./ButtonBlock"
 import CodeBlock from "./CodeBlock"
-import CourseChapterGrid from "./CourseChapterGrid"
+import CourseChapterGridBlock from "./CourseChapterGrid"
 import CourseProgressBlock from "./CourseProgressBlock"
 import CustomHTMLBlock from "./CustomHTMLBlock"
 import DefaultBlock from "./DefaultBlock"
 import ExerciseBlock from "./ExerciseBlock"
 import ExerciseListBlock from "./ExerciseListBlock/index"
 import HeadingBlock from "./HeadingBlock"
-import CourseMaterialHeroSection from "./HeroSection"
+import HeroSectionBlock from "./HeroSectionBlock"
 import ImageBlock from "./ImageBlock"
 import ListBlock from "./ListBlock"
 import PagesListBlock from "./PagesListBlock"
@@ -48,13 +48,14 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "core/pullquote": PullquoteBlock,
   "core/preformatted": PreformatterBlock,
   "core/columns": TableBlock,
-  "moocfi/course-progress": CourseProgressBlock,
   "moocfi/exercise": ExerciseBlock,
   "moocfi/exercises-in-chapter": ExerciseListBlock,
   "moocfi/pages-in-chapter": PagesListBlock,
-  "moocfi/course-chapter-grid": CourseChapterGrid,
+  "moocfi/course-chapter-grid": CourseChapterGridBlock,
   "moocfi/latex": LatexBlock,
-  "moocfi/hero-section": CourseMaterialHeroSection,
+  "moocfi/hero-section": HeroSectionBlock,
+  "moocfi/course-progress": CourseProgressBlock,
+  "moocfi/chapter-progress": CourseProgressBlock,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

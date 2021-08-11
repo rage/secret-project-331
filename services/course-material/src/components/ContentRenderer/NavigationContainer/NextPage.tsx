@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React from "react"
 import { useQuery } from "react-query"
@@ -28,7 +29,11 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
   }
 
   return (
-    <div>
+    <div
+      className={css`
+        padding: 1em 0;
+      `}
+    >
       {data != null ? (
         <>
           {chapterId !== data.chapter_id ? (

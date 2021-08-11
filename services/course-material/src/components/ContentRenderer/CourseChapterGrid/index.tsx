@@ -7,7 +7,7 @@ import GenericLoading from "../../GenericLoading"
 
 import ChapterGrid from "./ChapterGrid"
 
-const CourseChapterGrid: React.FC = () => {
+const CourseChapterGridBlock: React.FC = () => {
   const pageContext = useContext(CoursePageContext)
 
   if (pageContext.state !== "ready") {
@@ -21,4 +21,4 @@ const CourseChapterGrid: React.FC = () => {
   )
 }
 
-export default withErrorBoundary(CourseChapterGrid)
+export default withErrorBoundary(CourseChapterGridBlock)

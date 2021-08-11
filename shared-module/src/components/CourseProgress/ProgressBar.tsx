@@ -62,8 +62,8 @@ const Label = styled.div`
 `
 
 export interface CourseProgressExtraProps {
-  max: string
-  min: string
+  max: number | null
+  min: number | null
   point: number
   n: number
   exercisesDone: number

@@ -36,3 +36,7 @@ spec:
             backend:
               serviceName: main-frontend
               servicePort: 3000
+          - path: /quizzes
+            backend:
+              serviceName: quizzes
+              servicePort: 3004

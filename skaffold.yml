@@ -49,6 +49,15 @@ build:
         manual:
           - src: "src/**/*"
             dest: "/app"
+    - image: quizzes
+      context: services/quizzes
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*"
+            dest: "/app"
+
   local:
     # Allow parallel builds
     concurrency: 0
@@ -98,6 +107,10 @@ profiles:
       - op: replace
         path: /build/artifacts/4/docker/dockerfile
         value: Dockerfile.production.dockerfile
+      - op: replace
+        path: /build/artifacts/5/docker/dockerfile
+        value: Dockerfile.production.dockerfile
+
       # Replace which folder to use
       - op: replace
         path: /deploy/kustomize/paths
@@ -123,6 +136,11 @@ profiles:
         path: /build/artifacts/4/docker/cacheFrom
         value:
           - eu.gcr.io/moocfi-public/secret-project-course-material-production:latest
+      - op: add
+        path: /build/artifacts/5/docker/cacheFrom
+        value:
+          - eu.gcr.io/moocfi-public/secret-project-quizzes:latest
+
       # Replace the image name to match cacheFrom, same image name in kubernetes/test/<service> patch.
       - op: replace
         path: /build/artifacts/0/image
@@ -139,6 +157,9 @@ profiles:
       - op: replace
         path: /build/artifacts/4/image
         value: eu.gcr.io/moocfi-public/secret-project-course-material-production
+      - op: replace
+        path: /build/artifacts/5/image
+        value: eu.gcr.io/moocfi-public/secret-project-quizzes-production
 
       - op: add
         path: /build/local/useDockerCLI

@@ -6,6 +6,7 @@ resources:
   - example-exercise/deployment.yml
   - headless-lms/deployment.yml
   - main-frontend/deployment.yml
+  - quizzes/deployment.yml
   - ingress.yml
   - headless-lms/job/update-course-variant-statuses.yml
   - headless-lms/service-info-fetcher.yml

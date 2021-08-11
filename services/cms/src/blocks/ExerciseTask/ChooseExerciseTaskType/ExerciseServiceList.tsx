@@ -9,7 +9,7 @@ export interface ExerciseTaskTypes {
 }
 // Fetch iFrame exercise types from an endpoint?
 export const exerciseTaskTypes: ExerciseTaskTypes[] = [
-  { name: "Quizzes", url: null, identifier: "quizzes" },
+  { name: "Quizzes", url: "/quizzes/editor", identifier: "quizzes" },
   { name: "Test My Code", url: null, identifier: "tmc" },
   { name: "Example Exercise", url: "/example-exercise/editor", identifier: "example-exercise" },
 ]

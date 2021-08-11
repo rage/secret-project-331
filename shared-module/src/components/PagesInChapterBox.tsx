@@ -4,9 +4,6 @@ import React from "react"
 import ArrowSVGIcon from "../img/arrow.svg"
 
 const Wrapper = styled.aside`
-  padding: 0 0 4em 0;
-  margin-top: 3em;
-  margin-bottom: 1em;
   border-radius: 10px;
   position: relative;
   width: 100%;
@@ -25,7 +22,7 @@ const Link = styled.a`
   box-shadow: none;
 `
 
-const ImageBox = styled.div`
+const PageNumberBox = styled.div`
   @media (min-width: 1px) {
     width: 40px;
     height: 40px;
@@ -70,7 +67,7 @@ const ChapterParts = styled.div`
   margin-bottom: 0.4em;
   background: #f1f1f1;
 
-  ${({ selected }: ChapterBoxExtraProps) =>
+  ${({ selected }: PagesInChapterBoxExtraProps) =>
     selected &&
     `
     background-color: #D8D8D8;
@@ -110,26 +107,28 @@ const chooseChapterValue = {
   4: "V",
 } */
 
-export interface ChapterBoxExtraProps {
+export interface PagesInChapterBoxExtraProps {
   variant: "text" | "link" | "readOnly"
   selected: boolean
-  chapterIndex: string
+  chapterIndex: number
   chapterTitle: string
+  url?: string
 }
 
-export type ChapterBoxProps = React.HTMLAttributes<HTMLDivElement> & ChapterBoxExtraProps
+export type PagesInChapterBoxProps = React.HTMLAttributes<HTMLDivElement> &
+  PagesInChapterBoxExtraProps
 
-const ChapterBox: React.FC<ChapterBoxProps> = (props) => {
+const PagesInChapterBox: React.FC<PagesInChapterBoxProps> = (props) => {
   return (
     <Wrapper>
       <>
-        <Link href="/">
+        <Link href={`${props.url}`}>
           <ChapterParts {...props}>
-            <ImageBox>
+            <PageNumberBox>
               <div>
                 <p>{props.chapterIndex}</p>
               </div>
-            </ImageBox>
+            </PageNumberBox>
             <span>{props.chapterTitle}</span>
             <ArrowSVGIcon alt="next icon" width="20" />
           </ChapterParts>
@@ -139,4 +138,4 @@ const ChapterBox: React.FC<ChapterBoxProps> = (props) => {
   )
 }
 
-export default ChapterBox
+export default PagesInChapterBox

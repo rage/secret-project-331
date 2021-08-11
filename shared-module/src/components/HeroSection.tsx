@@ -41,22 +41,22 @@ const TextBox = styled.div`
     z-index: 20;
   }
 `
-export interface CardExtraProps {
+export interface HeroSectionProps {
   subTitle: string
   title: string
   bg?: string
 }
 
-export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
+export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
 
-const SimpleCard: React.FC<CardProps> = () => {
+const HeroSection: React.FC<CardProps> = ({ title, subTitle }) => {
   return (
     <ThemeProvider theme={theme}>
       <>
         <HeroWrapper>
           <TextBox>
-            <h1>Introdcution to everything</h1>
-            <span>This is a subheading</span>
+            <h1>{title}</h1>
+            <span>{subTitle}</span>
           </TextBox>
         </HeroWrapper>
       </>
@@ -64,4 +64,4 @@ const SimpleCard: React.FC<CardProps> = () => {
   )
 }
 
-export default SimpleCard
+export default HeroSection

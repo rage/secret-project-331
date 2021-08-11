@@ -1,11 +1,10 @@
 import { differenceInSeconds, formatDuration } from "date-fns"
 import { useQuery } from "react-query"
 
-import { fetchPageUrl } from "../services/backend"
-import { ChapterWithStatus } from "../shared-module/bindings"
-import Card from "../shared-module/components/Card"
-
-import GenericLoading from "./GenericLoading"
+import { fetchPageUrl } from "../../../services/backend"
+import { ChapterWithStatus } from "../../../shared-module/bindings"
+import Card from "../../../shared-module/components/Card"
+import GenericLoading from "../../GenericLoading"
 
 interface ChapterProps {
   now: Date

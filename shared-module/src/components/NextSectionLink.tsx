@@ -85,24 +85,23 @@ const ButtonWrapper = styled.div`
 `
 
 export interface NextSectionLinkExtraProps {
-  content: string
+  title: string
+  subTitle: string
+  nextTitle: string
+  url?: string
 }
 
 export type NextSectionLinkProps = React.HTMLAttributes<HTMLDivElement> & NextSectionLinkExtraProps
 
-const NextSectionLink: React.FC<NextSectionLinkProps> = () => {
+const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subTitle, nextTitle, url }) => {
   return (
     <SectionWrapper>
       <Fragment>
-        <h2>
-          Impressive! you’ve reach
-          <br />
-          the end of this topic.
-        </h2>
-        <p>proceed to the next section </p>
+        <h2>{title}</h2>
+        <p>{subTitle}</p>
         <ButtonWrapper>
-          <StyledLink href={"source"}>
-            <span>Introduction to Rust</span>
+          <StyledLink href={`${url}`}>
+            <span>{nextTitle}</span>
             <StyledArrow>
               <ArrowSVGIcon alt="next icon" width="38.7" height="38.7" viewBox="0 0 39 39" />
             </StyledArrow>

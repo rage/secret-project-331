@@ -7,8 +7,9 @@ import { fetchChaptersInTheCourse } from "../../../services/backend"
 import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { cardMaxWidth } from "../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import ChapterGridChapter from "../../ChapterGridChapter"
 import GenericLoading from "../../GenericLoading"
+
+import ChapterGridChapter from "./ChapterGridChapter"
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const [now, setNow] = useState(new Date())

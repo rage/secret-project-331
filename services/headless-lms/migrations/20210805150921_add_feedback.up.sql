@@ -1,9 +1,9 @@
 -- Add up migration script here
 CREATE TABLE feedback (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  user_id UUID NOT NULL,
-  course_id UUID NOT NULL,
-  feedback_given TEXT NOT NULL,
+  user_id UUID REFERENCES users,
+  course_id UUID NOT NULL REFERENCES courses,
+  feedback_given VARCHAR(1000) NOT NULL,
   marked_as_read BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -23,7 +23,7 @@ CREATE TABLE block_feedback (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   feedback_id UUID NOT NULL REFERENCES feedback,
   block_id UUID NOT NULL,
-  block_text TEXT NOT NULL,
+  block_text VARCHAR(10000),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   deleted_at TIMESTAMPTZ
@@ -37,4 +37,4 @@ COMMENT ON COLUMN block_feedback.updated_at IS 'Timestamp when the record was la
 COMMENT ON COLUMN block_feedback.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN block_feedback.feedback_id IS 'The id of the feedback.';
 COMMENT ON COLUMN block_feedback.block_id IS 'The id of the block.';
-COMMENT ON COLUMN block_feedback.block_text IS 'The textual contents of the block.';
+COMMENT ON COLUMN block_feedback.block_text IS 'The textual contents of the block, if any.';

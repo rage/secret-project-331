@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 
 import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
 import { Block } from "../services/backend"
@@ -24,17 +24,42 @@ const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
   const [y, setY] = useState(0)
   const [selection, setSelection] = useState("")
 
-  function onMouseUp() {
-    const selection = window.getSelection()
-    if (selection) {
-      setSelection(selection.toString())
-      const rect = selection.getRangeAt(0).getBoundingClientRect()
-      setX(rect.x)
-      setY(rect.y)
-    } else {
-      setSelection("")
+  function selectionHandler(this: Document) {
+    const docSelection = this.getSelection()
+    if (docSelection == null || !docSelection.rangeCount) {
+      return
     }
+    const range = docSelection.getRangeAt(0)
+    if (range == null) {
+      setSelection("")
+      return
+    }
+
+    const contents = range.cloneContents()
+    if (contents.textContent == null) {
+      setSelection("")
+      return
+    }
+
+    const rects = range.getClientRects()
+    if (rects.length < 1) {
+      setSelection("")
+      return
+    }
+    const rect = rects[0]
+    console.log(rect)
+    setX(rect.x)
+    setY(rect.y - 40)
+    setSelection(contents.textContent)
   }
+
+  useEffect(() => {
+    document.addEventListener("selectionchange", selectionHandler)
+
+    return function cleanup() {
+      document.removeEventListener("selectionchange", selectionHandler)
+    }
+  })
 
   return (
     <>
@@ -83,7 +108,7 @@ const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
       </h1>
       <SelectCourseInstanceModal onClose={onRefresh} />
       {/* TODO: Better type for Page.content in bindings. */}
-      <div id="content" onMouseUp={() => onMouseUp()}>
+      <div id="content">
         <ContentRenderer data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []} />
       </div>
       {pageContext.pageData?.chapter_id && <NavigationContainer />}

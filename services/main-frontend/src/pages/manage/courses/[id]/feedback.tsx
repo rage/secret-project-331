@@ -1,14 +1,11 @@
 import { css } from "@emotion/css"
-import { compareDesc } from "date-fns"
+import { Paper, Tab, Tabs } from "@material-ui/core"
+import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { useQuery } from "react-query"
 
-import FeedbackView from "../../../../components/FeedbackView"
 import Layout from "../../../../components/Layout"
-import { fetchFeedback } from "../../../../services/backend/feedback"
-import { Feedback } from "../../../../shared-module/bindings"
+import FeedbackList from "../../../../components/lists/FeedbackList"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -20,74 +17,37 @@ export interface FeedbackProps {
 }
 
 const FeedbackPage: React.FC<FeedbackProps> = ({ query }) => {
+  const router = useRouter()
+
   const courseId = query.id
-  const [feedback, setFeedback] = useState<Feedback[]>([])
-  const { isLoading, error } = useQuery(`feedback-list-${courseId}`, () =>
-    fetchFeedback(courseId).then((data) =>
-      setFeedback(data.sort((a, b) => compareDesc(a.created_at, b.created_at))),
-    ),
-  )
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+  let initialRead
+  if (router.query.read) {
+    initialRead = router.query.read === "true"
+  } else {
+    router.replace({ query: { ...router.query, read: false } }, undefined, { shallow: true })
+    initialRead = false
   }
-
-  if (isLoading || !feedback) {
-    return <>Loading...</>
-  }
-
-  console.log(feedback)
+  const [read, setRead] = useState(initialRead)
 
   return (
     <Layout>
-      <div
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-          margin-bottom: 1rem;
-        `}
-      >
-        <h1>Feedback</h1>
-        <h2>Unread</h2>
-        <ul>
-          {feedback
-            .filter((f) => !f.marked_as_read)
-            .map((f) => {
-              return (
-                <li key={f.id}>
-                  <FeedbackView
-                    feedback={f}
-                    setRead={(read) =>
-                      setFeedback((list) => {
-                        list.find((item) => item.id === f.id).marked_as_read = read
-                        return [...list]
-                      })
-                    }
-                  />
-                </li>
-              )
-            })}
-        </ul>
-        <h2>Read</h2>
-        <ul>
-          {feedback
-            .filter((f) => f.marked_as_read)
-            .map((f) => {
-              return (
-                <li key={f.id}>
-                  <FeedbackView
-                    feedback={f}
-                    setRead={(read) =>
-                      setFeedback((list) => {
-                        list.find((item) => item.id === f.id).marked_as_read = read
-                        return [...list]
-                      })
-                    }
-                  />
-                </li>
-              )
-            })}
-        </ul>
-      </div>
+      <h1>Feedback</h1>
+      <Paper square>
+        <Tabs
+          value={read}
+          onChange={(_, value) => {
+            router.replace({ query: { ...router.query, read: value } }, undefined, {
+              shallow: true,
+            })
+            setRead(value)
+          }}
+        >
+          <Tab label="Unread" value={false} />
+          <Tab label="Read" value={true} />
+        </Tabs>
+      </Paper>
+      <FeedbackList courseId={courseId} read={read} perPage={1} />
     </Layout>
   )
 }

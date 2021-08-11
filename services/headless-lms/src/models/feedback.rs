@@ -1,4 +1,4 @@
-use crate::models::ModelResult;
+use crate::{models::ModelResult, utils::pagination::Pagination};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Connection, PgConnection};
@@ -11,15 +11,15 @@ pub struct NewFeedback {
     pub related_blocks: Vec<FeedbackBlock>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct FeedbackBlock {
     pub id: Uuid,
-    pub text: String,
+    pub text: Option<String>,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
-    user_id: Uuid,
+    user_id: Option<Uuid>,
     course_id: Uuid,
     new_feedback: NewFeedback,
 ) -> ModelResult<Uuid> {
@@ -71,32 +71,34 @@ WHERE id = $2
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct Feedback {
     id: Uuid,
-    user_id: Uuid,
+    user_id: Option<Uuid>,
     course_id: Uuid,
     feedback_given: String,
     marked_as_read: bool,
     created_at: DateTime<Utc>,
-    block_ids: Vec<Uuid>,
-    block_texts: Vec<String>,
+    blocks: Vec<FeedbackBlock>,
 }
 
 pub async fn get_feedback_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
+    read: bool,
+    pagination: &Pagination,
 ) -> ModelResult<Vec<Feedback>> {
     let res = sqlx::query!(
-        "
+        r#"
 SELECT feedback.id,
   feedback.user_id,
   feedback.course_id,
   feedback.feedback_given,
   feedback.marked_as_read,
   feedback.created_at,
-  array_agg(block_feedback.block_id) filter (where block_feedback.block_id is not null) AS block_ids,
-  array_agg(block_feedback.block_text) filter (where block_feedback.block_text is not null) AS block_texts
+  array_agg(block_feedback.block_id) filter (where block_feedback.block_id IS NOT NULL) AS "block_ids: Vec<Uuid>",
+  array_agg(block_feedback.block_text) filter (where block_feedback.block_id IS NOT NULL) AS "block_texts: Vec<Option<String>>"
 FROM feedback
   LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id
 WHERE course_id = $1
+  AND feedback.marked_as_read = $2
   AND feedback.deleted_at IS NULL
   AND block_feedback.deleted_at IS NULL
 GROUP BY feedback.id,
@@ -105,8 +107,13 @@ GROUP BY feedback.id,
   feedback.feedback_given,
   feedback.marked_as_read,
   feedback.created_at
-",
-        course_id
+LIMIT $3
+OFFSET $4
+"#,
+        course_id,
+        read,
+        pagination.limit(),
+        pagination.offset(),
     )
     .map(|r| Feedback {
         id: r.id,
@@ -115,10 +122,47 @@ GROUP BY feedback.id,
         feedback_given: r.feedback_given,
         marked_as_read: r.marked_as_read,
         created_at: r.created_at,
-        block_ids: r.block_ids.unwrap_or_default(),
-        block_texts: r.block_texts.unwrap_or_default(),
+        blocks: r
+            .block_ids
+            .unwrap_or_default()
+            .into_iter()
+            .zip(r.block_texts.unwrap_or_default())
+            .map(|(id, text)| FeedbackBlock { id, text })
+            .collect(),
     })
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+pub struct FeedbackCount {
+    read: i64,
+    unread: i64,
+}
+
+pub async fn get_feedback_count_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<FeedbackCount> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(*) filter (
+    where marked_as_read
+  ) AS read,
+  COUNT(*) filter (
+    where not(marked_as_read)
+  ) AS unread
+FROM feedback
+WHERE course_id = $1
+  AND feedback.deleted_at IS NULL
+",
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(FeedbackCount {
+        read: res.read.unwrap_or_default(),
+        unread: res.unread.unwrap_or_default(),
+    })
 }

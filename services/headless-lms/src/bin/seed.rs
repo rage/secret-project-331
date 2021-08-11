@@ -730,30 +730,55 @@ async fn seed_cs_intro(
         feedback_given: "this part was unclear to me".to_string(),
         related_blocks: vec![FeedbackBlock {
             id: block_id_4,
-            text: "blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas"
-                .to_string(),
+            text: Some(
+                "blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas"
+                    .to_string(),
+            ),
         }],
     };
-    let feedback = feedback::insert(conn, student, course.id, new_feedback).await?;
+    let feedback = feedback::insert(conn, Some(student), course.id, new_feedback).await?;
     feedback::mark_as_read(conn, feedback, true).await?;
     let new_feedback = NewFeedback {
         feedback_given: "I dont think we need these paragraphs".to_string(),
         related_blocks: vec![
             FeedbackBlock {
                 id: block_id_1,
-                text: "verything is a big topic.".to_string(),
+                text: Some("verything is a big topic.".to_string()),
             },
             FeedbackBlock {
                 id: block_id_2,
-                text: "So big, that we need many paragraphs.".to_string(),
+                text: Some("So big, that we need many paragraphs.".to_string()),
             },
             FeedbackBlock {
                 id: block_id_3,
-                text: "Like th".to_string(),
+                text: Some("Like th".to_string()),
             },
         ],
     };
-    feedback::insert(conn, student, course.id, new_feedback).await?;
+    feedback::insert(conn, Some(student), course.id, new_feedback).await?;
+    feedback::insert(
+        conn,
+        None,
+        course.id,
+        NewFeedback {
+            feedback_given: "Anonymous feedback".to_string(),
+            related_blocks: vec![FeedbackBlock {
+                id: block_id_1,
+                text: None,
+            }],
+        },
+    )
+    .await?;
+    feedback::insert(
+        conn,
+        None,
+        course.id,
+        NewFeedback {
+            feedback_given: "Anonymous unrelated feedback".to_string(),
+            related_blocks: vec![],
+        },
+    )
+    .await?;
 
     Ok(course.id)
 }

@@ -1,8 +1,10 @@
+import { css } from "@emotion/css"
 import { TextField } from "@material-ui/core"
 import { useState } from "react"
 
 import { postFeedback } from "../services/backend"
 import Button from "../shared-module/components/Button"
+import { courseMaterialBlockClass } from "../utils/constants"
 
 interface Props {
   courseSlug: string
@@ -11,6 +13,7 @@ interface Props {
 const FeedbackButton: React.FC<Props> = ({ courseSlug }) => {
   const [open, setOpen] = useState(false)
   const [feedback, setFeedback] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   let buttonText
   if (open) {
@@ -19,15 +22,14 @@ const FeedbackButton: React.FC<Props> = ({ courseSlug }) => {
     buttonText = "Give feedback"
   }
 
-  function submit(event: any) {
+  async function submit(event: any) {
     event.preventDefault()
     if (feedback.length === 0) {
       return
     }
 
-    let visibleText = ""
-    const visibleBlocks = []
-    const blocks = document.getElementsByClassName("block")
+    const relatedBlocks = []
+    const blocks = document.getElementsByClassName(courseMaterialBlockClass)
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i]
 
@@ -36,32 +38,64 @@ const FeedbackButton: React.FC<Props> = ({ courseSlug }) => {
       const bottomAboveScreen = rect.bottom < 0
       const onScreen = !bottomAboveScreen && !topBelowScreen
       if (onScreen) {
-        if (visibleText.length > 0) {
-          visibleText += "\n\n"
-        }
-        visibleText += block.textContent
-        visibleBlocks.push(block.id)
+        relatedBlocks.push({
+          id: block.id,
+          text: block.textContent,
+        })
       }
     }
 
+    try {
+      await postFeedback(courseSlug, {
+        feedback_given: feedback,
+        related_blocks: relatedBlocks,
+      })
+    } catch (e) {
+      console.error(e)
+      setError(e)
+      return
+    }
     setFeedback("")
-    postFeedback(courseSlug, {
-      feedback_given: feedback,
-      feedback_target_text: (window.getSelection() || "").toString(),
-      related_blocks: visibleBlocks,
-    }).then((_) => setOpen(false))
+    setOpen(false)
   }
 
+  const charactersLeft = 1000 - feedback.length
   return (
-    <div>
+    <div
+      className={css`
+        background-color: white;
+      `}
+    >
+      {error && <pre>{JSON.stringify(error, undefined, 2)}</pre>}
       <form hidden={!open}>
-        <TextField multiline value={feedback} onChange={(ev) => setFeedback(ev.target.value)} />
+        <TextField
+          multiline
+          value={feedback}
+          onChange={(ev) => {
+            setError(null)
+            setFeedback(ev.target.value)
+          }}
+        />
         <br />
-        <Button size={"medium"} variant={"primary"} onClick={submit}>
+        {charactersLeft < 500 && charactersLeft >= 0 && <div>{charactersLeft} characters left</div>}
+        {charactersLeft < 0 && <div>{Math.abs(charactersLeft)} characters over the limit</div>}
+        <Button
+          size={"medium"}
+          variant={"primary"}
+          onClick={submit}
+          disabled={feedback.length === 0 || charactersLeft < 0}
+        >
           Submit
         </Button>
       </form>
-      <Button size={"medium"} variant={"primary"} onClick={() => setOpen((open) => !open)}>
+      <Button
+        size={"medium"}
+        variant={"primary"}
+        onClick={() => {
+          setError(null)
+          setOpen((open) => !open)
+        }}
+      >
         {buttonText}
       </Button>
     </div>

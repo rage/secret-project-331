@@ -3,6 +3,7 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  NewFeedback,
   NewSubmission,
   Organization,
   Page,
@@ -130,6 +131,17 @@ export const postSubmission = async (newSubmission: NewSubmission): Promise<Subm
   return (await courseMaterialClient.post(`/submissions`, newSubmission)).data
 }
 
-export const postFeedback = async (courseSlug: string, newFeedback: unknown): Promise<unknown> => {
+export const postFeedback = async (
+  courseSlug: string,
+  newFeedback: NewFeedback,
+): Promise<string> => {
+  // truncate data to match server limits
+  newFeedback.feedback_given = newFeedback.feedback_given.substring(0, 10000)
+  newFeedback.related_blocks = newFeedback.related_blocks.slice(0, 10)
+  for (const block of newFeedback.related_blocks) {
+    if (block.text) {
+      block.text = block.text?.substring(0, 10000)
+    }
+  }
   return (await courseMaterialClient.post(`/courses/${courseSlug}/feedback`, newFeedback)).data
 }

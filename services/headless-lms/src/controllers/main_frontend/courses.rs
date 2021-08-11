@@ -6,16 +6,18 @@ use crate::{
         course_instances::CourseInstance,
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         exercises::Exercise,
-        feedback::{self, Feedback},
+        feedback::{self, Feedback, FeedbackCount},
         submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
     },
-    utils::file_store::FileStore,
+    utils::{file_store::FileStore, pagination::Pagination},
     ApplicationConfiguration,
 };
 use actix_multipart as mp;
 use actix_web::web::{self, Json};
 use actix_web::{web::ServiceConfig, HttpRequest};
+use serde::Deserialize;
 use sqlx::PgPool;
+use ts_rs::TS;
 use uuid::Uuid;
 
 /**
@@ -493,17 +495,44 @@ async fn get_course_instances(
     Ok(Json(course_instances))
 }
 
+#[derive(Debug, Deserialize, TS)]
+pub struct GetFeedbackQuery {
+    read: bool,
+    #[serde(flatten)]
+    pagination: Pagination,
+}
+
 /**
-GET `/api/v0/main-frontend/courses/:id/feedback` - Returns feedback for the given course.
+GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
 */
 #[instrument(skip(pool))]
 pub async fn get_feedback(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    read: web::Query<GetFeedbackQuery>,
 ) -> ControllerResult<Json<Vec<Feedback>>> {
     let mut conn = pool.acquire().await?;
-    let feedback = feedback::get_feedback_for_course(&mut conn, course_id.into_inner()).await?;
+    let course_id = course_id.into_inner();
+
+    let feedback =
+        feedback::get_feedback_for_course(&mut conn, course_id, read.read, &read.pagination)
+            .await?;
     Ok(Json(feedback))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
+*/
+#[instrument(skip(pool))]
+pub async fn get_feedback_count(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<FeedbackCount>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+
+    let feedback_count = feedback::get_feedback_count_for_course(&mut conn, course_id).await?;
+    Ok(Json(feedback_count))
 }
 
 /**
@@ -543,5 +572,9 @@ pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
             "/{course_id}/course-instances",
             web::get().to(get_course_instances),
         )
-        .route("/{course_id}/feedback", web::get().to(get_feedback));
+        .route("/{course_id}/feedback", web::get().to(get_feedback))
+        .route(
+            "/{course_id}/feedback-count",
+            web::get().to(get_feedback_count),
+        );
 }

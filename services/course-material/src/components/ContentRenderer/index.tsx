@@ -2,6 +2,7 @@ import dynamic from "next/dynamic"
 import React from "react"
 
 import { Block } from "../../services/backend"
+import { courseMaterialBlockClass } from "../../utils/constants"
 
 import AudioBlock from "./AudioBlock"
 import ButtonBlock from "./ButtonBlock"
@@ -68,7 +69,11 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
     <>
       {props.data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
-        return <Component key={block.clientId} data={block} />
+        return (
+          <div key={block.clientId} id={block.clientId} className={courseMaterialBlockClass}>
+            <Component data={block} />
+          </div>
+        )
       })}
     </>
   )

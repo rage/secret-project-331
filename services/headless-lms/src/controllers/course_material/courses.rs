@@ -227,12 +227,31 @@ pub async fn feedback(
     course_slug: web::Path<String>,
     new_feedback: web::Json<NewFeedback>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
+    user: Option<AuthUser>,
 ) -> ControllerResult<String> {
     let mut conn = pool.acquire().await?;
-    let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
     let f = new_feedback.into_inner();
-    let id = feedback::insert(&mut conn, user.id, course.id, f).await?;
+
+    if f.feedback_given.len() > 1000 {
+        return Err(ControllerError::BadRequest(
+            "Feedback given too long: max 1000".to_string(),
+        ));
+    }
+    if f.related_blocks.len() > 100 {
+        return Err(ControllerError::BadRequest(
+            "Too many related blocks: max 100".to_string(),
+        ));
+    }
+    for block in &f.related_blocks {
+        if block.text.as_ref().map(|t| t.len()).unwrap_or_default() > 10000 {
+            return Err(ControllerError::BadRequest(
+                "Block text too long: max 10000".to_string(),
+            ));
+        }
+    }
+
+    let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
+    let id = feedback::insert(&mut conn, user.map(|u| u.id), course.id, f).await?;
     Ok(id.to_string())
 }
 

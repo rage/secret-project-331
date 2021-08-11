@@ -260,13 +260,12 @@ export interface SubmissionInfo {
 
 export interface Feedback {
   id: string
-  user_id: string
+  user_id: string | null
   course_id: string
   feedback_given: string
-  feedback_target_text: string
   marked_as_read: boolean
   created_at: Date
-  block_ids: string[]
+  blocks: FeedbackBlock[]
 }
 
 export interface MarkAsRead {
@@ -280,7 +279,18 @@ export interface NewFeedback {
 
 export interface FeedbackBlock {
   id: string
-  text: string
+  text: string | null
+}
+
+export interface FeedbackCount {
+  read: number
+  unread: number
+}
+
+export interface GetFeedbackQuery {
+  read: boolean
+  page?: number
+  limit?: number
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
@@ -348,6 +358,11 @@ export type GradingProgress = "FullyGraded" | "Pending" | "PendingManual" | "Fai
 export type UserPointsUpdateStrategy =
   | "CanAddPointsButCannotRemovePoints"
   | "CanAddPointsAndCanRemovePoints"
+
+export interface Pagination {
+  page?: number
+  limit?: number
+}
 
 export interface ExerciseTask {
   id: string

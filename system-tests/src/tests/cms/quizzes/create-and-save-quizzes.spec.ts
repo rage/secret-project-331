@@ -140,6 +140,8 @@ test.describe("quizzes tests", () => {
     // Click text=grant_whenever_possible
     await frame.click("text=grant_whenever_possible")
 
+    await page.evaluate(() => window.scrollBy(0, 200))
+
     // Click text=grant_only_when_fully_complete
     await frame.click("text=grant_only_when_fully_complete")
 

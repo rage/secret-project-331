@@ -35,8 +35,13 @@ const ExerciseBase: React.FC<Props> = ({
           correct = model_solutions.includes(option.id)
         }
         const selected = selectedId === option.id
+        // Border colors
         const green = baseTheme.colors.green[100]
         const red = baseTheme.colors.red[100]
+        // Background of the buttons
+        const color = baseTheme.colors.neutral[100]
+        const chosenColor = baseTheme.colors.neutral[200]
+
         return (
           <button
             className={
@@ -44,7 +49,7 @@ const ExerciseBase: React.FC<Props> = ({
                 ? css`
                     float: right;
                     padding: 1rem 2rem;
-                    background-color: ${selected ? "#4210f5" : "#6188ff"};
+                    background-color: ${selected ? chosenColor : color};
                     border-radius: 1rem;
                     border: ${model_solutions ? `0` : `4px solid ${correct ? green : red}`};
                     color: white;
@@ -62,7 +67,7 @@ const ExerciseBase: React.FC<Props> = ({
                   `
                 : css`
                     padding: 1rem 2rem;
-                    background-color: ${selected ? "#4210f5" : "#6188ff"};
+                    background-color: ${selected ? chosenColor : color};
                     border-radius: 1rem;
                     border: ${model_solutions ? `0` : `4px solid ${correct ? green : red}`};
                     color: white;

@@ -1305,6 +1305,22 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
+  "350d3d019cdabf32d9a3a8dbe862beff94d30edfbb31e5831072bb5d01997520": {
+    "query": "\nINSERT INTO submissions (\n    exercise_id,\n    course_id,\n    exercise_task_id,\n    user_id,\n    course_instance_id,\n    data_json,\n    id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Jsonb", "Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "36578c1a1be112ab9d9f49eea1c69240309c9bf83e6a4b98237e687d1fa04b92": {
     "query": "SELECT course_id FROM pages WHERE id = $1",
     "describe": {
@@ -1508,22 +1524,6 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [true]
-    }
-  },
-  "3f7c2d7e6f6088d3847b90e12b811f827a17d0d31ff27f96f97689503a4909e7": {
-    "query": "\nINSERT INTO submissions (\n    exercise_id,\n    course_id,\n    exercise_task_id,\n    user_id,\n    course_instance_id,\n    data_json\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Jsonb"]
-      },
-      "nullable": [false]
     }
   },
   "3fe37166761219fc5d832aff78c2ae81f963c9b1fa42ac8519e80bc436c54200": {
@@ -2865,6 +2865,22 @@
       ],
       "parameters": {
         "Left": []
+      },
+      "nullable": [false]
+    }
+  },
+  "90fa9968b7d756f053c018a87714ffe53999efba45477c01a5daf23404b64c06": {
+    "query": "\nINSERT INTO submissions (\n    exercise_id,\n    course_id,\n    exercise_task_id,\n    user_id,\n    course_instance_id,\n    data_json\n  )\n  VALUES ($1, $2, $3, $4, $5, $6)\n  RETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Jsonb"]
       },
       "nullable": [false]
     }

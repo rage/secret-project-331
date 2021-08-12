@@ -35,7 +35,7 @@ const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
           setSelectedId(selectedId)
         }}
         interactable={true}
-        model_solutions={[]}
+        model_solutions={null}
       />
     </HeightTrackingContainer>
   )

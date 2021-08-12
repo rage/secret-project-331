@@ -2,7 +2,7 @@
 use crate::{
     controllers::ControllerResult,
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::pages::{NewPage, Page},
+    models::pages::{HistoryRestoreData, NewPage, Page, PageHistory},
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -74,7 +74,7 @@ async fn post_new_page(
         Resource::Course(new_page.course_id),
     )
     .await?;
-    let page = crate::models::pages::insert_page(&mut conn, new_page).await?;
+    let page = crate::models::pages::insert_page(&mut conn, new_page, user.id).await?;
     Ok(Json(page))
 }
 
@@ -126,6 +126,38 @@ async fn delete_page(
 }
 
 /**
+GET /api/v0/main-frontend/pages/:page_id/history
+*/
+async fn history(
+    pool: web::Data<PgPool>,
+    page_id: web::Path<Uuid>,
+) -> ControllerResult<Json<Vec<PageHistory>>> {
+    let mut conn = pool.acquire().await?;
+    let res = crate::models::pages::history(&mut conn, page_id.into_inner()).await?;
+    Ok(Json(res))
+}
+
+/**
+POST /api/v0/main-frontend/pages/:page_id/restore
+*/
+async fn restore(
+    pool: web::Data<PgPool>,
+    page_id: web::Path<Uuid>,
+    restore_data: web::Json<HistoryRestoreData>,
+    user: AuthUser,
+) -> ControllerResult<Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+    let res = crate::models::pages::restore(
+        &mut conn,
+        page_id.into_inner(),
+        restore_data.history_id,
+        user.id,
+    )
+    .await?;
+    Ok(Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -134,5 +166,7 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_pages_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::post().to(post_new_page))
-        .route("/{page_id}", web::delete().to(delete_page));
+        .route("/{page_id}", web::delete().to(delete_page))
+        .route("/{page_id}/history", web::get().to(history))
+        .route("/{history_id}/restore", web::post().to(restore));
 }

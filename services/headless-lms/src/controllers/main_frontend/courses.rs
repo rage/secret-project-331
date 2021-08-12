@@ -96,7 +96,8 @@ async fn post_new_course(
         Resource::Organization(new_course.organization_id),
     )
     .await?;
-    let (course, ..) = crate::models::courses::insert_course(&mut conn, new_course).await?;
+    let (course, ..) =
+        crate::models::courses::insert_course(&mut conn, new_course, user.id).await?;
     Ok(Json(course))
 }
 

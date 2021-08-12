@@ -15,8 +15,9 @@ use crate::{
         gradings::{Grading, UserPointsUpdateStrategy},
         organizations::Organization,
         pages::{
-            ExerciseWithExerciseTasks, NewPage, NormalizedCmsExercise, NormalizedCmsExerciseTask,
-            Page, PageRoutingData, PageUpdate, PageWithExercises,
+            ExerciseWithExerciseTasks, HistoryChangeReason, HistoryRestoreData, NewPage,
+            NormalizedCmsExercise, NormalizedCmsExerciseTask, Page, PageHistory, PageRoutingData,
+            PageUpdate, PageWithExercises,
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
@@ -59,6 +60,9 @@ ts_rs::export! {
   CourseUpdate,
   Login,
   SubmissionInfo,
+  PageHistory,
+  HistoryChangeReason,
+  HistoryRestoreData,
   // dependencies
   VariantStatus,
   ChapterStatus,

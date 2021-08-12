@@ -17,7 +17,8 @@ use crate::{
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, FromRow, PgConnection};
+use serde_json::Value;
+use sqlx::{Acquire, FromRow, PgConnection, Type};
 use std::{collections::HashMap, time::Duration};
 use ts_rs::TS;
 use url::Url;
@@ -134,14 +135,28 @@ pub struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
+#[sqlx(type_name = "history_change_reason", rename_all = "kebab-case")]
+pub enum HistoryChangeReason {
+    PageSaved,
+    HistoryRestored,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, TS)]
+pub struct HistoryRestoreData {
+    pub history_id: Uuid,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
     title: &str,
     order_number: i32,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
+    author: Uuid,
+) -> ModelResult<(Uuid, Uuid)> {
+    let mut tx = conn.begin().await?;
+    let page_res = sqlx::query!(
         "
 INSERT INTO pages (
     course_id,
@@ -159,9 +174,28 @@ RETURNING id
         title,
         order_number
     )
-    .fetch_one(conn)
+    .fetch_one(&mut tx)
     .await?;
-    Ok(res.id)
+    let history_res = sqlx::query!(
+        "
+INSERT INTO page_history (
+    page_id,
+    content,
+    history_change_reason,
+    author_user_id
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING id
+",
+        page_res.id,
+        serde_json::Value::Array(vec![]),
+        HistoryChangeReason::PageSaved as HistoryChangeReason,
+        author
+    )
+    .fetch_one(&mut tx)
+    .await?;
+    tx.commit().await?;
+    Ok((page_res.id, history_res.id))
 }
 
 pub async fn set_chapter(
@@ -183,19 +217,41 @@ pub async fn update_content(
     conn: &mut PgConnection,
     page_id: Uuid,
     content: &[GutenbergBlock],
-) -> ModelResult<()> {
+    author: Uuid,
+) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
+    let content = serde_json::to_value(content).unwrap();
     sqlx::query!(
         "
 UPDATE pages
 SET content = $1
 WHERE id = $2
 ",
-        serde_json::to_value(content).unwrap(),
+        &content,
         page_id
     )
-    .execute(conn)
+    .execute(&mut tx)
     .await?;
-    Ok(())
+    let res = sqlx::query!(
+        "
+INSERT INTO page_history (
+    page_id,
+    content,
+    history_change_reason,
+    author_user_id
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING id
+",
+        page_id,
+        &content,
+        HistoryChangeReason::PageSaved as HistoryChangeReason,
+        author
+    )
+    .fetch_one(&mut tx)
+    .await?;
+    tx.commit().await?;
+    Ok(res.id)
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
@@ -333,6 +389,7 @@ pub async fn update_page(
     conn: &mut PgConnection,
     page_id: Uuid,
     page_update: PageUpdate,
+    author: Uuid,
 ) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(page_update.content)?;
 
@@ -368,9 +425,26 @@ RETURNING *
     )
     .fetch_one(&mut tx)
     .await?;
+    sqlx::query!(
+        "
+INSERT INTO page_history (
+    page_id,
+    content,
+    history_change_reason,
+    author_user_id
+  )
+VALUES ($1, $2, $3, $4)
+",
+        page_id,
+        content_as_json,
+        HistoryChangeReason::PageSaved as HistoryChangeReason,
+        author
+    )
+    .execute(&mut tx)
+    .await?;
 
     let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx).await?;
+        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, author).await?;
 
     let denormalized_content = denormalize(NormalizedDocument {
         content: serde_json::from_value(new_content)?,
@@ -419,6 +493,7 @@ async fn upsert_exercises_and_exercise_tasks(
     exercises: &[NormalizedCmsExercise],
     page: &Page,
     conn: &mut PgConnection,
+    author: Uuid,
 ) -> ModelResult<(Vec<NormalizedCmsExercise>, serde_json::Value)> {
     // All related exercises and items should be deleted if not included in the update
     // We accomplish this by deleting everyting first in the transaction and then
@@ -604,7 +679,24 @@ RETURNING id, exercise_type, assignment, private_spec;
         new_content,
         page.id
     )
-    .execute(conn)
+    .execute(&mut *conn)
+    .await?;
+    sqlx::query!(
+        "
+INSERT INTO page_history (
+    page_id,
+    content,
+    history_change_reason,
+    author_user_id
+  )
+VALUES ($1, $2, $3, $4)
+",
+        page.id,
+        new_content,
+        HistoryChangeReason::PageSaved as HistoryChangeReason,
+        author
+    )
+    .execute(&mut *conn)
     .await?;
     Ok((result_exercises, new_content))
 }
@@ -658,7 +750,11 @@ fn update_ids_in_content(
     Ok(serde_json::from_str(&content_str)?)
 }
 
-pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelResult<Page> {
+pub async fn insert_page(
+    conn: &mut PgConnection,
+    new_page: NewPage,
+    author: Uuid,
+) -> ModelResult<Page> {
     let normalized_document = normalize_from_json(new_page.content)?;
 
     if new_page.chapter_id.is_none()
@@ -696,9 +792,26 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelRes
     )
     .fetch_one(&mut tx)
     .await?;
+    sqlx::query!(
+        "
+INSERT INTO page_history (
+    page_id,
+    content,
+    history_change_reason,
+    author_user_id
+  )
+VALUES ($1, $2, $3, $4)
+",
+        page.id,
+        content_as_json,
+        HistoryChangeReason::PageSaved as HistoryChangeReason,
+        author
+    )
+    .execute(&mut tx)
+    .await?;
 
     let (result_exercises, new_content) =
-        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx).await?;
+        upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, author).await?;
 
     let denormalized_content = denormalize(NormalizedDocument {
         content: serde_json::from_value(new_content)?,
@@ -1026,4 +1139,80 @@ WHERE p.chapter_id = $1
     .await?;
 
     Ok(pages)
+}
+
+pub async fn restore(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    history_id: Uuid,
+    author: Uuid,
+) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
+    let res = sqlx::query!(
+        "
+UPDATE pages
+SET content = page_history.content
+FROM page_history
+WHERE pages.id = $1
+  AND page_history.id = $2
+RETURNING page_history.content
+",
+        page_id,
+        history_id
+    )
+    .fetch_one(&mut tx)
+    .await?;
+    let res = sqlx::query!(
+        "
+INSERT INTO page_history (
+    page_id,
+    content,
+    history_change_reason,
+    author_user_id,
+    restored_from_id
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+",
+        page_id,
+        res.content,
+        HistoryChangeReason::HistoryRestored as HistoryChangeReason,
+        author,
+        history_id
+    )
+    .fetch_one(&mut tx)
+    .await?;
+    tx.commit().await?;
+    Ok(res.id)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct PageHistory {
+    id: Uuid,
+    created_at: DateTime<Utc>,
+    content: Value,
+    history_change_reason: HistoryChangeReason,
+    restored_from_id: Option<Uuid>,
+    author_user_id: Uuid,
+}
+
+pub async fn history(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Vec<PageHistory>> {
+    let res = sqlx::query_as!(
+        PageHistory,
+        r#"
+SELECT id,
+  content,
+  created_at,
+  history_change_reason as "history_change_reason: HistoryChangeReason",
+  restored_from_id,
+  author_user_id
+FROM page_history
+WHERE page_id = $1
+ORDER BY created_at
+"#,
+        page_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }

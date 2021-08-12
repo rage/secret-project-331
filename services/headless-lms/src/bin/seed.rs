@@ -80,14 +80,14 @@ async fn main() -> Result<()> {
     )
     .await?;
     let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin, teacher).await?;
-    let _cs_design = seed_cs_course_material(&mut conn, uh_cs).await?;
+    let _cs_design = seed_cs_course_material(&mut conn, uh_cs, admin).await?;
     let new_course = NewCourse {
         name: "Introduction to Computer Science".to_string(),
         slug: "introduction-to-computer-science".to_string(),
         organization_id: uh_cs,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) =
-        courses::insert_course(&mut conn, new_course).await?;
+        courses::insert_course(&mut conn, new_course, admin).await?;
     let _cs_course_instance = course_instances::insert(
         &mut conn,
         cs_course.id,
@@ -110,7 +110,7 @@ async fn main() -> Result<()> {
         organization_id: uh_mathstat,
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
-        courses::insert_course(&mut conn, new_course).await?;
+        courses::insert_course(&mut conn, new_course, admin).await?;
     let _statistics_course_instance = course_instances::insert(
         &mut conn,
         statistics_course.id,
@@ -165,27 +165,32 @@ async fn seed_cs_intro(
         organization_id: org,
         slug: "introduction-to-everything".to_string(),
     };
-    let (course, _front_page, _default_instance) = courses::insert_course(conn, new_course).await?;
+    let (course, _front_page, _default_instance) =
+        courses::insert_course(conn, new_course, admin).await?;
     let course_instance =
         course_instances::insert(conn, course.id, Some("non-default instance"), None).await?;
 
     // pages and chapters
-    let _page = pages::insert(
+    let (_page, _) = pages::insert(
         conn,
         course.id,
         "/welcome",
         "Welcome to Introduction to Everything",
         1,
+        admin,
     )
     .await?;
-    let page_ch1_1 = pages::insert(conn, course.id, "/chapter-1/page-1", "Page One", 1).await?;
-    let page_ch1_2 = pages::insert(conn, course.id, "/chapter-1/page-2", "page 2", 2).await?;
-    let page_ch2 = pages::insert(
+    let (page_ch1_1, _) =
+        pages::insert(conn, course.id, "/chapter-1/page-1", "Page One", 1, admin).await?;
+    let (page_ch1_2, _) =
+        pages::insert(conn, course.id, "/chapter-1/page-2", "page 2", 2, admin).await?;
+    let (page_ch2, _) = pages::insert(
         conn,
         course.id,
         "/chapter-2/intro",
         "In the second chapter...",
         1,
+        admin,
     )
     .await?;
 
@@ -195,7 +200,7 @@ async fn seed_cs_intro(
         front_front_page_id: None,
         name: "The Basics".to_string(),
     };
-    let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter).await?;
+    let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
     let new_chapter = NewChapter {
         chapter_number: 2,
@@ -203,7 +208,7 @@ async fn seed_cs_intro(
         front_front_page_id: None,
         name: "The intermediaries".to_string(),
     };
-    let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter).await?;
+    let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
         conn,
         chapter_2.id,
@@ -216,7 +221,7 @@ async fn seed_cs_intro(
         front_front_page_id: None,
         name: "Advanced studies".to_string(),
     };
-    let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter).await?;
+    let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
         conn,
         chapter_3.id,
@@ -229,7 +234,7 @@ async fn seed_cs_intro(
         front_front_page_id: None,
         name: "Forbidden magicks".to_string(),
     };
-    let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter).await?;
+    let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
         conn,
         chapter_4.id,
@@ -310,6 +315,7 @@ async fn seed_cs_intro(
                 inner_blocks: vec![],
             },
         ],
+        admin,
     )
     .await?;
     pages::update_content(
@@ -348,6 +354,7 @@ async fn seed_cs_intro(
                 inner_blocks: vec![],
             },
         ],
+        admin,
     )
     .await?;
     pages::update_content(
@@ -372,6 +379,7 @@ async fn seed_cs_intro(
                 inner_blocks: vec![],
             },
         ],
+        admin,
     )
     .await?;
 
@@ -754,14 +762,15 @@ async fn grade(
     Ok(())
 }
 
-async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<Uuid> {
+async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Result<Uuid> {
     // Create new course
     let new_course = NewCourse {
         name: "Introduction to Course Material".to_string(),
         organization_id: org,
         slug: "introduction-to-course-material".to_string(),
     };
-    let (course, front_page, _default_instance) = courses::insert_course(conn, new_course).await?;
+    let (course, front_page, _default_instance) =
+        courses::insert_course(conn, new_course, admin).await?;
 
     // Set / page data
     pages::update_content(
@@ -773,11 +782,12 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
             GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
         ],
+        admin,
     )
     .await?;
 
     // FAQ, we should add card/accordion block to visualize here.
-    let _page = pages::insert(conn, course.id, "/faq", "FAQ", 1).await?;
+    let (_page, _history) = pages::insert(conn, course.id, "/faq", "FAQ", 1, admin).await?;
 
     // Chapter-1
     let new_chapter = NewChapter {
@@ -786,7 +796,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         front_front_page_id: None,
         name: "User Interface".to_string(),
     };
-    let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter).await?;
+    let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
 
     pages::update_content(
@@ -798,10 +808,12 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
         ],
+        admin,
     )
     .await?;
     // /chapter-1/design
-    let page_ch1_1 = pages::insert(conn, course.id, "/chapter-1/design", "Design", 1).await?;
+    let (page_ch1_1, _) =
+        pages::insert(conn, course.id, "/chapter-1/design", "Design", 1, admin).await?;
     pages::set_chapter(conn, page_ch1_1, chapter_1.id).await?;
     pages::update_content(
         conn,
@@ -828,16 +840,17 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
                   "dropCap": false
                 }),
             ),
-        ],
+        ],admin
     ).await?;
 
     // /chapter-1/human-machine-interface
-    let page_ch1_2 = pages::insert(
+    let (page_ch1_2, _) = pages::insert(
         conn,
         course.id,
         "/chapter-1/human-machine-interface",
         "Human-machine interface",
         2,
+        admin,
     )
     .await?;
     pages::set_chapter(conn, page_ch1_2, chapter_1.id).await?;
@@ -866,7 +879,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
                   "dropCap": false
                 }),
             ),
-        ],
+        ],admin
     ).await?;
 
     // Chapter-2
@@ -876,7 +889,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         front_front_page_id: None,
         name: "User Experience".to_string(),
     };
-    let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2).await?;
+    let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
     chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;
 
     pages::update_content(
@@ -888,16 +901,18 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
         ],
+        admin,
     )
     .await?;
 
     // /chapter-2/user-research
-    let page_ch2_1 = pages::insert(
+    let (page_ch2_1, _) = pages::insert(
         conn,
         course.id,
         "/chapter-2/user-research",
         "User research",
         1,
+        admin,
     )
     .await?;
     pages::set_chapter(conn, page_ch2_1, chapter_2.id).await?;
@@ -931,6 +946,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
                 }),
             ),
         ],
+        admin
     ).await?;
 
     Ok(course.id)

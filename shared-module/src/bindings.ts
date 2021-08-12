@@ -267,6 +267,21 @@ export interface SubmissionInfo {
   submission_iframe_path: string
 }
 
+export interface PageHistory {
+  id: string
+  created_at: Date
+  content: unknown
+  history_change_reason: HistoryChangeReason
+  restored_from_id: string | null
+  author_user_id: string
+}
+
+export type HistoryChangeReason = "PageSaved" | "HistoryRestored"
+
+export interface HistoryRestoreData {
+  history_id: string
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"

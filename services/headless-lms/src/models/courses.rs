@@ -121,6 +121,7 @@ pub struct NewCourse {
 pub async fn insert_course(
     conn: &mut PgConnection,
     course: NewCourse,
+    user: Uuid,
 ) -> ModelResult<(Course, Page, CourseInstance)> {
     let mut tx = conn.begin().await?;
 
@@ -154,7 +155,7 @@ pub async fn insert_course(
         title: course.name.clone(),
         url_path: String::from("/"),
     };
-    let page = crate::models::pages::insert_page(&mut tx, course_front_page).await?;
+    let page = crate::models::pages::insert_page(&mut tx, course_front_page, user).await?;
 
     // Create default course instance
     let default_course_instance = crate::models::course_instances::insert(

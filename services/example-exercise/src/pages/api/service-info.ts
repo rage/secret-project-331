@@ -2,11 +2,11 @@ import type { NextApiRequest, NextApiResponse } from "next"
 
 import { ExerciseServiceInfoApi } from "../../shared-module/bindings"
 import basePath from "../../shared-module/utils/base-path"
-import { ClientErrorResponse, ModelSolutionApi } from "../../util/stateInterfaces"
+import { ClientErrorResponse } from "../../util/stateInterfaces"
 
 export default (
   req: NextApiRequest,
-  res: NextApiResponse<ExerciseServiceInfoApi | ModelSolutionApi | ClientErrorResponse>,
+  res: NextApiResponse<ExerciseServiceInfoApi | ClientErrorResponse>,
 ): void => {
   if (req.method !== "GET") {
     return res.status(404).json({ message: "Not found" })
@@ -15,10 +15,7 @@ export default (
   return handlePost(req, res)
 }
 
-const handlePost = (
-  _req: NextApiRequest,
-  res: NextApiResponse<ExerciseServiceInfoApi | ModelSolutionApi>,
-) => {
+const handlePost = (_req: NextApiRequest, res: NextApiResponse<ExerciseServiceInfoApi>) => {
   const prefix = basePath()
   res.json({
     service_name: "Example exercise",

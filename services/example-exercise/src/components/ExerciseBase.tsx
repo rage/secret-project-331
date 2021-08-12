@@ -39,8 +39,8 @@ const ExerciseBase: React.FC<Props> = ({
         const green = baseTheme.colors.green[100]
         const red = baseTheme.colors.red[100]
         // Background of the buttons
-        const color = baseTheme.colors.neutral[100]
-        const chosenColor = baseTheme.colors.neutral[200]
+        const color = baseTheme.colors.neutral[400]
+        const chosenColor = baseTheme.colors.neutral[500]
 
         return (
           <button
@@ -51,7 +51,7 @@ const ExerciseBase: React.FC<Props> = ({
                     padding: 1rem 2rem;
                     background-color: ${selected ? chosenColor : color};
                     border-radius: 1rem;
-                    border: ${model_solutions ? `0` : `4px solid ${correct ? green : red}`};
+                    border: ${!model_solutions ? `0` : `4px solid ${correct ? green : red}`};
                     color: white;
                     transition: all 0.3s;
                     cursor: pointer;
@@ -69,7 +69,7 @@ const ExerciseBase: React.FC<Props> = ({
                     padding: 1rem 2rem;
                     background-color: ${selected ? chosenColor : color};
                     border-radius: 1rem;
-                    border: ${model_solutions ? `0` : `4px solid ${correct ? green : red}`};
+                    border: ${!model_solutions ? `0` : `4px solid ${correct ? green : red}`};
                     color: white;
                     margin-top: 0.5rem;
                     margin-bottom: 0.5rem;

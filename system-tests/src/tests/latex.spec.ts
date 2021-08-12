@@ -115,11 +115,8 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')
   // Click text=Chapter 1: first page
-  await Promise.all([page.waitForNavigation(), page.click("text=Chapter 1: first page")])
+  await Promise.all([page.waitForNavigation(), page.click("text=first page")])
   expectPath(page, "/courses/latex-course/chapter-1")
-
-  await page.waitForSelector("text=This is the last page")
-  await page.waitForSelector('button:has-text("Debug")')
 
   // Compare to working image
   if (headless) {

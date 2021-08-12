@@ -78,9 +78,9 @@ impl GutenbergBlock {
                 "core/paragraph",
                 serde_json::json!({
                     "align": "center",
-                    "content": "",
+                    "content": sub_title.to_string(),
                     "dropCap": false,
-                    "placeholder": sub_title.to_string()
+                    "placeholder": "Insert short description of course..."
                 }),
             )],
         )

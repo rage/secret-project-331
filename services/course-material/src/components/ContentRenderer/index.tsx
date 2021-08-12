@@ -15,6 +15,7 @@ import ExerciseListBlock from "./ExerciseListBlock/index"
 import HeadingBlock from "./HeadingBlock"
 import HeroSectionBlock from "./HeroSectionBlock"
 import ImageBlock from "./ImageBlock"
+import LandingPageHeroSectionBlock from "./LandingPageHeroSectionBlock"
 import ListBlock from "./ListBlock"
 import PagesListBlock from "./PagesListBlock"
 import ParagraphBlock from "./ParagraphBlock"
@@ -34,7 +35,7 @@ export interface BlockRendererProps<T> {
 
 const LatexBlock = dynamic(() => import("./LatexBlock"))
 
-const blockToRendererMap: { [blockName: string]: any } = {
+export const blockToRendererMap: { [blockName: string]: any } = {
   "core/audio": AudioBlock,
   "core/paragraph": ParagraphBlock,
   "core/list": ListBlock,
@@ -54,6 +55,7 @@ const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/course-chapter-grid": CourseChapterGridBlock,
   "moocfi/latex": LatexBlock,
   "moocfi/hero-section": HeroSectionBlock,
+  "moocfi/landing-page-hero-section": LandingPageHeroSectionBlock,
   "moocfi/course-progress": CourseProgressBlock,
   "moocfi/chapter-progress": CourseProgressBlock,
 }

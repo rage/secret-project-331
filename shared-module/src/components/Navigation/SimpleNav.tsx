@@ -6,7 +6,7 @@ import { MouseEventHandler, useContext, useState } from "react"
 
 import LoginStateContext from "../../contexts/LoginStateContext"
 import { logout } from "../../services/backend/auth"
-import { primaryFont } from "../../utils"
+import { headingFont } from "../../utils"
 import Hamburger from "../Hamburger"
 import Spinner from "../Spinner"
 
@@ -122,7 +122,7 @@ const ToolTip = css`
     border-bottom: 2px solid #e1e1e1;
     list-style: none;
     margin: 0;
-    font-family: ${primaryFont};
+    font-family: ${headingFont};
 
     &:last-child {
       border-bottom: none;

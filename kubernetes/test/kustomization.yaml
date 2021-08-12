@@ -47,6 +47,11 @@ patches:
       version: v1
       kind: Deployment
       name: main-frontend
+  - path: quizzes/patch-deployment.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: quizzes
 
   # Patch to use --release param in cargo command
   - path: headless-lms/patch-service-info-fetcher.yml

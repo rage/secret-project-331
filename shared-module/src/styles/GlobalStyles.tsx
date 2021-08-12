@@ -12,7 +12,7 @@ const globalCss = css`
   ${cssReset}
 
   html, body {
-    font-family: ${primaryFont};
+    font-family: ${primaryFont} !important;
   }
   h1,
   h2,
@@ -20,7 +20,7 @@ const globalCss = css`
   h4,
   h5,
   h6 {
-    font-family: ${headingFont};
+    font-family: ${headingFont} !important;
   }
 `
 

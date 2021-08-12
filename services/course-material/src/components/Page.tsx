@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext } from "react"
 
 import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
 import { Block } from "../services/backend"
@@ -20,46 +20,6 @@ interface Props {
 const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
   const pageContext = useContext(CoursePageContext)
   const pageDispatch = useContext(CoursePageDispatch)
-  const [x, setX] = useState(0)
-  const [y, setY] = useState(0)
-  const [selection, setSelection] = useState("")
-
-  function selectionHandler(this: Document) {
-    const docSelection = this.getSelection()
-    if (docSelection == null || !docSelection.rangeCount) {
-      return
-    }
-    const range = docSelection.getRangeAt(0)
-    if (range == null) {
-      setSelection("")
-      return
-    }
-
-    const contents = range.cloneContents()
-    if (contents.textContent == null) {
-      setSelection("")
-      return
-    }
-
-    const rects = range.getClientRects()
-    if (rects.length < 1) {
-      setSelection("")
-      return
-    }
-    const rect = rects[0]
-    console.log(rect)
-    setX(rect.x)
-    setY(rect.y - 40)
-    setSelection(contents.textContent)
-  }
-
-  useEffect(() => {
-    document.addEventListener("selectionchange", selectionHandler)
-
-    return function cleanup() {
-      document.removeEventListener("selectionchange", selectionHandler)
-    }
-  })
 
   return (
     <>
@@ -89,16 +49,7 @@ const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
       >
         <FeedbackButton courseSlug={courseSlug} />
       </div>
-      <div
-        hidden={selection.length === 0}
-        className={css`
-          position: relative;
-          top: ${y}px;
-          left: ${x}px;
-        `}
-      >
-        <FeedbackTooltip selection={selection} />
-      </div>
+      <FeedbackTooltip />
       <h1
         className={css`
           ${normalWidthCenteredComponentStyles}

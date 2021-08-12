@@ -117,7 +117,7 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click text=Chapter 1: first page
   await Promise.all([page.waitForNavigation(), page.click("text=first page")])
   expectPath(page, "/courses/latex-course/chapter-1")
-
+  await page.waitForSelector("text=Inline latex")
   // Compare to working image
   if (headless) {
     const screenshot = await page.screenshot()

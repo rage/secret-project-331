@@ -4,7 +4,6 @@ import React from "react"
 import { QueryClientProvider } from "react-query"
 import { ReactQueryDevtools } from "react-query/devtools"
 
-import Layout from "../components/Layout"
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
@@ -23,15 +22,13 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     <QueryClientProvider client={queryClient}>
       {/* <RecoilRoot> */}
       {/* <Devtools /> */}
-      <Layout>
-        <ThemeProvider theme={muiTheme}>
-          <GlobalStyles />
-          <LoginStateContextProvider>
-            <Component {...pageProps} />
-          </LoginStateContextProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
-        </ThemeProvider>
-      </Layout>
+      <ThemeProvider theme={muiTheme}>
+        <GlobalStyles />
+        <LoginStateContextProvider>
+          <Component {...pageProps} />
+        </LoginStateContextProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ThemeProvider>
       {/* </RecoilRoot> */}
     </QueryClientProvider>
   )

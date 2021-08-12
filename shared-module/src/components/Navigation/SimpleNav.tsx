@@ -1,10 +1,16 @@
 import { css, cx } from "@emotion/css"
 import { faBullseye } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useState } from "react"
+import { useRouter } from "next/router"
+import { MouseEventHandler, useContext, useState } from "react"
 
+import LoginStateContext from "../../contexts/LoginStateContext"
+import { logout } from "../../services/backend/auth"
 import { primaryFont } from "../../utils"
 import Hamburger from "../Hamburger"
+import Spinner from "../Spinner"
+
+import { NavigationProps } from "."
 
 const StyledIcon = css`
   font-size: 1.8rem;
@@ -143,8 +149,19 @@ const Hide = css`
   display: none;
 `
 
-const Navigation: React.FC = () => {
+const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
   const [clicked, setClicked] = useState(false)
+  const loginStateContext = useContext(LoginStateContext)
+  const router = useRouter()
+  if (loginStateContext.isLoading) {
+    return <Spinner variant="large">Loading...</Spinner>
+  }
+
+  const submitLogout: MouseEventHandler<HTMLAnchorElement> | undefined = async (event) => {
+    event.preventDefault()
+    await logout()
+    await loginStateContext.refresh()
+  }
 
   const onClickHandler = () => {
     setClicked(!clicked)
@@ -153,7 +170,7 @@ const Navigation: React.FC = () => {
   return (
     <nav className={cx(NavbarItems)}>
       <h1 className={cx(NavbarLogo)}>
-        <a href="/" aria-label="Kotisivulle" role="button">
+        <a href={`${frontPageUrl}`} aria-label="Kotisivulle" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}
@@ -163,13 +180,25 @@ const Navigation: React.FC = () => {
       </h1>
       <ul className={clicked ? cx(NavMenu) : cx(NavMenu)} role="list">
         <li className="container">
-          <a className={cx(NavLink)} href="/faq" aria-label="Kurssi valikko" role="button">
+          <a className={cx(NavLink)} href={`${faqUrl}`} aria-label="Kurssi valikko" role="button">
             FAQ
           </a>
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
-            <li>Login controls</li>
-            <li>Authors</li>
-            <li>License</li>
+            {loginStateContext.signedIn ? (
+              <li>
+                <a href="#" onClick={submitLogout}>
+                  Logout
+                </a>
+              </li>
+            ) : (
+              <li>
+                <a href={`/login?return_to=${encodeURIComponent("/courses" + router.asPath)}`}>
+                  Login
+                </a>
+              </li>
+            )}
+            {/* <li>Authors</li>
+            <li>License</li> */}
           </ul>
         </li>
         <li>

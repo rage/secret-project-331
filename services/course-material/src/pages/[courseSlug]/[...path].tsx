@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useReducer } from "react"
 
+import Layout from "../../components/Layout"
 import Page from "../../components/Page"
 import PageNotFound from "../../components/PageNotFound"
 import CoursePageContext, {
@@ -80,7 +81,14 @@ const PagePage: React.FC = () => {
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <CoursePageContext.Provider value={pageState}>
-        <Page onRefresh={handleRefresh} />
+        <Layout
+          //  Not a good idea, but works for now.
+          faqUrl={"/courses/" + courseSlug + "/faq"}
+          frontPageUrl={"/courses/" + courseSlug}
+          title={pageDataQuery.data?.title}
+        >
+          <Page onRefresh={handleRefresh} />
+        </Layout>
       </CoursePageContext.Provider>
     </CoursePageDispatch.Provider>
   )

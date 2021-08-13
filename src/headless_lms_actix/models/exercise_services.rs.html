@@ -151,6 +151,15 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">exercise_service_info::ExerciseServiceInfo</span>, <span class="ident">ModelError</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -255,6 +264,15 @@ Returns a url that can be used to generate a public version of a private spec.
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">get_exercise_service_internally_preferred_baseurl</span>(<span class="ident">exercise_service</span>)<span class="question-mark">?</span>;
     <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>.<span class="ident">public_spec_endpoint_path</span>);
+    <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_model_solution_url</span>(
+    <span class="ident">exercise_service</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseService</span>,
+    <span class="ident">exercise_service_info</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseServiceInfo</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">get_exercise_service_internally_preferred_baseurl</span>(<span class="ident">exercise_service</span>)<span class="question-mark">?</span>;
+    <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>.<span class="ident">model_solution_path</span>);
     <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
 }
 

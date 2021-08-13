@@ -260,6 +260,22 @@
 <span id="258">258</span>
 <span id="259">259</span>
 <span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">exercise_services</span>::{
@@ -286,6 +302,18 @@
     <span class="kw">pub</span> <span class="ident">submission_iframe_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">grade_endpoint_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">public_spec_endpoint_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_path</span>: <span class="ident">String</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PathInfo</span> {
+    <span class="kw">pub</span> <span class="ident">exercise_service_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">editor_iframe_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_iframe_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">submission_iframe_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">grade_endpoint_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">public_spec_endpoint_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_path</span>: <span class="ident">String</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -301,16 +329,12 @@
     <span class="kw">pub</span> <span class="ident">submission_iframe_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">grade_endpoint_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">public_spec_endpoint_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_path</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_service_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">editor_iframe_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">exercise_iframe_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">submission_iframe_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">grade_endpoint_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">public_spec_endpoint_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    <span class="ident">exercise_service_info</span>: <span class="kw-2">&amp;</span><span class="ident">PathInfo</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseServiceInfo</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">ExerciseServiceInfo</span>,
@@ -321,17 +345,19 @@ INSERT INTO exercise_service_info (
     exercise_iframe_path,
     submission_iframe_path,
     grade_endpoint_path,
-    public_spec_endpoint_path
+    public_spec_endpoint_path,
+    model_solution_path
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
 &quot;</span>,
-        <span class="ident">exercise_service_id</span>,
-        <span class="ident">editor_iframe_path</span>,
-        <span class="ident">exercise_iframe_path</span>,
-        <span class="ident">submission_iframe_path</span>,
-        <span class="ident">grade_endpoint_path</span>,
-        <span class="ident">public_spec_endpoint_path</span>,
+        <span class="ident">exercise_service_info</span>.<span class="ident">exercise_service_id</span>,
+        <span class="ident">exercise_service_info</span>.<span class="ident">editor_iframe_path</span>,
+        <span class="ident">exercise_service_info</span>.<span class="ident">exercise_iframe_path</span>,
+        <span class="ident">exercise_service_info</span>.<span class="ident">submission_iframe_path</span>,
+        <span class="ident">exercise_service_info</span>.<span class="ident">grade_endpoint_path</span>,
+        <span class="ident">exercise_service_info</span>.<span class="ident">public_spec_endpoint_path</span>,
+        <span class="ident">exercise_service_info</span>.<span class="ident">model_solution_path</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -361,6 +387,9 @@ RETURNING *
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">status</span>();
     <span class="kw">if</span> <span class="op">!</span><span class="ident">status</span>.<span class="ident">is_success</span>() {
+        <span class="kw">let</span> <span class="ident">response_url</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">url</span>().<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">text</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="macro">warn!</span>(<span class="ident">url</span><span class="op">=</span><span class="question-mark">?</span><span class="ident">response_url</span>, <span class="ident">status</span><span class="op">=</span><span class="question-mark">?</span><span class="ident">status</span>, <span class="ident">body</span><span class="op">=</span><span class="question-mark">?</span><span class="ident">body</span>, <span class="string">&quot;Could not fetch service info.&quot;</span>);
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(
             <span class="string">&quot;Could not fetch service info.&quot;</span>.<span class="ident">to_string</span>(),
         ));
@@ -383,15 +412,17 @@ INSERT INTO exercise_service_info(
     exercise_iframe_path,
     submission_iframe_path,
     grade_endpoint_path,
-    public_spec_endpoint_path
+    public_spec_endpoint_path,
+    model_solution_path
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET editor_iframe_path = $2,
   exercise_iframe_path = $3,
   submission_iframe_path = $4,
   grade_endpoint_path = $5,
-  public_spec_endpoint_path = $6
+  public_spec_endpoint_path = $6,
+  model_solution_path = $7
 RETURNING *
     &quot;#</span>,
         <span class="ident">exercise_service_id</span>,
@@ -400,6 +431,7 @@ RETURNING *
         <span class="ident">update</span>.<span class="ident">submission_iframe_path</span>,
         <span class="ident">update</span>.<span class="ident">grade_endpoint_path</span>,
         <span class="ident">update</span>.<span class="ident">public_spec_endpoint_path</span>,
+        <span class="ident">update</span>.<span class="ident">model_solution_path</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -454,7 +486,7 @@ WHERE exercise_service_id = $1
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_selected_exercise_services_by_type</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">slugs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">slugs</span>: <span class="kw-2">&amp;</span>[<span class="ident">String</span>],
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">ExerciseService</span>, <span class="ident">ExerciseServiceInfo</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">selected_services</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">ExerciseService</span>,
@@ -462,7 +494,7 @@ WHERE exercise_service_id = $1
 SELECT *
 FROM exercise_services
 WHERE slug = ANY($1);&quot;</span>,
-        <span class="kw-2">&amp;</span><span class="ident">slugs</span>[..],
+        <span class="ident">slugs</span>,
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

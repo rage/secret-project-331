@@ -108,6 +108,10 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::ModelResult</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::utils::document_schema_processor::GutenbergBlock</span>;
@@ -139,6 +143,7 @@
     <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">spec_file_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
@@ -148,6 +153,7 @@
     <span class="ident">assignment</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span>,
     <span class="ident">private_spec</span>: <span class="ident">Value</span>,
     <span class="ident">public_spec</span>: <span class="ident">Value</span>,
+    <span class="ident">model_solution_spec</span>: <span class="ident">Value</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
@@ -156,16 +162,18 @@ INSERT INTO exercise_tasks (
     exercise_type,
     assignment,
     private_spec,
-    public_spec
+    public_spec,
+    model_solution_spec
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 &quot;</span>,
         <span class="ident">exercise_id</span>,
         <span class="ident">exercise_type</span>,
         <span class="ident">serde_json::to_value</span>(<span class="ident">assignment</span>).<span class="ident">unwrap</span>(),
         <span class="ident">private_spec</span>,
-        <span class="ident">public_spec</span>
+        <span class="ident">public_spec</span>,
+        <span class="ident">model_solution_spec</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

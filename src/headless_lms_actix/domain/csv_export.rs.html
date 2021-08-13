@@ -269,6 +269,22 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models</span>::{<span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">user_exercise_states</span>};
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
@@ -448,15 +464,31 @@
         <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page</span>, <span class="ident">c2</span>, <span class="number">0</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">et2</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="string">&quot;&quot;</span>, <span class="macro">vec!</span>[], <span class="ident">Value::Null</span>, <span class="ident">Value::Null</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">et2</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">e2</span>,
+            <span class="string">&quot;&quot;</span>,
+            <span class="macro">vec!</span>[],
+            <span class="ident">Value::Null</span>,
+            <span class="ident">Value::Null</span>,
+            <span class="ident">Value::Null</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">e3</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page</span>, <span class="ident">c2</span>, <span class="number">1</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">et3</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e3</span>, <span class="string">&quot;&quot;</span>, <span class="macro">vec!</span>[], <span class="ident">Value::Null</span>, <span class="ident">Value::Null</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">et3</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">e3</span>,
+            <span class="string">&quot;&quot;</span>,
+            <span class="macro">vec!</span>[],
+            <span class="ident">Value::Null</span>,
+            <span class="ident">Value::Null</span>,
+            <span class="ident">Value::Null</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
         <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>, <span class="ident">course</span>, <span class="ident">task</span>, <span class="ident">user</span>, <span class="ident">instance</span>, <span class="number">12.34</span>).<span class="kw">await</span>;
         <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="ident">course</span>, <span class="ident">et2</span>, <span class="ident">user</span>, <span class="ident">instance</span>, <span class="number">23.45</span>).<span class="kw">await</span>;
         <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="ident">course</span>, <span class="ident">et2</span>, <span class="ident">u2</span>, <span class="ident">instance</span>, <span class="number">34.56</span>).<span class="kw">await</span>;

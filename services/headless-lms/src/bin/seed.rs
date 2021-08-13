@@ -421,6 +421,7 @@ async fn seed_cs_intro(
             "name": "c",
 
         }]),
+        serde_json::json!([spec_c1p1e1t1_2, spec_c1p1e1t1_3]),
     )
     .await?;
     let spec_c1p2e1t1_1 = Uuid::new_v4().to_string();
@@ -463,6 +464,7 @@ async fn seed_cs_intro(
             "id": spec_c1p2e1t1_3,
             "name": "c",
         }]),
+        serde_json::json!([spec_c1p2e1t1_2]),
     )
     .await?;
     let spec_c1p2e2t1_1 = Uuid::new_v4().to_string();
@@ -505,6 +507,7 @@ async fn seed_cs_intro(
             "id": spec_c1p2e2t1_3,
             "name": "c",
         }]),
+        serde_json::json!([spec_c1p2e2t1_2]),
     )
     .await?;
     let spec_c2p1e1t1_1 = Uuid::new_v4().to_string();
@@ -547,88 +550,113 @@ async fn seed_cs_intro(
             "id": spec_c2p1e1t1_3,
             "name": "c",
         }]),
+        serde_json::json!([spec_c2p1e1t1_2, spec_c2p1e1t1_3]),
     )
     .await?;
 
     // submissions
-    let submission_admin_c1p1e1t1_1 = submissions::insert(
+    let submission_admin_c1p1e1t1_1 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("8c447aeb-1791-4236-8471-204d8bc27507")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c1p1e1t1_2 = submissions::insert(
+    let submission_admin_c1p1e1t1_2 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_2.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("a719fe25-5721-412d-adea-4696ccb3d883")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_2.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c1p1e1t1_3 = submissions::insert(
+    let submission_admin_c1p1e1t1_3 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_3.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("bbc16d4b-1f91-4bd0-a47f-047665a32196")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_3.to_string()),
+        },
     )
     .await?;
-    let _submission_admin_c1p1e1t1_4 = submissions::insert(
+    let _submission_admin_c1p1e1t1_4 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("c60bf5e5-9b67-4f62-9df7-16d268c1b5f5")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c1p2e1t1 = submissions::insert(
+    let submission_admin_c1p2e1t1 = submissions::insert_with_id(
         conn,
-        exercise_c1p2_1,
-        course.id,
-        exercise_task_c1p2e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p2e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("e0ec1386-72aa-4eed-8b91-72bba420c23b")?,
+            exercise_id: exercise_c1p2_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p2e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p2e1t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c1p2e2t1 = submissions::insert(
+    let submission_admin_c1p2e2t1 = submissions::insert_with_id(
         conn,
-        exercise_c1p2_2,
-        course.id,
-        exercise_task_c1p2e2_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p2e2t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("4c6b8f4f-40c9-4970-947d-077e25c67e24")?,
+            exercise_id: exercise_c1p2_2,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p2e2_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p2e2t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c2p1e1t1 = submissions::insert(
+    let submission_admin_c2p1e1t1 = submissions::insert_with_id(
         conn,
-        exercise_c2p1_1,
-        course.id,
-        exercise_task_c2p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c2p1e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("02c9e1ad-6e4c-4473-a3e9-dbfab018a055")?,
+            exercise_id: exercise_c2p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c2p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c2p1e1t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_teacher_c1p1e1t1 = submissions::insert(
+    let submission_teacher_c1p1e1t1 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        teacher,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("75df4600-d337-4083-99d1-e8e3b6bf6192")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: teacher,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
+        },
     )
     .await?;
 

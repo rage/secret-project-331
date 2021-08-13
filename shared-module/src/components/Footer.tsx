@@ -14,6 +14,11 @@ const Wrapper = styled.div`
   padding: 4.5rem;
   color: #231f20;
   position: relative;
+  @media (max-width: 37.5em) {
+    grid-template-columns: 1fr;
+    grid-gap: 2em;
+    padding: 1rem;
+  }
 
   h3 {
     margin-bottom: 1rem;

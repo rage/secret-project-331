@@ -11,7 +11,6 @@ import Button from "./Button"
 const HeroWrapper = styled.div`
   background: #fff;
   width: 100%;
-  height: 584px;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 `
@@ -20,7 +19,6 @@ const TextBox = styled.div`
   display: flex;
   flex-direction: column;
   padding: 2rem 2.5rem;
-  height: 100%;
   margin-bottom: 1rem;
   align-items: center;
   text-align: center;

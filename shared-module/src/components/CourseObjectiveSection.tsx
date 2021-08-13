@@ -7,7 +7,6 @@ import { theme, typography } from "../utils"
 /* import { border, color, space } from "styled-system" */
 
 const HeroWrapper = styled.div`
-  height: 584px;
   background: #f1f1f1;
   width: 100%;
   border-radius: 1px;
@@ -18,7 +17,6 @@ const TextBox = styled.div`
   display: flex;
   flex-direction: column;
   padding: 2rem 2.5rem;
-  height: 100%;
   margin-bottom: 1rem;
   align-items: center;
   text-align: center;

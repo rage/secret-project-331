@@ -4,16 +4,13 @@ import React from "react"
 const BannerWrapper = styled.div`
   background: rgba(212, 212, 217, 1);
   width: 100%;
-  max-width: 1984px;
   position: relative;
-  padding: 0 2rem;
+  padding: 2rem 2rem;
   margin: 0 auto;
   display: block;
 `
 
 const Content = styled.div`
-  padding: 2rem 15rem 2.5rem 15rem;
-  max-width: 1760px;
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.4;

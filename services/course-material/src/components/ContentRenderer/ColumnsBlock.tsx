@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 
+import { respond } from "../../shared-module/utils/respond"
 import { ColumnsAttributes } from "../../types/GutenbergBlockAttributes"
 
 import DefaultBlock from "./DefaultBlock"
@@ -11,6 +12,9 @@ const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data })
     <div
       className={css`
         display: flex;
+        ${respond.mobile`
+          flex-wrap: wrap;
+        `}
       `}
     >
       {data.innerBlocks.map((block) => {

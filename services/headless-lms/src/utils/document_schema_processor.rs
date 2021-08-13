@@ -107,7 +107,7 @@ impl GutenbergBlock {
                                     "textAlign": "center",
                                     "content": "",
                                     "level": 3,
-                                    "placeholder": "Objective #1"
+                                    "content": "Objective #1"
                                 }),
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
@@ -116,7 +116,7 @@ impl GutenbergBlock {
                                     "align": "center",
                                     "content": "",
                                     "dropCap": false,
-                                    "placeholder": "Insert text..."
+                                    "content": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
                                 }),
                             ),
                         ],
@@ -131,7 +131,7 @@ impl GutenbergBlock {
                                     "textAlign": "center",
                                     "content": "",
                                     "level": 3,
-                                    "placeholder": "Objective #2"
+                                    "content": "Objective #2"
                                 }),
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
@@ -140,7 +140,7 @@ impl GutenbergBlock {
                                     "align": "center",
                                     "content": "",
                                     "dropCap": false,
-                                    "placeholder": "Insert text..."
+                                    "content": "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
                                 }),
                             ),
                         ],
@@ -155,7 +155,7 @@ impl GutenbergBlock {
                                     "textAlign": "center",
                                     "content": "",
                                     "level": 3,
-                                    "placeholder": "Objective #3"
+                                    "content": "Objective #3"
                                 }),
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
@@ -164,7 +164,7 @@ impl GutenbergBlock {
                                     "align": "center",
                                     "content": "",
                                     "dropCap": false,
-                                    "placeholder": "Insert text..."
+                                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien."
                                 }),
                             ),
                         ],

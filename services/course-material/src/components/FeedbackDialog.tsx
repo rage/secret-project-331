@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
-import { TextField } from "@material-ui/core"
-import { useState } from "react"
+import { Dialog, TextField } from "@material-ui/core"
+import React, { useState } from "react"
 
 import { postFeedback } from "../services/backend"
 import Button from "../shared-module/components/Button"
@@ -8,22 +8,19 @@ import { courseMaterialBlockClass } from "../utils/constants"
 
 interface Props {
   courseSlug: string
+  selection: string
+  open: boolean
+  close: () => unknown
 }
 
-const FeedbackButton: React.FC<Props> = ({ courseSlug }) => {
-  const [open, setOpen] = useState(false)
+const FeedbackDialog: React.FC<Props> = ({ courseSlug, selection, open, close }) => {
   const [feedback, setFeedback] = useState("")
   const [error, setError] = useState<string | null>(null)
 
-  let buttonText
-  if (open) {
-    buttonText = "Close menu"
-  } else {
-    buttonText = "Give feedback"
-  }
-
   async function submit(event: any) {
     event.preventDefault()
+    setError("")
+
     if (feedback.length === 0) {
       return
     }
@@ -56,50 +53,48 @@ const FeedbackButton: React.FC<Props> = ({ courseSlug }) => {
       return
     }
     setFeedback("")
-    setOpen(false)
+    close()
   }
 
   const charactersLeft = 1000 - feedback.length
   return (
-    <div
-      className={css`
-        background-color: white;
-      `}
-    >
-      {error && <pre>{JSON.stringify(error, undefined, 2)}</pre>}
-      <form hidden={!open}>
-        <TextField
-          multiline
-          value={feedback}
-          onChange={(ev) => {
-            setError(null)
-            setFeedback(ev.target.value)
-          }}
-        />
-        <br />
-        {charactersLeft < 500 && charactersLeft >= 0 && <div>{charactersLeft} characters left</div>}
-        {charactersLeft < 0 && <div>{Math.abs(charactersLeft)} characters over the limit</div>}
-        <Button
-          size={"medium"}
-          variant={"primary"}
-          onClick={submit}
-          disabled={feedback.length === 0 || charactersLeft < 0}
-        >
-          Submit
-        </Button>
-      </form>
-      <Button
-        size={"medium"}
-        variant={"primary"}
-        onClick={() => {
-          setError(null)
-          setOpen((open) => !open)
-        }}
+    <Dialog open={open}>
+      <h2>Send feedback</h2>
+      <div>Selected material:</div>
+      <pre
+        className={css`
+          max-width: 800px;
+          max-height: 800px;
+          min-width: 600px;
+          min-height: 400px;
+          overflow: auto;
+        `}
       >
-        {buttonText}
+        {selection}
+      </pre>
+      <form>
+        <TextField
+          value={feedback}
+          onChange={(ev) => setFeedback(ev.target.value)}
+          placeholder={"Write your feedback here"}
+          className={css`
+            width: 100%;
+          `}
+          multiline
+          rows={6}
+        />
+      </form>
+      {charactersLeft > 0 && charactersLeft < 500 && <div>{charactersLeft} characters left</div>}
+      {charactersLeft < 0 && <div>{Math.abs(charactersLeft)} characters over the limit</div>}
+      {error && <div>Error: {error}</div>}
+      <Button variant={"primary"} size={"medium"} disabled={charactersLeft < 0} onClick={submit}>
+        Submit
       </Button>
-    </div>
+      <Button variant={"secondary"} size={"medium"} onClick={close}>
+        Cancel
+      </Button>
+    </Dialog>
   )
 }
 
-export default FeedbackButton
+export default FeedbackDialog

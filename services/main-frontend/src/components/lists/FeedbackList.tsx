@@ -20,7 +20,6 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
   if (typeof router.query.page === "string") {
     initialPage = parseInt(router.query.page)
   } else {
-    router.replace({ query: { ...router.query, page: 1 } }, undefined, { shallow: true })
     initialPage = 1
   }
   const [page, setPage] = useState(initialPage)
@@ -46,7 +45,6 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
     return <div>No feedback</div>
   }
   if (page > pageCount) {
-    router.replace({ query: { ...router.query, page: pageCount } }, undefined, { shallow: true })
     setPage(pageCount)
   }
 

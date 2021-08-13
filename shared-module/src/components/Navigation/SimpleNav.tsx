@@ -6,7 +6,6 @@ import { MouseEventHandler, useContext, useState } from "react"
 
 import LoginStateContext from "../../contexts/LoginStateContext"
 import { logout } from "../../services/backend/auth"
-import { headingFont } from "../../utils"
 import Hamburger from "../Hamburger"
 import Spinner from "../Spinner"
 
@@ -50,7 +49,6 @@ const NavMenu = css`
 `
 const NavLink = css`
   color: #333;
-  font-family: "Josefin Sans", sans-serif;
   font-weight: 600;
   text-decoration: none;
   display: inline-block;
@@ -122,7 +120,6 @@ const ToolTip = css`
     border-bottom: 2px solid #e1e1e1;
     list-style: none;
     margin: 0;
-    font-family: ${headingFont};
 
     &:last-child {
       border-bottom: none;
@@ -134,7 +131,6 @@ const ToolTip = css`
       border: none;
       margin: 0;
       padding: 0;
-      font-family: "Josefin Sans", sans-serif;
       font-size: 16px;
     }
 

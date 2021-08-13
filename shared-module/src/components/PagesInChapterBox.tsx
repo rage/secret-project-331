@@ -11,7 +11,6 @@ const Wrapper = styled.aside`
   h2 {
     text-align: center;
     color: #3b4754;
-    font-family: "Josefin Sans", sans-serif;
     text-transform: uppercase;
     font-size: 1.6rem;
     margin-bottom: 2rem;
@@ -94,7 +93,6 @@ const ChapterParts = styled.div`
     display: inline-block;
     width: 80%;
     margin: 0.4em 0 0.4em 0.2em;
-    font-family: "Josefin Sans", sans-serif;
     text-transform: uppercase;
   }
 `

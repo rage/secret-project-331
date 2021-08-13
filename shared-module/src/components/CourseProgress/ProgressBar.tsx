@@ -50,14 +50,12 @@ const Label = styled.div`
     justify-self: start;
     font-size: 1.2em;
     font-weight: 400;
-    font-family: "Josefin Sans", sans-serif;
   }
 
   span:last-child {
     justify-self: end;
     font-weight: 700;
     font-size: 0.8em;
-    font-family: "Josefin Sans", sans-serif;
   }
 `
 

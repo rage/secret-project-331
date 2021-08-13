@@ -51,7 +51,6 @@ const StyledLink = styled.a`
 const Text = styled.div`
   width: 70%;
   span {
-    font-family: Lato, sans-serif;
     font-size: 16px;
     padding-right: 10rem;
     opacity: 0.7;
@@ -61,7 +60,6 @@ const Links = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: end;
-  font-family: "Josefin Sans", sans-serif;
 `
 
 export interface FooterExtraProps {

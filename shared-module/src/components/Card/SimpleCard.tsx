@@ -42,7 +42,6 @@ const CardTextBox = styled.div`
   }
 
   h2 {
-    font-family: "Josefin Sans", sans-serif;
     font-size: 3.125em;
     font-weight: 700;
     z-index: 20;
@@ -58,7 +57,6 @@ const CardTextBox = styled.div`
     position: relative;
     font-size: 0.75em;
     font-weight: 500;
-    font-family: "Josefin Sans", sans-serif;
     padding-top: 1em;
   }
 

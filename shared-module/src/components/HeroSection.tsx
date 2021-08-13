@@ -24,7 +24,6 @@ const TextBox = styled.div`
   justify-content: center;
 
   h1 {
-    font-family: "Josefin Sans", sans-serif;
     font-size: 50px;
     font-size: ${typography.h2};
     font-weight: 400;

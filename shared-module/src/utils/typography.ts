@@ -1,5 +1,5 @@
 export const headingFont = `"Josefin Sans", sans-serif`
-export const primaryFont = `"Lato", sand-serif`
+export const primaryFont = `"Lato", sans-serif`
 
 export const typography = {
   h1: "clamp(40px, 8vw, 90px)",

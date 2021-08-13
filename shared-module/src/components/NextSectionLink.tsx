@@ -10,7 +10,6 @@ const SectionWrapper = styled.div`
   padding: 3rem 2rem;
 
   p {
-    font-family: "Josefin Sans", sans-serif !important;
     font-size: 1.4rem;
     color: #333;
     margin: 0;
@@ -71,7 +70,6 @@ const StyledLink = styled.a`
   }
 
   span {
-    font-family: "Josefin Sans", sans-serif;
     font-size: ${typography.h6};
     color: white !important;
     line-height: 1.3;

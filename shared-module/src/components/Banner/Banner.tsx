@@ -30,7 +30,6 @@ const BannerWrapper = styled.div`
     right: 4rem;
     font-weight: 200;
     transform-origin: center;
-    font-family: none;
     transition: all 200ms linear;
     transform: rotate(45deg);
   }
@@ -42,7 +41,6 @@ const Content = styled.div`
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.4;
-  font-family: "Lato", sans-serif;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 2rem;

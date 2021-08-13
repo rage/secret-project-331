@@ -30,7 +30,6 @@ const Text = styled.div`
   text-align: left;
   font-size: 1.1rem;
   line-height: 1.5;
-  font-family: "Lato", sans-serif;
 `
 
 export interface QuoteExtraProps {

@@ -6,7 +6,6 @@ import { respond } from "../../utils/respond"
 
 const Container = styled.div`
   span {
-    font-family: "Josefin Sans", sans-serif;
     position: absolute;
     top: 50%;
     left: 56%;
@@ -37,7 +36,6 @@ const StyledSVG = styled.div`
     transform: translate(-50%, -50%);
     font-size: 3rem;
     font-weight: 400;
-    font-family: "Josefin Sans", sans-serif;
     opacity: 0.9;
   }
 `

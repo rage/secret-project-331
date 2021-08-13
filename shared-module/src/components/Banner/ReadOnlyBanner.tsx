@@ -17,7 +17,6 @@ const Content = styled.div`
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.4;
-  font-family: "Lato", sans-serif;
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;

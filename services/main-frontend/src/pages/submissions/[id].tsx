@@ -42,6 +42,7 @@ const Submission: React.FC = () => {
         url={`${data.submission_iframe_path}?width=700`} // todo: move constants to shared module?
         public_spec={data.exercise_task.public_spec}
         submission={data.submission}
+        model_solution_spec={data.exercise_task.model_solution_spec}
       />
       <DebugModal data={data} />
     </Layout>

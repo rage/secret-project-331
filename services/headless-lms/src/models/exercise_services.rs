@@ -104,6 +104,15 @@ pub fn get_internal_public_spec_url(
     Ok(url)
 }
 
+pub fn get_model_solution_url(
+    exercise_service: &ExerciseService,
+    exercise_service_info: &ExerciseServiceInfo,
+) -> ModelResult<Url> {
+    let mut url = get_exercise_service_internally_preferred_baseurl(exercise_service)?;
+    url.set_path(&exercise_service_info.model_solution_path);
+    Ok(url)
+}
+
 pub async fn get_exercise_services(conn: &mut PgConnection) -> ModelResult<Vec<ExerciseService>> {
     let res = sqlx::query_as!(
         ExerciseService,

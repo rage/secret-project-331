@@ -1,9 +1,12 @@
 use super::ModelResult;
 use crate::{
     models::{
-        chapters::DatabaseChapter, exercise_service_info,
-        exercise_services::get_internal_public_spec_url, exercise_tasks::ExerciseTask,
-        exercises::Exercise, ModelError,
+        chapters::DatabaseChapter,
+        exercise_service_info,
+        exercise_services::{get_internal_public_spec_url, get_model_solution_url},
+        exercise_tasks::ExerciseTask,
+        exercises::Exercise,
+        ModelError,
     },
     utils::document_schema_processor::{
         contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
@@ -408,6 +411,7 @@ struct ExerciseTaskIdAndSpec {
     id: Uuid,
     private_spec: Option<serde_json::Value>,
     public_spec: Option<serde_json::Value>,
+    model_solution_spec: Option<serde_json::Value>,
 }
 
 /// Used by page inserts and page updates. The logic can be shared since the allowed inputs are the same.
@@ -454,7 +458,8 @@ async fn upsert_exercises_and_exercise_tasks(
         r#"
 SELECT et.id,
   et.private_spec,
-  et.public_spec
+  et.public_spec,
+  et.model_solution_spec
 from exercise_tasks et
   JOIN exercises e ON (e.id = et.exercise_id)
 WHERE page_id = $1
@@ -472,13 +477,18 @@ WHERE page_id = $1
         .unique()
         .collect();
     let client = reqwest::Client::new();
-    let public_spec_urls_by_exercise_type =
-        exercise_service_info::get_selected_exercise_services_by_type(conn, exercise_types)
-            .await?
-            .into_iter()
-            .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(&service, &info)?)))
-            .collect::<ModelResult<HashMap<String, Url>>>()?;
 
+    let exercise_service_hashmap =
+        exercise_service_info::get_selected_exercise_services_by_type(conn, &exercise_types)
+            .await?;
+    let public_spec_urls_by_exercise_type = exercise_service_hashmap
+        .iter()
+        .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(service, info)?)))
+        .collect::<ModelResult<HashMap<&String, Url>>>()?;
+    let model_solution_urls_by_exercise_type = exercise_service_hashmap
+        .iter()
+        .map(|(key, (service, info))| Ok((key, get_model_solution_url(service, info)?)))
+        .collect::<ModelResult<HashMap<&String, Url>>>()?;
     // for returning the inserted values
     let mut result_exercises: Vec<NormalizedCmsExercise> = Vec::new();
     let mut changed_ids: HashMap<Uuid, Uuid> = HashMap::new();
@@ -537,40 +547,32 @@ RETURNING *;
                     Uuid::new_v4()
                 }
             };
-            let public_spec: Option<serde_json::Value> = match existing_exercise_task {
-                Some(exercise_task) if exercise_task.private_spec == task_update.private_spec => {
-                    // Skip generating public spec for an existing exercise again if private spec is still the same.
-                    ModelResult::Ok(exercise_task.public_spec.clone())
-                }
-                _ => {
-                    let url = public_spec_urls_by_exercise_type
-                        .get(&task_update.exercise_type)
-                        .ok_or_else(|| {
-                            ModelError::PreconditionFailed(
-                                "Missing info for exercise type.".to_string(),
-                            )
-                        })?
-                        .clone();
-                    let res = client
-                        .post(url)
-                        .timeout(Duration::from_secs(120))
-                        .json(&task_update.private_spec)
-                        .send()
-                        .await?;
-                    if !res.status().is_success() {
-                        return Err(ModelError::Generic(
-                            "Failed to generate public spec for exercise.".to_string(),
-                        ));
-                    }
-                    ModelResult::Ok(Some(res.json::<serde_json::Value>().await?))
-                }
-            }?;
+            let model_solution_spec = fetch_derived_spec(
+                existing_exercise_task,
+                task_update,
+                &model_solution_urls_by_exercise_type,
+                &client,
+                existing_exercise_task
+                    .map(|value| value.model_solution_spec.clone())
+                    .flatten(),
+            )
+            .await?;
+            let public_spec: Option<serde_json::Value> = fetch_derived_spec(
+                existing_exercise_task,
+                task_update,
+                &public_spec_urls_by_exercise_type,
+                &client,
+                existing_exercise_task
+                    .map(|value| value.public_spec.clone())
+                    .flatten(),
+            )
+            .await?;
             // Upsert
             let exercise_task: NormalizedCmsExerciseTask = sqlx::query_as!(
                 NormalizedCmsExerciseTask,
                 r#"
-INSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO exercise_tasks(id, exercise_id, exercise_type, assignment, public_spec, private_spec, model_solution_spec)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT (id) DO UPDATE
 SET exercise_id=$2, exercise_type=$3, assignment=$4, public_spec=$5, private_spec=$6, deleted_at=NULL
 RETURNING id, exercise_type, assignment, private_spec;
@@ -581,6 +583,7 @@ RETURNING id, exercise_type, assignment, private_spec;
                 task_update.assignment,
                 public_spec,
                 task_update.private_spec,
+                model_solution_spec,
             )
             .fetch_one(&mut *conn)
             .await?;
@@ -604,6 +607,42 @@ RETURNING id, exercise_type, assignment, private_spec;
     .execute(conn)
     .await?;
     Ok((result_exercises, new_content))
+}
+
+async fn fetch_derived_spec(
+    existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
+    task_update: &NormalizedCmsExerciseTask,
+    urls_by_exercise_type: &HashMap<&String, Url>,
+    client: &reqwest::Client,
+    previous_spec: Option<serde_json::Value>,
+) -> Result<Option<serde_json::Value>, ModelError> {
+    let result_spec: Option<serde_json::Value> = match existing_exercise_task {
+        Some(exercise_task) if exercise_task.private_spec == task_update.private_spec => {
+            // Skip generating public spec for an existing exercise again if private spec is still the same.
+            previous_spec
+        }
+        _ => {
+            let url = urls_by_exercise_type
+                .get(&task_update.exercise_type)
+                .ok_or_else(|| {
+                    ModelError::PreconditionFailed("Missing info for exercise type.".to_string())
+                })?
+                .clone();
+            let res = client
+                .post(url)
+                .timeout(Duration::from_secs(120))
+                .json(&task_update.private_spec)
+                .send()
+                .await?;
+            if !res.status().is_success() {
+                return Err(ModelError::Generic(
+                    "Failed to generate spec for exercise.".to_string(),
+                ));
+            }
+            Some(res.json::<serde_json::Value>().await?)
+        }
+    };
+    Ok(result_spec)
 }
 
 fn update_ids_in_content(

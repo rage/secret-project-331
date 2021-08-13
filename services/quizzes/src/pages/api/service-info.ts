@@ -20,5 +20,6 @@ const handleGet = (_req: NextApiRequest, res: NextApiResponse<ExerciseServiceInf
     submission_iframe_path: `${prefix}/submission`,
     grade_endpoint_path: `${prefix}/api/grade`,
     public_spec_endpoint_path: `${prefix}/api/public-spec`,
+    model_solution_path: `${prefix}/api/model-solution`,
   })
 }

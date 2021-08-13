@@ -390,6 +390,7 @@ mod test {
             }],
             Value::Null,
             Value::Null,
+            Value::Null,
         )
         .await
         .unwrap();

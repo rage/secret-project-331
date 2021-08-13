@@ -23,6 +23,18 @@ pub struct ExerciseServiceInfo {
     pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
+    pub model_solution_path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct PathInfo {
+    pub exercise_service_id: Uuid,
+    pub editor_iframe_path: String,
+    pub exercise_iframe_path: String,
+    pub submission_iframe_path: String,
+    pub grade_endpoint_path: String,
+    pub public_spec_endpoint_path: String,
+    pub model_solution_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -38,16 +50,12 @@ pub struct ExerciseServiceInfoApi {
     pub submission_iframe_path: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
+    pub model_solution_path: String,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
-    exercise_service_id: Uuid,
-    editor_iframe_path: &str,
-    exercise_iframe_path: &str,
-    submission_iframe_path: &str,
-    grade_endpoint_path: &str,
-    public_spec_endpoint_path: &str,
+    exercise_service_info: &PathInfo,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = sqlx::query_as!(
         ExerciseServiceInfo,
@@ -58,17 +66,19 @@ INSERT INTO exercise_service_info (
     exercise_iframe_path,
     submission_iframe_path,
     grade_endpoint_path,
-    public_spec_endpoint_path
+    public_spec_endpoint_path,
+    model_solution_path
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
 ",
-        exercise_service_id,
-        editor_iframe_path,
-        exercise_iframe_path,
-        submission_iframe_path,
-        grade_endpoint_path,
-        public_spec_endpoint_path,
+        exercise_service_info.exercise_service_id,
+        exercise_service_info.editor_iframe_path,
+        exercise_service_info.exercise_iframe_path,
+        exercise_service_info.submission_iframe_path,
+        exercise_service_info.grade_endpoint_path,
+        exercise_service_info.public_spec_endpoint_path,
+        exercise_service_info.model_solution_path
     )
     .fetch_one(conn)
     .await?;
@@ -98,6 +108,9 @@ pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<ExerciseServic
         .await?;
     let status = res.status();
     if !status.is_success() {
+        let response_url = res.url().to_string();
+        let body = res.text().await?;
+        warn!(url=?response_url, status=?status, body=?body, "Could not fetch service info.");
         return Err(ModelError::Generic(
             "Could not fetch service info.".to_string(),
         ));
@@ -120,15 +133,17 @@ INSERT INTO exercise_service_info(
     exercise_iframe_path,
     submission_iframe_path,
     grade_endpoint_path,
-    public_spec_endpoint_path
+    public_spec_endpoint_path,
+    model_solution_path
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET editor_iframe_path = $2,
   exercise_iframe_path = $3,
   submission_iframe_path = $4,
   grade_endpoint_path = $5,
-  public_spec_endpoint_path = $6
+  public_spec_endpoint_path = $6,
+  model_solution_path = $7
 RETURNING *
     "#,
         exercise_service_id,
@@ -137,6 +152,7 @@ RETURNING *
         update.submission_iframe_path,
         update.grade_endpoint_path,
         update.public_spec_endpoint_path,
+        update.model_solution_path
     )
     .fetch_one(conn)
     .await?;
@@ -191,7 +207,7 @@ pub async fn get_all_exercise_services_by_type(
 
 pub async fn get_selected_exercise_services_by_type(
     conn: &mut PgConnection,
-    slugs: Vec<String>,
+    slugs: &[String],
 ) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
     let selected_services = sqlx::query_as!(
         ExerciseService,
@@ -199,7 +215,7 @@ pub async fn get_selected_exercise_services_by_type(
 SELECT *
 FROM exercise_services
 WHERE slug = ANY($1);",
-        &slugs[..],
+        slugs,
     )
     .fetch_all(&mut *conn)
     .await?;

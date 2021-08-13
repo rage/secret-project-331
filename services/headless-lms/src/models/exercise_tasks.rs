@@ -28,6 +28,7 @@ pub struct ExerciseTask {
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
     pub spec_file_id: Option<Uuid>,
+    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 pub async fn insert(
@@ -37,6 +38,7 @@ pub async fn insert(
     assignment: Vec<GutenbergBlock>,
     private_spec: Value,
     public_spec: Value,
+    model_solution_spec: Value,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -45,16 +47,18 @@ INSERT INTO exercise_tasks (
     exercise_type,
     assignment,
     private_spec,
-    public_spec
+    public_spec,
+    model_solution_spec
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
         exercise_id,
         exercise_type,
         serde_json::to_value(assignment).unwrap(),
         private_spec,
-        public_spec
+        public_spec,
+        model_solution_spec
     )
     .fetch_one(conn)
     .await?;

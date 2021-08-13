@@ -1,13 +1,14 @@
 import { css } from "@emotion/css"
 
+import { baseTheme } from "../shared-module/utils/theme"
 import { PublicAlternative } from "../util/stateInterfaces"
-
 interface Props {
   alternatives: PublicAlternative[]
   selectedId: string | null
   maxWidth: number | null
   onClick: (selectedId: string) => void
   interactable: boolean
+  model_solutions: string[] | null
 }
 
 const ExerciseBase: React.FC<Props> = ({
@@ -16,6 +17,7 @@ const ExerciseBase: React.FC<Props> = ({
   selectedId,
   onClick,
   interactable,
+  model_solutions,
 }) => {
   return (
     <div
@@ -28,22 +30,33 @@ const ExerciseBase: React.FC<Props> = ({
       `}
     >
       {alternatives.map((option) => {
+        let correct = false
+        if (model_solutions) {
+          correct = model_solutions.includes(option.id)
+        }
         const selected = selectedId === option.id
+        // Border colors
+        const green = baseTheme.colors.green[300]
+        const red = baseTheme.colors.red[300]
+        // Background of the buttons
+        const color = "#6188ff"
+        const chosenColor = "#4210f5"
+        const border = model_solutions ? `4px solid ${correct ? green : red}` : `0`
         return (
           <button
             className={
               interactable
                 ? css`
+                    float: right;
                     padding: 1rem 2rem;
-                    background-color: ${selected ? "#4210f5" : "#6188ff"};
+                    background-color: ${selected ? chosenColor : color};
                     border-radius: 1rem;
-                    border: 0;
+                    border: ${border};
                     color: white;
                     transition: all 0.3s;
                     cursor: pointer;
                     margin-top: 0.5rem;
                     margin-bottom: 0.5rem;
-
                     &:hover {
                       background-color: ${interactable
                         ? selected
@@ -54,9 +67,9 @@ const ExerciseBase: React.FC<Props> = ({
                   `
                 : css`
                     padding: 1rem 2rem;
-                    background-color: ${selected ? "#4210f5" : "#6188ff"};
+                    background-color: ${selected ? chosenColor : color};
                     border-radius: 1rem;
-                    border: 0;
+                    border: ${border};
                     color: white;
                     margin-top: 0.5rem;
                     margin-bottom: 0.5rem;

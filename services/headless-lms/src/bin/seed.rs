@@ -130,6 +130,16 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    exercise_services::insert_exercise_service(
+        &mut conn,
+        "Quizzes",
+        "quizzes",
+        "http://project-331.local/quizzes/api/service-info",
+        "http://quizzes.default.svc.cluster.local:3004/quizzes/api/service-info",
+        5,
+    )
+    .await?;
+
     // roles
     roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
     roles::insert(&mut conn, teacher, Some(uh_cs), None, UserRole::Teacher).await?;

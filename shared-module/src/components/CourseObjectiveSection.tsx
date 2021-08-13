@@ -24,7 +24,7 @@ const TextBox = styled.div`
   text-align: center;
   justify-content: center;
 
-  h1 {
+  h2 {
     font-size: 50px;
     font-size: ${typography.h2};
     font-weight: 400;

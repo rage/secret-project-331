@@ -176,15 +176,31 @@ mod test {
         let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)
             .await
             .unwrap();
-        let et2 = exercise_tasks::insert(tx.as_mut(), e2, "", vec![], Value::Null, Value::Null)
-            .await
-            .unwrap();
+        let et2 = exercise_tasks::insert(
+            tx.as_mut(),
+            e2,
+            "",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let e3 = exercises::insert(tx.as_mut(), course, "", page, c2, 1)
             .await
             .unwrap();
-        let et3 = exercise_tasks::insert(tx.as_mut(), e3, "", vec![], Value::Null, Value::Null)
-            .await
-            .unwrap();
+        let et3 = exercise_tasks::insert(
+            tx.as_mut(),
+            e3,
+            "",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         submit_and_grade(tx.as_mut(), exercise, course, task, user, instance, 12.34).await;
         submit_and_grade(tx.as_mut(), e2, course, et2, user, instance, 23.45).await;
         submit_and_grade(tx.as_mut(), e2, course, et2, u2, instance, 34.56).await;

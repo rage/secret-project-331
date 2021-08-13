@@ -8,6 +8,7 @@ import { normalWidthCenteredComponentStyles } from "../shared-module/styles/comp
 
 import ContentRenderer from "./ContentRenderer"
 import NavigationContainer from "./NavigationContainer"
+import SearchDialog from "./SearchDialog"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 
 interface Props {
@@ -18,6 +19,8 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
   const pageContext = useContext(CoursePageContext)
   const pageDispatch = useContext(CoursePageDispatch)
 
+  const courseId = pageContext?.pageData?.course_id
+
   return (
     <>
       <div
@@ -27,6 +30,7 @@ const Page: React.FC<Props> = ({ onRefresh }) => {
           right: 10px;
         `}
       >
+        {courseId && <SearchDialog courseId={courseId} />}
         <DebugModal
           data={pageContext}
           updateDataOnClose={(payload) => {

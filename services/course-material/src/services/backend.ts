@@ -7,6 +7,8 @@ import {
   Organization,
   Page,
   PageRoutingData,
+  PageSearchRequest,
+  PageSearchResult,
   PageWithExercises,
   SubmissionResult,
   UserProgress,
@@ -128,4 +130,11 @@ export const fetchPageUrl = async (pageId: string): Promise<string> => {
 
 export const postSubmission = async (newSubmission: NewSubmission): Promise<SubmissionResult> => {
   return (await courseMaterialClient.post(`/submissions`, newSubmission)).data
+}
+
+export const searchPages = async (
+  searchRequest: PageSearchRequest,
+  courseId: string,
+): Promise<PageSearchResult[]> => {
+  return (await courseMaterialClient.post(`/courses/${courseId}/search`, searchRequest)).data
 }

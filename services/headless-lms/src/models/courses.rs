@@ -24,6 +24,7 @@ pub struct Course {
     pub name: String,
     pub organization_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub content_search_language: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -55,16 +56,45 @@ RETURNING id
 }
 
 pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<Course>> {
-    let courses = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE deleted_at IS NULL;"#)
-        .fetch_all(conn)
-        .await?;
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language as "content_search_language: String"
+FROM courses
+WHERE deleted_at IS NULL;
+"#
+    )
+    .fetch_all(conn)
+    .await?;
     Ok(courses)
 }
 
 pub async fn get_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Course> {
-    let course = sqlx::query_as!(Course, r#"SELECT * FROM courses WHERE id = $1;"#, course_id)
-        .fetch_one(conn)
-        .await?;
+    let course = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language as "content_search_language: String"
+FROM courses
+WHERE id = $1;
+    "#,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(course)
 }
 
@@ -102,7 +132,19 @@ pub async fn organization_courses(
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
-        r#"SELECT * FROM courses WHERE organization_id = $1 AND deleted_at IS NULL;"#,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language as "content_search_language: String"
+FROM courses
+WHERE organization_id = $1
+  AND deleted_at IS NULL;
+        "#,
         organization_id
     )
     .fetch_all(conn)
@@ -127,10 +169,16 @@ pub async fn insert_course(
     let course = sqlx::query_as!(
         Course,
         r#"
-    INSERT INTO
-      courses(name, slug, organization_id)
-    VALUES($1, $2, $3)
-    RETURNING *
+INSERT INTO courses(name, slug, organization_id)
+VALUES($1, $2, $3)
+RETURNING id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language as "content_search_language: String"
             "#,
         course.name,
         course.slug,
@@ -184,10 +232,16 @@ pub async fn update_course(
         Course,
         r#"
 UPDATE courses
-    SET name = $1
-WHERE
-    id = $2
-    RETURNING *
+SET name = $1
+WHERE id = $2
+RETURNING id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language as "content_search_language: String"
     "#,
         course_update.name,
         course_id
@@ -202,10 +256,16 @@ pub async fn delete_course(conn: &mut PgConnection, course_id: Uuid) -> ModelRes
         Course,
         r#"
 UPDATE courses
-    SET deleted_at = now()
-WHERE
-    id = $1
-RETURNING *
+SET deleted_at = now()
+WHERE id = $1
+RETURNING id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language as "content_search_language: String"
     "#,
         course_id
     )

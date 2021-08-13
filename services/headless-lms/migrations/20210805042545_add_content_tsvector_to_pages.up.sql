@@ -5,6 +5,12 @@ COMMENT ON COLUMN pages.content_search IS 'Used to perform full text searches on
 ALTER table pages
 ADD COLUMN content_search_original_text TEXT;
 COMMENT ON COLUMN pages.content_search_original_text IS 'Contains the extracted text from pages.content that has been used to construct the full text search  tsvector column content_search. The content_search column also indexes the pages.title but that has been left out of this colum for redundancy. Automatically generated with trigger trigger_set_pages_content_search. Used for search previews with the Postgres function ts_headline.';
+ALTER TABLE pages
+ADD COLUMN content_search_language REGCONFIG NOT NULL DEFAULT 'simple';
+COMMENT ON COLUMN pages.content_search_original_text IS 'Language that will be used for stemming for full text search. Has to be a value from pg_ts_config.cfgname. The same value can be also determined from a courses.content_search_language but the string is duplicated here because the triggers generating text pages.content_search need to have this also in this table.';
+ALTER TABLE courses
+ADD COLUMN content_search_language REGCONFIG NOT NULL DEFAULT 'simple';
+COMMENT ON COLUMN courses.content_search_language IS 'Language that will be used for stemming for full text search. Copied to pages.content_search_language where it''s used in triggers. Has to be a value from pg_ts_config.cfgname.';
 CREATE FUNCTION extract_searchable_text_from_document_schema(content jsonb) RETURNS setof jsonb AS $$ BEGIN RETURN QUERY WITH RECURSIVE recursive_search_operation(key, value) AS (
   SELECT NULL as key,
     jsonb_array_elements(content) AS value
@@ -37,12 +43,12 @@ CREATE FUNCTION trigger_set_pages_content_search() RETURNS TRIGGER AS $$ BEGIN I
   OR NEW.content_search IS NULL
 ) THEN
 declare begin NEW.content_search = setweight(
-    to_tsvector('english', NEW.title),
+    to_tsvector(NEW.content_search_language, NEW.title),
     'A'
   ) || setweight (
     (
       SELECT coalesce(
-          to_tsvector('english', jsonb_agg(value)),
+          to_tsvector(NEW.content_search_language, jsonb_agg(value)),
           to_tsvector('')
         )
       FROM (

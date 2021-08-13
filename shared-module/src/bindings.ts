@@ -131,6 +131,7 @@ export interface Course {
   name: string
   organization_id: string
   deleted_at: Date | null
+  content_search_language: string
 }
 
 export interface Exercise {
@@ -256,6 +257,18 @@ export interface SubmissionInfo {
   exercise_task: ExerciseTask
   grading: Grading | null
   submission_iframe_path: string
+}
+
+export interface PageSearchResult {
+  id: string
+  title: string
+  rank: number | null
+  ts_headline: string | null
+  url_path: string
+}
+
+export interface PageSearchRequest {
+  query: string
 }
 
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"

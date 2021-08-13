@@ -117,7 +117,7 @@ pub struct PageMetadata {
     course_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct PageSearchResult {
     id: Uuid,
     title: String,
@@ -126,7 +126,7 @@ pub struct PageSearchResult {
     url_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct PageSearchRequest {
     query: String,
 }
@@ -1138,18 +1138,18 @@ SELECT id,
   title,
   ts_rank(
     content_search,
-    to_tsquery('english', $2)
+    phraseto_tsquery('english', $2)
   ) as rank,
   ts_headline(
     'english',
     content_search_original_text,
-    to_tsquery('english', $2)
+    phraseto_tsquery('english', $2)
   ),
   url_path
 FROM pages
 WHERE course_id = $1
   AND deleted_at IS NULL
-  AND content_search @@ to_tsquery('english', $2)
+  AND content_search @@ phraseto_tsquery('english', $2)
 ORDER BY rank DESC
 LIMIT 50;
     ",

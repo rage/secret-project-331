@@ -16,7 +16,8 @@ use crate::{
         organizations::Organization,
         pages::{
             ExerciseWithExerciseTasks, NewPage, NormalizedCmsExercise, NormalizedCmsExerciseTask,
-            Page, PageRoutingData, PageUpdate, PageWithExercises,
+            Page, PageRoutingData, PageSearchRequest, PageSearchResult, PageUpdate,
+            PageWithExercises,
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
@@ -59,6 +60,8 @@ ts_rs::export! {
   CourseUpdate,
   Login,
   SubmissionInfo,
+  PageSearchResult,
+  PageSearchRequest,
   // dependencies
   VariantStatus,
   ChapterStatus,

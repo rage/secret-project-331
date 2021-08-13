@@ -1264,67 +1264,6 @@
       "nullable": [false, false, false, false, false, true, false, false]
     }
   },
-  "290a32e151212d4e1056fb341ea5f8e9b03451b68ea6478f9685315bc713aea7": {
-    "query": "\nINSERT INTO pages(\n    course_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    chapter_id\n  )\nVALUES($1, $2, $3, $4, $5, $6)\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\n          ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4", "Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false, false, true, false, false]
-    }
-  },
   "306820247b9533af5d464aa15a58f9fcde6a59b1666a3709b32bc1823ad2e970": {
     "query": "\nSELECT *\nFROM exercises\nWHERE course_id = $1\n  AND deleted_at IS NULL\n",
     "describe": {
@@ -1911,42 +1850,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [true]
-    }
-  },
-  "583a13139740e2e586eaf4a74fddd26a3d3795f11e9d4e72e00c8576377ef680": {
-    "query": "\nSELECT id,\n  title,\n  ts_rank(\n    content_search,\n    phraseto_tsquery('english', $2)\n  ) as rank,\n  ts_headline(\n    'english',\n    content_search_original_text,\n    phraseto_tsquery('english', $2)\n  ),\n  url_path\nFROM pages\nWHERE course_id = $1\n  AND deleted_at IS NULL\n  AND content_search @@ phraseto_tsquery('english', $2)\nORDER BY rank DESC\nLIMIT 50;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "rank",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 3,
-          "name": "ts_headline",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "url_path",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Text"]
-      },
-      "nullable": [false, false, null, null, false]
     }
   },
   "5ac084d6c54680ae0bacb041ff166f222ca586e413e332b1f20bfe85ea5fc2fc": {
@@ -4058,6 +3961,80 @@
       "nullable": []
     }
   },
+  "d58670b2f4fd61677c085bd6b65ed9a2f0743411d9a5eb047c599126330b995a": {
+    "query": "\nINSERT INTO pages(\n    course_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    chapter_id,\n    content_search_language\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Uuid",
+          {
+            "Custom": {
+              "name": "regconfig",
+              "kind": "Simple"
+            }
+          }
+        ]
+      },
+      "nullable": [false, false, false, false, true, false, false, true, false, false]
+    }
+  },
   "d61f2a6b8fb2f4cfaf52c3c6d740d6fc8ff60cb2fe9528c318715c40e769471d": {
     "query": "UPDATE submissions SET grading_id = $1 WHERE id = $2 RETURNING *",
     "describe": {
@@ -4410,6 +4387,51 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "deac47ae98589110fa60ce8a96d30d49611f8e32e4517393e543f1d4b70bf74b": {
+    "query": "\nSELECT id,\n  title,\n  ts_rank(\n    content_search,\n    phraseto_tsquery($2, $3)\n  ) as rank,\n  ts_headline(\n    $2,\n    content_search_original_text,\n    phraseto_tsquery($2, $3)\n  ),\n  url_path\nFROM pages\nWHERE course_id = $1\n  AND deleted_at IS NULL\n  AND content_search @@ phraseto_tsquery($2, $3)\nORDER BY rank DESC\nLIMIT 50;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "rank",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 3,
+          "name": "ts_headline",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "url_path",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "regconfig",
+              "kind": "Simple"
+            }
+          },
+          "Text"
+        ]
+      },
+      "nullable": [false, false, null, null, false]
     }
   },
   "e25d99648e392e396296002f8a38e6a6026a82f298872d299049375dca14a17f": {

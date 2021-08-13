@@ -736,6 +736,8 @@ pub async fn insert_page(conn: &mut PgConnection, new_page: NewPage) -> ModelRes
     // For sharing the transaction between functions
     // let transaction_holder = RefCell::new(transaction);
 
+    let course = crate::models::courses::get_course(&mut tx, new_page.course_id).await?;
+
     let page = sqlx::query_as!(
         Page,
         r#"
@@ -745,9 +747,10 @@ INSERT INTO pages(
     url_path,
     title,
     order_number,
-    chapter_id
+    chapter_id,
+    content_search_language
   )
-VALUES($1, $2, $3, $4, $5, $6)
+VALUES($1, $2, $3, $4, $5, $6, $7)
 RETURNING id,
   created_at,
   updated_at,
@@ -764,7 +767,8 @@ RETURNING id,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,
-        new_page.chapter_id
+        new_page.chapter_id,
+        course.content_search_language as _
     )
     .fetch_one(&mut tx)
     .await?;
@@ -1131,6 +1135,7 @@ pub async fn get_page_search_results(
     course_id: Uuid,
     page_search_request: &PageSearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
+    let course = crate::models::courses::get_course(&mut *conn, course_id).await?;
     let res = sqlx::query_as!(
         PageSearchResult,
         "
@@ -1138,22 +1143,23 @@ SELECT id,
   title,
   ts_rank(
     content_search,
-    phraseto_tsquery('english', $2)
+    phraseto_tsquery($2, $3)
   ) as rank,
   ts_headline(
-    'english',
+    $2,
     content_search_original_text,
-    phraseto_tsquery('english', $2)
+    phraseto_tsquery($2, $3)
   ),
   url_path
 FROM pages
 WHERE course_id = $1
   AND deleted_at IS NULL
-  AND content_search @@ phraseto_tsquery('english', $2)
+  AND content_search @@ phraseto_tsquery($2, $3)
 ORDER BY rank DESC
 LIMIT 50;
     ",
         course_id,
+        course.content_search_language as _,
         page_search_request.query
     )
     .fetch_all(conn)

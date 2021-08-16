@@ -108,7 +108,6 @@ const navMenu = css`
 `
 const navLinks = css`
   color: #333;
-  font-family: "Josefin Sans", sans-serif;
   font-weight: 600;
   text-decoration: none;
   display: inline-block;
@@ -158,7 +157,6 @@ const navLinks = css`
     color: #333;
     font-weight: 500;
     font-size: 1.2rem;
-    font-family: "Josefin Sans", sans-serif;
     margin: 0;
     border-bottom: 2px solid #f1f1f1;
   }
@@ -189,10 +187,6 @@ const secondaryLink = css`
   list-style: none;
   text-align: center;
   align-items: center;
-
-  li {
-    font-family: "Josefin Sans", sans-serif;
-  }
 
   @media (max-width: 960px) {
     display: none;

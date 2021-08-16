@@ -1,13 +1,13 @@
+import { css } from "@emotion/css"
 import React, { useContext } from "react"
 
 import CoursePageContext from "../../../contexts/CoursePageContext"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../GenericLoading"
 
 import ChapterGrid from "./ChapterGrid"
 
-const CourseChapterGrid: React.FC = () => {
+const CourseChapterGridBlock: React.FC = () => {
   const pageContext = useContext(CoursePageContext)
 
   if (pageContext.state !== "ready") {
@@ -15,10 +15,14 @@ const CourseChapterGrid: React.FC = () => {
   }
 
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div
+      className={css`
+        padding: 4em 0;
+      `}
+    >
       <ChapterGrid courseId={pageContext.pageData.course_id} />
     </div>
   )
 }
 
-export default withErrorBoundary(CourseChapterGrid)
+export default withErrorBoundary(CourseChapterGridBlock)

@@ -7,3 +7,6 @@ export const breakpoints = {
 }
 
 export const defaultContainerWidth = 780
+export const wideContainerWidth = 1000
+export const cardMaxWidth = 28.125
+export const cardHeight = 25.734375

@@ -3,6 +3,7 @@ import React from "react"
 import { useQuery } from "react-query"
 
 import { fetchUserCourseProgress } from "../../../services/backend"
+import ScoreBoard from "../../../shared-module/components/CourseProgress/ScoreBoard"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import GenericLoading from "../../GenericLoading"
 
@@ -24,16 +25,21 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
   }
 
   return (
-    <div
-      className={css`
-        ${normalWidthCenteredComponentStyles}
-      `}
-    >
-      <div>
-        Total points: {data.score_given} / {data.score_maximum}
-      </div>
-      <div>
-        Total exercises: {data.completed_exercises} / {data.total_exercises}
+    <div className={normalWidthCenteredComponentStyles}>
+      <div
+        className={css`
+          width: 100%;
+          margin: 0 auto;
+          text-align: center;
+          padding: 2em 0;
+        `}
+      >
+        <ScoreBoard
+          max={data.score_maximum}
+          min={data.score_given}
+          point={50}
+          label="STUDENT PROGRESS"
+        />
       </div>
     </div>
   )

@@ -217,7 +217,7 @@ test("test", async ({ page }) => {
   // Click text=Chapter 1: The Levels of Testing
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-system-level-testing/chapter-1' }*/),
-    page.click("text=Chapter 1: The Levels of Testing"),
+    page.click("text=The Levels of Testing"),
   ])
   expect(page.url()).toBe(
     "http://project-331.local/courses/introduction-to-system-level-testing/chapter-1",

@@ -9,8 +9,8 @@ import ScoreBoard from "./ScoreBoard"
 export interface CourseProgressExtraProps {
   variant: "circle" | "bar"
   size: "medium" | "large"
-  max: string
-  min: string
+  max: number | null
+  min: number | null
   point: number
   n: number
   exercisesDone: number

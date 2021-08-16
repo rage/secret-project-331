@@ -10,7 +10,10 @@ import { LandingPageHeroSectionAttributes } from "."
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph"]
 const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
-  ["core/paragraph", { placeholder: "Insert sales speech...", align: "center" }],
+  [
+    "core/paragraph",
+    { content: "Insert sales speech...", placeholder: "Insert sales speech...", align: "center" },
+  ],
 ]
 
 const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSectionAttributes>> = ({

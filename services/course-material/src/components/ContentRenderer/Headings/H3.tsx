@@ -1,22 +1,16 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 
-const H1 = styled.h3`
-  color: red;
-  font-size: clamp(40px, 4vw, 60px);
-`
-
 const Heading3: React.FC = ({ children }) => {
   return (
-    <H1
+    <h3
       className={css`
         ${normalWidthCenteredComponentStyles}
       `}
     >
       {children}
-    </H1>
+    </h3>
   )
 }
 

@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { border, color, space } from "styled-system"
 
-import { fontWeights, primaryFont, theme, typography } from "../utils"
+import { fontWeights, headingFont, theme, typography } from "../utils"
 
 export interface ButtonExtraProps {
   variant: "primary" | "secondary"
@@ -17,7 +17,7 @@ const BaseButton = styled.button`
   display: inline-block;
   padding: ${({ size }: ButtonProps) =>
     size == "medium" ? theme.buttonSizes.medium : theme.buttonSizes.large};
-  font-family: ${primaryFont};
+  font-family: ${headingFont};
   font-weight: ${fontWeights.bold};
   line-height: 18px;
   white-space: nowrap;
@@ -32,6 +32,7 @@ const BaseButton = styled.button`
   letter-spacing: 0.02em;
   transition: all 150ms linear;
   border: 2px solid;
+  z-index: 1;
 
   &:hover {
     text-decoration: none;

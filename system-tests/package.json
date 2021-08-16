@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "../bin/setup-system-test-db && npx playwright test",
-    "test-without-database-reset": "npx playwright test",
+    "test": "../bin/setup-system-test-db && npx playwright test --browser chromium",
+    "test-without-database-reset": "npx playwright test --browser chromium",
     "test-headed": "npm run test -- --headed",
     "test-slowmo": "env SLOWMO=200 npm run test -- --headed",
     "test-video": "env RECORD_VIDEO=1 npm run test --",

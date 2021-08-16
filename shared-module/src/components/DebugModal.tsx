@@ -1,8 +1,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Button, Dialog, Paper } from "@material-ui/core"
+import { Dialog, Paper } from "@material-ui/core"
 import dynamic from "next/dynamic"
 import { Dispatch, useState } from "react"
+
+import Button from "./Button"
 
 export interface DebugModalProps {
   data: unknown
@@ -54,7 +56,9 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
 
   return (
     <>
-      <Button onClick={() => openModal()}>Debug</Button>
+      <Button variant="primary" size="medium" onClick={() => openModal()}>
+        Debug
+      </Button>
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>
         <Paper
           className={css`
@@ -68,7 +72,9 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
                 flex-grow: 1;
               `}
             />
-            <Button onClick={closeModal}>Close</Button>
+            <Button variant="primary" size="medium" onClick={closeModal}>
+              Close
+            </Button>
           </HeaderBar>
           <Editor
             height="90vh"

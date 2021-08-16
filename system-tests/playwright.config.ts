@@ -19,6 +19,7 @@ const config: PlaywrightTestConfig = {
     screenshot: "only-on-failure",
   },
 }
+config.timeout = 60000
 
 if (process.env.SLOWMO) {
   const launchOptions = config.use.launchOptions as LaunchOptions

@@ -10,7 +10,6 @@ export interface HeadingExtraProps {
 export type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & HeadingExtraProps
 
 const StyledTitle = styled.h1`
-  font-family: Josefin Sans, sans-serif;
   font-weight: ${fontWeights.bold};
   color: ${baseTheme.colors.neutral[600]};
   font-size: ${({ variant }: HeadingProps) =>

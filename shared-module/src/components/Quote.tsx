@@ -1,8 +1,7 @@
 import styled from "@emotion/styled"
-import Image from "next/image"
 import React from "react"
 
-import QuoteIMG from "../img/quote.png"
+import QuoteIMG from "../img/quote.svg"
 
 const Justify = styled.div`
   display: grid;
@@ -31,7 +30,6 @@ const Text = styled.div`
   text-align: left;
   font-size: 1.1rem;
   line-height: 1.5;
-  font-family: "Lato", sans-serif;
 `
 
 export interface QuoteExtraProps {
@@ -46,7 +44,7 @@ const Quote: React.FC<QuoteProps> = ({ content }) => {
     <Justify>
       <ContentWrapper>
         <StyledImg>
-          <Image src={QuoteIMG} alt="quote icon" />
+          <QuoteIMG width="30px" height="20px" alt="quote icon" />
         </StyledImg>
         <Text> {content} </Text>
       </ContentWrapper>

@@ -5,10 +5,7 @@ import { useSpring } from "react-spring"
 import { respond } from "../../utils/respond"
 
 const Container = styled.div`
-  width: 322px;
-
   span {
-    font-family: "Josefin Sans", sans-serif;
     position: absolute;
     top: 50%;
     left: 56%;
@@ -39,18 +36,17 @@ const StyledSVG = styled.div`
     transform: translate(-50%, -50%);
     font-size: 3rem;
     font-weight: 400;
-    font-family: "Josefin Sans", sans-serif;
     opacity: 0.9;
   }
 `
 export interface CourseProgressExtraProps {
-  max: string
-  min: string
+  max: number | null
+  min: number | null
   point: number
   label: string
 }
 
-const ScoreBoard = ({ point = 10 }: CourseProgressExtraProps) => {
+const ScoreBoard = ({ point = 10, label, min, max }: CourseProgressExtraProps) => {
   const [willAnimate, setWillAnimate] = useState(false)
 
   useLayoutEffect(() => {
@@ -71,6 +67,7 @@ const ScoreBoard = ({ point = 10 }: CourseProgressExtraProps) => {
   })
   return (
     <Container>
+      <h1>{label}</h1>
       <StyledSVG>
         <svg xmlns="http://www.w3.org/2000/svg" width="497" height="auto" viewBox="0 0 497 497">
           <g id="Group_11" data-name="Group 11" transform="translate(-712 -7629)">
@@ -106,7 +103,7 @@ const ScoreBoard = ({ point = 10 }: CourseProgressExtraProps) => {
         </svg>
         <p>
           {/* {props.number.interpolate((number: string) => `${Math.floor(number)}/${max}`)} */}
-          10/40
+          {min + "/" + max}
         </p>
       </StyledSVG>
     </Container>

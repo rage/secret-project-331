@@ -9,6 +9,8 @@ export interface SpeechBalloonProps {
   content: string
 }
 
+const SQUARE_SIZE = "1rem"
+
 const SpeechBalloon: React.FC = ({ children }) => {
   return (
     <div
@@ -23,14 +25,17 @@ const SpeechBalloon: React.FC = ({ children }) => {
         className={css`
           border: 1px solid black;
           width: max-content;
+          padding: 1rem;
         `}
       >
         {children}
       </div>
       <div
         className={css`
-          width: 1rem;
-          height: 1rem;
+          width: ${SQUARE_SIZE};
+          height: ${SQUARE_SIZE};
+          position: relative;
+          top: calc(-${SQUARE_SIZE} / 2);
           border: 1px solid black;
           transform: rotate(45deg);
         `}

@@ -29,7 +29,7 @@ test.describe("Model solutions", () => {
     await page.waitForLoadState("networkidle")
     if (headless) {
       const screenshot = await page.screenshot()
-      expect(screenshot).toMatchSnapshot(`model-solutions-in-submissions.png`, { threshold: 0.5 })
+      expect(screenshot).toMatchSnapshot(`model-solutions-in-submissions.png`, { threshold: 0.3 })
     } else {
       console.warn("Not in headless mode, skipping screenshot model solutions in submission")
     }
@@ -62,7 +62,7 @@ test.describe("Model solutions", () => {
 
     if (headless) {
       const screenshot = await page.screenshot()
-      expect(screenshot).toMatchSnapshot(`model-solutions-in-exercises.png`, { threshold: 0.6 })
+      expect(screenshot).toMatchSnapshot(`model-solutions-in-exercises.png`, { threshold: 0.3 })
     } else {
       console.warn("Not in headless mode, skipping screenshot model solutions in exercises")
     }

@@ -11,7 +11,8 @@ import {
 import InfoIcon from "@material-ui/icons/Info"
 import React from "react"
 
-import Button from "../shared-module/components/Button"
+import Layout from "../../components/Layout"
+import Button from "../../shared-module/components/Button"
 
 interface ExerciseService {
   id: string
@@ -61,16 +62,16 @@ const ExerciseServiceTable: React.FC<ExerciseServiceEditorProps> = ({ exercise_s
   </TableContainer>
 )
 
-const ExerciseServicePage: React.FC<ExerciseServiceEditorProps> = ({ exercise_services }) => {
+const ExerciseServicePage: React.FC<ExerciseServiceEditorProps> = () => {
   return (
-    <div>
-      <h2> Manage exercise services:</h2>
-      <ExerciseServiceTable exercise_services={exercise_services} />
+    <Layout>
+      <h1> Manage exercise services:</h1>
+      <ExerciseServiceTable exercise_services={[]} />
       <br />
       <Button variant="primary" size="medium">
         Add new service
       </Button>
-    </div>
+    </Layout>
   )
 }
 

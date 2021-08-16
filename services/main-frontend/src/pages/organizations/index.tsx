@@ -41,6 +41,17 @@ const Home: React.FC = () => {
           </div>
         ))}
       </div>
+
+      <h1> Services </h1>
+      <div>
+        <Link
+          href={{
+            pathname: `/manage/services`,
+          }}
+        >
+          <a>Manage exercise services</a>
+        </Link>
+      </div>
       <DebugModal data={data} />
     </Layout>
   )

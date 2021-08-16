@@ -8,6 +8,7 @@ use crate::{
         courses::{Course, CourseStructure, CourseUpdate, NewCourse},
         email_templates::{EmailTemplate, EmailTemplateNew, EmailTemplateUpdate},
         exercise_service_info::{CourseMaterialExerciseServiceInfo, ExerciseServiceInfoApi},
+        exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate},
         exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
         exercises::{
             ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
@@ -40,6 +41,8 @@ ts_rs::export! {
   CourseMaterialExercise,
   PageRoutingData,
   SubmissionResult,
+  ExerciseService,
+  ExerciseServiceNewOrUpdate,
   Course,
   Exercise,
   ExerciseServiceInfoApi,

@@ -271,7 +271,7 @@ mod test {
 
     use super::*;
     use crate::{
-        models::exercises::GradingProgress,
+        models::{exercise_services, exercises::GradingProgress},
         test_helper::{self, Data},
     };
 
@@ -323,11 +323,13 @@ mod test {
 
         let exercise_service = models::exercise_services::insert_exercise_service(
             tx.as_mut(),
-            "",
-            "test-exercise",
-            "",
-            &mockito::server_url(),
-            1,
+            &exercise_services::ExerciseServiceNewOrUpdate {
+                name: "".to_string(),
+                slug: "test-exercise".to_string(),
+                public_url: "".to_string(),
+                internal_url: Some(mockito::server_url()),
+                max_reprocessing_submissions_at_once: 1,
+            },
         )
         .await
         .unwrap();
@@ -419,11 +421,13 @@ mod test {
 
         let exercise_service = models::exercise_services::insert_exercise_service(
             tx.as_mut(),
-            "",
-            "test-exercise-1",
-            "",
-            &mockito::server_url(),
-            1,
+            &exercise_services::ExerciseServiceNewOrUpdate {
+                name: "".to_string(),
+                slug: "test-exercise-1".to_string(),
+                public_url: "".to_string(),
+                internal_url: Some(mockito::server_url()),
+                max_reprocessing_submissions_at_once: 1,
+            },
         )
         .await
         .unwrap();
@@ -538,11 +542,13 @@ mod test {
 
         let exercise_service_1 = models::exercise_services::insert_exercise_service(
             tx.as_mut(),
-            "",
-            "test-exercise-1",
-            "",
-            &mockito::server_url(),
-            1,
+            &exercise_services::ExerciseServiceNewOrUpdate {
+                name: "".to_string(),
+                slug: "test-exercise-1".to_string(),
+                public_url: "".to_string(),
+                internal_url: Some(mockito::server_url()),
+                max_reprocessing_submissions_at_once: 1,
+            },
         )
         .await
         .unwrap();
@@ -562,11 +568,13 @@ mod test {
         .unwrap();
         let exercise_service_2 = models::exercise_services::insert_exercise_service(
             tx.as_mut(),
-            "",
-            "test-exercise-2",
-            "",
-            &mockito::server_url(),
-            0,
+            &exercise_services::ExerciseServiceNewOrUpdate {
+                name: "".to_string(),
+                slug: "test-exercise-2".to_string(),
+                public_url: "".to_string(),
+                internal_url: Some(mockito::server_url()),
+                max_reprocessing_submissions_at_once: 0,
+            },
         )
         .await
         .unwrap();

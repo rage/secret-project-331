@@ -49,26 +49,34 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     ) as BlockInstance[],
   )
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState("")
 
   const currentContentStateSaved = data.content === content
 
   const handleOnSave = async () => {
     setSaving(true)
-    const res = await handleSave({
-      title,
-      url_path: data.url_path,
-      content: removeUnsupportedBlockType(content),
-      chapter_id: data.chapter_id,
-      front_page_of_chapter_id: null,
-    })
-    setContent(res.content as BlockInstance[])
-    setSaving(false)
+    try {
+      const res = await handleSave({
+        title,
+        url_path: data.url_path,
+        content: removeUnsupportedBlockType(content),
+        chapter_id: data.chapter_id,
+        front_page_of_chapter_id: null,
+      })
+      setError("")
+      setContent(res.content as BlockInstance[])
+    } catch (e) {
+      setError(e.toString())
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
     <>
       <div className="editor__component">
         <div className={normalWidthCenteredComponentStyles}>
+          {error && <pre>{error}</pre>}
           <LoadingButton
             loadingPosition="start"
             startIcon={<SaveIcon />}

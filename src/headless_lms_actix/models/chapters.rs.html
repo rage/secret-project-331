@@ -648,7 +648,7 @@ RETURNING *;
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">chapter_frontpage_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="macro">vec!</span>[
-        <span class="ident">GutenbergBlock::hero_section</span>(),
+        <span class="ident">GutenbergBlock::hero_section</span>(<span class="string">&quot;Insert chapter heading...&quot;</span>, <span class="string">&quot;Insert chapter subheading...&quot;</span>),
         <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.<span class="ident">to_string</span>()),

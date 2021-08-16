@@ -662,26 +662,26 @@
             <span class="ident">inner_blocks</span>,
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hero_section</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hero_section</span>(<span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">sub_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
             <span class="string">&quot;moocfi/hero-section&quot;</span>,
             <span class="macro">serde_json::json!</span>({
-                <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Hero section title...&quot;</span>,
-                <span class="string">&quot;subTitle&quot;</span>: <span class="string">&quot;Hero section subtitle...&quot;</span>
+                <span class="string">&quot;title&quot;</span>: <span class="ident">title</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;subTitle&quot;</span>: <span class="ident">sub_title</span>.<span class="ident">to_string</span>()
             }),
         )
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">landing_page_hero_section</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">landing_page_hero_section</span>(<span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">sub_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">GutenbergBlock::block_with_name_attributes_and_inner_blocks</span>(
             <span class="string">&quot;moocfi/landing-page-hero-section&quot;</span>,
-            <span class="macro">serde_json::json!</span>({<span class="string">&quot;title&quot;</span>: <span class="string">&quot;Welcome message for course...&quot;</span>}),
+            <span class="macro">serde_json::json!</span>({<span class="string">&quot;title&quot;</span>: <span class="ident">title</span>.<span class="ident">to_string</span>()}),
             <span class="macro">vec!</span>[<span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
                 <span class="macro">serde_json::json!</span>({
                     <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;&quot;</span>,
+                    <span class="string">&quot;content&quot;</span>: <span class="ident">sub_title</span>.<span class="ident">to_string</span>(),
                     <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                    <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Insert sales speech...&quot;</span>
+                    <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Insert short description of course...&quot;</span>
                 }),
             )],
         )
@@ -708,7 +708,7 @@
                                     <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>,
                                     <span class="string">&quot;content&quot;</span>: <span class="string">&quot;&quot;</span>,
                                     <span class="string">&quot;level&quot;</span>: <span class="number">3</span>,
-                                    <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Objective #1&quot;</span>
+                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Objective #1&quot;</span>
                                 }),
                             ),
                             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
@@ -717,7 +717,7 @@
                                     <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
                                     <span class="string">&quot;content&quot;</span>: <span class="string">&quot;&quot;</span>,
                                     <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                                    <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Insert text...&quot;</span>
+                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...&quot;</span>
                                 }),
                             ),
                         ],
@@ -732,7 +732,7 @@
                                     <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>,
                                     <span class="string">&quot;content&quot;</span>: <span class="string">&quot;&quot;</span>,
                                     <span class="string">&quot;level&quot;</span>: <span class="number">3</span>,
-                                    <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Objective #2&quot;</span>
+                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Objective #2&quot;</span>
                                 }),
                             ),
                             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
@@ -741,7 +741,7 @@
                                     <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
                                     <span class="string">&quot;content&quot;</span>: <span class="string">&quot;&quot;</span>,
                                     <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                                    <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Insert text...&quot;</span>
+                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...&quot;</span>
                                 }),
                             ),
                         ],
@@ -756,7 +756,7 @@
                                     <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>,
                                     <span class="string">&quot;content&quot;</span>: <span class="string">&quot;&quot;</span>,
                                     <span class="string">&quot;level&quot;</span>: <span class="number">3</span>,
-                                    <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Objective #3&quot;</span>
+                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Objective #3&quot;</span>
                                 }),
                             ),
                             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
@@ -765,7 +765,7 @@
                                     <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
                                     <span class="string">&quot;content&quot;</span>: <span class="string">&quot;&quot;</span>,
                                     <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                                    <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Insert text...&quot;</span>
+                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien.&quot;</span>
                                 }),
                             ),
                         ],

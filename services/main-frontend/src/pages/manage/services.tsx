@@ -10,8 +10,10 @@ import {
 } from "@material-ui/core"
 import InfoIcon from "@material-ui/icons/Info"
 import React from "react"
+import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
+import { fetchExerciseServices } from "../../services/backend/exercise-services"
 import Button from "../../shared-module/components/Button"
 
 interface ExerciseService {
@@ -63,10 +65,22 @@ const ExerciseServiceTable: React.FC<ExerciseServiceEditorProps> = ({ exercise_s
 )
 
 const ExerciseServicePage: React.FC<ExerciseServiceEditorProps> = () => {
+  const { isLoading, error, data, refetch } = useQuery(`exercise-services`, () =>
+    fetchExerciseServices(),
+  )
+
+  if (error) {
+    return <div>Error fetching exercise services.</div>
+  }
+
+  if (isLoading || !data) {
+    return <div>Loading...</div>
+  }
+
   return (
     <Layout>
       <h1> Manage exercise services:</h1>
-      <ExerciseServiceTable exercise_services={[]} />
+      <ExerciseServiceTable exercise_services={data} />
       <br />
       <Button variant="primary" size="medium">
         Add new service

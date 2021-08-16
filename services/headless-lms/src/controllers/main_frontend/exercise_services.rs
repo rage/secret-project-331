@@ -40,7 +40,7 @@ async fn add_exercise_service(
 }
 
 #[instrument(skip(pool))]
-async fn get_exercise_service(
+async fn get_exercise_service_by_id(
     request_exercise_service_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -52,6 +52,17 @@ async fn get_exercise_service(
     )
     .await?;
     Ok(Json(exercise_service))
+}
+
+#[instrument(skip(pool))]
+async fn get_exercise_services(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<Json<Vec<ExerciseService>>> {
+    let mut conn = pool.acquire().await?;
+    let exercise_services =
+        crate::models::exercise_services::get_exercise_services(&mut conn).await?;
+    Ok(Json(exercise_services))
 }
 
 #[instrument(skip(pool))]
@@ -81,6 +92,7 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_exercise_service_routes(cfg: &mut ServiceConfig) {
     cfg.route("/", web::post().to(add_exercise_service))
+        .route("/", web::get().to(get_exercise_services))
         .route(
             "/{exercise_service_id}",
             web::delete().to(delete_exercise_service),
@@ -91,6 +103,6 @@ pub fn _add_exercise_service_routes(cfg: &mut ServiceConfig) {
         )
         .route(
             "/{exercise_service_id}",
-            web::get().to(get_exercise_service),
+            web::get().to(get_exercise_service_by_id),
         );
 }

@@ -2,11 +2,12 @@ import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-/* import { border, color, space } from "styled-system" */
 import { theme, typography } from "../utils"
 
+/* import { border, color, space } from "styled-system" */
+
 const HeroWrapper = styled.div`
-  background: #cacaca;
+  background: #f1f1f1;
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -21,39 +22,45 @@ const TextBox = styled.div`
   text-align: center;
   justify-content: center;
 
-  h1 {
+  h2 {
     font-size: 50px;
     font-size: ${typography.h2};
     font-weight: 400;
     z-index: 20;
     margin-bottom: 0.8rem;
     margin-top: 1.5rem;
-    line-height: 1.1;
+    line-height: 110px;
   }
 
   span {
-    color: #202020;
-    font-size: ${typography.h4};
-    opacity: 0.8;
-    z-index: 20;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 40px;
+    /* or 182% */
+
+    text-align: center;
+
+    color: #000000;
+
+    opacity: 0.7;
   }
 `
-export interface HeroSectionProps {
-  subTitle: string
+export interface CourseObjectiveSectionProps {
   title: string
   bg?: string
 }
 
-export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
+export type CardProps = React.HTMLAttributes<HTMLDivElement> & CourseObjectiveSectionProps
 
-const HeroSection: React.FC<CardProps> = ({ title, subTitle }) => {
+const CourseObjectiveSection: React.FC<CardProps> = ({ title, children }) => {
   return (
     <ThemeProvider theme={theme}>
       <>
         <HeroWrapper>
           <TextBox>
-            <h1>{title}</h1>
-            <span>{subTitle}</span>
+            <h2>{title}</h2>
+            {children}
           </TextBox>
         </HeroWrapper>
       </>
@@ -61,4 +68,4 @@ const HeroSection: React.FC<CardProps> = ({ title, subTitle }) => {
   )
 }
 
-export default HeroSection
+export default CourseObjectiveSection

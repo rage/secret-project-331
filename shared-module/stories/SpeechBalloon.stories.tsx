@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
@@ -17,5 +18,14 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {..
 export const Primary: Story<ComponentProps> = Template.bind({})
 Primary.args = {
   children: "SpeechBalloon",
-  content: "Hello, world!",
+}
+
+export const Positioned: Story<ComponentProps> = Template.bind({})
+Positioned.args = {
+  children: "A positioned SpeechBalloon",
+  className: css`
+    position: absolute;
+    right: 0;
+    top: 0;
+  `,
 }

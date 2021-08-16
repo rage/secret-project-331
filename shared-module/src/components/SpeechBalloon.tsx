@@ -1,17 +1,16 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import React from "react"
-import { border, color, space } from "styled-system"
 
-import { fontWeights, primaryFont, theme, typography } from "../utils"
+import { baseTheme } from "../utils"
 
 export interface SpeechBalloonProps {
-  content: string
+  className?: string
 }
 
 const SQUARE_SIZE = "1rem"
 
-const SpeechBalloon: React.FC = ({ children }) => {
+const SpeechBalloon: React.FC<SpeechBalloonProps> = ({ children, className }) => {
+  const bg = baseTheme.colors.neutral[300]
   return (
     <div
       className={css`
@@ -19,11 +18,12 @@ const SpeechBalloon: React.FC = ({ children }) => {
         flex-direction: column;
         align-items: center;
         width: max-content;
+        ${className}
       `}
     >
       <div
         className={css`
-          border: 1px solid black;
+          background: ${bg};
           width: max-content;
           padding: 1rem;
         `}
@@ -36,7 +36,7 @@ const SpeechBalloon: React.FC = ({ children }) => {
           height: ${SQUARE_SIZE};
           position: relative;
           top: calc(-${SQUARE_SIZE} / 2);
-          border: 1px solid black;
+          background: ${bg};
           transform: rotate(45deg);
         `}
       />

@@ -16,8 +16,10 @@ const config: PlaywrightTestConfig = {
     trace: "retain-on-failure",
     baseURL: "http://project-331.local",
     launchOptions: {},
+    screenshot: "only-on-failure",
   },
 }
+config.timeout = 60000
 
 if (process.env.SLOWMO) {
   const launchOptions = config.use.launchOptions as LaunchOptions

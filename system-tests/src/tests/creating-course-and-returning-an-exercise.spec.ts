@@ -30,7 +30,10 @@ test("test", async ({ page }) => {
   await page.click("text=Create course")
 
   // Click :nth-match(:text("Manage"), 3)
-  await Promise.all([page.waitForNavigation(), page.click(':nth-match(:text("Manage"), 4)')])
+  await Promise.all([
+    page.waitForNavigation(),
+    await page.click("text=Introduction to System Level Testing Manage >> :nth-match(a, 2)"),
+  ])
   expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
   // Click text=Manage pages
@@ -214,7 +217,7 @@ test("test", async ({ page }) => {
   // Click text=Chapter 1: The Levels of Testing
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-system-level-testing/chapter-1' }*/),
-    page.click("text=Chapter 1: The Levels of Testing"),
+    page.click("text=The Levels of Testing"),
   ])
   expect(page.url()).toBe(
     "http://project-331.local/courses/introduction-to-system-level-testing/chapter-1",

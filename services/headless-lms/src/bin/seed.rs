@@ -129,6 +129,16 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    exercise_services::insert_exercise_service(
+        &mut conn,
+        "Quizzes",
+        "quizzes",
+        "http://project-331.local/quizzes/api/service-info",
+        "http://quizzes.default.svc.cluster.local:3004/quizzes/api/service-info",
+        5,
+    )
+    .await?;
+
     // roles
     roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
     roles::insert(&mut conn, teacher, Some(uh_cs), None, UserRole::Teacher).await?;
@@ -411,6 +421,7 @@ async fn seed_cs_intro(
             "name": "c",
 
         }]),
+        serde_json::json!([spec_c1p1e1t1_2, spec_c1p1e1t1_3]),
     )
     .await?;
     let spec_c1p2e1t1_1 = Uuid::new_v4().to_string();
@@ -453,6 +464,7 @@ async fn seed_cs_intro(
             "id": spec_c1p2e1t1_3,
             "name": "c",
         }]),
+        serde_json::json!([spec_c1p2e1t1_2]),
     )
     .await?;
     let spec_c1p2e2t1_1 = Uuid::new_v4().to_string();
@@ -495,6 +507,7 @@ async fn seed_cs_intro(
             "id": spec_c1p2e2t1_3,
             "name": "c",
         }]),
+        serde_json::json!([spec_c1p2e2t1_2]),
     )
     .await?;
     let spec_c2p1e1t1_1 = Uuid::new_v4().to_string();
@@ -537,88 +550,113 @@ async fn seed_cs_intro(
             "id": spec_c2p1e1t1_3,
             "name": "c",
         }]),
+        serde_json::json!([spec_c2p1e1t1_2, spec_c2p1e1t1_3]),
     )
     .await?;
 
     // submissions
-    let submission_admin_c1p1e1t1_1 = submissions::insert(
+    let submission_admin_c1p1e1t1_1 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("8c447aeb-1791-4236-8471-204d8bc27507")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c1p1e1t1_2 = submissions::insert(
+    let submission_admin_c1p1e1t1_2 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_2.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("a719fe25-5721-412d-adea-4696ccb3d883")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_2.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c1p1e1t1_3 = submissions::insert(
+    let submission_admin_c1p1e1t1_3 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_3.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("bbc16d4b-1f91-4bd0-a47f-047665a32196")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_3.to_string()),
+        },
     )
     .await?;
-    let _submission_admin_c1p1e1t1_4 = submissions::insert(
+    let _submission_admin_c1p1e1t1_4 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("c60bf5e5-9b67-4f62-9df7-16d268c1b5f5")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c1p2e1t1 = submissions::insert(
+    let submission_admin_c1p2e1t1 = submissions::insert_with_id(
         conn,
-        exercise_c1p2_1,
-        course.id,
-        exercise_task_c1p2e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p2e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("e0ec1386-72aa-4eed-8b91-72bba420c23b")?,
+            exercise_id: exercise_c1p2_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p2e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p2e1t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c1p2e2t1 = submissions::insert(
+    let submission_admin_c1p2e2t1 = submissions::insert_with_id(
         conn,
-        exercise_c1p2_2,
-        course.id,
-        exercise_task_c1p2e2_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c1p2e2t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("4c6b8f4f-40c9-4970-947d-077e25c67e24")?,
+            exercise_id: exercise_c1p2_2,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p2e2_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p2e2t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_admin_c2p1e1t1 = submissions::insert(
+    let submission_admin_c2p1e1t1 = submissions::insert_with_id(
         conn,
-        exercise_c2p1_1,
-        course.id,
-        exercise_task_c2p1e1_1,
-        admin,
-        course_instance.id,
-        Value::String(spec_c2p1e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("02c9e1ad-6e4c-4473-a3e9-dbfab018a055")?,
+            exercise_id: exercise_c2p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c2p1e1_1,
+            user_id: admin,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c2p1e1t1_1.to_string()),
+        },
     )
     .await?;
-    let submission_teacher_c1p1e1t1 = submissions::insert(
+    let submission_teacher_c1p1e1t1 = submissions::insert_with_id(
         conn,
-        exercise_c1p1_1,
-        course.id,
-        exercise_task_c1p1e1_1,
-        teacher,
-        course_instance.id,
-        Value::String(spec_c1p1e1t1_1.to_string()),
+        &submissions::SubmissionData {
+            id: Uuid::parse_str("75df4600-d337-4083-99d1-e8e3b6bf6192")?,
+            exercise_id: exercise_c1p1_1,
+            course_id: course.id,
+            exercise_task_id: exercise_task_c1p1e1_1,
+            user_id: teacher,
+            course_instance_id: course_instance.id,
+            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
+        },
     )
     .await?;
 
@@ -730,7 +768,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page.id,
         &[
-            GutenbergBlock::landing_page_hero_section(),
+            GutenbergBlock::landing_page_hero_section("Welcome to Introduction to Course Material", "In this course you'll learn the basics of UI/UX design. At the end of course you should be able to create your own design system."),
             GutenbergBlock::course_objective_section(),
             GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
@@ -755,7 +793,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page_ch_1.id,
         &[
-            GutenbergBlock::hero_section(),
+            GutenbergBlock::hero_section("User Interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur."),
             GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
@@ -769,6 +807,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         page_ch1_1,
         &[
+            GutenbergBlock::hero_section("Design", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process."),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
@@ -807,6 +846,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         page_ch1_2,
         &[
+            GutenbergBlock::hero_section("Human-machine interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur."),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
@@ -845,7 +885,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         front_page_ch_2.id,
         &[
-            GutenbergBlock::hero_section(),
+            GutenbergBlock::hero_section("User Experience", "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency."),
             GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
             GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
@@ -867,10 +907,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         conn,
         page_ch2_1,
         &[
-            GutenbergBlock::block_with_name_and_attributes("core/heading", serde_json::json!({
-                "content": "User Research",
-                "level": 2
-              })),
+            GutenbergBlock::hero_section("User research", "User research focuses on understanding user behaviors, needs, and motivations through observation techniques, task analysis, and other feedback methodologies."),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({

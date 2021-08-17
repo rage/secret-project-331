@@ -90,6 +90,17 @@ pub struct SubmissionInfo {
     pub submission_iframe_path: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct SubmissionData {
+    pub exercise_id: Uuid,
+    pub course_id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub user_id: Uuid,
+    pub course_instance_id: Uuid,
+    pub data_json: Value,
+    pub id: Uuid,
+}
+
 pub async fn get_submission(
     conn: &mut PgConnection,
     submission_id: Uuid,
@@ -106,6 +117,37 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn insert_with_id(
+    conn: &mut PgConnection,
+    submission_data: &SubmissionData,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO submissions (
+    exercise_id,
+    course_id,
+    exercise_task_id,
+    user_id,
+    course_instance_id,
+    data_json,
+    id
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id
+",
+        submission_data.exercise_id,
+        submission_data.course_id,
+        submission_data.exercise_task_id,
+        submission_data.user_id,
+        submission_data.course_instance_id,
+        submission_data.data_json,
+        submission_data.id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
 }
 
 pub async fn insert(
@@ -127,15 +169,15 @@ INSERT INTO submissions (
     course_instance_id,
     data_json
   )
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id
+  VALUES ($1, $2, $3, $4, $5, $6)
+  RETURNING id
 ",
         exercise_id,
         course_id,
         exercise_task_id,
         user_id,
         course_instance_id,
-        data_json
+        data_json,
     )
     .fetch_one(conn)
     .await?;

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useReducer } from "react"
 
+import Layout from "../../components/Layout"
 import Page from "../../components/Page"
 import PageNotFound from "../../components/PageNotFound"
 import CoursePageContext, {
@@ -70,6 +71,7 @@ const PagePage: React.FC = () => {
   }, [instanceQuery, pageDataQuery])
 
   if (pageDataQuery.state === "error") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((pageDataQuery.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} />
     }
@@ -79,7 +81,14 @@ const PagePage: React.FC = () => {
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <CoursePageContext.Provider value={pageState}>
-        <Page courseSlug={courseSlug} onRefresh={handleRefresh} />
+        <Layout
+          //  Not a good idea, but works for now.
+          faqUrl={"/courses/" + courseSlug + "/faq"}
+          frontPageUrl={"/courses/" + courseSlug}
+          title={pageDataQuery.data?.title}
+        >
+          <Page courseSlug={courseSlug} onRefresh={handleRefresh} />
+        </Layout>
       </CoursePageContext.Provider>
     </CoursePageDispatch.Provider>
   )

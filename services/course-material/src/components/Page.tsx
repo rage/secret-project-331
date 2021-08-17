@@ -8,9 +8,9 @@ import DebugModal from "../shared-module/components/DebugModal"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 
 import ContentRenderer from "./ContentRenderer"
+import NavigationContainer from "./ContentRenderer/NavigationContainer"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackTooltip from "./FeedbackTooltip"
-import NavigationContainer from "./NavigationContainer"
 import SelectionListener from "./SelectionListener"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 
@@ -53,9 +53,7 @@ const Page: React.FC<Props> = ({ courseSlug, onRefresh }) => {
     <>
       <div
         className={css`
-          position: absolute;
-          top: 10px;
-          right: 10px;
+          text-align: right;
         `}
       >
         <DebugModal

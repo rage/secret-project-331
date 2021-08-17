@@ -104,6 +104,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
         vec![],
         Value::Null,
         Value::Null,
+        Value::Null,
     )
     .await?;
     Ok(Data {

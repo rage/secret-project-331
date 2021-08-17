@@ -22,6 +22,7 @@ const FeedbackDialog: React.FC<Props> = ({ courseSlug, selection, open, close })
     setError("")
 
     if (feedback.length === 0) {
+      setError("Feedback cannot be empty")
       return
     }
 
@@ -49,7 +50,7 @@ const FeedbackDialog: React.FC<Props> = ({ courseSlug, selection, open, close })
       })
     } catch (e) {
       console.error(e)
-      setError(e)
+      setError(e.toString())
       return
     }
     setFeedback("")
@@ -59,40 +60,53 @@ const FeedbackDialog: React.FC<Props> = ({ courseSlug, selection, open, close })
   const charactersLeft = 1000 - feedback.length
   return (
     <Dialog open={open}>
-      <h2>Send feedback</h2>
-      <div>Selected material:</div>
-      <pre
+      <div
         className={css`
-          max-width: 800px;
-          max-height: 800px;
-          min-width: 600px;
-          min-height: 400px;
-          overflow: auto;
+          margin: 8px;
+          width: 550px;
         `}
       >
-        {selection}
-      </pre>
-      <form>
-        <TextField
-          value={feedback}
-          onChange={(ev) => setFeedback(ev.target.value)}
-          placeholder={"Write your feedback here"}
+        <h2>Send feedback</h2>
+        <form>
+          <TextField
+            value={feedback}
+            onChange={(ev) => setFeedback(ev.target.value)}
+            placeholder={"Write your feedback here"}
+            className={css`
+              width: 100%;
+            `}
+            multiline
+            rows={6}
+          />
+        </form>
+        {charactersLeft > 0 && charactersLeft < 500 && <div>{charactersLeft} characters left</div>}
+        {charactersLeft < 0 && <div>{Math.abs(charactersLeft)} characters over the limit</div>}
+        {error && <div>Error: {error}</div>}
+        <Button variant={"primary"} size={"medium"} disabled={charactersLeft < 0} onClick={submit}>
+          Submit
+        </Button>
+        <Button
+          variant={"secondary"}
+          size={"medium"}
+          onClick={() => {
+            setFeedback("")
+            close()
+          }}
+        >
+          Cancel
+        </Button>
+        <div>Selected material:</div>
+        <pre
           className={css`
-            width: 100%;
+            max-height: 100px;
+            overflow-wrap: anywhere;
+            white-space: break-spaces;
+            overflow-y: scroll;
           `}
-          multiline
-          rows={6}
-        />
-      </form>
-      {charactersLeft > 0 && charactersLeft < 500 && <div>{charactersLeft} characters left</div>}
-      {charactersLeft < 0 && <div>{Math.abs(charactersLeft)} characters over the limit</div>}
-      {error && <div>Error: {error}</div>}
-      <Button variant={"primary"} size={"medium"} disabled={charactersLeft < 0} onClick={submit}>
-        Submit
-      </Button>
-      <Button variant={"secondary"} size={"medium"} onClick={close}>
-        Cancel
-      </Button>
+        >
+          {selection}
+        </pre>
+      </div>
     </Dialog>
   )
 }

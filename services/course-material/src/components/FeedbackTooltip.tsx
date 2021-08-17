@@ -1,21 +1,22 @@
 import { css } from "@emotion/css"
 
+import SpeechBalloon from "../shared-module/components/SpeechBalloon"
+
 interface FeedbackProps {
-  show: boolean
   selectionRect: DOMRect | null
   onClick: () => void
 }
 
-const FeedbackTooltip: React.FC<FeedbackProps> = ({ onClick, show, selectionRect }) => {
+const FeedbackTooltip: React.FC<FeedbackProps> = ({ onClick, selectionRect }) => {
   if (selectionRect === null) {
+    // hidden while there's no selection
     return <></>
   }
 
-  const x = window.scrollX + selectionRect.x
-  const y = Math.max(35, window.scrollY + selectionRect.y - 40)
+  const x = window.scrollX + selectionRect.x - 60
+  const y = Math.max(window.scrollY, window.scrollY + selectionRect.y - 70)
   return (
-    <button
-      hidden={!show}
+    <SpeechBalloon
       onClick={onClick}
       className={css`
         position: absolute;
@@ -24,7 +25,7 @@ const FeedbackTooltip: React.FC<FeedbackProps> = ({ onClick, show, selectionRect
       `}
     >
       Give feedback
-    </button>
+    </SpeechBalloon>
   )
 }
 

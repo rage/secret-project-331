@@ -33,7 +33,7 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
   const [name, setName] = useState(data.name)
   const [subject, setSubject] = useState(data.subject ?? "")
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   const handleOnSave = async () => {
     setSaving(true)
@@ -47,7 +47,7 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
       })
       setContent(res.content as BlockInstance[])
       setName(res.name)
-      setError("")
+      setError(null)
       setSubject(res.subject ?? "")
     } catch (e) {
       setError(e.toString())

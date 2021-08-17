@@ -49,7 +49,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     ) as BlockInstance[],
   )
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   const currentContentStateSaved = data.content === content
 
@@ -63,7 +63,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
         chapter_id: data.chapter_id,
         front_page_of_chapter_id: null,
       })
-      setError("")
+      setError(null)
       setContent(res.content as BlockInstance[])
     } catch (e) {
       setError(e.toString())

@@ -2,7 +2,11 @@
 use crate::{
     controllers::ControllerResult,
     domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::pages::{HistoryRestoreData, NewPage, Page, PageHistory},
+    models::{
+        page_history::PageHistory,
+        pages::{HistoryRestoreData, NewPage, Page},
+    },
+    utils::pagination::Pagination,
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
@@ -131,9 +135,11 @@ GET /api/v0/main-frontend/pages/:page_id/history
 async fn history(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
+    pagination: web::Query<Pagination>,
 ) -> ControllerResult<Json<Vec<PageHistory>>> {
     let mut conn = pool.acquire().await?;
-    let res = crate::models::pages::history(&mut conn, page_id.into_inner()).await?;
+    let res =
+        crate::models::page_history::history(&mut conn, page_id.into_inner(), &pagination).await?;
     Ok(Json(res))
 }
 

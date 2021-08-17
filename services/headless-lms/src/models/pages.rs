@@ -6,6 +6,7 @@ use crate::{
         exercise_services::{get_internal_public_spec_url, get_model_solution_url},
         exercise_tasks::ExerciseTask,
         exercises::Exercise,
+        page_history::HistoryChangeReason,
         ModelError,
     },
     utils::document_schema_processor::{
@@ -17,8 +18,7 @@ use crate::{
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use sqlx::{Acquire, FromRow, PgConnection, Type};
+use sqlx::{Acquire, FromRow, PgConnection};
 use std::{collections::HashMap, time::Duration};
 use ts_rs::TS;
 use url::Url;
@@ -135,13 +135,6 @@ pub struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
-#[sqlx(type_name = "history_change_reason", rename_all = "kebab-case")]
-pub enum HistoryChangeReason {
-    PageSaved,
-    HistoryRestored,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, TS)]
 pub struct HistoryRestoreData {
     pub history_id: Uuid,
@@ -176,26 +169,17 @@ RETURNING id
     )
     .fetch_one(&mut tx)
     .await?;
-    let history_res = sqlx::query!(
-        "
-INSERT INTO page_history (
-    page_id,
-    content,
-    history_change_reason,
-    author_user_id
-  )
-VALUES ($1, $2, $3, $4)
-RETURNING id
-",
+    let history_id = crate::models::page_history::insert(
+        &mut tx,
         page_res.id,
-        serde_json::Value::Array(vec![]),
-        HistoryChangeReason::PageSaved as HistoryChangeReason,
-        author
+        &serde_json::Value::Array(vec![]),
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
     )
-    .fetch_one(&mut tx)
     .await?;
     tx.commit().await?;
-    Ok((page_res.id, history_res.id))
+    Ok((page_res.id, history_id))
 }
 
 pub async fn set_chapter(
@@ -232,26 +216,18 @@ WHERE id = $2
     )
     .execute(&mut tx)
     .await?;
-    let res = sqlx::query!(
-        "
-INSERT INTO page_history (
-    page_id,
-    content,
-    history_change_reason,
-    author_user_id
-  )
-VALUES ($1, $2, $3, $4)
-RETURNING id
-",
+
+    let history_id = crate::models::page_history::insert(
+        &mut tx,
         page_id,
-        &content,
-        HistoryChangeReason::PageSaved as HistoryChangeReason,
-        author
+        &serde_json::Value::Array(vec![]),
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
     )
-    .fetch_one(&mut tx)
     .await?;
     tx.commit().await?;
-    Ok(res.id)
+    Ok(history_id)
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
@@ -425,22 +401,14 @@ RETURNING *
     )
     .fetch_one(&mut tx)
     .await?;
-    sqlx::query!(
-        "
-INSERT INTO page_history (
-    page_id,
-    content,
-    history_change_reason,
-    author_user_id
-  )
-VALUES ($1, $2, $3, $4)
-",
+    crate::models::page_history::insert(
+        &mut tx,
         page_id,
-        content_as_json,
-        HistoryChangeReason::PageSaved as HistoryChangeReason,
-        author
+        &content_as_json,
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
     )
-    .execute(&mut tx)
     .await?;
 
     let (result_exercises, new_content) =
@@ -681,22 +649,14 @@ RETURNING id, exercise_type, assignment, private_spec;
     )
     .execute(&mut *conn)
     .await?;
-    sqlx::query!(
-        "
-INSERT INTO page_history (
-    page_id,
-    content,
-    history_change_reason,
-    author_user_id
-  )
-VALUES ($1, $2, $3, $4)
-",
+    crate::models::page_history::insert(
+        &mut *conn,
         page.id,
-        new_content,
-        HistoryChangeReason::PageSaved as HistoryChangeReason,
-        author
+        &new_content,
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
     )
-    .execute(&mut *conn)
     .await?;
     Ok((result_exercises, new_content))
 }
@@ -792,22 +752,14 @@ pub async fn insert_page(
     )
     .fetch_one(&mut tx)
     .await?;
-    sqlx::query!(
-        "
-INSERT INTO page_history (
-    page_id,
-    content,
-    history_change_reason,
-    author_user_id
-  )
-VALUES ($1, $2, $3, $4)
-",
+    crate::models::page_history::insert(
+        &mut tx,
         page.id,
-        content_as_json,
-        HistoryChangeReason::PageSaved as HistoryChangeReason,
-        author
+        &content_as_json,
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
     )
-    .execute(&mut tx)
     .await?;
 
     let (result_exercises, new_content) =
@@ -1162,57 +1114,15 @@ RETURNING page_history.content
     )
     .fetch_one(&mut tx)
     .await?;
-    let res = sqlx::query!(
-        "
-INSERT INTO page_history (
-    page_id,
-    content,
-    history_change_reason,
-    author_user_id,
-    restored_from_id
-  )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id
-",
+    let history_id = crate::models::page_history::insert(
+        &mut tx,
         page_id,
-        res.content,
-        HistoryChangeReason::HistoryRestored as HistoryChangeReason,
+        &res.content,
+        HistoryChangeReason::HistoryRestored,
         author,
-        history_id
+        Some(history_id),
     )
-    .fetch_one(&mut tx)
     .await?;
     tx.commit().await?;
-    Ok(res.id)
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct PageHistory {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    content: Value,
-    history_change_reason: HistoryChangeReason,
-    restored_from_id: Option<Uuid>,
-    author_user_id: Uuid,
-}
-
-pub async fn history(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Vec<PageHistory>> {
-    let res = sqlx::query_as!(
-        PageHistory,
-        r#"
-SELECT id,
-  content,
-  created_at,
-  history_change_reason as "history_change_reason: HistoryChangeReason",
-  restored_from_id,
-  author_user_id
-FROM page_history
-WHERE page_id = $1
-ORDER BY created_at
-"#,
-        page_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
+    Ok(history_id)
 }

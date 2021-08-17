@@ -63,34 +63,6 @@
       "nullable": [false, null]
     }
   },
-  "070c510cbc2335291b9490d3972a462b16299f7e55f77acde62c12a104938b88": {
-    "query": "\nINSERT INTO page_history (\n    page_id,\n    content,\n    history_change_reason,\n    author_user_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Jsonb",
-          {
-            "Custom": {
-              "name": "history_change_reason",
-              "kind": {
-                "Enum": ["page-saved", "history-restored"]
-              }
-            }
-          },
-          "Uuid"
-        ]
-      },
-      "nullable": [false]
-    }
-  },
   "072ecb29b589e56f6fc04bb0787efd82beab771ae9d87752f80b0734b16c56e4": {
     "query": "\nINSERT INTO exercise_services (\n    name,\n    slug,\n    public_url,\n    internal_url,\n    max_reprocessing_submissions_at_once\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n  ",
     "describe": {
@@ -1824,6 +1796,54 @@
       "nullable": []
     }
   },
+  "54f9757568ec0a6dcfc2d90d857f770070634033f5a47a352d9922eae61f820c": {
+    "query": "\nSELECT id,\n  content,\n  created_at,\n  history_change_reason as \"history_change_reason: HistoryChangeReason\",\n  restored_from_id,\n  author_user_id\nFROM page_history\nWHERE page_id = $1\nORDER BY created_at\nLIMIT $2\nOFFSET $3\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "content",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "history_change_reason: HistoryChangeReason",
+          "type_info": {
+            "Custom": {
+              "name": "history_change_reason",
+              "kind": {
+                "Enum": ["page-saved", "history-restored"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 4,
+          "name": "restored_from_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "author_user_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Int8", "Int8"]
+      },
+      "nullable": [false, false, false, false, true, false]
+    }
+  },
   "576035aeb9e877869815eabed2f331073438c344f65a06022c74c23592c51dd6": {
     "query": "\nSELECT opens_at\nFROM chapters\nWHERE id = $1\n",
     "describe": {
@@ -1838,35 +1858,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [true]
-    }
-  },
-  "59891ee08a3ec5a6585d41605c617c62b3fa8d891400c95457d486f2aa2640d9": {
-    "query": "\nINSERT INTO page_history (\n    page_id,\n    content,\n    history_change_reason,\n    author_user_id,\n    restored_from_id\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Jsonb",
-          {
-            "Custom": {
-              "name": "history_change_reason",
-              "kind": {
-                "Enum": ["page-saved", "history-restored"]
-              }
-            }
-          },
-          "Uuid",
-          "Uuid"
-        ]
-      },
-      "nullable": [false]
     }
   },
   "5c55b14104bfdc1b23bb335ce5a747f7d9bba291bfa8ffd6abf84decd936040b": {
@@ -2393,6 +2384,35 @@
         "Left": ["Uuid"]
       },
       "nullable": [true, true, false]
+    }
+  },
+  "7786976684f602bce9dcd8f7bbd01d5865afc0d19fb0e987d87ffc543d50a19f": {
+    "query": "\n  INSERT INTO page_history (\n    page_id,\n    content,\n    history_change_reason,\n    author_user_id,\n    restored_from_id\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          {
+            "Custom": {
+              "name": "history_change_reason",
+              "kind": {
+                "Enum": ["page-saved", "history-restored"]
+              }
+            }
+          },
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [false]
     }
   },
   "785c6a12aad375df96e3ce5dee4b20fde25e67ec826c645019a03222a07c2aa9": {
@@ -3595,28 +3615,6 @@
       "nullable": [false, false, false, true, false, true, true, true, true, false]
     }
   },
-  "b7578ff712be67a4d97f93e6d1bd3c92e38c725036542ed73200cecabee386b1": {
-    "query": "\nINSERT INTO page_history (\n    page_id,\n    content,\n    history_change_reason,\n    author_user_id\n  )\nVALUES ($1, $2, $3, $4)\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Jsonb",
-          {
-            "Custom": {
-              "name": "history_change_reason",
-              "kind": {
-                "Enum": ["page-saved", "history-restored"]
-              }
-            }
-          },
-          "Uuid"
-        ]
-      },
-      "nullable": []
-    }
-  },
   "b7c1d6419ba5258f9768f21c871f7e20ec929aeb83445e8a09a5cbd4e9425def": {
     "query": "SELECT * FROM courses WHERE deleted_at IS NULL;",
     "describe": {
@@ -4654,54 +4652,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true]
-    }
-  },
-  "ea167a7567d41e1dd43f7b1757d74614b29a49b211621c6ca6d82058d952d79e": {
-    "query": "\nSELECT id,\n  content,\n  created_at,\n  history_change_reason as \"history_change_reason: HistoryChangeReason\",\n  restored_from_id,\n  author_user_id\nFROM page_history\nWHERE page_id = $1\nORDER BY created_at\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "content",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "history_change_reason: HistoryChangeReason",
-          "type_info": {
-            "Custom": {
-              "name": "history_change_reason",
-              "kind": {
-                "Enum": ["page-saved", "history-restored"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 4,
-          "name": "restored_from_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "author_user_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true, false]
     }
   },
   "eb1eeea17ea1b5dd169f8db54cd61c8e77627ffc4c82a40705e454c7148f54a3": {

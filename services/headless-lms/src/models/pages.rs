@@ -123,9 +123,9 @@ pub struct PageMetadata {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct PageSearchResult {
     id: Uuid,
-    title: String,
+    title_headline: Option<String>,
     rank: Option<f32>,
-    ts_headline: Option<String>,
+    content_headline: Option<String>,
     url_path: String,
 }
 
@@ -789,7 +789,7 @@ INSERT INTO pages(
     chapter_id,
     content_search_language
   )
-VALUES($1, $2, $3, $4, $5, $6, $7)
+VALUES($1, $2, $3, $4, $5, $6, $7::regconfig)
 RETURNING id,
   created_at,
   updated_at,
@@ -1179,21 +1179,25 @@ pub async fn get_page_search_results(
         PageSearchResult,
         "
 SELECT id,
-  title,
   ts_rank(
     content_search,
-    phraseto_tsquery($2, $3)
+    phraseto_tsquery($2::regconfig, $3)
   ) as rank,
   ts_headline(
-    $2,
+    $2::regconfig,
+    title,
+    phraseto_tsquery($2::regconfig, $3)
+  ) as title_headline,
+  ts_headline(
+    $2::regconfig,
     content_search_original_text,
-    phraseto_tsquery($2, $3)
-  ),
+    phraseto_tsquery($2::regconfig, $3)
+  ) as content_headline,
   url_path
 FROM pages
 WHERE course_id = $1
   AND deleted_at IS NULL
-  AND content_search @@ phraseto_tsquery($2, $3)
+  AND content_search @@ phraseto_tsquery($2::regconfig, $3)
 ORDER BY rank DESC
 LIMIT 50;
     ",

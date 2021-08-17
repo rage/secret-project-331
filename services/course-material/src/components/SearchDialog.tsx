@@ -28,14 +28,23 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
   const [query, setQuery] = useState<string | null>(null)
   const [debouncedQuery] = useDebounce(query, 200)
   const [results, setResults] = useState<PageSearchResult[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function innerFunction() {
       if (!debouncedQuery || debouncedQuery.trim() === "") {
         return
       }
-      const pages = await searchPages({ query: debouncedQuery }, courseId)
-      setResults(pages)
+      try {
+        const pages = await searchPages({ query: debouncedQuery }, courseId)
+        setResults(pages)
+      } catch (e) {
+        if (e?.response?.data) {
+          setError(JSON.stringify(e.response.data, undefined, 2))
+        } else {
+          setError(e.toString())
+        }
+      }
     }
     innerFunction()
   }, [courseId, debouncedQuery])
@@ -76,7 +85,10 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
           >
             <TextField
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setError(null)
+                setQuery(e.target.value)
+              }}
               fullWidth
               placeholder="Search..."
             />
@@ -85,7 +97,11 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                 margin-top: 1rem;
               `}
             >
+              {error && <div>{error}</div>}
               {results?.map((result) => {
+                if (!result.title_headline) {
+                  return null
+                }
                 return (
                   <div
                     className={css`
@@ -93,13 +109,20 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                     `}
                     key={result.id}
                   >
-                    <h2>{result.title}</h2>
-                    {result.ts_headline && (
+                    <h2
+                      className={css`
+                        b {
+                          text-decoration: underline;
+                        }
+                      `}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.title_headline) }}
+                    />
+                    {result.content_headline && (
                       <p
                         className={css`
                           color: #5a5757;
                         `}
-                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.ts_headline) }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.content_headline) }}
                       />
                     )}
                   </div>

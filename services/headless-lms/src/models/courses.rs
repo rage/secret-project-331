@@ -24,7 +24,7 @@ pub struct Course {
     pub name: String,
     pub organization_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub content_search_language: String,
+    pub content_search_language: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -66,7 +66,7 @@ SELECT id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language as "content_search_language: String"
+  content_search_language::text
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -87,7 +87,7 @@ SELECT id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language as "content_search_language: String"
+  content_search_language::text
 FROM courses
 WHERE id = $1;
     "#,
@@ -140,7 +140,7 @@ SELECT id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language as "content_search_language: String"
+  content_search_language::text
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL;
@@ -178,7 +178,7 @@ RETURNING id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language as "content_search_language: String"
+  content_search_language::text
             "#,
         course.name,
         course.slug,
@@ -241,7 +241,7 @@ RETURNING id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language as "content_search_language: String"
+  content_search_language::text
     "#,
         course_update.name,
         course_id
@@ -265,7 +265,7 @@ RETURNING id,
   organization_id,
   deleted_at,
   slug,
-  content_search_language as "content_search_language: String"
+  content_search_language::text
     "#,
         course_id
     )

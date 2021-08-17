@@ -139,7 +139,7 @@ export interface Course {
   name: string
   organization_id: string
   deleted_at: Date | null
-  content_search_language: string
+  content_search_language: string | null
 }
 
 export interface Exercise {
@@ -270,9 +270,9 @@ export interface SubmissionInfo {
 
 export interface PageSearchResult {
   id: string
-  title: string
+  title_headline: string | null
   rank: number | null
-  ts_headline: string | null
+  content_headline: string | null
   url_path: string
 }
 

@@ -139,6 +139,9 @@ export interface Course {
   name: string
   organization_id: string
   deleted_at: Date | null
+  locale: string
+  copied_from_course_id: string | null
+  language_version_of_course_id: string | null
 }
 
 export interface Exercise {
@@ -248,6 +251,7 @@ export interface NewCourse {
   name: string
   slug: string
   organization_id: string
+  locale: string
 }
 
 export interface CourseUpdate {
@@ -372,4 +376,13 @@ export interface NormalizedCmsExerciseTask {
   exercise_type: string
   assignment: unknown
   private_spec: unknown | null
+}
+
+export interface UserCourseSettings {
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  user_id: string
+  course_id: string
+  current_course_instance_id: string
 }

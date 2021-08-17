@@ -24,6 +24,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
       name,
       slug,
       organization_id: organizationId,
+      locale: "en_US",
     })
     onSubmitForm()
   }

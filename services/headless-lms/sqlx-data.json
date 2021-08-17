@@ -199,6 +199,67 @@
       "nullable": [false, false, false, false, false, true, true, false, false]
     }
   },
+  "0a6266976f1179abacc167870d9d3c43442776fdd7d427401c04ce562a430798": {
+    "query": "\n    INSERT INTO\n      courses(name, slug, organization_id, locale)\n    VALUES($1, $2, $3, $4)\n    RETURNING *\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "locale",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "copied_from_course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "language_version_of_course_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Varchar", "Uuid", "Varchar"]
+      },
+      "nullable": [false, false, false, false, false, true, false, false, true, true]
+    }
+  },
   "1045751c6cd07ace2bfd5ce224d9f841ce8f9995d15b21b2068bede8b52d4df4": {
     "query": "\nINSERT INTO gradings (\n    submission_id,\n    course_id,\n    exercise_id,\n    exercise_task_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
     "describe": {
@@ -1686,12 +1747,27 @@
           "ordinal": 6,
           "name": "slug",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "locale",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "copied_from_course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "language_version_of_course_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, true, false]
+      "nullable": [false, false, false, false, false, true, false, false, true, true]
     }
   },
   "4b1ff5bd633537d7159368dc3d07a0cdedaffffe39bddca03731fd3c6f04687b": {
@@ -1810,52 +1886,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [true]
-    }
-  },
-  "5c55b14104bfdc1b23bb335ce5a747f7d9bba291bfa8ffd6abf84decd936040b": {
-    "query": "\n    INSERT INTO\n      courses(name, slug, organization_id)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Varchar", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, false]
     }
   },
   "5dab5d2b5b6c50c979d750577afcaad172f3292daeba48bfe0ac1c208351b414": {
@@ -2546,12 +2576,27 @@
           "ordinal": 6,
           "name": "slug",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "locale",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "copied_from_course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "language_version_of_course_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, true, false]
+      "nullable": [false, false, false, false, false, true, false, false, true, true]
     }
   },
   "8355f2e2500598d1b6fb129f1c7876b2415df0f4235a164a98b0414f8445c84b": {
@@ -2653,20 +2698,45 @@
       "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
-  "8618ce42d70d235789ef5dc2bf23051fa7964b770cbd4cfa95022fa219f5dddf": {
-    "query": "\nINSERT INTO courses (name, organization_id, slug)\nVALUES ($1, $2, $3)\nRETURNING id\n",
+  "85b498777c456cfed23fb5680494f75a97c3a65086f96145c92725d7020721f4": {
+    "query": "\nINSERT INTO user_course_settings (user_id, course_id, current_course_instance_id)\nVALUES ($1, $2, $3)\nRETURNING *;\n    ",
     "describe": {
       "columns": [
         {
           "ordinal": 0,
-          "name": "id",
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 1,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "current_course_instance_id",
           "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid", "Varchar"]
+        "Left": ["Uuid", "Uuid", "Uuid"]
       },
-      "nullable": [false]
+      "nullable": [false, false, true, false, false, false]
     }
   },
   "86a8fa9857c9a237b24dc8385ff04f259a1ee04fe343b0dd0072946a3340762f": {
@@ -2814,6 +2884,22 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, true, true, false, true, true]
+    }
+  },
+  "8b08b359951b99a0901c6fd3861be6e460d6ec211ade8c4026e7aaabf1f28fb6": {
+    "query": "\nINSERT INTO courses (name, organization_id, slug, locale)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Uuid", "Varchar", "Varchar"]
+      },
+      "nullable": [false]
     }
   },
   "8c5a2157f97a81b2ce7489c584aef3cc2c42a4aaedeadc828e0de7bf8afc8706": {
@@ -3560,12 +3646,27 @@
           "ordinal": 6,
           "name": "slug",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "locale",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "copied_from_course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "language_version_of_course_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, false, false, true, false]
+      "nullable": [false, false, false, false, false, true, false, false, true, true]
     }
   },
   "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {
@@ -3632,12 +3733,27 @@
           "ordinal": 6,
           "name": "slug",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "locale",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "copied_from_course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "language_version_of_course_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, false, false, true, false]
+      "nullable": [false, false, false, false, false, true, false, false, true, true]
     }
   },
   "c4db451cf0d08b2fca14976798e0883a3961533b35d7dd4d5057e1662d482592": {
@@ -4805,12 +4921,27 @@
           "ordinal": 6,
           "name": "slug",
           "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "locale",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 8,
+          "name": "copied_from_course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "language_version_of_course_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
         "Left": ["Varchar", "Uuid"]
       },
-      "nullable": [false, false, false, false, false, true, false]
+      "nullable": [false, false, false, false, false, true, false, false, true, true]
     }
   },
   "f782efea0a82ee30ae7f4f3df2af17005177e1ba08ebf88d8443e88afb97627a": {
@@ -5165,6 +5296,47 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [false, false, false, true, false, true, true, true, true, false]
+    }
+  },
+  "fe4634241494a258f3cee7ab1339fa8d06c7ff9f47a07db027d49d7fcbbbd8a3": {
+    "query": "\nSELECT *\nFROM user_course_settings\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 1,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "current_course_instance_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false, false, true, false, false, false]
     }
   },
   "fedf6f6fd2c1c81adf93753386ca0313066e6045f5dfd0cd55eeaf7e59866fad": {

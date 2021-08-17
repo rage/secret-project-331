@@ -92,7 +92,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
         Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669")?,
     )
     .await?;
-    let course = models::courses::insert(&mut *conn, "", org, &random_string).await?;
+    let course = models::courses::insert(&mut *conn, "", org, &random_string, "en_US").await?;
     let instance = models::course_instances::insert(&mut *conn, course, None, None).await?;
     let chapter = models::chapters::insert(&mut *conn, "", course, 1).await?;
     let page = models::pages::insert(&mut *conn, course, "", "", 0).await?;

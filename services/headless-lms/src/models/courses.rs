@@ -24,6 +24,9 @@ pub struct Course {
     pub name: String,
     pub organization_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub locale: String,
+    pub copied_from_course_id: Option<Uuid>,
+    pub language_version_of_course_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -38,16 +41,18 @@ pub async fn insert(
     name: &str,
     organization_id: Uuid,
     slug: &str,
+    locale: &str,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO courses (name, organization_id, slug)
-VALUES ($1, $2, $3)
+INSERT INTO courses (name, organization_id, slug, locale)
+VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
         name,
         organization_id,
         slug,
+        locale,
     )
     .fetch_one(conn)
     .await?;
@@ -116,6 +121,7 @@ pub struct NewCourse {
     pub name: String,
     pub slug: String,
     pub organization_id: Uuid,
+    pub locale: String,
 }
 
 pub async fn insert_course(
@@ -128,13 +134,14 @@ pub async fn insert_course(
         Course,
         r#"
     INSERT INTO
-      courses(name, slug, organization_id)
-    VALUES($1, $2, $3)
+      courses(name, slug, organization_id, locale)
+    VALUES($1, $2, $3, $4)
     RETURNING *
             "#,
         course.name,
         course.slug,
-        course.organization_id
+        course.organization_id,
+        course.locale,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -212,4 +219,60 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(deleted)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{
+        models::{courses, organizations},
+        test_helper::Conn,
+    };
+
+    #[tokio::test]
+    async fn valid_locale_allows_course_creation() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let organization_id = insert_organization(tx.as_mut()).await;
+        let course_id = courses::insert(tx.as_mut(), "", organization_id, "course", "en_US").await;
+        assert!(course_id.is_ok());
+    }
+
+    #[tokio::test]
+    async fn empty_locale_is_not_allowed() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let organization_id = insert_organization(tx.as_mut()).await;
+        let course_id = courses::insert(tx.as_mut(), "", organization_id, "course", "").await;
+        assert!(course_id.is_err());
+    }
+
+    #[tokio::test]
+    async fn wrong_case_locale_is_not_allowed() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let organization_id = insert_organization(tx.as_mut()).await;
+        let course_id = courses::insert(tx.as_mut(), "", organization_id, "course", "en_us").await;
+        assert!(course_id.is_err());
+    }
+
+    #[tokio::test]
+    async fn hyphen_in_locale_is_not_allowed() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let organization_id = insert_organization(tx.as_mut()).await;
+        let course_id = courses::insert(tx.as_mut(), "", organization_id, "course", "en-US").await;
+        assert!(course_id.is_err());
+    }
+
+    async fn insert_organization(conn: &mut PgConnection) -> Uuid {
+        organizations::insert(
+            conn,
+            "",
+            "",
+            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
+        )
+        .await
+        .unwrap()
+    }
 }

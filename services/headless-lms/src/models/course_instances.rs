@@ -210,10 +210,10 @@ mod test {
         )
         .await
         .unwrap();
-        let course_1_id = courses::insert(tx.as_mut(), "", organization_id, "course-1")
+        let course_1_id = courses::insert(tx.as_mut(), "", organization_id, "course-1", "en_US")
             .await
             .unwrap();
-        let course_2_id = courses::insert(tx.as_mut(), "", organization_id, "course-2")
+        let course_2_id = courses::insert(tx.as_mut(), "", organization_id, "course-2", "en_US")
             .await
             .unwrap();
 

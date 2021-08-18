@@ -4,16 +4,18 @@ import React from "react"
 import { baseTheme } from "../utils"
 
 export interface SpeechBalloonProps {
+  id?: string
   className?: string
   onClick?: () => void
 }
 
 const SQUARE_SIZE = "1rem"
 
-const SpeechBalloon: React.FC<SpeechBalloonProps> = ({ children, className, onClick }) => {
+const SpeechBalloon: React.FC<SpeechBalloonProps> = ({ id, children, className, onClick }) => {
   const bg = baseTheme.colors.neutral[300]
   return (
     <div
+      id={id}
       onClick={onClick}
       className={css`
         display: flex;

@@ -4,7 +4,9 @@ import CancelIcon from "@material-ui/icons/Cancel"
 import DoneIcon from "@material-ui/icons/Done"
 import EditIcon from "@material-ui/icons/Edit"
 import ErrorIcon from "@material-ui/icons/Error"
+import InfoIcon from "@material-ui/icons/Info"
 import SaveIcon from "@material-ui/icons/Save"
+import { format } from "date-fns"
 import React, { ChangeEvent, useState } from "react"
 import { useQuery } from "react-query"
 
@@ -35,13 +37,19 @@ interface ContentAreaProps {
   type: inputType
 }
 
+interface TimeComponentProps {
+  name: string
+  date: Date
+  right: boolean
+}
+
 type updateStatus = null | "saved" | "failed"
 
 const ContentArea: React.FC<ContentAreaProps> = ({ title, text, editing, onChange, type }) => {
   return (
     <div
       className={css`
-        margin-bottom: 8px;
+        margin-bottom: 12px;
       `}
     >
       <strong>{title}:</strong>
@@ -65,6 +73,35 @@ const ContentArea: React.FC<ContentAreaProps> = ({ title, text, editing, onChang
         <span>{text}</span>
       )}
     </div>
+  )
+}
+
+const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
+  return (
+    <span
+      className={
+        right &&
+        css`
+          float: right;
+        `
+      }
+    >
+      <span
+        className={css`
+          vertical-align: middle;
+        `}
+      >
+        <strong>{name}</strong>
+        {format(date, "yyyy-MM-dd HH:mm")}
+      </span>
+      <IconButton size="small">
+        <InfoIcon
+          className={css`
+            font-size: 18px;
+          `}
+        />
+      </IconButton>
+    </span>
   )
 }
 
@@ -168,18 +205,8 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({ key, exercise
         </CardContent>
 
         <CardContent>
-          <span>
-            <strong>Created:</strong>
-            <span> {service.created_at.toLocaleDateString("fi-FI")} </span>
-          </span>
-          <span
-            className={css`
-              float: right;
-            `}
-          >
-            <strong>Updated:</strong>
-            <span> {service.updated_at.toLocaleDateString("fi-FI")} </span>
-          </span>
+          <TimeComponent name={"Created: "} date={exercise_service.created_at} right={false} />
+          <TimeComponent name={"Updated: "} date={exercise_service.updated_at} right={true} />
         </CardContent>
       </Card>
     </Box>

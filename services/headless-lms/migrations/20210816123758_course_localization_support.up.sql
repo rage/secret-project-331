@@ -17,15 +17,17 @@ COMMENT ON COLUMN user_course_settings.course_id IS 'Course indentifier. Should 
 COMMENT ON COLUMN user_course_settings.current_course_instance_id IS 'The course instance that the user is currently enrolled to.';
 -- Add new columns to course table
 ALTER TABLE courses
-ADD COLUMN locale VARCHAR(10) CHECK (locale ~ '^[a-z]{2}_[A-Z]{2}$'),
+ADD COLUMN language_code VARCHAR(15) CHECK (
+    language_code ~ '^[a-z]{2,3}(_[A-Z][a-z]{3})?_[A-Z]{2}$'
+  ),
   ADD COLUMN copied_from_course_id UUID REFERENCES courses(id),
   ADD COLUMN language_version_of_course_id UUID REFERENCES courses(id);
 UPDATE courses
-SET locale = 'en_US'
-WHERE locale IS NULL;
+SET language_code = 'en_US'
+WHERE language_code IS NULL;
 ALTER TABLE courses
-ALTER COLUMN locale
+ALTER COLUMN language_code
 SET NOT NULL;
-COMMENT ON COLUMN courses.locale IS 'Locale indentifier for the course';
+COMMENT ON COLUMN courses.language_code IS 'IETF language code identifier for the course';
 COMMENT ON COLUMN courses.copied_from_course_id IS 'The original course that this course is a copy of. If null, this is the original course.';
 COMMENT ON COLUMN courses.language_version_of_course_id IS 'The original course, if this course is based on a translation.';

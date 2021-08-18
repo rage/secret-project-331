@@ -139,7 +139,7 @@ export interface Course {
   name: string
   organization_id: string
   deleted_at: Date | null
-  locale: string
+  language_code: string
   copied_from_course_id: string | null
   language_version_of_course_id: string | null
 }
@@ -251,7 +251,7 @@ export interface NewCourse {
   name: string
   slug: string
   organization_id: string
-  locale: string
+  language_code: string
 }
 
 export interface CourseUpdate {

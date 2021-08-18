@@ -1,6 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 use crate::{
-    controllers::{helpers::media::upload_media_for_course, ControllerResult, UploadResult},
+    controllers::{
+        helpers::media::upload_media_for_course, ControllerError, ControllerResult, UploadResult,
+    },
     domain::authorization::{authorize, Action, AuthUser, Resource},
     models::{
         course_instances::CourseInstance,
@@ -8,7 +10,7 @@ use crate::{
         exercises::Exercise,
         submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
     },
-    utils::file_store::FileStore,
+    utils::{file_store::FileStore, strings::is_ietf_language_code_like},
     ApplicationConfiguration,
 };
 use actix_multipart as mp;
@@ -89,6 +91,11 @@ async fn post_new_course(
 ) -> ControllerResult<Json<Course>> {
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
+    if !is_ietf_language_code_like(&new_course.language_code) {
+        return Err(ControllerError::BadRequest(
+            "Malformed language code.".to_string(),
+        ));
+    }
     authorize(
         &mut conn,
         Action::Teach,

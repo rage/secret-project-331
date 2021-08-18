@@ -24,7 +24,7 @@ pub struct Course {
     pub name: String,
     pub organization_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub locale: String,
+    pub language_code: String,
     pub copied_from_course_id: Option<Uuid>,
     pub language_version_of_course_id: Option<Uuid>,
 }
@@ -41,18 +41,18 @@ pub async fn insert(
     name: &str,
     organization_id: Uuid,
     slug: &str,
-    locale: &str,
+    language_code: &str,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO courses (name, organization_id, slug, locale)
+INSERT INTO courses (name, organization_id, slug, language_code)
 VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
         name,
         organization_id,
         slug,
-        locale,
+        language_code,
     )
     .fetch_one(conn)
     .await?;
@@ -121,7 +121,7 @@ pub struct NewCourse {
     pub name: String,
     pub slug: String,
     pub organization_id: Uuid,
-    pub locale: String,
+    pub language_code: String,
 }
 
 pub async fn insert_course(
@@ -134,14 +134,14 @@ pub async fn insert_course(
         Course,
         r#"
     INSERT INTO
-      courses(name, slug, organization_id, locale)
+      courses(name, slug, organization_id, language_code)
     VALUES($1, $2, $3, $4)
     RETURNING *
             "#,
         course.name,
         course.slug,
         course.organization_id,
-        course.locale,
+        course.language_code,
     )
     .fetch_one(&mut tx)
     .await?;

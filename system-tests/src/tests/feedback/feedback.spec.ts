@@ -67,6 +67,8 @@ test("test", async ({ headless, page }) => {
   )
 
   // Feedback input box
+  // wait for fade-in
+  await page.waitForTimeout(200)
   if (headless) {
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`feedback-input.png`, { threshold: 0.3 })
@@ -101,11 +103,12 @@ test("test", async ({ headless, page }) => {
   await page.waitForURL((url) => url.searchParams.has("read"))
   expectPath(page, "/manage/courses/[id]/feedback?read=false")
 
+  await page.waitForSelector("text=Sent by")
   await page.evaluate(() => {
     const divs = document.querySelectorAll("div")
     for (const div of divs) {
       if (div.children.length === 0 && div.textContent.includes("Sent by")) {
-        div.innerHTML = "replaced for tests"
+        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
       }
     }
   })

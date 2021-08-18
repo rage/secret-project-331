@@ -1,70 +1,79 @@
-import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
 import { baseTheme } from "../utils"
 
-export interface SpinnerExtraProps {
-  variant: "large" | "medium" | "small"
+export interface ExtraProps {
+  variant?: "large" | "medium" | "small"
+  point: number
 }
 
-export type SpinnerProps = React.HTMLAttributes<HTMLDivElement> & SpinnerExtraProps
-
-const rotation = keyframes`
-0% { transform: rotate(0deg) }
-100% { transform: rotate(360deg) }
-`
+export type CircularProgressBarProps = React.HTMLAttributes<HTMLDivElement> & ExtraProps
 
 const CircleBox = styled.div`
-  font-size: 36px;
-  color: #fff;
-  text-align: center;
-
-  div {
-    position: relative;
-  }
-
-  span {
+  width: 50px;
+  height: 50px;
+  margin: 0.2rem !important;
+  display: inline-block;
+  position: relative;
+  padding: 0;
+  .progress {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    color: #fff;
-    font-size: 40px;
+    height: 60px;
+    width: 60px;
+    cursor: pointer;
   }
 
-  circle {
-    stroke-width: 20px;
+  .progress-circle {
+    transform: rotate(-90deg);
+    margin-top: 0px;
+  }
+
+  .progress-circle-bg {
     fill: none;
+    stroke: #d2d2d2;
+    stroke-width: 4px;
   }
-
-  circle:nth-child(1) {
-    stroke: #fff;
+  .progress-circle-value {
+    fill: none;
+    stroke: ${baseTheme.colors.green[100]};
+    stroke-width: 4px;
+    stroke-dasharray: 100 100;
+    stroke-dashoffset: ${({ point }: ExtraProps) => 100 - point * 100};
+    transition: stroke-dashoffset 0.7s ease-in-out;
   }
-  circle:nth-child(2) {
-    stroke: #f00;
-    position: relative;
-    z-index: 1;
-  }
-
-  &:nth-child(1) circle:nth-child(2) {
-    stroke-dasharray: calc(100 * 6);
-    stroke-dashoffset: calc((100 * 6) - ((100 * 6) * 90) / 100);
-    stroke-position: inside;
+  .progress-text {
+    position: absolute;
+    top: 16px;
+    left: 18px;
+    font-size: 12px;
   }
 `
 
-const CircularProgressBar: React.FC<SpinnerProps> = (props) => {
+const CircularProgressBar: React.FC<CircularProgressBarProps> = () => {
+  const point = 95
+  const complete = point / 100
   return (
-    <CircleBox>
-      <div>
-        <svg>
-          <circle cx="100" cy="100" r="95" />
-          <circle cx="100" cy="100" r="95" />
+    <CircleBox point={complete}>
+      <div className="progress">
+        <svg
+          className="progress-circle"
+          width="50px"
+          height="50px"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle className="progress-circle-bg" cx="26" cy="26" r="15.9155"></circle>
+          <circle
+            className="progress-circle-value update-value"
+            cx="26"
+            cy="26"
+            r="15.9155"
+          ></circle>
         </svg>
-        <span>90%</span>
       </div>
-      <strong>c++ developer</strong>
+      <div className="progress-text" data-progress="50">
+        1/2
+      </div>
     </CircleBox>
   )
 }

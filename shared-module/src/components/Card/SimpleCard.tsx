@@ -3,11 +3,12 @@ import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-/* import { border, color, space } from "styled-system" */
 import { theme } from "../../utils"
+import { respond } from "../../utils/respond"
+
+/* import { border, color, space } from "styled-system" */
 
 const CourseGridWrapper = styled.a`
-  background: rgba(247, 227, 83, 0.8);
   text-decoration: none;
   display: block;
   max-width: 529px;
@@ -15,10 +16,22 @@ const CourseGridWrapper = styled.a`
   border-radius: 1px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  &:hover {
-    /*     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); */
-    border: none;
-  }
+
+  ${respond.mobile`
+  background: rebeccapurple;
+  `}
+  ${respond.xs`
+  background: red;
+  `}
+  ${respond.sm`
+  background: green;
+  `}
+  ${respond.md`
+  background: blue;
+  `}
+  ${respond.lg`
+  background: yellow;
+  `}
 `
 const styledSVG = css`
   position: absolute;

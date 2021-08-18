@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test"
 
+import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import expectPath from "../../utils/expect"
+import { login } from "../../utils/login"
+import { logout } from "../../utils/logout"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -11,7 +14,10 @@ test("test", async ({ headless, page }) => {
   await page.goto("http://project-331.local/")
 
   // Click text=University of Helsinki, Department of Computer Science
-  await page.click("text=University of Helsinki, Department of Computer Science")
+  await Promise.all([
+    page.waitForNavigation(),
+    await page.click("text=University of Helsinki, Department of Computer Science"),
+  ])
   expect(page.url()).toBe(
     "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
   )
@@ -40,7 +46,7 @@ test("test", async ({ headless, page }) => {
   )
 
   // Feedback tooltip
-  await page.waitForSelector("#feedback-tooltip")
+  await page.waitForSelector(`.${feedbackTooltipClass}`)
   if (headless) {
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`feedback-tooltip.png`, { threshold: 0.3 })
@@ -69,38 +75,13 @@ test("test", async ({ headless, page }) => {
   }
 
   // Click text=Submit
-  await page.click("text=Submit")
+  await page.click('text="Submit"')
+  await page.waitForSelector("text=Feedback submitted successfully")
 
-  // Go to http://project-331.local/
-  await page.goto("http://project-331.local/")
-
-  // Click text=Logout
-  await page.click("text=Logout")
-
-  // Click text=Login
-  await page.click("text=Login")
-  expect(page.url()).toBe("http://project-331.local/login?return_to=%2F")
-
-  // Click input[name="email"]
-  await page.click('input[name="email"]')
-
-  // Fill input[name="email"]
-  await page.fill('input[name="email"]', "teacher@example.com")
-
-  // Press Tab
-  await page.press('input[name="email"]', "Tab")
-
-  // Fill input[name="password"]
-  await page.fill('input[name="password"]', "teacher")
-
-  // Press Enter
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.press('input[name="password"]', "Enter"),
-  ])
+  await logout(page)
+  await login("admin@example.com", "admin", page, true)
 
   // Click text=University of Helsinki, Department of Computer Science
-
   await Promise.all([
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
@@ -108,7 +89,6 @@ test("test", async ({ headless, page }) => {
   expectPath(page, "/organizations/[id]")
 
   // Click text=Introduction to Course Material Manage >> :nth-match(a, 2)
-
   await Promise.all([
     page.waitForNavigation(),
     await page.click("text=Introduction to Course Material Manage >> :nth-match(a, 2)"),

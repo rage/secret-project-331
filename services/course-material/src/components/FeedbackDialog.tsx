@@ -10,10 +10,17 @@ interface Props {
   courseSlug: string
   selection: string
   open: boolean
+  onSubmitSuccess: () => void
   close: () => unknown
 }
 
-const FeedbackDialog: React.FC<Props> = ({ courseSlug, selection, open, close }) => {
+const FeedbackDialog: React.FC<Props> = ({
+  courseSlug,
+  selection,
+  open,
+  onSubmitSuccess,
+  close,
+}) => {
   const [feedback, setFeedback] = useState("")
   const [error, setError] = useState<string | null>(null)
 
@@ -54,6 +61,7 @@ const FeedbackDialog: React.FC<Props> = ({ courseSlug, selection, open, close })
       return
     }
     setFeedback("")
+    onSubmitSuccess()
     close()
   }
 

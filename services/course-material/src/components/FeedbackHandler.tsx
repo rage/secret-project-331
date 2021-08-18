@@ -19,6 +19,7 @@ const FeedbackHandler: React.FC<Props> = ({ courseSlug }) => {
   const [showFeedbackTooltipTimeout, setShowFeedbackTooltipTimeout] =
     useState<NodeJS.Timeout | null>(null)
   const [selectionRect, setSelectionRect] = useState<DOMRect | null>(null)
+  const [showSubmitSuccess, setShowSubmitSuccess] = useState(false)
 
   async function handleSelectionChange(newSelection: string, rect: DOMRect | null) {
     if (showFeedbackTooltipTimeout !== null) {
@@ -47,13 +48,36 @@ const FeedbackHandler: React.FC<Props> = ({ courseSlug }) => {
     setFeedbackDialogOpen(false)
   }
 
+  function onSubmitSuccess() {
+    setShowSubmitSuccess(true)
+    setTimeout(() => {
+      setShowSubmitSuccess(false)
+    }, 5000)
+  }
+
   return (
     <>
+      <div
+        hidden={!showSubmitSuccess}
+        className={css`
+          position: fixed;
+          text-align: center;
+          width: 120px;
+          height: 80px;
+          bottom: 10px;
+          right: 200px;
+          background-color: LightGreen;
+          z-index: 100;
+        `}
+      >
+        Feedback submitted successfully
+      </div>
       <div
         className={css`
           position: fixed;
           bottom: 10px;
           right: 10px;
+          z-index: 100;
         `}
       >
         <Button
@@ -74,6 +98,7 @@ const FeedbackHandler: React.FC<Props> = ({ courseSlug }) => {
         open={feedbackDialogOpen}
         close={closeFeedbackDialog}
         selection={feedbackSelection}
+        onSubmitSuccess={onSubmitSuccess}
       />
       <SelectionListener onSelectionChange={handleSelectionChange} />
     </>

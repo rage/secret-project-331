@@ -46,7 +46,7 @@ const Home: React.FC = () => {
       <div>
         <Link
           href={{
-            pathname: `/manage/services`,
+            pathname: `/manage/exercise-services`,
           }}
         >
           <a>Manage exercise services</a>

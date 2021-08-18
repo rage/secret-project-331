@@ -1,24 +1,20 @@
 import { css } from "@emotion/css"
 import { Box, Card, CardContent, CardHeader, IconButton, TextField } from "@material-ui/core"
+import CancelIcon from "@material-ui/icons/Cancel"
 import DoneIcon from "@material-ui/icons/Done"
 import EditIcon from "@material-ui/icons/Edit"
+import ErrorIcon from "@material-ui/icons/Error"
+import SaveIcon from "@material-ui/icons/Save"
 import React, { ChangeEvent, useState } from "react"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
-import { fetchExerciseServices } from "../../services/backend/exercise-services"
+import {
+  fetchExerciseServices,
+  updateExerciseService,
+} from "../../services/backend/exercise-services"
+import { ExerciseService } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
-
-interface ExerciseService {
-  id: string
-  name: string
-  slug: string
-  public_url: string
-  internal_url: string
-  max_reprocessing_submissions_at_once: number
-  updated_at: Date
-  created_at: Date
-}
 
 interface ExerciseServiceEditorProps {
   exercise_services: ExerciseService[]
@@ -29,24 +25,42 @@ interface ExerciseServiceCardProps {
   exercise_service: ExerciseService
 }
 
+type inputType = "number" | "text"
+
 interface ContentAreaProps {
   title: string
   text: string | number
   editing: boolean
   onChange(value: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): unknown
+  type: inputType
 }
 
-const ContentArea: React.FC<ContentAreaProps> = ({ title, text, editing, onChange }) => {
+type updateStatus = null | "saved" | "failed"
+
+const ContentArea: React.FC<ContentAreaProps> = ({ title, text, editing, onChange, type }) => {
   return (
     <div
       className={css`
-        margin-bottom: 4px;
+        margin-bottom: 8px;
       `}
     >
       <strong>{title}:</strong>
       <br />
       {editing ? (
-        <TextField onChange={onChange} fullWidth value={text} placeholder={`${title}...`} />
+        type == "text" ? (
+          <TextField onChange={onChange} fullWidth value={text} placeholder={`${title}...`} />
+        ) : (
+          <TextField
+            onChange={onChange}
+            type={"number"}
+            InputProps={{
+              inputProps: { min: 1 },
+            }}
+            fullWidth
+            value={text}
+            placeholder={`${title}...`}
+          />
+        )
       ) : (
         <span>{text}</span>
       )}
@@ -58,22 +72,57 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({ key, exercise
   const [editing, setEditing] = useState(false)
   const [service, setService] = useState(exercise_service)
 
+  // Saving animation for the card
+  const [status, setStatus] = useState<updateStatus>(null)
+
   const toggleEdit = () => {
     setEditing(!editing)
   }
 
   const onChange = (key) => (event) => {
-    setService({ ...service, [key]: event.target.value })
+    setService({
+      ...service,
+      [key]: event.target.type === "number" ? parseInt(event.target.value) : event.target.value,
+    })
+  }
+
+  const updateContent = async () => {
+    try {
+      const updated = await updateExerciseService(service.id, service)
+      setService(updated)
+      setStatus("saved")
+    } catch (e) {
+      setStatus("failed")
+      console.error(e)
+    }
+    window.setTimeout(() => {
+      setStatus(null)
+    }, 4000)
   }
 
   return (
-    <Box width={800}>
+    <Box width={700}>
       <Card key={key} variant="outlined">
         <CardHeader
           title={editing ? "Edit exercise service" : service.name}
           subheader={editing || `Slug: ${service.slug}`}
           action={
-            <IconButton onClick={toggleEdit}> {editing ? <DoneIcon /> : <EditIcon />}</IconButton>
+            editing ? (
+              <>
+                <IconButton onClick={updateContent}>
+                  {status == null ? <SaveIcon /> : status == "saved" ? <DoneIcon /> : <ErrorIcon />}
+                </IconButton>
+                <IconButton onClick={toggleEdit}>
+                  <CancelIcon />
+                </IconButton>
+              </>
+            ) : (
+              <div>
+                <IconButton onClick={toggleEdit}>
+                  <EditIcon />
+                </IconButton>
+              </div>
+            )
           }
         />
         <CardContent>
@@ -84,12 +133,14 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({ key, exercise
                 text={service.name}
                 editing={editing}
                 onChange={onChange("name")}
+                type={"text"}
               />
               <ContentArea
                 title={"Slug"}
                 text={service.slug}
                 editing={editing}
                 onChange={onChange("slug")}
+                type={"text"}
               />
             </>
           )}
@@ -98,18 +149,21 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({ key, exercise
             text={service.public_url}
             editing={editing}
             onChange={onChange("public_url")}
+            type={"text"}
           />
           <ContentArea
             title={"Internal URL"}
             text={service.internal_url}
             editing={editing}
             onChange={onChange("internal_url")}
+            type={"text"}
           />
           <ContentArea
             title={"Reprocessing submissions"}
             text={service.max_reprocessing_submissions_at_once}
             editing={editing}
             onChange={onChange("max_reprocessing_submissions_at_once")}
+            type={"number"}
           />
         </CardContent>
 

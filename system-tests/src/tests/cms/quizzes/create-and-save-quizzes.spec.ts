@@ -268,11 +268,14 @@ test.describe("quizzes tests", () => {
     await page.click("text=Create course")
 
     // Click :nth-match(:text("Manage"), 4)
-    await page.click("text=quizzes test, multiple choice Manage >> :nth-match(a, 2)")
+    await Promise.all([
+      page.waitForNavigation(),
+      await page.click("text=quizzes test, multiple choice Manage >> :nth-match(a, 2)"),
+    ])
     expectPath(page, "/manage/courses/[id]")
 
     // Click text=Manage pages
-    await page.click("text=Manage pages")
+    await Promise.all([page.waitForNavigation(), await page.click("text=Manage pages")])
     expectPath(page, "/manage/courses/[id]/pages")
 
     // Click text=Add new chapter

@@ -10,6 +10,7 @@ import {
 import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useStateQuery from "../../../shared-module/hooks/useStateQuery"
+import basePath from "../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -64,7 +65,7 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
 
   return (
     <CourseContext.Provider value={{ courseId: instanceQuery.data.course_id }}>
-      <Layout>
+      <Layout frontPageUrl={basePath()} navVariant="complex">
         <EmailEditor data={templateQuery.data} handleSave={handleSave} />
       </Layout>
     </CourseContext.Provider>

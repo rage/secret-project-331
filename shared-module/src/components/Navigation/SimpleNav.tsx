@@ -166,7 +166,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
   return (
     <nav className={cx(NavbarItems)}>
       <h1 className={cx(NavbarLogo)}>
-        <a href={`${frontPageUrl}`} aria-label="Kotisivulle" role="button">
+        <a href={`${frontPageUrl}`} aria-label="Course front page" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}
@@ -176,9 +176,11 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
       </h1>
       <ul className={clicked ? cx(NavMenu) : cx(NavMenu)} role="list">
         <li className="container">
-          <a className={cx(NavLink)} href={`${faqUrl}`} aria-label="Kurssi valikko" role="button">
-            FAQ
-          </a>
+          {faqUrl ? (
+            <a className={cx(NavLink)} href={`${faqUrl}`} aria-label="FAQ" role="button">
+              FAQ
+            </a>
+          ) : null}
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             {loginStateContext.signedIn ? (
               <li>
@@ -202,7 +204,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
             className={cx(MenuIcon)}
             onClick={onClickHandler}
             role="button"
-            aria-label="Avaa valikko"
+            aria-label="Open menu"
           >
             <Hamburger />
           </div>

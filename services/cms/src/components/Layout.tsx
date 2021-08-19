@@ -2,43 +2,48 @@ import { css } from "@emotion/css"
 import Head from "next/head"
 import React, { ReactNode } from "react"
 
-type Props = {
-  children?: ReactNode
+import Navbar from "../shared-module/components/Navigation"
+import SimpleNav from "../shared-module/components/Navigation"
+import ComplexNav from "../shared-module/components/Navigation/ComplexNav"
+
+type LayoutProps = {
+  children: ReactNode
+  frontPageUrl: string
+  navVariant: "simple" | "complex"
+  faqUrl?: string
   title?: string
 }
 
-const Layout: React.FC<Props> = ({ children, title = "Päätön CMS" }) => (
-  <div
-    className={css`
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 100vh;
-    `}
-  >
+const Layout: React.FC<LayoutProps> = ({ children, title, navVariant, frontPageUrl, faqUrl }) => (
+  <>
     <Head>
       <title>{title}</title>
       <meta charSet="utf-8" />
       <meta name="viewport" content="initial-scale=1.0, width=device-width" />
     </Head>
-    <header>
-      <nav
+    <div
+      // Push footer to bottom of page, e.g. on empty body
+      className={css`
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 100vh;
+      `}
+    >
+      <header>
+        <Navbar faqUrl={faqUrl} frontPageUrl={frontPageUrl} variant={navVariant}></Navbar>
+      </header>
+      {/* Do not touch flex */}
+      <div
         className={css`
-          padding: 1rem;
+          flex: 1;
         `}
       >
-        <a href="/">Home</a>
-      </nav>
-    </header>
-    <div>{children}</div>
-    <footer
-      className={css`
-        margin-top: auto;
-        background-color: #f1f1f1;
-        height: 10rem;
-      `}
-    ></footer>
-  </div>
+        {children}
+      </div>
+      {/* <Footer url="www.google.com" /> */}
+    </div>
+  </>
 )
 
 export default Layout

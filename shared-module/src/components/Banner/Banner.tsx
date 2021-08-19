@@ -1,6 +1,8 @@
 import styled from "@emotion/styled"
 import React from "react"
 
+import Next from "../../img/next.svg"
+
 import ReadOnlyBanner from "./ReadOnlyBanner"
 
 const Justify = styled.div`
@@ -28,7 +30,6 @@ const BannerWrapper = styled.div`
     right: 4rem;
     font-weight: 200;
     transform-origin: center;
-    font-family: none;
     transition: all 200ms linear;
     transform: rotate(45deg);
   }
@@ -40,7 +41,6 @@ const Content = styled.div`
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.4;
-  font-family: "Lato", sans-serif;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 2rem;
@@ -86,7 +86,7 @@ const Quote: React.FC<BannerProps> = ({ content, variant }, props) => {
               <a>
                 <div>Click link</div>
                 <span>
-                  <img src={"../../img/next.png"} alt="next icon" width="12px" />
+                  <Next alt="next icon" width="12px" />
                 </span>
               </a>
             )}

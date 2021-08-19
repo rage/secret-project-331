@@ -48,6 +48,131 @@ impl GutenbergBlock {
             inner_blocks: vec![],
         }
     }
+    pub fn block_with_name_attributes_and_inner_blocks(
+        name: &str,
+        attributes: serde_json::Value,
+        inner_blocks: Vec<GutenbergBlock>,
+    ) -> Self {
+        GutenbergBlock {
+            client_id: Uuid::new_v4().to_string(),
+            name: name.to_string(),
+            is_valid: true,
+            attributes,
+            inner_blocks,
+        }
+    }
+    pub fn hero_section(title: &str, sub_title: &str) -> Self {
+        GutenbergBlock::block_with_name_and_attributes(
+            "moocfi/hero-section",
+            serde_json::json!({
+                "title": title.to_string(),
+                "subTitle": sub_title.to_string()
+            }),
+        )
+    }
+    pub fn landing_page_hero_section(title: &str, sub_title: &str) -> Self {
+        GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/landing-page-hero-section",
+            serde_json::json!({"title": title.to_string()}),
+            vec![GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                serde_json::json!({
+                    "align": "center",
+                    "content": sub_title.to_string(),
+                    "dropCap": false,
+                    "placeholder": "Insert short description of course..."
+                }),
+            )],
+        )
+    }
+    pub fn course_objective_section() -> Self {
+        GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/course-objective-section",
+            serde_json::json!({
+                "title": "In this course you'll..."
+            }),
+            vec![GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                "core/columns",
+                serde_json::json!({
+                    "isStackedOnMobile": true
+                }),
+                vec![
+                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                        "core/column",
+                        serde_json::json!({}),
+                        vec![
+                            GutenbergBlock::block_with_name_and_attributes(
+                                "core/heading",
+                                serde_json::json!({
+                                    "textAlign": "center",
+                                    "content": "",
+                                    "level": 3,
+                                    "content": "Objective #1"
+                                }),
+                            ),
+                            GutenbergBlock::block_with_name_and_attributes(
+                                "core/paragraph",
+                                serde_json::json!({
+                                    "align": "center",
+                                    "content": "",
+                                    "dropCap": false,
+                                    "content": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
+                                }),
+                            ),
+                        ],
+                    ),
+                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                        "core/column",
+                        serde_json::json!({}),
+                        vec![
+                            GutenbergBlock::block_with_name_and_attributes(
+                                "core/heading",
+                                serde_json::json!({
+                                    "textAlign": "center",
+                                    "content": "",
+                                    "level": 3,
+                                    "content": "Objective #2"
+                                }),
+                            ),
+                            GutenbergBlock::block_with_name_and_attributes(
+                                "core/paragraph",
+                                serde_json::json!({
+                                    "align": "center",
+                                    "content": "",
+                                    "dropCap": false,
+                                    "content": "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
+                                }),
+                            ),
+                        ],
+                    ),
+                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                        "core/column",
+                        serde_json::json!({}),
+                        vec![
+                            GutenbergBlock::block_with_name_and_attributes(
+                                "core/heading",
+                                serde_json::json!({
+                                    "textAlign": "center",
+                                    "content": "",
+                                    "level": 3,
+                                    "content": "Objective #3"
+                                }),
+                            ),
+                            GutenbergBlock::block_with_name_and_attributes(
+                                "core/paragraph",
+                                serde_json::json!({
+                                    "align": "center",
+                                    "content": "",
+                                    "dropCap": false,
+                                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien."
+                                }),
+                            ),
+                        ],
+                    ),
+                ],
+            )],
+        )
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

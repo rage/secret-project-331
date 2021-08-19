@@ -3,13 +3,15 @@ import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
+import CardSVG from "../../img/cardNext.svg"
+import { cardHeight, cardMaxWidth } from "../../styles/constants"
 import { theme } from "../../utils"
 
 const CourseGridWrapper = styled.a`
   text-decoration: none;
   display: block;
-  max-width: 529px;
-  height: 484px;
+  max-width: ${cardMaxWidth}em;
+  height: ${cardHeight}em;
   border-radius: 1px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -17,32 +19,29 @@ const CourseGridWrapper = styled.a`
 const styledSVG = css`
   position: absolute;
   top: 10%;
-  left: 40px;
+  left: 2.5em;
 `
 
 const CardTextBox = styled.div`
   position: absolute;
   bottom: 0;
-  right: 0;
   display: flex;
-  padding: 2rem 2.5rem;
+  padding: 2em 2.5em;
   height: 50%;
   text-align: left;
-  margin-bottom: 1rem;
+  margin-bottom: 1em;
 
   div {
-    margin-bottom: 1.4rem;
+    margin-bottom: 1.4em;
     text-align: left;
   }
 
   h2 {
-    font-family: "Josefin Sans", sans-serif;
-    font-size: 50px;
-    font-weight: 400;
+    font-size: 3.125em;
+    font-weight: 700;
     z-index: 20;
-    margin-bottom: 0.6rem;
-    margin-top: 1.5rem;
-    line-height: 1.1;
+    line-height: 1em;
+    color: rgba(40, 40, 40, 0.8);
   }
 
   div:first-of-type {
@@ -51,48 +50,56 @@ const CardTextBox = styled.div`
 
   div:last-of-type {
     position: relative;
-    font-size: 12px;
+    font-size: 0.75em;
     font-weight: 500;
-    font-family: "Josefin Sans", sans-serif;
-    padding-top: 1rem;
+    padding-top: 1em;
   }
 
   span {
-    color: #202020;
-    font-size: 1.2rem;
+    color: #333;
+    font-size: 1.2em;
     opacity: 0.8;
     z-index: 20;
+    font-weight: 500;
     width: 50%;
+    line-height: 3em;
   }
 `
 export interface CardExtraProps {
   variant: "simple" | "graphics"
   title: string
-  chapter: string
+  chapter: number
+  url?: string
   bg?: string
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapter }) => {
+const SimpleCard: React.FC<CardProps> = ({ title, chapter, url }) => {
+  // If URL defined, the chapter is open
+  if (url) {
+    return (
+      <ThemeProvider theme={theme}>
+        <>
+          <CourseGridWrapper href={`${url}`}>
+            <CardSVG className={cx(styledSVG)} />
+            <CardTextBox>
+              <div>
+                <span>{`CHAPTER ${chapter}`}</span>
+                <h2>{title}</h2>
+              </div>
+            </CardTextBox>
+          </CourseGridWrapper>
+        </>
+      </ThemeProvider>
+    )
+  }
+  // Closed / Opens at
   return (
     <ThemeProvider theme={theme}>
       <>
         <CourseGridWrapper>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className={cx(styledSVG)}
-            width="57"
-            height="40"
-            viewBox="0 0 56.957 49"
-          >
-            <path
-              id="Path_2435"
-              data-name="Path 2435"
-              d="M32.466,0,29.321,3.146l19.123,19.11H0v4.475H48.444L29.321,45.854,32.466,49l24.49-24.506Z"
-              fill="#333"
-            />
-          </svg>
+          <CardSVG className={cx(styledSVG)} />
           <CardTextBox>
             <div>
               <span>{`CHAPTER ${chapter}`}</span>

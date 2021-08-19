@@ -16,3 +16,7 @@ export interface Answer {
 export interface ClientErrorResponse {
   message: string
 }
+
+export interface ModelSolutionApi {
+  correctOptionIds: string[]
+}

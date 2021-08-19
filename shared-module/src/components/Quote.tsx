@@ -1,12 +1,14 @@
 import styled from "@emotion/styled"
 import React from "react"
 
+import QuoteIMG from "../img/quote.svg"
+
 const Justify = styled.div`
   display: grid;
   justify-content: center;
 `
 
-const StyledImg = styled.img`
+const StyledImg = styled.div`
   position: absolute;
   width: 40px;
   top: 40px;
@@ -28,7 +30,6 @@ const Text = styled.div`
   text-align: left;
   font-size: 1.1rem;
   line-height: 1.5;
-  font-family: "Lato", sans-serif;
 `
 
 export interface QuoteExtraProps {
@@ -42,7 +43,9 @@ const Quote: React.FC<QuoteProps> = ({ content }) => {
   return (
     <Justify>
       <ContentWrapper>
-        <StyledImg src={"../img/quote.png"} alt="quote icon" />
+        <StyledImg>
+          <QuoteIMG width="30px" height="20px" alt="quote icon" />
+        </StyledImg>
         <Text> {content} </Text>
       </ContentWrapper>
     </Justify>

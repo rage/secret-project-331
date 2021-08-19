@@ -13,6 +13,7 @@
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
     "@fontsource/josefin-sans": "^4.5.0",
+    "@fontsource/lato": "^4.5.0",
     "@fontsource/roboto-mono": "^4.5.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
     "@fortawesome/free-solid-svg-icons": "^5.15.3",
@@ -42,9 +43,9 @@
     "@types/styled-system": "^5.1.12",
     "@types/uuid": "^8.3.1",
     "axios": "^0.21.1",
+    "babel-plugin-inline-react-svg": "^2.0.1",
     "react-query": "^3.19.1",
     "stylelint": "^13.13.1",
     "typescript": "^4.3.5"
-  },
-  "license": "MIT"
+  }
 }

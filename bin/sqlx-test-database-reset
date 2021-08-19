@@ -1,0 +1,22 @@
+#!/bin/bash
+# Only meant to be ran against the database in minikube. You can start it with
+# either `bin/dev` or `bin/dev-only-db`.
+# set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/headless-lms/migrations"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+RANDOM_POD_NAME="temporary-pod-$(date --iso-8601=ns | sha256sum | cut -d ' ' -f 1 | cut -c -10)"
+
+trap 'run_command kubectl delete pod $RANDOM_POD_NAME --force' EXIT
+
+run_command kubectl run "$RANDOM_POD_NAME" --image=eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest --command -- sleep infinity
+
+run_command kubectl wait --for=condition=ready pod/"$RANDOM_POD_NAME"
+
+run_command kubectl exec -it "$RANDOM_POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --if-exists --force headless_lms_test
+
+run_command kubectl cp "$RELATIVE_PATH" "$RANDOM_POD_NAME":migrations
+
+run_command kubectl exec -it "$RANDOM_POD_NAME" -- cargo sqlx --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test database setup "$@"

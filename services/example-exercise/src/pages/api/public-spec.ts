@@ -7,10 +7,10 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
     return res.status(404).json({ message: "Not found" })
   }
 
-  return handleGet(req, res)
+  return handlePost(req, res)
 }
 
-function handleGet(
+function handlePost(
   req: NextApiRequest,
   res: NextApiResponse<PublicAlternative[] | ClientErrorResponse>,
 ) {

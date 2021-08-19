@@ -1,5 +1,9 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { Fragment } from "react"
+
+import UHLogo from "../img/UHLogo.svg"
+import MOOCfi from "../img/moocfi.svg"
 
 import Banner from "./Banner/Banner"
 
@@ -10,6 +14,11 @@ const Wrapper = styled.div`
   padding: 4.5rem;
   color: #231f20;
   position: relative;
+  @media (max-width: 37.5em) {
+    grid-template-columns: 1fr;
+    grid-gap: 2em;
+    padding: 1rem;
+  }
 
   h3 {
     margin-bottom: 1rem;
@@ -47,7 +56,6 @@ const StyledLink = styled.a`
 const Text = styled.div`
   width: 70%;
   span {
-    font-family: Lato, sans-serif;
     font-size: 16px;
     padding-right: 10rem;
     opacity: 0.7;
@@ -57,7 +65,6 @@ const Links = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: end;
-  font-family: "Josefin Sans", sans-serif;
 `
 
 export interface FooterExtraProps {
@@ -74,9 +81,17 @@ const Footer: React.FC<FooterProps> = () => {
         content="Secret project is a system developed by the MOOC centre of Univeristy of Helsinki that enables teachers in all institutions to create online courses for free."
       />
       <Wrapper>
-        <div>
-          <img src={"../img/moocfi.png"} width="50px" alt="MOOC.fi" />
-          <img src={"../img/UHLogo.png"} width="50px" alt="University of Helsinki" />
+        <div
+          className={css`
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-content: space-between;
+            grid-gap: 1em;
+          `}
+        >
+          <MOOCfi alt="MOOC.fi" />
+          <UHLogo alt="University of Helsinki" />
         </div>
         <Text>
           <h3>WHO WE ARE</h3>

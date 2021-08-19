@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
-import Arrow from "../img/arrow.svg"
+import ArrowSVGIcon from "../img/arrow.svg"
 import { typography } from "../utils"
 
 const SectionWrapper = styled.div`
@@ -10,7 +10,6 @@ const SectionWrapper = styled.div`
   padding: 3rem 2rem;
 
   p {
-    font-family: "Josefin Sans", sans-serif !important;
     font-size: 1.4rem;
     color: #333;
     margin: 0;
@@ -71,7 +70,6 @@ const StyledLink = styled.a`
   }
 
   span {
-    font-family: "Josefin Sans", sans-serif;
     font-size: ${typography.h6};
     color: white !important;
     line-height: 1.3;
@@ -85,26 +83,25 @@ const ButtonWrapper = styled.div`
 `
 
 export interface NextSectionLinkExtraProps {
-  content: string
+  title: string
+  subTitle: string
+  nextTitle: string
+  url?: string
 }
 
 export type NextSectionLinkProps = React.HTMLAttributes<HTMLDivElement> & NextSectionLinkExtraProps
 
-const NextSectionLink: React.FC<NextSectionLinkProps> = () => {
+const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subTitle, nextTitle, url }) => {
   return (
     <SectionWrapper>
       <Fragment>
-        <h2>
-          Impressive! you’ve reach
-          <br />
-          the end of this topic.
-        </h2>
-        <p>proceed to the next section </p>
+        <h2>{title}</h2>
+        <p>{subTitle}</p>
         <ButtonWrapper>
-          <StyledLink href={"source"}>
-            <span>Introduction to Rust</span>
+          <StyledLink href={`${url}`}>
+            <span>{nextTitle}</span>
             <StyledArrow>
-              <img src={Arrow} alt="next icon" width="20px" />
+              <ArrowSVGIcon alt="next icon" width="38.7" height="38.7" viewBox="0 0 39 39" />
             </StyledArrow>
           </StyledLink>
         </ButtonWrapper>

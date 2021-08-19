@@ -39,7 +39,6 @@ const TextWrapper = styled.div`
     list-style: none;
     outline: 0;
     color: #333;
-    font-family: "Josefin Sans", sans-serif;
   }
 
   details summary::-webkit-details-marker {
@@ -60,7 +59,6 @@ const TextWrapper = styled.div`
     right: 0;
     font-weight: 200;
     transform-origin: center;
-    font-family: none;
     transition: all 200ms linear;
   }
   details[open] summary:after {
@@ -78,7 +76,6 @@ const TextWrapper = styled.div`
 
   details ul li {
     font-size: 1.1rem;
-    font-family: "Lato", sans-serif;
     line-height: 1.6;
     margin: 0 0 0.2rem;
     padding-left: 8px;

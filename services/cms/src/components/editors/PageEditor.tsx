@@ -10,10 +10,10 @@ import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supporte
 import { Page, PageUpdate } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
+import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
-
-import { giveSpaceToSidebarStyles } from "./GutenbergEditor"
 
 interface PageEditorProps {
   data: Page
@@ -27,30 +27,56 @@ const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   loading: () => EditorLoading,
 })
 
+const supportedBlocks = (chapter_id: string | null): string[] => {
+  const supportedBlocksForPages: string[] = blockTypeMapForPages.map((mapping) => mapping[0])
+  const supportedBlocksTopLevelPages: string[] = blockTypeMapForTopLevelPages.map(
+    (mapping) => mapping[0],
+  )
+
+  const allSupportedBlocks = chapter_id
+    ? supportedCoreBlocks.concat(supportedBlocksForPages)
+    : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
+
+  return allSupportedBlocks
+}
+
 const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   const [title, setTitle] = useState(data.title)
-  const [content, setContent] = useState<BlockInstance[]>(data.content as BlockInstance[])
+  const [content, setContent] = useState<BlockInstance[]>(
+    modifyBlocks(
+      data.content as BlockInstance[],
+      supportedBlocks(data.chapter_id),
+    ) as BlockInstance[],
+  )
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const currentContentStateSaved = data.content === content
 
   const handleOnSave = async () => {
     setSaving(true)
-    const res = await handleSave({
-      title,
-      url_path: data.url_path,
-      content,
-      chapter_id: data.chapter_id,
-      front_page_of_chapter_id: null,
-    })
-    setContent(res.content as BlockInstance[])
-    setSaving(false)
+    try {
+      const res = await handleSave({
+        title,
+        url_path: data.url_path,
+        content: removeUnsupportedBlockType(content),
+        chapter_id: data.chapter_id,
+        front_page_of_chapter_id: null,
+      })
+      setError(null)
+      setContent(res.content as BlockInstance[])
+    } catch (e) {
+      setError(e.toString())
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
     <>
-      <div className={giveSpaceToSidebarStyles}>
+      <div className="editor__component">
         <div className={normalWidthCenteredComponentStyles}>
+          {error && <pre>{error}</pre>}
           <LoadingButton
             loadingPosition="start"
             startIcon={<SaveIcon />}
@@ -80,11 +106,10 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
           allowedBlockVariations={allowedBlockVariants}
         />
       )}
-      <div className={giveSpaceToSidebarStyles}>
+      <div className="editor__component">
         <div
           className={css`
             ${normalWidthCenteredComponentStyles}
-
             margin-top: 1rem;
             margin-bottom: 1rem;
           `}

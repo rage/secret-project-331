@@ -7,9 +7,9 @@ import React, { useState } from "react"
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
+import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
-
-import { giveSpaceToSidebarStyles } from "./GutenbergEditor"
 
 interface EmailEditorProps {
   data: EmailTemplate
@@ -24,30 +24,43 @@ const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
 })
 
 const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
-  const [content, setContent] = useState<BlockInstance[]>(data.content as BlockInstance[])
+  const [content, setContent] = useState<BlockInstance[]>(
+    modifyBlocks(
+      (data.content ?? []) as BlockInstance[],
+      allowedEmailCoreBlocks,
+    ) as BlockInstance[],
+  )
   const [name, setName] = useState(data.name)
   const [subject, setSubject] = useState(data.subject ?? "")
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleOnSave = async () => {
     setSaving(true)
-    const res = await handleSave({
-      subject,
-      name,
-      content,
-      exercise_completions_threshold: null,
-      points_threshold: null,
-    })
-    setContent(res.content as BlockInstance[])
-    setName(res.name)
-    setSubject(res.subject ?? "")
-    setSaving(false)
+    try {
+      const res = await handleSave({
+        subject,
+        name,
+        content: removeUnsupportedBlockType(content),
+        exercise_completions_threshold: null,
+        points_threshold: null,
+      })
+      setContent(res.content as BlockInstance[])
+      setName(res.name)
+      setError(null)
+      setSubject(res.subject ?? "")
+    } catch (e) {
+      setError(e.toString())
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
     <>
-      <div className={giveSpaceToSidebarStyles}>
+      <div className="editor__component">
         <div className={normalWidthCenteredComponentStyles}>
+          {error && <pre>{error}</pre>}
           <LoadingButton
             loadingPosition="start"
             startIcon={<SaveIcon />}

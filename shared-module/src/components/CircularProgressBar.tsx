@@ -50,8 +50,7 @@ const CircleBox = styled.div`
   }
 `
 
-const CircularProgressBar: React.FC<CircularProgressBarProps> = () => {
-  const point = 95
+const CircularProgressBar: React.FC<CircularProgressBarProps> = ({ point }) => {
   const complete = point / 100
   return (
     <CircleBox point={complete}>
@@ -70,9 +69,9 @@ const CircularProgressBar: React.FC<CircularProgressBarProps> = () => {
             r="15.9155"
           ></circle>
         </svg>
-      </div>
-      <div className="progress-text" data-progress="50">
-        1/2
+        <div className="progress-text" data-progress="50">
+          1/2
+        </div>
       </div>
     </CircleBox>
   )

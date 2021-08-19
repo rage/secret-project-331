@@ -4,7 +4,6 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import { theme } from "../../utils"
-import { respond } from "../../utils/respond"
 
 /* import { border, color, space } from "styled-system" */
 
@@ -16,22 +15,6 @@ const CourseGridWrapper = styled.a`
   border-radius: 1px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-
-  ${respond.mobile`
-  background: rebeccapurple;
-  `}
-  ${respond.xs`
-  background: red;
-  `}
-  ${respond.sm`
-  background: green;
-  `}
-  ${respond.md`
-  background: blue;
-  `}
-  ${respond.lg`
-  background: yellow;
-  `}
 `
 const styledSVG = css`
   position: absolute;

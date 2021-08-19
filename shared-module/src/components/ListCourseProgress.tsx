@@ -132,7 +132,7 @@ const ChapterBox: React.FC<ChapterBoxProps> = (props) => {
               </div>
             </ImageBox>
             <span>{props.chapterTitle}</span>
-            <CircularProgressBar point={54} />
+            <CircularProgressBar point={54} className="progress" />
           </ChapterParts>
         </Link>
       </>

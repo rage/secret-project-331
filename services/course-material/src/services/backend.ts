@@ -132,11 +132,20 @@ export const postSubmission = async (newSubmission: NewSubmission): Promise<Subm
   return (await courseMaterialClient.post(`/submissions`, newSubmission)).data
 }
 
-export const searchPageswithPhrase = async (
+export const searchPagesWithPhrase = async (
   searchRequest: PageSearchRequest,
   courseId: string,
 ): Promise<PageSearchResult[]> => {
   return (
     await courseMaterialClient.post(`/courses/${courseId}/search-pages-with-phrase`, searchRequest)
+  ).data
+}
+
+export const searchPagesWithWords = async (
+  searchRequest: PageSearchRequest,
+  courseId: string,
+): Promise<PageSearchResult[]> => {
+  return (
+    await courseMaterialClient.post(`/courses/${courseId}/search-pages-with-words`, searchRequest)
   ).data
 }

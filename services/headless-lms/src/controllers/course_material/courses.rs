@@ -349,7 +349,7 @@ async fn search_pages_with_words(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
-    let res = crate::models::pages::get_page_search_results_for_phrase(
+    let res = crate::models::pages::get_page_search_results_for_words(
         &mut conn,
         *request_course_id,
         &*payload,

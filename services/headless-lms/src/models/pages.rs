@@ -1248,3 +1248,83 @@ LIMIT 50;
     .await?;
     Ok(res)
 }
+
+/**
+Returns search results for the given words. The words can appear in the source document in any order.
+*/
+pub async fn get_page_search_results_for_words(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_search_request: &PageSearchRequest,
+) -> ModelResult<Vec<PageSearchResult>> {
+    let course = crate::models::courses::get_course(&mut *conn, course_id).await?;
+
+    // Last word of the search term needed so that the sql statement can change it to a prefix match.
+    // Allows the last word to not be fully typed.
+    let last_word = page_search_request
+        .query
+        .trim()
+        .split_ascii_whitespace()
+        .last()
+        // If not found we'll skip the replacement with a random word not found in the search corpus
+        .unwrap_or("randomuniquewordforskippingthereplacement332");
+
+    let res = sqlx::query_as!(
+        PageSearchResult,
+        "
+-- common table expression for the search term tsquery so that we don't have to repeat it many times
+WITH cte as (
+  -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
+  -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in
+  -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement
+  -- will be skipped.
+  SELECT ts_rewrite(
+      plainto_tsquery($2::regconfig, $3),
+      to_tsquery($4),
+      to_tsquery($4 || ':*')
+    ) as query
+)
+SELECT id,
+  ts_rank(
+    content_search,
+    (
+      SELECT query
+      from cte
+    )
+  ) as rank,
+  ts_headline(
+    $2::regconfig,
+    title,
+    (
+      SELECT query
+      from cte
+    )
+  ) as title_headline,
+  ts_headline(
+    $2::regconfig,
+    content_search_original_text,
+    (
+      SELECT query
+      from cte
+    )
+  ) as content_headline,
+  url_path
+FROM pages
+WHERE course_id = $1
+  AND deleted_at IS NULL
+  AND content_search @@ (
+    SELECT query
+    from cte
+  )
+ORDER BY rank DESC
+LIMIT 50;
+    ",
+        course_id,
+        course.content_search_language as _,
+        page_search_request.query,
+        last_word
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

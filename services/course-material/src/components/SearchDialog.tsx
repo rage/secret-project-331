@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Button, Dialog, Paper, TextField } from "@material-ui/core"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import sanitizeHtml from "sanitize-html"
 import { useDebounce } from "use-debounce"
 
-import { searchPageswithPhrase } from "../services/backend"
+import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend"
 import { PageSearchResult } from "../shared-module/bindings"
 import DebugModal from "../shared-module/components/DebugModal"
 
@@ -27,8 +27,26 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string | null>(null)
   const [debouncedQuery] = useDebounce(query, 200)
-  const [results, setResults] = useState<PageSearchResult[] | null>(null)
+  const [phraseSearchResults, setPhraseSearchResults] = useState<PageSearchResult[] | null>(null)
+  const [wordSearchResults, setWordSearchResults] = useState<PageSearchResult[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Combines the search results from the two requests
+  const combinedResults = useMemo(() => {
+    if (phraseSearchResults === null || wordSearchResults === null) {
+      return null
+    }
+    // The search results start with with the results from the phrase, because those results are more accurate
+    const pages = [...phraseSearchResults]
+    // After the phrase search results, we add the word search results if the page is not already in the result set
+    wordSearchResults.forEach((pageWithWords) => {
+      if (pages.find((p) => p.id === pageWithWords.id)) {
+        return
+      }
+      pages.push(pageWithWords)
+    })
+    return pages
+  }, [phraseSearchResults, wordSearchResults])
 
   useEffect(() => {
     async function innerFunction() {
@@ -36,8 +54,12 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
         return
       }
       try {
-        const pages = await searchPageswithPhrase({ query: debouncedQuery }, courseId)
-        setResults(pages)
+        const [pagesWithPhrase, pagesWithWords] = await Promise.all([
+          searchPagesWithPhrase({ query: debouncedQuery }, courseId),
+          searchPagesWithWords({ query: debouncedQuery }, courseId),
+        ])
+        setPhraseSearchResults(pagesWithPhrase)
+        setWordSearchResults(pagesWithWords)
       } catch (e) {
         if (e?.response?.data) {
           setError(JSON.stringify(e.response.data, undefined, 2))
@@ -75,7 +97,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                 flex-grow: 1;
               `}
             />
-            <DebugModal data={results} />
+            <DebugModal data={{ phraseSearchResults, wordSearchResults, combinedResults }} />
             <Button onClick={closeModal}>Close</Button>
           </HeaderBar>
           <div
@@ -98,7 +120,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
               `}
             >
               {error && <div>{error}</div>}
-              {results?.map((result) => {
+              {combinedResults?.map((result) => {
                 if (!result.title_headline) {
                   return null
                 }

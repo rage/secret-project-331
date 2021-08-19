@@ -22,6 +22,7 @@ const FeedbackHandler: React.FC<Props> = ({ courseSlug }) => {
   const [showSubmitSuccess, setShowSubmitSuccess] = useState(false)
 
   async function handleSelectionChange(newSelection: string, rect: DOMRect | null) {
+    console.log(newSelection)
     if (showFeedbackTooltipTimeout !== null) {
       clearTimeout(showFeedbackTooltipTimeout)
     }

@@ -22,6 +22,9 @@ const globalCss = css`
   h6 {
     font-family: ${headingFont};
   }
+  pre {
+    font-family: ${headingFont};
+  }
 `
 
 injectGlobal`

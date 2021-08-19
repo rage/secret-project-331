@@ -104,16 +104,16 @@ const FeedbackDialog: React.FC<Props> = ({
           Cancel
         </Button>
         <div>Selected material:</div>
-        <pre
+        <div
           className={css`
             max-height: 100px;
             overflow-wrap: anywhere;
-            white-space: break-spaces;
+            white-space: pre-wrap;
             overflow-y: scroll;
           `}
         >
           {selection}
-        </pre>
+        </div>
       </div>
     </Dialog>
   )

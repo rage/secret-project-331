@@ -67,8 +67,6 @@ test("test", async ({ headless, page }) => {
   )
 
   // Feedback input box
-  // wait for fade-in
-  await page.waitForTimeout(200)
   if (headless) {
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`feedback-input.png`, { threshold: 0.3 })

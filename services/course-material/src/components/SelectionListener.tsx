@@ -28,8 +28,10 @@ const SelectionListener: React.FC<Props> = ({ onSelectionChange }) => {
     const lastNode = docSelection?.focusNode
     if (isChildOfCourseMaterialBlock(firstNode) && isChildOfCourseMaterialBlock(lastNode)) {
       const range = docSelection?.getRangeAt(0)
+      console.log(range)
       const rects = range?.getClientRects()
       const newSelection = range?.cloneContents().textContent || ""
+      console.log(newSelection)
       const rect = rects !== undefined && rects.length > 0 ? rects[0] : null
       onSelectionChange(newSelection, rect)
     } else {

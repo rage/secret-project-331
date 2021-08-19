@@ -12,7 +12,7 @@ import { deleteCourse, getCourse } from "../../../../services/backend/courses"
 import Button from "../../../../shared-module/components/Button"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import basePath from "../../../../shared-module/utils/base-path"
 import { dontRenderUntilQueryParametersReady } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
@@ -44,7 +44,7 @@ const ManageCoursePage: React.FC<unknown> = () => {
     <Layout frontPageUrl={basePath()} navVariant="complex">
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
+          ${wideWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >
@@ -75,16 +75,19 @@ const ManageCoursePage: React.FC<unknown> = () => {
             />
           </div>
         </Dialog>
+        <br />
+        <Link href={{ pathname: "/manage/courses/[id]/stats", query: { id: course.id } }}>
+          Stats
+        </Link>
+        <br />
+        <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
+          Manage pages
+        </Link>{" "}
+        <h3>All course instances</h3>
+        <CourseInstancesList courseId={id} />
+        <h3>All exercises</h3>
+        <ExerciseList courseId={id} />
       </div>
-      <Link href={{ pathname: "/manage/courses/[id]/stats", query: { id: course.id } }}>Stats</Link>
-      <br />
-      <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
-        Manage pages
-      </Link>{" "}
-      <h3>All course instances</h3>
-      <CourseInstancesList courseId={id} />
-      <h3>All exercises</h3>
-      <ExerciseList courseId={id} />
     </Layout>
   )
 }

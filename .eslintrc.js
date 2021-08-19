@@ -59,6 +59,16 @@ module.exports = {
             message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
           },
           {
+            name: "@material-ui/core",
+            importNames: ["Button"],
+            message: "Don't use Button from @material-ui. Please use Button from shared-module.",
+          },
+          {
+            name: "@material-ui/core/Button",
+            importNames: ["default"],
+            message: "Don't use Button from @material-ui. Please use Button from shared-module.",
+          },
+          {
             name: "@material-ui/styles",
             importNames: ["withStyles"],
             message: "Don't use withStyles from @material-ui. Please use emotion.js.",

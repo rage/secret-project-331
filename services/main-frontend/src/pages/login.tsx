@@ -5,6 +5,7 @@ import Layout from "../components/Layout"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { login } from "../shared-module/services/backend/auth"
+import basePath from "../shared-module/utils/base-path"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
@@ -41,7 +42,7 @@ const Login: React.FC = () => {
   }
 
   return (
-    <Layout frontPageUrl={baseUrl()} navVariant="simple">
+    <Layout frontPageUrl={basePath()} navVariant="simple">
       <form onSubmit={submitForm}>
         <h1>Log in</h1>
         <p>Email</p>
@@ -84,7 +85,4 @@ function validateRouteOrDefault(returnPath: string | undefined, defaultPath: str
   }
 
   return returnPath
-}
-function baseUrl(): string {
-  throw new Error("Function not implemented.")
 }

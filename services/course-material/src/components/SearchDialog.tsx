@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import sanitizeHtml from "sanitize-html"
 import { useDebounce } from "use-debounce"
 
-import { searchPages } from "../services/backend"
+import { searchPageswithPhrase } from "../services/backend"
 import { PageSearchResult } from "../shared-module/bindings"
 import DebugModal from "../shared-module/components/DebugModal"
 
@@ -36,7 +36,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
         return
       }
       try {
-        const pages = await searchPages({ query: debouncedQuery }, courseId)
+        const pages = await searchPageswithPhrase({ query: debouncedQuery }, courseId)
         setResults(pages)
       } catch (e) {
         if (e?.response?.data) {

@@ -65,9 +65,8 @@ NEW.content_search_original_text = (
     ) as res
 );
 end;
-RETURN NEW;
-ELSE RETURN OLD;
 END IF;
+RETURN NEW;
 END $$ language 'plpgsql';
 -- trigger
 CREATE trigger trigger_set_pages_content_search BEFORE

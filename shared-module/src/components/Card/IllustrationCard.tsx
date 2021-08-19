@@ -5,9 +5,10 @@ import React from "react"
 import { theme } from "../../utils"
 
 export interface CardExtraProps {
-  variant: "simple" | "illustration"
+  variant: "simple" | "Illustration"
   title: string
-  chapter: string
+  chapter: number
+  url?: string
   bg?: string
 }
 

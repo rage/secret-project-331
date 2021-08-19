@@ -66,7 +66,7 @@ const CardTextBox = styled.div`
   }
 `
 export interface CardExtraProps {
-  variant: "simple" | "graphics"
+  variant: "simple" | "Illustration"
   title: string
   chapter: number
   url?: string

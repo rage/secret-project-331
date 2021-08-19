@@ -2,23 +2,21 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
-COMMAND="minikube"
 cores=$(nproc)
 
 if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
   echo "🪟  Detected Windows with $cores available cores."
-  ARGUMENTS=(start --vm-driver=hyperv --hyperv-virtual-switch="minikubeSwitch" --addons ingress --cpus "$cores" --disk-size 100g "$@")
   if [[ -v MINIKUBE_USE_VIRTUALBOX ]]; then
     echo "🪟  Detected from \$MINIKUBE_USE_VIRTUALBOX that we should default to VirtualBox"
-    ARGUMENTS=(start --vm-driver=virtualbox --addons ingress --cpus "$cores" --disk-size 100g "$@")
+    run_command minikube start --vm-driver=virtualbox --addons ingress --cpus "$cores" --disk-size 100g "$@"
+  else
+    # Running the command though powershell is a epic workaround for a permissions problem.
+    run_command powershell minikube start --vm-driver=hyperv --hyperv-virtual-switch="minikubeSwitch" --addons ingress --cpus "$cores" --disk-size 100g "$@"
   fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "🍎 Detected macOS with $cores available cores."
-  ARGUMENTS=(start --addons ingress --cpus "$cores" --disk-size 100g "$@")
+  run_command minikube start --driver=hyperkit --addons ingress --cpus "$cores" --disk-size 100g "$@"
 else
   echo "🐧 Detected Linux with $cores available cores."
-  ARGUMENTS=(start --addons ingress --cpus "$cores" --disk-size 100g "$@")
+  run_command minikube start --addons ingress --cpus "$cores" --disk-size 100g "$@"
 fi
-
-echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
-exec "$COMMAND" "${ARGUMENTS[@]}"

@@ -187,6 +187,20 @@ Get-NetAdapter
 New-VMSwitch -name minikubeSwitch  -NetAdapterName "Ethernet"  -AllowManagementOS $true
 ```
 
+Then, we'll need to setup hyper-v so that we can use it without administrator privileges.
+
+1. From start menu, search and launch application called Computer Mangement.
+2. Select System Tools -> Local Users and Groupd -> Users
+3. Once you double click Users, you should get a list of Users on this computer.
+4. Double click your current user.
+5. Go to tab Member Of
+6. Click add
+7. Type: "Hyper-V Administrators"
+8. Click Check Names
+9. Click Ok
+10. Click Ok again
+11. Log out of Windows and log back in
+
 Next, close PowerShell and go back to Cygwin in Windows terminal. Then, clone the project and navigate to the project root with cd.
 
 Next, start Minikube with the command bin/start-minikube

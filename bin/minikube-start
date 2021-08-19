@@ -7,7 +7,11 @@ cores=$(nproc)
 
 if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
   echo "🪟  Detected Windows with $cores available cores."
-  ARGUMENTS=(start --vm-driver=virtualbox --addons ingress --cpus "$cores" --disk-size 100g "$@")
+  ARGUMENTS=(start --vm-driver=hyperv --addons ingress --cpus "$cores" --disk-size 100g "$@")
+  if [[ ! -v "$MINIKUBE_USE_VIRTUALBOX" ]]; then
+    echo "🪟  Detected from \$MINIKUBE_USE_VIRTUALBOX that we should default to VirtualBox"
+    ARGUMENTS=(start --vm-driver=virtualbox --addons ingress --cpus "$cores" --disk-size 100g "$@")
+  fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "🍎 Detected macOS with $cores available cores."
   ARGUMENTS=(start --addons ingress --cpus "$cores" --disk-size 100g "$@")

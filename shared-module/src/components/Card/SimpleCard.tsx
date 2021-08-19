@@ -5,8 +5,6 @@ import React from "react"
 
 import { theme } from "../../utils"
 
-/* import { border, color, space } from "styled-system" */
-
 const CourseGridWrapper = styled.a`
   text-decoration: none;
   display: block;

@@ -105,11 +105,6 @@ const chooseChapterValue = {
   3: "IV",
   4: "V",
 } */
-const StyledCircularProgressBar = styled(CircularProgressBar)`
-  position: absolute;
-  right: 30px;
-  top: 30%;
-`
 
 export interface ChapterBoxExtraProps {
   variant: "text" | "link" | "readOnly"

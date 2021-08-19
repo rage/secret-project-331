@@ -91,6 +91,94 @@ You can find the hosts file in Linux from `/etc/hosts`.
 
 After that, you should be able to access the application by going to `http://project-331.local/` in your web browser. Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
 
+## Windows
+
+We're going to use the scoop package manager to install some required programs. To do so, open PowerShell and run the following commands:
+
+```powershell
+Set-ExecutionPolicy RemoteSigned -scope CurrentUser
+iwr -useb get.scoop.sh | iex
+```
+
+Next, we'll install some common Unix tools from Cygwin that we're going to need for interacting with the development environment.
+
+In the same terminal run the following command. You might get a warning during the installation, but the installation should not fail because of that.
+
+``powershell
+scoop install cygwin
+
+````
+
+We'll need to add some extra packages to cygwin. The package we just installed should include a installer for cygwin that we can run to add the extra packages.
+
+1. Open your start menu
+2. Search for Cygwin
+3. Start app named cygwin-setup.exe
+4. Click 'Next' billion times until you get a window that says "Select Packages"
+5. Expand All, then type to the search field 'postgres'
+6. In the row postgresql-client (under 'Database') Change the Skip option to the largest available number.
+7. Next search for procps-ng (under 'System') and change the skip to the highest version number, too
+8. Click 'Next' quatrillion times
+9. Select 'Finish'
+
+Installing other tools
+
+
+
+Run the following commands:
+
+```powershell
+scoop install git
+scoop bucket add extras
+scoop install windows-terminal kubectl minikube kustomize stern kubectx
+````
+
+Now that we have Windows terminal installed, close PowerShell and start and application from your start menu search called 'Windows terminal'. Please use this terminal for developing the project from now on. The reason you should use this is that we can make this terminal to use the required Cygwin bash shell and the terminal supports useful features such as tabs and splitting the view into multiple terminals.
+
+Next, open Windows Terminal and press the small arrow down and open Settings. Click 'Open JSON file', select Notepad and add the following:
+
+```json
+profiles: {
+  ...
+  list: [
+    ...
+    {
+      "guid": "{00000000-0000-0000-0000-000000000001}",
+      "commandline": "C:/cygwin64/Cygwin.bat",
+      "icon": "C:/cygwin64/Cygwin-Terminal.ico",
+      "hidden": false,
+      "name": "Cygwin"
+    }
+  ]
+}
+```
+
+If you want to make Cygwin the default terminal type change defaultProfile line to:
+
+```json
+"defaultProfile": "{00000000-0000-0000-0000-000000000001}"
+```
+
+Now you can select Cygwin from the down arrow in the tab bar. We will assume that you're using Cygwin from now on.
+
+### Setting up Hyper-v
+
+The development server will be ran in a virtual machine and for that we're going to enable hyper-v. This does not work with the Home edition of Windows. If you cannot use a better version of windows, you'll have to install Virtualbox but keep in mind that the environment might be less reliable with Virtualbox.
+
+To enable hyper-v, you need a special administrative window of PowerShell. To access that search for PowerShell in the start menu, right click PowerShell and select 'Run as Administrator'. In the new window, run the following command:
+
+```powershell
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+```
+
+Your computer should restart after that.
+
+If you don't have Visual Studio Code already, install it with:
+
+```powershell
+scoop install vscode
+```
+
 ## Setting up development environment on Windows 10
 
 ### Development tools

@@ -6,7 +6,9 @@ import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import NewCourseForm from "../../components/forms/NewCourseForm"
+import { postNewCourse } from "../../services/backend/courses"
 import { fetchOrganizationCourses } from "../../services/backend/organizations"
+import { NewCourse } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
@@ -28,6 +30,12 @@ const Organization: React.FC<unknown> = () => {
 
   if (isLoading || !data) {
     return <>Loading...</>
+  }
+
+  const handleSubmitNewCourse = async (newCourse: NewCourse) => {
+    await postNewCourse(newCourse)
+    await refetch()
+    setNewCourseFormOpen(false)
   }
 
   return (
@@ -76,13 +84,7 @@ const Organization: React.FC<unknown> = () => {
             `}
           >
             <Button onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}>Close</Button>
-            <NewCourseForm
-              organizationId={id}
-              onSubmitForm={async () => {
-                await refetch()
-                setNewCourseFormOpen(false)
-              }}
-            />
+            <NewCourseForm organizationId={id} onSubmitForm={handleSubmitNewCourse} />
           </div>
         </Dialog>
       </div>

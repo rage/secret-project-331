@@ -5,10 +5,16 @@ import React, { useState } from "react"
 import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
+import NewCourseForm from "../../../../components/forms/NewCourseForm"
 import UpdateCourseForm from "../../../../components/forms/UpdateCourseForm"
 import CourseInstancesList from "../../../../components/lists/CourseInstancesList"
+import CourseTranslationsList from "../../../../components/lists/CourseTranslationsList"
 import ExerciseList from "../../../../components/lists/ExerciseList"
-import { deleteCourse, getCourse } from "../../../../services/backend/courses"
+import {
+  deleteCourse,
+  getCourse,
+  postNewCourseTranslation,
+} from "../../../../services/backend/courses"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
@@ -19,6 +25,7 @@ const ManageCoursePage: React.FC<unknown> = () => {
   const id = useQueryParameter("id")
   const { isLoading, error, data: course, refetch } = useQuery(`course-${id}`, () => getCourse(id))
   const [showForm, setShowForm] = useState(false)
+  const [showDuplicateForm, setShowDuplicateForm] = useState(false)
 
   if (error) {
     return <div>Error fetching course data.</div>
@@ -63,12 +70,32 @@ const ManageCoursePage: React.FC<unknown> = () => {
             />
           </div>
         </Dialog>
+        <Dialog open={showDuplicateForm} onClose={() => setShowDuplicateForm(true)}>
+          <div
+            className={css`
+              margin: 1rem;
+            `}
+          >
+            <Button onClick={() => setShowForm(!showForm)}>Close</Button>
+            <NewCourseForm
+              organizationId={course.organization_id}
+              onSubmitForm={async (newCourse) => {
+                await postNewCourseTranslation(course.id, newCourse)
+                await refetch()
+                setShowDuplicateForm(false)
+              }}
+            />
+          </div>
+        </Dialog>
       </div>
       <Link href={{ pathname: "/manage/courses/[id]/stats", query: { id: course.id } }}>Stats</Link>
       <br />
       <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
         Manage pages
       </Link>{" "}
+      <h3>All course language versions</h3>
+      <CourseTranslationsList courseId={id} />
+      <Button onClick={() => setShowDuplicateForm(true)}>Create new</Button>
       <h3>All course instances</h3>
       <CourseInstancesList courseId={id} />
       <h3>All exercises</h3>

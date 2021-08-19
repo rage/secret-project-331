@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import { Button, TextField } from "@material-ui/core"
 import React, { useState } from "react"
 
-import { postNewCourse } from "../../services/backend/courses"
+import { NewCourse } from "../../shared-module/bindings"
 import { formatIETFLanguageTagWithRegion } from "../../shared-module/utils/strings"
 import { normalizePath } from "../../utils/normalizePath"
 
@@ -13,7 +13,7 @@ const FieldContainer = styled.div`
 
 interface NewCourseFormProps {
   organizationId: string
-  onSubmitForm: () => void
+  onSubmitForm: (newCourse: NewCourse) => Promise<void>
 }
 
 const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm }) => {
@@ -31,13 +31,16 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
         localeParts.length == 2
           ? formatIETFLanguageTagWithRegion(localeParts[0], undefined, localeParts[1], "_")
           : formatIETFLanguageTagWithRegion(localeParts[0], localeParts[1], localeParts[2], "_")
-      await postNewCourse({
+      await onSubmitForm({
         name,
         slug,
         organization_id: organizationId,
         language_code: formatedLocale,
       })
-      onSubmitForm()
+      setName("")
+      setSlug("")
+      setLocale("en_US")
+      setError(null)
     } catch (e) {
       setError(e.toString())
     } finally {

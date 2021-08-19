@@ -165,6 +165,25 @@ WHERE course_id = $1
     Ok(exercises)
 }
 
+pub async fn get_exercises_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE page_id = $1
+  AND deleted_at IS NULL
+"#,
+        page_id,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = $1;", id)
         .fetch_one(conn)

@@ -110,3 +110,21 @@ pub async fn get_exercise_task_by_id(
     .await?;
     Ok(exercise_task)
 }
+
+pub async fn get_exercise_tasks_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<ExerciseTask>> {
+    let exercise_tasks = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks
+WHERE exercise_id = $1
+  AND deleted_at IS NULL;",
+        exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercise_tasks)
+}

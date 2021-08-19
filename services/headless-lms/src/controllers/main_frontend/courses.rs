@@ -344,6 +344,43 @@ async fn get_all_exercises(
     Ok(Json(exercises))
 }
 
+// TODO: Endpoint documentation
+#[instrument(skip(pool))]
+async fn get_all_course_translations(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+) -> ControllerResult<Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
+    let translations =
+        crate::models::courses::get_all_language_versions_of_course(&mut conn, course).await?;
+    Ok(Json(translations))
+}
+
+// TODO: Endpoint documentation
+pub async fn post_new_course_translation(
+    pool: web::Data<PgPool>,
+    request_course_id: web::Path<Uuid>,
+    payload: web::Json<NewCourse>,
+    user: AuthUser,
+) -> ControllerResult<Json<Course>> {
+    let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Action::Duplicate,
+        user.id,
+        Resource::Course(*request_course_id),
+    )
+    .await?;
+    let copied_course = crate::models::courses::clone_course_as_language_version_of_course(
+        &mut conn,
+        *request_course_id,
+        payload.0,
+    )
+    .await?;
+    Ok(Json(copied_course))
+}
+
 /**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 
@@ -519,6 +556,14 @@ pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/structure",
             web::get().to(get_course_structure::<T>),
+        )
+        .route(
+            "/{course_id}/translations",
+            web::get().to(get_all_course_translations),
+        )
+        .route(
+            "/{course_id}/translations",
+            web::post().to(post_new_course_translation),
         )
         .route(
             "/{course_id}/upload",

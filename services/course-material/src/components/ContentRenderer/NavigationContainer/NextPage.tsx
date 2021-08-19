@@ -39,14 +39,14 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
           {chapterId !== data.chapter_id ? (
             <NextSectionLink
               title="Impressive! you’ve reach the end of this chapter."
-              subTitle="Proceed to the next chapter"
+              subtitle="Proceed to the next chapter"
               nextTitle={data.title}
               url={"/courses/" + courseSlug + data.url_path}
             />
           ) : (
             <NextSectionLink
               title="Impressive! you’ve reach the end of this topic."
-              subTitle="Proceed to the next topic"
+              subtitle="Proceed to the next topic"
               nextTitle={data.title}
               url={"/courses/" + courseSlug + data.url_path}
             />
@@ -55,7 +55,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
       ) : (
         <NextSectionLink
           title="You've reached the end of the course material"
-          subTitle="Go to the main page to see if new chapters will open."
+          subtitle="Go to the main page to see if new chapters will open."
           nextTitle={"Back to main page"}
           url={"/courses/" + courseSlug}
         />

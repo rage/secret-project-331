@@ -31,6 +31,7 @@ WHERE jsonb_typeof(recursive_search_operation.value) <> 'object'
   AND (
     recursive_search_operation.key = 'content'
     OR recursive_search_operation.key = 'title'
+    OR recursive_search_operation.key = 'subtitle'
   );
 END;
 $$ language 'plpgsql';

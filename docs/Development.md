@@ -130,7 +130,7 @@ Run the following commands:
 ```powershell
 scoop install git
 scoop bucket add extras
-scoop install windows-terminal kubectl minikube kustomize stern kubectx
+scoop install windows-terminal kubectl minikube kustomize stern kubectx skaffold
 ````
 
 Now that we have Windows terminal installed, close PowerShell and start and application from your start menu search called 'Windows terminal'. Please use this terminal for developing the project from now on. The reason you should use this is that we can make this terminal to use the required Cygwin bash shell and the terminal supports useful features such as tabs and splitting the view into multiple terminals.

@@ -17,14 +17,14 @@ pub struct OEmbedRequest {
 static APP_USER_AGENT: &str = concat!("moocfi", "/", "0.1.0",);
 
 /**
-GET `/api/v0/cms/oembed/preview?url=https://youtube.com/watch?v=123123123` - Fetch oembed response from correct provider.
+GET `/api/v0/cms/oembed/preview?url=https%3A%2F%2Fyoutube.com%2Fwatch%3Fv%3D123123123` - Fetch oembed response from correct provider.
 Endpoint for proxying oembed requests to correct provider using url query param.
 
 # Example
 
 Request:
 ```http
-GET /api/v0/cms/oembed/preview?url=https://youtube.com/watch?v=123123123 HTTP/1.1
+GET /api/v0/cms/oembed/preview?url=https%3A%2F%2Fyoutube.com%2Fwatch%3Fv%3D123123123 HTTP/1.1
 Content-Type: text/html
 
 ```

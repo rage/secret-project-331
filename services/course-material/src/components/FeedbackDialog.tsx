@@ -110,6 +110,7 @@ const FeedbackDialog: React.FC<Props> = ({
             overflow-wrap: anywhere;
             white-space: pre-wrap;
             overflow-y: scroll;
+            border: 1px solid LightGray;
           `}
         >
           {selection}

@@ -171,13 +171,34 @@ To enable hyper-v, you need a special administrative window of PowerShell. To ac
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 ```
 
-Your computer should restart after that.
+Your computer should restart after that. Next, we'll configure networking. This step is the easiest to do in PowerShell.
 
-If you don't have Visual Studio Code already, install it with:
+1. Open PowerShell as an administrator like you did before
+2. List your host's network adapters with command:
 
 ```powershell
+Get-NetAdapter
+```
+
+3. Note the name of your internet adapter. On my machine it was 'Ethernet' and it was the adapter whose description did not contain the word 'Virtual'.
+4. Then run the following command and replace the string after -NetAdapterName with the name of your internet adapter.
+
+```powershell
+New-VMSwitch -name minikubeSwitch  -NetAdapterName "Ethernet"  -AllowManagementOS $true
+```
+
+Next, close PowerShell and go back to Cygwin in Windows terminal. Then, clone the project and navigate to the project root with cd.
+
+Next, start Minikube with the command bin/start-minikube
+Then, you can start the development server with the command bin/dev.
+
+For development, we recommend Visual Studio Code. If you don't have Visual Studio Code already, install it with:
+
+```bash
 scoop install vscode
 ```
+
+You can start Visual Studio Code with the command bin/code. Please make sure the install all the recommended extensions from the workspace!
 
 ## Setting up development environment on Windows 10
 

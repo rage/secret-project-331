@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { Box, Card, CardContent, CardHeader, IconButton, TextField } from "@material-ui/core"
 import CancelIcon from "@material-ui/icons/Cancel"
+import DeleteIcon from "@material-ui/icons/Delete"
 import DoneIcon from "@material-ui/icons/Done"
 import EditIcon from "@material-ui/icons/Edit"
 import ErrorIcon from "@material-ui/icons/Error"
@@ -12,19 +13,23 @@ import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import {
+  deleteExerciseService,
   fetchExerciseServices,
   updateExerciseService,
 } from "../../services/backend/exercise-services"
 import { ExerciseService } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
+import SpeechBalloon from "../../shared-module/components/SpeechBalloon"
 
 interface ExerciseServiceEditorProps {
   exercise_services: ExerciseService[]
+  refetch()
 }
 
 interface ExerciseServiceCardProps {
   key: string
   exercise_service: ExerciseService
+  refetch()
 }
 
 type inputType = "number" | "text"
@@ -77,6 +82,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({ title, text, editing, onChang
 }
 
 const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
+  const [visible, setVisible] = useState(false)
+
   return (
     <span
       className={
@@ -89,12 +96,28 @@ const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
       <span
         className={css`
           vertical-align: middle;
+          position: relative;
         `}
       >
+        {visible && (
+          <SpeechBalloon
+            className={css`
+              position: absolute;
+              top: -68px;
+              left: 109px;
+            `}
+          >
+            <p> {format(date, "yyyy-MM-dd HH:mm")} UTC+8 </p>
+          </SpeechBalloon>
+        )}
         <strong>{name}</strong>
         {format(date, "yyyy-MM-dd HH:mm")}
       </span>
-      <IconButton size="small">
+      <IconButton
+        onMouseEnter={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
+        size="small"
+      >
         <InfoIcon
           className={css`
             font-size: 18px;
@@ -105,7 +128,11 @@ const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
   )
 }
 
-const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({ key, exercise_service }) => {
+const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
+  key,
+  exercise_service,
+  refetch,
+}) => {
   const [editing, setEditing] = useState(false)
   const [service, setService] = useState(exercise_service)
 
@@ -128,6 +155,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({ key, exercise
       const updated = await updateExerciseService(service.id, service)
       setService(updated)
       setStatus("saved")
+      await refetch()
     } catch (e) {
       setStatus("failed")
       console.error(e)
@@ -137,15 +165,34 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({ key, exercise
     }, 4000)
   }
 
+  const deleteContent = async () => {
+    try {
+      await deleteExerciseService(service.id)
+      await refetch()
+    } catch (e) {
+      setStatus("failed")
+      console.error(e)
+    }
+  }
+
   return (
     <Box width={700}>
-      <Card key={key} variant="outlined">
+      <Card
+        key={key}
+        variant="outlined"
+        className={css`
+          overflow: visible;
+        `}
+      >
         <CardHeader
           title={editing ? "Edit exercise service" : service.name}
           subheader={editing || `Slug: ${service.slug}`}
           action={
             editing ? (
               <>
+                <IconButton onClick={deleteContent}>
+                  <DeleteIcon />
+                </IconButton>
                 <IconButton onClick={updateContent}>
                   {status == null ? <SaveIcon /> : status == "saved" ? <DoneIcon /> : <ErrorIcon />}
                 </IconButton>
@@ -213,16 +260,21 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({ key, exercise
   )
 }
 
-const ExerciseServiceContainer: React.FC<ExerciseServiceEditorProps> = ({ exercise_services }) => (
+const ExerciseServiceContainer: React.FC<ExerciseServiceEditorProps> = ({
+  exercise_services,
+  refetch,
+}) => (
   <div>
     {exercise_services.map((service) => (
-      <ExerciseServiceCard key={service.id} exercise_service={service} />
+      <ExerciseServiceCard key={service.id} exercise_service={service} refetch={refetch} />
     ))}
   </div>
 )
 
 const ExerciseServicePage: React.FC = () => {
-  const { isLoading, error, data } = useQuery(`exercise-services`, () => fetchExerciseServices())
+  const { isLoading, error, data, refetch } = useQuery(`exercise-services`, () =>
+    fetchExerciseServices(),
+  )
 
   if (error) {
     return <div>Error fetching exercise services.</div>
@@ -235,7 +287,7 @@ const ExerciseServicePage: React.FC = () => {
   return (
     <Layout>
       <h1> Manage exercise services:</h1>
-      <ExerciseServiceContainer exercise_services={data} />
+      <ExerciseServiceContainer exercise_services={data} refetch={refetch} />
       <br />
       <Button variant="primary" size="medium">
         Add new service

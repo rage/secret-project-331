@@ -10,11 +10,14 @@ test.describe("Model solutions", () => {
     // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
     // Click text=University of Helsinki, Department of Computer Science
-    await page.click("text=University of Helsinki, Department of Computer Science")
+    await Promise.all([
+      page.waitForNavigation(),
+      await page.click("text=University of Helsinki, Department of Computer Science"),
+    ])
     expectPath(page, "/organizations/[id]")
 
     // Click text=Manage
-    await page.click("text=Manage")
+    await Promise.all([page.waitForNavigation(), await page.click("text=Manage")])
     expectPath(page, "/manage/courses/[id]")
     // Click text=view submissions
     await Promise.all([
@@ -39,7 +42,10 @@ test.describe("Model solutions", () => {
     // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
     // Click text=University of Helsinki, Department of Computer Science
-    await page.click("text=University of Helsinki, Department of Computer Science")
+    await Promise.all([
+      page.waitForNavigation(),
+      await page.click("text=University of Helsinki, Department of Computer Science"),
+    ])
     expectPath(page, "/organizations/[id]")
     // Click text=Introduction to Everything
     await Promise.all([

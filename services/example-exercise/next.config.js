@@ -4,10 +4,10 @@ const config = {
   },
   async headers() {
     return [
-      // This applcation is meant to be used with a sandboxed iframe.
+      // This application is meant to be used with a sandboxed iframe.
       // That causes that we need cors headers for fonts.
       {
-        source: "*.woff2",
+        source: "/(.*).woff2",
         headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
       },
     ]

@@ -1,8 +1,8 @@
 import React, { useContext } from "react"
 
-import CoursePageContext from "../../contexts/CoursePageContext"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import GenericLoading from "../GenericLoading"
+import CoursePageContext from "../../../contexts/CoursePageContext"
+import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import GenericLoading from "../../GenericLoading"
 
 import NextPage from "./NextPage"
 

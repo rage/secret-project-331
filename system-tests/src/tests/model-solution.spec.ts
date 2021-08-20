@@ -10,11 +10,14 @@ test.describe("Model solutions", () => {
     // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
     // Click text=University of Helsinki, Department of Computer Science
-    await page.click("text=University of Helsinki, Department of Computer Science")
+    await Promise.all([
+      page.waitForNavigation(),
+      await page.click("text=University of Helsinki, Department of Computer Science"),
+    ])
     expectPath(page, "/organizations/[id]")
 
     // Click text=Manage
-    await page.click("text=Manage")
+    await Promise.all([page.waitForNavigation(), await page.click("text=Manage")])
     expectPath(page, "/manage/courses/[id]")
     // Click text=view submissions
     await Promise.all([
@@ -29,7 +32,7 @@ test.describe("Model solutions", () => {
     await page.waitForLoadState("networkidle")
     if (headless) {
       const screenshot = await page.screenshot()
-      expect(screenshot).toMatchSnapshot(`model-solutions-in-submissions.png`, { threshold: 0.2 })
+      expect(screenshot).toMatchSnapshot(`model-solutions-in-submissions.png`, { threshold: 0.3 })
     } else {
       console.warn("Not in headless mode, skipping screenshot model solutions in submission")
     }
@@ -39,7 +42,10 @@ test.describe("Model solutions", () => {
     // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
     // Click text=University of Helsinki, Department of Computer Science
-    await page.click("text=University of Helsinki, Department of Computer Science")
+    await Promise.all([
+      page.waitForNavigation(),
+      await page.click("text=University of Helsinki, Department of Computer Science"),
+    ])
     expectPath(page, "/organizations/[id]")
     // Click text=Introduction to Everything
     await Promise.all([
@@ -52,7 +58,7 @@ test.describe("Model solutions", () => {
     // Click button:has-text("Continue")
     await page.click('button:has-text("Continue")')
     // Click text=Chapter 1: The Basics
-    await Promise.all([page.waitForNavigation(), page.click("text=Chapter 1: The Basics")])
+    await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
     expectPath(page, "/courses/introduction-to-everything/chapter-1")
     // Click text=Page One
     await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
@@ -62,7 +68,7 @@ test.describe("Model solutions", () => {
 
     if (headless) {
       const screenshot = await page.screenshot()
-      expect(screenshot).toMatchSnapshot(`model-solutions-in-exercises.png`, { threshold: 0.2 })
+      expect(screenshot).toMatchSnapshot(`model-solutions-in-exercises.png`, { threshold: 0.3 })
     } else {
       console.warn("Not in headless mode, skipping screenshot model solutions in exercises")
     }

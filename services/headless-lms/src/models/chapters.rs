@@ -304,7 +304,7 @@ RETURNING *;
     .await?;
 
     let chapter_frontpage_content = serde_json::to_value(vec![
-        GutenbergBlock::hero_section(),
+        GutenbergBlock::hero_section("Insert chapter heading...", "Insert chapter subheading..."),
         GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),

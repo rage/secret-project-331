@@ -173,6 +173,13 @@ impl GutenbergBlock {
             )],
         )
     }
+
+    pub fn with_id(self, id: Uuid) -> Self {
+        Self {
+            client_id: id.to_string(),
+            ..self
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 import { useQuery } from "react-query"
@@ -78,6 +77,7 @@ const OrganizationsList: React.FC = () => {
                   align-items: center;
                 `}
               >
+                {/* <img src={organization.organization_image_url} /> */}
                 <UHNoBG
                   className={css`
                     margin: 0 auto;
@@ -100,6 +100,7 @@ const OrganizationsList: React.FC = () => {
                 >
                   {organization.name}
                 </h2>
+                <span>{organization.description}</span>
               </div>
             </div>
           </Link>

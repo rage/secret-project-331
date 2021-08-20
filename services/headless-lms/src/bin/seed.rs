@@ -77,6 +77,7 @@ async fn main() -> Result<()> {
         &mut conn,
         "University of Helsinki, Department of Computer Science",
         "uh-cs",
+        "Organization for Computer Science students and the rest of the world who wish to learn the basics in Computer Science, programming and software development.",
         Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
@@ -102,6 +103,7 @@ async fn main() -> Result<()> {
         &mut conn,
         "University of Helsinki, Department of Mathematics and Statistics",
         "uh-mathstat",
+        "Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.",
         Uuid::parse_str("269d28b2-a517-4572-9955-3ed5cecc69bd")?,
     )
     .await?;

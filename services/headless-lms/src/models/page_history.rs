@@ -70,7 +70,7 @@ SELECT id,
   author_user_id
 FROM page_history
 WHERE page_id = $1
-ORDER BY created_at
+ORDER BY created_at DESC, id
 LIMIT $2
 OFFSET $3
 "#,
@@ -81,4 +81,18 @@ OFFSET $3
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn history_count(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<i64> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(*) AS count
+FROM page_history
+WHERE page_id = $1
+",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.count.unwrap_or_default())
 }

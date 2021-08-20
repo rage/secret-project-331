@@ -114,8 +114,9 @@ async fn update_page(
         Resource::Course(course_id),
     )
     .await?;
-    let page = crate::models::pages::update_page(&mut conn, *request_page_id, page_update, user.id)
-        .await?;
+    let page =
+        crate::models::pages::update_page(&mut conn, *request_page_id, page_update, user.id, false)
+            .await?;
     Ok(Json(page))
 }
 

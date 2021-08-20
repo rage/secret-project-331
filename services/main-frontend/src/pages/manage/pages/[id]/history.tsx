@@ -1,7 +1,7 @@
 import { useRouter } from "next/router"
 
+import HistoryView from "../../../../components/HistoryView"
 import Layout from "../../../../components/Layout"
-import HistoryList from "../../../../components/lists/HistoryList"
 
 const History: React.FC<unknown> = () => {
   const router = useRouter()
@@ -19,7 +19,7 @@ const History: React.FC<unknown> = () => {
   return (
     <Layout>
       <h2>Page edit history</h2>
-      <HistoryList pageId={id} />
+      <HistoryView pageId={id} />
     </Layout>
   )
 }

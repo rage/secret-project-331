@@ -14,10 +14,10 @@ use crate::{
         },
         gradings::{Grading, UserPointsUpdateStrategy},
         organizations::Organization,
+        page_history::{HistoryChangeReason, PageHistory},
         pages::{
-            ExerciseWithExerciseTasks, HistoryChangeReason, HistoryRestoreData, NewPage,
-            NormalizedCmsExercise, NormalizedCmsExerciseTask, Page, PageHistory, PageRoutingData,
-            PageUpdate, PageWithExercises,
+            ExerciseWithExerciseTasks, HistoryRestoreData, NewPage, NormalizedCmsExercise,
+            NormalizedCmsExerciseTask, Page, PageRoutingData, PageUpdate, PageWithExercises,
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,

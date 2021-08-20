@@ -144,6 +144,18 @@ async fn history(
 }
 
 /**
+GET /api/v0/main-frontend/pages/:page_id/history_count
+*/
+async fn history_count(
+    pool: web::Data<PgPool>,
+    page_id: web::Path<Uuid>,
+) -> ControllerResult<Json<i64>> {
+    let mut conn = pool.acquire().await?;
+    let res = crate::models::page_history::history_count(&mut conn, page_id.into_inner()).await?;
+    Ok(Json(res))
+}
+
+/**
 POST /api/v0/main-frontend/pages/:page_id/restore
 */
 async fn restore(
@@ -174,5 +186,6 @@ pub fn _add_pages_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::post().to(post_new_page))
         .route("/{page_id}", web::delete().to(delete_page))
         .route("/{page_id}/history", web::get().to(history))
+        .route("/{page_id}/history_count", web::get().to(history_count))
         .route("/{history_id}/restore", web::post().to(restore));
 }

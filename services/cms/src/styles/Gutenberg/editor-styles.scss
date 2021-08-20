@@ -41,6 +41,30 @@
     width: 100%;
   }
 
+  // This height is same as the headless-lms oembed proxy maxheight=440.
+  iframe[title="Embedded content from youtube.com"],
+  iframe[title="Embedded content from vimeo"] {
+    height: 440px;
+  }
+  iframe[title="Embedded content from spotify.com"] {
+    height: 335px;
+  }
+  iframe[title="Embedded content from twitter"],
+  iframe[title="Embedded content from imgur"],
+  iframe[title="Embedded content from reddit.com"],
+  iframe[title="Embedded content from slideshare.net"],
+  iframe[title="Embedded content from ted.com"],
+  iframe[title="Embedded content from tumblr.com"] {
+    box-sizing: initial;
+    border-top-width: 0px;
+    border-right-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+  }
+  iframe[title="Embedded content from soundcloud"] {
+    box-sizing: initial;
+  }
+
   // These are default editor styles
   .wp-block,
   .block-list-appender {

@@ -98,10 +98,12 @@ pub enum Resource {
     Organization(Uuid),
     Page(Uuid),
     Submission(Uuid),
+    AnyCourse,
     Role,
     User,
 }
 
+/// Can user_id action the resource?
 pub async fn authorize(
     conn: &mut PgConnection,
     action: Action,
@@ -116,6 +118,14 @@ pub async fn authorize(
     for role in &user_roles {
         if role.is_global() && has_permission(role.role, action) {
             return Ok(());
+        }
+    }
+
+    if resource == Resource::AnyCourse {
+        for role in &user_roles {
+            if has_permission(role.role, action) {
+                return Ok(());
+            }
         }
     }
 
@@ -146,7 +156,7 @@ pub async fn authorize(
             Some(crate::models::submissions::get_course_id(conn, id).await?),
             None,
         ),
-        Resource::Role | Resource::User => (None, None),
+        Resource::Role | Resource::User | Resource::AnyCourse => (None, None),
     };
 
     // check course role

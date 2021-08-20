@@ -3,6 +3,7 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  NewFeedback,
   NewSubmission,
   Organization,
   Page,
@@ -128,4 +129,11 @@ export const fetchPageUrl = async (pageId: string): Promise<string> => {
 
 export const postSubmission = async (newSubmission: NewSubmission): Promise<SubmissionResult> => {
   return (await courseMaterialClient.post(`/submissions`, newSubmission)).data
+}
+
+export const postFeedback = async (
+  courseSlug: string,
+  newFeedback: NewFeedback,
+): Promise<string> => {
+  return (await courseMaterialClient.post(`/courses/${courseSlug}/feedback`, newFeedback)).data
 }

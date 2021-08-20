@@ -14,6 +14,7 @@ pub mod exercise_service_info;
 pub mod exercise_services;
 pub mod exercise_tasks;
 pub mod exercises;
+pub mod feedback;
 pub mod gradings;
 pub mod organizations;
 pub mod pages;

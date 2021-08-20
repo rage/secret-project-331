@@ -87,7 +87,7 @@ const PagePage: React.FC = () => {
           frontPageUrl={"/courses/" + courseSlug}
           title={pageDataQuery.data?.title}
         >
-          <Page onRefresh={handleRefresh} />
+          <Page courseSlug={courseSlug} onRefresh={handleRefresh} />
         </Layout>
       </CoursePageContext.Provider>
     </CoursePageDispatch.Provider>

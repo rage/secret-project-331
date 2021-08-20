@@ -23,6 +23,7 @@ pub struct DatabaseChapter {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub copied_from: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -37,6 +38,7 @@ pub struct Chapter {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub copied_from: Option<Uuid>,
 }
 
 impl Chapter {
@@ -60,6 +62,7 @@ impl Chapter {
             chapter_number: chapter.chapter_number,
             front_page_id: chapter.front_page_id,
             opens_at: chapter.opens_at,
+            copied_from: chapter.copied_from,
         }
     }
 }
@@ -270,7 +273,8 @@ SELECT id,
   chapter_image,
   chapter_number,
   front_page_id,
-  opens_at
+  opens_at,
+  copied_from
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;

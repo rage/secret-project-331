@@ -29,6 +29,7 @@ pub struct Exercise {
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_maximum: i32,
     pub order_number: i32,
+    pub copied_from: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, TS)]

@@ -29,6 +29,7 @@ pub struct ExerciseTask {
     pub private_spec: Option<serde_json::Value>,
     pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
+    pub copied_from: Option<Uuid>,
 }
 
 pub async fn insert(

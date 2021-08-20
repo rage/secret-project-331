@@ -33,7 +33,7 @@ pub struct Course {
     pub organization_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub language_code: String,
-    pub copied_from_course_id: Option<Uuid>,
+    pub copied_from: Option<Uuid>,
     pub language_version_of_course_id: Option<Uuid>,
 }
 
@@ -112,7 +112,7 @@ INSERT INTO courses (
     organization_id,
     slug,
     language_code,
-    copied_from_course_id,
+    copied_from,
     language_version_of_course_id
   )
 VALUES ($1, $2, $3, $4, $5, $6)
@@ -145,9 +145,10 @@ INSERT INTO chapters (
     chapter_number,
     front_page_id,
     opens_at,
-    chapter_image
+    chapter_image,
+    copied_from
   )
-VALUES (uuid_generate_v5($1, $2), $3, $4, $5, $6, $7, $8)
+VALUES (uuid_generate_v5($1, $2), $3, $4, $5, $6, $7, $8, $9)
 RETURNING id;
     ",
             copied_course.id,
@@ -157,7 +158,8 @@ RETURNING id;
             course_chapter.chapter_number,
             course_chapter.front_page_id, // TODO: Update front page id
             course_chapter.opens_at,
-            course_chapter.chapter_image
+            course_chapter.chapter_image,
+            course_chapter.id,
         )
         .fetch_one(&mut tx)
         .await?;
@@ -179,9 +181,10 @@ INSERT INTO pages (
     url_path,
     title,
     chapter_id,
-    order_number
+    order_number,
+    copied_from
   )
-VALUES (uuid_generate_v5($2, $1), $2, $3, $4, $5, $6, $7);
+VALUES (uuid_generate_v5($2, $1), $2, $3, $4, $5, $6, $7, $8);
             ",
             &course_page.id.to_string(),
             copied_course.id,
@@ -190,6 +193,7 @@ VALUES (uuid_generate_v5($2, $1), $2, $3, $4, $5, $6, $7);
             course_page.title,
             course_page.chapter_id,
             course_page.order_number,
+            course_page.id,
         )
         .execute(&mut tx)
         .await?;
@@ -213,7 +217,8 @@ INSERT INTO exercises (
     page_id,
     score_maximum,
     order_number,
-    chapter_id
+    chapter_id,
+    copied_from
   )
 VALUES (
     uuid_generate_v5($2, $1),
@@ -223,7 +228,8 @@ VALUES (
     uuid_generate_v5($2, $5),
     $6,
     $7,
-    uuid_generate_v5($2, $8)
+    uuid_generate_v5($2, $8),
+    $9
   )
 RETURNING id;
             ",
@@ -235,6 +241,7 @@ RETURNING id;
             course_exercise.score_maximum,
             course_exercise.order_number,
             &course_exercise.chapter_id.to_string(),
+            course_exercise.id,
         )
         .fetch_one(&mut tx)
         .await?
@@ -254,7 +261,8 @@ INSERT INTO exercise_tasks (
     private_spec,
     spec_file_id,
     public_spec,
-    model_solution_spec
+    model_solution_spec,
+    copied_from
   )
 VALUES (
     uuid_generate_v5($1, $2),
@@ -264,7 +272,8 @@ VALUES (
     $6,
     $7,
     $8,
-    $9
+    $9,
+    $10
   );
             ",
                 copied_course.id,
@@ -276,6 +285,7 @@ VALUES (
                 exercise_task.spec_file_id,
                 exercise_task.public_spec,
                 exercise_task.model_solution_spec,
+                exercise_task.id,
             )
             .execute(&mut tx)
             .await?;

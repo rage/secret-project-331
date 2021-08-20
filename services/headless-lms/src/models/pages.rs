@@ -36,6 +36,7 @@ pub struct Page {
     // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value for sqlx
     pub content: serde_json::Value,
     pub order_number: i32,
+    pub copied_from: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -404,6 +405,7 @@ UPDATE chapters SET front_page_id = $1 WHERE id = $2
         url_path: page.url_path,
         order_number: page.order_number,
         chapter_id: page.chapter_id,
+        copied_from: page.copied_from,
     })
 }
 
@@ -734,6 +736,7 @@ RETURNING *;
         url_path: page.url_path,
         order_number: page.order_number,
         chapter_id: page.chapter_id,
+        copied_from: page.copied_from,
     })
 }
 

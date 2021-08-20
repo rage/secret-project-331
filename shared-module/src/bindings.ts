@@ -17,6 +17,7 @@ export interface Chapter {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  copied_from: string | null
 }
 
 export interface EmailTemplate {
@@ -49,6 +50,7 @@ export interface Page {
   deleted_at: Date | null
   content: unknown
   order_number: number
+  copied_from: string | null
 }
 
 export interface UploadResult {
@@ -140,7 +142,7 @@ export interface Course {
   organization_id: string
   deleted_at: Date | null
   language_code: string
-  copied_from_course_id: string | null
+  copied_from: string | null
   language_version_of_course_id: string | null
 }
 
@@ -156,6 +158,7 @@ export interface Exercise {
   deleted_at: Date | null
   score_maximum: number
   order_number: number
+  copied_from: string | null
 }
 
 export interface ExerciseServiceInfoApi {
@@ -349,6 +352,7 @@ export interface ExerciseTask {
   private_spec: unknown | null
   spec_file_id: string | null
   model_solution_spec: unknown | null
+  copied_from: string | null
 }
 
 export interface ExerciseWithExerciseTasks {

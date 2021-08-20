@@ -3,6 +3,7 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  NewFeedback,
   NewSubmission,
   Organization,
   Page,
@@ -148,4 +149,11 @@ export const searchPagesWithWords = async (
   return (
     await courseMaterialClient.post(`/courses/${courseId}/search-pages-with-words`, searchRequest)
   ).data
+}
+
+export const postFeedback = async (
+  courseSlug: string,
+  newFeedback: NewFeedback,
+): Promise<string> => {
+  return (await courseMaterialClient.post(`/courses/${courseSlug}/feedback`, newFeedback)).data
 }

@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { Button, Dialog, Paper, TextField } from "@material-ui/core"
+import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import sanitizeHtml from "sanitize-html"
 import { useDebounce } from "use-debounce"
@@ -125,29 +126,43 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                   return null
                 }
                 return (
-                  <div
-                    className={css`
-                      margin-bottom: 1rem;
-                    `}
-                    key={result.id}
-                  >
-                    <h2
+                  <Link href={result.url_path} key={result.id}>
+                    <a
                       className={css`
-                        b {
-                          text-decoration: underline;
+                        text-decoration: none;
+                        color: unset;
+                        display: block;
+                        margin-bottom: 1rem;
+
+                        padding: 1rem;
+
+                        :hover {
+                          background: #f3f3f3;
                         }
                       `}
-                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.title_headline) }}
-                    />
-                    {result.content_headline && (
-                      <p
+                      key={result.id}
+                    >
+                      <h2
                         className={css`
-                          color: #5a5757;
+                          b {
+                            text-decoration: underline;
+                          }
                         `}
-                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.content_headline) }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.title_headline) }}
                       />
-                    )}
-                  </div>
+
+                      {result.content_headline && (
+                        <p
+                          className={css`
+                            color: #5a5757;
+                          `}
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeHtml(result.content_headline),
+                          }}
+                        />
+                      )}
+                    </a>
+                  </Link>
                 )
               })}
             </div>

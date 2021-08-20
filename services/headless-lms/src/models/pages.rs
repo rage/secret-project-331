@@ -1,4 +1,4 @@
-use super::ModelResult;
+use super::{courses::Course, ModelResult};
 use crate::{
     models::{
         chapters::DatabaseChapter,
@@ -1246,7 +1246,7 @@ LIMIT 50;
     )
     .fetch_all(conn)
     .await?;
-    Ok(res)
+    Ok(add_course_url_prefix_to_search_results(res, &course))
 }
 
 /**
@@ -1326,5 +1326,23 @@ LIMIT 50;
     )
     .fetch_all(conn)
     .await?;
-    Ok(res)
+    Ok(add_course_url_prefix_to_search_results(res, &course))
+}
+
+fn add_course_url_prefix_to_search_results(
+    search_results: Vec<PageSearchResult>,
+    course: &Course,
+) -> Vec<PageSearchResult> {
+    search_results
+        .into_iter()
+        .map(|mut sr| {
+            let optional_slash = if sr.url_path.starts_with('/') {
+                ""
+            } else {
+                "/"
+            };
+            sr.url_path = format!("/{}{}{}", course.slug, optional_slash, sr.url_path);
+            sr
+        })
+        .collect()
 }

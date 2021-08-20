@@ -176,12 +176,14 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
   }
 
   return (
-    <Box width={700}>
+    <Box>
       <Card
         key={key}
         variant="outlined"
         className={css`
-          overflow: visible;
+          margin: 8px;
+          /* Override card's overflow */
+          overflow: visible !important;
         `}
       >
         <CardHeader

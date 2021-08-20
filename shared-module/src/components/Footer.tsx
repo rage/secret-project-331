@@ -4,6 +4,7 @@ import React, { Fragment } from "react"
 
 import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
+import basePath from "../utils/base-path"
 
 import Banner from "./Banner/Banner"
 
@@ -68,12 +69,12 @@ const Links = styled.div`
 `
 
 export interface FooterExtraProps {
-  url: string
+  licenseUrl?: string
 }
 
 export type FooterProps = React.HTMLAttributes<HTMLDivElement> & FooterExtraProps
 
-const Footer: React.FC<FooterProps> = () => {
+const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
   return (
     <Fragment>
       <Banner
@@ -103,9 +104,10 @@ const Footer: React.FC<FooterProps> = () => {
         </Text>
         <Links>
           <h3>RESOURCES</h3>
-          <StyledLink href="/faq">Privacy</StyledLink>
-          <StyledLink href="/creators">Accessibility</StyledLink>
-          <StyledLink href="/license">License?</StyledLink>
+          <StyledLink href={basePath() + "/privacy"}>Privacy</StyledLink>
+          <StyledLink href={basePath() + "/accessibility"}>Accessibility</StyledLink>
+          <StyledLink href={basePath() + "/creators"}>Creators</StyledLink>
+          {licenseUrl ? <StyledLink href={licenseUrl}>License</StyledLink> : null}
         </Links>
       </Wrapper>
     </Fragment>

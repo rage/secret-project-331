@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import Head from "next/head"
 import React, { ReactNode } from "react"
 
+import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
 
 type LayoutProps = {
@@ -10,9 +11,17 @@ type LayoutProps = {
   navVariant: "simple" | "complex"
   faqUrl?: string
   title?: string
+  licenseUrl?: string
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, title, navVariant, frontPageUrl, faqUrl }) => (
+const Layout: React.FC<LayoutProps> = ({
+  children,
+  title,
+  navVariant,
+  frontPageUrl,
+  faqUrl,
+  licenseUrl,
+}) => (
   <>
     <Head>
       <title>{title}</title>
@@ -39,7 +48,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, navVariant, frontPageU
       >
         {children}
       </div>
-      {/* <Footer url="www.google.com" /> */}
+      <Footer licenseUrl={licenseUrl} />
     </div>
   </>
 )

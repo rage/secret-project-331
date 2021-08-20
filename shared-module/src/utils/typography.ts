@@ -4,7 +4,7 @@
 // characters that our main fonts don't support, like emojis. It is just a list
 // of common default fonts. Adapted from reboot.css.
 const fallbackFontsSansSerif = `system-ui, -apple-system, Cantarell, Ubuntu, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`
-const fallbackFontsMonospace = `"Source Code Pro", "Ubuntu Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`
+const fallbackFontsMonospace = `ui-monospace, "Source Code Pro", "Ubuntu Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`
 
 export const headingFont = `"Josefin Sans", ${fallbackFontsSansSerif}`
 export const primaryFont = `"Lato", ${fallbackFontsSansSerif}`

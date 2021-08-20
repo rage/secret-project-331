@@ -84,9 +84,8 @@ test("test", async ({ page, headless }) => {
   // phrases should be ranked higher than word matches
   // For example if the search word is banana cat the text banana cat should be
   // ranked higher than the text banana ...lots of random text... cat
-
   await page.fill('[placeholder="Search..."]', "banana cat")
-  await page.waitForSelector("text=banana justo")
+  await page.waitForSelector("text=banana cat enim")
 
   if (headless) {
     const screenshot = await page.screenshot()

@@ -10,9 +10,10 @@ type LayoutProps = {
   frontPageUrl: string
   faqUrl: string
   title?: string
+  licenseUrl?: string
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, title, frontPageUrl, faqUrl }) => (
+const Layout: React.FC<LayoutProps> = ({ children, title, frontPageUrl, faqUrl, licenseUrl }) => (
   <>
     <Head>
       <title>{title}</title>
@@ -39,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, frontPageUrl, faqUrl }
       >
         {children}
       </div>
-      <Footer url="www.google.com" />
+      <Footer licenseUrl={licenseUrl} />
     </div>
   </>
 )

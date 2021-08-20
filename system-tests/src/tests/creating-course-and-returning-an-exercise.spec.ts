@@ -241,8 +241,8 @@ test("test", async ({ page }) => {
   // Click text=Automatically testing the whole system
   await frame2.click("text=Automatically testing the whole system")
 
-  // Click button:has-text("Submit")
-  await page.click('button:has-text("Submit")')
+  // Click #content >> text=Submit
+  await page.click("#content >> text=Submit")
 
   await page.waitForSelector("text=Good job!")
   await page.waitForSelector("text=Points:1/1")

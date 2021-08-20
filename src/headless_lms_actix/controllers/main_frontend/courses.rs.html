@@ -532,6 +532,54 @@
 <span id="530">530</span>
 <span id="531">531</span>
 <span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -541,15 +589,18 @@
         <span class="ident">course_instances::CourseInstance</span>,
         <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
         <span class="ident">exercises::Exercise</span>,
+        <span class="ident">feedback</span>::{<span class="self">self</span>, <span class="ident">Feedback</span>, <span class="ident">FeedbackCount</span>},
         <span class="ident">submissions</span>::{<span class="ident">SubmissionCount</span>, <span class="ident">SubmissionCountByExercise</span>, <span class="ident">SubmissionCountByWeekAndHour</span>},
     },
-    <span class="ident">utils::file_store::FileStore</span>,
+    <span class="ident">utils</span>::{<span class="ident">file_store::FileStore</span>, <span class="ident">pagination::Pagination</span>},
     <span class="ident">ApplicationConfiguration</span>,
 };
 <span class="kw">use</span> <span class="ident">actix_multipart</span> <span class="kw">as</span> <span class="ident">mp</span>;
 <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>};
 <span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">web::ServiceConfig</span>, <span class="ident">HttpRequest</span>};
+<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 <span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
+<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="doccomment">/**
@@ -1027,6 +1078,46 @@ GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course in
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">course_instances</span>))
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GetFeedbackQuery</span> {
+    <span class="ident">read</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
+    <span class="ident">pagination</span>: <span class="ident">Pagination</span>,
+}
+
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
+*/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_feedback</span>(
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">read</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">GetFeedbackQuery</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Feedback</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">course_id</span>.<span class="ident">into_inner</span>();
+
+    <span class="kw">let</span> <span class="ident">feedback</span> <span class="op">=</span>
+        <span class="ident">feedback::get_feedback_for_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">course_id</span>, <span class="ident">read</span>.<span class="ident">read</span>, <span class="kw-2">&amp;</span><span class="ident">read</span>.<span class="ident">pagination</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">feedback</span>))
+}
+
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
+*/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_feedback_count</span>(
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">FeedbackCount</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">course_id</span>.<span class="ident">into_inner</span>();
+
+    <span class="kw">let</span> <span class="ident">feedback_count</span> <span class="op">=</span> <span class="ident">feedback::get_feedback_count_for_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">feedback_count</span>))
+}
+
 <span class="doccomment">/**
 Add a route for each controller in this module.
 
@@ -1063,6 +1154,11 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/course-instances&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_instances</span>),
+        )
+        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/feedback&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_feedback</span>))
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/feedback-count&quot;</span>,
+            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_feedback_count</span>),
         );
 }
 </pre></div>

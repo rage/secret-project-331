@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Pagination","Represents the URL query parameters `page` and `limit`, used for paginating database queries."]]});
+initSidebarItems({"enum":[["StrOrInt",""]],"struct":[["Pagination","Represents the URL query parameters `page` and `limit`, used for paginating database queries."]]});

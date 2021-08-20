@@ -598,6 +598,13 @@
 <span id="596">596</span>
 <span id="597">597</span>
 <span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::pages::NormalizedCmsExercise</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::models::pages::NormalizedCmsExerciseTask</span>;
@@ -773,6 +780,13 @@
                 ],
             )],
         )
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_id</span>(<span class="self">self</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">client_id</span>: <span class="ident">id</span>.<span class="ident">to_string</span>(),
+            ..<span class="self">self</span>
+        }
     }
 }
 

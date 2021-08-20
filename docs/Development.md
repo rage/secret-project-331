@@ -123,14 +123,12 @@ We'll need to add some extra packages to cygwin. The package we just installed s
 
 Installing other tools
 
-
-
 Run the following commands:
 
 ```powershell
 scoop install git
 scoop bucket add extras
-scoop install windows-terminal kubectl minikube kustomize stern kubectx skaffold
+scoop install windows-terminal kubectl minikube kustomize stern kubectx skaffold rustup docker
 ````
 
 Now that we have Windows terminal installed, close PowerShell and start and application from your start menu search called 'Windows terminal'. Please use this terminal for developing the project from now on. The reason you should use this is that we can make this terminal to use the required Cygwin bash shell and the terminal supports useful features such as tabs and splitting the view into multiple terminals.
@@ -205,6 +203,10 @@ Next, close PowerShell and go back to Cygwin in Windows terminal. Then, clone th
 
 Next, start Minikube with the command bin/start-minikube
 Then, you can start the development server with the command bin/dev.
+
+While the dev server builds, wee need to set up ingress so that we can access our application.
+
+1. Get your minikube ip address
 
 For development, we recommend Visual Studio Code. If you don't have Visual Studio Code already, install it with:
 

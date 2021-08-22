@@ -6,7 +6,7 @@ import { border, color, space } from "styled-system"
 import { fontWeights, headingFont, theme, typography } from "../utils"
 
 export interface ButtonExtraProps {
-  variant: "primary" | "secondary"
+  variant: "primary" | "secondary" | "tertiary"
   size: "medium" | "large"
 }
 
@@ -108,13 +108,13 @@ const TertiaryButton = styled(BaseButton)`
 
   &:hover {
     color: #333;
-    background-color: transparent;
+    background-color: #fff;
   }
 
   ,
   &:active {
     color: #333;
-    background-color: transparent;
+    background-color: #fff;
   }
 
   ,

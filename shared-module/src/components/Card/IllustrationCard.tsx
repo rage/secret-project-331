@@ -5,7 +5,11 @@ import React from "react"
 import { theme } from "../../utils"
 
 export interface CardExtraProps {
-  variant: "simple" | "graphics"
+  variant: "simple" | "Illustration"
+  title: string
+  chapter: number
+  url?: string
+  bg?: string
 }
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps

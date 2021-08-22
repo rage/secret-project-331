@@ -17,8 +17,8 @@ const Container = styled.div`
 `
 
 const StyledSVG = styled.div`
-  width: auto;
   position: relative;
+  max-width: 320px;
 
   svg {
     margin: 0rem auto;

@@ -8,7 +8,6 @@ import { cardHeight, cardMaxWidth } from "../../styles/constants"
 import { theme } from "../../utils"
 
 const CourseGridWrapper = styled.a`
-  background: rgba(247, 227, 83, 0.8);
   text-decoration: none;
   display: block;
   max-width: ${cardMaxWidth}em;
@@ -16,10 +15,6 @@ const CourseGridWrapper = styled.a`
   border-radius: 1px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  &:hover {
-    /*     box-shadow: 0 0.625em 2.5em rgba(0, 0, 0, 0.2); */
-    border: none;
-  }
 `
 const styledSVG = css`
   position: absolute;
@@ -71,7 +66,7 @@ const CardTextBox = styled.div`
   }
 `
 export interface CardExtraProps {
-  variant: "simple" | "graphics"
+  variant: "simple" | "Illustration"
   title: string
   chapter: number
   url?: string

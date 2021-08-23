@@ -241,11 +241,11 @@ async fn seed_cs_intro(
     let block_id_4 = Uuid::parse_str("09b327a8-8e65-437e-9678-554fc4d98dd4")?;
     let block_id_5 = Uuid::parse_str("834648cc-72d9-42d1-bed7-cc6a2e186ae6")?;
     let block_id_6 = Uuid::parse_str("223a4718-5287-49ff-853e-a67f4612c629")?;
-    let exercise_c1p1_1 = Uuid::new_v4();
-    let exercise_task_c1p1e1_1 = Uuid::new_v4();
-    let spec_c1p1e1t1_1 = Uuid::new_v4();
-    let spec_c1p1e1t1_2 = Uuid::new_v4();
-    let spec_c1p1e1t1_3 = Uuid::new_v4();
+    let exercise_c1p1_1 = Uuid::parse_str("cfb950a7-db4e-49e4-8ec4-d7a32b691b08")?;
+    let exercise_task_c1p1e1_1 = Uuid::parse_str("f73dab3b-3549-422d-8377-ece1972e5576")?;
+    let spec_c1p1e1t1_1 = Uuid::parse_str("5f6b7850-5034-4cef-9dcf-e3fd4831067f")?;
+    let spec_c1p1e1t1_2 = Uuid::parse_str("c713bbfc-86bf-4877-bd39-53afaf4444b5")?;
+    let spec_c1p1e1t1_3 = Uuid::parse_str("4027d508-4fad-422e-bb7f-15c613a02cc6")?;
     create_page(
         conn,
         course.id,
@@ -261,7 +261,7 @@ async fn seed_cs_intro(
                 exercise_task_c1p1e1_1,
                 block_id_2,
                 block_id_3,
-                Uuid::new_v4(),
+                Uuid::parse_str("4e314af8-6857-4405-9ffe-4b8ce88e7376")?,
                 spec_c1p1e1t1_1,
                 spec_c1p1e1t1_2,
                 spec_c1p1e1t1_3,
@@ -273,21 +273,21 @@ async fn seed_cs_intro(
     )
     .await?;
 
-    let exercise_c1p2_1 = Uuid::new_v4();
-    let exercise_task_c1p2e1_1 = Uuid::new_v4();
-    let spec_c1p2e1t1_1 = Uuid::new_v4();
-    let spec_c1p2e1t1_2 = Uuid::new_v4();
-    let spec_c1p2e1t1_3 = Uuid::new_v4();
-    let exercise_c1p2_2 = Uuid::new_v4();
-    let exercise_task_c1p2e2_1 = Uuid::new_v4();
-    let spec_c1p2e2t1_1 = Uuid::new_v4();
-    let spec_c1p2e2t1_2 = Uuid::new_v4();
-    let spec_c1p2e2t1_3 = Uuid::new_v4();
-    let exercise_c1p2_3 = Uuid::new_v4();
-    let exercise_task_c1p2e3_1 = Uuid::new_v4();
-    let spec_c1p2e3t1_1 = Uuid::new_v4();
-    let spec_c1p2e3t1_2 = Uuid::new_v4();
-    let spec_c1p2e3t1_3 = Uuid::new_v4();
+    let exercise_c1p2_1 = Uuid::parse_str("36e7f0c2-e663-4382-a503-081866cfe7d0")?;
+    let exercise_task_c1p2e1_1 = Uuid::parse_str("e7fca192-2161-4ab8-8533-8c41dbaa2d69")?;
+    let spec_c1p2e1t1_1 = Uuid::parse_str("5898293f-2d41-43b1-9e44-92d487196ade")?;
+    let spec_c1p2e1t1_2 = Uuid::parse_str("93d27d79-f9a1-44ab-839f-484accc67e32")?;
+    let spec_c1p2e1t1_3 = Uuid::parse_str("81ec2df2-a5fd-4d7d-b85f-0c304e8d2030")?;
+    let exercise_c1p2_2 = Uuid::parse_str("64d273eb-628f-4d43-a11a-e69ebe244942")?;
+    let exercise_task_c1p2e2_1 = Uuid::parse_str("114caac5-006a-4afb-9806-785154263c11")?;
+    let spec_c1p2e2t1_1 = Uuid::parse_str("28ea3062-bd6a-45f5-9844-03174e00a0a8")?;
+    let spec_c1p2e2t1_2 = Uuid::parse_str("1982f566-2d6a-485d-acb0-65d8b8864c7e")?;
+    let spec_c1p2e2t1_3 = Uuid::parse_str("01ec5329-2cf6-4d0f-92b2-d388360fb402")?;
+    let exercise_c1p2_3 = Uuid::parse_str("029688ec-c7be-4cb3-8928-85cfd6551083")?;
+    let exercise_task_c1p2e3_1 = Uuid::parse_str("382fffce-f177-47d0-a5c0-cc8906d34c49")?;
+    let spec_c1p2e3t1_1 = Uuid::parse_str("4bae54a3-d67c-428b-8996-290f70ae08fa")?;
+    let spec_c1p2e3t1_2 = Uuid::parse_str("c3f257c0-bdc2-4d81-99ff-a71c76fe670a")?;
+    let spec_c1p2e3t1_3 = Uuid::parse_str("fca5a8ba-50e0-4375-8d4b-9d02762d908c")?;
     create_page(
         conn,
         course.id,
@@ -297,13 +297,16 @@ async fn seed_cs_intro(
         admin,
         chapter_1.id,
         &[
-            paragraph("First chapters second page.", Uuid::new_v4()),
+            paragraph(
+                "First chapters second page.",
+                Uuid::parse_str("9faf5a2d-f60d-4a70-af3d-0e7e3d6fe273")?,
+            ),
             example_exercise(
                 exercise_c1p2_1,
                 exercise_task_c1p2e1_1,
-                Uuid::new_v4(),
-                Uuid::new_v4(),
-                Uuid::new_v4(),
+                Uuid::parse_str("9fd9ac7d-7d41-4695-bedd-996c88606652")?,
+                Uuid::parse_str("2dbb4649-bcac-47ab-a817-ca17dcd70378")?,
+                Uuid::parse_str("c0986981-c8ae-4c0b-b558-1163a16760ec")?,
                 spec_c1p2e1t1_1,
                 spec_c1p2e1t1_2,
                 spec_c1p2e1t1_3,
@@ -311,9 +314,9 @@ async fn seed_cs_intro(
             example_exercise(
                 exercise_c1p2_2,
                 exercise_task_c1p2e2_1,
-                Uuid::new_v4(),
-                Uuid::new_v4(),
-                Uuid::new_v4(),
+                Uuid::parse_str("c27c38ab-60aa-4a13-bb1a-a5d684802158")?,
+                Uuid::parse_str("fb26489d-ca49-4f76-a1c2-f759ed3146c0")?,
+                Uuid::parse_str("49b19886-0d1d-4a36-81ba-88a332d87b5b")?,
                 spec_c1p2e2t1_1,
                 spec_c1p2e2t1_2,
                 spec_c1p2e2t1_3,
@@ -321,9 +324,9 @@ async fn seed_cs_intro(
             example_exercise(
                 exercise_c1p2_3,
                 exercise_task_c1p2e3_1,
-                Uuid::new_v4(),
-                Uuid::new_v4(),
-                Uuid::new_v4(),
+                Uuid::parse_str("5f800e49-7bd9-495f-9c78-19044be8c26d")?,
+                Uuid::parse_str("334593ad-8ba5-4589-b1f7-b159e754bdc5")?,
+                Uuid::parse_str("389e80bd-5f91-40c7-94ff-7dda1eeb96fb")?,
                 spec_c1p2e3t1_1,
                 spec_c1p2e3t1_2,
                 spec_c1p2e3t1_3,
@@ -332,11 +335,11 @@ async fn seed_cs_intro(
     )
     .await?;
 
-    let exercise_c2p1_1 = Uuid::new_v4();
-    let exercise_task_c2p1e1_1 = Uuid::new_v4();
-    let spec_c2p1e1t1_1 = Uuid::new_v4();
-    let spec_c2p1e1t1_2 = Uuid::new_v4();
-    let spec_c2p1e1t1_3 = Uuid::new_v4();
+    let exercise_c2p1_1 = Uuid::parse_str("8bb4faf4-9a34-4df7-a166-89ade530d0f6")?;
+    let exercise_task_c2p1e1_1 = Uuid::parse_str("a6508b8a-f58e-43ac-9f02-785575e716f5")?;
+    let spec_c2p1e1t1_1 = Uuid::parse_str("fe464d17-2365-4e65-8b33-e0ebb5a67836")?;
+    let spec_c2p1e1t1_2 = Uuid::parse_str("6633ffc7-c76e-4049-840e-90eefa6b49e8")?;
+    let spec_c2p1e1t1_3 = Uuid::parse_str("d77fb97d-322c-4c5f-a405-8978a8cfb0a9")?;
     create_page(
         conn,
         course.id,
@@ -348,9 +351,9 @@ async fn seed_cs_intro(
         &[example_exercise(
             exercise_c2p1_1,
             exercise_task_c2p1e1_1,
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
+            Uuid::parse_str("6ba193d7-6af4-4e39-9334-8aec6e35ea07")?,
+            Uuid::parse_str("3270cf8b-4fec-4d93-b794-1468508a8909")?,
+            Uuid::parse_str("e869c471-b1b7-42a0-af05-dffd1d86a7bb")?,
             spec_c2p1e1t1_1,
             spec_c2p1e1t1_2,
             spec_c2p1e1t1_3,

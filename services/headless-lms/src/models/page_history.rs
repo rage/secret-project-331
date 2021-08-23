@@ -17,6 +17,7 @@ pub enum HistoryChangeReason {
 pub struct PageHistory {
     id: Uuid,
     created_at: DateTime<Utc>,
+    title: String,
     content: Value,
     history_change_reason: HistoryChangeReason,
     restored_from_id: Option<Uuid>,
@@ -26,6 +27,7 @@ pub struct PageHistory {
 pub async fn insert(
     conn: &mut PgConnection,
     page_id: Uuid,
+    title: &str,
     content: &Value,
     history_change_reason: HistoryChangeReason,
     author_user_id: Uuid,
@@ -35,15 +37,17 @@ pub async fn insert(
         "
   INSERT INTO page_history (
     page_id,
+    title,
     content,
     history_change_reason,
     author_user_id,
     restored_from_id
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
         page_id,
+        title,
         content,
         history_change_reason as HistoryChangeReason,
         author_user_id,
@@ -63,6 +67,7 @@ pub async fn history(
         PageHistory,
         r#"
 SELECT id,
+  title,
   content,
   created_at,
   history_change_reason as "history_change_reason: HistoryChangeReason",

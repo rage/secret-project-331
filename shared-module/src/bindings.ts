@@ -270,6 +270,7 @@ export interface SubmissionInfo {
 export interface PageHistory {
   id: string
   created_at: Date
+  title: string
   content: unknown
   history_change_reason: HistoryChangeReason
   restored_from_id: string | null

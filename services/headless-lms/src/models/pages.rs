@@ -172,6 +172,7 @@ RETURNING id
     let history_id = crate::models::page_history::insert(
         &mut tx,
         page_res.id,
+        title,
         &serde_json::Value::Array(vec![]),
         HistoryChangeReason::PageSaved,
         author,
@@ -408,6 +409,7 @@ RETURNING *
     crate::models::page_history::insert(
         &mut tx,
         page_id,
+        &page_update.title,
         &history_content,
         HistoryChangeReason::PageSaved,
         author,
@@ -762,6 +764,7 @@ pub async fn insert_page(
     crate::models::page_history::insert(
         &mut tx,
         page.id,
+        &new_page.title,
         &history_content,
         HistoryChangeReason::PageSaved,
         author,
@@ -1105,7 +1108,7 @@ pub async fn restore(
     let page = get_page(&mut tx, page_id).await?;
     let content_to_restore = sqlx::query!(
         "
-SELECT content
+SELECT title, content
 FROM page_history
 WHERE id = $1
 ",
@@ -1141,6 +1144,7 @@ WHERE id = $2
     let history_id = crate::models::page_history::insert(
         &mut tx,
         page_id,
+        &content_to_restore.title,
         &history_content,
         HistoryChangeReason::HistoryRestored,
         author,

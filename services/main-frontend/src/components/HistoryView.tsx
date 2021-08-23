@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { DiffEditor } from "@monaco-editor/react"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
@@ -13,6 +14,8 @@ interface Props {
 }
 
 const HistoryView: React.FC<Props> = ({ pageId }) => {
+  const [currentTitle, setCurrentTitle] = useState<string | null>(null)
+  const [selectedTitle, setSelectedTitle] = useState<string | null>(null)
   const [currentRevision, setCurrentRevision] = useState<string | null>(null)
   const [selectedRevision, setSelectedRevision] = useState<string | null>(null)
 
@@ -23,6 +26,8 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
       throw new Error("Could not find any edit history for the page")
     }
     const initial = JSON.stringify(history[0].content, null, 2)
+    setCurrentTitle(history[0].title)
+    setSelectedTitle(history[0].title)
     setCurrentRevision(initial)
     setSelectedRevision(initial)
     return history[0]
@@ -42,15 +47,24 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
   }
 
   function onCompare(ph: PageHistory) {
+    setSelectedTitle(ph.title)
     setSelectedRevision(JSON.stringify(ph.content, null, 2))
   }
 
   async function onRestore(ph: PageHistory) {
+    setCurrentTitle(ph.title)
     setCurrentRevision(JSON.stringify(ph.content, null, 2))
   }
 
   return (
     <>
+      <p
+        className={css`
+          text-align: center;
+        `}
+      >
+        Previous: {currentTitle} | Current: {selectedTitle}
+      </p>
       <DiffEditor
         height="40vh"
         language="json"

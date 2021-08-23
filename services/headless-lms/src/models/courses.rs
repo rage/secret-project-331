@@ -167,18 +167,31 @@ INSERT INTO pages (
     copied_from
   )
 SELECT uuid_generate_v5($1, id::text),
-  uuid_generate_v5($1, course_id::text),
+  $1,
   content,
   url_path,
   title,
-  chapter_id,
+  uuid_generate_v5($1, chapter_id::text),
   order_number,
   id
 FROM pages
-WHERE (chapter_id = $2)
+WHERE (course_id = $2)
     ",
         copied_course.id,
         course.id
+    )
+    .execute(&mut tx)
+    .await?;
+
+    // Update front_page_id of chapters now that new pages exist.
+    sqlx::query!(
+        "
+UPDATE chapters
+SET front_page_id = uuid_generate_v5(course_id, front_page_id::text)
+WHERE course_id = $1
+    AND front_page_id IS NOT NULL;
+        ",
+        copied_course.id,
     )
     .execute(&mut tx)
     .await?;
@@ -414,9 +427,17 @@ RETURNING *
 
 #[cfg(test)]
 mod test {
+    use serde_json::Value;
+
     use super::*;
     use crate::{
-        models::{courses, organizations},
+        models::{
+            chapters::{self, DatabaseChapter, NewChapter},
+            courses,
+            exercise_tasks::{self, ExerciseTask},
+            exercises::{self, Exercise},
+            organizations,
+        },
         test_helper::Conn,
     };
 
@@ -454,6 +475,115 @@ mod test {
         let organization_id = insert_organization(tx.as_mut()).await;
         let course_id = courses::insert(tx.as_mut(), "", organization_id, "course", "en-US").await;
         assert!(course_id.is_err());
+    }
+
+    #[tokio::test]
+    async fn copies_course() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let organization_id = insert_organization(tx.as_mut()).await;
+
+        let (course, _page, _instance) = courses::insert_course(
+            tx.as_mut(),
+            NewCourse {
+                language_code: "en_US".to_string(),
+                name: "Course".to_string(),
+                organization_id,
+                slug: "course".to_string(),
+            },
+        )
+        .await
+        .unwrap();
+        let (chapter, chapter_page) = chapters::insert_chapter(
+            tx.as_mut(),
+            NewChapter {
+                chapter_number: 1,
+                course_id: course.id,
+                front_front_page_id: None,
+                name: "Chapter".to_string(),
+            },
+        )
+        .await
+        .unwrap();
+        let exercise_id = exercises::insert(
+            tx.as_mut(),
+            course.id,
+            "Exercise",
+            chapter_page.id,
+            chapter.id,
+            1,
+        )
+        .await
+        .unwrap();
+        let exercise_task_id = exercise_tasks::insert(
+            tx.as_mut(),
+            exercise_id,
+            "Exercise",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
+
+        let copied_course = clone_course_as_language_version_of_course(
+            tx.as_mut(),
+            course.id,
+            NewCourse {
+                language_code: "fi_FI".to_string(),
+                name: "Kurssi".to_string(),
+                organization_id,
+                slug: "kurssi".to_string(),
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(copied_course.copied_from, Some(course.id));
+
+        // Assuming there's only one chapter per course in test data.
+        let copied_chapter = sqlx::query_as!(
+            DatabaseChapter,
+            "SELECT * FROM chapters WHERE course_id = $1;",
+            copied_course.id,
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_chapter.copied_from, Some(chapter.id));
+
+        // Assuming there's only one page per chapter in test data.
+        let copied_page = sqlx::query_as!(
+            Page,
+            "SELECT * FROM pages WHERE chapter_id = $1;",
+            copied_chapter.id
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_page.copied_from, Some(chapter_page.id));
+
+        // Assuming there's only one exercise per page in test data.
+        let copied_exercise = sqlx::query_as!(
+            Exercise,
+            "SELECT * FROM exercises WHERE page_id = $1;",
+            copied_page.id
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_exercise.copied_from, Some(exercise_id));
+
+        // Assuming there's only one exercise task per exercise in test data.
+        let copied_exercise_task = sqlx::query_as!(
+            ExerciseTask,
+            "SELECT * FROM exercise_tasks WHERE exercise_id = $1;",
+            copied_exercise.id
+        )
+        .fetch_one(tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_exercise_task.copied_from, Some(exercise_task_id));
     }
 
     async fn insert_organization(conn: &mut PgConnection) -> Uuid {

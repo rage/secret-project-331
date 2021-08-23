@@ -375,6 +375,16 @@
       "nullable": [false]
     }
   },
+  "157ae19656d38c39f0e6a98a1dc538c5feaf6b22f9510b6dc52f6e38133df82d": {
+    "query": "\nINSERT INTO pages (\n    id,\n    course_id,\n    content,\n    url_path,\n    title,\n    chapter_id,\n    order_number,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  content,\n  url_path,\n  title,\n  uuid_generate_v5($1, chapter_id::text),\n  order_number,\n  id\nFROM pages\nWHERE (course_id = $2)\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "17ac831ff424d02bd7609c76c190768ef00265bf144ab61459e11f1b7179b660": {
     "query": "SELECT * FROM organizations WHERE deleted_at IS NULL;",
     "describe": {
@@ -1185,16 +1195,6 @@
   },
   "2711d322b3321b8956fe256642fb1d2c259d339752d854cd58383a26889e1cbf": {
     "query": "\nUPDATE regrading_submissions\nSET grading_after_regrading = $1\nWHERE id = $2\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
-  "2b5281f4bda4b774edf7561cbdea3fd311478c47eb044e04f16d6e767bcf0268": {
-    "query": "\nINSERT INTO pages (\n    id,\n    course_id,\n    content,\n    url_path,\n    title,\n    chapter_id,\n    order_number,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  uuid_generate_v5($1, course_id::text),\n  content,\n  url_path,\n  title,\n  chapter_id,\n  order_number,\n  id\nFROM pages\nWHERE (chapter_id = $2)\n    ",
     "describe": {
       "columns": [],
       "parameters": {
@@ -3688,6 +3688,16 @@
         "Left": ["Text"]
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
+  "a564b4d932be98839ba4902d318c21812fbf46b9e97c8e097a3a28fc4d10d682": {
+    "query": "\nUPDATE chapters\nSET front_page_id = uuid_generate_v5(course_id, front_page_id::text)\nWHERE course_id = $1\n    AND front_page_id IS NOT NULL;\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
     }
   },
   "a76579e426500a1f99f9e02cf2c523658f58d86dcb036aef2aa3bdf71d8a563e": {

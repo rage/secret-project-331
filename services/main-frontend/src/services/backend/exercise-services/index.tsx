@@ -1,4 +1,4 @@
-import { ExerciseService } from "../../../shared-module/bindings"
+import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
 import { mainFrontendClient } from "../../mainFrontendClient"
 
 export const fetchExerciseServices = async (): Promise<[ExerciseService]> => {
@@ -18,10 +18,10 @@ export const fetchExerciseServiceById = async (
 }
 
 export const addExerciseService = async (
-  exercise_service: ExerciseService,
+  exercise_service: ExerciseServiceNewOrUpdate,
 ): Promise<ExerciseService> => {
   const data = (
-    await mainFrontendClient.post("/exercise-services", exercise_service, {
+    await mainFrontendClient.post("/exercise-services/", exercise_service, {
       responseType: "json",
     })
   ).data

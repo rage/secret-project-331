@@ -1,5 +1,10 @@
 import { css } from "@emotion/css"
-import { Box, Card, CardContent, CardHeader, IconButton, TextField } from "@material-ui/core"
+import { Box, Card, CardContent, CardHeader, IconButton, Modal, TextField } from "@material-ui/core"
+import Dialog from "@material-ui/core/Dialog"
+import DialogActions from "@material-ui/core/DialogActions"
+import DialogContent from "@material-ui/core/DialogContent"
+import DialogContentText from "@material-ui/core/DialogContentText"
+import DialogTitle from "@material-ui/core/DialogTitle"
 import CancelIcon from "@material-ui/icons/Cancel"
 import DeleteIcon from "@material-ui/icons/Delete"
 import DoneIcon from "@material-ui/icons/Done"
@@ -13,14 +18,14 @@ import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import {
+  addExerciseService,
   deleteExerciseService,
   fetchExerciseServices,
   updateExerciseService,
 } from "../../services/backend/exercise-services"
-import { ExerciseService } from "../../shared-module/bindings"
+import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import SpeechBalloon from "../../shared-module/components/SpeechBalloon"
-
 interface ExerciseServiceEditorProps {
   exercise_services: ExerciseService[]
   refetch()
@@ -38,7 +43,7 @@ interface ContentAreaProps {
   title: string
   text: string | number
   editing: boolean
-  onChange(value: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): unknown
+  onChange: (event: unknown) => void
   type: inputType
 }
 
@@ -46,6 +51,14 @@ interface TimeComponentProps {
   name: string
   date: Date
   right: boolean
+}
+
+interface ExerciseServiceCreationModelProps {
+  onChange: (key: unknown) => (event: unknown) => void
+  exercise_service: ExerciseServiceNewOrUpdate
+  handleSubmit()
+  handleClose()
+  open: boolean
 }
 
 type updateStatus = null | "saved" | "failed"
@@ -135,6 +148,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
 }) => {
   const [editing, setEditing] = useState(false)
   const [service, setService] = useState(exercise_service)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   // Saving animation for the card
   const [status, setStatus] = useState<updateStatus>(null)
@@ -165,6 +179,14 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
     }, 4000)
   }
 
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false)
+  }
+
+  const handleOpenDeleteDialog = () => {
+    setDeleteDialogOpen(true)
+  }
+
   const deleteContent = async () => {
     try {
       await deleteExerciseService(service.id)
@@ -192,9 +214,6 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
           action={
             editing ? (
               <>
-                <IconButton onClick={deleteContent}>
-                  <DeleteIcon />
-                </IconButton>
                 <IconButton onClick={updateContent}>
                   {status == null ? <SaveIcon /> : status == "saved" ? <DoneIcon /> : <ErrorIcon />}
                 </IconButton>
@@ -204,6 +223,9 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
               </>
             ) : (
               <div>
+                <IconButton onClick={handleOpenDeleteDialog}>
+                  <DeleteIcon />
+                </IconButton>
                 <IconButton onClick={toggleEdit}>
                   <EditIcon />
                 </IconButton>
@@ -258,6 +280,22 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
           <TimeComponent name={"Updated: "} date={exercise_service.updated_at} right={true} />
         </CardContent>
       </Card>
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
+        <DialogTitle id="alert-dialog-title">{"Delete exercise service"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete &quot;{service.name}&quot;?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="primary" size="medium" onClick={handleCloseDeleteDialog}>
+            Cancel
+          </Button>
+          <Button variant="secondary" size="medium" onClick={deleteContent}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
@@ -273,7 +311,108 @@ const ExerciseServiceContainer: React.FC<ExerciseServiceEditorProps> = ({
   </div>
 )
 
+const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> = ({
+  open,
+  handleClose,
+  exercise_service,
+  onChange,
+  handleSubmit,
+}) => {
+  return (
+    <Modal
+      className={css`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      `}
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="simple-modal-title"
+      aria-describedby="simple-modal-description"
+    >
+      <Card
+        className={css`
+          width: 60%;
+        `}
+      >
+        <CardHeader title={"Create exercise service"} />
+        <CardContent>
+          <ContentArea
+            title={"Name"}
+            text={exercise_service.name}
+            editing={true}
+            onChange={onChange("name")}
+            type={"text"}
+          />
+          <ContentArea
+            title={"Slug"}
+            text={exercise_service.slug}
+            editing={true}
+            onChange={onChange("slug")}
+            type={"text"}
+          />
+          <ContentArea
+            title={"Public URL"}
+            text={exercise_service.public_url}
+            editing={true}
+            onChange={onChange("public_url")}
+            type={"text"}
+          />
+          <ContentArea
+            title={"Internal URL"}
+            text={exercise_service.internal_url}
+            editing={true}
+            onChange={onChange("internal_url")}
+            type={"text"}
+          />
+          <ContentArea
+            title={"Reprocessing submissions"}
+            text={exercise_service.max_reprocessing_submissions_at_once}
+            editing={true}
+            onChange={onChange("max_reprocessing_submissions_at_once")}
+            type={"number"}
+          />
+        </CardContent>
+        <CardContent>
+          <Button variant="primary" size="medium" onClick={handleSubmit}>
+            Create
+          </Button>
+          <Button variant="secondary" size="medium" onClick={handleClose}>
+            Cancel
+          </Button>
+        </CardContent>
+      </Card>
+    </Modal>
+  )
+}
+
 const ExerciseServicePage: React.FC = () => {
+  const [open, setOpen] = useState(false)
+  const [exerciseService, setExerciseService] = useState({
+    name: "",
+    slug: "",
+    public_url: "",
+    internal_url: "",
+    max_reprocessing_submissions_at_once: 1,
+  })
+
+  const resetExerciseService = () => {
+    setExerciseService({
+      name: "",
+      slug: "",
+      public_url: "",
+      internal_url: "",
+      max_reprocessing_submissions_at_once: 1,
+    })
+  }
+
+  const onChangeCreationModal = (key) => (event) => {
+    setExerciseService({
+      ...exerciseService,
+      [key]: event.target.type === "number" ? parseInt(event.target.value) : event.target.value,
+    })
+  }
+
   const { isLoading, error, data, refetch } = useQuery(`exercise-services`, () =>
     fetchExerciseServices(),
   )
@@ -286,14 +425,40 @@ const ExerciseServicePage: React.FC = () => {
     return <div>Loading...</div>
   }
 
+  const handleClose = () => {
+    setOpen(false)
+  }
+
+  const openModal = () => {
+    setOpen(true)
+  }
+
+  const createExerciseService = async () => {
+    try {
+      await addExerciseService(exerciseService)
+      refetch()
+      handleClose()
+      resetExerciseService()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   return (
     <Layout>
       <h1> Manage exercise services:</h1>
-      <ExerciseServiceContainer exercise_services={data} refetch={refetch} />
-      <br />
-      <Button variant="primary" size="medium">
+      <Button onClick={openModal} variant="primary" size="medium">
         Add new service
       </Button>
+      <br />
+      <ExerciseServiceContainer exercise_services={data} refetch={refetch} />
+      <ExerciseServiceCreationModal
+        open={open}
+        handleClose={handleClose}
+        exercise_service={exerciseService}
+        onChange={onChangeCreationModal}
+        handleSubmit={createExerciseService}
+      />
     </Layout>
   )
 }

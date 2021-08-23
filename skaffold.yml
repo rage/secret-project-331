@@ -139,7 +139,7 @@ profiles:
       - op: add
         path: /build/artifacts/5/docker/cacheFrom
         value:
-          - eu.gcr.io/moocfi-public/secret-project-quizzes:latest
+          - eu.gcr.io/moocfi-public/secret-project-quizzes-production:latest
 
       # Replace the image name to match cacheFrom, same image name in kubernetes/test/<service> patch.
       - op: replace

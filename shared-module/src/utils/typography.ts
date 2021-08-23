@@ -1,5 +1,14 @@
-export const headingFont = `"Josefin Sans", sans-serif`
-export const primaryFont = `"Lato", sans-serif`
+// These fallback variables should not used outside of this file.
+// Fallback fonts are used as a temporary fallback before the browser has
+// loaded the fonts included in the webpage. They also might be used for some
+// characters that our main fonts don't support, like emojis. It is just a list
+// of common default fonts. Adapted from reboot.css.
+const fallbackFontsSansSerif = `system-ui, -apple-system, Cantarell, Ubuntu, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`
+const fallbackFontsMonospace = `ui-monospace, "Source Code Pro", "Ubuntu Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`
+
+export const headingFont = `"Josefin Sans", ${fallbackFontsSansSerif}`
+export const primaryFont = `"Lato", ${fallbackFontsSansSerif}`
+export const monospaceFont = `"Space Mono", ${fallbackFontsMonospace}`
 
 export const typography = {
   h1: "clamp(40px, 8vw, 90px)",

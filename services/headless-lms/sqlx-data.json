@@ -205,6 +205,16 @@
       "nullable": [false]
     }
   },
+  "0f8ebb278dc89487e24c2b9729baa1c012e2242bfa7b984ec77b1df0a84a6a7a": {
+    "query": "\nUPDATE feedback\nSET marked_as_read = $1\nWHERE id = $2\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Bool", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "1045751c6cd07ace2bfd5ce224d9f841ce8f9995d15b21b2068bede8b52d4df4": {
     "query": "\nINSERT INTO gradings (\n    submission_id,\n    course_id,\n    exercise_id,\n    exercise_task_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
     "describe": {
@@ -1311,6 +1321,52 @@
       "nullable": [false, false, false, false, true, false, true, false, false, false, false]
     }
   },
+  "30742ffe2fe330d87178cd8ef3ded27340c2215ee81a4d1c7cacc05d2e5d6716": {
+    "query": "\nSELECT *\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Text"]
+      },
+      "nullable": [false, false, false, false, false, true, false]
+    }
+  },
   "3112b033a77d157f59f47880f2e44143c4cf49017c96939a4b1b01622b8ae788": {
     "query": "\n  INSERT INTO\n    pages(course_id, content, url_path, title, order_number, chapter_id)\n  VALUES($1, $2, $3, $4, $5, $6)\n  RETURNING *\n          ",
     "describe": {
@@ -1654,6 +1710,16 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
+  "40ee92fefa0c26c98e690f9a50b69cae49ae3ec5577ca4fb497816b875e4f921": {
+    "query": "\nINSERT INTO block_feedback(feedback_id, block_id, block_text)\nVALUES ($1, $2, $3)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar"]
+      },
+      "nullable": []
+    }
+  },
   "436a4b6e66a08b6449ee12211e083a2291b3665a8b580e585fb211f451bd3a15": {
     "query": "\nUPDATE chapters\nSET front_page_id = $1\nWHERE id = $2\nRETURNING *;\n        ",
     "describe": {
@@ -1851,6 +1917,22 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "4ce0473bffd95a6bbf4c2395cf6a458254c07d13bd2e585965fd64114074a1d9": {
+    "query": "\nINSERT INTO feedback(user_id, course_id, feedback_given)\nVALUES ($1, $2, $3)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar"]
+      },
+      "nullable": [false]
     }
   },
   "502d624be97efadd5fea8635bd71d85dd770df10088f3d1fe5ff749dd0e9bd7f": {
@@ -4155,6 +4237,27 @@
       "nullable": []
     }
   },
+  "d1b9e023f5c44a5e7d40094eabe5441cc88db7fb1fd77a72062f2884aab2ac6a": {
+    "query": "\nSELECT COUNT(*) filter (\n    where marked_as_read\n  ) AS read,\n  COUNT(*) filter (\n    where not(marked_as_read)\n  ) AS unread\nFROM feedback\nWHERE course_id = $1\n  AND feedback.deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "read",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "unread",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [null, null]
+    }
+  },
   "d309be59564d69ecad6e11cc6976649092966ea2236abd7c8ca72e64f78f8fcc": {
     "query": "\nupdate email_deliveries\nset sent = TRUE\nwhere id = $1;\n    ",
     "describe": {
@@ -4963,6 +5066,57 @@
         "Left": ["Uuid", "Uuid", "Varchar", "Int4", "Uuid", "Uuid"]
       },
       "nullable": [false, false, false, false, true, false, true, false, false, false, false]
+    }
+  },
+  "f2a546b8283eeeca75a1ff205d1a2e836b1c40dff0b0ac8bb47e1639138484e7": {
+    "query": "\nSELECT feedback.id,\n  feedback.user_id,\n  feedback.course_id,\n  feedback.feedback_given,\n  feedback.marked_as_read,\n  feedback.created_at,\n  array_agg(block_feedback.block_id) filter (where block_feedback.block_id IS NOT NULL) AS \"block_ids: Vec<Uuid>\",\n  array_agg(block_feedback.block_text) filter (where block_feedback.block_id IS NOT NULL) AS \"block_texts: Vec<Option<String>>\"\nFROM feedback\n  LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id\nWHERE course_id = $1\n  AND feedback.marked_as_read = $2\n  AND feedback.deleted_at IS NULL\n  AND block_feedback.deleted_at IS NULL\nGROUP BY feedback.id,\n  feedback.user_id,\n  feedback.course_id,\n  feedback.feedback_given,\n  feedback.marked_as_read,\n  feedback.created_at\nLIMIT $3\nOFFSET $4\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "feedback_given",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "marked_as_read",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "block_ids: Vec<Uuid>",
+          "type_info": "UuidArray"
+        },
+        {
+          "ordinal": 7,
+          "name": "block_texts: Vec<Option<String>>",
+          "type_info": "VarcharArray"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Bool", "Int8", "Int8"]
+      },
+      "nullable": [false, true, false, false, false, false, null, null]
     }
   },
   "f2beb11b5e6318b712b0af9bd4fde454472ce8eda3612295b788958148a376b5": {

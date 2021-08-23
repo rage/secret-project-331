@@ -214,3 +214,19 @@ RETURNING *
     .await?;
     Ok(deleted)
 }
+
+pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> ModelResult<Course> {
+    let course = sqlx::query_as!(
+        Course,
+        "
+SELECT *
+FROM courses
+WHERE slug = $1
+  AND deleted_at IS NULL
+",
+        course_slug,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course)
+}

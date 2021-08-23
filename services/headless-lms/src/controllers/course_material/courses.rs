@@ -2,9 +2,12 @@
 use crate::{
     controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
-    models::chapters::{ChapterStatus, ChapterWithStatus},
-    models::course_instances::CourseInstance,
-    models::pages::Page,
+    models::{
+        chapters::{ChapterStatus, ChapterWithStatus},
+        feedback,
+    },
+    models::{course_instances::CourseInstance, courses},
+    models::{feedback::NewFeedback, pages::Page},
 };
 use actix_web::web::{self, Json, ServiceConfig};
 use chrono::Utc;
@@ -218,6 +221,41 @@ async fn get_chapters(
 }
 
 /**
+POST `/api/v0/course-material/courses/:course_slug/feedback` - Creates new feedback.
+*/
+pub async fn feedback(
+    course_slug: web::Path<String>,
+    new_feedback: web::Json<NewFeedback>,
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+) -> ControllerResult<String> {
+    let mut conn = pool.acquire().await?;
+    let f = new_feedback.into_inner();
+
+    if f.feedback_given.len() > 1000 {
+        return Err(ControllerError::BadRequest(
+            "Feedback given too long: max 1000".to_string(),
+        ));
+    }
+    if f.related_blocks.len() > 100 {
+        return Err(ControllerError::BadRequest(
+            "Too many related blocks: max 100".to_string(),
+        ));
+    }
+    for block in &f.related_blocks {
+        if block.text.as_ref().map(|t| t.len()).unwrap_or_default() > 10000 {
+            return Err(ControllerError::BadRequest(
+                "Block text too long: max 10000".to_string(),
+            ));
+        }
+    }
+
+    let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
+    let id = feedback::insert(&mut conn, user.map(|u| u.id), course.id, f).await?;
+    Ok(id.to_string())
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -238,5 +276,6 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_id}/current-instance",
         web::get().to(get_current_course_instance),
-    );
+    )
+    .route("/{course_id}/feedback", web::post().to(feedback));
 }

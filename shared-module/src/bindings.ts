@@ -282,6 +282,41 @@ export interface HistoryRestoreData {
   history_id: string
 }
 
+export interface Feedback {
+  id: string
+  user_id: string | null
+  course_id: string
+  feedback_given: string
+  marked_as_read: boolean
+  created_at: Date
+  blocks: FeedbackBlock[]
+}
+
+export interface MarkAsRead {
+  read: boolean
+}
+
+export interface NewFeedback {
+  feedback_given: string
+  related_blocks: FeedbackBlock[]
+}
+
+export interface FeedbackBlock {
+  id: string
+  text: string | null
+}
+
+export interface FeedbackCount {
+  read: number
+  unread: number
+}
+
+export interface GetFeedbackQuery {
+  read: boolean
+  page?: number
+  limit?: number
+}
+
 export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
 
 export type ChapterStatus = "open" | "closed"
@@ -347,6 +382,11 @@ export type GradingProgress = "FullyGraded" | "Pending" | "PendingManual" | "Fai
 export type UserPointsUpdateStrategy =
   | "CanAddPointsButCannotRemovePoints"
   | "CanAddPointsAndCanRemovePoints"
+
+export interface Pagination {
+  page?: number
+  limit?: number
+}
 
 export interface ExerciseTask {
   id: string

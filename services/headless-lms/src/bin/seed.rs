@@ -3,6 +3,8 @@ use chrono::Utc;
 use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
+use headless_lms_actix::models::feedback;
+use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
 use headless_lms_actix::models::gradings;
 use headless_lms_actix::models::pages::PageUpdate;
 use headless_lms_actix::models::submissions::GradingResult;
@@ -86,7 +88,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
-    let _user = users::insert_with_id(
+    let student = users::insert_with_id(
         &mut conn,
         "user@example.com",
         Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")?,
@@ -101,7 +103,7 @@ async fn main() -> Result<()> {
         Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
-    let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin, teacher).await?;
+    let cs_intro = seed_cs_intro(&mut conn, uh_cs, admin, teacher, student).await?;
     let _cs_design = seed_cs_course_material(&mut conn, uh_cs, admin).await?;
     let new_course = NewCourse {
         name: "Introduction to Computer Science".to_string(),
@@ -161,6 +163,7 @@ async fn seed_cs_intro(
     org: Uuid,
     admin: Uuid,
     teacher: Uuid,
+    student: Uuid,
 ) -> Result<Uuid> {
     let new_course = NewCourse {
         name: "Introduction to Everything".to_string(),
@@ -232,6 +235,12 @@ async fn seed_cs_intro(
     )
     .await?;
 
+    let block_id_1 = Uuid::parse_str("af3b467a-f5db-42ad-9b21-f42ca316b3c6")?;
+    let block_id_2 = Uuid::parse_str("465f1f95-22a1-43e1-b4a3-7d18e525dc12")?;
+    let block_id_3 = Uuid::parse_str("46aad5a8-71bd-49cd-8d86-3368ee8bb7ac")?;
+    let block_id_4 = Uuid::parse_str("09b327a8-8e65-437e-9678-554fc4d98dd4")?;
+    let block_id_5 = Uuid::parse_str("834648cc-72d9-42d1-bed7-cc6a2e186ae6")?;
+    let block_id_6 = Uuid::parse_str("223a4718-5287-49ff-853e-a67f4612c629")?;
     let exercise_c1p1_1 = Uuid::new_v4();
     let exercise_task_c1p1e1_1 = Uuid::new_v4();
     let spec_c1p1e1t1_1 = Uuid::new_v4();
@@ -246,17 +255,23 @@ async fn seed_cs_intro(
         admin,
         chapter_1.id,
         &[
-            paragraph("Everything is a big topic"),
+            paragraph("Everything is a big topic", block_id_1),
             example_exercise(
                 exercise_c1p1_1,
                 exercise_task_c1p1e1_1,
+                block_id_2,
+                block_id_3,
                 spec_c1p1e1t1_1,
                 spec_c1p1e1t1_2,
                 spec_c1p1e1t1_3,
             ),
+            paragraph("So big, that we need many paragraphs.", block_id_4),
+            paragraph("Like this.", block_id_5),
+            paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(16), block_id_6),
         ],
     )
     .await?;
+
     let exercise_c1p2_1 = Uuid::new_v4();
     let exercise_task_c1p2e1_1 = Uuid::new_v4();
     let spec_c1p2e1t1_1 = Uuid::new_v4();
@@ -267,6 +282,11 @@ async fn seed_cs_intro(
     let spec_c1p2e2t1_1 = Uuid::new_v4();
     let spec_c1p2e2t1_2 = Uuid::new_v4();
     let spec_c1p2e2t1_3 = Uuid::new_v4();
+    let exercise_c1p2_3 = Uuid::new_v4();
+    let exercise_task_c1p2e3_1 = Uuid::new_v4();
+    let spec_c1p2e3t1_1 = Uuid::new_v4();
+    let spec_c1p2e3t1_2 = Uuid::new_v4();
+    let spec_c1p2e3t1_3 = Uuid::new_v4();
     create_page(
         conn,
         course.id,
@@ -276,10 +296,12 @@ async fn seed_cs_intro(
         admin,
         chapter_1.id,
         &[
-            paragraph("Everything is a big topic"),
+            paragraph("First chapters second page.", Uuid::new_v4()),
             example_exercise(
                 exercise_c1p2_1,
                 exercise_task_c1p2e1_1,
+                Uuid::new_v4(),
+                Uuid::new_v4(),
                 spec_c1p2e1t1_1,
                 spec_c1p2e1t1_2,
                 spec_c1p2e1t1_3,
@@ -287,13 +309,25 @@ async fn seed_cs_intro(
             example_exercise(
                 exercise_c1p2_2,
                 exercise_task_c1p2e2_1,
+                Uuid::new_v4(),
+                Uuid::new_v4(),
                 spec_c1p2e2t1_1,
                 spec_c1p2e2t1_2,
                 spec_c1p2e2t1_3,
             ),
+            example_exercise(
+                exercise_c1p2_3,
+                exercise_task_c1p2e3_1,
+                Uuid::new_v4(),
+                Uuid::new_v4(),
+                spec_c1p2e3t1_1,
+                spec_c1p2e3t1_2,
+                spec_c1p2e3t1_3,
+            ),
         ],
     )
     .await?;
+
     let exercise_c2p1_1 = Uuid::new_v4();
     let exercise_task_c2p1e1_1 = Uuid::new_v4();
     let spec_c2p1e1t1_1 = Uuid::new_v4();
@@ -310,6 +344,8 @@ async fn seed_cs_intro(
         &[example_exercise(
             exercise_c2p1_1,
             exercise_task_c2p1e1_1,
+            Uuid::new_v4(),
+            Uuid::new_v4(),
             spec_c2p1e1t1_1,
             spec_c2p1e1t1_2,
             spec_c2p1e1t1_3,
@@ -490,6 +526,61 @@ async fn seed_cs_intro(
     )
     .await?;
 
+    // feedback
+    let new_feedback = NewFeedback {
+        feedback_given: "this part was unclear to me".to_string(),
+        related_blocks: vec![FeedbackBlock {
+            id: block_id_4,
+            text: Some(
+                "blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas"
+                    .to_string(),
+            ),
+        }],
+    };
+    let feedback = feedback::insert(conn, Some(student), course.id, new_feedback).await?;
+    feedback::mark_as_read(conn, feedback, true).await?;
+    let new_feedback = NewFeedback {
+        feedback_given: "I dont think we need these paragraphs".to_string(),
+        related_blocks: vec![
+            FeedbackBlock {
+                id: block_id_1,
+                text: Some("verything is a big topic.".to_string()),
+            },
+            FeedbackBlock {
+                id: block_id_2,
+                text: Some("So big, that we need many paragraphs.".to_string()),
+            },
+            FeedbackBlock {
+                id: block_id_3,
+                text: Some("Like th".to_string()),
+            },
+        ],
+    };
+    feedback::insert(conn, Some(student), course.id, new_feedback).await?;
+    feedback::insert(
+        conn,
+        None,
+        course.id,
+        NewFeedback {
+            feedback_given: "Anonymous feedback".to_string(),
+            related_blocks: vec![FeedbackBlock {
+                id: block_id_1,
+                text: None,
+            }],
+        },
+    )
+    .await?;
+    feedback::insert(
+        conn,
+        None,
+        course.id,
+        NewFeedback {
+            feedback_given: "Anonymous unrelated feedback".to_string(),
+            related_blocks: vec![],
+        },
+    )
+    .await?;
+
     Ok(course.id)
 }
 
@@ -536,10 +627,14 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             chapter_id: None,
             front_page_of_chapter_id: None,
             content: serde_json::to_value(&[
-                GutenbergBlock::landing_page_hero_section("Welcome to Introduction to Course Material", "In this course you'll learn the basics of UI/UX design. At the end of course you should be able to create your own design system."),
-                GutenbergBlock::course_objective_section(),
-                GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
-                GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
+                GutenbergBlock::landing_page_hero_section("Welcome to Introduction to Course Material", "In this course you'll learn the basics of UI/UX design. At the end of course you should be able to create your own design system.")
+                .with_id(Uuid::parse_str("6ad81525-0010-451f-85e5-4832e3e364a8")?),
+            GutenbergBlock::course_objective_section()
+                .with_id(Uuid::parse_str("2eec7ad7-a95f-406f-acfe-f3a332b86e26")?),
+            GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string())
+                .with_id(Uuid::parse_str("bb51d61b-fd19-44a0-8417-7ffc6058b247")?),
+            GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string())
+                .with_id(Uuid::parse_str("1d7c28ca-86ab-4318-8b10-3e5b7cd6e465")?),
             ])
             .unwrap(),
         },
@@ -569,10 +664,14 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             front_page_of_chapter_id: Some(chapter_1.id),
             chapter_id: Some(chapter_1.id),
             content: serde_json::to_value(&[
-                GutenbergBlock::hero_section("User Interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur."),
-                GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
-                GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
-                GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
+                GutenbergBlock::hero_section("User Interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.")
+                .with_id(Uuid::parse_str("848ac898-81c0-4ebc-881f-6f84e9eaf472")?),
+            GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
+                .with_id(Uuid::parse_str("c8b36f58-5366-4d6b-b4ec-9fc0bd65950e")?),
+            GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string())
+                .with_id(Uuid::parse_str("cdb9e4b9-ba68-4933-b037-4648e3df7a6c")?),
+            GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
+                .with_id(Uuid::parse_str("457431b0-55db-46ac-90ae-03965f48b27e")?),
             ])
             .unwrap(),
         },
@@ -584,29 +683,34 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     // /chapter-1/design
     create_page(conn, course.id, "/chapter-1/design", "Design", 1, admin, chapter_1.id,
         &[
-            GutenbergBlock::hero_section("Design", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process."),
+            GutenbergBlock::hero_section("Design", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process.")
+                .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
                   "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
                   "dropCap": false
                 }),
-            ),
+            )
+                .with_id(Uuid::parse_str("9ebddb78-23f6-4440-8d8f-5e4b33abb16f")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!( {
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
                 }),
-            ),
+            )
+                .with_id(Uuid::parse_str("029ae4b5-08b0-49f7-8baf-d916b5f879a2")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
                 }),
-            ),
+            )
+            .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
         ]).await?;
+
     // /chapter-1/human-machine-interface
     create_page(
         conn,
@@ -617,28 +721,32 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         admin,
         chapter_1.id,
         &[
-            GutenbergBlock::hero_section("Human-machine interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur."),
+            GutenbergBlock::hero_section("Human-machine interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.")
+                .with_id(Uuid::parse_str("ae22ae64-c0e5-42e1-895a-4a49411a72e8")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
                   "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
                   "dropCap": false
                 }),
-            ),
+            )
+                .with_id(Uuid::parse_str("b05a62ad-e5f7-432c-8c88-2976d971e7e1")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!( {
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
                 }),
-            ),
+            )
+                .with_id(Uuid::parse_str("db20e302-d4e2-4f56-a0b9-e48a4fbd5fa8")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
                 }),
-            ),
+            )
+            .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]
     )
     .await?;
@@ -662,10 +770,14 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             chapter_id: Some(chapter_2.id),
             front_page_of_chapter_id: Some(chapter_2.id),
             content: serde_json::to_value(&[
-                GutenbergBlock::hero_section("User Experience", "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency."),
-                GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
-                GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
-                GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
+                GutenbergBlock::hero_section("User Experience", "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency.")
+                    .with_id(Uuid::parse_str("c5c623f9-c7ca-4f8e-b04b-e91cecef217a")?),
+                GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
+                    .with_id(Uuid::parse_str("37bbc4e9-2e96-45ea-a6f8-bbc7dc7f6be3")?),
+                GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string())
+                    .with_id(Uuid::parse_str("2e91c140-fd17-486b-8dc1-0a9589a18e3a")?),
+                GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
+                    .with_id(Uuid::parse_str("1bf7e311-75e8-48ec-bd55-e8f1185d76d0")?),
             ])
             .unwrap(),
         },
@@ -683,31 +795,36 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         admin,
         chapter_2.id,
         &[
-            GutenbergBlock::hero_section("User research", "User research focuses on understanding user behaviors, needs, and motivations through observation techniques, task analysis, and other feedback methodologies."),
+            GutenbergBlock::hero_section("User research", "User research focuses on understanding user behaviors, needs, and motivations through observation techniques, task analysis, and other feedback methodologies.")
+                .with_id(Uuid::parse_str("a43f5460-b588-44ac-84a3-5fdcabd5d3f7")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
                   "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
                   "dropCap": false
                 }),
-            ),
+            )
+                .with_id(Uuid::parse_str("816310e3-bbd7-44ae-87cb-3f40633a4b08")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!( {
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
                 }),
-            ),
+            )
+                .with_id(Uuid::parse_str("37aa6421-768e-49b9-b447-5f457e5192bc")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 serde_json::json!({
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
                 }),
-            ),
+            )
+            .with_id(Uuid::parse_str("cf11a0fb-f56e-4e0d-bc12-51d920dbc278")?),
         ]
     )
     .await?;
+
     Ok(course.id)
 }
 
@@ -742,11 +859,11 @@ async fn create_page(
     Ok(page.id)
 }
 
-fn paragraph(content: &str) -> GutenbergBlock {
+fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/paragraph".to_string(),
         is_valid: true,
-        client_id: Uuid::new_v4().to_string(),
+        client_id: block.to_string(),
         attributes: serde_json::json!({
             "content": content,
             "dropCap": false,
@@ -758,6 +875,8 @@ fn paragraph(content: &str) -> GutenbergBlock {
 fn example_exercise(
     ex: Uuid,
     task: Uuid,
+    block_1: Uuid,
+    block_2: Uuid,
     spec_1: Uuid,
     spec_2: Uuid,
     spec_3: Uuid,
@@ -765,7 +884,7 @@ fn example_exercise(
     GutenbergBlock {
         name: "moocfi/exercise".to_string(),
         is_valid: true,
-        client_id: task.to_string(),
+        client_id: block_1.to_string(),
         attributes: serde_json::json!({
             "id": ex,
             "name": "Best exercise",
@@ -775,7 +894,7 @@ fn example_exercise(
         inner_blocks: vec![GutenbergBlock {
             name: "moocfi/exercise-task".to_string(),
             is_valid: true,
-            client_id: task.to_string(),
+            client_id: block_2.to_string(),
             attributes: serde_json::json!({
                 "id": task,
                 "exercise_type": "example-exercise",

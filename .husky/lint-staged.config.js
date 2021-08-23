@@ -5,6 +5,7 @@ module.exports = {
   "services/main-frontend/**/*.{js,jsx,ts,tsx}": () => "npx tsc -p services/main-frontend/ --noEmit",
   "services/course-material/**/*.{js,jsx,ts,tsx}": () => "npx tsc -p services/course-material/ --noEmit",
   "services/quizzes/**/*.{js,jsx,ts,tsx}": () => "npx tsc -p services/quizzes/ --noEmit",
+  "services/playground/**/*.{js,jsx,ts,tsx}": () => "npx tsc -p services/playground/ --noEmit",
   "*.{md,json,scss,css}": "prettier --write",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml -- --files-with-diff",

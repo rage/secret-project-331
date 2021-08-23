@@ -44,3 +44,7 @@ spec:
             backend:
               serviceName: quizzes
               servicePort: 3004
+          - path: /playground
+            backend:
+              serviceName: playground
+              servicePort: 3005

@@ -141,7 +141,7 @@ pub async fn insert_course(
 
     // Create front page for course
     let course_front_page_content = serde_json::to_value(vec![
-        GutenbergBlock::landing_page_hero_section(),
+        GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
         GutenbergBlock::course_objective_section(),
         GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
@@ -212,4 +212,20 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(deleted)
+}
+
+pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> ModelResult<Course> {
+    let course = sqlx::query_as!(
+        Course,
+        "
+SELECT *
+FROM courses
+WHERE slug = $1
+  AND deleted_at IS NULL
+",
+        course_slug,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course)
 }

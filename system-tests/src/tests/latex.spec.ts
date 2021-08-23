@@ -92,6 +92,15 @@ test("latex-block renders", async ({ headless, page }) => {
     '[aria-label="Empty block; start writing or type forward slash to choose a block"]',
     "Inline latex: [latex]e = \\lim_{n \\rightarrow \\infty} (1 + \\frac{1}{n})^n[/latex]",
   )
+  await page.press(
+    "text=Inline latex: [latex]e = \\lim_{n \\rightarrow \\infty} (1 + \\frac{1}{n})^n[/latex]",
+    "Enter",
+  )
+  // Press Enter
+  await page.type(
+    '[aria-label="Empty block; start writing or type forward slash to choose a block"]',
+    "Wubba Lubba Dub Dub",
+  )
 
   // Click button:has-text("Save")
   await page.click('button:has-text("Save")')
@@ -115,16 +124,14 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')
   // Click text=Chapter 1: first page
-  await Promise.all([page.waitForNavigation(), page.click("text=Chapter 1: first page")])
+  await Promise.all([page.waitForNavigation(), page.click("text=first page")])
   expectPath(page, "/courses/latex-course/chapter-1")
-
-  await page.waitForSelector("text=This is the last page")
-  await page.waitForSelector('button:has-text("Debug")')
-
+  await page.waitForSelector("text=Inline latex")
+  await page.waitForSelector("text=Wubba Lubba Dub Dub")
   // Compare to working image
   if (headless) {
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(`latex.png`, { threshold: 0.2 })
+    expect(screenshot).toMatchSnapshot(`latex.png`, { threshold: 0.3 })
   } else {
     console.warn("Not in headless mode, skipping screenshot comparison")
   }

@@ -1,12 +1,10 @@
 import { differenceInSeconds, formatDuration } from "date-fns"
-import Link from "next/link"
 import { useQuery } from "react-query"
 
-import { fetchPageUrl } from "../services/backend"
-import { ChapterWithStatus } from "../shared-module/bindings"
-import { chapterBox } from "../shared-module/styles/componentStyles"
-
-import GenericLoading from "./GenericLoading"
+import { fetchPageUrl } from "../../../services/backend"
+import { ChapterWithStatus } from "../../../shared-module/bindings"
+import Card from "../../../shared-module/components/Card"
+import GenericLoading from "../../GenericLoading"
 
 interface ChapterProps {
   now: Date
@@ -33,13 +31,13 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
 
   if (chapter.status == "open") {
     return (
-      <div key={chapter.id} className={chapterBox}>
-        <Link href={`/${courseSlug}${data}`}>
-          <a>
-            Chapter {chapter.chapter_number}: {chapter.name}
-          </a>
-        </Link>
-      </div>
+      <Card
+        variant="simple"
+        title={chapter.name}
+        chapter={chapter.chapter_number}
+        key={chapter.id}
+        url={`/courses/${courseSlug}${data}`}
+      />
     )
   } else {
     let closedUntil
@@ -68,10 +66,11 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
       closedUntil = "Closed"
     }
     return (
-      <div key={chapter.id} className={chapterBox}>
+      // TODO: Card to support closedUntil
+      <Card variant="simple" title={chapter.name} chapter={chapter.chapter_number} key={chapter.id}>
         Chapter {chapter.chapter_number}: {chapter.name} <br />
         {closedUntil}
-      </div>
+      </Card>
     )
   }
 }

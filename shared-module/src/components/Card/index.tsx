@@ -9,9 +9,10 @@ import SimpleCard from "./SimpleCard"
 /* import { border, color, space } from "styled-system" */
 
 export interface CardExtraProps {
-  variant: "simple" | "graphics"
+  variant: "simple" | "Illustration"
   title: string
-  chapter: string
+  chapter: number
+  url?: string
   bg?: string
 }
 

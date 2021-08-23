@@ -13,7 +13,7 @@ import ErrorIcon from "@material-ui/icons/Error"
 import InfoIcon from "@material-ui/icons/Info"
 import SaveIcon from "@material-ui/icons/Save"
 import { format } from "date-fns"
-import React, { ChangeEvent, useState } from "react"
+import React, { useState } from "react"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
@@ -45,6 +45,7 @@ interface ContentAreaProps {
   editing: boolean
   onChange: (event: unknown) => void
   type: inputType
+  error: boolean | null
 }
 
 interface TimeComponentProps {
@@ -63,7 +64,39 @@ interface ExerciseServiceCreationModelProps {
 
 type updateStatus = null | "saved" | "failed"
 
-const ContentArea: React.FC<ContentAreaProps> = ({ title, text, editing, onChange, type }) => {
+const errorousURL = (text) => {
+  try {
+    new URL("" + text)
+    return false
+  } catch (e) {
+    return true
+  }
+}
+
+const errorousNumber = (text) => {
+  try {
+    const num = parseInt("" + text)
+    return num < 0
+  } catch (e) {
+    return true
+  }
+}
+const canSave = (service) => {
+  return !(
+    errorousNumber(service.max_reprocessing_submissions_at_once) ||
+    errorousURL(service.internal_url) ||
+    errorousURL(service.public_url)
+  )
+}
+
+const ContentArea: React.FC<ContentAreaProps> = ({
+  title,
+  text,
+  error,
+  editing,
+  onChange,
+  type,
+}) => {
   return (
     <div
       className={css`
@@ -72,24 +105,24 @@ const ContentArea: React.FC<ContentAreaProps> = ({ title, text, editing, onChang
     >
       <strong>{title}:</strong>
       <br />
-      {editing ? (
-        type == "text" ? (
-          <TextField onChange={onChange} fullWidth value={text} placeholder={`${title}...`} />
-        ) : (
-          <TextField
-            onChange={onChange}
-            type={"number"}
-            InputProps={{
-              inputProps: { min: 1 },
-            }}
-            fullWidth
-            value={text}
-            placeholder={`${title}...`}
-          />
-        )
-      ) : (
-        <span>{text}</span>
+
+      {editing && type == "text" && (
+        <TextField onChange={onChange} fullWidth value={text} placeholder={`${title}...`} />
       )}
+      {editing && type == "number" && (
+        <TextField
+          error={error}
+          onChange={onChange}
+          type={"number"}
+          InputProps={{
+            inputProps: { min: 1 },
+          }}
+          fullWidth
+          value={text}
+          placeholder={`${title}...`}
+        />
+      )}
+      {!editing && <span> {text} </span>}
     </div>
   )
 }
@@ -165,6 +198,13 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
   }
 
   const updateContent = async () => {
+    if (!canSave(service)) {
+      setStatus("failed")
+      window.setTimeout(() => {
+        setStatus(null)
+      }, 4000)
+      return
+    }
     try {
       const updated = await updateExerciseService(service.id, service)
       setService(updated)
@@ -242,6 +282,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
                 editing={editing}
                 onChange={onChange("name")}
                 type={"text"}
+                error={false}
               />
               <ContentArea
                 title={"Slug"}
@@ -249,6 +290,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
                 editing={editing}
                 onChange={onChange("slug")}
                 type={"text"}
+                error={false}
               />
             </>
           )}
@@ -258,6 +300,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             editing={editing}
             onChange={onChange("public_url")}
             type={"text"}
+            error={errorousURL(service.public_url)}
           />
           <ContentArea
             title={"Internal URL"}
@@ -265,6 +308,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             editing={editing}
             onChange={onChange("internal_url")}
             type={"text"}
+            error={errorousURL(service.internal_url)}
           />
           <ContentArea
             title={"Reprocessing submissions"}
@@ -272,6 +316,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             editing={editing}
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
+            error={errorousNumber(service.max_reprocessing_submissions_at_once)}
           />
         </CardContent>
 
@@ -343,6 +388,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("name")}
             type={"text"}
+            error={false}
           />
           <ContentArea
             title={"Slug"}
@@ -350,6 +396,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("slug")}
             type={"text"}
+            error={false}
           />
           <ContentArea
             title={"Public URL"}
@@ -357,6 +404,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("public_url")}
             type={"text"}
+            error={errorousURL(exercise_service.public_url)}
           />
           <ContentArea
             title={"Internal URL"}
@@ -364,6 +412,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("internal_url")}
             type={"text"}
+            error={errorousURL(exercise_service.internal_url)}
           />
           <ContentArea
             title={"Reprocessing submissions"}
@@ -371,6 +420,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
+            error={errorousURL(exercise_service.max_reprocessing_submissions_at_once)}
           />
         </CardContent>
         <CardContent>
@@ -434,6 +484,9 @@ const ExerciseServicePage: React.FC = () => {
   }
 
   const createExerciseService = async () => {
+    if (!canSave(exerciseService)) {
+      return
+    }
     try {
       await addExerciseService(exerciseService)
       refetch()

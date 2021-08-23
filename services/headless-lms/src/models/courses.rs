@@ -1,13 +1,8 @@
-use std::collections::HashMap;
-
 use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
     models::{
-        chapters::{self, DatabaseChapter},
         course_instances::{self, VariantStatus},
-        exercise_tasks,
-        exercises::{self, Exercise},
-        pages::{self, NewPage},
+        pages::NewPage,
     },
     utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
     ApplicationConfiguration,
@@ -129,15 +124,8 @@ RETURNING *;
     .await?;
 
     // Copy course chapters. At this point, front_page_id will point to old course's page.
-    let course_chapters: HashMap<Uuid, DatabaseChapter> =
-        chapters::course_chapters(&mut tx, course.id)
-            .await?
-            .into_iter()
-            .map(|chapter| (chapter.id, chapter))
-            .collect();
-    for course_chapter in course_chapters.values() {
-        sqlx::query!(
-            "
+    sqlx::query!(
+        "
 INSERT INTO chapters (
     id,
     name,
@@ -148,32 +136,26 @@ INSERT INTO chapters (
     chapter_image,
     copied_from
   )
-VALUES (uuid_generate_v5($1, $2), $3, $4, $5, $6, $7, $8, $9)
-RETURNING id;
+SELECT uuid_generate_v5($1, id::text),
+  name,
+  $1,
+  chapter_number,
+  front_page_id,
+  opens_at,
+  chapter_image,
+  id
+FROM chapters
+WHERE (course_id = $2);
     ",
-            copied_course.id,
-            &course_chapter.id.to_string(),
-            course_chapter.name,
-            copied_course.id,
-            course_chapter.chapter_number,
-            course_chapter.front_page_id, // TODO: Update front page id
-            course_chapter.opens_at,
-            course_chapter.chapter_image,
-            course_chapter.id,
-        )
-        .fetch_one(&mut tx)
-        .await?;
-    }
+        copied_course.id,
+        course.id
+    )
+    .execute(&mut tx)
+    .await?;
 
     // Copy course pages. At this point, exercise ids in content will point to old course's exercises.
-    let course_pages: HashMap<Uuid, Page> = pages::course_pages(&mut tx, course.id)
-        .await?
-        .into_iter()
-        .map(|page| (page.id, page))
-        .collect();
-    for course_page in course_pages.values() {
-        sqlx::query!(
-            "
+    sqlx::query!(
+        "
 INSERT INTO pages (
     id,
     course_id,
@@ -184,31 +166,26 @@ INSERT INTO pages (
     order_number,
     copied_from
   )
-VALUES (uuid_generate_v5($2, $1), $2, $3, $4, $5, $6, $7, $8);
-            ",
-            &course_page.id.to_string(),
-            copied_course.id,
-            course_page.content,
-            course_page.url_path,
-            course_page.title,
-            course_page.chapter_id,
-            course_page.order_number,
-            course_page.id,
-        )
-        .execute(&mut tx)
-        .await?;
-    }
+SELECT uuid_generate_v5($1, id::text),
+  uuid_generate_v5($1, course_id::text),
+  content,
+  url_path,
+  title,
+  chapter_id,
+  order_number,
+  id
+FROM pages
+WHERE (chapter_id = $2)
+    ",
+        copied_course.id,
+        course.id
+    )
+    .execute(&mut tx)
+    .await?;
 
     // Copy course exercises
-    let course_exercises: HashMap<Uuid, Exercise> =
-        exercises::get_exercises_by_course_id(&mut tx, course.id)
-            .await?
-            .into_iter()
-            .map(|exercise| (exercise.id, exercise))
-            .collect();
-    for course_exercise in course_exercises.values() {
-        let copied_exercise_id = sqlx::query!(
-            "
+    sqlx::query!(
+        "
 INSERT INTO exercises (
     id,
     course_id,
@@ -220,39 +197,27 @@ INSERT INTO exercises (
     chapter_id,
     copied_from
   )
-VALUES (
-    uuid_generate_v5($2, $1),
-    $2,
-    $3,
-    $4,
-    uuid_generate_v5($2, $5),
-    $6,
-    $7,
-    uuid_generate_v5($2, $8),
-    $9
-  )
-RETURNING id;
-            ",
-            &course_exercise.id.to_string(),
-            copied_course.id,
-            course_exercise.name,
-            course_exercise.deadline,
-            &course_exercise.page_id.to_string(),
-            course_exercise.score_maximum,
-            course_exercise.order_number,
-            &course_exercise.chapter_id.to_string(),
-            course_exercise.id,
-        )
-        .fetch_one(&mut tx)
-        .await?
-        .id;
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  name,
+  deadline,
+  uuid_generate_v5($1, page_id::text),
+  score_maximum,
+  order_number,
+  chapter_id,
+  id
+FROM exercises
+WHERE course_id = $2;
+    ",
+        copied_course.id,
+        course.id
+    )
+    .execute(&mut tx)
+    .await?;
 
-        // Copy exercise tasks
-        for exercise_task in
-            exercise_tasks::get_exercise_tasks_by_exercise_id(&mut tx, course_exercise.id).await?
-        {
-            sqlx::query!(
-                "
+    // Copy exercise tasks
+    sqlx::query!(
+        "
 INSERT INTO exercise_tasks (
     id,
     exercise_id,
@@ -264,33 +229,26 @@ INSERT INTO exercise_tasks (
     model_solution_spec,
     copied_from
   )
-VALUES (
-    uuid_generate_v5($1, $2),
-    $3,
-    $4,
-    $5,
-    $6,
-    $7,
-    $8,
-    $9,
-    $10
+SELECT uuid_generate_v5($1, id::text),
+  uuid_generate_v5($1, exercise_id::text),
+  exercise_type,
+  assignment,
+  private_spec,
+  spec_file_id,
+  public_spec,
+  model_solution_spec,
+  id
+FROM exercise_tasks
+WHERE exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE course_id = $1
   );
-            ",
-                copied_course.id,
-                &exercise_task.id.to_string(),
-                copied_exercise_id,
-                exercise_task.exercise_type,
-                exercise_task.assignment,
-                exercise_task.private_spec,
-                exercise_task.spec_file_id,
-                exercise_task.public_spec,
-                exercise_task.model_solution_spec,
-                exercise_task.id,
-            )
-            .execute(&mut tx)
-            .await?;
-        }
-    }
+    ",
+        copied_course.id
+    )
+    .execute(&mut tx)
+    .await?;
 
     // Create default instance for copied course.
     course_instances::insert(&mut tx, copied_course.id, None, Some(VariantStatus::Draft)).await?;

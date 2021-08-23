@@ -255,12 +255,13 @@ async fn seed_cs_intro(
         admin,
         chapter_1.id,
         &[
-            paragraph("Everything is a big topic", block_id_1),
+            paragraph("Everything is a big topic.", block_id_1),
             example_exercise(
                 exercise_c1p1_1,
                 exercise_task_c1p1e1_1,
                 block_id_2,
                 block_id_3,
+                Uuid::new_v4(),
                 spec_c1p1e1t1_1,
                 spec_c1p1e1t1_2,
                 spec_c1p1e1t1_3,
@@ -302,6 +303,7 @@ async fn seed_cs_intro(
                 exercise_task_c1p2e1_1,
                 Uuid::new_v4(),
                 Uuid::new_v4(),
+                Uuid::new_v4(),
                 spec_c1p2e1t1_1,
                 spec_c1p2e1t1_2,
                 spec_c1p2e1t1_3,
@@ -311,6 +313,7 @@ async fn seed_cs_intro(
                 exercise_task_c1p2e2_1,
                 Uuid::new_v4(),
                 Uuid::new_v4(),
+                Uuid::new_v4(),
                 spec_c1p2e2t1_1,
                 spec_c1p2e2t1_2,
                 spec_c1p2e2t1_3,
@@ -318,6 +321,7 @@ async fn seed_cs_intro(
             example_exercise(
                 exercise_c1p2_3,
                 exercise_task_c1p2e3_1,
+                Uuid::new_v4(),
                 Uuid::new_v4(),
                 Uuid::new_v4(),
                 spec_c1p2e3t1_1,
@@ -344,6 +348,7 @@ async fn seed_cs_intro(
         &[example_exercise(
             exercise_c2p1_1,
             exercise_task_c2p1e1_1,
+            Uuid::new_v4(),
             Uuid::new_v4(),
             Uuid::new_v4(),
             spec_c2p1e1t1_1,
@@ -872,11 +877,13 @@ fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn example_exercise(
     ex: Uuid,
     task: Uuid,
     block_1: Uuid,
     block_2: Uuid,
+    block_3: Uuid,
     spec_1: Uuid,
     spec_2: Uuid,
     spec_3: Uuid,
@@ -888,7 +895,6 @@ fn example_exercise(
         attributes: serde_json::json!({
             "id": ex,
             "name": "Best exercise",
-            "content": "Answer this question.",
             "dropCap": false,
         }),
         inner_blocks: vec![GutenbergBlock {
@@ -901,22 +907,22 @@ fn example_exercise(
                 "private_spec": serde_json::json!([
                     {
                         "name": "a",
-                        "correct": true,
+                        "correct": false,
                         "id": spec_1,
                     },
                     {
                         "name": "b",
-                        "correct": false,
+                        "correct": true,
                         "id": spec_2,
                     },
                     {
                         "name": "c",
-                        "correct": false,
+                        "correct": true,
                         "id": spec_3,
                     },
                 ]).to_string(),
             }),
-            inner_blocks: vec![],
+            inner_blocks: vec![paragraph("Answer this question.", block_3)],
         }],
     }
 }

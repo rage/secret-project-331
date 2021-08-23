@@ -53,6 +53,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
           )}
         </>
       ) : (
+        // TODO: Figure out what to do here?
         <NextSectionLink
           title="You've reached the end of the course material"
           subTitle="Go to the main page to see if new chapters will open."

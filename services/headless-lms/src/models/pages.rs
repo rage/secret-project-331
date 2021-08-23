@@ -859,7 +859,19 @@ pub async fn get_next_page(
         Some(next_page) => Ok(Some(next_page)),
         None => {
             let first_page = get_next_page_by_chapter_number(conn, &page_metadata).await?;
-            Ok(first_page)
+            // Check if the chapter is open, before returning.
+            match first_page {
+                Some(next_page) => {
+                    let chapter_open =
+                        crate::models::chapters::is_open(conn, next_page.chapter_id).await?;
+                    if chapter_open {
+                        Ok(Some(next_page))
+                    } else {
+                        Ok(None)
+                    }
+                }
+                None => Ok(None),
+            }
         }
     }
 }

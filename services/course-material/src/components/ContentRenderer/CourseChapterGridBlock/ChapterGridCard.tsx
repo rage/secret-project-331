@@ -10,9 +10,10 @@ interface ChapterProps {
   now: Date
   chapter: ChapterWithStatus
   courseSlug: string
+  bg: string
 }
 
-const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }) => {
+const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg }) => {
   const { data, error, isLoading } = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
     if (chapter.front_page_id) {
       return fetchPageUrl(chapter.front_page_id)
@@ -37,6 +38,7 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
         chapter={chapter.chapter_number}
         key={chapter.id}
         url={`/courses/${courseSlug}${data}`}
+        bg={bg}
       />
     )
   } else {
@@ -66,13 +68,16 @@ const ChapterGridChapter: React.FC<ChapterProps> = ({ now, chapter, courseSlug }
       closedUntil = "Closed"
     }
     return (
-      // TODO: Card to support closedUntil
-      <Card variant="simple" title={chapter.name} chapter={chapter.chapter_number} key={chapter.id}>
-        Chapter {chapter.chapter_number}: {chapter.name} <br />
-        {closedUntil}
-      </Card>
+      <Card
+        variant="simple"
+        title={chapter.name}
+        chapter={chapter.chapter_number}
+        key={chapter.id}
+        closedUntil={closedUntil}
+        bg={bg}
+      />
     )
   }
 }
 
-export default ChapterGridChapter
+export default ChapterGridCard

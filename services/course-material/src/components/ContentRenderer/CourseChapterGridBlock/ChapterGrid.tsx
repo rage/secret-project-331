@@ -9,7 +9,7 @@ import { cardMaxWidth } from "../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import GenericLoading from "../../GenericLoading"
 
-import ChapterGridChapter from "./ChapterGridChapter"
+import ChapterGridCard from "./ChapterGridCard"
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const [now, setNow] = useState(new Date())
@@ -84,7 +84,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                 `}
                 key={chapter.id}
               >
-                <ChapterGridChapter now={now} chapter={chapter} courseSlug={courseSlug} />
+                <ChapterGridCard bg="yellow" now={now} chapter={chapter} courseSlug={courseSlug} />
               </div>
             )
           })}

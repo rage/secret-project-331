@@ -19,7 +19,7 @@ interface NewCourseFormProps {
 const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm }) => {
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
-  const [locale, setLocale] = useState("en_US")
+  const [locale, setLocale] = useState("en-US")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -29,8 +29,8 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
       const localeParts = locale.split(/[-_]/)
       const formatedLocale =
         localeParts.length == 2
-          ? formatIETFLanguageTagWithRegion(localeParts[0], undefined, localeParts[1], "_")
-          : formatIETFLanguageTagWithRegion(localeParts[0], localeParts[1], localeParts[2], "_")
+          ? formatIETFLanguageTagWithRegion(localeParts[0], undefined, localeParts[1])
+          : formatIETFLanguageTagWithRegion(localeParts[0], localeParts[1], localeParts[2])
       await onSubmitForm({
         name,
         slug,

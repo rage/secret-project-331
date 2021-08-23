@@ -4,7 +4,7 @@ use rand::{thread_rng, Rng};
 use regex::Regex;
 
 static IETF_LANGUAGE_CODE_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"^[a-z]{2,3}(_[A-Z][a-z]{3})?_[A-Z]{2}$")
+    Regex::new(r"^[a-z]{2,3}(-[A-Z][a-z]{3})?-[A-Z]{2}$")
         .expect("Invalid IETF language code regex.")
 });
 
@@ -31,12 +31,12 @@ mod test {
         assert!(!is_ietf_language_code_like(""));
         assert!(!is_ietf_language_code_like("en"));
         assert!(!is_ietf_language_code_like("en_us"));
-        assert!(!is_ietf_language_code_like("en-US"));
-        assert!(!is_ietf_language_code_like("in_cans"));
-        assert!(!is_ietf_language_code_like("in_cans_ca"));
+        assert!(!is_ietf_language_code_like("en_US"));
+        assert!(!is_ietf_language_code_like("in-cans"));
+        assert!(!is_ietf_language_code_like("in-cans-ca"));
 
         // Valid scenarios
-        assert!(is_ietf_language_code_like("en_US"));
-        assert!(is_ietf_language_code_like("in_Cans_CA"));
+        assert!(is_ietf_language_code_like("en-US"));
+        assert!(is_ietf_language_code_like("in-Cans-CA"));
     }
 }

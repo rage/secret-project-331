@@ -31,12 +31,12 @@ COMMENT ON COLUMN exercise_tasks.copied_from IS 'The original exercise_tasks rec
 -- Add new columns to course table
 ALTER TABLE courses
 ADD COLUMN language_code VARCHAR(15) CHECK (
-    language_code ~ '^[a-z]{2,3}(_[A-Z][a-z]{3})?_[A-Z]{2}$'
+    language_code ~ '^[a-z]{2,3}(-[A-Z][a-z]{3})?-[A-Z]{2}$'
   ),
   ADD COLUMN copied_from UUID REFERENCES courses(id),
   ADD COLUMN language_version_of_course_id UUID REFERENCES courses(id);
 UPDATE courses
-SET language_code = 'en_US'
+SET language_code = 'en-US'
 WHERE language_code IS NULL;
 ALTER TABLE courses
 ALTER COLUMN language_code

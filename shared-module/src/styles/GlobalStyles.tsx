@@ -1,11 +1,12 @@
 import { css, injectGlobal } from "@emotion/css"
 
-import { headingFont, primaryFont } from "../utils"
+import { headingFont, monospaceFont, primaryFont } from "../utils"
 
 import cssReset from "./cssReset"
 
 import "@fontsource/josefin-sans"
 import "@fontsource/lato"
+import "@fontsource/space-mono"
 
 // Using this instead of directly injectGlobal because stylelint works in this one.
 const globalCss = css`
@@ -22,8 +23,9 @@ const globalCss = css`
   h6 {
     font-family: ${headingFont};
   }
-  pre {
-    font-family: ${headingFont};
+  pre,
+  tt {
+    font-family: ${monospaceFont};
   }
 `
 

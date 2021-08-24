@@ -381,12 +381,3 @@ export interface NormalizedCmsExerciseTask {
   assignment: unknown
   private_spec: unknown | null
 }
-
-export interface UserCourseSettings {
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-  user_id: string
-  course_id: string
-  current_course_instance_id: string
-}

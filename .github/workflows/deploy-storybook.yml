@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - generate-storybook
 
 jobs:
   generate-storybook:
@@ -32,7 +31,7 @@ jobs:
         working-directory: ./shared-module
 
       - name: npm run build-storybook
-        run: npm run build-storybook --quiet
+        run: npm run build-storybook -- --quiet
         working-directory: ./shared-module
 
       - name: Remove old files from repo

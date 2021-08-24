@@ -1,5 +1,5 @@
 // Ran after all test suites
-async function globalTeardown() {
+async function globalTeardown(): Promise<void> {
   console.log("Executed globalTeardown")
 }
 

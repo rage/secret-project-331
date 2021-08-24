@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { baseTheme } from "../utils"
+import { runCallbackIfEnterPressed } from "../utils/accessibility"
 
 export interface SpeechBalloonProps {
   className?: string
@@ -20,7 +21,13 @@ const SpeechBalloon: React.FC<SpeechBalloonProps> = ({ children, className, onCl
     width: max-content;
   `
   return (
-    <div onClick={onClick} className={`${outerCss} ${className}`}>
+    <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => onClick && runCallbackIfEnterPressed(e, onClick)}
+      onClick={onClick}
+      className={`${outerCss} ${className}`}
+    >
       <div
         className={css`
           background: ${bg};

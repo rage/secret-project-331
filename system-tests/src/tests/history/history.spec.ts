@@ -63,7 +63,7 @@ test("test", async ({ page, headless }) => {
   )
 
   // Click text=Manage
-  await page.click("text=Manage")
+  await Promise.all([page.waitForNavigation(), await page.click("text=Manage")])
   expectPath(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
@@ -141,11 +141,11 @@ test("test", async ({ page, headless }) => {
   )
 
   // Click text=Manage
-  await page.click("text=Manage")
+  await Promise.all([page.waitForNavigation(), await page.click("text=Manage")])
   expectPath(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
-  await page.click("text=Manage pages")
+  await Promise.all([page.waitForNavigation(), await page.click("text=Manage pages")])
   expectPath(page, "/manage/courses/[id]/pages")
 
   // Click text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)

@@ -541,11 +541,11 @@ WHERE page_id = $1
     let mut changed_ids: HashMap<Uuid, Uuid> = HashMap::new();
     for exercise_update in exercises.iter() {
         let mut exercise_exercise_tasks: Vec<NormalizedCmsExerciseTask> = Vec::new();
-        let safe_for_db_exercise_id = if retain_exercise_ids
-            || existing_exercise_ids
-                .iter()
-                .any(|o| o.id == exercise_update.id)
-        {
+
+        let exercise_exists = existing_exercise_ids
+            .iter()
+            .any(|o| o.id == exercise_update.id);
+        let safe_for_db_exercise_id = if retain_exercise_ids || exercise_exists {
             exercise_update.id
         } else {
             let new_uuid = Uuid::new_v4();
@@ -1134,12 +1134,15 @@ WHERE id = $2
     .await?;
 
     // restore exercises
-    let (exercises, _) =
+    let (updated_exercises, updated_content) =
         upsert_exercises_and_exercise_tasks(&exercises, &page, &mut tx, false).await?;
 
     // create new history entry
-    let content = serde_json::from_value(page_content)?;
-    let blocks = document_schema_processor::denormalize(NormalizedDocument { content, exercises })?;
+    let updated_content = serde_json::from_value(updated_content)?;
+    let blocks = document_schema_processor::denormalize(NormalizedDocument {
+        content: updated_content,
+        exercises: updated_exercises,
+    })?;
     let history_content = serde_json::to_value(&blocks)?;
     let history_id = crate::models::page_history::insert(
         &mut tx,

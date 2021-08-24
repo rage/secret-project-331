@@ -6,7 +6,7 @@ use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
 use headless_lms_actix::models::gradings;
-use headless_lms_actix::models::pages::PageUpdate;
+use headless_lms_actix::models::pages::{NewPage, PageUpdate};
 use headless_lms_actix::models::submissions::GradingResult;
 use headless_lms_actix::models::{
     chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
@@ -251,7 +251,6 @@ async fn seed_cs_intro(
         course.id,
         "/chapter-1/page-1",
         "Page One",
-        1,
         admin,
         chapter_1.id,
         &[
@@ -293,7 +292,6 @@ async fn seed_cs_intro(
         course.id,
         "/chapter-1/page-2",
         "page 2",
-        2,
         admin,
         chapter_1.id,
         &[
@@ -345,7 +343,6 @@ async fn seed_cs_intro(
         course.id,
         "/chapter-2/intro",
         "In the second chapter...",
-        1,
         admin,
         chapter_2.id,
         &[example_exercise(
@@ -689,7 +686,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     .await?;
 
     // /chapter-1/design
-    create_page(conn, course.id, "/chapter-1/design", "Design", 1, admin, chapter_1.id,
+    create_page(conn, course.id, "/chapter-1/design", "Design",  admin, chapter_1.id,
         &[
             GutenbergBlock::hero_section("Design", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process.")
                 .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
@@ -725,7 +722,6 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         course.id,
         "/chapter-1/human-machine-interface",
         "Human-machine interface",
-        2,
         admin,
         chapter_1.id,
         &[
@@ -799,7 +795,6 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         course.id,
         "/chapter-2/user-research",
         "User research",
-        1,
         admin,
         chapter_2.id,
         &[
@@ -842,17 +837,22 @@ async fn create_page(
     course_id: Uuid,
     url_path: &str,
     title: &str,
-    order_number: i32,
     author: Uuid,
     chapter_id: Uuid,
     content: &[GutenbergBlock],
 ) -> Result<Uuid> {
-    let (page_id, _) =
-        pages::insert(conn, course_id, url_path, title, order_number, author).await?;
-
+    let new_page = NewPage {
+        content: Value::Array(vec![]),
+        url_path: url_path.to_string(),
+        title: format!("{} WIP", title),
+        course_id,
+        chapter_id: Some(chapter_id),
+        front_page_of_chapter_id: None,
+    };
+    let page = pages::insert_page(conn, new_page, author).await?;
     let page = pages::update_page(
         conn,
-        page_id,
+        page.id,
         PageUpdate {
             chapter_id: Some(chapter_id),
             url_path: url_path.to_string(),

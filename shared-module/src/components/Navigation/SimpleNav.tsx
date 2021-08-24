@@ -150,7 +150,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
   if (loginStateContext.isLoading) {
-    return <Spinner variant="large">Loading...</Spinner>
+    return <Spinner variant="large" />
   }
 
   const submitLogout: MouseEventHandler<HTMLAnchorElement> | undefined = async (event) => {

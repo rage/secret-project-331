@@ -7,7 +7,7 @@ import { theme } from "../../utils"
 export interface CardExtraProps {
   variant: "simple" | "Illustration"
   title: string
-  chapter: number
+  chapterNumber: number
   url?: string
   bg?: string
   closedUntil?: string

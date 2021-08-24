@@ -44,10 +44,8 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
         className={css`
           font-style: normal;
           font-weight: bold;
-          font-size: 76px;
-          line-height: 76px;
           text-align: center;
-          padding-bottom: 1em;
+          padding-bottom: 2em;
         `}
       >
         Course Overview

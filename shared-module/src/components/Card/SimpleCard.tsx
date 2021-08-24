@@ -48,7 +48,7 @@ const CardContentWrapper = styled.div`
 export interface CardExtraProps {
   variant: "simple" | "Illustration"
   title: string
-  chapter: number
+  chapterNumber: number
   url?: string
   closedUntil?: string
   bg?: string
@@ -56,7 +56,7 @@ export interface CardExtraProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapter, url, closedUntil, bg }) => {
+const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, closedUntil, bg }) => {
   // If URL defined, the chapter is open
   return (
     <CourseGridWrapper
@@ -93,7 +93,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapter, url, closedUntil, bg 
                 margin-top: auto;
               `}
             >
-              <span>{`CHAPTER ${chapter}`}</span>
+              <span>{`CHAPTER ${chapterNumber}`}</span>
               <h2>{title}</h2>
             </div>
           </div>
@@ -106,9 +106,8 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapter, url, closedUntil, bg 
               background: #cac9c9;
               padding: 2em;
             `}
-          >
-            {closedUntil}
-          </div>
+            dangerouslySetInnerHTML={{ __html: closedUntil }}
+          ></div>
         ) : null}
       </CardContentWrapper>
     </CourseGridWrapper>

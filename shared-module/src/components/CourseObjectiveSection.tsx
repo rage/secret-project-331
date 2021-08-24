@@ -2,7 +2,7 @@ import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { theme, typography } from "../utils"
+import { theme } from "../utils"
 
 /* import { border, color, space } from "styled-system" */
 
@@ -24,8 +24,6 @@ const TextBox = styled.div`
   justify-content: center;
 
   h2 {
-    font-size: 50px;
-    font-size: ${typography.h2};
     font-weight: 400;
     z-index: 20;
     margin-bottom: 2em;

@@ -23,7 +23,6 @@ const SectionWrapper = styled.div`
   }
 
   h2 {
-    font-size: ${typography.h4};
     line-height: 1.4;
     margin-bottom: 0.5rem;
   }

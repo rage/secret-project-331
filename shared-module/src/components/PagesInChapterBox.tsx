@@ -7,6 +7,7 @@ const Wrapper = styled.aside`
   border-radius: 10px;
   position: relative;
   width: 100%;
+  padding: 5em 1em;
 
   h2 {
     text-align: center;

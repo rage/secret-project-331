@@ -5,7 +5,6 @@ import {
   CourseMaterialExercise,
   NewFeedback,
   NewSubmission,
-  Organization,
   Page,
   PageRoutingData,
   PageWithExercises,
@@ -17,11 +16,6 @@ import { courseMaterialClient } from "./courseMaterialClient"
 
 export const fetchCourses = async (): Promise<Array<Course>> => {
   const data = (await courseMaterialClient.get("/courses", { responseType: "json" })).data
-  return data
-}
-
-export const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const data = (await courseMaterialClient.get("/organizations", { responseType: "json" })).data
   return data
 }
 

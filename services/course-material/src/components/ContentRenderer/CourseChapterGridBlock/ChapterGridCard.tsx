@@ -1,5 +1,6 @@
 import { differenceInSeconds, formatDuration } from "date-fns"
 import { useQuery } from "react-query"
+import sanitizeHtml from "sanitize-html"
 
 import { fetchPageUrl } from "../../../services/backend"
 import { ChapterWithStatus } from "../../../shared-module/bindings"
@@ -35,7 +36,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
       <Card
         variant="simple"
         title={chapter.name}
-        chapter={chapter.chapter_number}
+        chapterNumber={chapter.chapter_number}
         key={chapter.id}
         url={`/courses/${courseSlug}${data}`}
         bg={bg}
@@ -54,7 +55,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
           minutes,
           seconds,
         })
-        closedUntil = `Opens in ${formatted}`
+        closedUntil = sanitizeHtml(`OPENS IN<br /> ${formatted}`)
       } else {
         const date = chapter.opens_at.toLocaleString("en", {
           year: "numeric",
@@ -62,7 +63,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
           day: "numeric",
         })
         const time = chapter.opens_at.toLocaleString("en", { hour: "numeric", minute: "numeric" })
-        closedUntil = `Opens at ${date} ${time}`
+        closedUntil = sanitizeHtml(`AVAILABLE<br />${date} at ${time}`)
       }
     } else {
       closedUntil = "Closed"
@@ -71,7 +72,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
       <Card
         variant="simple"
         title={chapter.name}
-        chapter={chapter.chapter_number}
+        chapterNumber={chapter.chapter_number}
         key={chapter.id}
         closedUntil={closedUntil}
         bg={bg}

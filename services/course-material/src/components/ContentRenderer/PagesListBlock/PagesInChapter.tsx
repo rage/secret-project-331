@@ -28,7 +28,7 @@ const PagesInChapter: React.FC<{ chapterId: string }> = ({ chapterId }) => {
         <div className={normalWidthCenteredComponentStyles}>
           <div
             className={css`
-              padding: 3em 0;
+              padding: 5em 1em;
             `}
           >
             <h3

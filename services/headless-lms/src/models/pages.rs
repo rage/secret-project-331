@@ -1,4 +1,4 @@
-use super::ModelResult;
+use super::{chapters::ChapterStatus, ModelResult};
 use crate::{
     models::{
         chapters::DatabaseChapter,
@@ -103,12 +103,25 @@ pub struct NormalizedCmsExerciseTaskWithExerciseId {
     pub exercise_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct PageRoutingData {
-    url_path: String,
-    title: String,
-    chapter_number: i32,
-    chapter_id: Uuid,
+    pub url_path: String,
+    pub title: String,
+    pub chapter_number: i32,
+    pub chapter_id: Uuid,
+    pub chapter_opens_at: Option<DateTime<Utc>>,
+    pub chapter_front_page_id: Option<Uuid>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct PageRoutingDataWithChapterStatus {
+    pub url_path: String,
+    pub title: String,
+    pub chapter_number: i32,
+    pub chapter_id: Uuid,
+    pub chapter_opens_at: Option<DateTime<Utc>>,
+    pub chapter_front_page_id: Option<Uuid>,
+    pub chapter_status: ChapterStatus,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -859,19 +872,7 @@ pub async fn get_next_page(
         Some(next_page) => Ok(Some(next_page)),
         None => {
             let first_page = get_next_page_by_chapter_number(conn, &page_metadata).await?;
-            // Check if the chapter is open, before returning.
-            match first_page {
-                Some(next_page) => {
-                    let chapter_open =
-                        crate::models::chapters::is_open(conn, next_page.chapter_id).await?;
-                    if chapter_open {
-                        Ok(Some(next_page))
-                    } else {
-                        Ok(None)
-                    }
-                }
-                None => Ok(None),
-            }
+            Ok(first_page)
         }
     }
 }
@@ -916,7 +917,9 @@ async fn get_next_page_by_order_number(
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
-  c.id as chapter_id
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.order_number = (
@@ -948,7 +951,9 @@ async fn get_next_page_by_chapter_number(
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
-  c.id as chapter_id
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
 FROM chapters c
   INNER JOIN pages p on c.id = p.chapter_id
 WHERE c.chapter_number = (

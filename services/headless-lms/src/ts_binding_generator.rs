@@ -23,7 +23,7 @@ use crate::{
         organizations::Organization,
         pages::{
             ExerciseWithExerciseTasks, NewPage, NormalizedCmsExercise, NormalizedCmsExerciseTask,
-            Page, PageRoutingData, PageUpdate, PageWithExercises,
+            Page, PageRoutingDataWithChapterStatus, PageUpdate, PageWithExercises,
         },
         submissions::{
             NewSubmission, Submission, SubmissionCount, SubmissionCountByExercise,
@@ -46,7 +46,7 @@ ts_rs::export! {
   CourseInstance,
   ChapterWithStatus,
   CourseMaterialExercise,
-  PageRoutingData,
+  PageRoutingDataWithChapterStatus,
   SubmissionResult,
   Course,
   Exercise,

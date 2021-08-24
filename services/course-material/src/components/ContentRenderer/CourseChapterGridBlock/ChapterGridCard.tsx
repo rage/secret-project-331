@@ -46,8 +46,10 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
     let closedUntil
     if (chapter.opens_at) {
       const diffSeconds = differenceInSeconds(chapter.opens_at, now)
-      if (diffSeconds < 0) {
+      if (diffSeconds <= 0) {
         chapter.status = "open"
+        closedUntil = "OPENS NOW!"
+        // Insert confetti drop here.
       } else if (diffSeconds < 60 * 10) {
         const minutes = Math.floor(diffSeconds / 60)
         const seconds = diffSeconds % 60
@@ -55,7 +57,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({ now, chapter, courseSlug, bg 
           minutes,
           seconds,
         })
-        closedUntil = sanitizeHtml(`OPENS IN<br /> ${formatted}`)
+        closedUntil = sanitizeHtml(`OPENS IN<br />${formatted}`)
       } else {
         const date = chapter.opens_at.toLocaleString("en", {
           year: "numeric",

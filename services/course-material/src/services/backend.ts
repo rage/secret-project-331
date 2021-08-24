@@ -6,7 +6,7 @@ import {
   NewFeedback,
   NewSubmission,
   Page,
-  PageRoutingData,
+  PageRoutingDataWithChapterStatus,
   PageWithExercises,
   SubmissionResult,
   UserProgress,
@@ -105,7 +105,9 @@ export const fetchChaptersPagesWithExercises = async (
   return data
 }
 
-export const getNextPageRoutingData = async (currentPageId: string): Promise<PageRoutingData> => {
+export const getNextPageRoutingData = async (
+  currentPageId: string,
+): Promise<PageRoutingDataWithChapterStatus> => {
   return (await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)).data
 }
 

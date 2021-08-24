@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
+import LockIcon from "../img/lock.svg"
 import { typography } from "../styles"
 
 const SectionWrapper = styled.div`
@@ -10,7 +11,7 @@ const SectionWrapper = styled.div`
   padding: 3rem 2rem;
 
   p {
-    font-size: 1.4rem;
+    font-size: 1rem;
     color: #333;
     margin: 0;
     padding: 0;
@@ -37,9 +38,12 @@ const StyledArrow = styled.div`
   padding: 1.2rem 1.6rem;
   background: #cacaca;
   cursor: pointer;
-  display: inline-block;
   display: flex;
-
+  #svg-icon {
+    display: block;
+    margin: 0 auto;
+    height: 100%;
+  }
   &:hover {
     .arrow {
       fill: #fe9677;
@@ -94,13 +98,29 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subTitle, next
   return (
     <SectionWrapper>
       <Fragment>
-        <h2>{title}</h2>
+        <h4>{title}</h4>
         <p>{subTitle}</p>
         <ButtonWrapper>
-          <StyledLink href={`${url}`}>
-            <span>{nextTitle}</span>
+          <StyledLink {...(url ? { href: url } : {})}>
+            <span dangerouslySetInnerHTML={{ __html: nextTitle }} />
             <StyledArrow>
-              <ArrowSVGIcon alt="next icon" width="38.7" height="38.7" viewBox="0 0 39 39" />
+              {url ? (
+                <ArrowSVGIcon
+                  id="svg-icon"
+                  alt="next icon"
+                  width="38.7"
+                  height="38.7"
+                  viewBox="0 0 39 39"
+                />
+              ) : (
+                <LockIcon
+                  id="svg-icon"
+                  alt="lock icon"
+                  width="24"
+                  height="36"
+                  viewBox="0 0 24 36"
+                />
+              )}
             </StyledArrow>
           </StyledLink>
         </ButtonWrapper>

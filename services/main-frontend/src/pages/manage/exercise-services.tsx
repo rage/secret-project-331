@@ -107,7 +107,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       <br />
 
       {editing && type == "text" && (
-        <TextField onChange={onChange} fullWidth value={text} placeholder={`${title}...`} />
+        <TextField
+          error={error}
+          onChange={onChange}
+          fullWidth
+          value={text}
+          placeholder={`${title}...`}
+        />
       )}
       {editing && type == "number" && (
         <TextField

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { expect, Page, test } from "@playwright/test"
 
 import expectPath from "../../utils/expect"
 
@@ -97,7 +97,7 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Save
   await page.click("text=Save")
-  await page.waitForTimeout(100)
+  await page.waitForTimeout(200)
 
   // Click [placeholder="Option text"]
   await page
@@ -155,7 +155,9 @@ test("test", async ({ page, headless }) => {
   ])
 
   await page.waitForSelector("text=core/paragraph")
+
   if (headless) {
+    await replaceIdsAndTimesFromHistoryView(page)
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`history-view-p1.png`, { threshold: 0.3 })
   } else {
@@ -168,6 +170,7 @@ test("test", async ({ page, headless }) => {
 
   await page.waitForSelector("text=core/paragraph")
   if (headless) {
+    await replaceIdsAndTimesFromHistoryView(page)
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`history-view-p4-before-compare.png`, { threshold: 0.3 })
   } else {
@@ -195,6 +198,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("text=Best exercise")
   await page.waitForTimeout(100)
   if (headless) {
+    await replaceIdsAndTimesFromHistoryView(page)
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`history-view-p4-after-compare.png`, { threshold: 0.3 })
   } else {
@@ -212,6 +216,7 @@ test("test", async ({ page, headless }) => {
 
   await page.waitForSelector("text=Best exercise")
   if (headless) {
+    await replaceIdsAndTimesFromHistoryView(page)
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`history-view-after-restore.png`, { threshold: 0.3 })
   } else {
@@ -256,3 +261,23 @@ test("test", async ({ page, headless }) => {
     console.warn("Not in headless mode, skipping screenshot comparison")
   }
 })
+
+async function replaceIdsAndTimesFromHistoryView(page: Page) {
+  await page.evaluate(() => {
+    const uuidRegex = new RegExp(
+      "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
+    )
+    const divs = document.querySelectorAll("div")
+    for (const div of divs) {
+      if (div.children.length === 0 && uuidRegex.test(div.textContent)) {
+        div.innerHTML = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx (day month year)"
+      } else if (div.children.length === 0 && div.textContent.includes("Edited by")) {
+        div.innerHTML =
+          "Edited by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx on day month year hh:mm:ss timezone"
+      } else if (div.children.length === 0 && div.textContent.includes("Restored from")) {
+        div.innerHTML =
+          "Restored from xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx on day month year hh:mm:ss timezone"
+      }
+    }
+  })
+}

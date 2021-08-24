@@ -2,7 +2,7 @@ import { ThemeProvider } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { theme } from "../utils"
+import { theme } from "../styles"
 
 import Button from "./Button"
 

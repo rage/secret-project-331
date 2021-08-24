@@ -2,7 +2,7 @@ import { ThemeProvider } from "@emotion/react"
 import React from "react"
 
 /* import { border, color, space } from "styled-system" */
-import { theme } from "../../utils"
+import { theme } from "../../styles"
 
 export interface CardExtraProps {
   variant: "simple" | "Illustration"

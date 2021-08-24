@@ -2,8 +2,6 @@ import styled from "@emotion/styled"
 import { useLayoutEffect, useState } from "react"
 import { useSpring } from "react-spring"
 
-import { respond } from "../../utils/respond"
-
 const Container = styled.div`
   padding: 7.5em 1em;
   span {
@@ -25,9 +23,9 @@ const StyledSVG = styled.div`
     margin: 0rem auto;
     width: 20rem;
 
-    ${respond.mobile`
+    @media (max-width: 37.5em) {
       width: 15rem;
-    `}
+    }
   }
 
   p {
@@ -68,9 +66,9 @@ const ScoreBoard = ({ point = 10, label, min, max }: CourseProgressExtraProps) =
   })
   return (
     <Container>
-      <h1>{label}</h1>
+      <h3>{label}</h3>
       <StyledSVG>
-        <svg xmlns="http://www.w3.org/2000/svg" width="497" height="auto" viewBox="0 0 497 497">
+        <svg xmlns="http://www.w3.org/2000/svg" width="497" height="497" viewBox="0 0 497 497">
           <g id="Group_11" transform="translate(-712 -7629)">
             <g id="Ellipse_2" transform="translate(712 7629)" fill="#fce8ee" opacity="0.4">
               <path

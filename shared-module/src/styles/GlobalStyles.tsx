@@ -1,8 +1,8 @@
 import { css, injectGlobal } from "@emotion/css"
 
-import { headingFont, monospaceFont, primaryFont, typography } from "../utils"
-
 import cssReset from "./cssReset"
+
+import { headingFont, monospaceFont, primaryFont, typography } from "."
 
 import "@fontsource/josefin-sans"
 import "@fontsource/lato"

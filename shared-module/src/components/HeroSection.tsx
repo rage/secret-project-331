@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 
 /* import { border, color, space } from "styled-system" */
-import { theme, typography } from "../utils"
+import { theme, typography } from "../styles"
 
 const HeroWrapper = styled.div`
   background: #cacaca;

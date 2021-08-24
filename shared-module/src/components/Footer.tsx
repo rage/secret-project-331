@@ -89,13 +89,14 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
             grid-template-columns: 1fr 1fr;
             align-content: space-between;
             grid-gap: 1em;
+            place-self: center;
           `}
         >
           <MOOCfi alt="MOOC.fi" />
           <UHLogo alt="University of Helsinki" />
         </div>
         <Text>
-          <h3>WHO WE ARE</h3>
+          <h6>WHO WE ARE</h6>
           <span>
             MOOC center is responsible for creating custom online courses for univeristy of
             Helsinki. Its responsible for all the higlhy popular courses that have been available in
@@ -103,7 +104,7 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
           </span>
         </Text>
         <Links>
-          <h3>RESOURCES</h3>
+          <h6>RESOURCES</h6>
           <StyledLink href={basePath() + "/privacy"}>Privacy</StyledLink>
           <StyledLink href={basePath() + "/accessibility"}>Accessibility</StyledLink>
           <StyledLink href={basePath() + "/creators"}>Creators</StyledLink>

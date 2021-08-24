@@ -165,7 +165,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
 
   return (
     <nav className={cx(NavbarItems)}>
-      <h1 className={cx(NavbarLogo)}>
+      <div className={cx(NavbarLogo)}>
         <a href={`${frontPageUrl}`} aria-label="Course front page" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
@@ -173,7 +173,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
             aria-hidden="true"
           ></FontAwesomeIcon>
         </a>
-      </h1>
+      </div>
       <ul className={clicked ? cx(NavMenu) : cx(NavMenu)} role="list">
         <li className="container">
           {faqUrl ? (

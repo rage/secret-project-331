@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React, { Fragment } from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
-import { typography } from "../utils"
+import { typography } from "../styles"
 
 const SectionWrapper = styled.div`
   margin-top: 3rem;

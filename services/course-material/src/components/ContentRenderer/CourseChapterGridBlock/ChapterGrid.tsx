@@ -34,7 +34,12 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   }
 
   return (
-    <div className={wideWidthCenteredComponentStyles}>
+    <div
+      className={css`
+        ${wideWidthCenteredComponentStyles}
+        padding: 7.5em 1em;
+      `}
+    >
       <h2
         className={css`
           font-style: normal;

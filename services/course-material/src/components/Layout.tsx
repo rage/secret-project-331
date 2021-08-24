@@ -5,6 +5,8 @@ import React, { ReactNode } from "react"
 import Footer from "../shared-module/components/Footer"
 import SimpleNav from "../shared-module/components/Navigation"
 
+import ScrollIndicator from "./ScrollIndicator"
+
 type LayoutProps = {
   children: ReactNode
   frontPageUrl: string
@@ -30,6 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, frontPageUrl, faqUrl, 
       `}
     >
       <header>
+        <ScrollIndicator />
         <SimpleNav faqUrl={faqUrl} frontPageUrl={frontPageUrl} variant="simple"></SimpleNav>
       </header>
       {/* Do not touch flex */}

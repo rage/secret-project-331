@@ -5,6 +5,7 @@ import { useSpring } from "react-spring"
 import { respond } from "../../utils/respond"
 
 const Container = styled.div`
+  padding: 7.5em 1em;
   span {
     position: absolute;
     top: 50%;
@@ -25,8 +26,8 @@ const StyledSVG = styled.div`
     width: 20rem;
 
     ${respond.mobile`
-  width: 15rem;
-  `}
+      width: 15rem;
+    `}
   }
 
   p {

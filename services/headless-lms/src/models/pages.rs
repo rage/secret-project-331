@@ -183,14 +183,13 @@ pub async fn set_chapter(
     page_id: Uuid,
     chapter_id: Uuid,
 ) -> ModelResult<()> {
-    let res = sqlx::query!(
+    sqlx::query!(
         "UPDATE pages SET chapter_id = $1 WHERE id = $2",
         chapter_id,
         page_id
     )
     .execute(conn)
     .await?;
-    dbg!(chapter_id, page_id, res);
     Ok(())
 }
 
@@ -1182,70 +1181,74 @@ pub async fn get_page_search_results_for_phrase(
 
     // Last word of the search term needed so that the sql statement can change it to a prefix match.
     // Allows the last word to not be fully typed.
-    let last_word = page_search_request
+    let last_word_option = page_search_request
         .query
         .trim()
         .split_ascii_whitespace()
-        .last()
-        // If not found we'll skip the replacement with a random word not found in the search corpus
-        .unwrap_or("randomuniquewordforskippingthereplacement332");
+        .last();
 
-    let res = sqlx::query_as!(
-        PageSearchResult,
-        "
+    let res = if let Some(last_word) = last_word_option {
+        sqlx::query_as!(
+            PageSearchResult,
+            "
 -- common table expression for the search term tsquery so that we don't have to repeat it many times
 WITH cte as (
-  -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
-  -- becomes a prefix match. This way the search will also contain results when the last word in the search term
-  -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.
-  SELECT ts_rewrite(
-      phraseto_tsquery($2::regconfig, $3),
-      to_tsquery($4),
-      to_tsquery($4 || ':*')
+    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
+    -- becomes a prefix match. This way the search will also contain results when the last word in the search term
+    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.
+    SELECT ts_rewrite(
+        phraseto_tsquery($2::regconfig, $3),
+        to_tsquery($4),
+        to_tsquery($4 || ':*')
     ) as query
 )
 SELECT id,
-  ts_rank(
+    ts_rank(
     content_search,
     (
-      SELECT query
-      from cte
+        SELECT query
+        from cte
     )
-  ) as rank,
-  ts_headline(
+    ) as rank,
+    ts_headline(
     $2::regconfig,
     title,
     (
-      SELECT query
-      from cte
+        SELECT query
+        from cte
     )
-  ) as title_headline,
-  ts_headline(
+    ) as title_headline,
+    ts_headline(
     $2::regconfig,
     content_search_original_text,
     (
-      SELECT query
-      from cte
+        SELECT query
+        from cte
     )
-  ) as content_headline,
-  url_path
+    ) as content_headline,
+    url_path
 FROM pages
 WHERE course_id = $1
-  AND deleted_at IS NULL
-  AND content_search @@ (
+    AND deleted_at IS NULL
+    AND content_search @@ (
     SELECT query
     from cte
-  )
+    )
 ORDER BY rank DESC
 LIMIT 50;
-    ",
-        course_id,
-        course.content_search_language as _,
-        page_search_request.query,
-        last_word
-    )
-    .fetch_all(conn)
-    .await?;
+        ",
+            course_id,
+            course.content_search_language as _,
+            page_search_request.query,
+            last_word
+        )
+        .fetch_all(conn)
+        .await?
+    } else {
+        // If last word not found the search query is empty and we can return an empty vec
+        Vec::new()
+    };
+
     Ok(add_course_url_prefix_to_search_results(res, &course))
 }
 
@@ -1261,71 +1264,75 @@ pub async fn get_page_search_results_for_words(
 
     // Last word of the search term needed so that the sql statement can change it to a prefix match.
     // Allows the last word to not be fully typed.
-    let last_word = page_search_request
+    let last_word_option = page_search_request
         .query
         .trim()
         .split_ascii_whitespace()
-        .last()
-        // If not found we'll skip the replacement with a random word not found in the search corpus
-        .unwrap_or("randomuniquewordforskippingthereplacement332");
+        .last();
 
-    let res = sqlx::query_as!(
-        PageSearchResult,
-        "
+    let res = if let Some(last_word) = last_word_option {
+        sqlx::query_as!(
+            PageSearchResult,
+            "
 -- common table expression for the search term tsquery so that we don't have to repeat it many times
 WITH cte as (
-  -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
-  -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in
-  -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement
-  -- will be skipped.
-  SELECT ts_rewrite(
-      plainto_tsquery($2::regconfig, $3),
-      to_tsquery($4),
-      to_tsquery($4 || ':*')
+    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
+    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in
+    -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement
+    -- will be skipped.
+    SELECT ts_rewrite(
+        plainto_tsquery($2::regconfig, $3),
+        to_tsquery($4),
+        to_tsquery($4 || ':*')
     ) as query
 )
 SELECT id,
-  ts_rank(
+    ts_rank(
     content_search,
     (
-      SELECT query
-      from cte
+        SELECT query
+        from cte
     )
-  ) as rank,
-  ts_headline(
+    ) as rank,
+    ts_headline(
     $2::regconfig,
     title,
     (
-      SELECT query
-      from cte
+        SELECT query
+        from cte
     )
-  ) as title_headline,
-  ts_headline(
+    ) as title_headline,
+    ts_headline(
     $2::regconfig,
     content_search_original_text,
     (
-      SELECT query
-      from cte
+        SELECT query
+        from cte
     )
-  ) as content_headline,
-  url_path
+    ) as content_headline,
+    url_path
 FROM pages
 WHERE course_id = $1
-  AND deleted_at IS NULL
-  AND content_search @@ (
+    AND deleted_at IS NULL
+    AND content_search @@ (
     SELECT query
     from cte
-  )
+    )
 ORDER BY rank DESC
 LIMIT 50;
-    ",
-        course_id,
-        course.content_search_language as _,
-        page_search_request.query,
-        last_word
-    )
-    .fetch_all(conn)
-    .await?;
+        ",
+            course_id,
+            course.content_search_language as _,
+            page_search_request.query,
+            last_word
+        )
+        .fetch_all(conn)
+        .await?
+    } else {
+        // If last word not found the search query is empty and we can return an empty vec
+        Vec::new()
+    };
+
     Ok(add_course_url_prefix_to_search_results(res, &course))
 }
 

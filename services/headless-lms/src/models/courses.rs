@@ -1,14 +1,18 @@
+use std::collections::HashMap;
+
 use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
     models::{
         course_instances::{self, VariantStatus},
         pages::NewPage,
+        ModelError,
     },
     utils::{document_schema_processor::GutenbergBlock, file_store::FileStore},
     ApplicationConfiguration,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::{Acquire, PgConnection};
 use ts_rs::TS;
 use uuid::Uuid;
@@ -154,7 +158,7 @@ WHERE (course_id = $2);
     .await?;
 
     // Copy course pages. At this point, exercise ids in content will point to old course's exercises.
-    sqlx::query!(
+    let contents: Vec<(Uuid, Value)> = sqlx::query!(
         "
 INSERT INTO pages (
     id,
@@ -176,12 +180,17 @@ SELECT uuid_generate_v5($1, id::text),
   id
 FROM pages
 WHERE (course_id = $2)
+RETURNING id,
+  content;
     ",
         copied_course.id,
         course.id
     )
-    .execute(&mut tx)
-    .await?;
+    .fetch_all(&mut tx)
+    .await?
+    .into_iter()
+    .map(|record| (record.id, record.content))
+    .collect();
 
     // Update front_page_id of chapters now that new pages exist.
     sqlx::query!(
@@ -197,7 +206,7 @@ WHERE course_id = $1
     .await?;
 
     // Copy course exercises
-    sqlx::query!(
+    let old_to_new_exercise_ids = sqlx::query!(
         "
 INSERT INTO exercises (
     id,
@@ -220,13 +229,59 @@ SELECT uuid_generate_v5($1, id::text),
   chapter_id,
   id
 FROM exercises
-WHERE course_id = $2;
+WHERE course_id = $2
+RETURNING id,
+  copied_from;
     ",
         copied_course.id,
         course.id
     )
-    .execute(&mut tx)
-    .await?;
+    .fetch_all(&mut tx)
+    .await?
+    .into_iter()
+    .map(|record| {
+        Ok((
+            record
+                .copied_from
+                .ok_or_else(|| {
+                    ModelError::Generic("Query failed to return valid data.".to_string())
+                })?
+                .to_string(),
+            record.id.to_string(),
+        ))
+    })
+    .collect::<ModelResult<HashMap<String, String>>>()?;
+
+    // Replace exercise ids in page contents.
+    for (page_id, content) in contents.into_iter() {
+        if let Value::Array(mut blocks) = content {
+            for block in blocks.iter_mut() {
+                if block["name"] != Value::String("moocfi/exercise".to_string()) {
+                    continue;
+                }
+                if let Value::String(old_id) = &block["attributes"]["id"] {
+                    let new_id = old_to_new_exercise_ids
+                        .get(old_id)
+                        .ok_or_else(|| {
+                            ModelError::Generic("Invalid exercise id in content.".to_string())
+                        })?
+                        .to_string();
+                    block["attributes"]["id"] = Value::String(new_id);
+                }
+            }
+            sqlx::query!(
+                "
+UPDATE pages
+SET content = $1
+WHERE id = $2;
+                ",
+                Value::Array(blocks),
+                page_id,
+            )
+            .execute(&mut tx)
+            .await?;
+        }
+    }
 
     // Copy exercise tasks
     sqlx::query!(
@@ -437,7 +492,7 @@ mod test {
             courses,
             exercise_tasks::{self, ExerciseTask},
             exercises::{self, Exercise},
-            organizations,
+            organizations, pages,
         },
         test_helper::Conn,
     };
@@ -484,6 +539,8 @@ mod test {
     async fn copies_course() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
+
+        // Create test data
         let organization_id = organizations::insert(
             tx.as_mut(),
             "",
@@ -492,7 +549,6 @@ mod test {
         )
         .await
         .unwrap();
-
         let (course, _page, _instance) = courses::insert_course(
             tx.as_mut(),
             NewCourse {
@@ -525,6 +581,21 @@ mod test {
         )
         .await
         .unwrap();
+        pages::update_content(
+            tx.as_mut(),
+            chapter_page.id,
+            &[GutenbergBlock {
+                name: "moocfi/exercise".to_string(),
+                is_valid: true,
+                client_id: "b2ecb473-38cc-4df1-84f7-06709cc63e95".to_string(),
+                attributes: serde_json::json!({
+                    "id": exercise_id.to_string(),
+                }),
+                inner_blocks: vec![],
+            }],
+        )
+        .await
+        .unwrap();
         let exercise_task_id = exercise_tasks::insert(
             tx.as_mut(),
             exercise_id,
@@ -537,6 +608,7 @@ mod test {
         .await
         .unwrap();
 
+        // Copy the course
         let copied_course = clone_course_as_language_version_of_course(
             tx.as_mut(),
             course.id,
@@ -583,6 +655,10 @@ mod test {
         .await
         .unwrap();
         assert_eq!(copied_exercise.copied_from, Some(exercise_id));
+        assert_eq!(
+            copied_page.content[0]["attributes"]["id"],
+            Value::String(copied_exercise.id.to_string())
+        );
 
         // Assuming there's only one exercise task per exercise in test data.
         let copied_exercise_task = sqlx::query_as!(

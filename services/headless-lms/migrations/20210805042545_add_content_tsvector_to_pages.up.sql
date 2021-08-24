@@ -11,6 +11,7 @@ COMMENT ON COLUMN pages.content_search_original_text IS 'Language that will be u
 ALTER TABLE courses
 ADD COLUMN content_search_language REGCONFIG NOT NULL DEFAULT 'simple';
 COMMENT ON COLUMN courses.content_search_language IS 'Language that will be used for stemming for full text search. Copied to pages.content_search_language where it''s used in triggers. Has to be a value from pg_ts_config.cfgname.';
+--- Takes pages.content data as an argument and rcursively selects all the values from specific key names for the purpose of full text searching. If you need the system to consider more keys to be searchable, override this function.
 CREATE FUNCTION extract_searchable_text_from_document_schema(content jsonb) RETURNS setof jsonb AS $$ BEGIN RETURN QUERY WITH RECURSIVE recursive_search_operation(key, value) AS (
   SELECT NULL as key,
     jsonb_array_elements(content) AS value
@@ -35,6 +36,7 @@ WHERE jsonb_typeof(recursive_search_operation.value) <> 'object'
   );
 END;
 $$ language 'plpgsql';
+-- Automatically updates pages.content_search and pages.content_search_original_text columns using the function extract_searchable_text_from_document_schema.
 CREATE FUNCTION trigger_set_pages_content_search() RETURNS TRIGGER AS $$ BEGIN IF (
   (
     row (NEW.content) IS DISTINCT

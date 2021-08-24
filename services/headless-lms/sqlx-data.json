@@ -282,6 +282,22 @@
       "nullable": [false, false, true, true]
     }
   },
+  "12a22161a2380891ac49188ded89a76fcf4202e822196d81b34e5ce67f9987d7": {
+    "query": "\nINSERT INTO proposed_edits (\n    course_id,\n    user_id,\n    block_id,\n    original_text,\n    changed_text\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Text", "Text"]
+      },
+      "nullable": [false]
+    }
+  },
   "12ca747f44759f66feeb79358eafa59184d090a9a37fefcc951eb221e4cebe9f": {
     "query": "\nSELECT id,\n  title,\n  content,\n  created_at,\n  history_change_reason as \"history_change_reason: HistoryChangeReason\",\n  restored_from_id,\n  author_user_id\nFROM page_history\nWHERE page_id = $1\nORDER BY created_at DESC, id\nLIMIT $2\nOFFSET $3\n",
     "describe": {
@@ -1700,6 +1716,16 @@
       "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
     }
   },
+  "3e714528aa35efe63b4a524c07cfb4977508d96527feb41c9a93117957577295": {
+    "query": "\nUPDATE proposed_edits\nSET status = 'rejected'\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "3e925fb3e5a135d876037e1424238f4c88a4d9a76a739e16c2c6d8d17151cd06": {
     "query": "\nSELECT selected_exercise_task_id AS \"id!\"\nFROM user_exercise_states\nWHERE user_id = $1\n  AND selected_exercise_task_id IS NOT NULL\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n            ",
     "describe": {
@@ -2237,6 +2263,32 @@
       "nullable": []
     }
   },
+  "672f030392250ca2308a99a1bbcfe94cfb04662a3d178ab85dc556b864dbaf38": {
+    "query": "\nSELECT COUNT(*) filter (\n    where status = 'pending'\n  ) AS pending,\n  COUNT(*) filter (\n    where status = 'accepted'\n  ) AS accepted,\n  COUNT(*) filter (\n    where status = 'rejected'\n  ) AS rejected\nFROM proposed_edits\nWHERE course_id = $1\n  AND deleted_at IS NULL\n  ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "pending",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "accepted",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "rejected",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [null, null, null]
+    }
+  },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
     "query": "SELECT * FROM exercises WHERE id = $1;",
     "describe": {
@@ -2301,6 +2353,54 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, true, false, true, false, false, false, false]
+    }
+  },
+  "6a7ce31fe5ea9251de60bb2f8c5f0b7b519bc363e494311459f8c29713798034": {
+    "query": "\nSELECT user_id,\n  block_id,\n  original_text,\n  changed_text,\n  status as \"status: ProposalStatus\",\n  created_at\nFROM proposed_edits\nWHERE course_id = $1\nLIMIT $2\nOFFSET $3\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "block_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "original_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "changed_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "status: ProposalStatus",
+          "type_info": {
+            "Custom": {
+              "name": "proposal_status",
+              "kind": {
+                "Enum": ["pending", "accepted", "rejected"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Int8", "Int8"]
+      },
+      "nullable": [true, false, false, false, false, false]
     }
   },
   "6bd95f1c7298f117e046d351cf2326c37ff3347283997ca98ba97aa8c70bb450": {
@@ -2493,6 +2593,37 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, false, false, false, false]
+    }
+  },
+  "75051c2be680287833ce7b7312130f86ecf48166e792bbe51b58b4b1bd484b23": {
+    "query": "\nUPDATE proposed_edits\nSET status = 'accepted'\nWHERE id = $1\nRETURNING page_id, block_id, original_text, changed_text\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "block_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "original_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "changed_text",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
     }
   },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {

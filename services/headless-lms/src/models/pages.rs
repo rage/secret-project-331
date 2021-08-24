@@ -11,7 +11,7 @@ use crate::{
     },
     utils::document_schema_processor::{
         self, contains_blocks_not_allowed_in_top_level_pages, denormalize, normalize_from_json,
-        NormalizedDocument,
+        GutenbergBlock, NormalizedDocument,
     },
 };
 
@@ -37,6 +37,12 @@ pub struct Page {
     // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value for sqlx
     pub content: serde_json::Value,
     pub order_number: i32,
+}
+
+impl Page {
+    pub fn blocks_cloned(&self) -> ModelResult<Vec<GutenbergBlock>> {
+        serde_json::from_value(self.content.clone()).map_err(Into::into)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -345,7 +351,7 @@ WHERE exercise_id IN (
     };
 
     let denormalized_content = denormalize(normalized_document)?;
-    let content_json = serde_json::to_value(denormalized_content)?;
+    let content_json = serde_json::to_value(&denormalized_content)?;
     page.content = content_json;
 
     Ok(page)

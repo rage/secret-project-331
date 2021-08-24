@@ -13,8 +13,8 @@ use headless_lms_actix::models::{
     exercises, organizations, pages, roles, roles::UserRole, submissions, user_exercise_states,
     users,
 };
-use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
+use headless_lms_actix::{attributes, setup_tracing};
 use serde_json::Value;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::{Connection, PgConnection, Postgres};
@@ -746,26 +746,26 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("9ebddb78-23f6-4440-8d8f-5e4b33abb16f")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!( {
+                attributes!{
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("029ae4b5-08b0-49f7-8baf-d916b5f879a2")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
-                }),
+                },
             )
             .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
         ]).await?;
@@ -783,26 +783,26 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("ae22ae64-c0e5-42e1-895a-4a49411a72e8")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("b05a62ad-e5f7-432c-8c88-2976d971e7e1")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!( {
+                attributes!{
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("db20e302-d4e2-4f56-a0b9-e48a4fbd5fa8")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
-                }),
+                },
             )
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]
@@ -856,26 +856,26 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 .with_id(Uuid::parse_str("a43f5460-b588-44ac-84a3-5fdcabd5d3f7")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Sed venenatis, magna in ornare suscipit, orci ipsum consequat nulla, ut pulvinar libero metus et metus. Maecenas nec bibendum est. Donec quis ante elit. Nam in eros vitae urna aliquet vestibulum. Donec posuere laoreet facilisis. Aliquam auctor a tellus a tempus. Sed molestie leo eget commodo pellentesque. Curabitur lacinia odio nisl, eu sodales nunc placerat sit amet. Vivamus venenatis, risus vitae lobortis eleifend, odio nisi faucibus tortor, sed aliquet leo arcu et tellus. Donec ultrices consectetur nunc, non rhoncus sapien malesuada et. Nulla tempus ipsum vitae justo scelerisque, sed pretium neque fermentum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur accumsan et ex pellentesque dignissim. Integer viverra libero quis tortor dignissim elementum.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("816310e3-bbd7-44ae-87cb-3f40633a4b08")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!( {
+                attributes!{
                   "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
                   "dropCap": false
-                }),
+                },
             )
                 .with_id(Uuid::parse_str("37aa6421-768e-49b9-b447-5f457e5192bc")?),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
-                serde_json::json!({
+                attributes!{
                   "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
                   "dropCap": false
-                }),
+                },
             )
             .with_id(Uuid::parse_str("cf11a0fb-f56e-4e0d-bc12-51d920dbc278")?),
         ]
@@ -925,11 +925,11 @@ fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/paragraph".to_string(),
         is_valid: true,
-        client_id: block.to_string(),
-        attributes: serde_json::json!({
+        client_id: block,
+        attributes: attributes! {
             "content": content,
             "dropCap": false,
-        }),
+        },
         inner_blocks: vec![],
     }
 }
@@ -948,17 +948,17 @@ fn example_exercise(
     GutenbergBlock {
         name: "moocfi/exercise".to_string(),
         is_valid: true,
-        client_id: block_1.to_string(),
-        attributes: serde_json::json!({
+        client_id: block_1,
+        attributes: attributes! {
             "id": ex,
             "name": "Best exercise",
             "dropCap": false,
-        }),
+        },
         inner_blocks: vec![GutenbergBlock {
             name: "moocfi/exercise-task".to_string(),
             is_valid: true,
-            client_id: block_2.to_string(),
-            attributes: serde_json::json!({
+            client_id: block_2,
+            attributes: attributes! {
                 "id": task,
                 "exercise_type": "example-exercise",
                 "private_spec": serde_json::json!([
@@ -978,7 +978,7 @@ fn example_exercise(
                         "id": spec_3,
                     },
                 ]).to_string(),
-            }),
+            },
             inner_blocks: vec![paragraph("Answer this question.", block_3)],
         }],
     }

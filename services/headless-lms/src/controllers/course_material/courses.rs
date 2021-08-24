@@ -5,6 +5,7 @@ use crate::{
     models::{
         chapters::{ChapterStatus, ChapterWithStatus},
         feedback,
+        proposed_edits::{self, NewProposedEdit},
     },
     models::{course_instances::CourseInstance, courses},
     models::{feedback::NewFeedback, pages::Page},
@@ -256,6 +257,29 @@ pub async fn feedback(
 }
 
 /**
+POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
+*/
+async fn propose_edit(
+    course_slug: web::Path<String>,
+    new_proposal: web::Json<NewProposedEdit>,
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+) -> ControllerResult<String> {
+    let mut conn = pool.acquire().await?;
+    let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
+    let id = proposed_edits::insert(
+        &mut conn,
+        course.id,
+        user.map(|u| u.id),
+        new_proposal.block_id,
+        &new_proposal.original_text,
+        &new_proposal.changed_text,
+    )
+    .await?;
+    Ok(id.to_string())
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -277,5 +301,6 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         "/{course_id}/current-instance",
         web::get().to(get_current_course_instance),
     )
-    .route("/{course_id}/feedback", web::post().to(feedback));
+    .route("/{course_id}/feedback", web::post().to(feedback))
+    .route("/{course_id}/propose-edit", web::post().to(propose_edit));
 }

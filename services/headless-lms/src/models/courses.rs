@@ -255,10 +255,11 @@ FROM exercise_tasks
 WHERE exercise_id IN (
     SELECT id
     FROM exercises
-    WHERE course_id = $1
+    WHERE course_id = $2
   );
     ",
-        copied_course.id
+        copied_course.id,
+        course.id,
     )
     .execute(&mut tx)
     .await?;
@@ -442,51 +443,60 @@ mod test {
     };
 
     #[tokio::test]
-    async fn valid_locale_allows_course_creation() {
+    async fn validates_language_code_when_adding_a_course() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let organization_id = insert_organization(tx.as_mut()).await;
-        let course_id = courses::insert(tx.as_mut(), "", organization_id, "course", "en_US").await;
+        let organization_id = organizations::insert(
+            tx.as_mut(),
+            "",
+            "",
+            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
+        )
+        .await
+        .unwrap();
+
+        // Valid language code allows course creation.
+        let mut tx2 = tx.begin().await;
+        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en-US").await;
         assert!(course_id.is_ok());
-    }
+        tx2.rollback().await;
 
-    #[tokio::test]
-    async fn empty_locale_is_not_allowed() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let organization_id = insert_organization(tx.as_mut()).await;
-        let course_id = courses::insert(tx.as_mut(), "", organization_id, "course", "").await;
+        // Empty language code is not allowed.
+        let mut tx2 = tx.begin().await;
+        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "").await;
         assert!(course_id.is_err());
-    }
+        tx2.rollback().await;
 
-    #[tokio::test]
-    async fn wrong_case_locale_is_not_allowed() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let organization_id = insert_organization(tx.as_mut()).await;
-        let course_id = courses::insert(tx.as_mut(), "", organization_id, "course", "en_us").await;
+        // Wrong case language code is not allowed.
+        let mut tx2 = tx.begin().await;
+        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en-us").await;
         assert!(course_id.is_err());
-    }
+        tx2.rollback().await;
 
-    #[tokio::test]
-    async fn hyphen_in_locale_is_not_allowed() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let organization_id = insert_organization(tx.as_mut()).await;
-        let course_id = courses::insert(tx.as_mut(), "", organization_id, "course", "en-US").await;
+        // Underscore in locale is not allowed.
+        let mut tx2 = tx.begin().await;
+        let course_id = courses::insert(tx2.as_mut(), "", organization_id, "course", "en_US").await;
         assert!(course_id.is_err());
+        tx2.rollback().await;
     }
 
     #[tokio::test]
     async fn copies_course() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let organization_id = insert_organization(tx.as_mut()).await;
+        let organization_id = organizations::insert(
+            tx.as_mut(),
+            "",
+            "",
+            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
+        )
+        .await
+        .unwrap();
 
         let (course, _page, _instance) = courses::insert_course(
             tx.as_mut(),
             NewCourse {
-                language_code: "en_US".to_string(),
+                language_code: "en-US".to_string(),
                 name: "Course".to_string(),
                 organization_id,
                 slug: "course".to_string(),
@@ -531,7 +541,7 @@ mod test {
             tx.as_mut(),
             course.id,
             NewCourse {
-                language_code: "fi_FI".to_string(),
+                language_code: "fi-FI".to_string(),
                 name: "Kurssi".to_string(),
                 organization_id,
                 slug: "kurssi".to_string(),
@@ -584,16 +594,5 @@ mod test {
         .await
         .unwrap();
         assert_eq!(copied_exercise_task.copied_from, Some(exercise_task_id));
-    }
-
-    async fn insert_organization(conn: &mut PgConnection) -> Uuid {
-        organizations::insert(
-            conn,
-            "",
-            "",
-            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
-        )
-        .await
-        .unwrap()
     }
 }

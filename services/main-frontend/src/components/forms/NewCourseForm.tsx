@@ -39,7 +39,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
       })
       setName("")
       setSlug("")
-      setLocale("en_US")
+      setLocale("en-US")
       setError(null)
     } catch (e) {
       setError(e.toString())

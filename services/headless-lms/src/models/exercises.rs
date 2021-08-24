@@ -373,7 +373,7 @@ mod test {
         )
         .await
         .unwrap();
-        let course_id = courses::insert(tx.as_mut(), "", organization_id, "", "en_US")
+        let course_id = courses::insert(tx.as_mut(), "", organization_id, "", "en-US")
             .await
             .unwrap();
         let course_instance = course_instances::insert(tx.as_mut(), course_id, None, None)

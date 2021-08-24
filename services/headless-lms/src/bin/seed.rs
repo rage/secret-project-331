@@ -85,7 +85,7 @@ async fn main() -> Result<()> {
         name: "Introduction to Computer Science".to_string(),
         slug: "introduction-to-computer-science".to_string(),
         organization_id: uh_cs,
-        language_code: "en_US".to_string(),
+        language_code: "en-US".to_string(),
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) =
         courses::insert_course(&mut conn, new_course).await?;
@@ -109,7 +109,7 @@ async fn main() -> Result<()> {
         name: "Introduction to Statistics".to_string(),
         slug: "introduction-to-statistics".to_string(),
         organization_id: uh_mathstat,
-        language_code: "en_US".to_string(),
+        language_code: "en-US".to_string(),
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(&mut conn, new_course).await?;
@@ -166,7 +166,7 @@ async fn seed_cs_intro(
         name: "Introduction to Everything".to_string(),
         organization_id: org,
         slug: "introduction-to-everything".to_string(),
-        language_code: "en_US".to_string(),
+        language_code: "en-US".to_string(),
     };
     let (course, _front_page, _default_instance) = courses::insert_course(conn, new_course).await?;
     let course_instance =
@@ -763,7 +763,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid) -> Result<U
         name: "Introduction to Course Material".to_string(),
         organization_id: org,
         slug: "introduction-to-course-material".to_string(),
-        language_code: "en_US".to_string(),
+        language_code: "en-US".to_string(),
     };
     let (course, front_page, _default_instance) = courses::insert_course(conn, new_course).await?;
 

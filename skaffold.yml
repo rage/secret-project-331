@@ -57,14 +57,6 @@ build:
         manual:
           - src: "src/**/*"
             dest: "/app"
-    - image: playground
-      context: services/playground
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "src/**/*"
-            dest: "/app"
 
   local:
     # Allow parallel builds
@@ -118,9 +110,6 @@ profiles:
       - op: replace
         path: /build/artifacts/5/docker/dockerfile
         value: Dockerfile.production.dockerfile
-      - op: replace
-        path: /build/artifacts/6/docker/dockerfile
-        value: Dockerfile.production.dockerfile
 
       # Replace which folder to use
       - op: replace
@@ -151,10 +140,6 @@ profiles:
         path: /build/artifacts/5/docker/cacheFrom
         value:
           - eu.gcr.io/moocfi-public/secret-project-quizzes-production:latest
-      - op: add
-        path: /build/artifacts/6/docker/cacheFrom
-        value:
-          - eu.gcr.io/moocfi-public/secret-project-playground-production:latest
 
       # Replace the image name to match cacheFrom, same image name in kubernetes/test/<service> patch.
       - op: replace
@@ -175,9 +160,6 @@ profiles:
       - op: replace
         path: /build/artifacts/5/image
         value: eu.gcr.io/moocfi-public/secret-project-quizzes-production
-      - op: replace
-        path: /build/artifacts/6/image
-        value: eu.gcr.io/moocfi-public/secret-project-playground-production
 
       - op: add
         path: /build/local/useDockerCLI

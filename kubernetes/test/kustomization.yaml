@@ -52,11 +52,6 @@ patches:
       version: v1
       kind: Deployment
       name: quizzes
-  - path: playground/patch-deployment.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: playground
 
   # Patch to use --release param in cargo command
   - path: headless-lms/patch-service-info-fetcher.yml

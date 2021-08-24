@@ -35,10 +35,6 @@
     {
       "name": "Quizzes",
       "path": "./services/quizzes"
-    },
-    {
-      "name": "Playground",
-      "path": "./services/playground"
     }
   ],
   "settings": {

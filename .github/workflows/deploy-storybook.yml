@@ -22,8 +22,8 @@ jobs:
           ls -la ~/.ssh
         env:
           STORYBOOK_DEPLOY_KEY: ${{ secrets.STORYBOOK_DEPLOY_KEY }}
-      - name: Check out docs repo
-        run: git clone --branch gh-pages git@github.com:rage/secret-project-storybook.git ./shared-module/storybook-static
+      - name: Check out storybook repository
+        run: git clone --branch gh-pages git@github.com:rage/secret-project-storybook.git ./shared-module/storybook-static-repo
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
 
@@ -32,9 +32,14 @@ jobs:
         working-directory: ./shared-module
 
       - name: npm run build-storybook
-        run: npm run build-storybook
+        run: npm run build-storybook --quiet
         working-directory: ./shared-module
 
+      - name: Remove old files from repo
+        run: rm -rf ./shared-module/storybook-static-repo/*
+
+      - name: Copy new files to repo
+        run: cp -r ./shared-module/storybook-static/* ./shared-module/storybook-static-repo/
 
       - name: Commit files
         run: |
@@ -42,10 +47,10 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add .
           git commit -m "Update: $GITHUB_SHA" --allow-empty
-        working-directory: ./shared-module/storybook-static
+        working-directory: ./shared-module/storybook-static-repo
 
       - name: Push changes
         run: git push
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes"
-        working-directory: ./shared-module/storybook-static
+        working-directory: ./shared-module/storybook-static-repo

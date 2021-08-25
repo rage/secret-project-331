@@ -190,7 +190,11 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
               </li>
             ) : (
               <li>
-                <a href={`/login?return_to=${encodeURIComponent("/courses" + router.asPath)}`}>
+                <a
+                  href={`/login?return_to=${encodeURIComponent(
+                    process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
+                  )}`}
+                >
                   Login
                 </a>
               </li>

@@ -76,7 +76,7 @@ const ManageCoursePage: React.FC<unknown> = () => {
               margin: 1rem;
             `}
           >
-            <Button onClick={() => setShowForm(!showForm)}>Close</Button>
+            <Button onClick={() => setShowDuplicateForm(false)}>Close</Button>
             <NewCourseForm
               organizationId={course.organization_id}
               onSubmitForm={async (newCourse) => {

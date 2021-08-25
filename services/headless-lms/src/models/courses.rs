@@ -93,16 +93,40 @@ WHERE id = $1
     Ok(courses)
 }
 
+pub async fn clone_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    new_course: NewCourse,
+) -> ModelResult<Course> {
+    let course = get_course(conn, course_id).await?;
+    clone_course_with_language_parent_id(conn, course, new_course, None).await
+}
+
 pub async fn clone_course_as_language_version_of_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     new_course: NewCourse,
 ) -> ModelResult<Course> {
+    let course = get_course(conn, course_id).await?;
+    let language_version_of_course_id = course.language_version_of_course_id.unwrap_or(course.id);
+    clone_course_with_language_parent_id(
+        conn,
+        course,
+        new_course,
+        Some(language_version_of_course_id),
+    )
+    .await
+}
+
+async fn clone_course_with_language_parent_id(
+    conn: &mut PgConnection,
+    parent_course: Course,
+    new_course: NewCourse,
+    language_version_of_course_id: Option<Uuid>,
+) -> ModelResult<Course> {
     let mut tx = conn.begin().await?;
 
-    // Copy the course.
-    let course = get_course(&mut tx, course_id).await?;
-    let language_parent_course_id = course.language_version_of_course_id.unwrap_or(course.id);
+    // Create new course.
     let copied_course = sqlx::query_as!(
         Course,
         "
@@ -121,8 +145,8 @@ RETURNING *;
         new_course.organization_id,
         new_course.slug,
         new_course.language_code,
-        course.id,
-        language_parent_course_id
+        parent_course.id,
+        language_version_of_course_id,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -152,7 +176,7 @@ FROM chapters
 WHERE (course_id = $2);
     ",
         copied_course.id,
-        course.id
+        parent_course.id
     )
     .execute(&mut tx)
     .await?;
@@ -184,7 +208,7 @@ RETURNING id,
   content;
     ",
         copied_course.id,
-        course.id
+        parent_course.id
     )
     .fetch_all(&mut tx)
     .await?
@@ -234,7 +258,7 @@ RETURNING id,
   copied_from;
     ",
         copied_course.id,
-        course.id
+        parent_course.id
     )
     .fetch_all(&mut tx)
     .await?
@@ -314,7 +338,7 @@ WHERE exercise_id IN (
   );
     ",
         copied_course.id,
-        course.id,
+        parent_course.id,
     )
     .execute(&mut tx)
     .await?;

@@ -32,7 +32,10 @@ Response:
   "updated_at": "2021-04-21T18:49:21.398638",
   "name": "Introduction to Introduction",
   "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "deleted_at": null
+  "deleted_at": null,
+  "language_code": "en-US",
+  "copied_from": null,
+  "language_version_of_course_id": null
 }
 ```
 */
@@ -79,7 +82,10 @@ Response:
   "updated_at": "2021-04-21T18:34:21.795388",
   "name": "Introduction to introduction",
   "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "deleted_at": null
+  "deleted_at": null,
+  "language_code": "en-US",
+  "copied_from": null,
+  "language_version_of_course_id": null
 }
 ```
 */
@@ -131,7 +137,10 @@ Response:
   "updated_at": "2021-04-21T18:49:21.398638",
   "name": "Introduction to Introduction",
   "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "deleted_at": null
+  "deleted_at": null,
+  "language_code": "en-US",
+  "copied_from": null,
+  "language_version_of_course_id": null
 }
 ```
 */
@@ -168,7 +177,10 @@ DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
   "updated_at": "2021-04-21T18:49:21.398638",
   "name": "Introduction to Introduction",
   "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "deleted_at": "2021-04-28T16:33:42.670935"
+  "deleted_at": "2021-04-28T16:33:42.670935",
+  "language_code": "en-US",
+  "copied_from": null,
+  "language_version_of_course_id": null
 }
 ```
 */
@@ -202,7 +214,10 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
     "updated_at": "2021-04-28T10:40:54.503917",
     "name": "Introduction to everything",
     "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-    "deleted_at": null
+    "deleted_at": null,
+    "language_code": "en-US",
+    "copied_from": null,
+    "language_version_of_course_id": null
   },
   "pages": [
     {
@@ -308,7 +323,7 @@ async fn add_media_for_course<T: FileStore>(
 }
 
 /**
-GET `/api/v0/main-frontend/courses/:id/exercises` + Returns all exercises for the course.
+GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
 
 # Example
 ```json
@@ -320,7 +335,10 @@ GET `/api/v0/main-frontend/courses/:id/exercises` + Returns all exercises for th
     "updated_at": "2021-04-21T18:49:21.398638",
     "name": "Introduction to Introduction",
     "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-    "deleted_at": null
+    "deleted_at": null,
+    "language_code": "en-US",
+    "copied_from": null,
+    "language_version_of_course_id": null
   }
 ]
 ```
@@ -344,21 +362,94 @@ async fn get_all_exercises(
     Ok(Json(exercises))
 }
 
-// TODO: Endpoint documentation
+/**
+GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.
+
+# Example
+
+Request:
+```http
+GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
+Content-Type: application/json
+```
+
+Response:
+```json
+[
+  {
+    "id": "fd484707-25b6-4c51-a4ff-32d8259e3e47",
+    "slug": "introduction-to-everything",
+    "created_at": "2021-08-23T08:24:15.873427Z",
+    "updated_at": "2021-08-24T07:11:49.874046Z",
+    "name": "Introduction to Everything",
+    "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+    "deleted_at": null,
+    "language_code": "en-US",
+    "copied_from": null,
+    "language_version_of_course_id": null
+  },
+  {
+    "id": "74ec33f4-87ad-4244-a988-4156bc5da741",
+    "slug": "johdatus-kaikkeen",
+    "created_at": "2021-08-25T07:25:33.082734Z",
+    "updated_at": "2021-08-25T07:25:33.082734Z",
+    "name": "Johdatus kaikkeen",
+    "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+    "deleted_at": null,
+    "language_code": "fi-FI",
+    "copied_from": "fd484707-25b6-4c51-a4ff-32d8259e3e47",
+    "language_version_of_course_id": "fd484707-25b6-4c51-a4ff-32d8259e3e47"
+  }
+]
+```
+*/
 #[instrument(skip(pool))]
-async fn get_all_course_translations(
+async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
 ) -> ControllerResult<Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
     let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
-    let translations =
+    let language_versions =
         crate::models::courses::get_all_language_versions_of_course(&mut conn, course).await?;
-    Ok(Json(translations))
+    Ok(Json(language_versions))
 }
 
-// TODO: Endpoint documentation
-pub async fn post_new_course_translation(
+/**
+POST `/api/v0/main-frontend/courses/:id/language-versions` - Post new course as a new language version of existing one.
+
+# Example
+
+Request:
+```http
+POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Johdatus kaikkeen",
+  "slug": "johdatus-kaikkeen",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "language_code": "fi-FI"
+}
+```
+
+Response:
+```json
+{
+  "id": "74ec33f4-87ad-4244-a988-4156bc5da741",
+  "slug": "johdatus-kaikkeen",
+  "created_at": "2021-08-25T07:25:33.082734Z",
+  "updated_at": "2021-08-25T07:25:33.082734Z",
+  "name": "Johdatus kaikkeen",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "deleted_at": null,
+  "language_code": "fi-FI",
+  "copied_from": "fd484707-25b6-4c51-a4ff-32d8259e3e47",
+  "language_version_of_course_id": "fd484707-25b6-4c51-a4ff-32d8259e3e47"
+}
+```
+*/
+pub async fn post_new_course_language_version(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
     payload: web::Json<NewCourse>,
@@ -558,12 +649,12 @@ pub fn _add_courses_routes<T: 'static + FileStore>(cfg: &mut ServiceConfig) {
             web::get().to(get_course_structure::<T>),
         )
         .route(
-            "/{course_id}/translations",
-            web::get().to(get_all_course_translations),
+            "/{course_id}/language-versions",
+            web::get().to(get_all_course_language_versions),
         )
         .route(
-            "/{course_id}/translations",
-            web::post().to(post_new_course_translation),
+            "/{course_id}/language-versions",
+            web::post().to(post_new_course_language_version),
         )
         .route(
             "/{course_id}/upload",

@@ -28,7 +28,7 @@ export const deleteCourse = async (courseId: string): Promise<Course> => {
 }
 
 export const fetchCourseTranslations = async (courseId: string): Promise<Array<Course>> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/translations`, {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/language-versions`, {
     responseType: "json",
   })
   return response.data
@@ -38,7 +38,7 @@ export const postNewCourseTranslation = async (
   courseId: string,
   data: NewCourse,
 ): Promise<Course> => {
-  const response = await mainFrontendClient.post(`/courses/${courseId}/translations`, data, {
+  const response = await mainFrontendClient.post(`/courses/${courseId}/language-versions`, data, {
     responseType: "json",
   })
   return response.data

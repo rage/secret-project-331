@@ -1,6 +1,8 @@
 import { expect, Page, test } from "@playwright/test"
+import { env } from "process"
 
 import expectPath from "../../utils/expect"
+import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -19,10 +21,10 @@ test("test", async ({ page, headless }) => {
     "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
   )
 
-  // Click text=Introduction to Everything
+  // Click text=Introduction to history
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-everything' }*/),
-    page.click("text=Introduction to Everything"),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history' }*/),
+    page.click("text=Introduction to history"),
   ])
 
   // Click text=default
@@ -32,18 +34,18 @@ test("test", async ({ page, headless }) => {
 
   // Click a:has-text("CHAPTER 1The Basics")
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-everything/chapter-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1' }*/),
     page.click('a:has-text("CHAPTER 1The Basics")'),
   ])
 
   // Click text=1Page One
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-everything/chapter-1/page-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1/page-1' }*/),
     page.click("text=1Page One"),
   ])
   await page.waitForLoadState("networkidle")
 
-  if (headless) {
+  if (headless && !env.PWDEBUG) {
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`initial-page.png`, { threshold: 0.3 })
   } else {
@@ -63,7 +65,10 @@ test("test", async ({ page, headless }) => {
   )
 
   // Click text=Manage
-  await Promise.all([page.waitForNavigation(), await page.click("text=Manage")])
+  await Promise.all([
+    page.waitForNavigation(),
+    await page.click('a:right-of(:text("Introduction to history"))'),
+  ])
   expectPath(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
@@ -97,32 +102,23 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Save
   await page.click("text=Save")
-  await page.waitForTimeout(200)
+
+  const locator = await page.$("iframe")
+  await locator.scrollIntoViewIfNeeded()
+  const frame = await waitForFunction(page, () =>
+    page
+      .frames()
+      .find((f) => f.url().startsWith("http://project-331.local/example-exercise/editor")),
+  )
 
   // Click [placeholder="Option text"]
-  await page
-    .frame({
-      url: "http://project-331.local/example-exercise/editor?width=780",
-    })
-    .click('[placeholder="Option text"]')
+  await frame.click('[placeholder="Option text"]')
   // Press a with modifiers
-  await page
-    .frame({
-      url: "http://project-331.local/example-exercise/editor?width=780",
-    })
-    .press('[placeholder="Option text"]', "Control+a")
+  await frame.press('[placeholder="Option text"]', "Control+a")
   // Fill [placeholder="Option text"]
-  await page
-    .frame({
-      url: "http://project-331.local/example-exercise/editor?width=780",
-    })
-    .fill('[placeholder="Option text"]', "Updated answer")
+  await frame.fill('[placeholder="Option text"]', "Updated answer")
   // Check input[type="checkbox"]
-  await page
-    .frame({
-      url: "http://project-331.local/example-exercise/editor?width=780",
-    })
-    .check('input[type="checkbox"]')
+  await frame.check('input[type="checkbox"]')
 
   // Click text=Save
   await page.click("text=Save")
@@ -141,7 +137,10 @@ test("test", async ({ page, headless }) => {
   )
 
   // Click text=Manage
-  await Promise.all([page.waitForNavigation(), await page.click("text=Manage")])
+  await Promise.all([
+    page.waitForNavigation(),
+    await page.click('a:right-of(:text("Introduction to history"))'),
+  ])
   expectPath(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
@@ -156,7 +155,7 @@ test("test", async ({ page, headless }) => {
 
   await page.waitForSelector("text=core/paragraph")
 
-  if (headless) {
+  if (headless && !env.PWDEBUG) {
     await replaceIdsAndTimesFromHistoryView(page)
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`history-view-p1.png`, { threshold: 0.3 })
@@ -169,7 +168,7 @@ test("test", async ({ page, headless }) => {
   expectPath(page, "/manage/pages/[id]/history?page=4")
 
   await page.waitForSelector("text=core/paragraph")
-  if (headless) {
+  if (headless && !env.PWDEBUG) {
     await replaceIdsAndTimesFromHistoryView(page)
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`history-view-p4-before-compare.png`, { threshold: 0.3 })
@@ -196,8 +195,12 @@ test("test", async ({ page, headless }) => {
   )
 
   await page.waitForSelector("text=Best exercise")
-  await page.waitForTimeout(100)
-  if (headless) {
+  // wait for the diff to show up
+  await page.waitForSelector(".line-delete")
+  await page.waitForSelector(".line-insert")
+  await page.waitForSelector(".insert-sign")
+  await page.waitForSelector(".delete-sign")
+  if (headless && !env.PWDEBUG) {
     await replaceIdsAndTimesFromHistoryView(page)
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`history-view-p4-after-compare.png`, { threshold: 0.3 })
@@ -215,7 +218,7 @@ test("test", async ({ page, headless }) => {
   await page.waitForTimeout(100)
 
   await page.waitForSelector("text=Best exercise")
-  if (headless) {
+  if (headless && !env.PWDEBUG) {
     await replaceIdsAndTimesFromHistoryView(page)
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`history-view-after-restore.png`, { threshold: 0.3 })
@@ -235,26 +238,26 @@ test("test", async ({ page, headless }) => {
     "http://project-331.local/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92",
   )
 
-  // Click text=Introduction to Everything
+  // Click text=Introduction to history
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-everything' }*/),
-    page.click("text=Introduction to Everything"),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history' }*/),
+    page.click("text=Introduction to history"),
   ])
 
   // Click a:has-text("CHAPTER 1The Basics")
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-everything/chapter-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1' }*/),
     page.click('a:has-text("CHAPTER 1The Basics")'),
   ])
 
   // Click text=1New title!
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-everything/chapter-1/page-1' }*/),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1/page-1' }*/),
     page.click("text=1New title!"),
   ])
 
   await page.waitForLoadState("networkidle")
-  if (headless) {
+  if (headless && !env.PWDEBUG) {
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(`page-after-restore.png`, { threshold: 0.3 })
   } else {

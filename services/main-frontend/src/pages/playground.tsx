@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import TextField from "@material-ui/core/TextField"
 import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
@@ -59,14 +60,24 @@ const Home: React.FC = () => {
   return (
     <div>
       <div className={normalWidthCenteredComponentStyles}>
-        <p>insert URL and data</p>
+        <h1>Insert URL, width and data</h1>
         <TextField
           fullWidth
           placeholder={err ? "Invalid URL" : "URL"}
           onChange={handleUrlChange}
           error={err}
+          className={css`
+            margin-bottom: 1rem;
+          `}
         />
-        <TextField placeholder="width" fullWidth onChange={handleWidthChange} />
+        <TextField
+          placeholder="width"
+          fullWidth
+          onChange={handleWidthChange}
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        />
         <br />
         <Editor
           defaultLanguage="json"
@@ -80,6 +91,9 @@ const Home: React.FC = () => {
           onChange={(value) => handleDataChange(value)}
           width="30vw"
           height="50vh"
+          className={css`
+            border: 1px solid black;
+          `}
         />
       </div>
       {combinedUrl && data && (

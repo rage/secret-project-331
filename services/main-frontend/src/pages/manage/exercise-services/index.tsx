@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Box, Card, CardContent, CardHeader, IconButton, Modal, TextField } from "@material-ui/core"
+import { Box, Card, CardContent, CardHeader, IconButton, Modal } from "@material-ui/core"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -10,23 +10,23 @@ import DeleteIcon from "@material-ui/icons/Delete"
 import DoneIcon from "@material-ui/icons/Done"
 import EditIcon from "@material-ui/icons/Edit"
 import ErrorIcon from "@material-ui/icons/Error"
-import InfoIcon from "@material-ui/icons/Info"
 import SaveIcon from "@material-ui/icons/Save"
-import { format } from "date-fns"
 import React, { useState } from "react"
 import { useQuery } from "react-query"
 
-import Layout from "../../components/Layout"
+import Layout from "../../../components/Layout"
 import {
   addExerciseService,
   deleteExerciseService,
   fetchExerciseServices,
   updateExerciseService,
-} from "../../services/backend/exercise-services"
-import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import SpeechBalloon from "../../shared-module/components/SpeechBalloon"
-import { validNumber, validURL } from "../../shared-module/utils/validation"
+} from "../../../services/backend/exercise-services"
+import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
+import Button from "../../../shared-module/components/Button"
+import { validNumber, validURL } from "../../../shared-module/utils/validation"
+
+import ContentArea from "./ContentArea"
+import TimeComponent from "./TimeComponent"
 
 interface ExerciseServiceEditorProps {
   exercise_services: ExerciseService[]
@@ -37,23 +37,6 @@ interface ExerciseServiceCardProps {
   key: string
   exercise_service: ExerciseService
   refetch()
-}
-
-type inputType = "number" | "text"
-
-interface ContentAreaProps {
-  title: string
-  text: string | number
-  editing: boolean
-  onChange: (event: unknown) => void
-  type: inputType
-  error: boolean | null
-}
-
-interface TimeComponentProps {
-  name: string
-  date: Date
-  right: boolean
 }
 
 interface ExerciseServiceCreationModelProps {
@@ -72,97 +55,6 @@ const canSave = (service) => {
     service.max_reprocessing_submissions_at_once > 0 &&
     validURL(service.internal_url) &&
     validURL(service.public_url)
-  )
-}
-
-const ContentArea: React.FC<ContentAreaProps> = ({
-  title,
-  text,
-  error,
-  editing,
-  onChange,
-  type,
-}) => {
-  return (
-    <div
-      className={css`
-        margin-bottom: 12px;
-      `}
-    >
-      <strong>{title}:</strong>
-      <br />
-
-      {editing && type == "text" && (
-        <TextField
-          error={error}
-          onChange={onChange}
-          fullWidth
-          value={text}
-          placeholder={`${title}...`}
-        />
-      )}
-      {editing && type == "number" && (
-        <TextField
-          error={error}
-          onChange={onChange}
-          type={"number"}
-          InputProps={{
-            inputProps: { min: 1 },
-          }}
-          fullWidth
-          value={text}
-          placeholder={`${title}...`}
-        />
-      )}
-      {!editing && <span> {text} </span>}
-    </div>
-  )
-}
-
-const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
-  const [visible, setVisible] = useState(false)
-
-  return (
-    <span
-      className={
-        right &&
-        css`
-          float: right;
-        `
-      }
-    >
-      <span
-        className={css`
-          vertical-align: middle;
-          position: relative;
-        `}
-      >
-        {visible && (
-          <SpeechBalloon
-            className={css`
-              position: absolute;
-              top: -68px;
-              left: 109px;
-            `}
-          >
-            <p> {format(date, "yyyy-MM-dd HH:mm")} UTC+8 </p>
-          </SpeechBalloon>
-        )}
-        <strong>{name}</strong>
-        {format(date, "yyyy-MM-dd HH:mm")}
-      </span>
-      <IconButton
-        onMouseEnter={() => setVisible(true)}
-        onMouseLeave={() => setVisible(false)}
-        size="small"
-      >
-        <InfoIcon
-          className={css`
-            font-size: 18px;
-          `}
-        />
-      </IconButton>
-    </span>
   )
 }
 
@@ -190,11 +82,11 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
   }
 
   const updateContent = async () => {
+    window.setTimeout(() => {
+      setStatus(null)
+    }, 4000)
     if (!canSave(service)) {
       setStatus("failed")
-      window.setTimeout(() => {
-        setStatus(null)
-      }, 4000)
       return
     }
     try {

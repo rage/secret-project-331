@@ -166,7 +166,7 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
   return (
     <nav className={cx(NavbarItems)}>
       <div className={cx(NavbarLogo)}>
-        <a href={`${frontPageUrl}`} aria-label="Course front page" role="button">
+        <a href={`${frontPageUrl}`} aria-label="Front page" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}
@@ -184,7 +184,9 @@ const Navigation: React.FC<NavigationProps> = ({ frontPageUrl, faqUrl }) => {
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             {loginStateContext.signedIn ? (
               <li>
-                <button onClick={submitLogout}>Logout</button>
+                <button name="logout" onClick={submitLogout}>
+                  Logout
+                </button>
               </li>
             ) : (
               <li>

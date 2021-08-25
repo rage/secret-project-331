@@ -95,7 +95,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
           minutes,
           seconds,
         })
-        closedUntil = sanitizeHtml(`OPENS IN<br />${formatted}`)
+        closedUntil = sanitizeHtml(`OPENS IN ${formatted}`)
       } else {
         const date = data.chapter_opens_at.toLocaleString("en", {
           year: "numeric",
@@ -106,7 +106,7 @@ const NextPage: React.FC<NextPageProps> = ({ chapterId, currentPageId }) => {
           hour: "numeric",
           minute: "numeric",
         })
-        closedUntil = sanitizeHtml(`AVAILABLE<br />${date} at ${time}`)
+        closedUntil = sanitizeHtml(`AVAILABLE ${date} at ${time}`)
       }
     } else {
       closedUntil = "Closed"

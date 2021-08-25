@@ -2089,52 +2089,6 @@
       "nullable": [false, false, false, false, false, false, false, true, true, false]
     }
   },
-  "5c55b14104bfdc1b23bb335ce5a747f7d9bba291bfa8ffd6abf84decd936040b": {
-    "query": "\n    INSERT INTO\n      courses(name, slug, organization_id)\n    VALUES($1, $2, $3)\n    RETURNING *\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Varchar", "Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, false]
-    }
-  },
   "5dab5d2b5b6c50c979d750577afcaad172f3292daeba48bfe0ac1c208351b414": {
     "query": "SELECT * FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL;",
     "describe": {
@@ -4406,6 +4360,52 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, true, true, true, false, false]
+    }
+  },
+  "d7340527a3cb9d66bb8c2c60a58d37ed8cb4eaa8a1a4efdcb29713328066141b": {
+    "query": "\n    INSERT INTO\n      courses(id, name, slug, organization_id)\n    VALUES($1, $2, $3, $4)\n    RETURNING *\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar", "Uuid"]
+      },
+      "nullable": [false, false, false, false, false, true, false]
     }
   },
   "d741c2e76aa58f5fe945e4a96f0f598d29b7fd6e2552b3afdc183ec445938c40": {

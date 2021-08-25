@@ -100,11 +100,15 @@ test("test", async ({ page, headless }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "New exercise!")
 
+  // get current exercise editor before a save...
+  const currentEditor = await page.waitForSelector('iframe[src^="/example-exercise/editor"]')
+
   // Click text=Save
   await page.click("text=Save")
 
-  const locator = await page.$("iframe")
-  await locator.scrollIntoViewIfNeeded()
+  // ...and wait for it to get detached after a save, as the new editor loads in
+  await currentEditor.waitForElementState("hidden")
+
   const frame = await waitForFunction(page, () =>
     page
       .frames()

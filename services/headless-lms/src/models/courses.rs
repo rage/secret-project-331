@@ -120,6 +120,7 @@ pub struct NewCourse {
 
 pub async fn insert_course(
     conn: &mut PgConnection,
+    id: Uuid,
     course: NewCourse,
     user: Uuid,
 ) -> ModelResult<(Course, Page, CourseInstance)> {
@@ -129,10 +130,11 @@ pub async fn insert_course(
         Course,
         r#"
     INSERT INTO
-      courses(name, slug, organization_id)
-    VALUES($1, $2, $3)
+      courses(id, name, slug, organization_id)
+    VALUES($1, $2, $3, $4)
     RETURNING *
             "#,
+        id,
         course.name,
         course.slug,
         course.organization_id

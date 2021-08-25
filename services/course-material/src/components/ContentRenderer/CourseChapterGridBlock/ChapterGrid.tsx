@@ -55,7 +55,8 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           @supports (display: grid) {
             display: grid;
             grid-gap: 75px;
-            max-width: 1107.5px;
+            max-width: 1075px;
+            margin: 0 auto;
 
             align-content: space-around;
             /* On small screens allow the cards to be really narrow */
